@@ -175,21 +175,9 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
 
     // SoundAssociation is different from the other models in that they don't have IDs
     // when inserted, but are defined over the resource they refer to.
-    // Hence, toUri returns not an ID-based resource, but a collection URIs for insertion.
     @Override
     public Uri toUri() {
-        switch (associationType) {
-            case ScContentProvider.CollectionItemTypes.LIKE:
-                return Content.ME_LIKES.uri;
-            case ScContentProvider.CollectionItemTypes.REPOST:
-                return Content.ME_REPOSTS.uri;
-            case ScContentProvider.CollectionItemTypes.TRACK:
-                return Content.ME_SOUNDS.uri;
-            case ScContentProvider.CollectionItemTypes.PLAYLIST:
-                return Content.ME_PLAYLISTS.uri;
-            default:
-                throw new IllegalStateException("Can't build content URI for given association type");
-        }
+        throw new UnsupportedOperationException();
     }
 
     @JsonProperty("type")

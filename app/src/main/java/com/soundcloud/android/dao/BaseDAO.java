@@ -39,8 +39,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         if (storeDependencies) {
             createDependencies(resource);
         }
-        // TODO this will insert twice
-        long recordId = create(resource.toUri(), resource.buildContentValues());
+        long recordId = create(resource.buildContentValues());
         resource.setId(recordId);
         return recordId;
     }
@@ -119,8 +118,14 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public boolean delete(T resource, @Nullable String where, String... whereArgs) {
-        return mResolver.delete(resource.toUri(), where, whereArgs) == 1;
+        return delete(resource.toUri(), where, whereArgs);
     }
+
+    @Deprecated
+    public boolean delete(Uri uri, @Nullable String where, String... whereArgs) {
+        return mResolver.delete(uri, where, whereArgs) == 1;
+    }
+
 
     public QueryBuilder buildQuery() {
         return buildQuery(getContent().uri);

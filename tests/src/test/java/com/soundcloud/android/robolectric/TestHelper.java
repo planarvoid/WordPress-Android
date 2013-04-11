@@ -222,7 +222,7 @@ public class TestHelper {
 
     public static SoundAssociation insertAsSoundAssociation(Playable playable, SoundAssociation.Type assocType) {
         SoundAssociation sa = new SoundAssociation(playable, new Date(), assocType);
-        TestHelper.insertWithDependencies(sa);
+        TestHelper.insertWithDependencies(Content.COLLECTION_ITEMS.uri, sa);
         return sa;
     }
 

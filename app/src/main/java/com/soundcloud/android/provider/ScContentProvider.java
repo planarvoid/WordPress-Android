@@ -402,23 +402,22 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTION:
             case COLLECTIONS:
             case COLLECTION_PAGES:
+            case COLLECTION_ITEMS:
             case USERS:
             case RECORDINGS:
             case ME_SOUNDS:
             case ME_PLAYLISTS:
             case ME_SHORTCUTS:
-                id = content.table.insertOrReplace(db, values);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null, false);
-                return result;
-
             case TRACKS:
             case PLAYLISTS:
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
             case ME_LIKES:
             case ME_REPOSTS:
-                id = content.table.insertWithOnConflict(db, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = content.table.insertOrReplace(db, values);
+                if (id >= 0 && values.containsKey(BaseColumns._ID)) {
+                    id = values.getAsLong(BaseColumns._ID);
+                }
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
@@ -531,7 +530,7 @@ public class ScContentProvider extends ContentProvider {
             whereArgs = new String[] {String.valueOf(content.id) };
             break;
 
-            case ME_SOUNDS:
+            case ME_SOUNDS: // still used in com.soundcloud.android.dao.SoundAssociationStorage#syncToLocal
                 // add userId
                 String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + userIdFromContext;
                 // append possible types
@@ -555,11 +554,18 @@ public class ScContentProvider extends ContentProvider {
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
             case ME_FRIENDS:
+
                 whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + userIdFromContext
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + content.collectionType;
                 where = TextUtils.isEmpty(where) ? whereAppend
                         : where + " AND " + whereAppend;
 
+                break;
+
+            case COLLECTION_ITEMS:
+                whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + userIdFromContext;
+                where = TextUtils.isEmpty(where) ? whereAppend
+                        : where + " AND " + whereAppend;
                 break;
 
             case ME_PLAYLIST:
