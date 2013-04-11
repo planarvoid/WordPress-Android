@@ -7,7 +7,6 @@ import com.soundcloud.android.rx.observers.DetachableObserver;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
@@ -15,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class LoadActivitiesStrategy implements SyncManager.LocalStorageStrategy<List<Activity>> {
+public class LoadActivitiesStrategy implements SyncOperations.LocalStorageStrategy<List<Activity>> {
 
     private final ActivitiesStorage mStorage;
 
