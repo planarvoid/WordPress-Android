@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import static java.lang.Math.max;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.landing.ScLandingPage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +68,7 @@ public class RootView extends ViewGroup {
     private static final String STATE_KEY               = "state_key";
     private static final String BLOCK_KEY               = "block_key";
 
-    private boolean mIsBlocked;
+    private boolean mIsBlocked, mShouldTrackGestures;
     private MainMenu mMenu;
     private ViewGroup mContent;
     private View mBlocker;
@@ -154,6 +155,7 @@ public class RootView extends ViewGroup {
             }
         });
         mIsBlocked = false;
+        mShouldTrackGestures = context instanceof ScLandingPage;
 
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -527,7 +529,7 @@ public class RootView extends ViewGroup {
 
             case MotionEvent.ACTION_DOWN: {
                 final int x = (int) ev.getX();
-                if (!checkShouldTrack(x) || mIsBlocked) {
+                if (!mShouldTrackGestures || mIsBlocked || !checkShouldTrack(x)) {
                     mIsBeingDragged = false;
                     recycleVelocityTracker();
                     break;

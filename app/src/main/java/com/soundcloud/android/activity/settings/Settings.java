@@ -310,4 +310,8 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     public int getMenuResourceId() {
         return R.menu.main;
     }
+
+    @Override
+    public void onHomePressed() {
+    }
 }
