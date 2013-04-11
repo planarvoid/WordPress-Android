@@ -1,5 +1,12 @@
 package com.soundcloud.android.view;
 
+import static java.lang.Math.max;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.landing.ScLandingPage;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,21 +15,26 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.os.*;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.os.SystemClock;
 import android.util.SparseArray;
-import android.view.*;
+import android.view.MotionEvent;
+import android.view.VelocityTracker;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
-import com.soundcloud.android.R;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
-
-import static java.lang.Math.max;
 
 /**
  * Container for all activity content views plus the fly-in menu.
@@ -58,7 +70,7 @@ public class RootView extends ViewGroup {
     private static final String STATE_KEY               = "state_key";
     private static final String BLOCK_KEY               = "block_key";
 
-    private boolean mIsBlocked;
+    private boolean mIsBlocked, mShouldTrackGestures;
     private MainMenu mMenu;
     private ViewGroup mContent;
     private View mBlocker;
@@ -145,6 +157,7 @@ public class RootView extends ViewGroup {
             }
         });
         mIsBlocked = false;
+        mShouldTrackGestures = context instanceof ScLandingPage;
 
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -518,7 +531,7 @@ public class RootView extends ViewGroup {
 
             case MotionEvent.ACTION_DOWN: {
                 final int x = (int) ev.getX();
-                if (!checkShouldTrack(x) || mIsBlocked) {
+                if (!mShouldTrackGestures || mIsBlocked || !checkShouldTrack(x)) {
                     mIsBeingDragged = false;
                     recycleVelocityTracker();
                     break;

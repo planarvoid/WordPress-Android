@@ -9,6 +9,7 @@ import com.actionbarsherlock.widget.SearchView;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
@@ -65,6 +66,7 @@ public class ActionBarController {
         public MenuInflater getSupportMenuInflater();
         public void         invalidateOptionsMenu();
         public int          getMenuResourceId();
+        public void         onHomePressed();
     }
 
     public ActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView) {
@@ -400,7 +402,7 @@ public class ActionBarController {
             View.OnClickListener toggleRootView = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mRootView.animateToggleMenu();
+                    mOwner.onHomePressed();
                 }
             };
 
