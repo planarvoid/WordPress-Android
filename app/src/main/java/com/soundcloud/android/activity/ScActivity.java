@@ -471,15 +471,13 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public void onHomePressed() {
         if (this instanceof ScLandingPage){
             mRootView.animateToggleMenu();
+        } else if (isTaskRoot()) {
+            // empty backstack and not a landing page, might be from a notification or deeplink
+            // just go to the home activity
+            startActivity(new Intent(this, Home.class));
+            finish();
         } else {
-            if (isTaskRoot()){
-                // empty backstack and not a landing page, might be from a notification or deeplink
-                // just go to the home activity
-                startActivity(new Intent(this, Home.class));
-                finish();
-            } else {
-                super.onBackPressed();
-            }
+            super.onBackPressed();
         }
     }
 
