@@ -3,9 +3,9 @@ package com.soundcloud.android.tests;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
@@ -51,7 +51,7 @@ public final class IntegrationTestHelper {
         } else if (account == null) {
             Log.d(TAG, "logging in");
             Context context = instrumentation.getTargetContext();
-            AndroidCloudAPI.Wrapper wrapper = AndroidCloudAPI.Wrapper.create(context, null);
+            Wrapper wrapper = Wrapper.create(context, null);
             Token token;
             try {
                 token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);

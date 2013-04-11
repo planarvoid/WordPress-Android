@@ -1,30 +1,28 @@
 package com.soundcloud.android.task.fetch;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
+import android.os.Parcelable;
+import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
 import org.jetbrains.annotations.Nullable;
-
-import android.os.Parcelable;
-import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<Request, Void, Model> {
-    private AndroidCloudAPI mApi;
+import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+public abstract class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<Request, Void, Model> {
+    protected AndroidCloudAPI mApi;
     private Set<WeakReference<Listener<Model>>> mListenerWeakReferences;
 
     private Exception  mException;
-    private StatusLine mStatusLine;
     private final long mModelId;
 
     public FetchModelTask(AndroidCloudAPI api) {
@@ -72,22 +70,14 @@ public class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<
     @Nullable
     public Model resolve(Request request) {
         try {
-            HttpResponse resp = mApi.get(request);
             if (isCancelled()) return null;
-
-            switch (resp.getStatusLine().getStatusCode()) {
-                case HttpStatus.SC_OK: {
-                    return (Model) mApi.getMapper().readValue(resp.getEntity().getContent(), ScResource.class);
-                }
-
-                case HttpStatus.SC_NOT_FOUND: return null;
-
-                default: {
-                    mStatusLine = resp.getStatusLine();
-                    Log.w(TAG, "unexpected response " + resp.getStatusLine());
-                    return null;
-                }
-            }
+            Model model = mApi.read(request);
+            model.setUpdated();
+            persist(model);
+            SoundCloudApplication.MODEL_MANAGER.cache(model, ScResource.CacheUpdateMode.FULL);
+            return model;
+        } catch (NotFoundException e) {
+            return null;
         } catch (IOException e) {
             mException = e;
             Log.e(TAG, "error", e);
@@ -95,8 +85,10 @@ public class FetchModelTask<Model extends ScResource> extends ParallelAsyncTask<
         }
     }
 
+    protected abstract void persist(Model model);
+
     public boolean wasError() {
-        return mException != null || mStatusLine != null;
+        return mException != null;
     }
 
     public interface Listener<Model extends Parcelable> {

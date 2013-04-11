@@ -463,21 +463,6 @@ public final class IOUtils {
         }
     }
 
-    public static boolean isStatusCodeOk(int code) {
-        return code >= 200 && code < 400;
-    }
-
-    public static boolean isStatusCodeError(int code) {
-        return code >= 400 && code < 600;
-    }
-
-    public static boolean isStatusCodeClientError(int code) {
-        return code >= 400 && code < 500;
-    }
-
-    public static boolean isStatusCodeServerError(int code) {
-        return code >= 500 && code < 600;
-    }
 
     /**
      * some phones have really low transfer rates when the screen is turned off, so request a full

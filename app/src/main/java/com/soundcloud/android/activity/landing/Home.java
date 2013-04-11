@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.auth.EmailConfirm;
 import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
@@ -94,7 +95,7 @@ public class Home extends ScActivity implements ScLandingPage {
             protected void onPostExecute(User user) {
                 if (user == null || user.isPrimaryEmailConfirmed()) {
                     if (user != null) {
-                        MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+                        new UserStorage(Home.this).createOrUpdate(user);
                     }
                 } else {
                     startActivityForResult(new Intent(Home.this, EmailConfirm.class)

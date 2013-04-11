@@ -76,7 +76,7 @@ public enum DeprecatedRecordingProfile {
     }
 
     /**
-     * Rename files, return CV for a bulk insert
+     * Rename files, return CV for a bulk create
      */
     public static ContentValues migrate(Recording r) {
         final DeprecatedRecordingProfile profile = DeprecatedRecordingProfile.getProfile(r.audio_path);

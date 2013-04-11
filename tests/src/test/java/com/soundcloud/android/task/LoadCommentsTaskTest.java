@@ -2,8 +2,8 @@ package com.soundcloud.android.task;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -31,7 +31,7 @@ public class LoadCommentsTaskTest {
         expect(comment.track_id).toEqual(21607568l);
         expect(comment.timestamp).toEqual(138751l);
         expect(comment.body).toEqual("wow, great voice!");
-        expect(comment.created_at).toEqual(AndroidCloudAPI.CloudDateFormat.fromString("2011/08/22 11:35:24 +0000"));
+        expect(comment.created_at).toEqual(Wrapper.CloudDateFormat.fromString("2011/08/22 11:35:24 +0000"));
         expect(comment.uri).toEqual("https://api.soundcloud.com/comments/24100348");
 
         expect(comment.user).not.toBeNull();

@@ -6,6 +6,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.getPl
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -259,7 +260,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             } else if (Intent.ACTION_VIEW.equals(action)) {
                 // Play from a View Intent, this probably came from quicksearch
                 if (intent.getData() != null) {
-                    displayTrack = Track.fromUri(intent.getData(), getContentResolver(), true);
+                    displayTrack = new TrackStorage(this).getTrack(intent.getData());
                     if (displayTrack != null) {
                         startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
                     }
