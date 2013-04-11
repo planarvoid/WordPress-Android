@@ -188,7 +188,6 @@ public class ScContentProvider extends ContentProvider {
                 c.addRow(new Object[]{SoundCloudApplication.getUserId()});
                 return c;
 
-            case USER_TRACKS:
             case USER_LIKES:
             case USER_REPOSTS:
                 qb.setTables(makeCollectionJoin(Table.SOUND_VIEW));
@@ -551,7 +550,6 @@ public class ScContentProvider extends ContentProvider {
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
-            case USER_TRACKS:
             case USER_LIKES:
             case USER_REPOSTS:
             case USER_FOLLOWINGS:
@@ -742,7 +740,6 @@ public class ScContentProvider extends ContentProvider {
                 table = Table.COLLECTION_ITEMS;
                 break;
 
-            case USER_TRACKS:
             case ME_LIKES:
             case USER_LIKES:
             case ME_REPOSTS:
