@@ -245,9 +245,9 @@ public final class AndroidUtils {
             }
         }
 
-        TreeMap<String,Integer> sorted_map = new TreeMap<String,Integer>(new EmailValueComparator(map));
-        sorted_map.putAll(map);
-        return sorted_map.keySet().toArray(new String[map.size()]);
+        TreeMap<String,Integer> sortedMap = new TreeMap<String,Integer>(new EmailValueComparator(map));
+        sortedMap.putAll(map);
+        return sortedMap.keySet().toArray(new String[map.size()]);
     }
 
     public static boolean accessibilityFeaturesAvailable(Context context) {
