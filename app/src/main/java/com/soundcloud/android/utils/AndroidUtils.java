@@ -19,14 +19,12 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.Display;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Android related utility functions.
@@ -226,6 +224,11 @@ public final class AndroidUtils {
         }
     }
 
+    public static boolean accessibilityFeaturesAvailable(Context context) {
+        AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        return accessibilityManager != null && accessibilityManager.isEnabled();
+    }
+
     /**
      * Returns emails from the account manager paired and sorted by their frequency of usage
      *
@@ -244,25 +247,23 @@ public final class AndroidUtils {
                 }
             }
         }
+        return returnKeysSortedByValue(map);
+    }
 
-        TreeMap<String,Integer> sortedMap = new TreeMap<String,Integer>(new EmailValueComparator(map));
+    /* package */ static String[] returnKeysSortedByValue(HashMap<String, Integer> map) {
+        TreeMap<String, Integer> sortedMap = new TreeMap<String, Integer>(new MapValueComparator(map));
         sortedMap.putAll(map);
         return sortedMap.keySet().toArray(new String[map.size()]);
     }
 
-    public static boolean accessibilityFeaturesAvailable(Context context) {
-        AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
-        return accessibilityManager != null && accessibilityManager.isEnabled();
-    }
-
-    private static class EmailValueComparator implements Comparator<String> {
-        Map<String, Integer> base;
-        public EmailValueComparator(Map<String, Integer> base) {
-            this.base = base;
+    private static class MapValueComparator implements Comparator<String> {
+        Map<String, Integer> map;
+        public MapValueComparator(Map<String, Integer> map) {
+            this.map = map;
         }
 
         public int compare(String a, String b) {
-            if (base.get(a) >= base.get(b)) {
+            if (map.get(a) >= map.get(b)) {
                 return -1;
             } else {
                 return 1;
