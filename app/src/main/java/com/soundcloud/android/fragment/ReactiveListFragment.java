@@ -3,7 +3,6 @@ package com.soundcloud.android.fragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.rx.observers.ContextObserver;
 import com.soundcloud.android.rx.schedulers.ReactiveScheduler;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
@@ -36,7 +35,7 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
     };
 
     protected ReactiveScheduler<List<T>> mScheduler;
-    protected ContextObserver<List<T>> mLoadItemsObserver;
+    protected Observer<List<T>> mLoadItemsObserver;
     protected Subscription mLoadItemsSubscription;
 
     protected ScListView mListView;
@@ -51,7 +50,7 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
         mAdapter = newAdapter();
         mScheduler = new ReactiveScheduler<List<T>>(getActivity());
-        mLoadItemsObserver = new ContextObserver<List<T>>(new LoadItemsObserver());
+        mLoadItemsObserver = new LoadItemsObserver();
     }
 
     protected abstract IScAdapter<T> newAdapter();
@@ -88,7 +87,6 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
     @Override
     public void onStop() {
         super.onStop();
-        Log.d(this, "onStop: done=" + mLoadItemsObserver.isCompleted());
         mLoadItemsSubscription.unsubscribe();
     }
 

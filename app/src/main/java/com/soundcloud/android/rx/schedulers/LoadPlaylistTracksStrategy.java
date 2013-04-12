@@ -2,9 +2,12 @@ package com.soundcloud.android.rx.schedulers;
 
 import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.observers.DetachableObserver;
 import com.soundcloud.android.utils.UriUtils;
 import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import android.content.Context;
 import android.net.Uri;
@@ -22,14 +25,15 @@ public class LoadPlaylistTracksStrategy implements SyncOperations.LocalStorageSt
 
     @Override
     public Observable<List<Track>> loadFromContentUri(final Uri contentUri) {
-        return Observable.create(ReactiveScheduler.newBackgroundJob(new ObservedRunnable<List<Track>>() {
+        return Observable.create(new Func1<Observer<List<Track>>, Subscription>() {
             @Override
-            protected void run(DetachableObserver<List<Track>> observer) {
+            public Subscription call(Observer<List<Track>> observer) {
                 List<Track> tracks = mStorage.loadPlaylistTracks(UriUtils.getLastSegmentAsLong(contentUri));
                 observer.onNext(tracks);
                 observer.onCompleted();
+                return Subscriptions.empty();
             }
-        }));
+        });
     }
 
 }

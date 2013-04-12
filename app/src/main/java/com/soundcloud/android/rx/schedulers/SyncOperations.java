@@ -16,8 +16,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.ResultReceiver;
 
+/**
+ * Use this class whenever you need to coordinate sync operations for some content URI. More specifically, you can
+ * obtain observable instances which will ensure that the proper actions are performed based on whether a sync is
+ * actually necessary or not, and that these actions are executed on an appropriate thread.
+ */
 public class SyncOperations<T> {
 
     private final Context mContext;
@@ -34,6 +40,17 @@ public class SyncOperations<T> {
         return syncIfNecessary(contentUri, syncNow(contentUri));
     }
 
+    /**
+     * <p>Returns an observable that upon subscription determines whether a sync is due, and either emits the given sync
+     * action if that's the case or if not, emits an observable that loads the same content from local storage using
+     * the {@link LocalStorageStrategy} this class instance was configured with.</p>
+     * <p>
+     * The returned observable is guaranteed to execute on a background thread.
+     * </p>
+     * @param contentUri the URI pointing to the content to either sync or load from local storage
+     * @param syncAction the action to emit when a sync is necessary
+     * @return the observable
+     */
     public Observable<Observable<T>> syncIfNecessary(final Uri contentUri, final Observable<T> syncAction) {
         return Observable.create(new Func1<Observer<Observable<T>>, Subscription>() {
             @Override
@@ -51,16 +68,22 @@ public class SyncOperations<T> {
                 if (syncRequired) {
                     observer.onNext(syncAction);
                 } else {
-                    observer.onNext(mLocalStorage.loadFromContentUri(contentUri));
+                    observer.onNext(loadFromLocalStorage(contentUri));
                 }
 
                 observer.onCompleted();
 
                 return Subscriptions.empty();
             }
-        });
+        }).subscribeOn(ReactiveScheduler.BACKGROUND_SCHEDULER);
     }
 
+    /**
+     * <p>Returns an observable which upon subscription will initiate a sync for the given content URI.</p>
+     * <p>This method is safe to call from any thread</p>
+     * @param contentUri the content URI for which to initiate a sync
+     * @return the observable
+     */
     public Observable<T> syncNow(final Uri contentUri) {
         return Observable.create(new Func1<Observer<T>, Subscription>() {
             @Override
@@ -69,7 +92,9 @@ public class SyncOperations<T> {
 
                 final BooleanSubscription subscription = new BooleanSubscription();
 
-                final ResultReceiver receiver = new ResultReceiver(new Handler()) {
+                // make sure the result receiver is invoked on the main thread, that's because after a sync error
+                // we call through to the observer directly rather than going through a scheduler
+                final ResultReceiver receiver = new ResultReceiver(new Handler(Looper.getMainLooper())) {
                     @Override
                     protected void onReceiveResult(int resultCode, Bundle resultData) {
                         if (!subscription.isUnsubscribed()) {
@@ -90,13 +115,11 @@ public class SyncOperations<T> {
             }
 
             private void handleSyncResult(int resultCode, Bundle resultData, Observer<T> observer) {
+                log("handleSyncResult");
                 switch (resultCode) {
                     case ApiSyncService.STATUS_SYNC_FINISHED: {
                         log("Sync successful!");
-
-                        T result = mLocalStorage.loadFromContentUri(contentUri).last();
-                        observer.onNext(result);
-                        observer.onCompleted();
+                        loadFromLocalStorage(contentUri).subscribe(observer);
                         break;
                     }
                     case ApiSyncService.STATUS_SYNC_ERROR:
@@ -106,6 +129,12 @@ public class SyncOperations<T> {
                 }
             }
         });
+    }
+
+    private Observable<T> loadFromLocalStorage(final Uri contentUri) {
+        return mLocalStorage.loadFromContentUri(contentUri)
+                .subscribeOn(ReactiveScheduler.BACKGROUND_SCHEDULER)
+                .observeOn(ReactiveScheduler.UI_SCHEDULER);
     }
 
     protected void log(String msg) {

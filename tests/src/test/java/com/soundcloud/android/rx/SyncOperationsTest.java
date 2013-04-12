@@ -98,16 +98,9 @@ public class SyncOperationsTest {
         LocalCollection syncState = new LocalCollection(Content.ME_ACTIVITIES.uri);
         TestHelper.insert(syncState); // this will insert with default values
 
-        final Observable<String> syncOp = syncOps.syncNow(Content.ME_ACTIVITIES.uri);
-
-        MockObserver<?> observer = MockObserver.from(new DefaultObserver<Observable<String>>() {
-            @Override
-            public void onNext(Observable<String> observable) {
-                expect(observable).toBe(syncOp);
-            }
-        });
-        syncOps.syncIfNecessary(Content.ME_ACTIVITIES.uri, syncOp).subscribe(observer);
-        expect(observer.isOnNextCalled()).toBeTrue();
+        Observable<String> syncOp = syncOps.syncNow(Content.ME_ACTIVITIES.uri);
+        Observable<String> observable = syncOps.syncIfNecessary(Content.ME_ACTIVITIES.uri, syncOp).last();
+        expect(observable).toBe(syncOp);
     }
 
     @Test
@@ -116,15 +109,11 @@ public class SyncOperationsTest {
         syncState.last_sync_success = System.currentTimeMillis();
         TestHelper.insert(syncState);
 
-        final Observable<String> syncOp = syncOps.syncNow(Content.ME_ACTIVITIES.uri);
+        Observable<String> syncOp = syncOps.syncNow(Content.ME_ACTIVITIES.uri);
+        Observable<String> observable = syncOps.syncIfNecessary(Content.ME_ACTIVITIES.uri, syncOp).last();
 
-        MockObserver<?> observer = MockObserver.from(new DefaultObserver<Observable<String>>() {
-            @Override
-            public void onNext(Observable<String> observable) {
-                expect(observable).toBe(localStorageOp);
-            }
-        });
-        syncOps.syncIfNecessary(Content.ME_ACTIVITIES.uri, syncOp).subscribe(observer);
-        expect(observer.isOnNextCalled()).toBeTrue();
+        // we can't actually test the emitted observable for identity, but if it calls the observer with the result
+        // from local storage, we know it was the local storage observable
+        expect(observable.last()).toEqual("string data");
     }
 }

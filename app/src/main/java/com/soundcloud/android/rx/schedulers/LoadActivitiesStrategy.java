@@ -3,9 +3,12 @@ package com.soundcloud.android.rx.schedulers;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.rx.observers.DetachableObserver;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import android.content.Context;
 import android.net.Uri;
@@ -23,9 +26,9 @@ public class LoadActivitiesStrategy implements SyncOperations.LocalStorageStrate
     }
 
     public Observable<List<Activity>> loadActivitiesSince(final Uri contentUri, final long timestamp) {
-        return Observable.create(ReactiveScheduler.newBackgroundJob(new ObservedRunnable<List<Activity>>() {
+        return Observable.create(new Func1<Observer<List<Activity>>, Subscription>() {
             @Override
-            protected void run(DetachableObserver<List<Activity>> observer) {
+            public Subscription call(Observer<List<Activity>> observer) {
                 log("Loading activities since " + timestamp);
                 List<Activity> result;
                 // TODO: remove possibility of NULL, throw and propagate exception instead
@@ -40,14 +43,16 @@ public class LoadActivitiesStrategy implements SyncOperations.LocalStorageStrate
 
                 observer.onNext(result);
                 observer.onCompleted();
+
+                return Subscriptions.empty();
             }
-        }));
+        });
     }
 
     public Observable<Activities> loadActivitiesBefore(final Uri contentUri, final long timestamp, final int limit) {
-        return Observable.create(ReactiveScheduler.newBackgroundJob(new ObservedRunnable<Activities>() {
+        return Observable.create(new Func1<Observer<Activities>, Subscription>() {
             @Override
-            protected void run(DetachableObserver<Activities> observer) {
+            public Subscription call(Observer<Activities> observer) {
                 // TODO: remove possibility of NULL, throw and propagate exception instead
                 Activities activities = mStorage.getBefore(
                         contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(limit)).build(),
@@ -55,8 +60,10 @@ public class LoadActivitiesStrategy implements SyncOperations.LocalStorageStrate
 
                 observer.onNext(activities);
                 observer.onCompleted();
+
+                return Subscriptions.empty();
             }
-        }));
+        });
     }
 
     protected void log(String msg) {
