@@ -76,7 +76,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 // actual c2dm message
                 onReceiveMessage(context, intent);
             } else if (intent.getAction().equals(Actions.ACCOUNT_ADDED)) {
-                onAccountAdded(context, intent.getLongExtra(User.EXTRA_ID, -1L));
+                onAccountAdded(context);
             } else {
                 Log.w(TAG, "unhandled intent: "+intent);
             }
@@ -85,19 +85,17 @@ public class C2DMReceiver extends BroadcastReceiver {
         }
     }
 
-    private void onAccountAdded(Context context, long userId) {
-        if (userId > 0) {
-            register(context, userId);
-        }
+    private void onAccountAdded(Context context) {
+        register(context);
     }
 
-    public static synchronized void register(Context context, long userId) {
+    public static synchronized void register(Context context) {
         if (!isEnabled()) return;
         final PowerManager.WakeLock lock = makeLock(context);
         final String regId = getRegistrationData(context, PREF_REG_ID);
 
         if (regId == null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "registering " + userId + " for c2dm");
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "registering for c2dm");
             setRegistrationData(context, PREF_REG_LAST_TRY,
                     String.valueOf(System.currentTimeMillis()));
 
