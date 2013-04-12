@@ -149,6 +149,13 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
         });
 
+
+        findViewById(R.id.google_plus_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onGooglePlusLogin();
+            }
+        });
         findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -589,6 +596,13 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         Object tag = view.getTag();
 
         return "foreground".equals(tag) || "parallax".equals(tag);
+    }
+
+    private void onGooglePlusLogin() {
+        SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
+        app.track(Click.Login_with_facebook);
+        startActivityForResult(new Intent(this, GooglePlusSignIn.class), Consts.RequestCodes.SIGNUP_VIA_FACEBOOK);
     }
 
     private void onFacebookLogin() {

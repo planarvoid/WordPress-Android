@@ -151,6 +151,12 @@
         </dependency>
         <dependency>
             <groupId>com.google.android</groupId>
+            <artifactId>google-play-services</artifactId>
+            <version>r6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
             <artifactId>annotations</artifactId>
             <version>4.1.1.4</version>
             <scope>compile</scope>

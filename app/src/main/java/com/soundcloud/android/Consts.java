@@ -50,6 +50,7 @@ public final class Consts {
 
         int SIGNUP_VIA_FACEBOOK     = 8001;
         int RECOVER_CODE            = 8002;
+        int SIGNUP_VIA_GOOGLEPLUS   = 8003;
     }
 
     public static interface Keys {

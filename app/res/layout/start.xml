@@ -21,6 +21,12 @@
                    android:layout_alignParentLeft="true"
                    android:layout_marginLeft="10dp"
                    android:layout_marginTop="10dp" />
+
+        <Button android:id="@+id/google_plus_btn"
+                style="@style/Tour.GooglePlusButton"
+                android:layout_alignParentRight="true"
+                android:layout_margin="10dp">
+        </Button>
     </RelativeLayout>
 
     <LinearLayout android:id="@+id/tour_bottom_bar"
