@@ -64,11 +64,6 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         } else {
             playable = SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(cursor, DBHelper.SoundAssociationView._ID);
         }
-
-        // activate this once we move away from single instance
-        //playable = Playable.fromCursor(cursor);
-
-
     }
 
     /**
