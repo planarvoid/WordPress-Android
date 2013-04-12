@@ -3,13 +3,11 @@ package com.soundcloud.android.activity.settings;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.annotation.TargetApi;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ActionBarController;
-import com.soundcloud.android.activity.Launch;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -19,6 +17,7 @@ import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -271,9 +270,9 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                                         new Runnable() {
                                             @Override
                                             public void run() {
+                                                app.addAccount(a);
                                                 progress.dismiss();
                                                 a.finish();
-                                                a.startActivity(new Intent(a, Launch.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
                                             }
                                         },
                                         new Runnable() {

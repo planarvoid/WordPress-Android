@@ -1,15 +1,6 @@
 package com.soundcloud.android.model.act;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.json.Views;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 
 import android.database.Cursor;
 import android.os.Parcel;

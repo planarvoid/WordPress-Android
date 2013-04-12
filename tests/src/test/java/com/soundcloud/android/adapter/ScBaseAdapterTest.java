@@ -11,7 +11,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.view.adapter.IconLayout;
-import com.soundcloud.api.Endpoints;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

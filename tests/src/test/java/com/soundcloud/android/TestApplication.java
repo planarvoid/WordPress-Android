@@ -1,7 +1,7 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.audio.WavHeader;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Event;

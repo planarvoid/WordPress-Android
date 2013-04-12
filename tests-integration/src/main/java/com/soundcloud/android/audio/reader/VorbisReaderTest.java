@@ -2,7 +2,6 @@ package com.soundcloud.android.audio.reader;
 
 import static com.soundcloud.android.tests.AudioTestCase.MED_TEST_OGG;
 
-import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.tests.NonUiTest;
 import com.soundcloud.android.tests.ScAndroidTestCase;
 

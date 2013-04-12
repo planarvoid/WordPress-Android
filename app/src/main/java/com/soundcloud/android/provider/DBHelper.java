@@ -12,8 +12,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import java.util.List;
-
 
 public class DBHelper extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DBHelper";

@@ -1,7 +1,9 @@
 package com.soundcloud.android.model.act;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.Wrapper.CloudDateFormat.fromString;
+import static com.soundcloud.android.robolectric.TestHelper.getActivities;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModelManager;
@@ -18,14 +20,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-
-import static com.soundcloud.android.Wrapper.CloudDateFormat.fromString;
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 
 @RunWith(DefaultTestRunner.class)
 public class ActivitiesTest {

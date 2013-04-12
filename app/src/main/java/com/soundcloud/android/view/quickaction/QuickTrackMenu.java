@@ -1,17 +1,17 @@
 package com.soundcloud.android.view.quickaction;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.view.View;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.ImageUtils;
+
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.view.View;
 
 public class QuickTrackMenu extends QuickAction {
 

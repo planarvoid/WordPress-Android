@@ -1,7 +1,17 @@
 package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.imageloader.ImageLoader.Options;
-import static com.soundcloud.android.service.playback.State.*;
+import static com.soundcloud.android.service.playback.State.COMPLETED;
+import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
+import static com.soundcloud.android.service.playback.State.ERROR;
+import static com.soundcloud.android.service.playback.State.ERROR_RETRYING;
+import static com.soundcloud.android.service.playback.State.PAUSED;
+import static com.soundcloud.android.service.playback.State.PAUSED_FOCUS_LOST;
+import static com.soundcloud.android.service.playback.State.PAUSED_FOR_BUFFERING;
+import static com.soundcloud.android.service.playback.State.PLAYING;
+import static com.soundcloud.android.service.playback.State.PREPARED;
+import static com.soundcloud.android.service.playback.State.PREPARING;
+import static com.soundcloud.android.service.playback.State.STOPPED;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;

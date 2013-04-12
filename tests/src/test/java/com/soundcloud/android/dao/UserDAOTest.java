@@ -3,8 +3,6 @@ package com.soundcloud.android.dao;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 
-import static com.soundcloud.android.Expect.expect;
-
 public class UserDAOTest extends AbstractDAOTest<UserDAO> {
     public UserDAOTest() {
         super(new UserDAO(Robolectric.application.getContentResolver()));

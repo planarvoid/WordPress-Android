@@ -1,6 +1,5 @@
 package com.soundcloud.android.task.collection;
 
-import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
@@ -11,6 +10,8 @@ import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
+
+import android.util.Log;
 
 import java.io.IOException;
 

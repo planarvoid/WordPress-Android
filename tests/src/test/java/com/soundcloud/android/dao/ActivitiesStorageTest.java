@@ -1,5 +1,8 @@
 package com.soundcloud.android.dao;
 
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.Wrapper.CloudDateFormat.toTime;
+
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
@@ -8,14 +11,10 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
-import com.soundcloud.android.service.sync.SyncStateManager;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static com.soundcloud.android.Wrapper.CloudDateFormat.toTime;
-import static com.soundcloud.android.Expect.expect;
 
 import java.io.IOException;
 

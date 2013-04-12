@@ -8,7 +8,6 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Endpoints;
@@ -17,7 +16,6 @@ import org.apache.http.HttpStatus;
 
 import android.content.AsyncQueryHandler;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Handler;

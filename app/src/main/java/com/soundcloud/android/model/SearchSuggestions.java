@@ -9,7 +9,6 @@ import android.app.SearchManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;

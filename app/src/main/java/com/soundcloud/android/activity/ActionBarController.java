@@ -9,7 +9,6 @@ import com.actionbarsherlock.widget.SearchView;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;

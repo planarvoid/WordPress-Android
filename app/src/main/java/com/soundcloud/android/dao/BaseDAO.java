@@ -1,10 +1,9 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.BaseColumns;
+import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
+import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
+import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
+
 import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -13,16 +12,18 @@ import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.BaseColumns;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
-import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
-import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
 public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     protected final ContentResolver mResolver;

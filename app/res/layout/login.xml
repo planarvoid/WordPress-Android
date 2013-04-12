@@ -17,12 +17,12 @@
                 <TableRow style="@style/SignUp.LabelRow">
                     <TextView style="@style/SignUp.Label"
                               android:text="@string/email" />
+                    <AutoCompleteTextView android:id="@+id/auto_txt_email_address"
+                                          android:hint="@string/authentication_your_email_address"
+                                          style="@style/SignUp.EmailEntry">
 
-                    <com.soundcloud.android.view.ClearText android:id="@+id/txt_email_address"
-                                                           android:hint="@string/authentication_your_email_address"
-                                                           style="@style/SignUp.EmailEntry">
                         <requestFocus/>
-                    </com.soundcloud.android.view.ClearText>
+                    </AutoCompleteTextView>
                 </TableRow>
 
                 <TableRow style="@style/SignUp.SeparatorRow">

@@ -1,13 +1,14 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 
 import java.util.List;
 

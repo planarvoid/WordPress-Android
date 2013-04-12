@@ -1,11 +1,12 @@
 package com.soundcloud.android.c2dm;
 
+import com.soundcloud.android.service.sync.SyncAdapterService;
+import org.jetbrains.annotations.NotNull;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import com.soundcloud.android.service.sync.SyncAdapterService;
-import org.jetbrains.annotations.NotNull;
 
 public enum PushEvent {
     LIKE("like"),

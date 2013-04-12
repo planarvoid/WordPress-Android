@@ -3,8 +3,8 @@ package com.soundcloud.android.audio.reader;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.jni.DecoderException;
-import com.soundcloud.android.jni.VorbisInfo;
 import com.soundcloud.android.jni.VorbisDecoder;
+import com.soundcloud.android.jni.VorbisInfo;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

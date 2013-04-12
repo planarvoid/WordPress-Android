@@ -2,9 +2,6 @@ package com.soundcloud.android.tracking;
 
 import static com.soundcloud.android.utils.NetworkConnectivityListener.State;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import com.at.ATParams;
 import com.at.ATTag;
 import com.soundcloud.android.R;
@@ -14,12 +11,13 @@ import com.soundcloud.android.model.Plan;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 

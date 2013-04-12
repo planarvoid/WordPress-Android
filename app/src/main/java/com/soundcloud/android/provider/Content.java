@@ -1,6 +1,11 @@
 package com.soundcloud.android.provider;
 
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FRIEND;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.LIKE;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.REPOST;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.SUGGESTED_USER;
 
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Comment;

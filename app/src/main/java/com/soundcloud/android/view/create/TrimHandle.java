@@ -1,6 +1,8 @@
 package com.soundcloud.android.view.create;
 
-import static android.widget.RelativeLayout.*;
+import static android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM;
+import static android.widget.RelativeLayout.ALIGN_PARENT_LEFT;
+import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 
 import com.soundcloud.android.R;
 

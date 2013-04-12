@@ -14,8 +14,6 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;

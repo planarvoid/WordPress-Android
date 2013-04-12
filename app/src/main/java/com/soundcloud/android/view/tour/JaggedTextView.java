@@ -1,15 +1,15 @@
 package com.soundcloud.android.view.tour;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.view.CustomFontTextView;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.text.*;
+import android.text.Layout;
 import android.util.AttributeSet;
-import com.soundcloud.android.R;
-import com.soundcloud.android.view.CustomFontTextView;
 
 public class JaggedTextView extends CustomFontTextView {
     private Paint mBackgroundPaint;
