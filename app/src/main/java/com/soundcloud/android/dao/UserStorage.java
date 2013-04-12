@@ -2,12 +2,8 @@ package com.soundcloud.android.dao;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -33,11 +29,11 @@ public class UserStorage implements Storage<User> {
     }
 
     public User getUser(long id) {
-        return mUserDAO.queryForId(id);
+        return mUserDAO.queryById(id);
     }
 
     public User getUserByUri(Uri uri) {
-        return mUserDAO.queryForUri(uri);
+        return mUserDAO.queryByUri(uri);
     }
 
     public void clearLoggedInUser() {

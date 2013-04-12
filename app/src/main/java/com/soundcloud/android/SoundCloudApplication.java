@@ -12,8 +12,6 @@ import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.SearchDAO;
-import com.soundcloud.android.dao.UserDAO;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -211,14 +209,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         new Thread() {
             @Override
             public void run() {
-                final ContentResolver resolver = getContentResolver();
-
                 new UserStorage(SoundCloudApplication.this).clearLoggedInUser();
                 new ActivitiesStorage(SoundCloudApplication.this).clear(null);
 
                 PlayQueueManager.clearState(SoundCloudApplication.this);
                 FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
-                SearchDAO.clearState(resolver, SoundCloudApplication.getUserId());
             }
         }.run();
 
@@ -289,6 +284,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    /**
+     * Make sure that sets are synced first, to avoid running into data consistency issues around adding tracks
+     * to playlists, see https://github.com/soundcloud/SoundCloud-Android/issues/609
+     *
+     * Alternatively, sync sets lazily where needed.
+     */
     private void requestSetsSync(){
         Intent intent = new Intent(this, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)

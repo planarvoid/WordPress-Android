@@ -440,13 +440,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     private void previewTrim(TrimPreview trimPreview) {
         final boolean startThread = !(isPlaying() || mState.isTrimming());
+
         if (startThread) {
+            mState = State.TRIMMING; //keep both state setters to avoid race condition in tests
             startPlaybackThread(trimPreview);
         } else {
             mPlaybackThread.addPreview(trimPreview);
             if (isPlaying()) broadcast(PLAYBACK_STOPPED);
+            mState = State.TRIMMING;
         }
-        mState = State.TRIMMING;
     }
 
     private void startPlaybackThread() {
@@ -578,7 +580,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
         }
 
-        private void previewTrim(PlaybackStream playbackStream) throws IOException {
+        private void playTrimPreviews(PlaybackStream playbackStream) throws IOException {
             TrimPreview preview;
             while ((preview = previewQueue.poll()) != null) {
                 final FadeFilter fadeFilter = preview.getFadeFilter();
@@ -636,7 +638,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                     do {
                         switch (mState) {
                             case TRIMMING:
-                                previewTrim(mPlaybackStream);
+                                playTrimPreviews(mPlaybackStream);
                                 break;
                             case SEEKING:
                                 if (mPlaybackStream == null) break;

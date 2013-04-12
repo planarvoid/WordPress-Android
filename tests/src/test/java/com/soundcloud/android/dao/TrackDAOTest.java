@@ -29,7 +29,7 @@ public class TrackDAOTest extends AbstractDAOTest<TrackDAO> {
         expect(id).toEqual(t.getId());
         expect(Content.TRACKS).toHaveCount(1);
 
-        Track t2 = getDAO().queryForId(id);
+        Track t2 = getDAO().queryById(id);
         expect(t2).not.toBeNull();
 
         compareTracks(t, t2);

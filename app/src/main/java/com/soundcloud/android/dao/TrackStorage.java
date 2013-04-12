@@ -14,7 +14,6 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,12 +21,10 @@ public class TrackStorage implements Storage<Track> {
     private TrackDAO mTrackDAO;
     private final ContentResolver mResolver;
 
-
     public TrackStorage(Context context) {
         mResolver = context.getContentResolver();
         mTrackDAO = new TrackDAO(mResolver);
     }
-
 
     public boolean markTrackAsPlayed(Track track) {
         ContentValues contentValues = new ContentValues();
@@ -45,15 +42,11 @@ public class TrackStorage implements Storage<Track> {
     }
 
     public Track getTrack(long id) {
-        return mTrackDAO.queryForId(id);
+        return mTrackDAO.queryById(id);
     }
 
     public Track getTrack(Uri uri) {
-        return mTrackDAO.queryForUri(uri);
-    }
-
-    public int insert(Collection<Track> tracks, Content content) {
-        return 0;
+        return mTrackDAO.queryByUri(uri);
     }
 
     public List<Track> getTracksForUri(Uri uri) {

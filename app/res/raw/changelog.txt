@@ -1,5 +1,11 @@
-$ 59
+$ 60
   % v current
+  _ 2013-04-01
+    ! Maintenance
+    * Fixed overly aggressive uri matching
+
+$ 59
+  % v 2.5.2
   _ 2013-03-29
     ! Maintenance
     * Fixed loading bugs in Search

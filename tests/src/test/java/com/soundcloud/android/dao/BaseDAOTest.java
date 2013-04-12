@@ -34,11 +34,11 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
         Track record = new Track();
         record.user = new User(); // should not be auto-inserted
 
-        when(resolverMock.insert(eq(record.toUri()), any(ContentValues.class))).thenReturn(record.toUri());
+        when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(record.toUri());
 
         getDAO().create(record, false);
 
-        verify(resolverMock).insert(eq(record.toUri()), any(ContentValues.class));
+        verify(resolverMock).insert(eq(getDAO().getContent().uri), any(ContentValues.class));
         verifyNoMoreInteractions(resolverMock);
     }
 
@@ -48,11 +48,11 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
         Track record = new Track();
         record.user = new User();
 
-        when(resolverMock.insert(eq(record.toUri()), any(ContentValues.class))).thenReturn(record.toUri());
+        when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(record.toUri());
 
         getDAO().create(record);
 
-        verify(resolverMock).insert(eq(record.toUri()), any(ContentValues.class));
+        verify(resolverMock).insert(eq(getDAO().getContent().uri), any(ContentValues.class));
         verify(resolverMock).bulkInsert(eq(Content.USERS.uri), any(ContentValues[].class));
     }
 
@@ -62,7 +62,7 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
         Track record = new Track(0); // 0 is not a valid record ID
 
         Uri newResourceUri = Uri.parse("http://com.soundcloud.android.provider.ScContentProvider/tracks/123");
-        when(resolverMock.insert(eq(record.toUri()), any(ContentValues.class))).thenReturn(newResourceUri);
+        when(resolverMock.insert(any(Uri.class), any(ContentValues.class))).thenReturn(newResourceUri);
 
         getDAO().create(record);
 

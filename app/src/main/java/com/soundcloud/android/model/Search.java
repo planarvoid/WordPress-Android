@@ -1,39 +1,24 @@
 package com.soundcloud.android.model;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.text.TextUtils;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.dao.ContentValuesProvider;
-import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Request;
-import org.jetbrains.annotations.NotNull;
 
-public class Search implements ModelLike, ContentValuesProvider {
+import android.text.TextUtils;
+
+public class Search {
     public static final int ALL = 0;
     public static final int SOUNDS = 1;
     public static final int USERS  = 2;
     public static final int PLAYLISTS = 3;
 
-    public long id;
     public int search_type;
     public String query;
     public long created_at;
 
-    public Search(Cursor cursor) {
-        this.id = cursor.getInt(cursor.getColumnIndex(DBHelper.Searches._ID));
-        this.search_type = cursor.getInt(cursor.getColumnIndex(DBHelper.Searches.SEARCH_TYPE));
-        this.query = cursor.getString(cursor.getColumnIndex(DBHelper.Searches.QUERY));
-        this.created_at = cursor.getLong(cursor.getColumnIndex(DBHelper.Searches.CREATED_AT));
-    }
-
     public Search(String query, int searchType) {
         this.query = query;
         this.search_type = searchType;
-        this.created_at = this.id = -1;
+        this.created_at = -1;
     }
 
     public static Search forAll(String query) {
@@ -72,38 +57,6 @@ public class Search implements ModelLike, ContentValuesProvider {
                 path = TempEndpoints.SEARCH;
         }
         return Request.to(path).with("q", query);
-    }
-
-
-    @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    @Override
-    public Uri toUri() {
-        return Content.SEARCH.forId(id);
-    }
-
-    public ContentValues buildContentValues() {
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Searches.CREATED_AT, System.currentTimeMillis());
-        cv.put(DBHelper.Searches.QUERY, query);
-        cv.put(DBHelper.Searches.SEARCH_TYPE, search_type);
-        return cv;
-    }
-
-    @Override
-    public void putFullContentValues(@NotNull BulkInsertMap destination) {
-    }
-
-    @Override
-    public void putDependencyValues(@NotNull BulkInsertMap destination) {
     }
 
     @SuppressWarnings("RedundantIfStatement")

@@ -39,8 +39,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         if (storeDependencies) {
             createDependencies(resource);
         }
-        // TODO this will insert twice
-        long recordId = create(resource.toUri(), resource.buildContentValues());
+        long recordId = create(resource.buildContentValues());
         resource.setId(recordId);
         return recordId;
     }
@@ -97,7 +96,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public long createOrUpdate(long id, ContentValues values) {
-        T obj = queryForId(id);
+        T obj = queryById(id);
         if (obj == null) {
             return create(values);
         } else {
@@ -119,8 +118,14 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public boolean delete(T resource, @Nullable String where, String... whereArgs) {
-        return mResolver.delete(resource.toUri(), where, whereArgs) == 1;
+        return delete(resource.toUri(), where, whereArgs);
     }
+
+    @Deprecated
+    public boolean delete(Uri uri, @Nullable String where, String... whereArgs) {
+        return mResolver.delete(uri, where, whereArgs) == 1;
+    }
+
 
     public QueryBuilder buildQuery() {
         return buildQuery(getContent().uri);
@@ -152,7 +157,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
     }
 
-    public @Nullable T queryForId(long id) {
+    public @Nullable T queryById(long id) {
         Cursor cursor = mResolver.query(getContent().forId(id), null, null, null, null);
         try {
             if (cursor != null && cursor.moveToFirst()) {
@@ -165,8 +170,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
     }
 
-    public @Nullable T queryForUri(Uri uri) {
-        return queryForId(UriUtils.getLastSegmentAsLong(uri));
+    public @Nullable T queryByUri(Uri uri) {
+        return queryById(UriUtils.getLastSegmentAsLong(uri));
     }
 
     public int count() {
