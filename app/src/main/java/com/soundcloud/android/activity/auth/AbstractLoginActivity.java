@@ -52,7 +52,7 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
         login(param);
     }
 
-    public void login(final Bundle data) {
+    protected void login(final Bundle data) {
         if (!data.containsKey(SCOPES_EXTRA)) {
             // default to non-expiring scope
             data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
