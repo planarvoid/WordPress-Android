@@ -1,9 +1,9 @@
 package com.soundcloud.android.utils;
 
-import android.graphics.Color;
 import com.soundcloud.android.R;
 
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;

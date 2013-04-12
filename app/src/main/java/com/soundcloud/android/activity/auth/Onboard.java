@@ -1,5 +1,26 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.R.anim;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
+
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.auth.AddUserInfoTask;
+import com.soundcloud.android.task.auth.GetTokensTask;
+import com.soundcloud.android.task.auth.SignupTask;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.view.tour.TourLayout;
+import com.soundcloud.api.Token;
+import net.hockeyapp.android.UpdateManager;
+import org.jetbrains.annotations.Nullable;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -19,29 +40,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.auth.AddUserInfoTask;
-import com.soundcloud.android.task.auth.GetTokensTask;
-import com.soundcloud.android.task.auth.SignupTask;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.view.tour.TourLayout;
-import com.soundcloud.api.Token;
-import net.hockeyapp.android.UpdateManager;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Random;
-
-import static com.soundcloud.android.R.anim;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {

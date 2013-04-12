@@ -1,23 +1,17 @@
 
 package com.soundcloud.android.view.adapter;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.Context;
-import android.database.Cursor;
-import android.os.Parcelable;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.PlayableHolder;
-import com.soundcloud.android.utils.ImageUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The base class for anything that needs to lazily load an icon.

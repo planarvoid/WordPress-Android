@@ -1,5 +1,7 @@
 package com.soundcloud.android.view.play;
 
+import static com.soundcloud.android.activity.track.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.track.TrackInteractionActivity;
 import com.soundcloud.android.activity.track.TracksByTag;
@@ -24,8 +26,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.List;
-
-import static com.soundcloud.android.activity.track.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
 
 public class PlayerTrackDetails extends RelativeLayout {
     private final ViewGroup mTrackTags;

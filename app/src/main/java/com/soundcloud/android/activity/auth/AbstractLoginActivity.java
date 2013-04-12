@@ -2,19 +2,6 @@ package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.accounts.AccountAuthenticatorActivity;
-import android.accounts.AccountManager;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Debug;
-import android.os.Handler;
-import android.util.Log;
-
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -22,7 +9,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.dao.UserStorage;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -35,6 +21,18 @@ import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 
 import java.io.IOException;
 

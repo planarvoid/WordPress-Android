@@ -1,7 +1,5 @@
 package com.soundcloud.android.task;
 
-import android.content.Intent;
-import android.os.AsyncTask;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
@@ -11,6 +9,9 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
+
+import android.content.Intent;
+import android.os.AsyncTask;
 
 import java.io.IOException;
 import java.util.ArrayList;

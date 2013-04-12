@@ -1,14 +1,13 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.api.Request;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.text.TextUtils;
-
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.api.Http;
-import com.soundcloud.api.Request;
 
 public class LocalCollectionPage {
 

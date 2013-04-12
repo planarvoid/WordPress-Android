@@ -1,9 +1,10 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.provider.ScContentProvider;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import com.soundcloud.android.provider.ScContentProvider;
 
 import java.util.List;
 

@@ -1,7 +1,22 @@
 
 package com.soundcloud.android.model;
 
-import android.content.ContentResolver;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.DBHelper.Users;
+import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -11,25 +26,6 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.activity.auth.FacebookSSO;
-import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.UserDAO;
-import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.DBHelper.Users;
-import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.android.utils.ImageUtils;
-import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)

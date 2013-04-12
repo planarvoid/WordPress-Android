@@ -1,20 +1,26 @@
 package com.soundcloud.android.view.play;
 
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.ImageLoader.BitmapCallback;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.ImageLoader.BitmapCallback;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.ImageUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 

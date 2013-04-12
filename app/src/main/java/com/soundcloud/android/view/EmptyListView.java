@@ -1,5 +1,15 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.ScTextUtils;
+import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -14,15 +24,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.Wrapper;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.utils.ScTextUtils;
-import org.apache.http.HttpStatus;
-import org.jetbrains.annotations.Nullable;
 
 public class EmptyListView extends RelativeLayout {
     protected ProgressBar mProgressBar;

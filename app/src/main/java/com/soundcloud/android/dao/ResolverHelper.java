@@ -1,8 +1,9 @@
 package com.soundcloud.android.dao;
 
+import org.jetbrains.annotations.NotNull;
+
 import android.database.Cursor;
 import android.net.Uri;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;

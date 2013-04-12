@@ -1,12 +1,7 @@
 package com.soundcloud.android.service.upload;
 
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.dao.TrackStorage;
@@ -21,11 +16,17 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 
+import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
     private AndroidCloudAPI api;

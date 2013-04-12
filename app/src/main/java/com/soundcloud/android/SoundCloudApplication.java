@@ -3,7 +3,6 @@ package com.soundcloud.android;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
-import android.app.ActivityManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
@@ -56,6 +55,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;

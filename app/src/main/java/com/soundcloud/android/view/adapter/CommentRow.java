@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapter;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.ScTextUtils;
 

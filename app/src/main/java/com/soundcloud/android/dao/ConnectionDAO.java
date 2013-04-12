@@ -1,8 +1,9 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentResolver;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.provider.Content;
+
+import android.content.ContentResolver;
 
 public class ConnectionDAO extends BaseDAO<Connection> {
     public ConnectionDAO(ContentResolver contentResolver) {

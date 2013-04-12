@@ -1,10 +1,17 @@
 package com.soundcloud.android.tracking.eventlogger;
 
+import static android.os.Process.THREAD_PRIORITY_LOWEST;
+
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ClientUri;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -14,19 +21,10 @@ import android.provider.BaseColumns;
 import android.util.Log;
 import android.util.Pair;
 
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ClientUri;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.utils.IOUtils;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static android.os.Process.THREAD_PRIORITY_LOWEST;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingDbHelper.EVENTS_TABLE;
 
 public class PlayEventTracker {
     private static final String TAG = PlayEventTracker.class.getSimpleName();
@@ -75,7 +73,7 @@ public class PlayEventTracker {
     }
 
     /* package */ Cursor eventsCursor() {
-        return trackingDbHelper.getWritableDatabase().query(EVENTS_TABLE, null, null, null, null, null, null);
+        return trackingDbHelper.getWritableDatabase().query(TrackingDbHelper.EVENTS_TABLE, null, null, null, null, null, null);
     }
 
     public void stop() {
@@ -98,7 +96,7 @@ public class PlayEventTracker {
         trackingDbHelper.execute(new TrackingDbHelper.ExecuteBlock() {
             @Override
             public void call(SQLiteDatabase database) {
-                Cursor cursor = database.query(EVENTS_TABLE, null, null, null, null, null,
+                Cursor cursor = database.query(TrackingDbHelper.EVENTS_TABLE, null, null, null, null, null,
                         TrackingEvents.TIMESTAMP + " DESC",
                         String.valueOf(BATCH_SIZE));
 
@@ -123,12 +121,12 @@ public class PlayEventTracker {
                 trackingDbHelper.execute(new TrackingDbHelper.ExecuteBlock() {
                     @Override
                     public void call(SQLiteDatabase database) {
-                        StringBuilder query = new StringBuilder(submitted.length * 2 - 1);
+                        StringBuilder query = new StringBuilder(submitted.length * 22 - 1);
                         query.append(TrackingEvents._ID).append(" IN (?");
                         for (int i = 1; i < submitted.length; i++) query.append(",?");
                         query.append(")");
 
-                        final int deleted = database.delete(EVENTS_TABLE, query.toString(), submitted);
+                        final int deleted = database.delete(TrackingDbHelper.EVENTS_TABLE, query.toString(), submitted);
                         if (deleted != submitted.length) {
                             Log.w(TAG, "error deleting events (deleted=" + deleted + ")");
                         } else {
@@ -277,7 +275,7 @@ public class PlayEventTracker {
                     trackingDbHelper.execute(new TrackingDbHelper.ExecuteBlock() {
                         @Override
                         public void call(SQLiteDatabase database) {
-                            long id = database.insert(EVENTS_TABLE, null, params.toContentValues());
+                            long id = database.insert(TrackingDbHelper.EVENTS_TABLE, null, params.toContentValues());
                             if (id < 0) {
                                 Log.w(TAG, "error inserting tracking event");
                             }

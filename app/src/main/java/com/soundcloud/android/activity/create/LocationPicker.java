@@ -2,9 +2,9 @@ package com.soundcloud.android.activity.create;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.task.create.FoursquareVenueTask;
 import com.soundcloud.android.utils.Capitalizer;

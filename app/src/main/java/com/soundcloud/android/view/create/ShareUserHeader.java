@@ -1,9 +1,9 @@
 package com.soundcloud.android.view.create;
 
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 

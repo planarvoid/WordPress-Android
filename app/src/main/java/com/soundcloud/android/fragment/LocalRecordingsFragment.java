@@ -3,9 +3,7 @@ package com.soundcloud.android.fragment;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.view.MyTracklistRow;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -13,8 +11,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.view.View;
-import android.view.ViewGroup;
 
 class Foo extends ListFragment implements LoaderManager.LoaderCallbacks {
 

@@ -2,8 +2,8 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.CommentRow;
+import com.soundcloud.android.view.adapter.IconLayout;
 
 import android.content.Context;
 import android.content.Intent;

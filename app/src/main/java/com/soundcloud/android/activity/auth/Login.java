@@ -1,5 +1,12 @@
 package com.soundcloud.android.activity.auth;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -7,13 +14,12 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.*;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ScTextUtils;
-import org.jetbrains.annotations.Nullable;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class Login extends RelativeLayout {
     private static final String BUNDLE_EMAIL    = "BUNDLE_EMAIL";
