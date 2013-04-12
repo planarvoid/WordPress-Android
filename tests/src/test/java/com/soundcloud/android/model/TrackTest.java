@@ -1,8 +1,7 @@
 package com.soundcloud.android.model;
 
-import android.content.ContentValues;
-import android.content.Intent;
-import android.os.Parcel;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -10,9 +9,11 @@ import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Date;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.os.Parcel;
 
-import static com.soundcloud.android.Expect.expect;
+import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
 public class TrackTest {

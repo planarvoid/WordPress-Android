@@ -1,7 +1,15 @@
 package com.soundcloud.android.activity.create;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.service.upload.UploadService.*;
+import static com.soundcloud.android.service.upload.UploadService.PROCESSING_CANCELED;
+import static com.soundcloud.android.service.upload.UploadService.PROCESSING_ERROR;
+import static com.soundcloud.android.service.upload.UploadService.PROCESSING_PROGRESS;
+import static com.soundcloud.android.service.upload.UploadService.PROCESSING_STARTED;
+import static com.soundcloud.android.service.upload.UploadService.PROCESSING_SUCCESS;
+import static com.soundcloud.android.service.upload.UploadService.TRANSFER_CANCELLED;
+import static com.soundcloud.android.service.upload.UploadService.TRANSFER_PROGRESS;
+import static com.soundcloud.android.service.upload.UploadService.TRANSFER_STARTED;
+import static com.soundcloud.android.service.upload.UploadService.TRANSFER_SUCCESS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

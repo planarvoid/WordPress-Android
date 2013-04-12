@@ -1,11 +1,5 @@
 package com.soundcloud.android.dao;
 
-import android.net.Uri;
-import com.soundcloud.android.model.User;
-import org.junit.Test;
-
-import static com.soundcloud.android.Expect.expect;
-
 public class UserStorageTest {
 
 

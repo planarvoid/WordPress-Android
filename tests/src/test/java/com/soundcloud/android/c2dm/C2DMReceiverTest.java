@@ -3,7 +3,6 @@ package com.soundcloud.android.c2dm;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;

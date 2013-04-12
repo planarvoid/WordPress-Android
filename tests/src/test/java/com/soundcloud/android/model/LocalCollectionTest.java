@@ -1,13 +1,14 @@
 package com.soundcloud.android.model;
 
-import android.net.Uri;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.sync.SyncConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.soundcloud.android.Expect.expect;
+import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
 public class LocalCollectionTest {

@@ -1,7 +1,6 @@
 package com.soundcloud.android.robolectric.shadows;
 
 import com.soundcloud.android.jni.EncoderOptions;
-import com.soundcloud.android.jni.ProgressListener;
 import com.soundcloud.android.jni.VorbisEncoder;
 import com.soundcloud.android.service.upload.UserCanceledException;
 import com.xtremelabs.robolectric.internal.Implementation;

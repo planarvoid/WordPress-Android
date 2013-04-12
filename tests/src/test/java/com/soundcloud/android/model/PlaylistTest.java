@@ -1,15 +1,16 @@
 package com.soundcloud.android.model;
 
-import android.os.Parcel;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.os.Parcel;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
 public class PlaylistTest {
