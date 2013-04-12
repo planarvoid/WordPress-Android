@@ -43,22 +43,14 @@ public class ReactiveScheduler<T> {
         return !mPendingObservables.isEmpty();
     }
 
-    public Subscription schedulePendingObservables(Observer<T> observer, @Nullable Integer limit) {
-        Observable<Observable<T>> observable = ScObservables.pendingObservables(mPendingObservables);
-        if (limit != null) {
-            observable = observable.take(limit);
-        }
-        Subscription subscription = observable.subscribe(ScActions.pendingAction(observer));
-        mPendingObservables.clear();
-        return subscription;
-    }
-
-    public Subscription schedulePendingObservables(Observer<T> observer) {
-        return schedulePendingObservables(observer, null);
-    }
-
     public Subscription scheduleFirstPendingObservable(Observer<T> observer) {
-        return schedulePendingObservables(observer, 1);
+        if (hasPendingObservables()) {
+            Observable<Observable<T>> observable = mPendingObservables.get(0);
+            Subscription subscription = observable.subscribe(ScActions.pendingAction(observer));
+            mPendingObservables.clear();
+            return subscription;
+        }
+        return Subscriptions.empty();
     }
 
     public static <T> BackgroundJob<T> newBackgroundJob(final ObservedRunnable<T> runnable) {

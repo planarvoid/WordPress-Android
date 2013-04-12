@@ -5,6 +5,8 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.dao.ContentValuesProvider;
+import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
@@ -205,6 +207,16 @@ public class TestHelper {
 
     public static void disableSDCard() {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_REMOVED);
+    }
+
+    public static Uri insert(Uri contentUri, ContentValuesProvider insertable) {
+        Uri uri = Robolectric.application.getContentResolver().insert(contentUri, insertable.buildContentValues());
+        expect(uri).not.toBeNull();
+        return uri;
+    }
+
+    public static <T extends ContentValuesProvider & ModelLike> Uri insert(T insertable) {
+        return insert(insertable.toUri(), insertable);
     }
 
     public static Uri insertWithDependencies(Uri contentUri, ScResource resource) {

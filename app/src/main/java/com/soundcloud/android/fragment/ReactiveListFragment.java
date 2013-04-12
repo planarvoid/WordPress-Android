@@ -1,7 +1,5 @@
 package com.soundcloud.android.fragment;
 
-import static com.soundcloud.android.rx.ScObservables.pending;
-
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
@@ -10,7 +8,6 @@ import com.soundcloud.android.rx.schedulers.ReactiveScheduler;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ScListView;
-import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 
@@ -82,19 +79,11 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
         Log.d(this, "onStart");
 
-        // TODO: this fires when the adapter is empty because the user simply has no sounds, but shouldn't.
-        if (mAdapter.isEmpty()) {
-            Log.d(this, "Adapter is empty, scheduling possible local refresh");
-            mScheduler.addPendingObservable(pending(getListItemsObservable()));
-        }
-
         if (mScheduler.hasPendingObservables()) {
             mLoadItemsSubscription = mScheduler.scheduleFirstPendingObservable(mLoadItemsObserver);
             showProgressSpinner();
         }
     }
-
-    protected abstract Observable<List<T>> getListItemsObservable();
 
     @Override
     public void onStop() {

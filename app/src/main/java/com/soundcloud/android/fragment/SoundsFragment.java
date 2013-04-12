@@ -42,8 +42,4 @@ public class SoundsFragment extends ReactiveListFragment<ScResource> {
     protected void configureEmptyListView(EmptyListView emptyView) {
     }
 
-    @Override
-    protected Observable<List<ScResource>> getListItemsObservable() {
-        return null;
-    }
 }

@@ -2,7 +2,6 @@ package com.soundcloud.android.rx.schedulers;
 
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.rx.ScObservables;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -52,7 +51,7 @@ public class SyncOperations<T> {
                 if (syncRequired) {
                     observer.onNext(syncAction);
                 } else {
-                    observer.onNext(ScObservables.EMPTY);
+                    observer.onNext(mLocalStorage.loadFromContentUri(contentUri));
                 }
 
                 observer.onCompleted();

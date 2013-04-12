@@ -151,9 +151,4 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
     protected IScAdapter<Activity> newAdapter() {
         return new ActivityAdapter(getActivity(), null);
     }
-
-    @Override
-    protected Observable<List<Activity>> getListItemsObservable() {
-        return mLoadActivities;
-    }
 }

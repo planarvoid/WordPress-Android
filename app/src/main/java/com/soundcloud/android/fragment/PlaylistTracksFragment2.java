@@ -107,11 +107,6 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
     }
 
     @Override
-    protected Observable<List<Track>> getListItemsObservable() {
-        return mLoadTracks;
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         PlayInfo info = new PlayInfo();
         info.initialTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
