@@ -97,42 +97,35 @@ public class TourLayout extends FrameLayout {
         ImageUtils.recycleImageViewBitmap(mBgImageView);
     }
 
-    public static void load(final Context context, int startPage, TourLayout... layouts) {
+    public static void load(final Context context, TourLayout... layouts) {
         if (layouts == null || layouts.length == 0) throw new IllegalArgumentException();
-        loadAsync(context, startPage, layouts);
+        loadAsync(context, layouts);
     }
 
-    private static AsyncTask loadAsync(final Context context, final int startPage, TourLayout... layouts) {
+    private static AsyncTask loadAsync(final Context context, TourLayout... layouts) {
         return new AsyncTask<TourLayout, Pair<TourLayout, Bitmap>, Void>() {
             @Override
             protected Void doInBackground(TourLayout... layouts) {
-                final TourLayout initalLayout = layouts[startPage];
-                loadTourLayoutImage(initalLayout);
                 for (TourLayout layout : layouts) {
-                    if (layout != initalLayout) loadTourLayoutImage(layout);
+                    Point size = layout.getDisplaySize();
+                    Bitmap bitmap = null;
+                    // try / catch mostly for OOM of the huge images, but who knows really
+                    try {
+                        bitmap = ImageUtils.decodeSampledBitmapFromResource(
+                                context.getResources(),
+                                layout.mBgResId,
+                                size.x,
+                                size.y
+                        );
+                    } catch (Error ignored) { // will catch OOM
+                        Log.w(TAG, ignored);
+                    } catch (Exception ignored) {
+                        Log.w(TAG, ignored);
+                    }
+                    publishProgress(Pair.create(layout, bitmap));
                 }
                 return null;
             }
-
-            private void loadTourLayoutImage(TourLayout layout) {
-                Point size = layout.getDisplaySize();
-                Bitmap bitmap = null;
-                // try / catch mostly for OOM of the huge images, but who knows really
-                try {
-                    bitmap = ImageUtils.decodeSampledBitmapFromResource(
-                            context.getResources(),
-                            layout.mBgResId,
-                            size.x,
-                            size.y
-                    );
-                } catch (Error ignored) { // will catch OOM
-                    Log.w(TAG, ignored);
-                } catch (Exception ignored) {
-                    Log.w(TAG, ignored);
-                }
-                publishProgress(Pair.create(layout, bitmap));
-            }
-
             @Override
             protected void onProgressUpdate(Pair<TourLayout, Bitmap>... result) {
                 result[0].first.onBitmapLoaded(result[0].second);
