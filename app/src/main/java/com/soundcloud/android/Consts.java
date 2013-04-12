@@ -50,7 +50,9 @@ public final class Consts {
 
         int SIGNUP_VIA_FACEBOOK     = 8001;
         int RECOVER_CODE            = 8002;
-        int SIGNUP_VIA_GOOGLEPLUS   = 8003;
+
+        int REQUEST_CODE_RECOVER_FROM_AUTH_ERROR = 9001;
+        int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 9002;
     }
 
     public static interface Keys {
