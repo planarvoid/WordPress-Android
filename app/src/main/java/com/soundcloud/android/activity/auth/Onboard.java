@@ -4,6 +4,7 @@ import static com.soundcloud.android.R.anim;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
+import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -21,7 +22,11 @@ import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,6 +45,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -599,10 +605,31 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     private void onGooglePlusLogin() {
-        SoundCloudApplication app = (SoundCloudApplication) getApplication();
+        Account[] accounts = AccountManager.get(this).getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
+        final String[] names = new String[accounts.length];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = accounts[i].name;
+        }
 
-        app.track(Click.Login_with_facebook);
-        startActivityForResult(new Intent(this, GooglePlusSignIn.class), Consts.RequestCodes.SIGNUP_VIA_FACEBOOK);
+        if (names.length == 0){
+            Toast.makeText(this, "No account available. Please add an account to the phone first.", Toast.LENGTH_LONG).show();
+        } else if (names.length == 1){
+            onGoogleAccountSelected(names[0]);
+        } else {
+            new AlertDialog.Builder(this).setItems(names, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    onGoogleAccountSelected(names[which]);
+                }
+            }).show();
+        }
+    }
+
+    private void onGoogleAccountSelected(String name) {
+        Intent intent = new Intent(this, GooglePlusSignIn.class);
+        intent.putExtra(GooglePlusSignIn.EXTRA_ACCOUNT, name);
+        startActivityForResult(intent, Consts.RequestCodes.SIGNUP_VIA_GOOGLEPLUS);
+        ((SoundCloudApplication) getApplication()).track(Click.Login_with_googleplus);
     }
 
     private void onFacebookLogin() {

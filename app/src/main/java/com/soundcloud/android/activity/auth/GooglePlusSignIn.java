@@ -10,16 +10,13 @@ import com.soundcloud.android.utils.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Dialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,14 +29,15 @@ import java.net.URL;
  */
 public class GooglePlusSignIn extends AbstractLoginActivity {
 
+    public static final String EXTRA_ACCOUNT = "extra_account";
+
     private static final String SCOPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
 
     static final int REQUEST_CODE_RECOVER_FROM_AUTH_ERROR = 1001;
     static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 1002;
 
-    private String[] mGoogleAccountNames;
+    private String mGoogleAccountName;
     private TextView mMessage;
-    private Spinner mAccountNamesSpinner;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -48,9 +46,14 @@ public class GooglePlusSignIn extends AbstractLoginActivity {
         setContentView(R.layout.google_plus_auth);
 
         mMessage = (TextView) findViewById(R.id.message);
-        mGoogleAccountNames = getAccountNames();
-        mAccountNamesSpinner = initializeSpinner(R.id.account_names_spinner, mGoogleAccountNames);
         initializeFetchButton(R.id.sign_in_btn);
+
+        if (getIntent().hasExtra(EXTRA_ACCOUNT)){
+            mGoogleAccountName = getIntent().getStringExtra(EXTRA_ACCOUNT);
+        } else {
+            Toast.makeText(this,"No account name given",Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
     }
 
@@ -80,36 +83,11 @@ public class GooglePlusSignIn extends AbstractLoginActivity {
         });
     }
 
-    private String[] getAccountNames() {
-        Account[] accounts = AccountManager.get(this).getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
-        String[] names = new String[accounts.length];
-        for (int i = 0; i < names.length; i++) {
-            names[i] = accounts[i].name;
-        }
-        return names;
-    }
-
-    private Spinner initializeSpinner(int id, String[] values) {
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(GooglePlusSignIn.this,
-                android.R.layout.simple_spinner_item, values);
-        Spinner spinner = (Spinner) findViewById(id);
-        spinner.setAdapter(adapter);
-        return spinner;
-    }
-
     private void initializeFetchButton(int id) {
         findViewById(id).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int accountIndex = mAccountNamesSpinner.getSelectedItemPosition();
-                if (accountIndex < 0) {
-                    // this happens when the sample is run in an emulator which has no google account
-                    // added yet.
-                    show("No account available. Please add an account to the phone first.");
-                    return;
-                }
-
-                new FetchName(GooglePlusSignIn.this, mGoogleAccountNames[accountIndex], SCOPE,
+                new FetchName(GooglePlusSignIn.this, mGoogleAccountName, SCOPE,
                         REQUEST_CODE_RECOVER_FROM_AUTH_ERROR).execute();
             }
         });
