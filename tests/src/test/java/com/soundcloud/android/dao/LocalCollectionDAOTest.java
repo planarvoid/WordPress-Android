@@ -1,12 +1,13 @@
 package com.soundcloud.android.dao;
 
-import android.net.Uri;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 
-import static com.soundcloud.android.Expect.expect;
+import android.net.Uri;
 
 public class LocalCollectionDAOTest extends AbstractDAOTest<LocalCollectionDAO> {
     public LocalCollectionDAOTest() {

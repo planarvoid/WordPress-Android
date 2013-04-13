@@ -1,6 +1,8 @@
 package com.soundcloud.android.service.playback;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playlist;

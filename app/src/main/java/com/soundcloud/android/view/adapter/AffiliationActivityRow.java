@@ -1,13 +1,8 @@
 package com.soundcloud.android.view.adapter;
 
-import com.soundcloud.android.Consts;
+import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
+
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.act.AffiliationActivity;
-import com.soundcloud.android.model.act.CommentActivity;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -16,11 +11,6 @@ import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
-import android.view.View;
-
-import java.util.Date;
-
-import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 public class AffiliationActivityRow extends ActivityRow {
 

@@ -1,8 +1,7 @@
 package com.soundcloud.android.task.collection;
 
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.BaseAdapter;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.dao.BaseDAO;
@@ -12,12 +11,14 @@ import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.Request;
 
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.BaseAdapter;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Set;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Boolean> {
     private AndroidCloudAPI mApi;

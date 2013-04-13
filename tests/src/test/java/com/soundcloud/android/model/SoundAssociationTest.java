@@ -1,12 +1,13 @@
 package com.soundcloud.android.model;
 
-import android.os.Parcel;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.soundcloud.android.Expect.expect;
+import android.os.Parcel;
 
 @RunWith(DefaultTestRunner.class)
 public class SoundAssociationTest {

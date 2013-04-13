@@ -74,7 +74,7 @@ public class Recover extends Activity {
                                 new Intent(Intent.ACTION_VIEW,
                                         Uri.parse(getString(R.string.authentication_support_uri))));
                     }
-                }, true);
+                }, true, false);
 
         if (getIntent().hasExtra("email")) {
             emailField.setText(getIntent().getStringExtra("email"));

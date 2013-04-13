@@ -1,18 +1,19 @@
 package com.soundcloud.android.task.collection;
 
-import android.text.TextUtils;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.UnknownResource;
 import org.apache.http.HttpStatus;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class RemoteCollectionLoader<T extends ScResource> extends CollectionLoader<T> {
 

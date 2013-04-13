@@ -4,15 +4,14 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.SyncStateManager;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
-import com.soundcloud.android.service.sync.SyncStateManager;
 
 public class SuggestedUsers extends ScActivity implements ScLandingPage{
     @Override

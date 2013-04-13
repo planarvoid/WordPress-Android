@@ -1,8 +1,9 @@
 package com.soundcloud.android.dialog;
 
-import android.os.Bundle;
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.dao.PlaylistStorage;
+
+import android.os.Bundle;
 
 public abstract class PlaylistDialogFragment extends SherlockDialogFragment {
     public static final String KEY_TRACK_ID = "TRACK_ID";

@@ -1,6 +1,7 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentValues;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.act.AffiliationActivity;
@@ -17,9 +18,9 @@ import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 
-import java.util.List;
+import android.content.ContentValues;
 
-import static com.soundcloud.android.Expect.expect;
+import java.util.List;
 
 public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
 

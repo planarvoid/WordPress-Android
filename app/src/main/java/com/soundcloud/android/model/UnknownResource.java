@@ -2,8 +2,6 @@ package com.soundcloud.android.model;
 
 import android.net.Uri;
 
-import java.util.List;
-
 public class UnknownResource extends ScResource {
 
     public UnknownResource() {}

@@ -1,22 +1,19 @@
 package com.soundcloud.android.view.quickaction;
 
+import com.soundcloud.android.R;
+
 import android.content.Context;
-
-import android.graphics.*;
-import android.graphics.drawable.Drawable;
-
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.ScrollView;
-
+import android.graphics.BlurMaskFilter;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup;
-import com.soundcloud.android.R;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 /**
  * Popup window, shows action list as icon and text like the one in Gallery3D app. 

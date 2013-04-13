@@ -9,7 +9,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
-import android.os.PowerManager;
 import android.util.Log;
 
 import java.io.IOException;

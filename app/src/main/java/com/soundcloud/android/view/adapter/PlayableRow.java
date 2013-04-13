@@ -1,7 +1,5 @@
 package com.soundcloud.android.view.adapter;
 
-import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
@@ -12,9 +10,6 @@ import com.soundcloud.android.model.RepostActivity;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.model.act.PlaylistRepostActivity;
-import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 

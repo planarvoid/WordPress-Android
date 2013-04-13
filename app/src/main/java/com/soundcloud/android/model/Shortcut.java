@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.ContentValues;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 public class Shortcut extends ScModel {
 

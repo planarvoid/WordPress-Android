@@ -1,9 +1,9 @@
 package com.soundcloud.android.view.play;
 
 
-import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;

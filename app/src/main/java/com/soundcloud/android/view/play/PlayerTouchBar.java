@@ -1,13 +1,13 @@
 package com.soundcloud.android.view.play;
 
+import com.soundcloud.android.R;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.FrameLayout;
-import com.soundcloud.android.R;
 
 public class PlayerTouchBar extends View {
 

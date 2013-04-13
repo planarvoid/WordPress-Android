@@ -1,6 +1,5 @@
 package com.soundcloud.android;
 
-import android.content.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
@@ -8,6 +7,8 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
+
+import android.content.Context;
 
 import java.io.IOException;
 import java.net.URI;

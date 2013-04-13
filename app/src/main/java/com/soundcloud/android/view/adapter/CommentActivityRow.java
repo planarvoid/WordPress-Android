@@ -1,10 +1,10 @@
 package com.soundcloud.android.view.adapter;
 
+import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.CommentActivity;
 
@@ -17,8 +17,6 @@ import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 
 import java.util.Date;
-
-import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 public class CommentActivityRow extends ActivityRow {
     private Comment mComment;

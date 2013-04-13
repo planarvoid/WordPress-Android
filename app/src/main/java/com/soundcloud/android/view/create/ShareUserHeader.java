@@ -1,9 +1,9 @@
 package com.soundcloud.android.view.create;
 
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -25,7 +25,7 @@ public class ShareUserHeader extends RelativeLayout {
                     public void onClick() {
                         activity.safeShowDialog(Consts.Dialogs.DIALOG_LOGOUT);
                     }
-                }, true);
+                }, true, false);
 
         ((TextView) findViewById(R.id.share_header_username)).setText(user.username);
 

@@ -1,12 +1,9 @@
 package com.soundcloud.android.task.create;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 

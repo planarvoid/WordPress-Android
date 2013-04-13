@@ -1,11 +1,12 @@
 package com.soundcloud.android.model.act;
 
-import android.database.Cursor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.RepostActivity;
 import com.soundcloud.android.model.User;
 import org.jetbrains.annotations.NotNull;
+
+import android.database.Cursor;
 
 public class TrackRepostActivity extends TrackActivity implements PlayableHolder, RepostActivity {
     @JsonProperty public User user;

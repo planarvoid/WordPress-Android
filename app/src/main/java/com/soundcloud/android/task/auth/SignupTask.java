@@ -11,7 +11,6 @@ import com.soundcloud.api.Token;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
-
 import java.io.IOException;
 
 public class SignupTask extends AsyncApiTask<String, Void, User> {

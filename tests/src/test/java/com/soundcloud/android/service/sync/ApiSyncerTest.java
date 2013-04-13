@@ -1,16 +1,21 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.*;
+import static com.soundcloud.android.robolectric.TestHelper.addCannedResponse;
+import static com.soundcloud.android.robolectric.TestHelper.addIdResponse;
+import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
+import static com.soundcloud.android.robolectric.TestHelper.assertFirstIdToBe;
+import static com.soundcloud.android.robolectric.TestHelper.assertResolverNotified;
 import static com.soundcloud.android.service.sync.ApiSyncer.Result;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.SoundAssociation;

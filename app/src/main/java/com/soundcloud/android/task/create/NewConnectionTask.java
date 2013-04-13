@@ -1,7 +1,5 @@
 package com.soundcloud.android.task.create;
 
-import android.net.Uri;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Connection;
@@ -9,6 +7,8 @@ import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+
+import android.net.Uri;
 
 import java.io.IOException;
 

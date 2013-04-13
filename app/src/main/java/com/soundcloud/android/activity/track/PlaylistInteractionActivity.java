@@ -1,13 +1,10 @@
 package com.soundcloud.android.activity.track;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.utils.PlayUtils;
 
 import android.content.Intent;
 import android.net.Uri;

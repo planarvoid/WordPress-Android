@@ -1,10 +1,11 @@
 package com.soundcloud.android.model.act;
 
-import android.database.Cursor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
+
+import android.database.Cursor;
 
 public class AffiliationActivity extends Activity {
     @JsonProperty public User user;

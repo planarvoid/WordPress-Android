@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.LinearLayout;
