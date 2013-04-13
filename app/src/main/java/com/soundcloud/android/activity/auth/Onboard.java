@@ -677,7 +677,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Override
     public void onGPlusError(String message) {
         if (mProgressDialog != null) mProgressDialog.hide();
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+        if (!TextUtils.isEmpty(message)) Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 
     @Override
