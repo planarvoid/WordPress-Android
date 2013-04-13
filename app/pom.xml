@@ -150,10 +150,10 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>google-play-services</artifactId>
-            <version>r6</version>
-            <scope>compile</scope>
+          <groupId>com.google.android.gms</groupId>
+          <artifactId>google-play-services</artifactId>
+          <version>6</version>
+          <type>apklib</type>
         </dependency>
         <dependency>
             <groupId>com.google.android</groupId>
