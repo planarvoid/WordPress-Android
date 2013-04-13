@@ -448,7 +448,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             @Override protected void onPostExecute(User user) {
                 if (!isFinishing()) {
                     if (user != null) {
-                        addAccount(user, SignupVia.API, dialog);
+                        addAccountAsync(user, SignupVia.API, dialog);
                     } else {
                         showError(getFirstError());
                         try {
@@ -463,7 +463,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onSkipDetails() {
-        addAccount(mUser, SignupVia.API, null);
+        addAccountAsync(mUser, SignupVia.API, null);
     }
 
 
@@ -685,6 +685,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         Toast.makeText(this,"Got token " + token,Toast.LENGTH_LONG).show();
 
         Bundle bundle = new Bundle();
+        // TODO : Google Grant Type once ApiWrapper is updated
         bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, CloudAPI.FACEBOOK_GRANT_TYPE + token);
         login(bundle, mProgressDialog);
 

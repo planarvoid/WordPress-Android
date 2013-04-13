@@ -27,7 +27,6 @@ import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,6 +34,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity {
     public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
@@ -45,6 +45,8 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
     public static final String USERNAME_EXTRA = "username";
     public static final String PASSWORD_EXTRA = "password";
 
+    protected ProgressDialog mProgressDialog;
+
     protected void login(String username, String password) {
         final Bundle param = new Bundle();
         param.putString(USERNAME_EXTRA, username);
@@ -52,90 +54,29 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
         login(param, null);
     }
 
-    protected void login(final Bundle data, final ProgressDialog progressDialog) {
+    protected void login(Bundle data, final ProgressDialog progressDialog) {
         if (!data.containsKey(SCOPES_EXTRA)) {
             // default to non-expiring scope
             data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
         }
-        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
-        new GetTokensTask(app) {
-            ProgressDialog progress;
+        mProgressDialog = progressDialog;
 
-            @Override
-            protected void onPreExecute() {
-                if (!isFinishing()) {
-                    progress = progressDialog != null ? progressDialog :
-                            AndroidUtils.showProgress(AbstractLoginActivity.this,
-                            R.string.authentication_login_progress_message);
-                }
-            }
-
-            @Override
-            protected void onPostExecute(final Token token) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
-
-                if (token != null) {
-                    fetchUser(token, progress);
-                } else { // no tokens obtained
-                    dismissDialog(progress);
-                    showError(mException);
-                }
-            }
-        }.execute(data);
+        //TODO, save this for orientation changes
+        new LoginTask(this).execute(data);
     }
 
-    private void fetchUser(final Token token, final ProgressDialog progress) {
+    protected void addAccountAsync(final User user, final SignupVia via, @Nullable final ProgressDialog progress) {
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
-        new FetchUserTask(app) {
-            @Override
-            protected void onPostExecute(User user) {
-                if (user != null) {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
-
-                    // for normal logins, we don't track via; for FB logins or signups, it'll be stored in the token.
-                    SignupVia via = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
-
-                    addAccount(user,via,progress);
-                } else {
-                    dismissDialog(progress);
-                    // TODO: means we got a 404 on the user, needs to be more expressive...
-                    showError();
-                }
-            }
-        }.execute(Request.to(Endpoints.MY_DETAILS));
-    }
-
-    protected void addAccount(final User user, final SignupVia via, @Nullable final ProgressDialog progress) {
-
-        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
-        new AsyncTask<Void, Void, Boolean>(){
+        new AsyncTask<Void, Void, Boolean>() {
             @Override
             protected Boolean doInBackground(Void... params) {
-                // need to create user account as soon as possible, so the executeRefreshTask logic in
-                // SoundCloudApplication works properly
-                boolean accountCreated = app.addUserAccountAndEnableSync(user, app.getToken(), via);
-                if (accountCreated) {
-                    new UserStorage(app).createOrUpdate(user);
-                    if (via != SignupVia.NONE) {
-                        // user has signed up, schedule sync of user data to possibly refresh image data
-                        // which gets processed asynchronously by the backend and is only available after signup has happened
-                        final Context context = getApplicationContext();
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                context.startService(new Intent(context, ApiSyncService.class).setData(Content.ME.uri));
-                            }
-                        }, 30 * 1000);
-                    }
-                    return true;
-                } else {
-                    return false;
-                }
+                return addAccount(app, user, via);
             }
+
             @Override
             protected void onPostExecute(Boolean success) {
-                if (success){
+                if (success) {
                     onAccountAdded(via, user);
                 } else {
                     AndroidUtils.showToast(AbstractLoginActivity.this, R.string.error_creating_account);
@@ -187,6 +128,9 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
     //TODO: use dialog fragments or managed dialogs (onCreateDialog)
     protected void showError(String message) {
         if (!isFinishing()) {
+            if (mProgressDialog != null && mProgressDialog.isShowing()){
+                dismissDialog(mProgressDialog);
+            }
             new AlertDialog.Builder(AbstractLoginActivity.this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle(getString(R.string.authentication_error_title))
@@ -210,6 +154,104 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
             try {
                 d.dismiss();
             } catch (IllegalArgumentException ignored) {
+            }
+        }
+    }
+
+    private static Boolean addAccount(final SoundCloudApplication app, User user, SignupVia via) {
+        // need to create user account as soon as possible, so the executeRefreshTask logic in
+        // SoundCloudApplication works properly
+        boolean accountCreated = app.addUserAccountAndEnableSync(user, app.getToken(), via);
+        if (accountCreated) {
+            new UserStorage(app).createOrUpdate(user);
+            if (via != SignupVia.NONE) {
+                // user has signed up, schedule sync of user data to possibly refresh image data
+                // which gets processed asynchronously by the backend and is only available after signup has happened
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        app.startService(new Intent(app, ApiSyncService.class).setData(Content.ME.uri));
+                    }
+                }, 30 * 1000);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void showProgressDialog(){
+        if (mProgressDialog == null){
+            mProgressDialog = AndroidUtils.showProgress(this, R.string.authentication_login_progress_message);
+        } else if (!mProgressDialog.isShowing()){
+            mProgressDialog.show();
+        }
+    }
+
+    static class LoginTask extends AsyncTask<Bundle, Void, User> {
+        private final SoundCloudApplication mApp;
+        private WeakReference<AbstractLoginActivity> mActivityRef;
+        private SignupVia mSignupVia;
+        private IOException mException;
+        private int mError;
+
+        public LoginTask(@NotNull AbstractLoginActivity abstractLoginActivity) {
+            mApp = (SoundCloudApplication) abstractLoginActivity.getApplication();
+            mActivityRef = new WeakReference<AbstractLoginActivity>(abstractLoginActivity);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            final AbstractLoginActivity activity = mActivityRef.get();
+            if (activity != null){
+                activity.showProgressDialog();
+            }
+        }
+
+        @Override
+        protected User doInBackground(Bundle... params) {
+            // TODO: this probably doesn't need to be it's own task if we make a SignUp task like this one
+            final GetTokensTask getTokensTask = new GetTokensTask(mApp);
+            Token token = getTokensTask.getToken(params[0]);
+            if (token == null) { // no tokens obtained
+                mException = getTokensTask.getException();
+                return null;
+            }
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "LoginTask[Token](" + token + ")");
+
+            final User user = new FetchUserTask(mApp).resolve(Request.to(Endpoints.MY_DETAILS));
+            if (user == null) {
+                // TODO: means we got a 404 on the user, needs to be more expressive...
+                mError = R.string.error_creating_account;
+                return null;
+            }
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "LoginTask[User](" + user + ")");
+
+            mSignupVia = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
+            if (!addAccount(mApp, user, mSignupVia)) {
+                mError = R.string.error_creating_account;
+                return null;
+            }
+
+            return user;
+        }
+
+        @Override
+        protected void onPostExecute(final User user) {
+            final AbstractLoginActivity activity = mActivityRef.get();
+            if (activity != null) {
+
+                if (user != null) {
+                    activity.onAccountAdded(mSignupVia, user);
+                } else {
+                    if (mException != null) {
+                        activity.showError(mException);
+                    } else if (mError > 0) {
+                        activity.showError(activity.getString(mError));
+                    }
+                }
             }
         }
     }

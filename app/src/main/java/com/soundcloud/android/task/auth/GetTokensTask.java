@@ -21,7 +21,10 @@ public class GetTokensTask extends AsyncApiTask<Bundle, Void, Token> {
 
     @Override
     protected Token doInBackground(Bundle... params) {
-        Bundle param = params[0];
+        return getToken(params[0]);
+    }
+
+    public Token getToken(Bundle param) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#doInBackGround("+param+")");
         try {
             final String[] scopes = param.getStringArray(AbstractLoginActivity.SCOPES_EXTRA);
@@ -42,5 +45,9 @@ public class GetTokensTask extends AsyncApiTask<Bundle, Void, Token> {
             Log.e(TAG, "error logging in", e);
             return null;
         }
+    }
+
+    public IOException getException() {
+        return mException;
     }
 }
