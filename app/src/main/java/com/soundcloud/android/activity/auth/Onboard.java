@@ -19,6 +19,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.tour.TourLayout;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
@@ -91,6 +92,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Nullable private Login  mLogin;
     @Nullable private SignUp mSignUp;
     @Nullable private UserDetails mUserDetails;
+
+    @Nullable private ProgressDialog mProgressDialog;
 
     @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle;
 
@@ -630,6 +633,9 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     private void onGoogleAccountSelected(String name) {
+        mProgressDialog = AndroidUtils.showProgress(Onboard.this,
+            R.string.authentication_login_progress_message);
+
         new GooglePlusSignInTask(this, GOOGLE_PLUS_SCOPE,
                 Consts.RequestCodes.REQUEST_CODE_RECOVER_FROM_AUTH_ERROR).execute(name);
 
@@ -670,12 +676,18 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onGPlusError(String message) {
+        if (mProgressDialog != null) mProgressDialog.hide();
         Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onGPlusToken(String token) {
         Toast.makeText(this,"Got token " + token,Toast.LENGTH_LONG).show();
+
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, CloudAPI.FACEBOOK_GRANT_TYPE + token);
+        login(bundle, mProgressDialog);
+
     }
 
     @Override

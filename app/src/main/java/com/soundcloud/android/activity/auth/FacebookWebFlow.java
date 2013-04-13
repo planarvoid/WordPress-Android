@@ -87,7 +87,7 @@ public class FacebookWebFlow extends AbstractLoginActivity {
                         if ("1".equals(result.getQueryParameter("signed_up"))) {
                             params.putString(SignupVia.EXTRA, SignupVia.FACEBOOK_WEBFLOW.name);
                         }
-                        login(params);
+                        login(params, null);
                     } else {
                         new AlertDialog.Builder(FacebookWebFlow.this)
                                 .setTitle(R.string.facebook_authentication_failed_title)

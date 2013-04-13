@@ -49,10 +49,10 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
         final Bundle param = new Bundle();
         param.putString(USERNAME_EXTRA, username);
         param.putString(PASSWORD_EXTRA, password);
-        login(param);
+        login(param, null);
     }
 
-    protected void login(final Bundle data) {
+    protected void login(final Bundle data, final ProgressDialog progressDialog) {
         if (!data.containsKey(SCOPES_EXTRA)) {
             // default to non-expiring scope
             data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
@@ -65,7 +65,8 @@ public abstract class AbstractLoginActivity extends AccountAuthenticatorActivity
             @Override
             protected void onPreExecute() {
                 if (!isFinishing()) {
-                    progress = AndroidUtils.showProgress(AbstractLoginActivity.this,
+                    progress = progressDialog != null ? progressDialog :
+                            AndroidUtils.showProgress(AbstractLoginActivity.this,
                             R.string.authentication_login_progress_message);
                 }
             }
