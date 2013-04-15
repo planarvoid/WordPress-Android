@@ -57,7 +57,7 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
         if (savedInstanceState == null) {
             Log.d(this, "first start, scheduling possible sync");
-            mScheduler.addPendingObservable(mSyncOperations.syncIfNecessary(mContentUri));
+            addPendingObservable(mSyncOperations.syncIfNecessary(mContentUri));
         }
     }
 

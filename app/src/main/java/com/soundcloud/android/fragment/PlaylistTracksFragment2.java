@@ -72,7 +72,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
         // since we need to sync the playlist first, but the list fragment is modeled around a playlist's tracks,
         // so we need to map the sync operation to return the playlist's tracks first
         if (savedInstanceState == null) {
-            mScheduler.addPendingObservable(
+            addPendingObservable(
                     mSyncOperations.syncIfNecessary(mPlaylist.toUri()).map(ScFunctions.PLAYLIST_OBS_TO_TRACKS_OBS));
         }
     }

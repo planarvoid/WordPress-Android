@@ -3,12 +3,14 @@ package com.soundcloud.android.fragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.rx.schedulers.ReactiveScheduler;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.ScListView;
+import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ReactiveListFragment<T> extends Fragment implements PullToRefreshBase.OnRefreshListener,
@@ -34,7 +37,8 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         }
     };
 
-    protected ReactiveScheduler<List<T>> mScheduler;
+    private List<Observable<Observable<List<T>>>> mPendingObservables;
+
     protected Observer<List<T>> mLoadItemsObserver;
     protected Subscription mLoadItemsSubscription;
 
@@ -48,8 +52,9 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
         Log.d(this, "onCreate");
 
+        mPendingObservables = new ArrayList<Observable<Observable<List<T>>>>();
+
         mAdapter = newAdapter();
-        mScheduler = new ReactiveScheduler<List<T>>(getActivity());
         mLoadItemsObserver = new LoadItemsObserver();
     }
 
@@ -78,8 +83,8 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
         Log.d(this, "onStart");
 
-        if (mScheduler.hasPendingObservables()) {
-            mLoadItemsSubscription = mScheduler.scheduleFirstPendingObservable(mLoadItemsObserver);
+        if (hasPendingObservables()) {
+            mLoadItemsSubscription = scheduleFirstPendingObservable(mLoadItemsObserver);
             showProgressSpinner();
         }
     }
@@ -114,6 +119,27 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
     public IScAdapter<T> getListAdapter() {
         return mAdapter;
+    }
+
+    protected boolean hasPendingObservables() {
+        return !mPendingObservables.isEmpty();
+    }
+
+    protected void addPendingObservable(Observable<Observable<List<T>>> observable) {
+        mPendingObservables.add(observable);
+    }
+
+    //TODO: currently we lose the subscription to the underlying pending observable and merely return the one returned
+    //from the decision function (which is fast to execute). We need a way to hold on to the subscription of the
+    //actual long running task so that we can disconnect the observer at any point in time
+    private Subscription scheduleFirstPendingObservable(Observer<List<T>> observer) {
+        if (hasPendingObservables()) {
+            Observable<Observable<List<T>>> observable = mPendingObservables.get(0);
+            Subscription subscription = observable.subscribe(ScActions.pendingAction(observer));
+            mPendingObservables.clear();
+            return subscription;
+        }
+        return Subscriptions.empty();
     }
 
     protected class LoadItemsObserver implements Observer<List<T>> {
