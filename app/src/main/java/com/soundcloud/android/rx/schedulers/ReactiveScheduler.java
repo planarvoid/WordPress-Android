@@ -3,29 +3,15 @@ package com.soundcloud.android.rx.schedulers;
 import com.soundcloud.android.rx.ScActions;
 import rx.Observable;
 import rx.Observer;
-import rx.Scheduler;
 import rx.Subscription;
-import rx.concurrency.Schedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ReactiveScheduler<T> {
-
-    private static final ExecutorService sExecutor;
-    public static final Scheduler BACKGROUND_SCHEDULER;
-    public static final Scheduler UI_SCHEDULER;
-
-    static {
-        sExecutor = Executors.newSingleThreadExecutor();
-        BACKGROUND_SCHEDULER = Schedulers.executor(sExecutor);
-        UI_SCHEDULER = new MainThreadScheduler();
-    }
 
     protected Context mContext;
 

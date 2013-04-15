@@ -2,6 +2,7 @@ package com.soundcloud.android.rx.schedulers;
 
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -31,8 +32,8 @@ public class SyncOperations<T> {
     private final LocalStorageStrategy<T> mStorageStrategy;
     private final LocalCollectionDAO mLocalCollectionsDao; //TODO: replace with storage facade
 
-    private Scheduler mBackgroundScheduler = ReactiveScheduler.BACKGROUND_SCHEDULER;
-    private Scheduler mUIScheduler = ReactiveScheduler.UI_SCHEDULER;
+    private Scheduler mBackgroundScheduler = ScSchedulers.BACKGROUND_SCHEDULER;
+    private Scheduler mUIScheduler = ScSchedulers.UI_SCHEDULER;
 
     public SyncOperations(Context context, LocalStorageStrategy<T> localStorageStrategy) {
         mContext = context.getApplicationContext();
