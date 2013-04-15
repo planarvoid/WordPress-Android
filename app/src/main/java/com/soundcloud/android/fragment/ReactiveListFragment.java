@@ -37,9 +37,9 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         }
     };
 
-    private List<Observable<Observable<List<T>>>> mPendingObservables;
+    private List<Observable<Observable<T>>> mPendingObservables;
 
-    protected Observer<List<T>> mLoadItemsObserver;
+    protected Observer<T> mLoadItemsObserver;
     protected Subscription mLoadItemsSubscription;
 
     protected ScListView mListView;
@@ -52,7 +52,7 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
         Log.d(this, "onCreate");
 
-        mPendingObservables = new ArrayList<Observable<Observable<List<T>>>>();
+        mPendingObservables = new ArrayList<Observable<Observable<T>>>();
 
         mAdapter = newAdapter();
         mLoadItemsObserver = new LoadItemsObserver();
@@ -84,8 +84,8 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         Log.d(this, "onStart");
 
         if (hasPendingObservables()) {
+            prepareRefresh();
             mLoadItemsSubscription = scheduleFirstPendingObservable(mLoadItemsObserver);
-            showProgressSpinner();
         }
     }
 
@@ -101,13 +101,15 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         Log.d(this, "onDestroy");
     }
 
-    @Override
-    public void onRefresh(PullToRefreshBase refreshView) {
-        showProgressSpinner();
+    private void prepareRefresh() {
+        mShowProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
+        mAdapter.clearData();
+        mAdapter.notifyDataSetChanged();
     }
 
-    private void showProgressSpinner() {
-        mShowProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
+    @Override
+    public void onRefresh(PullToRefreshBase refreshView) {
+        prepareRefresh();
     }
 
     @Override
@@ -125,16 +127,16 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         return !mPendingObservables.isEmpty();
     }
 
-    protected void addPendingObservable(Observable<Observable<List<T>>> observable) {
+    protected void addPendingObservable(Observable<Observable<T>> observable) {
         mPendingObservables.add(observable);
     }
 
     //TODO: currently we lose the subscription to the underlying pending observable and merely return the one returned
     //from the decision function (which is fast to execute). We need a way to hold on to the subscription of the
     //actual long running task so that we can disconnect the observer at any point in time
-    private Subscription scheduleFirstPendingObservable(Observer<List<T>> observer) {
+    private Subscription scheduleFirstPendingObservable(Observer<T> observer) {
         if (hasPendingObservables()) {
-            Observable<Observable<List<T>>> observable = mPendingObservables.get(0);
+            Observable<Observable<T>> observable = mPendingObservables.get(0);
             Subscription subscription = observable.subscribe(ScActions.pendingAction(observer));
             mPendingObservables.clear();
             return subscription;
@@ -142,17 +144,20 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         return Subscriptions.empty();
     }
 
-    protected class LoadItemsObserver implements Observer<List<T>> {
+    protected class LoadItemsObserver implements Observer<T> {
 
         @Override
         public void onCompleted() {
             Log.d(this, "onCompleted t=" + Thread.currentThread().getName());
 
-            mShowProgressHandler.removeCallbacks(showProgress);
-
-            if (mListView.isRefreshing()) {
-                mListView.onRefreshComplete();
+            if (mAdapter.isEmpty()) {
+                mEmptyView.setStatus(EmptyListView.Status.OK);
+            } else {
+                mEmptyView.setVisibility(View.GONE);
+                mAdapter.notifyDataSetChanged();
             }
+
+            onFinished();
         }
 
         @Override
@@ -160,23 +165,24 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
             Log.d(this, "onError: " + e + "; t=" + Thread.currentThread().getName());
             e.printStackTrace();
 
-            onCompleted();
-
             // TODO: need to check if this is really always a connection error? do we treat errors from reading/writing
             // from and to local storage as connection errors too?
             mEmptyView.setStatus(EmptyListView.Status.CONNECTION_ERROR);
+
+            onFinished();
         }
 
         @Override
-        public void onNext(List<T> items) {
-            Log.d(this, "onNext: " + items.size() + "; t=" + Thread.currentThread().getName());
-            if (items.isEmpty()) {
-                mEmptyView.setStatus(EmptyListView.Status.OK);
-            } else {
-                mEmptyView.setVisibility(View.GONE);
-                mAdapter.clearData();
-                mAdapter.addItems(items);
-                mAdapter.notifyDataSetChanged();
+        public void onNext(T item) {
+            Log.d(this, "onNext: " + item.toString() + "; t=" + Thread.currentThread().getName());
+            mAdapter.insertItem(item);
+        }
+
+        protected void onFinished() {
+            mShowProgressHandler.removeCallbacks(showProgress);
+
+            if (mListView.isRefreshing()) {
+                mListView.onRefreshComplete();
             }
         }
     }

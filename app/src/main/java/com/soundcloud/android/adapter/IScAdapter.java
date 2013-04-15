@@ -15,6 +15,12 @@ public interface IScAdapter<T> extends ListAdapter {
 
     QuickAction getQuickActionMenu();
 
+    /**
+     * Either adds the given item to the adapter if it hasn't been added yet, or overwrites an existing equal item
+     * with this one.
+     */
+    void insertItem(T item);
+
     void addItems(List<T> items);
 
     void clearData();

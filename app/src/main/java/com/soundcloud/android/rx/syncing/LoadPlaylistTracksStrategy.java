@@ -15,7 +15,7 @@ import android.net.Uri;
 import java.util.List;
 
 
-public class LoadPlaylistTracksStrategy implements SyncOperations.LocalStorageStrategy<List<Track>> {
+public class LoadPlaylistTracksStrategy implements SyncOperations.LocalStorageStrategy<Track> {
 
     private PlaylistStorage mStorage;
 
@@ -24,12 +24,14 @@ public class LoadPlaylistTracksStrategy implements SyncOperations.LocalStorageSt
     }
 
     @Override
-    public Observable<List<Track>> loadFromContentUri(final Uri contentUri) {
-        return Observable.create(new Func1<Observer<List<Track>>, Subscription>() {
+    public Observable<Track> loadFromContentUri(final Uri contentUri) {
+        return Observable.create(new Func1<Observer<Track>, Subscription>() {
             @Override
-            public Subscription call(Observer<List<Track>> observer) {
+            public Subscription call(Observer<Track> observer) {
                 List<Track> tracks = mStorage.loadPlaylistTracks(UriUtils.getLastSegmentAsLong(contentUri));
-                observer.onNext(tracks);
+                for (Track track : tracks) {
+                    observer.onNext(track);
+                }
                 observer.onCompleted();
                 return Subscriptions.empty();
             }

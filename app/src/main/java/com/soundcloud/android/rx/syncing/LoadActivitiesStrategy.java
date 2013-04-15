@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class LoadActivitiesStrategy implements SyncOperations.LocalStorageStrategy<List<Activity>> {
+public class LoadActivitiesStrategy implements SyncOperations.LocalStorageStrategy<Activity> {
 
     private final ActivitiesStorage mStorage;
 
@@ -25,10 +25,10 @@ public class LoadActivitiesStrategy implements SyncOperations.LocalStorageStrate
         mStorage = new ActivitiesStorage(context);
     }
 
-    public Observable<List<Activity>> loadActivitiesSince(final Uri contentUri, final long timestamp) {
-        return Observable.create(new Func1<Observer<List<Activity>>, Subscription>() {
+    public Observable<Activity> loadActivitiesSince(final Uri contentUri, final long timestamp) {
+        return Observable.create(new Func1<Observer<Activity>, Subscription>() {
             @Override
-            public Subscription call(Observer<List<Activity>> observer) {
+            public Subscription call(Observer<Activity> observer) {
                 log("Loading activities since " + timestamp);
                 List<Activity> result;
                 // TODO: remove possibility of NULL, throw and propagate exception instead
@@ -41,7 +41,10 @@ public class LoadActivitiesStrategy implements SyncOperations.LocalStorageStrate
 
                 log("Found activities: " + result.size());
 
-                observer.onNext(result);
+                for (Activity activity : result) {
+                    observer.onNext(activity);
+                }
+
                 observer.onCompleted();
 
                 return Subscriptions.empty();
@@ -71,7 +74,7 @@ public class LoadActivitiesStrategy implements SyncOperations.LocalStorageStrate
     }
 
     @Override
-    public Observable<List<Activity>> loadFromContentUri(Uri contentUri) {
+    public Observable<Activity> loadFromContentUri(Uri contentUri) {
         return loadActivitiesSince(contentUri, 0);
     }
 

@@ -184,6 +184,16 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     }
 
     @Override
+    public void insertItem(T item) {
+        int indexOfItem = mData.indexOf(item);
+        if (indexOfItem  >= 0) {
+            mData.set(indexOfItem, item);
+        } else {
+            mData.add(item);
+        }
+    }
+
+    @Override
     public void addItems(List<T> newItems) {
         mData.addAll(newItems);
     }

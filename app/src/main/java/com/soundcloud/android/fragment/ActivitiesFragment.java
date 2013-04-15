@@ -29,9 +29,9 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
     private Uri mContentUri;
 
-    private SyncOperations<List<Activity>> mSyncOperations;
+    private SyncOperations<Activity> mSyncOperations;
     private Subscription mAssocChangedSubscription;
-    private Observable<List<Activity>> mLoadActivities;
+    private Observable<Activity> mLoadActivities;
 
 
     public static ActivitiesFragment create(final Content streamContent) {
@@ -49,8 +49,8 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
         mContentUri = (Uri) getArguments().get(EXTRA_STREAM_URI);
 
-        SyncOperations.LocalStorageStrategy<List<Activity>> storageStrategy = new LoadActivitiesStrategy(getActivity());
-        mSyncOperations = new SyncOperations<List<Activity>>(getActivity(), storageStrategy);
+        SyncOperations.LocalStorageStrategy<Activity> storageStrategy = new LoadActivitiesStrategy(getActivity());
+        mSyncOperations = new SyncOperations<Activity>(getActivity(), storageStrategy);
         mLoadActivities = storageStrategy.loadFromContentUri(mContentUri);
 
         mAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(mLoadActivities, mLoadItemsObserver);
