@@ -6,6 +6,7 @@ import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
@@ -30,10 +31,18 @@ public class SyncOperations<T> {
     private final LocalStorageStrategy<T> mStorageStrategy;
     private final LocalCollectionDAO mLocalCollectionsDao; //TODO: replace with storage facade
 
+    private Scheduler mBackgroundScheduler = ReactiveScheduler.BACKGROUND_SCHEDULER;
+    private Scheduler mUIScheduler = ReactiveScheduler.UI_SCHEDULER;
+
     public SyncOperations(Context context, LocalStorageStrategy<T> localStorageStrategy) {
         mContext = context.getApplicationContext();
         mStorageStrategy = localStorageStrategy;
         mLocalCollectionsDao = new LocalCollectionDAO(context.getContentResolver());
+    }
+
+    public SyncOperations(Context context, LocalStorageStrategy<T> localStorageStrategy, Scheduler backgroundScheduler) {
+        this(context, localStorageStrategy);
+        mBackgroundScheduler = backgroundScheduler;
     }
 
     public Observable<Observable<T>> syncIfNecessary(final Uri contentUri) {
@@ -75,7 +84,7 @@ public class SyncOperations<T> {
 
                 return Subscriptions.empty();
             }
-        }).subscribeOn(ReactiveScheduler.BACKGROUND_SCHEDULER);
+        }).subscribeOn(mBackgroundScheduler);
     }
 
     /**
@@ -133,8 +142,8 @@ public class SyncOperations<T> {
 
     private Observable<T> loadFromLocalStorage(final Uri contentUri) {
         return mStorageStrategy.loadFromContentUri(contentUri)
-                .subscribeOn(ReactiveScheduler.BACKGROUND_SCHEDULER)
-                .observeOn(ReactiveScheduler.UI_SCHEDULER);
+                .subscribeOn(mBackgroundScheduler)
+                .observeOn(mUIScheduler);
     }
 
     protected void log(String msg) {

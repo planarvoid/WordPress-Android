@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.concurrency.Schedulers;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 import rx.util.functions.Functions;
@@ -39,7 +40,8 @@ public class SyncOperationsTest {
             public Observable<String> loadFromContentUri(final Uri contentUri) {
                 return localStorageOp;
             }
-        });
+        }, Schedulers.immediate());
+
         localStorageOp = Observable.create(new Func1<Observer<String>, Subscription>() {
             @Override
             public Subscription call(Observer<String> stringObserver) {
