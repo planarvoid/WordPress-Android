@@ -27,12 +27,12 @@ import android.os.ResultReceiver;
 public class SyncOperations<T> {
 
     private final Context mContext;
-    private final LocalStorageStrategy<T> mLocalStorage;
+    private final LocalStorageStrategy<T> mStorageStrategy;
     private final LocalCollectionDAO mLocalCollectionsDao; //TODO: replace with storage facade
 
     public SyncOperations(Context context, LocalStorageStrategy<T> localStorageStrategy) {
         mContext = context.getApplicationContext();
-        mLocalStorage = localStorageStrategy;
+        mStorageStrategy = localStorageStrategy;
         mLocalCollectionsDao = new LocalCollectionDAO(context.getContentResolver());
     }
 
@@ -132,7 +132,7 @@ public class SyncOperations<T> {
     }
 
     private Observable<T> loadFromLocalStorage(final Uri contentUri) {
-        return mLocalStorage.loadFromContentUri(contentUri)
+        return mStorageStrategy.loadFromContentUri(contentUri)
                 .subscribeOn(ReactiveScheduler.BACKGROUND_SCHEDULER)
                 .observeOn(ReactiveScheduler.UI_SCHEDULER);
     }
