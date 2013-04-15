@@ -1,4 +1,4 @@
-package com.soundcloud.android.rx.schedulers;
+package com.soundcloud.android.rx.syncing;
 
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.act.Activities;

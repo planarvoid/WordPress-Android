@@ -1,4 +1,4 @@
-package com.soundcloud.android.rx;
+package com.soundcloud.android.rx.syncing;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
@@ -8,7 +8,6 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.schedulers.SyncOperations;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
