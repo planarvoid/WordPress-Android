@@ -4,6 +4,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
 import android.content.ContentResolver;
@@ -95,6 +96,18 @@ public class SoundAssociationStorage {
         SoundAssociation playlistCreation = new SoundAssociation(playlist);
         mSoundAssociationDAO.create(playlistCreation);
         return playlistCreation;
+    }
+
+    public List<SoundAssociation> getSoundStreamItemsForCurrentUser() {
+        return mSoundAssociationDAO.queryAllByUri(Content.ME_SOUNDS.uri);
+    }
+
+    public List<SoundAssociation> getLikesForCurrentUser() {
+        return mSoundAssociationDAO.queryAllByUri(Content.ME_LIKES.uri);
+    }
+
+    public List<SoundAssociation> getPlaylistCreationsForCurrentUser() {
+        return mSoundAssociationDAO.queryAllByUri(Content.ME_PLAYLISTS.uri);
     }
 
     /**

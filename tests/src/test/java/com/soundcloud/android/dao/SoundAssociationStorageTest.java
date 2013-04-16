@@ -116,6 +116,57 @@ public class SoundAssociationStorageTest {
         expect(Content.ME_LIKES).toHaveCount(1);
     }
 
+    @Test
+    public void shouldLoadSoundStreamItemsForUser() {
+        Track track = new Track(1);
+        Playlist playlist = new Playlist(1);
+
+        insertSoundAssociations(track, playlist);
+
+        List<SoundAssociation> result = storage.getSoundStreamItemsForCurrentUser();
+        expect(result).toNumber(4);
+        expect(result).toContainExactlyInAnyOrder(
+                new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK),
+                new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_REPOST),
+                new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST),
+                new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_REPOST));
+    }
+
+    @Test
+    public void shouldLoadLikesForUser() {
+        Track track = new Track(1);
+        Playlist playlist = new Playlist(1);
+
+        insertSoundAssociations(track, playlist);
+
+        List<SoundAssociation> result = storage.getLikesForCurrentUser();
+        expect(result).toNumber(2);
+        expect(result).toContainExactlyInAnyOrder(
+                new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_LIKE),
+                new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_LIKE));
+    }
+
+    @Test
+    public void shouldLoadPlaylistCreationsForUser() {
+        Track track = new Track(1);
+        Playlist playlist = new Playlist(1);
+
+        insertSoundAssociations(track, playlist);
+
+        List<SoundAssociation> result = storage.getPlaylistCreationsForCurrentUser();
+        expect(result).toNumber(1);
+        expect(result).toContain(new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST));
+    }
+
+    private void insertSoundAssociations(Track track, Playlist playlist) {
+        TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK);
+        TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_REPOST);
+        TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
+        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST);
+        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
+        TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_LIKE);
+    }
+
     private SoundAssociation createAssociation(long id, String type) {
         SoundAssociation soundAssociation1 = new SoundAssociation();
         soundAssociation1.playable = new Track(id);
