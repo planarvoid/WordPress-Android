@@ -365,7 +365,7 @@ end
 desc "set up shared codestyle in IntelliJ IDEA"
 task :setup_codestyle do
    template = File.join(Rake.original_dir, '.idea-codestyle.xml')
-   pref_dirs = Dir.glob(ENV['HOME'] +'/Library/Preferences/Idea*').
+   pref_dirs = Dir.glob(ENV['HOME'] +'/Library/Preferences/*Idea*').
     map { |d| d + '/codestyles' }.
     select { |d| File.directory?(d) }
 
