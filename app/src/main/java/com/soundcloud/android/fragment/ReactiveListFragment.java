@@ -85,7 +85,7 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
         if (hasPendingObservables()) {
             prepareRefresh();
-            mLoadItemsSubscription = scheduleFirstPendingObservable(mLoadItemsObserver);
+            mLoadItemsSubscription = loadListItems();
         }
     }
 
@@ -134,10 +134,10 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
     //TODO: currently we lose the subscription to the underlying pending observable and merely return the one returned
     //from the decision function (which is fast to execute). We need a way to hold on to the subscription of the
     //actual long running task so that we can disconnect the observer at any point in time
-    private Subscription scheduleFirstPendingObservable(Observer<T> observer) {
+    private Subscription loadListItems() {
         if (hasPendingObservables()) {
             Observable<Observable<T>> observable = mPendingObservables.get(0);
-            Subscription subscription = observable.subscribe(ScActions.pendingAction(observer));
+            Subscription subscription = observable.subscribe(ScActions.pendingAction(mLoadItemsObserver));
             mPendingObservables.clear();
             return subscription;
         }

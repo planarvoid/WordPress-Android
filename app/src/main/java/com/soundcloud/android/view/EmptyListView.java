@@ -123,6 +123,10 @@ public class EmptyListView extends RelativeLayout {
         return true;
     }
 
+    public int getStatus() {
+        return mMode;
+    }
+
     private void showError(int responseCode){
         if (mErrorView == null) {
             mErrorView = View.inflate(getContext(), R.layout.empty_list_error, null);
