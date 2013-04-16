@@ -57,6 +57,7 @@ public class SyncOperations<T> {
      * <p>
      * The returned observable is guaranteed to execute on a background thread.
      * </p>
+     *
      * @param contentUri the URI pointing to the content to either sync or load from local storage
      * @param syncAction the action to emit when a sync is necessary
      * @return the observable
@@ -91,6 +92,7 @@ public class SyncOperations<T> {
     /**
      * <p>Returns an observable which upon subscription will initiate a sync for the given content URI.</p>
      * <p>This method is safe to call from any thread</p>
+     *
      * @param contentUri the content URI for which to initiate a sync
      * @return the observable
      */
