@@ -48,15 +48,9 @@ public class CollectionStorageTest {
 
         resolver.bulkInsert(Content.ME_LIKES.uri, cv);
 
-        expect(storage.getLocalIds(Content.ME_LIKES, USER_ID, -1, -1).size()).toEqual(107);
-        List<Long> localIds = storage.getLocalIds(Content.ME_LIKES, USER_ID, 50, -1);
+        List<Long> localIds = storage.getLocalIds(Content.ME_LIKES, USER_ID);
 
-        expect(localIds.size()).toEqual(57);
-        expect(localIds.get(0)).toEqual(50L);
-
-        localIds = storage.getLocalIds(Content.ME_LIKES, USER_ID, 100, 50);
-        expect(localIds.size()).toEqual(7);
-        expect(localIds.get(0)).toEqual(100L);
+        expect(localIds.size()).toEqual(107);
     }
 
     @Test
