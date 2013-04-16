@@ -9,6 +9,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dialog.auth.GooglePlusSignInDialogFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AddUserInfoTask;
 import com.soundcloud.android.task.auth.GetTokensTask;
@@ -58,7 +59,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
 
-public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler, GooglePlusSignInTask.Listener {
+public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
     }
@@ -73,8 +74,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
     public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
-
-    private static final String GOOGLE_PLUS_SCOPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
 
     public static final int THROTTLE_AFTER_ATTEMPT = 5;
 
@@ -407,16 +406,17 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                                     mUser = user;
                                     setState(StartState.SIGN_UP_DETAILS);
                                 } else {
-                                    showError(mException);
+                                    // TODO : reinstate
+                                    //onError(mException);
                                 }
                             }
                         }.execute(param);
                     } else {
-                        showError(getString(R.string.authentication_signup_error_message));
+                        onError(getString(R.string.authentication_signup_error_message));
                     }
                 } else {
                     final String firstError = getFirstError();
-                    showError(firstError != null ? firstError : getString(R.string.authentication_error_no_connection_message));
+                    onError(firstError != null ? firstError : getString(R.string.authentication_error_no_connection_message));
                 }
             }
         }.execute(email, password);
@@ -448,9 +448,10 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             @Override protected void onPostExecute(User user) {
                 if (!isFinishing()) {
                     if (user != null) {
-                        addAccountAsync(user, SignupVia.API, dialog);
+                        // TODO
+                        //addAccountAsync(user, SignupVia.API, dialog);
                     } else {
-                        showError(getFirstError());
+                        onError(getFirstError());
                         try {
                             if (dialog != null) dialog.dismiss();
                         } catch (IllegalArgumentException ignored) {
@@ -463,7 +464,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onSkipDetails() {
-        addAccountAsync(mUser, SignupVia.API, null);
+        // TODO : this
+        //addAccountAsync(mUser, SignupVia.API, null);
     }
 
 
@@ -633,14 +635,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     private void onGoogleAccountSelected(String name) {
-        mProgressDialog = AndroidUtils.showProgress(Onboard.this,
-            R.string.authentication_login_progress_message);
-
-        new GooglePlusSignInTask(this, GOOGLE_PLUS_SCOPE,
-                Consts.RequestCodes.REQUEST_CODE_RECOVER_FROM_AUTH_ERROR).execute(name);
-
+        GooglePlusSignInDialogFragment.create(name, Consts.RequestCodes.SIGNUP_VIA_FACEBOOK).show(getSupportFragmentManager(), "google_acct_dialog");
         ((SoundCloudApplication) getApplication()).track(Click.Login_with_googleplus);
-
     }
 
     private void onFacebookLogin() {
@@ -667,28 +663,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         }
 
         startActivityForResult(recoveryIntent, Consts.RequestCodes.RECOVER_CODE);
-    }
-
-    @Override
-    public Activity getActivity() {
-        return this;
-    }
-
-    @Override
-    public void onGPlusError(String message) {
-        if (mProgressDialog != null) mProgressDialog.hide();
-        if (!TextUtils.isEmpty(message)) Toast.makeText(this,message,Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onGPlusToken(String token) {
-        Toast.makeText(this,"Got token " + token,Toast.LENGTH_LONG).show();
-
-        Bundle bundle = new Bundle();
-        // TODO : Google Grant Type once ApiWrapper is updated
-        bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, CloudAPI.FACEBOOK_GRANT_TYPE + token);
-        login(bundle, mProgressDialog);
-
     }
 
     @Override

@@ -31,6 +31,7 @@ public class GetTokensTask extends AsyncApiTask<Bundle, Void, Token> {
 
             if (param.containsKey(AbstractLoginActivity.CODE_EXTRA)) {
                 return mApi.authorizationCode(param.getString(AbstractLoginActivity.CODE_EXTRA), scopes);
+
             } else if (param.containsKey(AbstractLoginActivity.USERNAME_EXTRA)
                     && param.containsKey(AbstractLoginActivity.PASSWORD_EXTRA)) {
                 return mApi.login(param.getString(AbstractLoginActivity.USERNAME_EXTRA),
