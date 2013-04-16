@@ -465,6 +465,35 @@ public class ScContentProviderTest {
         expect(cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))).toEqual("http://soundcloud.com/foo/artwork");
     }
 
+    @Test
+    public void shouldSupportLimitParameter() {
+        TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(1));
+        TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(2));
 
+        expect(Content.TRACKS).toHaveCount(2);
+
+        Uri limitedUri = Content.TRACKS.uri.buildUpon()
+                .appendQueryParameter("limit", "1").build();
+        Cursor cursor = resolver.query(limitedUri, null, null, null, null);
+        expect(cursor).toHaveCount(1);
+        cursor.moveToFirst();
+        expect(cursor).toHaveColumn(BaseColumns._ID, 1L);
+    }
+
+    @Test
+    public void shouldSupportOffsetParameter() {
+        TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(1));
+        TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(2));
+
+        expect(Content.TRACKS).toHaveCount(2);
+
+        Uri limitedUri = Content.TRACKS.uri.buildUpon()
+                .appendQueryParameter("limit", "1")
+                .appendQueryParameter("offset", "1").build();
+        Cursor cursor = resolver.query(limitedUri, null, null, null, null);
+        expect(cursor).toHaveCount(1);
+        cursor.moveToFirst();
+        expect(cursor).toHaveColumn(BaseColumns._ID, 2L);
+    }
 
 }
