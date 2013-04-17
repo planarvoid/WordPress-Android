@@ -173,4 +173,6 @@
     <string name="list_empty_user_sets_message">%1$s currently has no sets.</string>
     <string name="list_empty_you_sets_message">Create a set to share a collection of your favorite sounds.</string>
 
+    <string name="dialog_select_google_account">Please select a Google account to Sign in with</string>
+
 </resources>

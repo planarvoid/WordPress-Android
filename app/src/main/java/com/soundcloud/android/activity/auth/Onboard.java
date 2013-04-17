@@ -573,12 +573,13 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         } else if (names.length == 1){
             onGoogleAccountSelected(names[0]);
         } else {
-            new AlertDialog.Builder(this).setItems(names, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    onGoogleAccountSelected(names[which]);
-                }
-            }).show();
+            new AlertDialog.Builder(this).setTitle(R.string.dialog_select_google_account)
+                    .setItems(names, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            onGoogleAccountSelected(names[which]);
+                        }
+                    }).show();
         }
     }
 
