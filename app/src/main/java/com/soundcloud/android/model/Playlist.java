@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -49,7 +50,7 @@ public class Playlist extends Playable {
 
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
-    @JsonView(Views.Full.class) @Nullable public List<Track> tracks;
+    @JsonView(Views.Full.class) public List<Track> tracks = new LinkedList<Track>();
     @JsonView(Views.Full.class) private int track_count;
     public boolean removed;
 
@@ -81,7 +82,7 @@ public class Playlist extends Playable {
      * Helper to instantiate a playlist the given user created locally. This playlist will have a negative timestamp
      * to indicate that it hasn't been synced to the API yet.
      */
-    public static Playlist newUserPlaylist(User user, String title, boolean isPrivate, List<Track> tracks) {
+    public static Playlist newUserPlaylist(User user, String title, boolean isPrivate, @NotNull List<Track> tracks) {
         Playlist playlist = new Playlist(-System.currentTimeMillis());
         playlist.user = user;
         playlist.title = title;
@@ -108,6 +109,9 @@ public class Playlist extends Playable {
         tracks_uri = b.getString("tracks_uri");
         track_count = b.getInt("track_count");
         tracks = b.getParcelableArrayList("tracks");
+        if (tracks == null) {
+            tracks = new LinkedList<Track>();
+        }
     }
 
     public Playlist(Cursor cursor) {
@@ -150,7 +154,7 @@ public class Playlist extends Playable {
                 ", permalink_url='" + permalink_url + "'" +
                 ", duration=" + duration +
                 ", user=" + user +
-                ", track_count=" + (track_count == -1 ? (tracks != null ? tracks.size() : "-1") : track_count) +
+                ", track_count=" + (track_count == -1 ? tracks.size() : track_count) +
                 ", tracks_uri='" + tracks_uri + '\'' +
                 '}';
     }
@@ -175,18 +179,16 @@ public class Playlist extends Playable {
     @Override
     public void putDependencyValues(BulkInsertMap destMap) {
         super.putDependencyValues(destMap);
-        if (tracks != null) {
-            int i = 0;
-            for (Track t : tracks) {
-                t.putFullContentValues(destMap);
+        int i = 0;
+        for (Track t : tracks) {
+            t.putFullContentValues(destMap);
 
-                // add to relationship table
-                ContentValues cv = new ContentValues();
-                cv.put(DBHelper.PlaylistTracks.TRACK_ID,t.id);
-                cv.put(DBHelper.PlaylistTracks.POSITION,i);
-                destMap.add(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(id)), cv);
-                i++;
-            }
+            // add to relationship table
+            ContentValues cv = new ContentValues();
+            cv.put(DBHelper.PlaylistTracks.TRACK_ID, t.id);
+            cv.put(DBHelper.PlaylistTracks.POSITION, i);
+            destMap.add(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(id)), cv);
+            i++;
         }
     }
 
@@ -233,12 +235,10 @@ public class Playlist extends Playable {
             this.title = p.title;
             this.sharing =  p.sharing == Sharing.PRIVATE ? Params.Track.PRIVATE : Params.Track.PUBLIC;
 
-            if (p.tracks != null){
-                // convert to ScModel as we only want to serialize the id
-                this.tracks = new ArrayList<ScModel>();
-                for (Track t : p.tracks){
-                    tracks.add(new ScModel(t.id));
-                }
+            // convert to ScModel as we only want to serialize the id
+            this.tracks = new ArrayList<ScModel>();
+            for (Track t : p.tracks) {
+                tracks.add(new ScModel(t.id));
             }
         }
 
@@ -274,7 +274,7 @@ public class Playlist extends Playable {
 
 
     public int getTrackCount() {
-        return  tracks == null ? track_count : Math.max(tracks.size(), track_count);
+        return Math.max(tracks.size(), track_count);
     }
 
     @JsonProperty("track_count")

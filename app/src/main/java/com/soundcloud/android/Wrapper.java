@@ -51,6 +51,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -171,6 +172,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
     }
 
     @Override @SuppressWarnings("unchecked")
+    @NotNull
     public <T extends ScResource> List<T> readList(Request request) throws IOException {
         InputStream is = getInputStream(get(request));
 
@@ -182,17 +184,24 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
                 throw JsonMappingException.from(parser, "No content to map due to end-of-input");
             }
         }
+        List<T> result;
         try {
             if (t == JsonToken.START_ARRAY) {
-                return getMapper().readValue(parser, getMapper().getTypeFactory().constructCollectionType(List.class, ScResource.class));
+                result = getMapper().readValue(parser, getMapper().getTypeFactory().constructCollectionType(List.class, ScResource.class));
             }  else if (t == JsonToken.START_OBJECT) {
-                return getMapper().readValue(parser, ScResource.ScResourceHolder.class).collection;
+                result = getMapper().readValue(parser, ScResource.ScResourceHolder.class).collection;
             } else {
                 throw JsonMappingException.from(parser, "Invalid content");
+            }
+
+            if (result == null) {
+                result = Collections.emptyList();
             }
         } finally {
              parser.close();
         }
+
+        return result;
     }
 
     @SuppressWarnings("unchecked")
