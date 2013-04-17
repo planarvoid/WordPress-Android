@@ -9,7 +9,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dialog.auth.GooglePlusSignInDialogFragment;
+import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AddUserInfoTask;
 import com.soundcloud.android.task.auth.GetTokensTask;
@@ -626,8 +626,9 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     private void onGoogleAccountSelected(String name) {
-        GooglePlusSignInDialogFragment.create(name, Consts.RequestCodes.SIGNUP_VIA_FACEBOOK).show(getSupportFragmentManager(), "google_acct_dialog");
         ((SoundCloudApplication) getApplication()).track(Click.Login_with_googleplus);
+        GooglePlusSignInTaskFragment.create(name, Consts.RequestCodes.SIGNUP_VIA_GOOGLE)
+                .show(getSupportFragmentManager(), "google_acct_dialog");
     }
 
     private void onFacebookLogin() {

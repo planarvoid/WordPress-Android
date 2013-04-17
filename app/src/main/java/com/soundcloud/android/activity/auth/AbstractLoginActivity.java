@@ -9,7 +9,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.dialog.auth.AuthTaskFragment;
-import com.soundcloud.android.dialog.auth.GooglePlusSignInDialogFragment;
+import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
+import com.soundcloud.android.dialog.auth.LoginTaskFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.LoginTask;
 import com.soundcloud.api.Token;
@@ -29,8 +30,10 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
 
     public static final String CODE_EXTRA = "code";
     public static final String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
+
     public static final String USERNAME_EXTRA = "username";
     public static final String PASSWORD_EXTRA = "password";
+    public static final String LOGIN_DIALOG_TAG = "login_dialog";
 
     protected ProgressDialog mProgressDialog;
 
@@ -67,14 +70,13 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
     }
 
     protected void login(String username, String password) {
-        final Bundle param = new Bundle();
-        param.putString(USERNAME_EXTRA, username);
-        param.putString(PASSWORD_EXTRA, password);
-        login(param, null);
+        LoginTaskFragment.create(username, password)
+                .show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
     }
 
-    protected void login(Bundle data, final ProgressDialog progressDialog) {
-        new LoginTask((SoundCloudApplication) getApplication()).execute(data);
+    protected void login(Bundle data) {
+        LoginTaskFragment.create(data)
+                .show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
     }
 
     @Override

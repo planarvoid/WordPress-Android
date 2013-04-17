@@ -61,6 +61,7 @@ public abstract class AuthTask extends AsyncTask<Bundle, Void, AuthTask.Result>{
         }
 
         public Result(Exception e){
+            exception = e;
             success = false;
         }
 

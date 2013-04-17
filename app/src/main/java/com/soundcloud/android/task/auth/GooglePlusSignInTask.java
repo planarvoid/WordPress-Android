@@ -27,12 +27,10 @@ public class GooglePlusSignInTask extends LoginTask {
             Bundle bundle = new Bundle();
             // TODO : Google Grant Type once ApiWrapper is updated
             bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, CloudAPI.FACEBOOK_GRANT_TYPE + token);
-            login(bundle);
-
+            return login(bundle);
         } catch (Exception ex) {
             return new Result(ex);
         }
-        return null;
     }
 
 }

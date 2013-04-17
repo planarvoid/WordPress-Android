@@ -29,6 +29,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
     @NotNull
     abstract AuthTask   createAuthTask();
+    abstract Bundle     getTaskParams();
     abstract String     getErrorFromResult(Activity activity, AuthTask.Result result);
 
     @Override
@@ -39,7 +40,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
         mTask = createAuthTask();
         mTask.setFragment(this);
-        mTask.execute();
+        mTask.execute(getTaskParams());
     }
 
     @Override

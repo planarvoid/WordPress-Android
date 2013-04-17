@@ -19,7 +19,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-public class GooglePlusSignInDialogFragment extends LoginTaskFragment {
+public class GooglePlusSignInTaskFragment extends LoginTaskFragment {
 
     public static final String ARG_ACCT_NAME    = "account_name";
     public static final String ARG_REQ_CODE     = "request_code";
@@ -28,12 +28,12 @@ public class GooglePlusSignInDialogFragment extends LoginTaskFragment {
 
     private GooglePlusSignInTask mGooglePlusSignInTask;
 
-    public static GooglePlusSignInDialogFragment create(String name, int requestCode) {
+    public static GooglePlusSignInTaskFragment create(String name, int requestCode) {
         Bundle b = new Bundle();
         b.putString(ARG_ACCT_NAME, name);
         b.putInt(ARG_REQ_CODE, requestCode);
 
-        GooglePlusSignInDialogFragment fragment = new GooglePlusSignInDialogFragment();
+        GooglePlusSignInTaskFragment fragment = new GooglePlusSignInTaskFragment();
         fragment.setArguments(b);
         return fragment;
     }
@@ -46,6 +46,11 @@ public class GooglePlusSignInDialogFragment extends LoginTaskFragment {
                 getArguments().getString(ARG_ACCT_NAME),
                 GOOGLE_PLUS_SCOPE,
                 getArguments().getInt(ARG_REQ_CODE));
+    }
+
+    @Override
+    Bundle getTaskParams() {
+        return null;
     }
 
     @Override
