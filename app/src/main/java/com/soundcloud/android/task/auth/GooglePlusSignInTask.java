@@ -2,7 +2,6 @@ package com.soundcloud.android.task.auth;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.api.CloudAPI;
 
 import android.os.Bundle;
 
@@ -25,8 +24,8 @@ public class GooglePlusSignInTask extends LoginTask {
         try {
             token =  GoogleAuthUtil.getToken(getSoundCloudApplication(), mAccountName, mScope);
             Bundle bundle = new Bundle();
-            // TODO : Google Grant Type once ApiWrapper is updated
-            bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, CloudAPI.FACEBOOK_GRANT_TYPE + token);
+            // TODO : Google + grant type constant once ApiWrapper is updated
+            bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, "urn:soundcloud:oauth2:grant-type:google_plus&access_token=" + token);
             return login(bundle);
         } catch (Exception ex) {
             return new Result(ex);
