@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 public abstract class AbstractLoginActivity extends SherlockFragmentActivity implements AuthTaskFragment.OnAuthResultListener {
     public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
@@ -108,13 +109,15 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
             if (mProgressDialog != null && mProgressDialog.isShowing()) {
                 dismissDialog(mProgressDialog);
             }
-            new AlertDialog.Builder(AbstractLoginActivity.this)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle(getString(R.string.authentication_error_title))
-                    .setMessage(message)
-                    .setPositiveButton(android.R.string.ok, null)
-                    .create()
-                    .show();
+            if (!TextUtils.isEmpty(message)){
+                new AlertDialog.Builder(AbstractLoginActivity.this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(getString(R.string.authentication_error_title))
+                        .setMessage(message)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .create()
+                        .show();
+            }
         }
     }
 
