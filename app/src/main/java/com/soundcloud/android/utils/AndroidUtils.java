@@ -257,6 +257,15 @@ public final class AndroidUtils {
         return accessibilityManager != null && accessibilityManager.isEnabled();
     }
 
+    public static String[] getAccountsByType(Context context, String accountType) {
+        Account[] accounts = AccountManager.get(context).getAccountsByType(accountType);
+        final String[] names = new String[accounts.length];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = accounts[i].name;
+        }
+        return names;
+    }
+
     private static class EmailValueComparator implements Comparator<String> {
         Map<String, Integer> base;
         public EmailValueComparator(Map<String, Integer> base) {

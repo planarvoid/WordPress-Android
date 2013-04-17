@@ -13,21 +13,16 @@ import com.soundcloud.android.dialog.auth.GooglePlusSignInDialogFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AddUserInfoTask;
 import com.soundcloud.android.task.auth.GetTokensTask;
-import com.soundcloud.android.task.auth.GooglePlusSignInTask;
 import com.soundcloud.android.task.auth.SignupTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.tour.TourLayout;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -614,11 +609,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     private void onGooglePlusLogin() {
-        Account[] accounts = AccountManager.get(this).getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
-        final String[] names = new String[accounts.length];
-        for (int i = 0; i < names.length; i++) {
-            names[i] = accounts[i].name;
-        }
+        final String[] names = AndroidUtils.getAccountsByType(this, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
 
         if (names.length == 0){
             Toast.makeText(this, "No account available. Please add an account to the phone first.", Toast.LENGTH_LONG).show();
