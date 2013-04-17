@@ -2,15 +2,12 @@ package com.soundcloud.android.task.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.api.CloudAPI;
 
 import android.os.Bundle;
 import android.util.Log;
-
-import java.io.IOException;
 
 public class GooglePlusSignInTask extends LoginTask {
     public static final String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";

@@ -5,19 +5,15 @@ import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dialog.auth.AuthTaskFragment;
 import com.soundcloud.android.task.auth.AuthTask;
 import com.soundcloud.android.task.auth.GooglePlusSignInTask;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 public class GooglePlusSignInTaskFragment extends LoginTaskFragment {
 

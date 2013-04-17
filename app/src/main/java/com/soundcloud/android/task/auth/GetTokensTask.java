@@ -28,10 +28,8 @@ public class GetTokensTask extends AsyncApiTask<Bundle, Void, Token> {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#doInBackGround("+param+")");
         try {
             final String[] scopes = param.getStringArray(AbstractLoginActivity.SCOPES_EXTRA);
-
             if (param.containsKey(AbstractLoginActivity.CODE_EXTRA)) {
                 return mApi.authorizationCode(param.getString(AbstractLoginActivity.CODE_EXTRA), scopes);
-
             } else if (param.containsKey(AbstractLoginActivity.USERNAME_EXTRA)
                     && param.containsKey(AbstractLoginActivity.PASSWORD_EXTRA)) {
                 return mApi.login(param.getString(AbstractLoginActivity.USERNAME_EXTRA),
