@@ -64,6 +64,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private static final String BUNDLE_LOGIN           = "BUNDLE_LOGIN";
     private static final String BUNDLE_SIGN_UP         = "BUNDLE_SIGN_UP";
     private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
+    private static final String LAST_GOOGLE_ACCT_USED  = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
 
     private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
 
@@ -73,6 +74,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     public static final int THROTTLE_AFTER_ATTEMPT = 5;
 
     private StartState mState = StartState.TOUR;
+    private String mLastGoogleAccountSelected;
 
     @Nullable private User mUser;
 
@@ -237,6 +239,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        outState.putString(LAST_GOOGLE_ACCT_USED, mLastGoogleAccountSelected);
         outState.putSerializable(BUNDLE_STATE, getState());
         outState.putParcelable(BUNDLE_USER,    mUser);
 
@@ -250,6 +253,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         super.onRestoreInstanceState(savedInstanceState);
 
         mUser = savedInstanceState.getParcelable(BUNDLE_USER);
+        mLastGoogleAccountSelected = savedInstanceState.getString(LAST_GOOGLE_ACCT_USED);
 
         mLoginBundle       = savedInstanceState.getBundle(BUNDLE_LOGIN);
         mSignUpBundle      = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
@@ -626,6 +630,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     private void onGoogleAccountSelected(String name) {
+        // store the last account name in case we have to retry after startActivityForResult with G+ app
+        mLastGoogleAccountSelected = name;
         ((SoundCloudApplication) getApplication()).track(Click.Login_with_googleplus);
         GooglePlusSignInTaskFragment.create(name, Consts.RequestCodes.SIGNUP_VIA_GOOGLE)
                 .show(getSupportFragmentManager(), "google_acct_dialog");
@@ -705,6 +711,15 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 }
                 break;
             }
+
+            case Consts.RequestCodes.RECOVER_FROM_AUTH_ERROR:{
+                if (resultCode == RESULT_OK) {
+                    onGoogleAccountSelected(mLastGoogleAccountSelected);
+                }
+                break;
+            }
+
+
         }
     }
 }
