@@ -1,6 +1,6 @@
 package com.soundcloud.android.task.auth;
 
-import com.soundcloud.android.R;
+import com.actionbarsherlock.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
@@ -13,18 +13,14 @@ import org.jetbrains.annotations.NotNull;
 
 import android.os.Bundle;
 
+import java.io.IOException;
+
 public class LoginTask extends AuthTask {
     public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
     public static final String SCOPES_EXTRA = "scopes";
-    private final SoundCloudApplication mApp;
-
 
     public LoginTask(@NotNull SoundCloudApplication application) {
-        mApp = application;
-    }
-
-    public SoundCloudApplication getSoundCloudApplication(){
-        return mApp;
+        super(application);
     }
 
     @Override
@@ -38,25 +34,27 @@ public class LoginTask extends AuthTask {
             data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
         }
 
-        final GetTokensTask getTokensTask = new GetTokensTask(mApp);
-        Token token = getTokensTask.getToken(data);
-        if (token == null) { // no tokens obtained
-            return new Result(getTokensTask.getException());
+        Token token;
+        try {
+            token = getTokens(data);
+        } catch (IOException e) {
+            Log.e("Error retrieving SC API token" + e.getMessage());
+            return new Result(e);
         }
         Log.d("LoginTask[Token](" + token + ")");
 
-        final User user = new FetchUserTask(mApp).resolve(Request.to(Endpoints.MY_DETAILS));
+        final User user = new FetchUserTask(getSoundCloudApplication()).resolve(Request.to(Endpoints.MY_DETAILS));
         if (user == null) {
             // TODO: means we got a 404 on the user, needs to be more expressive...
-            return new Result(new UnableToCreateAccountException());
+            return new Result(new AuthorizationException(R.string.authentication_error_no_connection_message));
         }
 
         Log.d("LoginTask[User](" + user + ")");
 
         SignupVia signupVia = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
-        if (!addAccount(mApp, user, signupVia)) {
+        if (!addAccount(user, signupVia)) {
             // might mean the account already existed
-            return new Result(new UnableToCreateAccountException());
+            return new Result(new AuthorizationException(R.string.authentication_error_no_connection_message));
         }
 
         return new Result(user, signupVia);

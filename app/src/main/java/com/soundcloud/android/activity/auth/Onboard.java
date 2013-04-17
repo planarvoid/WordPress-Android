@@ -10,16 +10,14 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
+import com.soundcloud.android.dialog.auth.SignupTaskFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AddUserInfoTask;
-import com.soundcloud.android.task.auth.GetTokensTask;
-import com.soundcloud.android.task.auth.SignupTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.tour.TourLayout;
-import com.soundcloud.api.Token;
 import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
 
@@ -373,52 +371,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onSignUp(final String email, final String password) {
-        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
-        final Bundle param = new Bundle();
-        param.putString(USERNAME_EXTRA, email);
-        param.putString(PASSWORD_EXTRA, password);
-
-        new SignupTask(app) {
-            ProgressDialog progress;
-
-            @Override
-            protected void onPreExecute() {
-                progress = AndroidUtils.showProgress(Onboard.this,
-                                                     R.string.authentication_signup_progress_message);
-            }
-
-            @Override
-            protected void onPostExecute(final User user) {
-
-                dismissDialog(progress);
-
-                if (user != null) {
-                    writeNewSignupToLog();
-
-                    // need to create user account as soon as possible, so the executeRefreshTask logic in
-                    // SoundCloudApplication works properly
-                    final boolean success = app.addUserAccountAndEnableSync(user, app.getToken(), SignupVia.API);
-                    if (success) {
-                        new GetTokensTask(mApi) {
-                            @Override protected void onPostExecute(Token token) {
-                                if (token != null) {
-                                    mUser = user;
-                                    setState(StartState.SIGN_UP_DETAILS);
-                                } else {
-                                    // TODO : reinstate
-                                    //onError(mException);
-                                }
-                            }
-                        }.execute(param);
-                    } else {
-                        onError(getString(R.string.authentication_signup_error_message));
-                    }
-                } else {
-                    final String firstError = getFirstError();
-                    onError(firstError != null ? firstError : getString(R.string.authentication_error_no_connection_message));
-                }
-            }
-        }.execute(email, password);
+        SignupTaskFragment.create(email,password).show(getSupportFragmentManager(),"signup_task");
     }
 
     @Override

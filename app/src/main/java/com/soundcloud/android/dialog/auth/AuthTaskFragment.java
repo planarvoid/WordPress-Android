@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AuthTask;
+import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
@@ -30,7 +31,6 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @NotNull
     abstract AuthTask   createAuthTask();
     abstract Bundle     getTaskParams();
-    abstract String     getErrorFromResult(Activity activity, AuthTask.Result result);
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -40,6 +40,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
         mTask = createAuthTask();
         mTask.setFragment(this);
+
         mTask.execute(getTaskParams());
     }
 
@@ -96,6 +97,18 @@ public abstract class AuthTaskFragment extends DialogFragment {
         }
 
         dismiss();
+    }
+
+    protected String getErrorFromResult(Activity activity, AuthTask.Result result){
+        final Exception exception = result.getException();
+        int messageId;
+        if (exception instanceof CloudAPI.ApiResponseException
+                && ((CloudAPI.ApiResponseException) exception).getStatusCode() >= 400) {
+            messageId = R.string.error_server_problems_message;
+        } else {
+            messageId = R.string.authentication_error_no_connection_message;
+        }
+        return activity.getString(messageId);
     }
 
 }

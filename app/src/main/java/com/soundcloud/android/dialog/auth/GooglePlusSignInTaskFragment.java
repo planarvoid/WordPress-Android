@@ -48,7 +48,7 @@ public class GooglePlusSignInTaskFragment extends LoginTaskFragment {
     }
 
     @Override
-    String getErrorFromResult(Activity activity, AuthTask.Result result) {
+    protected String getErrorFromResult(Activity activity, AuthTask.Result result) {
         Exception e = result.getException();
 
         if (e instanceof GooglePlayServicesAvailabilityException) {

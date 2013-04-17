@@ -40,16 +40,12 @@ public class LoginTaskFragment extends AuthTaskFragment {
     }
 
     @Override
-    String getErrorFromResult(Activity activity, AuthTask.Result result) {
+    protected String getErrorFromResult(Activity activity, AuthTask.Result result) {
         final Exception exception = result.getException();
-        int messageId;
         if (exception instanceof CloudAPI.InvalidTokenException) {
-            messageId = R.string.authentication_login_error_password_message;
-        } else if (exception instanceof CloudAPI.ApiResponseException) {
-            messageId = R.string.error_server_problems_message;
+            return activity.getString(R.string.authentication_login_error_password_message);
         } else {
-            messageId = R.string.authentication_error_no_connection_message;
+            return super.getErrorFromResult(activity, result);
         }
-        return activity.getString(messageId);
     }
 }
