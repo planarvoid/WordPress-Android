@@ -26,8 +26,6 @@ public class GooglePlusSignInTaskFragment extends LoginTaskFragment {
 
     private static final String GOOGLE_PLUS_SCOPE = "oauth2:https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email";
 
-    private GooglePlusSignInTask mGooglePlusSignInTask;
-
     public static GooglePlusSignInTaskFragment create(String name, int requestCode) {
         Bundle b = new Bundle();
         b.putString(ARG_ACCT_NAME, name);
@@ -62,7 +60,7 @@ public class GooglePlusSignInTaskFragment extends LoginTaskFragment {
             Dialog d = GooglePlayServicesUtil.getErrorDialog(
                     ((GooglePlayServicesAvailabilityException) e).getConnectionStatusCode(),
                     activity,
-                    Consts.RequestCodes.REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
+                    Consts.RequestCodes.RECOVER_FROM_PLAY_SERVICES_ERROR);
             d.show();
             return null;
 

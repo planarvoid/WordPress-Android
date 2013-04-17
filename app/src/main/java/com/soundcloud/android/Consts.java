@@ -52,8 +52,8 @@ public final class Consts {
         int RECOVER_CODE            = 8002;
         int SIGNUP_VIA_GOOGLE       = 8003;
 
-        int REQUEST_CODE_RECOVER_FROM_AUTH_ERROR = 9001;
-        int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 9002;
+        int RECOVER_FROM_AUTH_ERROR             = 8010;
+        int RECOVER_FROM_PLAY_SERVICES_ERROR    = 8011;
     }
 
     public static interface Keys {
