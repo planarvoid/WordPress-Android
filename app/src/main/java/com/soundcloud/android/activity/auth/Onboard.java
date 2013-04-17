@@ -665,6 +665,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.i("asdf","We got a request code " + requestCode + " " + resultCode);
         switch (requestCode) {
             case Consts.RequestCodes.GALLERY_IMAGE_PICK: {
                 if (getUserDetails() != null) {
@@ -712,13 +713,15 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 break;
             }
 
-            case Consts.RequestCodes.RECOVER_FROM_AUTH_ERROR:{
-                if (resultCode == RESULT_OK) {
-                    onGoogleAccountSelected(mLastGoogleAccountSelected);
-                }
+            case Consts.RequestCodes.SIGNUP_VIA_GOOGLE: {
+                if (resultCode == RESULT_OK) onGoogleAccountSelected(mLastGoogleAccountSelected);
                 break;
             }
 
+            case Consts.RequestCodes.RECOVER_FROM_PLAY_SERVICES_ERROR: {
+                if (resultCode == RESULT_OK) onGoogleAccountSelected(mLastGoogleAccountSelected);
+                break;
+            }
 
         }
     }

@@ -1,9 +1,16 @@
 package com.soundcloud.android.task.auth;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.api.CloudAPI;
 
 import android.os.Bundle;
+import android.util.Log;
+
+import java.io.IOException;
 
 public class GooglePlusSignInTask extends LoginTask {
     public static final String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
@@ -20,16 +27,31 @@ public class GooglePlusSignInTask extends LoginTask {
 
     @Override
     protected Result doInBackground(Bundle... params) {
-        String token;
-        try {
-            token =  GoogleAuthUtil.getToken(getSoundCloudApplication(), mAccountName, mScope);
-            Bundle bundle = new Bundle();
-            // TODO : Google + grant type constant once ApiWrapper is updated
-            bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, "urn:soundcloud:oauth2:grant-type:google_plus&access_token=" + token);
-            return login(bundle);
-        } catch (Exception ex) {
-            return new Result(ex);
+        Result result = null;
+        boolean validToken = false;
+        for (int triesLeft = 2; triesLeft > 0 && !validToken; triesLeft--){
+            try {
+                String token = GoogleAuthUtil.getToken(getSoundCloudApplication(), mAccountName, mScope);
+                result = login(token);
+
+                validToken = !(result.getException() instanceof CloudAPI.InvalidTokenException);
+                if (!validToken){
+                    // whatever token we got from g+ is invalid. force it to invalid and we should get a new one next try
+                    GoogleAuthUtil.invalidateToken(getSoundCloudApplication(),token);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "error retrieving google token", e);
+                result = new Result(e);
+                triesLeft = 0;
+            }
         }
+        return result;
     }
 
+    protected Result login(String token) {
+        // TODO : Google + grant type constant once ApiWrapper is updated
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, "urn:soundcloud:oauth2:grant-type:google_plus&access_token=" + token);
+        return login(bundle);
+    }
 }
