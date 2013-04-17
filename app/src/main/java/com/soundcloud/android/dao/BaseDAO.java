@@ -8,6 +8,7 @@ import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -260,15 +261,12 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
 
         public List<T> queryAll() {
-            String orderAndLimitClause = null;
-            if (mOrder != null || mLimit > 0) {
-                StringBuilder sb = new StringBuilder();
-                if (mOrder != null) sb.append(mOrder);
-                if (mLimit > 0) sb.append(" LIMIT " + mLimit);
-                orderAndLimitClause = sb.toString().trim();
+            Uri contentUri = mContentUri;
+            if (mLimit > 0) {
+                contentUri = mContentUri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.LIMIT, String.valueOf(mLimit)).build();
             }
 
-            return queryAllByUri(mContentUri, mProjection, mSelection, mSelectionArgs, orderAndLimitClause);
+            return queryAllByUri(contentUri, mProjection, mSelection, mSelectionArgs, mOrder);
         }
 
         public @Nullable T first() {
