@@ -7,6 +7,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.task.auth.AuthTask;
+import com.soundcloud.android.task.auth.AuthTaskResult;
 import com.soundcloud.android.task.auth.GooglePlusSignInTask;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +49,7 @@ public class GooglePlusSignInTaskFragment extends LoginTaskFragment {
     }
 
     @Override
-    protected String getErrorFromResult(Activity activity, AuthTask.Result result) {
+    protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
         Exception e = result.getException();
 
         if (e instanceof GooglePlayServicesAvailabilityException) {

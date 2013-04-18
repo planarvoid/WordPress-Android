@@ -5,7 +5,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AuthTask;
-import com.soundcloud.android.task.auth.AuthorizationException;
+import com.soundcloud.android.task.auth.AuthTaskException;
+import com.soundcloud.android.task.auth.AuthTaskResult;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +22,7 @@ import java.lang.ref.WeakReference;
 public abstract class AuthTaskFragment extends DialogFragment {
 
     private AuthTask mTask;
-    private AuthTask.Result mResult;
+    private AuthTaskResult mResult;
     private WeakReference<OnAuthResultListener> mListenerRef;
 
     public interface OnAuthResultListener {
@@ -40,8 +41,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         setRetainInstance(true);
 
         mTask = createAuthTask();
-        mTask.setFragment(this);
-
+        mTask.setTaskOwner(this);
         mTask.execute(getTaskParams());
     }
 
@@ -80,21 +80,21 @@ public abstract class AuthTaskFragment extends DialogFragment {
         if (mTask == null) deliverResultAndDismiss();
     }
 
-    public void onTaskResult(AuthTask.Result result) {
+    public void onTaskResult(AuthTaskResult result) {
         mTask = null;
         mResult = result;
         // Don't try to dismiss if we aren't in the foreground
         if (isResumed()) deliverResultAndDismiss();
     }
 
-    protected String getErrorFromResult(Activity activity, AuthTask.Result result){
+    protected String getErrorFromResult(Activity activity, AuthTaskResult result){
         final Exception exception = result.getException();
         if (exception instanceof CloudAPI.ApiResponseException) {
             // server error, tell them to try again later
             return activity.getString(R.string.error_server_problems_message);
-        } else if (exception instanceof AuthorizationException){
+        } else if (exception instanceof AuthTaskException){
             // custom exception, message provided by the individual task
-            return ((AuthorizationException) exception).getFirstError();
+            return ((AuthTaskException) exception).getFirstError();
         } else {
             // as a fallback, just say connection problem
             return activity.getString(R.string.authentication_error_no_connection_message);

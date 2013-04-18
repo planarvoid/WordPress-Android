@@ -5,15 +5,15 @@ import java.util.List;
 /**
  * Custom exception to propogate pass API error messaging from Auth Tasks
  */
-public class AuthorizationException extends Exception {
+public class AuthTaskException extends Exception {
 
     private final String[] mErrors;
 
-    public AuthorizationException(String... errors) {
+    public AuthTaskException(String... errors) {
         mErrors = errors;
     }
 
-    public AuthorizationException(List<String> errors) {
+    public AuthTaskException(List<String> errors) {
         mErrors = errors.toArray(new String[errors.size()]);
     }
 

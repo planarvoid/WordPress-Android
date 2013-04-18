@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.activity.auth.TokenUtil;
+import com.soundcloud.android.dialog.auth.AuthTaskFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
@@ -28,27 +29,26 @@ public class SignupTask extends AuthTask {
     }
 
     @Override
-    protected Result doInBackground(Bundle... params) {
+    protected AuthTaskResult doInBackground(Bundle... params) {
         final SoundCloudApplication app = getSoundCloudApplication();
 
-        Result result = doSignup(app, params[0]);
+        AuthTaskResult result = doSignup(app, params[0]);
         if (result.wasSuccess()){
             // do token exchange
             Token token;
             try {
                 token = TokenUtil.getToken(getSoundCloudApplication(), params[0]);
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
-                    return new Result(new AuthorizationException(app.getString(R.string.authentication_signup_error_message)));
+                    return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }
             } catch (IOException e) {
-                return new Result(e);
+                return AuthTaskResult.failure(e);
             }
         }
         return result;
     }
 
-    protected Result doSignup(SoundCloudApplication app, Bundle params){
-        User user = null;
+    protected AuthTaskResult doSignup(SoundCloudApplication app, Bundle params){
         try {
             // explicitly request signup scope
             final Token signup = app.clientCredentials(Token.SCOPE_SIGNUP);
@@ -62,34 +62,33 @@ public class SignupTask extends AuthTask {
 
             int statusCode = resp.getStatusLine().getStatusCode();
             switch (statusCode) {
-                case HttpStatus.SC_CREATED:
-                    user = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
-                    break;
+                case HttpStatus.SC_CREATED: // success case
+                    final User user = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    return AuthTaskResult.success(user,SignupVia.API);
 
                 case HttpStatus.SC_UNPROCESSABLE_ENTITY:
-                    return new Result(extractErrors(resp));
+                    return AuthTaskResult.failure(extractErrors(resp));
 
                 case HttpStatus.SC_FORBIDDEN:
                     // most likely did not have valid signup scope at this point, but make sure before
-                    // showing error
                     Header wwwAuth = resp.getFirstHeader("WWW-Authenticate");
                     if (wwwAuth != null && wwwAuth.getValue().contains("insufficient_scope")) {
-                        return new Result(new AuthorizationException(app.getString(R.string.signup_scope_revoked)));
+                        return AuthTaskResult.failure(app.getString(R.string.signup_scope_revoked));
+                    } else {
+                        return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                     }
-                    break;
 
                 default:
                     if (statusCode >= 500) {
-                        return new Result(new AuthorizationException(app.getString(R.string.error_server_problems_message)));
+                        return AuthTaskResult.failure(app.getString(R.string.error_server_problems_message));
                     } else {
-                        return new Result(new AuthorizationException(app.getString(R.string.authentication_signup_error_message)));
+                        return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                     }
             }
         } catch (CloudAPI.InvalidTokenException e){
-            return new Result(new AuthorizationException(app.getString(R.string.signup_scope_revoked)));
+            return AuthTaskResult.failure(app.getString(R.string.signup_scope_revoked));
         } catch (IOException e) {
-            return new Result(e);
+            return AuthTaskResult.failure(e);
         }
-        return new Result(user,SignupVia.API);
     }
 }

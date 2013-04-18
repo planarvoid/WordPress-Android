@@ -22,8 +22,8 @@ public class GooglePlusSignInTask extends LoginTask {
     }
 
     @Override
-    protected Result doInBackground(Bundle... params) {
-        Result result = null;
+    protected AuthTaskResult doInBackground(Bundle... params) {
+        AuthTaskResult result = null;
         boolean validToken = false;
         for (int triesLeft = 2; triesLeft > 0 && !validToken; triesLeft--){
             try {
@@ -37,14 +37,14 @@ public class GooglePlusSignInTask extends LoginTask {
                 }
             } catch (Exception e) {
                 Log.e(TAG, "error retrieving google token", e);
-                result = new Result(e);
+                result = AuthTaskResult.failure(e);
                 triesLeft = 0;
             }
         }
         return result;
     }
 
-    protected Result login(String token) {
+    protected AuthTaskResult login(String token) {
         // TODO : Google + grant type constant once ApiWrapper is updated
         return login(TokenUtil.getGrantBundle("urn:soundcloud:oauth2:grant-type:google_plus&access_token=", token));
     }

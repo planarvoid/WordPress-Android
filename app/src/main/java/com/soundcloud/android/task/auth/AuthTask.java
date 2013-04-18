@@ -20,18 +20,22 @@ import android.os.Looper;
 import java.io.IOException;
 import java.util.List;
 
-public abstract class AuthTask extends AsyncTask<Bundle, Void, AuthTask.Result>{
+/**
+ *
+ */
+public abstract class AuthTask extends AsyncTask<Bundle, Void, AuthTaskResult>{
+
     public static final int ME_SYNC_DELAY_MILLIS = 30 * 1000;
+
     private final SoundCloudApplication mApp;
     private AuthTaskFragment mFragment;
 
-    protected AuthTask(SoundCloudApplication application) {
+    public AuthTask(SoundCloudApplication application) {
         mApp = application;
     }
 
-    public void setFragment(AuthTaskFragment fragment)
-    {
-        mFragment = fragment;
+    public void setTaskOwner(AuthTaskFragment taskOwner) {
+        mFragment = taskOwner;
     }
 
     protected SoundCloudApplication getSoundCloudApplication() {
@@ -39,7 +43,7 @@ public abstract class AuthTask extends AsyncTask<Bundle, Void, AuthTask.Result>{
     }
 
     @Override
-    protected void onPostExecute(Result result)
+    protected void onPostExecute(AuthTaskResult result)
     {
         if (mFragment == null) return;
         mFragment.onTaskResult(result);
@@ -65,50 +69,11 @@ public abstract class AuthTask extends AsyncTask<Bundle, Void, AuthTask.Result>{
         }
     }
 
-    protected AuthorizationException extractErrors(HttpResponse resp) throws IOException {
+    protected AuthTaskException extractErrors(HttpResponse resp) throws IOException {
         final ObjectReader reader = getSoundCloudApplication().getMapper().reader();
         final List<String> errors = IOUtils.parseError(reader, resp.getEntity().getContent());
-        return new AuthorizationException(errors);
+        return new AuthTaskException(errors);
     }
-
-    public static class Result {
-        private boolean     success;
-        private User        user;
-        private SignupVia   signupVia;
-        private Exception   exception;
-
-        public Result(User user, SignupVia signupVia) {
-            success = true;
-            this.user = user;
-            this.signupVia = signupVia;
-        }
-
-        public Result(Exception e){
-            exception = e;
-            success = false;
-        }
-
-        public boolean wasSuccess() {
-            return success;
-        }
-
-        public User getUser() {
-            return user;
-        }
-
-        public SignupVia getSignupVia() {
-            return signupVia;
-        }
-
-        public Exception getException() {
-            return exception;
-        }
-
-        public String[] getErrors(){
-            return exception instanceof AuthorizationException ? ((AuthorizationException) exception).getErrors() : null;
-        }
-    }
-
 
 
 }

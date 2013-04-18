@@ -174,7 +174,8 @@
     <string name="list_empty_you_sets_message">Create a set to share a collection of your favorite sounds.</string>
 
     <string name="dialog_select_google_account">Please select a Google account to Sign in with</string>
-    <string name="authentication_add_info_error">There was an error adding your info. Please try again.</string>
-    <string name="authentication_no_google_accounts">No account available. Please add an account to the phone first.</string>
+    <string name="authentication_login_error_message">We couldn\'t log you in. Please try again.</string>
+    <string name="authentication_add_info_error">We couldn\'t update your info. Please try again.</string>
+    <string name="authentication_no_google_accounts">Please setup a google account first.</string>
 
 </resources>

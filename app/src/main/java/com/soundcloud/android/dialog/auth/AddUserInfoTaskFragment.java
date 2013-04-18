@@ -5,7 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AddUserInfoTask;
 import com.soundcloud.android.task.auth.AuthTask;
-import com.soundcloud.android.task.auth.LoginTask;
+import com.soundcloud.android.task.auth.AuthTaskResult;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +46,7 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
     }
 
     @Override
-    protected String getErrorFromResult(Activity activity, AuthTask.Result result) {
+    protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
         final Exception exception = result.getException();
         if (exception instanceof CloudAPI.InvalidTokenException) {
             return activity.getString(R.string.authentication_login_error_password_message);

@@ -3,6 +3,7 @@ package com.soundcloud.android.task.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.dialog.auth.AuthTaskFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Endpoints;
@@ -28,7 +29,7 @@ public class AddUserInfoTask extends AuthTask {
     }
 
     @Override
-    protected Result doInBackground(Bundle... params) {
+    protected AuthTaskResult doInBackground(Bundle... params) {
         try {
             Request updateMe = Request.to(Endpoints.MY_DETAILS).with(
                     Params.User.NAME, mUpdatedUser.username,
@@ -44,18 +45,18 @@ public class AddUserInfoTask extends AuthTask {
                 case HttpStatus.SC_OK:
                     User u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
                     addAccount(u, SignupVia.API);
-                    return new Result(u, SignupVia.API);
+                    return AuthTaskResult.success(u, SignupVia.API);
 
                 case HttpStatus.SC_UNPROCESSABLE_ENTITY:
-                    return new Result(extractErrors(resp));
+                    return AuthTaskResult.failure(extractErrors(resp));
 
                 default:
                     Log.e("unexpected response: " + resp);
-                    return new Result(new AuthorizationException(app.getString(R.string.authentication_add_info_error)));
+                    return AuthTaskResult.failure(app.getString(R.string.authentication_add_info_error));
             }
         } catch (IOException e) {
             Log.e("IOException while adding user details: " + e.getMessage());
-            return new Result(e);
+            return AuthTaskResult.failure(e);
         }
     }
 }

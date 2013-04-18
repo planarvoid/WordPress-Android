@@ -9,10 +9,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.util.Pair;
-
 import java.io.File;
-import java.util.Arrays;
 
 @RunWith(DefaultTestRunner.class)
 public class AddUserInfoTaskTest  {
@@ -22,7 +19,7 @@ public class AddUserInfoTaskTest  {
 
         User user = new User();
         AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, user, null);
-        AuthTask.Result result = task.doInBackground();
+        AuthTaskResult result = task.doInBackground();
         expect(result.getUser().username).toEqual("testing");
     }
 
@@ -31,7 +28,7 @@ public class AddUserInfoTaskTest  {
         TestHelper.addPendingHttpResponse(getClass(), "me.json");
         User user = new User();
         AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, user, new File("/tmp/bla"));
-        AuthTask.Result result = task.doInBackground();
+        AuthTaskResult result = task.doInBackground();
         expect(result.getUser().username).toEqual("testing");
     }
 
@@ -41,7 +38,7 @@ public class AddUserInfoTaskTest  {
         User user = new User();
         File tmp = File.createTempFile("test", "tmp");
         AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, user, tmp);
-        AuthTask.Result result = task.doInBackground();
+        AuthTaskResult result = task.doInBackground();
         expect(result.getUser().username).toEqual("testing");
     }
 
@@ -50,7 +47,7 @@ public class AddUserInfoTaskTest  {
         Robolectric.addPendingHttpResponse(422, "{\"errors\":{\"error\":\"Failz\"}}");
         User user = new User();
         AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, user, null);
-        AuthTask.Result result = task.doInBackground();
+        AuthTaskResult result = task.doInBackground();
         expect(result.getUser()).toBeNull();
         expect(result.getErrors()[0]).toEqual("Failz");
     }

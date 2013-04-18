@@ -14,10 +14,10 @@ import com.soundcloud.android.dialog.auth.LoginTaskFragment;
 import com.soundcloud.android.dialog.auth.SignupTaskFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AuthTask;
+import com.soundcloud.android.task.auth.AuthTaskResult;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.view.tour.TourLayout;
 import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
@@ -323,13 +323,13 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     public void onSkipDetails() {
         new AuthTask(getApp()){
             @Override
-            protected Result doInBackground(Bundle... params) {
+            protected AuthTaskResult doInBackground(Bundle... params) {
                 addAccount(mUser,SignupVia.API);
                 return null;
             }
 
             @Override
-            protected void onPostExecute(Result result) {
+            protected void onPostExecute(AuthTaskResult result) {
                 onAuthTaskComplete(mUser, SignupVia.API, false);
             }
         }.execute();
@@ -481,7 +481,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Override
     public void onAuthTaskComplete(User user, SignupVia via, boolean wasApiSignupTask) {
         if (wasApiSignupTask){
-            SignupLog.writeNewSignup();
+            SignupLog.writeNewSignupAsync();
             mUser = user;
             setState(StartState.SIGN_UP_DETAILS);
         } else {

@@ -34,7 +34,7 @@ public class SignupLog {
         }
     }
 
-    static void writeNewSignup() {
+    static void writeNewSignupAsync() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -58,7 +58,6 @@ public class SignupLog {
     static boolean writeLog(long[] toWrite) {
         try {
             IOUtils.mkdirs(SIGNUP_LOG.getParentFile());
-
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SIGNUP_LOG));
             out.writeObject(toWrite);
             out.close();
@@ -71,7 +70,6 @@ public class SignupLog {
 
     @Nullable
     static long[] readLog() {
-
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
             return (long[]) in.readObject();

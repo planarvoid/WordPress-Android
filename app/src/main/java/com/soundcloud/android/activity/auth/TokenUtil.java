@@ -25,7 +25,7 @@ public class TokenUtil {
         return bundle;
     }
 
-    public static Bundle configureScopeExtra(Bundle data) {
+    public static Bundle configureDefaultScopeExtra(Bundle data) {
         if (!data.containsKey(TokenKeys.SCOPES_EXTRA)) {
             data.putStringArray(TokenKeys.SCOPES_EXTRA, DEFAULT_SCOPES);
         }
@@ -33,17 +33,17 @@ public class TokenUtil {
     }
 
     public static Token getToken(AndroidCloudAPI app, Bundle param) throws IOException {
-        final String[] scopes = param.getStringArray(TokenUtil.TokenKeys.SCOPES_EXTRA);
+        final String[] scopes = param.getStringArray(TokenKeys.SCOPES_EXTRA);
 
-        if (param.containsKey(TokenUtil.TokenKeys.CODE_EXTRA)) {
+        if (param.containsKey(TokenKeys.CODE_EXTRA)) {
             return app.authorizationCode(param.getString(TokenUtil.TokenKeys.CODE_EXTRA), scopes);
 
-        } else if (param.containsKey(TokenUtil.TokenKeys.USERNAME_EXTRA)
-                && param.containsKey(TokenUtil.TokenKeys.PASSWORD_EXTRA)) {
-            return app.login(param.getString(TokenUtil.TokenKeys.USERNAME_EXTRA),
-                    param.getString(TokenUtil.TokenKeys.PASSWORD_EXTRA), scopes);
+        } else if (param.containsKey(TokenKeys.USERNAME_EXTRA)
+                && param.containsKey(TokenKeys.PASSWORD_EXTRA)) {
+            return app.login(param.getString(TokenKeys.USERNAME_EXTRA),
+                    param.getString(TokenKeys.PASSWORD_EXTRA), scopes);
 
-        } else if (param.containsKey(TokenUtil.TokenKeys.EXTENSION_GRANT_TYPE_EXTRA)) {
+        } else if (param.containsKey(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA)) {
             return app.extensionGrantType(param.getString(TokenUtil.TokenKeys.EXTENSION_GRANT_TYPE_EXTRA), scopes);
 
         } else {
