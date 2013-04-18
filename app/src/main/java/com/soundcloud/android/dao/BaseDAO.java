@@ -128,22 +128,27 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return mResolver.delete(uri, where, whereArgs) == 1;
     }
 
+    @NotNull
     public QueryBuilder buildQuery() {
         return buildQuery(getContent().uri);
     }
 
+    @NotNull
     public QueryBuilder buildQuery(Uri contentUri) {
         return new QueryBuilder(contentUri);
     }
 
+    @NotNull
     public List<T> queryAll() {
         return queryAllByUri(getContent().uri);
     }
 
+    @NotNull
     protected List<T> queryAllByUri(Uri contentUri) {
         return new QueryBuilder(contentUri).queryAll();
     }
 
+    @NotNull
     private List<T> queryAllByUri(Uri contentUri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String order) {
         Cursor c = mResolver.query(contentUri, projection, selection, selectionArgs, order);
         if (c != null) {
