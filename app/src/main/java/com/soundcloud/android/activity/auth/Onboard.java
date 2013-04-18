@@ -13,6 +13,7 @@ import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.dialog.auth.LoginTaskFragment;
 import com.soundcloud.android.dialog.auth.SignupTaskFragment;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.auth.AuthTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -395,10 +396,19 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onSkipDetails() {
-        // TODO : this
-        //addAccountAsync(mUser, SignupVia.API, null);
-    }
+        new AuthTask(getApp()){
+            @Override
+            protected Result doInBackground(Bundle... params) {
+                addAccount(mUser,SignupVia.API);
+                return null;
+            }
 
+            @Override
+            protected void onPostExecute(Result result) {
+                onAuthTaskComplete(mUser, SignupVia.API, false);
+            }
+        }.execute();
+    }
 
     @Override
     public void onBackPressed() {
@@ -548,6 +558,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         final String[] names = AndroidUtils.getAccountsByType(this, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
 
         if (names.length == 0){
+            // TODO :Proper dialog
             Toast.makeText(this, "No account available. Please add an account to the phone first.", Toast.LENGTH_LONG).show();
         } else if (names.length == 1){
             onGoogleAccountSelected(names[0]);
