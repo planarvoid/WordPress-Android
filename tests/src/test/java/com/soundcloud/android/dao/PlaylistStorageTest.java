@@ -48,7 +48,7 @@ public class PlaylistStorageTest {
     public void shouldGetPlaylistWithTracks() {
         TestHelper.insertWithDependencies(playlist);
 
-        Playlist p = storage.getPlaylistWithTracks(playlist.id);
+        Playlist p = storage.loadPlaylistWithTracks(playlist.id).lastOrDefault(null);
 
         expect(p).not.toBeNull();
         expect(p).toEqual(playlist);
@@ -99,7 +99,7 @@ public class PlaylistStorageTest {
             expect(insert).not.toBeNull();
         }
 
-        Playlist p2 = storage.getPlaylistWithTracks(playlist.id);
+        Playlist p2 = storage.loadPlaylistWithTracks(playlist.id).lastOrDefault(null);
 
         expect(p2).not.toBeNull();
         expect(p2.tracks.size()).toEqual(43);

@@ -58,7 +58,8 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
             return true; // need to pull from DB
         } else {
             // check if there is anything newer
-            final Activity firstActivity = mActivitiesStorage.getFirstActivity(mContent);
+            // TODO: DB access on UI thread!
+            final Activity firstActivity = mActivitiesStorage.getFirstActivity(mContent).lastOrDefault(null);
             return (firstActivity == null || firstActivity.created_at.getTime() > mData.get(0).created_at.getTime());
         }
     }

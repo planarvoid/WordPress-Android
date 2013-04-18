@@ -2,7 +2,10 @@ package com.soundcloud.android.rx.syncing;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
@@ -16,13 +19,11 @@ import org.junit.runner.RunWith;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.concurrency.Schedulers;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 import rx.util.functions.Functions;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
@@ -34,13 +35,6 @@ public class SyncOperationsTest {
 
     @Before
     public void setup() {
-        syncOps = new SyncOperations<String>(Robolectric.application, new SyncOperations.LocalStorageStrategy<String>() {
-            @Override
-            public Observable<String> loadFromContentUri(final Uri contentUri) {
-                return localStorageOp;
-            }
-        }, Schedulers.immediate());
-
         localStorageOp = Observable.create(new Func1<Observer<String>, Subscription>() {
             @Override
             public Subscription call(Observer<String> stringObserver) {
@@ -49,6 +43,8 @@ public class SyncOperationsTest {
                 return Subscriptions.empty();
             }
         });
+
+        syncOps = new SyncOperations<String>(Robolectric.application, localStorageOp);
     }
 
     @Test

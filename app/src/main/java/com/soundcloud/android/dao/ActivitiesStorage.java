@@ -7,15 +7,21 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-public class ActivitiesStorage {
+public class ActivitiesStorage extends ScheduledOperations {
     private SyncStateManager mSyncStateManager;
     private ActivityDAO mActivitiesDAO;
     private final ContentResolver mResolver;
@@ -26,45 +32,84 @@ public class ActivitiesStorage {
         mActivitiesDAO = new ActivityDAO(mResolver);
     }
 
-    public Activities getSince(Uri contentUri, long since)  {
-        if (Log.isLoggable(TAG, Log.DEBUG))
-            Log.d(TAG, "Activities.getSince("+contentUri+", since="+since+")");
+    public Observable<Activities> getCollectionSince(final Uri contentUri, final long since)  {
+        return schedule(Observable.create(new Func1<Observer<Activities>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Activities> observer) {
+                log("get activities " + contentUri + ", since=" + since);
 
-        Activities activities = new Activities();
-        LocalCollection lc = mSyncStateManager.fromContent(contentUri);
-        activities.future_href = lc.extra;
+                Activities activities = new Activities();
+                LocalCollection lc = mSyncStateManager.fromContent(contentUri);
+                activities.future_href = lc.extra;
 
-        BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
-        if (since > 0) {
-            query.where(DBHelper.ActivityView.CREATED_AT + "> ?", String.valueOf(since));
-        }
+                BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
+                if (since > 0) {
+                    query.where(DBHelper.ActivityView.CREATED_AT + "> ?", String.valueOf(since));
+                }
 
-        activities.collection = query.queryAll();
+                activities.collection = query.queryAll();
+                observer.onNext(activities);
+                observer.onCompleted();
 
-        return activities;
+                return Subscriptions.empty();
+            }
+        }));
     }
 
-    public Activities getSince(Content content, long before)  {
-        return getSince(content.uri, before);
+    public Observable<Activity> getActivitiesSince(final Uri contentUri, final long since)  {
+        return getCollectionSince(contentUri, since).mapMany(new Func1<Activities, Observable<Activity>>() {
+            @Override
+            public Observable<Activity> call(final Activities activities) {
+                return Observable.create(new Func1<Observer<Activity>, Subscription>() {
+                    @Override
+                    public Subscription call(Observer<Activity> observer) {
+                        for (Activity activity : activities.collection) {
+                            observer.onNext(activity);
+                        }
+                        observer.onCompleted();
+                        return Subscriptions.empty();
+                    }
+                });
+            }
+        });
     }
 
-    public Activities get(Content content) {
-        return getSince(content, 0);
+    public Observable<Activity> getActivities(final Uri contentUri)  {
+        return getActivitiesSince(contentUri, 0);
     }
 
-
-    public @Nullable Activity getLastActivity(Content content) {
-        return mActivitiesDAO.buildQuery(content.uri)
-                .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
-                .order(DBHelper.ActivityView.CREATED_AT + " ASC")
-                .first();
+    public Observable<Activity> getLastActivity(final Content content) {
+        return schedule(Observable.create(new Func1<Observer<Activity>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Activity> activityObserver) {
+                Activity activity = mActivitiesDAO.buildQuery(content.uri)
+                        .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
+                        .order(DBHelper.ActivityView.CREATED_AT + " ASC")
+                        .first();
+                if (activity != null) {
+                    activityObserver.onNext(activity);
+                }
+                activityObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
-    public @Nullable Activity getFirstActivity(Content content) {
-        return mActivitiesDAO.buildQuery(content.uri)
-                .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
-                .order(DBHelper.ActivityView.CREATED_AT + " DESC")
-                .first();
+    public Observable<Activity> getFirstActivity(final Content content) {
+        return schedule(Observable.create(new Func1<Observer<Activity>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Activity> activityObserver) {
+                Activity activity = mActivitiesDAO.buildQuery(content.uri)
+                        .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
+                        .order(DBHelper.ActivityView.CREATED_AT + " DESC")
+                        .first();
+                if (activity != null) {
+                    activityObserver.onNext(activity);
+                }
+                activityObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     public Activities getBefore(Uri contentUri, long before)  {

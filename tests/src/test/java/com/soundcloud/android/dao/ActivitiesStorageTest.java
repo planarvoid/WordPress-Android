@@ -33,8 +33,8 @@ public class ActivitiesStorageTest {
         expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         expect(
-                storage.getSince(Content.ME_SOUND_STREAM,
-                        toTime("2012/09/27 14:08:01 +0000")).size()
+                storage.getCollectionSince(Content.ME_SOUND_STREAM.uri,
+                        toTime("2012/09/27 14:08:01 +0000")).lastOrDefault(Activities.EMPTY).size()
         ).toEqual(2);
 
         expect(
@@ -54,8 +54,8 @@ public class ActivitiesStorageTest {
 
     @Test
     public void shouldGetFirstAndLastActivity() throws Exception {
-        Activity first = storage.getFirstActivity(Content.ME_SOUND_STREAM);
-        Activity last = storage.getLastActivity(Content.ME_SOUND_STREAM);
+        Activity first = storage.getFirstActivity(Content.ME_SOUND_STREAM).lastOrDefault(null);
+        Activity last = storage.getLastActivity(Content.ME_SOUND_STREAM).lastOrDefault(null);
         expect(first).toBeNull();
         expect(last).toBeNull();
 
@@ -64,11 +64,11 @@ public class ActivitiesStorageTest {
 
         expect(storage.insert(Content.ME_SOUND_STREAM, one_of_each)).toBe(7);
 
-        first = storage.getFirstActivity(Content.ME_SOUND_STREAM);
+        first = storage.getFirstActivity(Content.ME_SOUND_STREAM).lastOrDefault(null);
         expect(first).not.toBeNull();
         expect(first.uuid).toEqual("8e3bf200-0744-11e2-9817-590114067ab0");
 
-        last = storage.getLastActivity(Content.ME_SOUND_STREAM);
+        last = storage.getLastActivity(Content.ME_SOUND_STREAM).lastOrDefault(null);
         expect(last).not.toBeNull();
         expect(last.uuid).toEqual("75e9d700-0819-11e2-81bb-70dbfa89bdb9");
         expect(first.created_at.after(last.created_at)).toBeTrue();
@@ -81,7 +81,7 @@ public class ActivitiesStorageTest {
         expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         expect(
-                storage.getLastActivity(Content.ME_SOUND_STREAM).created_at.getTime()
+                storage.getLastActivity(Content.ME_SOUND_STREAM).lastOrDefault(null).created_at.getTime()
         ).toEqual(toTime("2012/09/26 14:52:27 +0000"));
     }
 

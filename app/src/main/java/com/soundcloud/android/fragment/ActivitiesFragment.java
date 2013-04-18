@@ -6,11 +6,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.event.Event;
-import com.soundcloud.android.rx.syncing.LoadActivitiesStrategy;
 import com.soundcloud.android.rx.syncing.SyncOperations;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
@@ -21,8 +21,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import java.util.List;
-
 public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
     public static final String EXTRA_STREAM_URI = "stream_uri";
@@ -31,7 +29,7 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
     private SyncOperations<Activity> mSyncOperations;
     private Subscription mAssocChangedSubscription;
-    private Observable<Activity> mLoadActivities;
+    private Observable<Activity> mLoadFromLocalStorage;
 
 
     public static ActivitiesFragment create(final Content streamContent) {
@@ -49,11 +47,11 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
         mContentUri = (Uri) getArguments().get(EXTRA_STREAM_URI);
 
-        SyncOperations.LocalStorageStrategy<Activity> storageStrategy = new LoadActivitiesStrategy(getActivity());
-        mSyncOperations = new SyncOperations<Activity>(getActivity(), storageStrategy);
-        mLoadActivities = storageStrategy.loadFromContentUri(mContentUri);
+        ActivitiesStorage storage = new ActivitiesStorage(getActivity()).scheduleFromActivity();
+        mLoadFromLocalStorage = storage.getActivities(mContentUri);
+        mSyncOperations = new SyncOperations<Activity>(getActivity(), mLoadFromLocalStorage).subscribeInBackground();
 
-        mAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(mLoadActivities, mLoadItemsObserver);
+        mAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(mLoadFromLocalStorage, mLoadItemsObserver);
 
         if (savedInstanceState == null) {
             Log.d(this, "first start, scheduling possible sync");

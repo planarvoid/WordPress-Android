@@ -5,13 +5,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter2;
+import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScFunctions;
 import com.soundcloud.android.rx.event.Event;
-import com.soundcloud.android.rx.syncing.LoadPlaylistStrategy;
-import com.soundcloud.android.rx.syncing.LoadPlaylistTracksStrategy;
 import com.soundcloud.android.rx.syncing.SyncOperations;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -34,11 +33,11 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
 
     private Playlist mPlaylist;
 
-    private LoadPlaylistTracksStrategy mTracksStorage;
     private PlaylistObserver mPlaylistObserver;
     private SyncOperations<Playlist> mSyncOperations;
 
-    private Observable<Track> mLoadTracks;
+    private Observable<Track> mLoadTracksFromLocalStorage;
+    private Observable<Playlist> mLoadPlaylistFromLocalStorage;
     private Subscription mTrackAssocChangedSubscription;
 
     private TextView mInfoHeaderText;
@@ -60,11 +59,13 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
 
         mPlaylist = Playlist.fromBundle(getArguments());
 
-        mTracksStorage = new LoadPlaylistTracksStrategy(getActivity());
-        mSyncOperations = new SyncOperations<Playlist>(getActivity(), new LoadPlaylistStrategy(getActivity()));
-        mPlaylistObserver = new PlaylistObserver();
+        PlaylistStorage playlistStorage = new PlaylistStorage(getActivity()).scheduleFromActivity();
 
-        mLoadTracks = mTracksStorage.loadFromContentUri(mPlaylist.toUri());
+        mLoadPlaylistFromLocalStorage = playlistStorage.loadPlaylistWithTracks(mPlaylist.getId());
+        mLoadTracksFromLocalStorage = playlistStorage.loadPlaylistTracks(mPlaylist.getId());
+
+        mSyncOperations = new SyncOperations<Playlist>(getActivity(), mLoadPlaylistFromLocalStorage).subscribeInBackground();
+        mPlaylistObserver = new PlaylistObserver();
 
         // since we need to sync the playlist first, but the list fragment is modeled around a playlist's tracks,
         // so we need to map the sync operation to return the playlist's tracks first
@@ -101,7 +102,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
     public void onStop() {
         super.onStop();
         // if we go into the background, make sure we start listening for changes to the playlist and its tracks
-        mTrackAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(mLoadTracks, mLoadItemsObserver);
+        mTrackAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(mLoadTracksFromLocalStorage, mLoadItemsObserver);
     }
 
     @Override
@@ -127,7 +128,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
             @Override
             public Observable<Track> call(Playlist playlist) {
                 onPlaylistChanged(playlist);
-                return mTracksStorage.loadFromContentUri(playlist.toUri());
+                return mLoadTracksFromLocalStorage;
             }
         }).subscribe(mLoadItemsObserver);
     }

@@ -2,12 +2,10 @@ package com.soundcloud.android.rx.syncing;
 
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Observer;
-import rx.Scheduler;
 import rx.Subscription;
 import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
@@ -26,24 +24,16 @@ import android.os.ResultReceiver;
  * obtain observable instances which will ensure that the proper actions are performed based on whether a sync is
  * actually necessary or not, and that these actions are executed on an appropriate thread.
  */
-public class SyncOperations<T> {
+public class SyncOperations<T> extends ScheduledOperations {
 
     private final Context mContext;
-    private final LocalStorageStrategy<T> mStorageStrategy;
+    private final Observable<T> mLoadFromLocalStorage;
     private final LocalCollectionDAO mLocalCollectionsDao; //TODO: replace with storage facade
 
-    private Scheduler mBackgroundScheduler = ScSchedulers.BACKGROUND_SCHEDULER;
-    private Scheduler mUIScheduler = ScSchedulers.UI_SCHEDULER;
-
-    public SyncOperations(Context context, LocalStorageStrategy<T> localStorageStrategy) {
+    public SyncOperations(Context context, Observable<T> loadFromLocalStorage) {
         mContext = context.getApplicationContext();
-        mStorageStrategy = localStorageStrategy;
+        mLoadFromLocalStorage = loadFromLocalStorage;
         mLocalCollectionsDao = new LocalCollectionDAO(context.getContentResolver());
-    }
-
-    public SyncOperations(Context context, LocalStorageStrategy<T> localStorageStrategy, Scheduler backgroundScheduler) {
-        this(context, localStorageStrategy);
-        mBackgroundScheduler = backgroundScheduler;
     }
 
     public Observable<Observable<T>> syncIfNecessary(final Uri contentUri) {
@@ -52,8 +42,7 @@ public class SyncOperations<T> {
 
     /**
      * <p>Returns an observable that upon subscription determines whether a sync is due, and either emits the given sync
-     * action if that's the case or if not, emits an observable that loads the same content from local storage using
-     * the {@link LocalStorageStrategy} this class instance was configured with.</p>
+     * action if that's the case or if not, emits an observable that loads the same content from local storage.</p>
      * <p>
      * The returned observable is guaranteed to execute on a background thread.
      * </p>
@@ -63,9 +52,10 @@ public class SyncOperations<T> {
      * @return the observable
      */
     public Observable<Observable<T>> syncIfNecessary(final Uri contentUri, final Observable<T> syncAction) {
-        return Observable.create(new Func1<Observer<Observable<T>>, Subscription>() {
+        return schedule(Observable.create(new Func1<Observer<Observable<T>>, Subscription>() {
             @Override
             public Subscription call(Observer<Observable<T>> observer) {
+                log("syncIfNecessary");
                 LocalCollection mLocalCollection = mLocalCollectionsDao.fromContentUri(contentUri, true);
                 boolean syncRequired;
                 if (mLocalCollection == null) {
@@ -77,16 +67,18 @@ public class SyncOperations<T> {
                 log("Sync required: " + syncRequired);
 
                 if (syncRequired) {
+                    // emit the observable that performs the actual sync
                     observer.onNext(syncAction);
                 } else {
-                    observer.onNext(loadFromLocalStorage(contentUri));
+                    // emit the observable which simply loads what we have from local storage
+                    observer.onNext(mLoadFromLocalStorage);
                 }
 
                 observer.onCompleted();
 
                 return Subscriptions.empty();
             }
-        }).subscribeOn(mBackgroundScheduler);
+        }));
     }
 
     /**
@@ -97,7 +89,7 @@ public class SyncOperations<T> {
      * @return the observable
      */
     public Observable<T> syncNow(final Uri contentUri) {
-        return Observable.create(new Func1<Observer<T>, Subscription>() {
+        return schedule(Observable.create(new Func1<Observer<T>, Subscription>() {
             @Override
             public Subscription call(final Observer<T> observer) {
                 log("Requesting sync...");
@@ -131,7 +123,7 @@ public class SyncOperations<T> {
                 switch (resultCode) {
                     case ApiSyncService.STATUS_SYNC_FINISHED: {
                         log("Sync successful!");
-                        loadFromLocalStorage(contentUri).subscribe(observer);
+                        mLoadFromLocalStorage.subscribe(observer);
                         break;
                     }
                     case ApiSyncService.STATUS_SYNC_ERROR:
@@ -140,21 +132,6 @@ public class SyncOperations<T> {
                         break;
                 }
             }
-        });
-    }
-
-    private Observable<T> loadFromLocalStorage(final Uri contentUri) {
-        return mStorageStrategy.loadFromContentUri(contentUri)
-                .subscribeOn(mBackgroundScheduler)
-                .observeOn(mUIScheduler);
-    }
-
-    protected void log(String msg) {
-        Log.d(this, msg + " (thread: " + Thread.currentThread().getName() + ")");
-    }
-
-    public static interface LocalStorageStrategy<T> {
-        @Deprecated
-        Observable<T> loadFromContentUri(final Uri contentUri);
+        }));
     }
 }

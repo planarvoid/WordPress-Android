@@ -303,7 +303,7 @@ public class ApiSyncer {
         final int inserted;
         Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
-            final Activity lastActivity = mActivitiesStorage.getLastActivity(c);
+            final Activity lastActivity = mActivitiesStorage.getLastActivity(c).singleOrDefault(null);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
             activities = Activities.fetch(mApi, request);
