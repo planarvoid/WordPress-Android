@@ -16,6 +16,7 @@ class SoundAssociationDAO extends BaseDAO<SoundAssociation> {
     }
 
     @Override
+    @NotNull
     public List<SoundAssociation> queryAll() {
         List<SoundAssociation> result = new ArrayList<SoundAssociation>();
         result.addAll(queryAllByUri(Content.ME_LIKES.uri)); // liked tracks & playlists
