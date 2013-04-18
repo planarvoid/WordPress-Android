@@ -61,7 +61,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
 
     @Deprecated
     protected long create(Uri uri, ContentValues values) {
-        Uri objUri = mResolver.insert(uri,  values);
+        Uri objUri = mResolver.insert(uri, values);
         if (objUri != null) {
             try {
                 return Long.parseLong(objUri.getLastPathSegment());
@@ -90,8 +90,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
         if (!toRemove.isEmpty()) {
             return mResolver.delete(getContent().uri,
-                getWhereInClause(BaseColumns._ID, toRemove.size()),
-                longListToStringArr(toRemove));
+                    getWhereInClause(BaseColumns._ID, toRemove.size()),
+                    longListToStringArr(toRemove));
         } else {
             return 0;
         }
@@ -163,7 +163,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
     }
 
-    public @Nullable T queryById(long id) {
+    @Nullable
+    public T queryById(long id) {
         Cursor cursor = mResolver.query(getContent().forId(id), null, null, null, null);
         try {
             if (cursor != null && cursor.moveToFirst()) {
@@ -176,7 +177,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
     }
 
-    public @Nullable T queryByUri(Uri uri) {
+    @Nullable
+    public T queryByUri(Uri uri) {
         return queryById(UriUtils.getLastSegmentAsLong(uri));
     }
 
@@ -211,7 +213,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return mResolver;
     }
 
-    public @NotNull Class<T> getModelClass() {
+    @NotNull
+    public Class<T> getModelClass() {
         @SuppressWarnings("unchecked")
         Class<T> klass = (Class<T>) getContent().modelType;
         if (klass == null) throw new DAOException("No modelclass defined");
@@ -225,11 +228,11 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     public List<Long> getStoredIds(List<Long> ids) {
         return idCursorToList(
                 mResolver.query(
-                    getContent().uri,
-                    new String[]{BaseColumns._ID},
-                    getWhereInClause(BaseColumns._ID, ids.size()) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0",
-                    longListToStringArr(ids),
-                    null
+                        getContent().uri,
+                        new String[]{BaseColumns._ID},
+                        getWhereInClause(BaseColumns._ID, ids.size()) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0",
+                        longListToStringArr(ids),
+                        null
                 )
         );
     }
@@ -274,7 +277,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
             return queryAllByUri(contentUri, mProjection, mSelection, mSelectionArgs, mOrder);
         }
 
-        public @Nullable T first() {
+        @Nullable
+        public T first() {
             List<T> all = limit(1).queryAll();
             if (all.isEmpty()) {
                 return null;
