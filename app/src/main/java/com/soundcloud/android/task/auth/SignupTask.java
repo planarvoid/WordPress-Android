@@ -97,10 +97,4 @@ public class SignupTask extends AuthTask {
         }
         return new Result(user,SignupVia.API);
     }
-
-    protected AuthorizationException extractErrors(HttpResponse resp) throws IOException {
-        final ObjectReader reader = getSoundCloudApplication().getMapper().reader();
-        final List<String> errors = IOUtils.parseError(reader, resp.getEntity().getContent());
-        return new AuthorizationException(errors);
-    }
 }

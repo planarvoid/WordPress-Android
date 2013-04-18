@@ -1,6 +1,6 @@
 package com.soundcloud.android.task.auth;
 
-import com.actionbarsherlock.R;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
@@ -60,8 +60,4 @@ public class LoginTask extends AuthTask {
 
         return new Result(user, signupVia);
     }
-
-
-
-
 }

@@ -9,7 +9,9 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dialog.auth.AddUserInfoTaskFragment;
 import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
+import com.soundcloud.android.dialog.auth.LoginTaskFragment;
 import com.soundcloud.android.dialog.auth.SignupTaskFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AddUserInfoTask;
@@ -361,7 +363,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onLogin(String email, String password) {
-        login(email, password);
+        LoginTaskFragment.create(email, password).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
     }
 
     @Override
@@ -371,7 +373,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onSignUp(final String email, final String password) {
-        SignupTaskFragment.create(email,password).show(getSupportFragmentManager(),"signup_task");
+        SignupTaskFragment.create(email,password).show(getSupportFragmentManager(), "signup_task");
     }
 
     @Override
@@ -391,27 +393,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             mUser.permalink = username;
         }
 
-        new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
-            ProgressDialog dialog;
-            @Override protected void onPreExecute() {
-                dialog = AndroidUtils.showProgress(Onboard.this, R.string.authentication_add_info_progress_message);
-            }
-
-            @Override protected void onPostExecute(User user) {
-                if (!isFinishing()) {
-                    if (user != null) {
-                        // TODO
-                        //addAccountAsync(user, SignupVia.API, dialog);
-                    } else {
-                        onError(getFirstError());
-                        try {
-                            if (dialog != null) dialog.dismiss();
-                        } catch (IllegalArgumentException ignored) {
-                        }
-                    }
-                }
-            }
-        }.execute(Pair.create(mUser, avatarFile));
+        AddUserInfoTaskFragment.create(mUser,avatarFile).show(getSupportFragmentManager(),"add_user_task");
     }
 
     @Override
@@ -615,6 +597,16 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         }
 
         startActivityForResult(recoveryIntent, Consts.RequestCodes.RECOVER_CODE);
+    }
+
+    @Override
+    public void onAuthTaskComplete(User user, SignupVia via, boolean shouldAddUserInfo) {
+        if (shouldAddUserInfo){
+            mUser = user;
+            setState(StartState.SIGN_UP_DETAILS);
+        } else {
+            super.onAuthTaskComplete(user, via, shouldAddUserInfo);
+        }
     }
 
     @Override

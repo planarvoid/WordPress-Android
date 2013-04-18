@@ -25,7 +25,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     private WeakReference<OnAuthResultListener> mListenerRef;
 
     public interface OnAuthResultListener {
-        void onAccountAdded(User user, SignupVia signupVia);
+        void onAuthTaskComplete(User user, SignupVia signupVia, boolean shouldAddUserInfo);
         void onError(String message);
     }
 
@@ -105,7 +105,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
         final OnAuthResultListener listener = mListenerRef.get();
         if (listener != null){
             if (mResult.wasSuccess()){
-                listener.onAccountAdded(mResult.getUser(), mResult.getSignupVia());
+                listener.onAuthTaskComplete(mResult.getUser(), mResult.getSignupVia(),
+                        this instanceof SignupTaskFragment);
             } else {
                 listener.onError(getErrorFromResult((Activity) listener, mResult));
             }

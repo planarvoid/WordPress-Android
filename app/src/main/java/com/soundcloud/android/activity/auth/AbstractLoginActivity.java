@@ -5,14 +5,11 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.dialog.auth.AuthTaskFragment;
-import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.dialog.auth.LoginTaskFragment;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.auth.LoginTask;
 import com.soundcloud.api.Token;
 
 import android.accounts.AccountAuthenticatorActivity;
@@ -70,18 +67,16 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
         super.finish();
     }
 
-    protected void login(String username, String password) {
-        LoginTaskFragment.create(username, password)
-                .show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
-    }
-
+    /**
+     * Used for creating SoundCloud account from {@link FacebookWebFlow} and {@link FacebookSSO}
+     * @param data contains grant data and FB token
+     */
     protected void login(Bundle data) {
-        LoginTaskFragment.create(data)
-                .show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
+        LoginTaskFragment.create(data).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
     }
 
     @Override
-    public void onAccountAdded(User user, SignupVia via){
+    public void onAuthTaskComplete(User user, SignupVia via, boolean shouldAddUserInfo){
         final Bundle result = new Bundle();
         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));

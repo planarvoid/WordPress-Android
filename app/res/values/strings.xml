@@ -174,5 +174,6 @@
     <string name="list_empty_you_sets_message">Create a set to share a collection of your favorite sounds.</string>
 
     <string name="dialog_select_google_account">Please select a Google account to Sign in with</string>
+    <string name="authentication_add_info_error">There was an error adding your info. Please try again.</string>
 
 </resources>
