@@ -1,12 +1,9 @@
 package com.soundcloud.android.task.auth;
 
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
@@ -19,8 +16,6 @@ import org.apache.http.HttpStatus;
 import android.os.Bundle;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SignupTask extends AuthTask {
 
@@ -48,7 +43,6 @@ public class SignupTask extends AuthTask {
                 return new Result(e);
             }
         }
-        //writeNewSignupToLog();
         return result;
     }
 

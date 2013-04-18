@@ -5,7 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -14,7 +13,6 @@ import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.dialog.auth.LoginTaskFragment;
 import com.soundcloud.android.dialog.auth.SignupTaskFragment;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.auth.AddUserInfoTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -35,7 +33,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -222,7 +219,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Override
     protected void onResume() {
         super.onResume();
-        ((SoundCloudApplication)getApplication()).track(Page.Entry_main);
+        getApp().track(Page.Entry_main);
     }
 
     @Override
@@ -568,23 +565,19 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private void onGoogleAccountSelected(String name) {
         // store the last account name in case we have to retry after startActivityForResult with G+ app
         mLastGoogleAccountSelected = name;
-        ((SoundCloudApplication) getApplication()).track(Click.Login_with_googleplus);
+        getApp().track(Click.Login_with_googleplus);
         GooglePlusSignInTaskFragment.create(name, Consts.RequestCodes.SIGNUP_VIA_GOOGLE)
                 .show(getSupportFragmentManager(), "google_acct_dialog");
     }
 
     private void onFacebookLogin() {
-        SoundCloudApplication app = (SoundCloudApplication) getApplication();
-
-        app.track(Click.Login_with_facebook);
+        getApp().track(Click.Login_with_facebook);
         startActivityForResult(new Intent(this, Facebook.class), Consts.RequestCodes.SIGNUP_VIA_FACEBOOK);
     }
 
     @Override
     public void onTermsOfUse() {
-        SoundCloudApplication app = (SoundCloudApplication) getApplication();
-
-        app.track(Click.Signup_Signup_terms);
+        getApp().track(Click.Signup_Signup_terms);
         startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE_URL));
     }
 
@@ -600,13 +593,18 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     @Override
-    public void onAuthTaskComplete(User user, SignupVia via, boolean shouldAddUserInfo) {
-        if (shouldAddUserInfo){
+    public void onAuthTaskComplete(User user, SignupVia via, boolean wasApiSignupTask) {
+        if (wasApiSignupTask){
+            writeNewSignupToLog();
             mUser = user;
             setState(StartState.SIGN_UP_DETAILS);
         } else {
-            super.onAuthTaskComplete(user, via, shouldAddUserInfo);
+            super.onAuthTaskComplete(user, via, wasApiSignupTask);
         }
+    }
+
+    private SoundCloudApplication getApp() {
+        return ((SoundCloudApplication) getApplication());
     }
 
     @Override
