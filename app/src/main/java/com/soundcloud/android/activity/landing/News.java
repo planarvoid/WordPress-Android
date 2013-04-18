@@ -2,7 +2,7 @@ package com.soundcloud.android.activity.landing;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.fragment.ScListFragment;
+import com.soundcloud.android.fragment.ActivitiesFragment;
 import com.soundcloud.android.provider.Content;
 
 import android.os.Bundle;
@@ -15,7 +15,7 @@ public class News extends ScActivity implements ScLandingPage{
 
         if (state == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
+                    .add(mRootView.getContentHolderId(), ActivitiesFragment.create(Content.ME_ACTIVITIES)).commit();
         }
     }
 
