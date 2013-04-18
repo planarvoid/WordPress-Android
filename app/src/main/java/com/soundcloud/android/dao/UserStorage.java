@@ -3,6 +3,12 @@ package com.soundcloud.android.dao;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -10,7 +16,7 @@ import android.net.Uri;
 
 import java.util.EnumSet;
 
-public class UserStorage implements Storage<User> {
+public class UserStorage extends ScheduledOperations implements Storage<User> {
     private UserDAO mUserDAO;
     private final ContentResolver mResolver;
 
@@ -20,8 +26,16 @@ public class UserStorage implements Storage<User> {
     }
 
     @Override
-    public void create(User resource) {
-        mUserDAO.create(resource.buildContentValues());
+    public Observable<User> create(final User user) {
+        return schedule(Observable.create(new Func1<Observer<User>, Subscription>() {
+            @Override
+            public Subscription call(Observer<User> observer) {
+                mUserDAO.create(user.buildContentValues());
+                observer.onNext(user);
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     public void createOrUpdate(User u) {

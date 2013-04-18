@@ -48,8 +48,16 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
      * @param playlist the playlist to store
      */
     @Override
-    public void create(Playlist playlist) {
-        mPlaylistDAO.create(playlist);
+    public Observable<Playlist> create(final Playlist playlist) {
+        return schedule(Observable.create(new Func1<Observer<Playlist>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Playlist> observer) {
+                mPlaylistDAO.create(playlist);
+                observer.onNext(playlist);
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     /**
@@ -57,7 +65,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
      *
      * @see #create(com.soundcloud.android.model.Playlist)
      */
-    public Playlist createNewUserPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
+    public Observable<Playlist> createNewUserPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
         ArrayList<Track> tracks = new ArrayList<Track>(trackIds.length);
         for (long trackId : trackIds){
             Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
@@ -65,8 +73,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         }
 
         Playlist playlist = Playlist.newUserPlaylist(user, title, isPrivate, tracks);
-        create(playlist);
-        return playlist;
+        return create(playlist);
     }
 
 // TODO: Do we actually need update functionality for playlists?

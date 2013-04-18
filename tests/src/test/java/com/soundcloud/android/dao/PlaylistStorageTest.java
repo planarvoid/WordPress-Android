@@ -38,7 +38,7 @@ public class PlaylistStorageTest {
         expect(playlist.user.username).toEqual("Natalie");
         expect(playlist.tracks.size()).toEqual(41);
 
-        storage.create(playlist);
+        playlist = storage.create(playlist).last();
         expect(playlist.id).toEqual(2524386L);
         expect(Content.TRACKS).toHaveCount(41);
         expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41);
@@ -90,7 +90,7 @@ public class PlaylistStorageTest {
     @Test
     public void shouldAddTrackToPlaylist() throws Exception {
         expect(playlist.tracks.size()).toEqual(41);
-        storage.create(playlist);
+        TestHelper.insertWithDependencies(playlist);
         List<Track> tracks = createTracks(2);
         TestHelper.bulkInsert(tracks);
 

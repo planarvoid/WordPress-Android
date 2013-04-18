@@ -4,7 +4,13 @@ import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import org.jetbrains.annotations.NotNull;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
@@ -22,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SyncStateManager {
+public class SyncStateManager extends ScheduledOperations {
     private final LocalCollectionDAO mLocalCollectionDao;
     private final ContentResolver mResolver;
 
@@ -72,7 +78,7 @@ public class SyncStateManager {
         return mLocalCollectionDao.update(lc.id, cv);
     }
 
-    public boolean forceToStale(Content content) {
+    public Observable<Void> forceToStale(final Content content) {
         return forceToStale(content.uri);
     }
 
@@ -80,13 +86,21 @@ public class SyncStateManager {
         return mLocalCollectionDao.deleteUri(content.uri);
     }
 
-    public boolean forceToStale(Uri uri) {
-        LocalCollection lc = fromContent(uri);
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections.LAST_SYNC, 0);
-        cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, 0);
+    public Observable<Void> forceToStale(final Uri uri) {
+        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Void> observer) {
+                LocalCollection lc = fromContent(uri);
+                ContentValues cv = new ContentValues();
+                cv.put(DBHelper.Collections.LAST_SYNC, 0);
+                cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, 0);
 
-        return mLocalCollectionDao.update(lc.id, cv);
+                mLocalCollectionDao.update(lc.id, cv);
+                observer.onCompleted();
+
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     public boolean onSyncComplete(ApiSyncer.Result result, LocalCollection collection) {

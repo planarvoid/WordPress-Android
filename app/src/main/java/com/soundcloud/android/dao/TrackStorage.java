@@ -4,7 +4,13 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.service.playback.PlayQueueManager;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -17,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class TrackStorage implements Storage<Track> {
+public class TrackStorage extends ScheduledOperations implements Storage<Track> {
     private TrackDAO mTrackDAO;
     private final ContentResolver mResolver;
 
@@ -33,8 +39,16 @@ public class TrackStorage implements Storage<Track> {
     }
 
     @Override
-    public void create(Track track) {
-        mTrackDAO.create(track);
+    public Observable<Track> create(final Track track) {
+        return schedule(Observable.create(new Func1<Observer<Track>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Track> observer) {
+                mTrackDAO.create(track);
+                observer.onNext(track);
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     public long createOrUpdate(Track track) {

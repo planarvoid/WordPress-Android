@@ -12,6 +12,7 @@ import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -988,13 +989,13 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
     }
 
     private void onSaveRecordingButtonClicked(List<Recording> recordings, boolean[] checked) {
-        RecordingStorage storage = new RecordingStorage(ScCreate.this);
+        RecordingStorage storage = new RecordingStorage(ScCreate.this).subscribeInBackground();
         for (int i = 0; i < recordings.size(); i++) {
             if (checked[i]) {
                 DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                storage.create(recordings.get(i));
+                storage.create(recordings.get(i)).subscribe(ScActions.NO_OP);
             } else {
-                storage.delete(recordings.get(i));
+                storage.delete(recordings.get(i)).subscribe(ScActions.NO_OP);
             }
         }
         mUnsavedRecordings = null;

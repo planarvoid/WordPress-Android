@@ -12,6 +12,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.IOUtils;
@@ -137,11 +138,14 @@ public class UploadService extends Service {
     private NotificationManager nm;
     private LocalBroadcastManager mBroadcastManager;
 
+    private RecordingStorage mRecordingStorage;
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "upload service started");
 
+        mRecordingStorage = new RecordingStorage(this);
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
         mIntentHandler = new IntentHandler(createLooper("UploadService", Process.THREAD_PRIORITY_DEFAULT));
         mUploadHandler = new UploadHandler(createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT));
@@ -295,7 +299,7 @@ public class UploadService extends Service {
                     || TRANSFER_CANCELLED.equals(action)
                     || TRANSFER_ERROR.equals(action);
             if (wasError) {
-                new RecordingStorage(context)
+                mRecordingStorage
                         .updateStatus(recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))); // for list state
 
                 releaseLocks();
@@ -405,18 +409,13 @@ public class UploadService extends Service {
             soundRecorder.gotoIdleState();
         }
 
-        RecordingStorage recordings = new RecordingStorage(this);
         if (!recording.isSaved()){
-            recordings.create(recording);
-            Uri uri = recording.toUri();
-            if (uri != null) {
-                recording.id = Long.parseLong(uri.getLastPathSegment());
-            }
+            recording = mRecordingStorage.create(recording).last();
         }
 
         if (recording.isSaved()){
             recording.upload_status = Recording.Status.UPLOADING;
-            recordings.updateStatus(recording);
+            mRecordingStorage.updateStatus(recording);
         } else {
             Log.w(TAG, "could not create " + recording);
         }

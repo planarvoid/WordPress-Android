@@ -21,6 +21,7 @@ import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -147,7 +148,8 @@ public class ApiSyncer {
                 case TRACK:
                 case USER:
                     // sucks, but we'll kick out CP anyway
-                    result = doResourceFetchAndInsert(uri, c == Content.TRACK ? new TrackStorage(mContext) : new UserStorage(mContext));
+                    Storage<? extends ScResource> storage = c == Content.TRACK ? new TrackStorage(mContext) : new UserStorage(mContext);
+                    result = doResourceFetchAndInsert(uri, storage);
                     break;
 
                 case PLAYLIST:
@@ -262,8 +264,8 @@ public class ApiSyncer {
 
                 // update local state
                 p.localToGlobal(mContext, added);
-                mPlaylistStorage.create(added);
-                mSoundAssociationStorage.addPlaylistCreation(added);
+                mPlaylistStorage.create(added).last();
+                mSoundAssociationStorage.addPlaylistCreation(added).last();
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
@@ -567,7 +569,7 @@ public class ApiSyncer {
             }
             if (c != null) c.close();
 
-            mPlaylistStorage.create(p);
+            p = mPlaylistStorage.create(p).last();
             final Uri insertedUri = p.toUri();
             if (insertedUri != null) {
                 log("inserted " + insertedUri.toString());

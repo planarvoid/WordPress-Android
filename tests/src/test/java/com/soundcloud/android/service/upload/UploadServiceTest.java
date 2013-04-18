@@ -277,7 +277,7 @@ public class UploadServiceTest {
         stuck.upload_status = Recording.Status.UPLOADING;
 
         RecordingStorage recordings = new RecordingStorage(svc);
-        recordings.create(stuck);
+        recordings.create(stuck).last();
 
         UploadService service = startService();
         Recording r = recordings.getRecordingByUri(stuck.toUri());
