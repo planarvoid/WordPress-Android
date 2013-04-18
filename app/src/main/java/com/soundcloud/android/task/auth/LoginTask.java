@@ -43,10 +43,11 @@ public class LoginTask extends AuthTask {
         }
         Log.d("LoginTask[Token](" + token + ")");
 
-        final User user = new FetchUserTask(getSoundCloudApplication()).resolve(Request.to(Endpoints.MY_DETAILS));
+        SoundCloudApplication app = getSoundCloudApplication();
+        final User user = new FetchUserTask(app).resolve(Request.to(Endpoints.MY_DETAILS));
         if (user == null) {
             // TODO: means we got a 404 on the user, needs to be more expressive...
-            return new Result(new AuthorizationException(R.string.authentication_error_no_connection_message));
+            return new Result(new AuthorizationException(app.getContext().getString(R.string.authentication_error_no_connection_message)));
         }
 
         Log.d("LoginTask[User](" + user + ")");
@@ -54,7 +55,7 @@ public class LoginTask extends AuthTask {
         SignupVia signupVia = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
         if (!addAccount(user, signupVia)) {
             // might mean the account already existed
-            return new Result(new AuthorizationException(R.string.authentication_error_no_connection_message));
+            return new Result(new AuthorizationException(app.getContext().getString(R.string.authentication_error_no_connection_message)));
         }
 
         return new Result(user, signupVia);

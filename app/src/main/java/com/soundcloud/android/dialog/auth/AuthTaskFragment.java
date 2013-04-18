@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.auth.AuthTask;
+import com.soundcloud.android.task.auth.AuthorizationException;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -86,6 +87,20 @@ public abstract class AuthTaskFragment extends DialogFragment {
         if (isResumed()) deliverResultAndDismiss();
     }
 
+    protected String getErrorFromResult(Activity activity, AuthTask.Result result){
+        final Exception exception = result.getException();
+        if (exception instanceof CloudAPI.ApiResponseException) {
+            // server error, tell them to try again later
+            return activity.getString(R.string.error_server_problems_message);
+        } else if (exception instanceof AuthorizationException){
+            // custom exception, message provided by the individual task
+            return ((AuthorizationException) exception).getFirstError();
+        } else {
+            // as a fallback, just say connection problem
+            return activity.getString(R.string.authentication_error_no_connection_message);
+        }
+    }
+
     private void deliverResultAndDismiss(){
         final OnAuthResultListener listener = mListenerRef.get();
         if (listener != null){
@@ -95,20 +110,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
                 listener.onError(getErrorFromResult((Activity) listener, mResult));
             }
         }
-
         dismiss();
-    }
-
-    protected String getErrorFromResult(Activity activity, AuthTask.Result result){
-        final Exception exception = result.getException();
-        int messageId;
-        if (exception instanceof CloudAPI.ApiResponseException
-                && ((CloudAPI.ApiResponseException) exception).getStatusCode() >= 400) {
-            messageId = R.string.error_server_problems_message;
-        } else {
-            messageId = R.string.authentication_error_no_connection_message;
-        }
-        return activity.getString(messageId);
     }
 
 }

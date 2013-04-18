@@ -115,6 +115,10 @@ public abstract class AuthTask extends AsyncTask<Bundle, Void, AuthTask.Result>{
         public Exception getException() {
             return exception;
         }
+
+        public String[] getErrors(){
+            return exception instanceof AuthorizationException ? ((AuthorizationException) exception).getErrors() : null;
+        }
     }
 
 

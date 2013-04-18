@@ -1,15 +1,27 @@
 package com.soundcloud.android.task.auth;
 
-/**
- * Temporary we can propogate error messages better. this should rarely happen
- */
+import java.util.List;
 
-@Deprecated
+/**
+ * Custom exception to propogate pass API error messaging from Auth Tasks
+ */
 public class AuthorizationException extends Exception {
 
-    private final int mErrorMessage;
+    private final String[] mErrors;
 
-    public AuthorizationException(int errorMessage) {
-        mErrorMessage = errorMessage;
+    public AuthorizationException(String... errors) {
+        mErrors = errors;
+    }
+
+    public AuthorizationException(List<String> errors) {
+        mErrors = errors.toArray(new String[errors.size()]);
+    }
+
+    public String[] getErrors() {
+        return mErrors;
+    }
+
+    public String getFirstError() {
+        return mErrors == null || mErrors.length == 0 ? "" : mErrors[0];
     }
 }
