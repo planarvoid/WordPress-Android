@@ -481,8 +481,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private void onGooglePlusLogin() {
         final String[] names = AndroidUtils.getAccountsByType(this, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
         if (names.length == 0){
-            // TODO :Proper dialog
-            Toast.makeText(this, "No account available. Please add an account to the phone first.", Toast.LENGTH_LONG).show();
+            onError(getString(R.string.authentication_no_google_accounts));
         } else if (names.length == 1){
             onGoogleAccountSelected(names[0]);
         } else {

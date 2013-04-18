@@ -175,5 +175,6 @@
 
     <string name="dialog_select_google_account">Please select a Google account to Sign in with</string>
     <string name="authentication_add_info_error">There was an error adding your info. Please try again.</string>
+    <string name="authentication_no_google_accounts">No account available. Please add an account to the phone first.</string>
 
 </resources>

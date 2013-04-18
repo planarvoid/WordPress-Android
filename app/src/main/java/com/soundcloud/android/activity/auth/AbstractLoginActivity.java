@@ -33,8 +33,6 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
     public static final String PASSWORD_EXTRA = "password";
     public static final String LOGIN_DIALOG_TAG = "login_dialog";
 
-    protected ProgressDialog mProgressDialog;
-
     /**
      * Extracted account authenticator functions. Extracted because of Fragment usage, we have to extend FragmentActivity.
      * See {@link AccountAuthenticatorActivity} for documentation
@@ -101,9 +99,6 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
     @Override
     public void onError(String message){
         if (!isFinishing()) {
-            if (mProgressDialog != null && mProgressDialog.isShowing()) {
-                dismissDialog(mProgressDialog);
-            }
             if (!TextUtils.isEmpty(message)){
                 new AlertDialog.Builder(AbstractLoginActivity.this)
                         .setIcon(android.R.drawable.ic_dialog_alert)
