@@ -13,7 +13,7 @@ DEFAULT_LEVELS = %w(
    ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
    VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
    PlayEventTracker PlayEventTrackerApi ReactiveScheduler ScObservables ReactiveListFragment ActivitiesFragment
-   DetachableObserver SyncOperations LoadActivitiesStrategy LoadPlaylistStrategy LoadPlaylistTracksStrategy
+   DetachableObserver SyncOperations ActivitiesStorage PlaylistStorage TrackStorage
    LoadItemsObserver
 )
 DISABLED_LEVELS = %w()
