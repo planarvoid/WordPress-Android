@@ -15,4 +15,10 @@ public class ScActions {
         };
     }
 
+    public static final Action1 NO_OP = new Action1() {
+        @Override
+        public void call(Object o) {
+        }
+    };
+
 }
