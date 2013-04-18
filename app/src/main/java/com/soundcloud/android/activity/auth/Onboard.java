@@ -17,13 +17,11 @@ import com.soundcloud.android.task.auth.AuthTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.tour.TourLayout;
 import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -45,11 +43,6 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Random;
 
 public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
@@ -64,12 +57,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
     private static final String LAST_GOOGLE_ACCT_USED  = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
 
-    private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
-
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
-    public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
-
-    public static final int THROTTLE_AFTER_ATTEMPT = 5;
 
     private StartState mState = StartState.TOUR;
     private String mLastGoogleAccountSelected;
@@ -86,9 +74,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Nullable private Login  mLogin;
     @Nullable private SignUp mSignUp;
     @Nullable private UserDetails mUserDetails;
-
-    @Nullable private ProgressDialog mProgressDialog;
-
     @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle;
 
     public void onCreate(Bundle bundle) {
@@ -156,7 +141,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
         });
 
-
         findViewById(R.id.google_plus_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -184,7 +168,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             public void onClick(View v) {
                 app.track(Click.Signup_Signup);
 
-                if (!SoundCloudApplication.DEV_MODE && shouldThrottleSignup()) {
+                if (!SoundCloudApplication.DEV_MODE && SignupLog.shouldThrottleSignup()) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
                     finish();
                 } else {
@@ -299,64 +283,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         }
 
         return mUserDetails;
-    }
-
-    static boolean shouldThrottleSignup() {
-        final long[] signupLog = readLog();
-        if (signupLog == null) {
-            return false;
-        } else {
-            int i = signupLog.length - 1;
-            while (i >= 0 &&
-                    System.currentTimeMillis() - signupLog[i] < THROTTLE_WINDOW &&
-                    signupLog.length - i <= THROTTLE_AFTER_ATTEMPT) {
-                i--;
-            }
-            return signupLog.length - i > THROTTLE_AFTER_ATTEMPT;
-        }
-    }
-
-    static boolean writeNewSignupToLog() {
-        return writeNewSignupToLog(System.currentTimeMillis());
-    }
-
-    static boolean writeNewSignupToLog(long timestamp) {
-        long[] toWrite, current = readLog();
-        if (current == null) {
-            toWrite = new long[1];
-        } else {
-            toWrite = new long[current.length + 1];
-            System.arraycopy(current, 0, toWrite, 0, current.length);
-        }
-        toWrite[toWrite.length - 1] = timestamp;
-        return writeLog(toWrite);
-    }
-
-    static boolean writeLog(long[] toWrite) {
-        try {
-            IOUtils.mkdirs(SIGNUP_LOG.getParentFile());
-
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SIGNUP_LOG));
-            out.writeObject(toWrite);
-            out.close();
-            return true;
-        } catch (IOException e) {
-            Log.w(SoundCloudApplication.TAG, "Error writing to sign up log ", e);
-            return false;
-        }
-    }
-
-    @Nullable static long[] readLog() {
-
-        try {
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
-            return (long[]) in.readObject();
-        } catch (IOException e) {
-            Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
-        } catch (ClassNotFoundException e) {
-            Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
-        }
-        return null;
     }
 
     @Override
@@ -539,7 +465,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 public void onAnimationRepeat(Animation animation) {
                 }
             });
-
             view.startAnimation(animation);
         }
     }
@@ -549,14 +474,12 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     private static boolean isForegroundView(View view) {
-        Object tag = view.getTag();
-
+        final Object tag = view.getTag();
         return "foreground".equals(tag) || "parallax".equals(tag);
     }
 
     private void onGooglePlusLogin() {
         final String[] names = AndroidUtils.getAccountsByType(this, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
-
         if (names.length == 0){
             // TODO :Proper dialog
             Toast.makeText(this, "No account available. Please add an account to the phone first.", Toast.LENGTH_LONG).show();
@@ -595,18 +518,16 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Override
     public void onRecover(String email) {
         Intent recoveryIntent = new Intent(this, Recover.class);
-
         if (email != null && email.length() > 0) {
             recoveryIntent.putExtra("email", email);
         }
-
         startActivityForResult(recoveryIntent, Consts.RequestCodes.RECOVER_CODE);
     }
 
     @Override
     public void onAuthTaskComplete(User user, SignupVia via, boolean wasApiSignupTask) {
         if (wasApiSignupTask){
-            writeNewSignupToLog();
+            SignupLog.writeNewSignup();
             mUser = user;
             setState(StartState.SIGN_UP_DETAILS);
         } else {
@@ -620,7 +541,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        Log.i("asdf","We got a request code " + requestCode + " " + resultCode);
         switch (requestCode) {
             case Consts.RequestCodes.GALLERY_IMAGE_PICK: {
                 if (getUserDetails() != null) {
