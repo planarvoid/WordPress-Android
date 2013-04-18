@@ -3,6 +3,7 @@ package com.soundcloud.android.task.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.activity.auth.TokenUtil;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.Log;
@@ -16,9 +17,6 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public class LoginTask extends AuthTask {
-    public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
-    public static final String SCOPES_EXTRA = "scopes";
-
     public LoginTask(@NotNull SoundCloudApplication application) {
         super(application);
     }
@@ -29,14 +27,10 @@ public class LoginTask extends AuthTask {
     }
 
     protected Result login(Bundle data) {
-        if (!data.containsKey(SCOPES_EXTRA)) {
-            // default to non-expiring scope
-            data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
-        }
-
+        TokenUtil.configureScopeExtra(data);
         Token token;
         try {
-            token = getTokens(data);
+            token = TokenUtil.getToken(getSoundCloudApplication(), data);
         } catch (IOException e) {
             Log.e("Error retrieving SC API token" + e.getMessage());
             return new Result(e);

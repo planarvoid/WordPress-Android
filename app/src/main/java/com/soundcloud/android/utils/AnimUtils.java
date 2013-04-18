@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.utils;
 
+import com.soundcloud.android.R;
+
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -240,4 +242,47 @@ public final class AnimUtils {
         return inFromBottom;
     }
 
+    public static void hideView(Context context, final View view, boolean animated) {
+        view.clearAnimation();
+
+        if (view.getVisibility() == View.GONE) return;
+
+        if (!animated) {
+            view.setVisibility(View.GONE);
+        } else {
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    if (animation == view.getAnimation()) {
+                        view.setVisibility(View.GONE);
+                    }
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
+            view.startAnimation(animation);
+        }
+    }
+
+    public static void showView(Context context, final View view, boolean animated) {
+        view.clearAnimation();
+
+        if (view.getVisibility() == View.VISIBLE) return;
+
+        if (!animated) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.fade_in);
+
+            view.setVisibility(View.VISIBLE);
+            view.startAnimation(animation);
+        }
+    }
 }// end class AnimationUtils

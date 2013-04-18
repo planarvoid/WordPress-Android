@@ -2,7 +2,6 @@ package com.soundcloud.android.task.auth;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.auth.AbstractLoginActivity;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.dialog.auth.AuthTaskFragment;
@@ -10,7 +9,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Token;
 import org.apache.http.HttpResponse;
 
 import android.content.Intent;
@@ -47,25 +45,6 @@ public abstract class AuthTask extends AsyncTask<Bundle, Void, AuthTask.Result>{
         mFragment.onTaskResult(result);
     }
 
-    protected Token getTokens(Bundle param) throws IOException {
-        final String[] scopes = param.getStringArray(AbstractLoginActivity.SCOPES_EXTRA);
-
-        if (param.containsKey(AbstractLoginActivity.CODE_EXTRA)) {
-            return mApp.authorizationCode(param.getString(AbstractLoginActivity.CODE_EXTRA), scopes);
-
-        } else if (param.containsKey(AbstractLoginActivity.USERNAME_EXTRA)
-                && param.containsKey(AbstractLoginActivity.PASSWORD_EXTRA)) {
-            return mApp.login(param.getString(AbstractLoginActivity.USERNAME_EXTRA),
-                    param.getString(AbstractLoginActivity.PASSWORD_EXTRA), scopes);
-
-        } else if (param.containsKey(AbstractLoginActivity.EXTENSION_GRANT_TYPE_EXTRA)) {
-            return mApp.extensionGrantType(param.getString(AbstractLoginActivity.EXTENSION_GRANT_TYPE_EXTRA), scopes);
-
-        } else {
-            throw new IllegalArgumentException("invalid param " + param);
-        }
-    }
-
     protected Boolean addAccount(User user, SignupVia via) {
         boolean accountCreated = mApp.addUserAccountAndEnableSync(user, mApp.getToken(), via);
         if (accountCreated) {
@@ -92,7 +71,7 @@ public abstract class AuthTask extends AsyncTask<Bundle, Void, AuthTask.Result>{
         return new AuthorizationException(errors);
     }
 
-    public class Result {
+    public static class Result {
         private boolean     success;
         private User        user;
         private SignupVia   signupVia;

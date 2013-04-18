@@ -10,27 +10,16 @@ import com.soundcloud.android.activity.landing.SuggestedUsers;
 import com.soundcloud.android.dialog.auth.AuthTaskFragment;
 import com.soundcloud.android.dialog.auth.LoginTaskFragment;
 import com.soundcloud.android.model.User;
-import com.soundcloud.api.Token;
 
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
 public abstract class AbstractLoginActivity extends SherlockFragmentActivity implements AuthTaskFragment.OnAuthResultListener {
-    public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
-    public static final String SCOPES_EXTRA = "scopes";
-
-    public static final String CODE_EXTRA = "code";
-    public static final String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
-
-    public static final String USERNAME_EXTRA = "username";
-    public static final String PASSWORD_EXTRA = "password";
     public static final String LOGIN_DIALOG_TAG = "login_dialog";
 
     /**
@@ -110,23 +99,4 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
             }
         }
     }
-
-
-    //TODO: use dialog fragments or managed dialogs (onCreateDialog)
-    protected void showDialog(Dialog d) {
-        if (!isFinishing()) {
-            d.show();
-        }
-    }
-
-    //TODO: use dialog fragments or managed dialogs (onCreateDialog)
-    protected void dismissDialog(Dialog d) {
-        if (!isFinishing() && d != null) {
-            try {
-                d.dismiss();
-            } catch (IllegalArgumentException ignored) {
-            }
-        }
-    }
-
 }

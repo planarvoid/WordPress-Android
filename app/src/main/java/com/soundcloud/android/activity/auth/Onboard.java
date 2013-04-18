@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.R.anim;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.AnimUtils.*;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -17,6 +17,7 @@ import com.soundcloud.android.task.auth.AuthTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.view.tour.TourLayout;
 import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
@@ -35,12 +36,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.Random;
@@ -101,7 +99,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
                 View v = mTourPages[position];
-                v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
+                v.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
                 container.addView(v);
                 return v;
             }
@@ -186,7 +185,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         TourLayout.load(this, startPage, mTourPages);
 
         final View splash = findViewById(R.id.splash);
-        showView(splash, false);
+        showView(this, splash, false);
 
         mTourPages[0].setLoadHandler(new Handler() {
             @Override
@@ -194,7 +193,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 switch (msg.what) {
                     case TourLayout.IMAGE_LOADED:
                     case TourLayout.IMAGE_ERROR:
-                        hideView(splash, true);
+                        hideView(Onboard.this, splash, true);
                         break;
                 }
             }
@@ -342,15 +341,15 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             case LOGIN:
             case SIGN_UP:
                 setState(StartState.TOUR);
-                return;
+                break;
 
             case SIGN_UP_DETAILS:
                 onSkipDetails();
-                return;
+                break;
 
             case TOUR:
                 super.onBackPressed();
-                return;
+                break;
         }
     }
 
@@ -369,103 +368,59 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             case TOUR:
                 showForegroundViews(false);
 
-                showView(mViewPager, false);
+                showView(this, mViewPager, false);
 
-                hideView(getLogin(), animated);
-                hideView(getSignUp(), animated);
-                hideView(getUserDetails(), animated);
-                return;
+                hideView(this, getLogin(), animated);
+                hideView(this, getSignUp(), animated);
+                hideView(this, getUserDetails(), animated);
+                break;
 
             case LOGIN:
                 hideForegroundViews(animated);
 
-                showView(mViewPager,       animated);
-                showView(getLogin(), animated);
-                hideView(getSignUp(),      animated);
-                hideView(getUserDetails(), animated);
+                showView(this, mViewPager, animated);
+                showView(this, getLogin(), animated);
+                hideView(this, getSignUp(), animated);
+                hideView(this, getUserDetails(), animated);
                 findViewById(R.id.auto_txt_email_address).requestFocus();
-                return;
+                break;
 
             case SIGN_UP:
                 hideForegroundViews(animated);
 
-                showView(mViewPager, animated);
-                hideView(getLogin(),       animated);
-                showView(getSignUp(),      animated);
-                hideView(getUserDetails(), animated);
+                showView(this, mViewPager, animated);
+                hideView(this, getLogin(), animated);
+                showView(this, getSignUp(), animated);
+                hideView(this, getUserDetails(), animated);
                 findViewById(R.id.auto_txt_email_address).requestFocus();
-                return;
+                break;
 
             case SIGN_UP_DETAILS:
                 hideForegroundViews(animated);
 
-                showView(mViewPager,       animated);
-                hideView(getLogin(),       animated);
-                hideView(getSignUp(),      animated);
-                showView(getUserDetails(), animated);
-                return;
+                showView(this, mViewPager, animated);
+                hideView(this, getLogin(), animated);
+                hideView(this, getSignUp(), animated);
+                showView(this, getUserDetails(), animated);
+                break;
         }
     }
 
     private void showForegroundViews(boolean animated) {
-        showView(mTourBottomBar, animated);
-        showView(mTourLogo,      animated);
+        showView(this, mTourBottomBar, animated);
+        showView(this, mTourLogo, animated);
 
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
-            if (isForegroundView(view)) showView(view, animated);
+            if (isForegroundView(view)) showView(this, view, animated);
         }
     }
 
     private void hideForegroundViews(boolean animated) {
-        hideView(mTourBottomBar, animated);
-        hideView(mTourLogo,      animated);
+        hideView(this, mTourBottomBar, animated);
+        hideView(this, mTourLogo, animated);
 
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
-            if (isForegroundView(view)) hideView(view, animated);
-        }
-    }
-
-    private void showView(final View view, boolean animated) {
-        view.clearAnimation();
-
-        if (view.getVisibility() == View.VISIBLE) return;
-
-        if (!animated) {
-            view.setVisibility(View.VISIBLE);
-        } else {
-            Animation animation = AnimationUtils.loadAnimation(this, anim.fade_in);
-
-            view.setVisibility(View.VISIBLE);
-            view.startAnimation(animation);
-        }
-    }
-
-    private void hideView(final View view, boolean animated) {
-        view.clearAnimation();
-
-        if (view.getVisibility() == View.GONE) return;
-
-        if (!animated) {
-            view.setVisibility(View.GONE);
-        } else {
-            Animation animation = AnimationUtils.loadAnimation(this, anim.fade_out);
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    if (animation == view.getAnimation()) {
-                        view.setVisibility(View.GONE);
-                    }
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
-            view.startAnimation(animation);
+            if (isForegroundView(view)) hideView(this, view, animated);
         }
     }
 

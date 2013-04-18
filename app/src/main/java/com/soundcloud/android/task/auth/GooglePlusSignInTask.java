@@ -4,14 +4,13 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.auth.TokenUtil;
 import com.soundcloud.api.CloudAPI;
 
 import android.os.Bundle;
 import android.util.Log;
 
 public class GooglePlusSignInTask extends LoginTask {
-    public static final String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
-
     protected String mAccountName, mScope;
     protected int mRequestCode;
 
@@ -47,8 +46,6 @@ public class GooglePlusSignInTask extends LoginTask {
 
     protected Result login(String token) {
         // TODO : Google + grant type constant once ApiWrapper is updated
-        Bundle bundle = new Bundle();
-        bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, "urn:soundcloud:oauth2:grant-type:google_plus&access_token=" + token);
-        return login(bundle);
+        return login(TokenUtil.getGrantBundle("urn:soundcloud:oauth2:grant-type:google_plus&access_token=", token));
     }
 }

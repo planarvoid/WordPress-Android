@@ -3,6 +3,7 @@ package com.soundcloud.android.task.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.activity.auth.TokenUtil;
 import com.soundcloud.android.model.User;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
@@ -35,7 +36,7 @@ public class SignupTask extends AuthTask {
             // do token exchange
             Token token;
             try {
-                token = getTokens(params[0]);
+                token = TokenUtil.getToken(getSoundCloudApplication(), params[0]);
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
                     return new Result(new AuthorizationException(app.getString(R.string.authentication_signup_error_message)));
                 }
