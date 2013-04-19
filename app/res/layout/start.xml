@@ -6,10 +6,8 @@
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent">
         <com.soundcloud.android.view.tour.ParallaxPager android:id="@+id/tour_view"
-                                                        android:background="#FF000000"
                                                         android:layout_width="fill_parent"
                                                         android:layout_height="fill_parent"
-
                                                         android:visibility="gone"/>
 
         <ImageView android:id="@+id/tour_logo"

@@ -5,6 +5,7 @@ import static java.lang.Math.max;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.task.ParallelAsyncTask;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
@@ -39,6 +40,7 @@ public class TourLayout extends FrameLayout {
 
         mBgResId = bgResId;
         mBgImageView = (ImageView) findViewById(R.id.tour_background_image);
+        mBgImageView.setVisibility(View.GONE);
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             private int lastHeight = -1, lastWidth = -1;
 
@@ -78,6 +80,7 @@ public class TourLayout extends FrameLayout {
             bitmapSize[1] = bitmap.getHeight();
             mBgImageView.setImageBitmap(bitmap);
         }
+        AnimUtils.showView(getContext(), mBgImageView, true);
         if (mLoadHandler != null) {
             mLoadHandler.sendEmptyMessage(bitmap == null ? IMAGE_ERROR : IMAGE_LOADED);
         }

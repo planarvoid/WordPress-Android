@@ -190,7 +190,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         TourLayout.load(this, startPage, mTourPages);
 
         final View splash = findViewById(R.id.splash);
-        showView(this, splash, false);
+        // don't show splash screen on config changes
+        splash.setVisibility(bundle == null ? View.VISIBLE : View.GONE);
 
         mTourPages[0].setLoadHandler(new Handler() {
             @Override
