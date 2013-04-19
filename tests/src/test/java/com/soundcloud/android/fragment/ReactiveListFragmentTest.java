@@ -2,6 +2,7 @@ package com.soundcloud.android.fragment;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -39,6 +40,9 @@ public class ReactiveListFragmentTest {
     @Before
     public void setup() {
         fragment = new ReactiveListFragment<Track>() {
+
+            final Observable<Track> nextPageObservable = mock(Observable.class);
+
             @Override
             public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
                 Context context = Robolectric.application;
@@ -57,6 +61,11 @@ public class ReactiveListFragmentTest {
 
             @Override
             protected void configureEmptyListView(EmptyListView emptyView) {
+            }
+
+            @Override
+            protected Observable<Track> getLoadNextPageObservable() {
+                return nextPageObservable;
             }
         };
     }
@@ -133,5 +142,29 @@ public class ReactiveListFragmentTest {
         fragment.mLoadItemsObserver.onError(new Exception());
         expect(fragment.mEmptyView.getVisibility()).toBe(View.VISIBLE);
         expect(fragment.mEmptyView.getStatus()).toEqual(EmptyListView.Status.CONNECTION_ERROR);
+    }
+
+    @Test
+    public void shouldNotAttemptToLoadNextPageWhenAdapterIsEmpty() {
+        fragment.mAdapter = mock(ScBaseAdapter.class);
+        when(fragment.mAdapter.isEmpty()).thenReturn(true);
+
+        fragment.onScroll(null, 0, 0, 0);
+
+        verify(fragment.mAdapter, never()).shouldRequestNextPage(anyInt(), anyInt(), anyInt());
+    }
+
+    @Test
+    public void shouldInvokeLoadNextPageObservableWhenReachingListBottom() {
+        fragment.onCreate(null);
+
+        fragment.mAdapter = mock(ScBaseAdapter.class);
+        when(fragment.mAdapter.isEmpty()).thenReturn(false);
+        when(fragment.mAdapter.shouldRequestNextPage(anyInt(), anyInt(), anyInt())).thenReturn(true);
+
+        fragment.onScroll(null, 0, 0, 0);
+
+        verify(fragment.getLoadNextPageObservable()).subscribe(fragment.mLoadItemsObserver);
+        verify(fragment.mAdapter).setIsLoadingData(true);
     }
 }

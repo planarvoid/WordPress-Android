@@ -39,4 +39,9 @@ public class SoundsFragment extends ReactiveListFragment<SoundAssociation> {
     protected void configureEmptyListView(EmptyListView emptyView) {
     }
 
+    @Override
+    protected Observable<SoundAssociation> getLoadNextPageObservable() {
+        return null;
+    }
+
 }

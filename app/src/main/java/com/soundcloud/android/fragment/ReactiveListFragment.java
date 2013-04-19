@@ -1,9 +1,11 @@
 package com.soundcloud.android.fragment;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
@@ -28,6 +30,7 @@ import java.util.List;
 public abstract class ReactiveListFragment<T extends ScModel> extends Fragment implements PullToRefreshBase.OnRefreshListener,
         AdapterView.OnItemClickListener, AbsListView.OnScrollListener, ImageLoader.LoadBlocker {
 
+    protected static final int PAGE_SIZE = Consts.COLLECTION_PAGE_SIZE;
     private static final int PROGRESS_DELAY_MILLIS = 250;
 
     private Handler mShowProgressHandler = new Handler();
@@ -83,6 +86,7 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
         mListView.setOnRefreshListener(this);
+        mListView.setOnScrollListener(this);
 
         return layout;
     }
@@ -95,7 +99,7 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
 
         if (hasPendingObservables()) {
             prepareRefresh();
-            mLoadItemsSubscription = loadListItems();
+            mLoadItemsSubscription = loadFirstPage();
         }
     }
 
@@ -129,6 +133,9 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        if (!mAdapter.isEmpty() && mAdapter.shouldRequestNextPage(firstVisibleItem, visibleItemCount, totalItemCount)) {
+            loadNextPage();
+        }
     }
 
     @Override
@@ -151,7 +158,7 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
     //TODO: currently we lose the subscription to the underlying pending observable and merely return the one returned
     //from the decision function (which is fast to execute). We need a way to hold on to the subscription of the
     //actual long running task so that we can disconnect the observer at any point in time
-    private Subscription loadListItems() {
+    private Subscription loadFirstPage() {
         if (hasPendingObservables()) {
             Observable<Observable<T>> observable = mPendingObservables.get(0);
             Subscription subscription = observable.subscribe(ScActions.pendingAction(mLoadItemsObserver));
@@ -159,6 +166,11 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
             return subscription;
         }
         return Subscriptions.empty();
+    }
+
+    private void loadNextPage() {
+        mAdapter.setIsLoadingData(true);
+        getLoadNextPageObservable().subscribe(mLoadItemsObserver);
     }
 
     private void prepareRefresh() {
@@ -174,6 +186,8 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
     protected abstract ScBaseAdapter<T> newAdapter();
 
     protected abstract void configureEmptyListView(EmptyListView emptyView);
+
+    protected abstract Observable<T> getLoadNextPageObservable();
 
     protected boolean hasPendingObservables() {
         return !mPendingObservables.isEmpty();
@@ -223,6 +237,8 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
             if (mListView.isRefreshing()) {
                 mListView.onRefreshComplete();
             }
+
+            mAdapter.setIsLoadingData(false);
         }
     }
 

@@ -130,15 +130,20 @@ public class SyncOperations<T> extends ScheduledOperations {
             private void handleSyncResult(int resultCode, Bundle resultData, Observer<T> observer) {
                 log("handleSyncResult");
                 switch (resultCode) {
-                    case ApiSyncService.STATUS_SYNC_FINISHED: {
+                    case ApiSyncService.STATUS_SYNC_FINISHED:
+                    case ApiSyncService.STATUS_APPEND_FINISHED:
                         log("Sync successful!");
                         mLoadFromLocalStorage.subscribe(observer);
                         break;
-                    }
+
                     case ApiSyncService.STATUS_SYNC_ERROR:
+                    case ApiSyncService.STATUS_APPEND_ERROR:
                         //TODO: Proper Syncer error handling
                         observer.onError(new Exception("Sync failed"));
                         break;
+
+                    default:
+                        throw new IllegalArgumentException("Unexpected syncer result code: " + resultCode);
                 }
             }
         }));

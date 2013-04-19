@@ -8,14 +8,18 @@ import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.rx.event.Event;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncOperations;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
+import rx.util.functions.Func1;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -31,7 +35,6 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
     private SyncOperations<Activity> mSyncOperations;
     private Subscription mAssocChangedSubscription;
     private Observable<Activity> mLoadFromLocalStorage;
-
 
     public static ActivitiesFragment create(final Content streamContent) {
         Bundle args = new Bundle();
@@ -49,7 +52,7 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
         mContentUri = (Uri) getArguments().get(EXTRA_STREAM_URI);
 
         mActivitiesStorage = new ActivitiesStorage(getActivity()).scheduleFromActivity();
-        mLoadFromLocalStorage = mActivitiesStorage.getLatestActivities(mContentUri, 0);
+        mLoadFromLocalStorage = mActivitiesStorage.getLatestActivities(mContentUri, PAGE_SIZE);
         mSyncOperations = new SyncOperations<Activity>(getActivity(), mLoadFromLocalStorage).subscribeInBackground();
 
         mAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(mLoadFromLocalStorage, mLoadItemsObserver);
@@ -69,6 +72,25 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
                 configureEmptyNewsStream(emptyView);
 
         }
+    }
+
+    @Override
+    protected Observable<Activity> getLoadNextPageObservable() {
+        Uri pagedUri = mContentUri.buildUpon()
+                .appendQueryParameter(ScContentProvider.Parameter.LIMIT, String.valueOf(PAGE_SIZE))
+                .build();
+        long timestamp = mAdapter.getLastItem().created_at.getTime();
+        return mActivitiesStorage.getCollectionBefore(pagedUri, timestamp).mapMany(new Func1<Activities, Observable<Activity>>() {
+            @Override
+            public Observable<Activity> call(Activities activities) {
+                if (activities.size() < PAGE_SIZE) {
+                    // we don't have enough activities synced locally, so trigger a sync first
+                    return mSyncOperations.syncNow(mContentUri, ApiSyncService.ACTION_APPEND);
+                } else {
+                    return Observable.from(activities.collection);
+                }
+            }
+        });
     }
 
     private void configureEmptyNewsStream(EmptyListView emptyView) {

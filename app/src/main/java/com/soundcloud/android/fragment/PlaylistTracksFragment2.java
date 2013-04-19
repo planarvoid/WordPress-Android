@@ -99,6 +99,12 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
     }
 
     @Override
+    protected Observable<Track> getLoadNextPageObservable() {
+        // we don't paginate playlist tracks
+        return Observable.empty();
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         // if we go into the background, make sure we start listening for changes to the playlist and its tracks
