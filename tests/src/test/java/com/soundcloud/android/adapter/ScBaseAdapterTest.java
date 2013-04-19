@@ -1,5 +1,7 @@
 package com.soundcloud.android.adapter;
 
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -97,5 +99,34 @@ public class ScBaseAdapterTest {
         staleModels.add(new Shortcut());
 
         adapter.checkForStaleItems(staleModels);
+    }
+
+    @Test
+    public void shouldRequestNextPage() {
+        adapter.setIsLoadingData(false);
+
+        expect(adapter.shouldRequestNextPage(0, 5, 5)).toBeTrue();
+    }
+
+    @Test
+    public void shouldRequestNextPageWithOnePageLookAhead() {
+        adapter.setIsLoadingData(false);
+
+        expect(adapter.shouldRequestNextPage(0, 5, 2 * 5)).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotRequestNextPageIfAlreadyLoading() {
+        adapter.setIsLoadingData(true);
+
+        expect(adapter.shouldRequestNextPage(0, 5, 5)).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotRequestNextPageIfZeroItems() {
+        adapter.setIsLoadingData(true);
+        expect(adapter.shouldRequestNextPage(0, 5, 0)).toBeFalse();
+        adapter.setIsLoadingData(false);
+        expect(adapter.shouldRequestNextPage(0, 5, 0)).toBeFalse();
     }
 }

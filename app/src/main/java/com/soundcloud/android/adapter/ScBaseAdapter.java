@@ -173,8 +173,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     public boolean shouldRequestNextPage(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
         // if loading, subtract the loading item from total count
-        boolean lastItemReached = ((mIsLoadingData ? totalItemCount - 1 : totalItemCount) > 0)
-                && (totalItemCount - visibleItemCount * 2 < firstVisibleItem);
+        int lookAheadSize = visibleItemCount * 2;
+        int itemCount = mIsLoadingData ? totalItemCount - 1 : totalItemCount; // size without the loading spinner
+        boolean lastItemReached = itemCount > 0 && (itemCount - lookAheadSize <= firstVisibleItem);
 
         return !mIsLoadingData && lastItemReached;
     }
