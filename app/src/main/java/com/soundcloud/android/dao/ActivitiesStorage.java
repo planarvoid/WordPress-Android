@@ -60,16 +60,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         return getCollectionSince(contentUri, since).mapMany(new Func1<Activities, Observable<Activity>>() {
             @Override
             public Observable<Activity> call(final Activities activities) {
-                return Observable.create(new Func1<Observer<Activity>, Subscription>() {
-                    @Override
-                    public Subscription call(Observer<Activity> observer) {
-                        for (Activity activity : activities.collection) {
-                            observer.onNext(activity);
-                        }
-                        observer.onCompleted();
-                        return Subscriptions.empty();
-                    }
-                });
+                return Observable.from(activities.collection);
             }
         });
     }
