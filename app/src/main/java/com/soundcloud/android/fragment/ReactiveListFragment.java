@@ -3,6 +3,7 @@ package com.soundcloud.android.fragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ReactiveListFragment<T> extends Fragment implements PullToRefreshBase.OnRefreshListener,
-        AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
+        AdapterView.OnItemClickListener, AbsListView.OnScrollListener, ImageLoader.LoadBlocker {
 
     private static final int PROGRESS_DELAY_MILLIS = 250;
 
@@ -132,6 +133,15 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
+        // to make image scrolling smoother, we block the image loader until scrolling has stopped
+        switch (scrollState) {
+            case SCROLL_STATE_FLING:
+            case SCROLL_STATE_TOUCH_SCROLL:
+                ImageLoader.get(getActivity()).block(this);
+                break;
+            case SCROLL_STATE_IDLE:
+                ImageLoader.get(getActivity()).unblock(this);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
