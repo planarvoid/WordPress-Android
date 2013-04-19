@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.Consts.*;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.AnimUtils.*;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
@@ -44,6 +45,10 @@ import java.io.File;
 import java.util.Random;
 
 public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
+
+    private static final String FOREGROUND_TAG = "foreground";
+    private static final String PARALLAX_TAG = "parallax";
+
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
     }
@@ -430,7 +435,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     private static boolean isForegroundView(View view) {
         final Object tag = view.getTag();
-        return "foreground".equals(tag) || "parallax".equals(tag);
+        return FOREGROUND_TAG.equals(tag) || PARALLAX_TAG.equals(tag);
     }
 
     private void onGooglePlusLogin() {
@@ -454,13 +459,13 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         // store the last account name in case we have to retry after startActivityForResult with G+ app
         mLastGoogleAccountSelected = name;
         getApp().track(Click.Login_with_googleplus);
-        GooglePlusSignInTaskFragment.create(name, Consts.RequestCodes.SIGNUP_VIA_GOOGLE)
+        GooglePlusSignInTaskFragment.create(name, RequestCodes.SIGNUP_VIA_GOOGLE)
                 .show(getSupportFragmentManager(), "google_acct_dialog");
     }
 
     private void onFacebookLogin() {
         getApp().track(Click.Login_with_facebook);
-        startActivityForResult(new Intent(this, Facebook.class), Consts.RequestCodes.SIGNUP_VIA_FACEBOOK);
+        startActivityForResult(new Intent(this, Facebook.class), RequestCodes.SIGNUP_VIA_FACEBOOK);
     }
 
     @Override
@@ -475,7 +480,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         if (email != null && email.length() > 0) {
             recoveryIntent.putExtra("email", email);
         }
-        startActivityForResult(recoveryIntent, Consts.RequestCodes.RECOVER_CODE);
+        startActivityForResult(recoveryIntent, RequestCodes.RECOVER_CODE);
     }
 
     @Override
@@ -496,28 +501,28 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            case Consts.RequestCodes.GALLERY_IMAGE_PICK: {
+            case RequestCodes.GALLERY_IMAGE_PICK: {
                 if (getUserDetails() != null) {
                     getUserDetails().onImagePick(resultCode, intent);
                 }
                 break;
             }
 
-            case Consts.RequestCodes.GALLERY_IMAGE_TAKE: {
+            case RequestCodes.GALLERY_IMAGE_TAKE: {
                 if (getUserDetails() != null) {
                     getUserDetails().onImageTake(resultCode, intent);
                 }
                 break;
             }
 
-            case Consts.RequestCodes.IMAGE_CROP: {
+            case RequestCodes.IMAGE_CROP: {
                 if (getUserDetails() != null) {
                     getUserDetails().onImageCrop(resultCode, intent);
                 }
                 break;
             }
 
-            case Consts.RequestCodes.SIGNUP_VIA_FACEBOOK: {
+            case RequestCodes.SIGNUP_VIA_FACEBOOK: {
                 if (intent != null && intent.hasExtra("error")) {
                     final String error = intent.getStringExtra("error");
                     AndroidUtils.showToast(this, error);
@@ -526,7 +531,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 }
                 break;
             }
-            case Consts.RequestCodes.RECOVER_CODE: {
+            case RequestCodes.RECOVER_CODE: {
                 if (resultCode != RESULT_OK || intent == null) break;
                 final boolean success = intent.getBooleanExtra("success", false);
 
@@ -542,12 +547,12 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 break;
             }
 
-            case Consts.RequestCodes.SIGNUP_VIA_GOOGLE: {
+            case RequestCodes.SIGNUP_VIA_GOOGLE: {
                 if (resultCode == RESULT_OK) onGoogleAccountSelected(mLastGoogleAccountSelected);
                 break;
             }
 
-            case Consts.RequestCodes.RECOVER_FROM_PLAY_SERVICES_ERROR: {
+            case RequestCodes.RECOVER_FROM_PLAY_SERVICES_ERROR: {
                 if (resultCode == RESULT_OK) onGoogleAccountSelected(mLastGoogleAccountSelected);
                 break;
             }
