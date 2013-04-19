@@ -9,8 +9,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter2;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -51,7 +51,7 @@ public class ReactiveListFragmentTest {
             }
 
             @Override
-            protected IScAdapter<Track> newAdapter() {
+            protected ScBaseAdapter<Track> newAdapter() {
                 return new PlaylistTracksAdapter2(Robolectric.application, Content.PLAYLIST_TRACKS.uri);
             }
 

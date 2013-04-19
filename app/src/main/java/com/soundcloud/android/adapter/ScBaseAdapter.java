@@ -33,7 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter implements IScAdapter<T> {
+public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     protected Context mContext;
     protected Content mContent;
     protected Uri mContentUri;
@@ -135,7 +135,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
 
     protected abstract View createRow(int position);
 
-    @Override
     public void clearData() {
         mData.clear();
         mPage = 0;
@@ -146,7 +145,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     }
 
     // needed?
-    @Override
     public Content getContent() {
         return mContent;
     }
@@ -177,7 +175,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return !mIsLoadingData && lastItemReached;
     }
 
-    @Override
     public void insertItem(T item) {
         int indexOfItem = mData.indexOf(item);
         if (indexOfItem  >= 0) {
@@ -187,7 +184,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         }
     }
 
-    @Override
     public void addItems(List<T> newItems) {
         mData.addAll(newItems);
     }
@@ -201,6 +197,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         params.contentUri = mContentUri;
         return params;
     }
+
+    public abstract int handleListItemClick(int position, long id);
 
     public void handleTaskReturnData(ReturnData<T> data) {
         if (data.success) {

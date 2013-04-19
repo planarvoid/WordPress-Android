@@ -2,7 +2,7 @@ package com.soundcloud.android.fragment;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.utils.Log;
@@ -25,7 +25,7 @@ import android.widget.AdapterView;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ReactiveListFragment<T> extends Fragment implements PullToRefreshBase.OnRefreshListener,
+public abstract class ReactiveListFragment<T extends ScModel> extends Fragment implements PullToRefreshBase.OnRefreshListener,
         AdapterView.OnItemClickListener, AbsListView.OnScrollListener, ImageLoader.LoadBlocker {
 
     private static final int PROGRESS_DELAY_MILLIS = 250;
@@ -46,13 +46,13 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
     protected ScListView mListView;
     protected EmptyListView mEmptyView;
-    protected IScAdapter<T> mAdapter;
+    protected ScBaseAdapter<T> mAdapter;
 
     ///////////////////////////////////////////////////////////////////////////
     // Public interface
     ///////////////////////////////////////////////////////////////////////////
 
-    public IScAdapter<T> getListAdapter() {
+    public ScBaseAdapter<T> getListAdapter() {
         return mAdapter;
     }
 
@@ -171,7 +171,7 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
     // Subclass interface
     ///////////////////////////////////////////////////////////////////////////
 
-    protected abstract IScAdapter<T> newAdapter();
+    protected abstract ScBaseAdapter<T> newAdapter();
 
     protected abstract void configureEmptyListView(EmptyListView emptyView);
 

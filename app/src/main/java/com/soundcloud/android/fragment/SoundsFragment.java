@@ -1,17 +1,15 @@
 package com.soundcloud.android.fragment;
 
-import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
-import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 
 import android.net.Uri;
 import android.os.Bundle;
 
-import java.util.List;
-
-public class SoundsFragment extends ReactiveListFragment<ScResource> {
+public class SoundsFragment extends ReactiveListFragment<SoundAssociation> {
 
     public static final String EXTRA_USER_STREAM_URI = "user_stream_uri";
 
@@ -33,9 +31,8 @@ public class SoundsFragment extends ReactiveListFragment<ScResource> {
     }
 
     @Override
-    protected IScAdapter<ScResource> newAdapter() {
-        IScAdapter<? extends ScResource> adapter = new SoundAssociationAdapter(getActivity(), mContentUri);
-        return  null;
+    protected ScBaseAdapter<SoundAssociation> newAdapter() {
+        return new SoundAssociationAdapter(getActivity(), mContentUri);
     }
 
     @Override

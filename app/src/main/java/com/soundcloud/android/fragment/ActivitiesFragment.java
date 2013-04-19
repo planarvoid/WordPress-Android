@@ -5,7 +5,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.ActivityAdapter;
-import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activity;
@@ -147,7 +147,7 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
     }
 
     @Override
-    protected IScAdapter<Activity> newAdapter() {
+    protected ScBaseAdapter<Activity> newAdapter() {
         return new ActivityAdapter(getActivity(), null);
     }
 }
