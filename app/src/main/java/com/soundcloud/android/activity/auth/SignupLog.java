@@ -15,8 +15,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class SignupLog {
-    public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
-    public static final int THROTTLE_AFTER_ATTEMPT = 5;
+    protected static final int THROTTLE_WINDOW = 60 * 60 * 1000;
+    protected static final int THROTTLE_AFTER_ATTEMPT = 5;
     private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
 
     static boolean shouldThrottleSignup() {
@@ -34,13 +34,15 @@ public class SignupLog {
         }
     }
 
-    static void writeNewSignupAsync() {
-        new Thread(new Runnable() {
+    static Thread writeNewSignupAsync() {
+        Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 writeNewSignup(System.currentTimeMillis());
             }
         });
+        t.start();
+        return t;
     }
 
     static boolean writeNewSignup(long timestamp) {
@@ -56,27 +58,34 @@ public class SignupLog {
     }
 
     static boolean writeLog(long[] toWrite) {
+        ObjectOutputStream out = null;
         try {
             IOUtils.mkdirs(SIGNUP_LOG.getParentFile());
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SIGNUP_LOG));
+            out = new ObjectOutputStream(new FileOutputStream(SIGNUP_LOG));
             out.writeObject(toWrite);
-            out.close();
             return true;
         } catch (IOException e) {
             Log.w(SoundCloudApplication.TAG, "Error writing to sign up log ", e);
             return false;
+        }finally {
+            if (out != null) IOUtils.close(out);
         }
     }
 
     @Nullable
     static long[] readLog() {
-        try {
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
-            return (long[]) in.readObject();
-        } catch (IOException e) {
-            Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
-        } catch (ClassNotFoundException e) {
-            Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+        if (SIGNUP_LOG.exists()) {
+            ObjectInputStream in = null;
+            try {
+                in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
+                return (long[]) in.readObject();
+            } catch (IOException e) {
+                Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+            } catch (ClassNotFoundException e) {
+                Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+            } finally {
+                IOUtils.close(in);
+            }
         }
         return null;
     }

@@ -11,6 +11,14 @@ import java.util.Arrays;
 @RunWith(DefaultTestRunner.class)
 public class SignupLogTest {
     @Test
+    public void shouldWriteSignupLogAsync() throws Exception {
+        long[] toWrite = new long[]{1L, 2L};
+        Thread thread = SignupLog.writeNewSignupAsync();
+        thread.join();
+        expect(SignupLog.readLog().length).toEqual(1);
+    }
+
+    @Test
     public void shouldWriteSignupLog() throws Exception {
         long[] toWrite = new long[]{1L, 2L};
         expect(SignupLog.writeLog(toWrite)).toBeTrue();
