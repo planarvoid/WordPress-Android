@@ -81,6 +81,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         return mData.get(location);
     }
 
+    public T getLastItem() {
+        return getItem(getItemCount() - 1);
+    }
+
     public @NotNull List<T> getItems() {
         return mData;
     }
