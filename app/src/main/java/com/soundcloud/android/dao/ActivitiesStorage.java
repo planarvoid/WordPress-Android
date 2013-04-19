@@ -1,7 +1,5 @@
 package com.soundcloud.android.dao;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
@@ -19,7 +17,6 @@ import rx.util.functions.Func1;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 public class ActivitiesStorage extends ScheduledOperations {
     private SyncStateManager mSyncStateManager;
@@ -106,19 +103,34 @@ public class ActivitiesStorage extends ScheduledOperations {
         }));
     }
 
-    public Activities getBefore(Uri contentUri, long before)  {
-        if (Log.isLoggable(TAG, Log.DEBUG))
-            Log.d(TAG, "Activities.getBefore("+contentUri+", before="+before+")");
+    public Observable<Activities> getCollectionBefore(final Uri contentUri, final long before)  {
+        return schedule(Observable.create(new Func1<Observer<Activities>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Activities> observer) {
+                log("get activities " + contentUri + ", before=" + before);
 
-        BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
-        if (before > 0) {
-            query.where(DBHelper.ActivityView.CREATED_AT + "< ?", String.valueOf(before));
-        }
+                BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
+                if (before > 0) {
+                    query.where(DBHelper.ActivityView.CREATED_AT + "< ?", String.valueOf(before));
+                }
 
-        Activities activities = new Activities();
-        activities.collection = query.queryAll();
+                Activities activities = new Activities();
+                activities.collection = query.queryAll();
+                observer.onNext(activities);
+                observer.onCompleted();
 
-        return activities;
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
+    public Observable<Activity> getActivitiesBefore(final Uri contentUri, final long since)  {
+        return getCollectionBefore(contentUri, since).mapMany(new Func1<Activities, Observable<Activity>>() {
+            @Override
+            public Observable<Activity> call(final Activities activities) {
+                return Observable.from(activities.collection);
+            }
+        });
     }
 
     public int getCountSince(long since, Content content) {
