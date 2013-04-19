@@ -18,13 +18,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ReactiveListFragment<T> extends Fragment implements PullToRefreshBase.OnRefreshListener,
-        AdapterView.OnItemClickListener {
+        AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
 
     private static final int PROGRESS_DELAY_MILLIS = 250;
 
@@ -46,6 +47,18 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
     protected EmptyListView mEmptyView;
     protected IScAdapter<T> mAdapter;
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Public interface
+    ///////////////////////////////////////////////////////////////////////////
+
+    public IScAdapter<T> getListAdapter() {
+        return mAdapter;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Fragment life cycle methods
+    ///////////////////////////////////////////////////////////////////////////
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,8 +70,6 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         mAdapter = newAdapter();
         mLoadItemsObserver = new LoadItemsObserver();
     }
-
-    protected abstract IScAdapter<T> newAdapter();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,8 +85,6 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
 
         return layout;
     }
-
-    protected abstract void configureEmptyListView(EmptyListView emptyView);
 
     @Override
     public void onStart() {
@@ -101,11 +110,9 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         Log.d(this, "onDestroy");
     }
 
-    private void prepareRefresh() {
-        mShowProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
-        mAdapter.clearData();
-        mAdapter.notifyDataSetChanged();
-    }
+    ///////////////////////////////////////////////////////////////////////////
+    // List view callbacks
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onRefresh(PullToRefreshBase refreshView) {
@@ -119,17 +126,17 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
         mAdapter.handleListItemClick(itemPosition, id);
     }
 
-    public IScAdapter<T> getListAdapter() {
-        return mAdapter;
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
     }
 
-    protected boolean hasPendingObservables() {
-        return !mPendingObservables.isEmpty();
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
     }
 
-    protected void addPendingObservable(Observable<Observable<T>> observable) {
-        mPendingObservables.add(observable);
-    }
+    ///////////////////////////////////////////////////////////////////////////
+    // Private helpers
+    ///////////////////////////////////////////////////////////////////////////
 
     //TODO: currently we lose the subscription to the underlying pending observable and merely return the one returned
     //from the decision function (which is fast to execute). We need a way to hold on to the subscription of the
@@ -142,6 +149,28 @@ public abstract class ReactiveListFragment<T> extends Fragment implements PullTo
             return subscription;
         }
         return Subscriptions.empty();
+    }
+
+    private void prepareRefresh() {
+        mShowProgressHandler.postDelayed(showProgress, PROGRESS_DELAY_MILLIS);
+        mAdapter.clearData();
+        mAdapter.notifyDataSetChanged();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Subclass interface
+    ///////////////////////////////////////////////////////////////////////////
+
+    protected abstract IScAdapter<T> newAdapter();
+
+    protected abstract void configureEmptyListView(EmptyListView emptyView);
+
+    protected boolean hasPendingObservables() {
+        return !mPendingObservables.isEmpty();
+    }
+
+    protected void addPendingObservable(Observable<Observable<T>> observable) {
+        mPendingObservables.add(observable);
     }
 
     protected class LoadItemsObserver implements Observer<T> {
