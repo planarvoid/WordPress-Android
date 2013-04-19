@@ -32,7 +32,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         mActivitiesDAO = new ActivityDAO(mResolver);
     }
 
-    public Observable<Activities> getCollectionSince(final Uri contentUri, final long since)  {
+    public Observable<Activities> getCollectionSince(final Uri contentUri, final long since, final int limit)  {
         return schedule(Observable.create(new Func1<Observer<Activities>, Subscription>() {
             @Override
             public Subscription call(Observer<Activities> observer) {
@@ -46,6 +46,9 @@ public class ActivitiesStorage extends ScheduledOperations {
                 if (since > 0) {
                     query.where(DBHelper.ActivityView.CREATED_AT + "> ?", String.valueOf(since));
                 }
+                if (limit > 0) {
+                    query.limit(limit);
+                }
 
                 activities.collection = query.queryAll();
                 observer.onNext(activities);
@@ -56,17 +59,17 @@ public class ActivitiesStorage extends ScheduledOperations {
         }));
     }
 
-    public Observable<Activity> getActivitiesSince(final Uri contentUri, final long since)  {
-        return getCollectionSince(contentUri, since).mapMany(new Func1<Activities, Observable<Activity>>() {
+    public Observable<Activities> getCollectionSince(final Uri contentUri, final long since)  {
+        return getCollectionSince(contentUri, since, 0);
+    }
+
+    public Observable<Activity> getLatestActivities(final Uri contentUri, final int limit)  {
+        return getCollectionSince(contentUri, 0, limit).mapMany(new Func1<Activities, Observable<Activity>>() {
             @Override
             public Observable<Activity> call(final Activities activities) {
                 return Observable.from(activities.collection);
             }
         });
-    }
-
-    public Observable<Activity> getActivities(final Uri contentUri)  {
-        return getActivitiesSince(contentUri, 0);
     }
 
     public Observable<Activity> getOldestActivity(final Content content) {

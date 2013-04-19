@@ -86,6 +86,16 @@ public class ActivitiesStorageTest {
     }
 
     @Test
+    public void shouldGetLatestNActivities() throws IOException {
+        Activities a = TestHelper.readJson(Activities.class, SyncAdapterServiceTest.class,  "e1_stream_1.json");
+        storage.insert(Content.ME_SOUND_STREAM, a);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
+
+        expect(storage.getLatestActivities(Content.ME_SOUND_STREAM.uri, 0).toList().last()).toNumber(22);
+        expect(storage.getLatestActivities(Content.ME_SOUND_STREAM.uri, 5).toList().last()).toNumber(5);
+    }
+
+    @Test
     public void shouldClearAllActivities() throws Exception {
         Activities a = TestHelper.readJson(Activities.class, SyncAdapterServiceTest.class,  "e1_stream_1.json");
 
