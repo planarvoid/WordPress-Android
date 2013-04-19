@@ -219,7 +219,7 @@ public class TestHelper {
         return insert(insertable.toUri(), insertable);
     }
 
-    public static Uri insertWithDependencies(Uri contentUri, ScResource resource) {
+    public static <T extends ContentValuesProvider & ModelLike> Uri insertWithDependencies(Uri contentUri, T resource) {
         ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
         final BulkInsertMap dependencies = new BulkInsertMap();
         resource.putDependencyValues(dependencies);
@@ -228,7 +228,7 @@ public class TestHelper {
         return resolver.insert(contentUri, resource.buildContentValues());
     }
 
-    public static Uri insertWithDependencies(ScResource resource) {
+    public static <T extends ContentValuesProvider & ModelLike> Uri insertWithDependencies(T resource) {
         return insertWithDependencies(resource.toUri(), resource);
     }
 
@@ -238,19 +238,19 @@ public class TestHelper {
         return sa;
     }
 
-    public static int bulkInsert(Collection<? extends ScResource> items) {
+    public static <T extends ContentValuesProvider & ModelLike> int bulkInsert(Collection<T> items) {
         BulkInsertMap map = new BulkInsertMap();
-        for (ScResource m : items) {
+        for (T m : items) {
             m.putFullContentValues(map);
         }
         return map.insert(DefaultTestRunner.application.getContentResolver());
     }
 
-    public static int bulkInsert(Uri uri, Collection<? extends ScResource> resources) {
+    public static <T extends ContentValuesProvider & ModelLike> int bulkInsert(Uri uri, Collection<T> resources) {
         List<ContentValues> items = new ArrayList<ContentValues>();
         BulkInsertMap map = new BulkInsertMap();
 
-        for (ScResource resource : resources) {
+        for (T resource : resources) {
             resource.putDependencyValues(map);
             items.add(resource.buildContentValues());
         }
