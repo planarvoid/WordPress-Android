@@ -3,6 +3,7 @@ package com.soundcloud.android.service.sync;
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -36,7 +37,7 @@ public class SyncOperations<T> extends ScheduledOperations {
     }
 
     public Observable<Observable<T>> syncIfNecessary(final Uri contentUri) {
-        return syncIfNecessary(contentUri, syncNow(contentUri));
+        return syncIfNecessary(contentUri, syncNow(contentUri, null));
     }
 
     /**
@@ -81,13 +82,21 @@ public class SyncOperations<T> extends ScheduledOperations {
     }
 
     /**
+     * @see #syncNow(android.net.Uri, String)
+     */
+    public Observable<T> syncNow(final Uri contentUri) {
+        return syncNow(contentUri, null);
+    }
+
+    /**
      * <p>Returns an observable which upon subscription will initiate a sync for the given content URI.</p>
      * <p>This method is safe to call from any thread</p>
      *
      * @param contentUri the content URI for which to initiate a sync
+     * @param action the Intent action, e.g. {@link ApiSyncService#ACTION_APPEND}
      * @return the observable
      */
-    public Observable<T> syncNow(final Uri contentUri) {
+    public Observable<T> syncNow(final Uri contentUri, @Nullable final String action) {
         return schedule(Observable.create(new Func1<Observer<T>, Subscription>() {
             @Override
             public Subscription call(final Observer<T> observer) {
@@ -111,7 +120,8 @@ public class SyncOperations<T> extends ScheduledOperations {
                 Intent intent = new Intent(mContext, ApiSyncService.class)
                         .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, receiver)
                         .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                        .setData(contentUri);
+                        .setData(contentUri)
+                        .setAction(action);
                 mContext.startService(intent);
 
                 return subscription;

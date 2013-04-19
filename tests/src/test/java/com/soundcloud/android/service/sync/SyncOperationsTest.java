@@ -52,6 +52,17 @@ public class SyncOperationsTest {
 
         Intent syncIntent = Robolectric.getShadowApplication().getNextStartedService();
         expect(syncIntent).not.toBeNull();
+        expect(syncIntent.getAction()).toBeNull();
+        expect(syncIntent.getData()).toEqual(Content.ME_ACTIVITIES.uri);
+    }
+
+    @Test
+    public void syncNowShouldSendSyncIntentForSpecificAction() {
+        syncOps.syncNow(Content.ME_ACTIVITIES.uri, ApiSyncService.ACTION_APPEND).subscribe(Functions.identity());
+
+        Intent syncIntent = Robolectric.getShadowApplication().getNextStartedService();
+        expect(syncIntent).not.toBeNull();
+        expect(syncIntent.getAction()).toEqual(ApiSyncService.ACTION_APPEND);
         expect(syncIntent.getData()).toEqual(Content.ME_ACTIVITIES.uri);
     }
 
