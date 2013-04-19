@@ -69,7 +69,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         return getActivitiesSince(contentUri, 0);
     }
 
-    public Observable<Activity> getLastActivity(final Content content) {
+    public Observable<Activity> getOldestActivity(final Content content) {
         return schedule(Observable.create(new Func1<Observer<Activity>, Subscription>() {
             @Override
             public Subscription call(Observer<Activity> activityObserver) {
@@ -86,7 +86,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         }));
     }
 
-    public Observable<Activity> getFirstActivity(final Content content) {
+    public Observable<Activity> getLatestActivity(final Content content) {
         return schedule(Observable.create(new Func1<Observer<Activity>, Subscription>() {
             @Override
             public Subscription call(Observer<Activity> activityObserver) {

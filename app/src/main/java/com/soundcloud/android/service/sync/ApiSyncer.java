@@ -39,6 +39,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -306,11 +307,11 @@ import java.util.Set;
         final int inserted;
         Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
-            final Activity lastActivity = mActivitiesStorage.getLastActivity(c).singleOrDefault(null);
+            final Activity oldestActivity = mActivitiesStorage.getOldestActivity(c).singleOrDefault(null);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
-            if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
+            if (oldestActivity != null) request.add("cursor", oldestActivity.toGUID());
             activities = Activities.fetch(mApi, request);
-            if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(lastActivity))) {
+            if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(oldestActivity))) {
                 // this can happen at the end of the list
                 inserted = 0;
             } else {
@@ -327,7 +328,8 @@ import java.util.Set;
                 mResolver.delete(c.uri, null, null);
             }
 
-            if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(mActivitiesStorage.getFirstActivity(c)))) {
+            Observable<Activity> latestActivity = mActivitiesStorage.getLatestActivity(c);
+            if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(latestActivity))) {
                 // this can happen at the beginning of the list if the api returns the first item incorrectly
                 inserted = 0;
             } else {
