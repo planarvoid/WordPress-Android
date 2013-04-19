@@ -1,9 +1,8 @@
-package com.soundcloud.android.rx.syncing;
+package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
-import com.soundcloud.android.service.sync.ApiSyncService;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;

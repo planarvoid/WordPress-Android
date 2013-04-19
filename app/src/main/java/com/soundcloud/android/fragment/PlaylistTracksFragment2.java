@@ -11,7 +11,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScFunctions;
 import com.soundcloud.android.rx.event.Event;
-import com.soundcloud.android.rx.syncing.SyncOperations;
+import com.soundcloud.android.service.sync.SyncOperations;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;

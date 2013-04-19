@@ -11,7 +11,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.event.Event;
-import com.soundcloud.android.rx.syncing.SyncOperations;
+import com.soundcloud.android.service.sync.SyncOperations;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;

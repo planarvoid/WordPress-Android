@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// TODO: merge this class with SyncOperations
 public class SyncStateManager extends ScheduledOperations {
     private final LocalCollectionDAO mLocalCollectionDao;
     private final ContentResolver mResolver;

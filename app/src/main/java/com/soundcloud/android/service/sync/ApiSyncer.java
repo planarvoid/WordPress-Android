@@ -21,7 +21,6 @@ import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
@@ -60,8 +59,10 @@ import java.util.Set;
 
 /**
  * Performs the actual sync with the API. Used by {@link CollectionSyncRequest}.
+ *
+ * As a client, do not use this class directly, but use {@link SyncOperations} instead.
  */
-public class ApiSyncer {
+/* package */ class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
     private static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 100;
