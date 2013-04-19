@@ -76,11 +76,6 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         return create(playlist);
     }
 
-// TODO: Do we actually need update functionality for playlists?
-//    public boolean update(Playlist playlist) {
-//        return mPlaylistDAO.update(playlist);
-//    }
-
     public Observable<Playlist> loadPlaylistWithTracks(final long playlistId) {
         return schedule(Observable.create(new Func1<Observer<Playlist>, Subscription>() {
             @Override
