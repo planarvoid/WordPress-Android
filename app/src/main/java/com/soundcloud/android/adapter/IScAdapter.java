@@ -1,7 +1,6 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.view.quickaction.QuickAction;
 
 import android.widget.ListAdapter;
 
@@ -12,8 +11,6 @@ public interface IScAdapter<T> extends ListAdapter {
     long getItemId(int position);
 
     Content getContent();
-
-    QuickAction getQuickActionMenu();
 
     /**
      * Either adds the given item to the adapter if it hasn't been added yet, or overwrites an existing equal item

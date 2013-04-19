@@ -18,7 +18,6 @@ import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.adapter.ListRow;
-import com.soundcloud.android.view.quickaction.QuickAction;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
 
@@ -150,11 +149,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     @Override
     public Content getContent() {
         return mContent;
-    }
-
-    @Override
-    public QuickAction getQuickActionMenu() {
-        return null;
     }
 
     public boolean needsItems() {
