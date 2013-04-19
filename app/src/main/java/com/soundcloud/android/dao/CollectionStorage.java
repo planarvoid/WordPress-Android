@@ -1,6 +1,5 @@
 package com.soundcloud.android.dao;
 
-import static com.soundcloud.android.dao.ResolverHelper.addPagingParams;
 import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
 
 import com.soundcloud.android.AndroidCloudAPI;
@@ -51,9 +50,9 @@ public class CollectionStorage {
         return map.insert(mResolver);
     }
 
-    public List<Long> getLocalIds(Content content, long userId, int startIndex, int limit) {
+    public List<Long> getLocalIds(Content content, long userId) {
         return idCursorToList(mResolver.query(
-                addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit).build(),
+                Content.COLLECTION_ITEMS.uri,
                 new String[]{ DBHelper.CollectionItems.ITEM_ID },
                 DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
                 new String[]{ String.valueOf(content.collectionType), String.valueOf(userId) },
