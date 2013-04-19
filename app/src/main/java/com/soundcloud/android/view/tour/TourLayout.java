@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static java.lang.Math.max;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
@@ -103,7 +104,7 @@ public class TourLayout extends FrameLayout {
     }
 
     private static AsyncTask loadAsync(final Context context, final int startPage, TourLayout... layouts) {
-        return new AsyncTask<TourLayout, Pair<TourLayout, Bitmap>, Void>() {
+        return new ParallelAsyncTask<TourLayout, Pair<TourLayout, Bitmap>, Void>() {
             @Override
             protected Void doInBackground(TourLayout... layouts) {
                 final TourLayout initalLayout = layouts[startPage];
@@ -137,7 +138,7 @@ public class TourLayout extends FrameLayout {
             protected void onProgressUpdate(Pair<TourLayout, Bitmap>... result) {
                 result[0].first.onBitmapLoaded(result[0].second);
             }
-        }.execute(layouts);
+        }.executeOnThreadPool(layouts);
     }
 
     public void setLoadHandler(Handler handler) {

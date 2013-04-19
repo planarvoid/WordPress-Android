@@ -20,14 +20,14 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 public abstract class AbstractLoginActivity extends SherlockFragmentActivity implements AuthTaskFragment.OnAuthResultListener {
-    public static final String LOGIN_DIALOG_TAG = "login_dialog";
+    protected static final String LOGIN_DIALOG_TAG = "login_dialog";
 
     /**
      * Extracted account authenticator functions. Extracted because of Fragment usage, we have to extend FragmentActivity.
      * See {@link AccountAuthenticatorActivity} for documentation
      */
-    private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
-    private Bundle mResultBundle = null;
+    private AccountAuthenticatorResponse mAccountAuthenticatorResponse;
+    private Bundle mResultBundle;
 
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);

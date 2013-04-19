@@ -42,7 +42,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
         mTask = createAuthTask();
         mTask.setTaskOwner(this);
-        mTask.execute(getTaskParams());
+        mTask.executeOnThreadPool(getTaskParams());
     }
 
     @Override
@@ -57,12 +57,23 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
         try {
             mListenerRef = new WeakReference<OnAuthResultListener>((OnAuthResultListener) activity);
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnAuthResultListener");
         }
+    }
+
+    @Override
+    public void onDestroyView()
+    {
+        Dialog dialog = getDialog();
+
+        // Work around bug: http://code.google.com/p/android/issues/detail?id=17423
+        if ((dialog != null) && getRetainInstance())
+            dialog.setDismissMessage(null);
+
+        super.onDestroyView();
     }
 
     @Override

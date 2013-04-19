@@ -8,6 +8,7 @@ import com.soundcloud.android.dialog.auth.AuthTaskFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.IOUtils;
 import org.apache.http.HttpResponse;
 
@@ -16,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,7 +25,7 @@ import java.util.List;
 /**
  *
  */
-public abstract class AuthTask extends AsyncTask<Bundle, Void, AuthTaskResult>{
+public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskResult> {
 
     public static final int ME_SYNC_DELAY_MILLIS = 30 * 1000;
 
@@ -74,6 +76,4 @@ public abstract class AuthTask extends AsyncTask<Bundle, Void, AuthTaskResult>{
         final List<String> errors = IOUtils.parseError(reader, resp.getEntity().getContent());
         return new AuthTaskException(errors);
     }
-
-
 }
