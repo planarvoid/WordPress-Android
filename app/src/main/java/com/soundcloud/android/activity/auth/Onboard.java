@@ -1,12 +1,12 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.Consts.*;
+import static com.soundcloud.android.Consts.RequestCodes;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.AnimUtils.*;
+import static com.soundcloud.android.utils.AnimUtils.hideView;
+import static com.soundcloud.android.utils.AnimUtils.showView;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dialog.auth.AddUserInfoTaskFragment;
@@ -42,7 +42,10 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import java.io.File;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 
 public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
 
@@ -70,7 +73,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private View mTourBottomBar;
     private View mTourLogo;
 
-    private TourLayout[] mTourPages;
+    private List<TourLayout> mTourPages;
 
     private ViewPager mViewPager;
 
@@ -89,21 +92,24 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         mTourLogo      = findViewById(R.id.tour_logo);
         mViewPager     = (ViewPager) findViewById(R.id.tour_view);
 
-        mTourPages = new TourLayout[]{
-            new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1),
-            new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2),
-            new TourLayout(this, R.layout.tour_page_3, R.drawable.tour_image_3)
-        };
+        mTourPages = new ArrayList<TourLayout>();
+        mTourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
+        mTourPages.add(new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2));
+        mTourPages.add(new TourLayout(this, R.layout.tour_page_3, R.drawable.tour_image_3));
+
+        // randomize for variety
+        Collections.shuffle(mTourPages);
+
 
         mViewPager.setAdapter(new PagerAdapter() {
             @Override
             public int getCount() {
-                return mTourPages.length;
+                return mTourPages.size();
             }
 
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
-                View v = mTourPages[position];
+                View v = mTourPages.get(position);
                 v.setLayoutParams(new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
                 container.addView(v);
@@ -122,9 +128,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
         });
 
-        final int startPage = new Random().nextInt(mTourPages.length);
-
-        mViewPager.setCurrentItem(startPage);
+        mViewPager.setCurrentItem(0);
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
@@ -187,13 +191,13 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
         setState(StartState.TOUR);
 
-        TourLayout.load(this, startPage, mTourPages);
+        TourLayout.load(this, mTourPages.toArray(new TourLayout[mTourPages.size()]));
 
         final View splash = findViewById(R.id.splash);
         // don't show splash screen on config changes
         splash.setVisibility(bundle == null ? View.VISIBLE : View.GONE);
 
-        mTourPages[0].setLoadHandler(new Handler() {
+        mTourPages.get(0).setLoadHandler(new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
@@ -431,7 +435,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     private TourLayout getCurrentTourLayout() {
-        return mTourPages[mViewPager.getCurrentItem()];
+        return mTourPages.get(mViewPager.getCurrentItem());
     }
 
     private static boolean isForegroundView(View view) {
