@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.view.View;
 
 public class ScListView extends PullToRefreshListView implements PullToRefreshBase.OnConfigureHeaderListener {
     private long mLastUpdated;

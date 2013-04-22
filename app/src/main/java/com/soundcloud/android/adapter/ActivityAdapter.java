@@ -6,12 +6,11 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.track.PlaylistInteractionActivity;
 import com.soundcloud.android.activity.track.TrackInteractionActivity;
-import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.collection.CollectionParams;
@@ -29,11 +28,15 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.util.Collections;
+import java.util.List;
 
 public class ActivityAdapter extends ScBaseAdapter<Activity> implements PlayableAdapter {
+    private ActivitiesStorage mActivitiesStorage;
+
 
     public ActivityAdapter(Context context, Uri uri) {
         super(context, uri);
+        mActivitiesStorage = new ActivitiesStorage(context);
     }
 
     @Override
@@ -56,7 +59,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
             return true; // need to pull from DB
         } else {
             // check if there is anything newer
-            final Activity firstActivity = Activities.getFirstActivity(mContent, mContext.getContentResolver());
+            final Activity firstActivity = mActivitiesStorage.getFirstActivity(mContent);
             return (firstActivity == null || firstActivity.created_at.getTime() > mData.get(0).created_at.getTime());
         }
     }
@@ -113,7 +116,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
 
 
     @Override
-    public void addItems(CollectionHolder<Activity> newItems) {
+    public void addItems(List<Activity> newItems) {
         for (Activity newItem : newItems){
             if (!mData.contains(newItem))mData.add(newItem);
         }

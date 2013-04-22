@@ -8,6 +8,7 @@ soundcloud-android.ipr
 soundcloud-android.iws
 app/gen-external-apklibs/
 tests-integration/gen-external-apklibs/
+classes/
 
 # keystore
 ks/
@@ -29,7 +30,6 @@ lint_files
 # ant
 local.properties
 build.xml
-proguard.cfg
 soundcloud_sign
 
 #prefs

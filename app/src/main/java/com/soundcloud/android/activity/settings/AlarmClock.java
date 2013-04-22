@@ -362,21 +362,29 @@ public final class AlarmClock {
             }.start();
         }
 
+        private static final class AlarmHandler extends Handler {
+            private MediaPlayer mp;
+
+            private AlarmHandler(MediaPlayer mp) {
+                this.mp = mp;
+            }
+
+            @Override
+            public void handleMessage(Message msg) {
+                mp.stop();
+                mp.release();
+
+                Looper.myLooper().quit();
+            }
+        }
+
         private void playDefaultAlarm(Context context, final int timeout) {
             Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 
             final MediaPlayer mp = new MediaPlayer();
-            Handler handler = new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    mp.stop();
-                    mp.release();
-
-                    Looper.myLooper().quit();
-                }
-            };
+            final Handler handler = new AlarmHandler(mp);
             try {
-                mp.setDataSource(context, alert);
+                mp.setDataSource(context.getApplicationContext(), alert);
                 mp.setAudioStreamType(AudioManager.STREAM_ALARM);
                 mp.prepare();
                 mp.setLooping(true);

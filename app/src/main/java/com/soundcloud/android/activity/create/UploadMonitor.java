@@ -5,7 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.utils.ImageUtils;
@@ -92,7 +91,7 @@ public class UploadMonitor extends Activity {
 
         final Intent intent = getIntent();
         Recording recording;
-        if ((recording = Recording.fromIntent(intent, getContentResolver(), SoundCloudApplication.getUserId())) != null) {
+        if ((recording = Recording.fromIntent(intent, this, SoundCloudApplication.getUserId())) != null) {
             setRecording(recording);
 
             // check for initial progress to display

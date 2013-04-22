@@ -3,35 +3,32 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.dao.PlayQueueManagerStore;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlayQueueManager {
-    private List<PlayQueueItem> mPlayQueue = new ArrayList<PlayQueueItem>();
+    private List<Track> mPlayQueue = new ArrayList<Track>();
     private PlayQueueUri mPlayQueueUri = new PlayQueueUri();
+    private final PlayQueueManagerStore mPlayQueueDAO;
 
     private int mPlayPos;
     private final Context mContext;
@@ -39,26 +36,11 @@ public class PlayQueueManager {
     private long mUserId;
     private AsyncTask mLoadTask;
 
-    public static class PlayQueueItem {
-        public final Track track;
-        public int position;
-        public final boolean manuallyAdded;
-
-
-        public PlayQueueItem(Track track, boolean manuallyAdded) {
-            this.track = track;
-            this.manuallyAdded = manuallyAdded;
-        }
-        public PlayQueueItem setPosition(int position){
-            this.position = position;
-            return this;
-        }
-
-    }
-
     public PlayQueueManager(Context context, long userId) {
         mContext = context;
         mUserId = userId;
+        mPlayQueueDAO = new PlayQueueManagerStore(mContext);
+
     }
     public int length() {
         return mPlayQueue.size();
@@ -92,7 +74,7 @@ public class PlayQueueManager {
 
     public Track getTrackAt(int pos) {
         if (pos >= 0 && pos < mPlayQueue.size()) {
-            return mPlayQueue.get(pos).track;
+            return mPlayQueue.get(pos);
         } else {
             return null;
         }
@@ -160,7 +142,7 @@ public class PlayQueueManager {
     public void setTrack(Track toBePlayed, boolean saveQueue) {
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
-        mPlayQueue.add(new PlayQueueItem(toBePlayed, false));
+        mPlayQueue.add(toBePlayed);
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = 0;
 
@@ -217,39 +199,12 @@ public class PlayQueueManager {
     }
 
     private AsyncTask loadCursor(final Uri uri, final int position) {
-        return new ParallelAsyncTask<Uri,Void,List<PlayQueueItem>>() {
-            @Override protected List<PlayQueueItem> doInBackground(Uri... params) {
-                Cursor cursor = null;
-                try {
-                    cursor = mContext.getContentResolver().query(params[0], null, null, null, null);
-                } catch (IllegalArgumentException e) {
-                    // in case we load a depracated URI, just don't load the playlist
-                    Log.e(PlayQueueManager.class.getSimpleName(),"Tried to load an invalid uri " + uri);
-                }
-                boolean isActivityCursor = Content.match(uri).isActivitiesItem();
-                ArrayList<PlayQueueItem> newQueue = null;
-                if (cursor != null && !isCancelled()) {
-                    newQueue = new ArrayList<PlayQueueItem>();
-                    if (cursor.moveToFirst()){
-                        do {
-                            // tracks only, no playlists allowed past here
-                            if (cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView._TYPE)) == Playable.DB_TYPE_TRACK) {
-
-                                final Track trackFromCursor = isActivityCursor ?
-                                        SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID) :
-                                        SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor);
-
-                                newQueue.add(new PlayQueueItem(trackFromCursor,false));
-                            }
-                        } while (cursor.moveToNext());
-                    }
-                    cursor.close();
-                }
-                return newQueue;
-
-
+        return new ParallelAsyncTask<Uri,Void,List<Track>>() {
+            @Override protected List<Track> doInBackground(Uri... params) {
+                return new TrackStorage(mContext).getTracksForUri(params[0]);
             }
-            @Override protected void onPostExecute(List<PlayQueueItem> newQueue) {
+
+            @Override protected void onPostExecute(List<Track> newQueue) {
                 if (newQueue != null && !isCancelled()){
                     long playingId = getCurrentTrackId();
                     mPlayQueue = newQueue;
@@ -259,7 +214,7 @@ public class PlayQueueManager {
                     int adjustedPosition = -1;
                     if (t != null && t.id != playingId) {
                         if (Content.match(uri).isCollectionItem()){
-                            adjustedPosition = getPlayQueuePositionFromUri(mContext.getContentResolver(), uri, playingId);
+                            adjustedPosition = mPlayQueueDAO.getPlayQueuePositionFromUri(uri, playingId);
                         } else {
                             /* adjust for deletions or new items. find the original track
                              this is a really dumb sequential search. If there are duplicates in the list, it will probably
@@ -290,7 +245,7 @@ public class PlayQueueManager {
         if (playQueue != null) {
             for (PlayableHolder playable : playQueue) {
                 if (playable.getPlayable() instanceof Track){
-                    mPlayQueue.add(new PlayQueueItem((Track) playable.getPlayable(), false));
+                    mPlayQueue.add((Track) playable.getPlayable());
                 }
             }
         }
@@ -307,11 +262,8 @@ public class PlayQueueManager {
         new ParallelAsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                final List<Track> tracks = new ArrayList<Track>();
-                for (PlayQueueItem item : mPlayQueue){
-                    tracks.add(item.track);
-                }
-                SoundCloudDB.insertCollection(mContext.getContentResolver(), tracks, Content.PLAY_QUEUE.uri, mUserId);
+                final List<Track> tracks = new ArrayList<Track>(mPlayQueue);
+                mPlayQueueDAO.insertQueue(tracks, mUserId);
                 return null;
             }
         }.executeOnThreadPool((Void[]) null);
@@ -386,7 +338,7 @@ public class PlayQueueManager {
                 loadUri(playQueueUri.uri, playQueueUri.getPos(), t);
                 // adjust play position if it has changed
                 if (getCurrentTrack() != null && getCurrentTrack().id != trackId && playQueueUri.isCollectionUri()) {
-                    final int newPos = getPlayQueuePositionFromUri(mContext.getContentResolver(), playQueueUri.uri, trackId);
+                    final int newPos = mPlayQueueDAO.getPlayQueuePositionFromUri(playQueueUri.uri, trackId);
                     if (newPos == -1) seekPos = 0;
                     setPosition(Math.max(newPos, 0));
                 }
@@ -397,25 +349,8 @@ public class PlayQueueManager {
         }
     }
 
-    public static int getPlayQueuePositionFromUri(ContentResolver resolver, Uri collectionUri, long itemId) {
-        Cursor cursor = resolver.query(collectionUri,
-                new String[]{ DBHelper.CollectionItems.POSITION },
-                DBHelper.CollectionItems.ITEM_ID + " = ?",
-                new String[] {String.valueOf(itemId)},
-                null);
-
-        int position = -1;
-        if (cursor != null && cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            position = cursor.getInt(0);
-        }
-        if (cursor != null) cursor.close();
-        return position;
-    }
-
-
     public static void clearState(Context context) {
-        context.getContentResolver().delete(Content.PLAY_QUEUE.uri, null, null);
+        new PlayQueueManagerStore(context).clearState();
         clearLastPlayed(context);
     }
 

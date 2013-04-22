@@ -3,7 +3,6 @@ package com.soundcloud.android;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
-import android.app.ActivityManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
@@ -11,14 +10,19 @@ import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.dao.ActivitiesStorage;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.PrefetchHandler;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.ATTracker;
@@ -51,6 +55,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -63,6 +68,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=3e22e330",
@@ -78,7 +84,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static boolean DEV_MODE, BETA_MODE;
     private ImageLoader mImageLoader;
 
-    public static ScModelManager MODEL_MANAGER;
+    @Deprecated public static ScModelManager MODEL_MANAGER;
 
     private ATTracker mTracker;
 
@@ -110,7 +116,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi = Wrapper.create(this, account == null ? null : getToken(account));
         mCloudApi.setTokenListener(this);
 
-        MODEL_MANAGER = new ScModelManager(this, mCloudApi.getMapper());
+        MODEL_MANAGER = new ScModelManager(this);
 
         if (account != null) {
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
@@ -136,7 +142,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             });
 
             try {
-                C2DMReceiver.register(this, getLoggedInUser());
+                C2DMReceiver.register(this, getCurrentUserId());
             } catch (Exception e){
                 SoundCloudApplication.handleSilentException("Could not register c2dm ",e);
             }
@@ -198,10 +204,22 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    //TODO: This should be on a different class, e.g. a LoginManager
     public void onAccountRemoved(Account account) {
+        new Thread() {
+            @Override
+            public void run() {
+                new UserStorage(SoundCloudApplication.this).clearLoggedInUser();
+                new ActivitiesStorage(SoundCloudApplication.this).clear(null);
+
+                PlayQueueManager.clearState(SoundCloudApplication.this);
+                FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
+            }
+        }.run();
+
         sendBroadcast(new Intent(Actions.LOGGING_OUT));
         sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
-        User.clearLoggedInUserFromStorage(this);
+
         C2DMReceiver.unregister(this);
         FollowStatus.set(null);
         ConnectionsCache.set(null);
@@ -266,6 +284,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    /**
+     * Make sure that sets are synced first, to avoid running into data consistency issues around adding tracks
+     * to playlists, see https://github.com/soundcloud/SoundCloud-Android/issues/609
+     *
+     * Alternatively, sync sets lazily where needed.
+     */
     private void requestSetsSync(){
         Intent intent = new Intent(this, ApiSyncService.class)
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
@@ -448,6 +472,35 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public Context getContext() {
         return this;
+    }
+
+    public <T extends ScResource> T read(Request req) throws IOException {
+        return mCloudApi.read(req);
+    }
+
+    public <T extends ScResource> T update(Request request) throws NotFoundException, IOException {
+        return mCloudApi.update(request);
+    }
+
+    public <T extends ScResource> T create(Request request) throws IOException {
+        return mCloudApi.create(request);
+    }
+
+    public <T extends ScResource> List<T> readList(Request req) throws IOException {
+        return mCloudApi.readList(req);
+    }
+
+    public <T extends ScResource> ScResource.ScResourceHolder<T> readCollection(Request req) throws IOException {
+        return mCloudApi.readCollection(req);
+    }
+
+    @NotNull public <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request, Class<C> ch) throws IOException {
+        return mCloudApi.readFullCollection(request, ch);
+    }
+
+
+    public <T extends ScResource> List<T> readListFromIds(Request request, List<Long> ids) throws IOException {
+        return mCloudApi.readListFromIds(request, ids);
     }
 
     public Token authorizationCode(String code, String... scopes) throws IOException {

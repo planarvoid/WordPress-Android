@@ -1,18 +1,16 @@
 package com.soundcloud.android.activity.create;
 
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.audio.PlaybackStream;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -54,7 +52,7 @@ import java.util.Date;
 import java.util.List;
 
 @Tracking(page = Page.Record_main)
-public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
+public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, ScLandingPage {
 
     public static final int REQUEST_UPLOAD_SOUND  = 1;
 
@@ -425,7 +423,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             newState = CreateState.RECORD;
         } else {
 
-            Recording recording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId());
+            Recording recording = Recording.fromIntent(intent, this, getCurrentUserId());
             if (recording != null){
 
                 // failsafe, if they try to play an uploading recording
@@ -465,8 +463,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         Recording.clearRecordingFromIntent(intent);
 
         if (newState == CreateState.IDLE_RECORD) {
-            mUnsavedRecordings = Recording.getUnsavedRecordings(
-                    getContentResolver(),
+            RecordingStorage recordings = new RecordingStorage(this);
+            mUnsavedRecordings = recordings.getUnsavedRecordings(
                     SoundRecorder.RECORD_DIR,
                     mRecorder.getRecording(),
                     getCurrentUserId());
@@ -903,12 +901,13 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         .setPositiveButton(R.string.btn_save,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
+                                    RecordingStorage storage = new RecordingStorage(ScCreate.this);
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
                                             DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                                            recordings.get(i).insert(getContentResolver());
+                                            storage.create(recordings.get(i));
                                         } else {
-                                            recordings.get(i).delete(null);
+                                            storage.delete(recordings.get(i));
                                         }
                                     }
                                     mUnsavedRecordings = null;

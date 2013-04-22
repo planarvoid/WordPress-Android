@@ -3,13 +3,13 @@ package com.soundcloud.android.task.collection;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.dao.BaseDAO;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,6 +17,7 @@ import android.widget.BaseAdapter;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.Set;
 
 public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Boolean> {
@@ -33,8 +34,8 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
         mResourceIds = resourceIds;
     }
 
-    public void setAdapter(BaseAdapter lazyEndlessAdapter) {
-        mAdapterReference = new WeakReference<BaseAdapter>(lazyEndlessAdapter);
+    public void setAdapter(BaseAdapter adapter) {
+        mAdapterReference = new WeakReference<BaseAdapter>(adapter);
     }
 
     @Override
@@ -50,16 +51,17 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
         Log.i(TAG,"Updating " + mResourceIds.size() + " items");
         try {
             Request request = Request.to(mEndpoint)
-                    .add("linked_partitioning", "1")
-                    .add("ids", TextUtils.join(",", mResourceIds));
-            HttpUtils.addQueryParams(request, params);
-            HttpResponse resp = mApi.get(request);
+                .add(Wrapper.LINKED_PARTITIONING, "1")
+                .add("ids", TextUtils.join(",", mResourceIds));
 
-            if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                throw new IOException("Invalid response: " + resp.getStatusLine());
-            }
+            List<ScResource> resources = mApi.readList(HttpUtils.addQueryParams(request, params));
 
-            SoundCloudApplication.MODEL_MANAGER.writeCollectionFromStream(resp.getEntity().getContent(), ScResource.CacheUpdateMode.FULL);
+            new BaseDAO<ScResource>(mApi.getContext().getContentResolver()) {
+                @Override public Content getContent() {
+                    return Content.COLLECTIONS;
+                }
+            }.createCollection(resources);
+
             return true;
         } catch (IOException e) {
             Log.w(TAG, e);

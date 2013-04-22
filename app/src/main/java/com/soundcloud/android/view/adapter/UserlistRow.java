@@ -5,7 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;

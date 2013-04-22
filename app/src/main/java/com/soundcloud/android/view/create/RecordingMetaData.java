@@ -1,5 +1,15 @@
 package com.soundcloud.android.view.create;
 
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.create.LocationPicker;
+import com.soundcloud.android.model.FoursquareVenue;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.task.create.FoursquareVenueTask;
+import com.soundcloud.android.tracking.Tracker;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.ImageUtils;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -11,17 +21,11 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.*;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.create.LocationPicker;
-import com.soundcloud.android.model.FoursquareVenue;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.task.create.FoursquareVenueTask;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Tracker;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;

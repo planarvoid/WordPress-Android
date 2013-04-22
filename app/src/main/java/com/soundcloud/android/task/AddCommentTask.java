@@ -8,8 +8,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
@@ -42,12 +40,9 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
             if (comment.reply_to_id > 0) request.add(Params.Comment.REPLY_TO, comment.reply_to_id);
 
             try {
-                final HttpResponse response = app.post(request);
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                    Comment created  = app.getMapper().readValue(response.getEntity().getContent(), Comment.class);
-                    publishProgress(comment, created);
-                    return created;
-                } // else fall-through
+                Comment created = app.create(request);
+                publishProgress(comment, created);
+                return created;
             } catch (IOException e) {
                 exception = e;
             }

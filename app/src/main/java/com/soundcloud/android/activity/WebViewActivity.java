@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 

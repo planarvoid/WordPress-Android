@@ -4,6 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
@@ -54,12 +55,14 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
                 // notification related
                 if (SyncConfig.shouldUpdateDashboard(app)) {
+
+                    final ActivitiesStorage activitiesStorage = new ActivitiesStorage(app);
                     final long frequency = SyncConfig.getNotificationsFrequency(app);
                     final long delta = System.currentTimeMillis() - ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM);
                     if (delta > frequency) {
                         final long lastStreamSeen = ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM);
                         final Activities stream = !SyncConfig.isIncomingEnabled(app, extras) ? Activities.EMPTY :
-                                Activities.getSince(Content.ME_SOUND_STREAM, app.getContentResolver(), lastStreamSeen);
+                                activitiesStorage.getSince(Content.ME_SOUND_STREAM, lastStreamSeen);
 
 
                         maybeNotifyStream(app, stream);
@@ -69,7 +72,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
                     final long lastOwnSeen = ContentStats.getLastSeen(app, Content.ME_ACTIVITIES);
                     final Activities news = !SyncConfig.isActivitySyncEnabled(app, extras) ? Activities.EMPTY :
-                            Activities.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
+                            activitiesStorage.getSince(Content.ME_ACTIVITIES, lastOwnSeen);
                     maybeNotifyActivity(app, news, extras);
                 }
                 break;

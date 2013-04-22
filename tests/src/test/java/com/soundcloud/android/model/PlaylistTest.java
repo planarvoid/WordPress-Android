@@ -2,26 +2,14 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.api.Params;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -41,7 +29,7 @@ public class PlaylistTest {
 
     @Test
     public void shouldParcelAndUnparcelCorrectly() throws Exception {
-        Playlist playlist = AndroidCloudAPI.Wrapper.buildObjectMapper().readValue(
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 
@@ -54,7 +42,7 @@ public class PlaylistTest {
 
     @Test
     public void shouldProvideCreateJson() throws Exception {
-        Playlist playlist = AndroidCloudAPI.Wrapper.buildObjectMapper().readValue(
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 
@@ -67,7 +55,7 @@ public class PlaylistTest {
 
     @Test
     public void shouldProvideUpdateJson() throws Exception {
-        Playlist playlist = AndroidCloudAPI.Wrapper.buildObjectMapper().readValue(
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 

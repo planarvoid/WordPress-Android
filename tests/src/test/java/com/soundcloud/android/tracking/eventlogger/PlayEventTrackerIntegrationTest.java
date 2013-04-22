@@ -1,8 +1,7 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import android.content.Intent;
-import android.database.Cursor;
-import com.soundcloud.android.model.ScResource;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackTest;
 import com.soundcloud.android.provider.Content;
@@ -17,11 +16,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import scala.actors.threadpool.Arrays;
 
+import android.content.Intent;
+import android.database.Cursor;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-
-import static com.soundcloud.android.Expect.expect;
 
 @Ignore // TODO: fix the problem with Robolectric's multi-database handling
 @RunWith(DefaultTestRunner.class)
@@ -43,9 +43,13 @@ public class PlayEventTrackerIntegrationTest {
     @Before
     public void setup() {
         DefaultTestRunner.application.setCurrentUserId(1);
+        List<Track> tracks = Arrays.asList(new Track[] { currentTrack, nextTrack });
 
-        List<Track> tracks = Arrays.asList(new Object[]{currentTrack, nextTrack});
-        expect(DefaultTestRunner.application.MODEL_MANAGER.writeCollection(tracks, Content.ME_LIKES.uri, 1, ScResource.CacheUpdateMode.FULL)).toBeGreaterThan(0);
+//        SoundCloudDB.insertCollection(DefaultTestRunner.application.getContentResolver(),
+//                tracks,
+//                Content.ME_LIKES.uri,
+//                1);
+//
         expect(Content.ME_LIKES).toHaveCount(2);
 
         service = new CloudPlaybackService();

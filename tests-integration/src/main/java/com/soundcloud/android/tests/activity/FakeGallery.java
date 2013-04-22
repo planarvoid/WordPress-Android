@@ -1,7 +1,5 @@
 package com.soundcloud.android.tests.activity;
 
-import com.soundcloud.android.tests.activity.FakeCamera;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;

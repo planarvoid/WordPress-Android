@@ -23,11 +23,6 @@ import java.util.List;
 @RunWith(DefaultTestRunner.class)
 public class RemoteCollectionLoaderTest {
 
-    private Request buildRequest(Uri contentUri){
-        Content c = Content.match(contentUri);
-        return c.request(contentUri).add("linked_partitioning", "1").add("limit", Consts.COLLECTION_PAGE_SIZE);
-    }
-
     @Test
     public void shouldLoadTrackCollection() throws Exception {
 
@@ -45,7 +40,6 @@ public class RemoteCollectionLoaderTest {
 
         expect(returnData.success).toBeTrue();
         expect(returnData.newItems).not.toBeEmpty();
-
     }
 
     @Test
@@ -79,6 +73,5 @@ public class RemoteCollectionLoaderTest {
 
         expect(t).not.toBeEmpty();
         expect(u).not.toBeEmpty();
-
     }
 }

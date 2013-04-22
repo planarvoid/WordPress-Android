@@ -1,21 +1,19 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.c2dm.PushEvent;
+import com.soundcloud.android.dao.ActivitiesStorage;
+import com.soundcloud.android.dao.PlaylistStorage;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.ContentStats;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -23,6 +21,7 @@ import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.net.Uri;
@@ -67,7 +66,7 @@ public class SyncAdapterService extends Service {
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
                 if (DEBUG_CANCEL) DebugUtils.setLogLevels();
 
-                AndroidCloudAPI.Wrapper.setBackgroundMode(true);
+                Wrapper.setBackgroundMode(true);
 
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
                 Looper.prepare();
@@ -82,7 +81,7 @@ public class SyncAdapterService extends Service {
                 })) {
                     Looper.loop(); // wait for results to come in
                 }
-                AndroidCloudAPI.Wrapper.setBackgroundMode(false);
+                Wrapper.setBackgroundMode(false);
             }
 
             @Override
@@ -108,7 +107,9 @@ public class SyncAdapterService extends Service {
     }
 
     /**
-     * @return true if a sync has been started
+     * Perform sync, already called aon a background thread.
+     *
+     * @return true if a sync has been started.
      */
     /* package */ static boolean performSync(final SoundCloudApplication app,
                                             Account account,
@@ -129,7 +130,11 @@ public class SyncAdapterService extends Service {
             ContentStats.setLastSeen(app, Content.ME_ACTIVITIES, now);
         }
 
-        final Intent syncIntent = getSyncIntent(app, extras);
+        final SyncStateManager syncStateManager = new SyncStateManager(app);
+        final PlaylistStorage playlistStorage = new PlaylistStorage(app);
+        final UserStorage userStorage = new UserStorage(app);
+
+        final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, userStorage, playlistStorage);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
             syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new SyncServiceResultReceiver(app, syncResult, extras) {
@@ -150,11 +155,16 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras) {
+    private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras,
+                                        SyncStateManager syncStateManager,
+                                        UserStorage userStorage,
+                                        PlaylistStorage playlistStorage) {
+
+
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
         switch (PushEvent.fromExtras(extras)) {
             case FOLLOWER:
-                if (!handleFollowerEvent(app, extras)) {
+                if (!handleFollowerEvent(app, extras, userStorage)) {
                     Log.w(TAG, "unhandled follower event:" + extras);
                 }
 
@@ -162,8 +172,7 @@ public class SyncAdapterService extends Service {
                     syncIntent.setData(Content.ME_FOLLOWERS.uri); // refresh follower list
                 } else {
                     // set last sync time to 0 so it auto-refreshes on next load
-                    final LocalCollection lc = LocalCollection.fromContent(Content.ME_FOLLOWERS, app.getContentResolver(), false);
-                    if (lc != null) lc.updateLastSyncSuccessTime(0, app.getContentResolver());
+                    syncStateManager.updateLastSyncSuccessTime(Content.ME_FOLLOWERS.uri, 0);
                 }
 
                 break;
@@ -173,8 +182,7 @@ public class SyncAdapterService extends Service {
                     syncIntent.setData(Content.ME_ACTIVITIES.uri);
                 } else {
                     // set last sync time to 0 so it auto-refreshes on next load
-                    final LocalCollection lc = LocalCollection.fromContent(Content.ME_ACTIVITIES, app.getContentResolver(), false);
-                    if (lc != null) lc.updateLastSyncSuccessTime(0, app.getContentResolver());
+                    syncStateManager.updateLastSyncSuccessTime(Content.ME_ACTIVITIES, 0);
                 }
                 break;
 
@@ -187,7 +195,7 @@ public class SyncAdapterService extends Service {
                 }
 
                 if (manual || SyncConfig.shouldSyncCollections(app)) {
-                    final List<Uri> dueForSync = SyncContent.getCollectionsDueForSync(app, manual);
+                    final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(app, manual);
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "collection due for sync:" +dueForSync);
                     }
@@ -197,12 +205,12 @@ public class SyncAdapterService extends Service {
                 }
 
                 // see if there are any local playlists that need to be pushed
-                if (Playlist.hasLocalPlaylists(app.getContentResolver())){
+                if (new PlaylistStorage(app).hasLocalPlaylists()){
                     urisToSync.add(Content.ME_PLAYLISTS.uri);
                 }
 
                 // see if there are any playlists with un-pushed track changes
-                final Set<Uri> playlistsDueForSync = SyncContent.getPlaylistsDueForSync(app.getContentResolver());
+                final Set<Uri> playlistsDueForSync = playlistStorage.getPlaylistsDueForSync();
                 if (playlistsDueForSync != null) urisToSync.addAll(playlistsDueForSync);
 
                 final List<Uri> dueForSync = SyncCleanups.getCleanupsDueForSync(app, manual);
@@ -225,24 +233,25 @@ public class SyncAdapterService extends Service {
     }
 
 
-    private static boolean handleFollowerEvent(SoundCloudApplication app, Bundle extras) {
+    private static boolean handleFollowerEvent(SoundCloudApplication app,
+                                               Bundle extras,
+                                               UserStorage userStorage) {
         if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean(Consts.PrefKeys.NOTIFICATIONS_FOLLOWERS, true)
                 && extras.containsKey(SyncAdapterService.EXTRA_PUSH_EVENT_URI)) {
+
             final long id = PushEvent.getIdFromUri(extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT_URI));
             if (id != -1) {
-                User u = SoundCloudApplication.MODEL_MANAGER.getUser(id);
-                if (u != null && !u.isStale()){
+                User u = userStorage.getUser(id);
+
+                if (u != null && !u.isStale()) {
                     NotificationMessage.showNewFollower(app, u);
                     return true;
                 } else {
                     try {
-                        HttpResponse resp = app.get(Request.to(Endpoints.USERS + "/" + id));
-                        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                            u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
-                            SoundCloudApplication.MODEL_MANAGER.write(u);
-                            NotificationMessage.showNewFollower(app, u);
-                            return true;
-                        }
+                        u = app.read(Request.to(Endpoints.USERS + "/" + id));
+                        userStorage.createOrUpdate(u);
+                        NotificationMessage.showNewFollower(app, u);
+                        return true;
                     } catch (IOException e) {
                         Log.w(TAG, "error fetching user", e);
                     }
@@ -252,18 +261,17 @@ public class SyncAdapterService extends Service {
         return false;
     }
 
-
     // only used for debugging
     public static void requestNewSync(SoundCloudApplication app, int clearMode) {
         switch (clearMode) {
             case CLEAR_ALL:
                 ContentStats.clear(app);
-                clearActivities(app.getContentResolver());
+                clearActivities(app);
                 break;
             case REWIND_LAST_DAY:
                 final long rewindTime = 24 * 3600000L; // 1d
                 ContentStats.rewind(app, rewindTime);
-                clearActivities(app.getContentResolver());
+                clearActivities(app);
                 break;
             default:
         }
@@ -273,9 +281,9 @@ public class SyncAdapterService extends Service {
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
-    private static void clearActivities(ContentResolver resolver){
+    private static void clearActivities(Context context) {
         // drop all activities before re-sync
-        int deleted = Activities.clear(null, resolver);
+        int deleted =  new ActivitiesStorage(context).clear(null);
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "deleted "+deleted+ " activities");
         }

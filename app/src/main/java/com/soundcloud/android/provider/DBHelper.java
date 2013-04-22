@@ -12,8 +12,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import java.util.List;
-
 
 public class DBHelper extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DBHelper";
@@ -1093,15 +1091,6 @@ public class DBHelper extends SQLiteOpenHelper {
     // deduplicate logic in schema
     private static boolean upgradeTo22(SQLiteDatabase db, int oldVersion) {
         return upgradeTo21(db, oldVersion);
-    }
-
-    public static String getWhereInClause(String column, List<Long> idSet){
-        StringBuilder sb = new StringBuilder(column + " IN (?");
-        for (int i = 1; i < idSet.size(); i++) {
-            sb.append(",?");
-        }
-        sb.append(")");
-        return sb.toString();
     }
 
     private static void cleanActivities(SQLiteDatabase db){

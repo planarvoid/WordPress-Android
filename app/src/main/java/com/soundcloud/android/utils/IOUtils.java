@@ -2,12 +2,12 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.annotation.TargetApi;
 import com.soundcloud.android.Consts;
 import org.apache.http.HttpHost;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -463,21 +463,6 @@ public final class IOUtils {
         }
     }
 
-    public static boolean isStatusCodeOk(int code) {
-        return code >= 200 && code < 400;
-    }
-
-    public static boolean isStatusCodeError(int code) {
-        return code >= 400 && code < 600;
-    }
-
-    public static boolean isStatusCodeClientError(int code) {
-        return code >= 400 && code < 500;
-    }
-
-    public static boolean isStatusCodeServerError(int code) {
-        return code >= 500 && code < 600;
-    }
 
     /**
      * some phones have really low transfer rates when the screen is turned off, so request a full

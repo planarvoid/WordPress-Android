@@ -2,7 +2,6 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -10,11 +9,8 @@ import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 
 import java.util.Date;
@@ -238,30 +234,6 @@ public class TrackTest {
         expect(t.userTrackPermalink()).toEqual("user/foo");
     }
 
-    @Test
-    public void shouldPersistAndLoadCorrectly() throws Exception {
-
-        DefaultTestRunner.application.setCurrentUserId(100L);
-        final ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
-
-        Track t = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("track.json"),
-                Track.class);
-
-        Uri uri = SoundCloudApplication.MODEL_MANAGER.write(t);
-        expect(uri).not.toBeNull();
-
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        expect(cursor).not.toBeNull();
-        expect(cursor.getCount()).toEqual(1);
-        expect(cursor.moveToFirst()).toBeTrue();
-
-        Track t2 = new Track(cursor);
-        compareTracks(t, t2);
-        expect(t2.last_updated).toBeGreaterThan(t.last_updated);
-        expect(t2.sharing).toEqual(t.sharing);
-        expect(t2.state).toEqual(t.state);
-    }
 
     @Test
     public void shouldParcelAndUnparcelCorrectly() throws Exception {

@@ -5,8 +5,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScListFragment;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.SyncStateManager;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -26,7 +26,7 @@ public class SuggestedUsers extends ScActivity implements ScLandingPage{
             findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    LocalCollection.forceToStale(Content.ME_SOUND_STREAM.uri, getContentResolver());
+                    new SyncStateManager(SuggestedUsers.this).forceToStale(Content.ME_SOUND_STREAM);
                     startActivity(new Intent(Actions.STREAM));
                     finish();
                 }

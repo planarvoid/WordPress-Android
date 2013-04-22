@@ -6,7 +6,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.tracking.Page;
@@ -14,7 +13,6 @@ import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;

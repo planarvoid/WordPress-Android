@@ -8,7 +8,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -46,28 +45,8 @@ public class UserDetailsFragment extends Fragment {
         mDiscogsName = (TextView) mInfoView.findViewById(R.id.discogs_name);
         mMyspaceName = (TextView) mInfoView.findViewById(R.id.myspace_name);
         mDescription = (TextView) mInfoView.findViewById(R.id.description);
-        if (getActivity() != null){
-            configure();
-        }
+        setUser(SoundCloudApplication.MODEL_MANAGER.getUser(mUserId));
         return mInfoView;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (mInfoView != null){
-            configure();
-        }
-    }
-
-    public void configure() {
-        configure(SoundCloudApplication.MODEL_MANAGER.getUser(mUserId));
-    }
-
-    public void configure(User user) {
-        if (user != null){
-            setUser(user);
-        }
     }
 
     public void onSuccess(User user) {

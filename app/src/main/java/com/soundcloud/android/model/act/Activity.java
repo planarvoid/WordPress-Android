@@ -1,17 +1,13 @@
 
 package com.soundcloud.android.model.act;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.text.TextUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.dao.ContentValuesProvider;
+import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Refreshable;
@@ -19,9 +15,18 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,7 +52,13 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CommentActivity.class, name = "comment")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity>, PlayableHolder {
+public abstract class Activity extends ScModel implements Parcelable,
+        Refreshable,
+        Comparable<Activity>,
+        PlayableHolder,
+        ModelLike,
+        ContentValuesProvider {
+
     @JsonProperty public String uuid;
     @JsonProperty public Date created_at;
     @JsonProperty public String tags;
@@ -97,14 +108,9 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
     }
 
-    @Override
-    public void resolve(Context context) {
-        refreshTimeSinceCreated(context);
-    }
-
     public String getDateString() {
         return created_at == null ? null :
-                AndroidCloudAPI.CloudDateFormat.formatDate(created_at.getTime());
+                Wrapper.CloudDateFormat.formatDate(created_at.getTime());
     }
 
     public UUID toUUID() {
@@ -158,6 +164,14 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     }
 
     @Override
+    public void putFullContentValues(@NotNull BulkInsertMap destination) {
+    }
+
+    @Override
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Activity)) return false;
@@ -208,8 +222,6 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
 
     public abstract Type        getType();
     public abstract User        getUser();
-    public abstract void        cacheDependencies();
-
 
     public List<ScResource> getDependentModels() {
         List<ScResource> models = new ArrayList<ScResource>();
@@ -297,5 +309,9 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     @Override
     public boolean isIncomplete() {
         return false;
+    }
+
+    public Uri toUri() {
+        return null;
     }
 }
