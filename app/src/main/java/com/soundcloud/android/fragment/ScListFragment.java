@@ -377,7 +377,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void checkAllowInitalAppend() {
         log("Should allow initial appending: [waitingOnInitialSync:" + waitingOnInitialSync() + ",mKeepGoing:" + mKeepGoing + "]"  );
         final ScBaseAdapter adapter = getListAdapter();
-        if (!mKeepGoing && !waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0) {
+        if (!mKeepGoing && !waitingOnInitialSync() && adapter != null && adapter.needsItems()) {
             mKeepGoing = true;
             append(false);
         }
@@ -388,7 +388,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mLocalCollection = localCollection;
         log("Local collection changed " + mLocalCollection);
         // do not autorefresh me_followings based on observing because this would refresh everytime you use the in list toggles
-        if (mContent != Content.ME_FOLLOWINGS || getListAdapter().isEmpty()) {
+        if (mContent != Content.ME_FOLLOWINGS || getListAdapter().needsItems()) {
             refreshSyncData();
         } else {
             checkAllowInitalAppend();
