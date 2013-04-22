@@ -113,7 +113,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mImageLoader = createImageLoader();
         final Account account = getAccount();
 
-        mCloudApi = Wrapper.create(this, account == null ? null : getToken(account));
+        mCloudApi = new Wrapper(this, account == null ? null : getToken(account));
         mCloudApi.setTokenListener(this);
 
         MODEL_MANAGER = new ScModelManager(this);
