@@ -3,7 +3,6 @@ package com.soundcloud.android.dao;
 import org.jetbrains.annotations.NotNull;
 
 import android.database.Cursor;
-import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,16 +25,6 @@ public class ResolverHelper {
         }
         c.close();
         return ids;
-    }
-
-    public static Uri.Builder addPagingParams(Uri uri, int offset, int limit) {
-        if (uri == null) return null;
-        Uri.Builder b = uri.buildUpon();
-        if (offset > 0) {
-            b.appendQueryParameter("offset", String.valueOf(offset));
-        }
-        b.appendQueryParameter("limit", String.valueOf(limit));
-        return b;
     }
 
     public static String getWhereInClause(String column, int size){

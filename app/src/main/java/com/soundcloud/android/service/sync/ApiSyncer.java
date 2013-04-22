@@ -342,7 +342,7 @@ public class ApiSyncer {
         Result result = new Result(content.uri);
         if (!Content.ID_BASED.contains(content)) return result;
 
-        List<Long> local  = mCollectionStorage.getLocalIds(content, userId, -1, -1);
+        List<Long> local  = mCollectionStorage.getLocalIds(content, userId);
         List<Long> remote = mApi.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
 
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());

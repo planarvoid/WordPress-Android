@@ -365,13 +365,23 @@ public class ScContentProvider extends ContentProvider {
         }
 
         if (query == null) {
-            query = qb.buildQuery(_columns, _selection, null /* selectionArgs passed further down */, null,_sortOrder, null);
+            query = qb.buildQuery(_columns, _selection, null /* selectionArgs passed further down */, null,_sortOrder, getRowLimit(uri));
         }
         log("query: "+query);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor c = db.rawQuery(query, _selectionArgs);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
+    }
+
+    @Nullable
+    private String getRowLimit(Uri uri) {
+        String limit = uri.getQueryParameter(Parameter.LIMIT);
+        String offset = uri.getQueryParameter(Parameter.OFFSET);
+        if (limit != null && offset != null) {
+            return limit + "," + offset;
+        }
+        return limit;
     }
 
     private void appendSoundType(SCQueryBuilder qb, Content content) {
@@ -854,24 +864,16 @@ public class ScContentProvider extends ContentProvider {
         }  else {
             b.append(TextUtils.isEmpty(sortCol) ? DBHelper.CollectionItems.POSITION : sortCol);
         }
-        String limit = uri.getQueryParameter(Parameter.LIMIT);
-        if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
-        String offset = uri.getQueryParameter(Parameter.OFFSET);
-        if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
         return b.toString();
     }
 
     static String makeActivitiesSort(Uri uri, String sortCol) {
-        String limit  = uri.getQueryParameter(Parameter.LIMIT);
-        String offset = uri.getQueryParameter(Parameter.OFFSET);
         StringBuilder b = new StringBuilder();
         if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
             b.append("RANDOM()");
         } else {
             b.append(sortCol == null ? DBHelper.ActivityView.CREATED_AT + " DESC" : sortCol);
         }
-        if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
-        if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
         return b.toString();
     }
 

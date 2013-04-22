@@ -24,7 +24,7 @@
                     <useHeaderArchives>false</useHeaderArchives>
                     <ndkBuildAdditionalCommandline>NDK_TOOLCHAIN=""</ndkBuildAdditionalCommandline>
                     <proguard>
-                        <skip>false</skip>
+                        <skip>true</skip>
                     </proguard>
                 </configuration>
                 <executions>
