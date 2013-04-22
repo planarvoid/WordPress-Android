@@ -30,6 +30,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,6 +71,7 @@ public class WaveformController extends TouchLayout {
     private float mSeekPercent;
 
     protected final Handler mHandler = new Handler();
+    private Handler mTouchHandler = new TouchHandler(this);
 
     private static final int MAX_WAVEFORM_RETRIES = 2;
 
@@ -736,56 +738,6 @@ public class WaveformController extends TouchLayout {
         if (!mTouchHandler.hasMessages(what)) mTouchHandler.sendEmptyMessage(what);
     }
 
-    Handler mTouchHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case UI_UPDATE_SEEK:
-                    long seekTime = mPlayer.setSeekMarker(mQueuePosition, mSeekPercent);
-                    if (seekTime == -1){
-                        // the seek did not work, abort
-                        mode = TOUCH_MODE_NONE;
-                    } else {
-                        mPlayerTouchBar.setSeekPosition((int) (mSeekPercent * getWidth()), mPlayerTouchBar.getHeight(), false);
-                        mCurrentTimeDisplay.setCurrentTime(seekTime, false);
-                    }
-
-                    mWaveformHolder.invalidate();
-                    break;
-
-                case UI_SEND_SEEK:
-                    if (mPlayer.isSeekable()){
-                        mPlayer.sendSeek(mSeekPercent);
-                    }
-                    mPlayerTouchBar.clearSeek();
-                    break;
-
-                case UI_CLEAR_SEEK:
-                    setProgressInternal(lastTrackTime + System.currentTimeMillis() - lastProgressTimestamp);
-                    mPlayerTouchBar.clearSeek();
-                    break;
-
-                case UI_UPDATE_COMMENT_POSITION:
-                    mCurrentTimeDisplay.setByPercent(mSeekPercent, true);
-                    mPlayerTouchBar.setSeekPosition((int) (mSeekPercent * getWidth()), mPlayerTouchBar.getHeight(), true);
-                    break;
-
-                case UI_ADD_COMMENT:
-                    mPlayer.addNewComment(mAddComment);
-                    mPlayerTrackView.setCommentMode(false);
-                    break;
-
-                case UI_UPDATE_COMMENT:
-                    if (mShowComment) {
-                        showCurrentComment(true);
-                    } else {
-                        closeComment(false);
-                    }
-                    break;
-            }
-        }
-    };
-
     public void onDestroy() {
         super.onDestroy();
 
@@ -825,5 +777,71 @@ public class WaveformController extends TouchLayout {
 
     public enum WaveformState {
         OK, LOADING, ERROR
+    }
+
+    private static final class TouchHandler extends Handler {
+        private WeakReference<WaveformController> mRef;
+
+        private TouchHandler(WaveformController controller) {
+            this.mRef = new WeakReference<WaveformController>(controller);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final WaveformController controller = mRef.get();
+            if (controller == null) {
+                return;
+            }
+
+            final float seekPercent = controller.mSeekPercent;
+            final ScPlayer player = controller.mPlayer;
+            final PlayerTouchBar touchBar = controller.mPlayerTouchBar;
+
+            switch (msg.what) {
+                case UI_UPDATE_SEEK:
+                    long seekTime = player.setSeekMarker(controller.mQueuePosition, seekPercent);
+                    if (seekTime == -1){
+                        // the seek did not work, abort
+                        controller.mode = TOUCH_MODE_NONE;
+                    } else {
+                        touchBar.setSeekPosition((int) (seekPercent * controller.getWidth()), touchBar.getHeight(), false);
+                        controller.mCurrentTimeDisplay.setCurrentTime(seekTime, false);
+                    }
+
+                    controller.mWaveformHolder.invalidate();
+                    break;
+
+                case UI_SEND_SEEK:
+                    if (player.isSeekable()){
+                        player.sendSeek(seekPercent);
+                    }
+                    touchBar.clearSeek();
+                    break;
+
+                case UI_CLEAR_SEEK:
+                    long progress = controller.lastTrackTime + System.currentTimeMillis() - controller.lastProgressTimestamp;
+                    controller.setProgressInternal(progress);
+                    touchBar.clearSeek();
+                    break;
+
+                case UI_UPDATE_COMMENT_POSITION:
+                    controller.mCurrentTimeDisplay.setByPercent(seekPercent, true);
+                    touchBar.setSeekPosition((int) (seekPercent * controller.getWidth()), touchBar.getHeight(), true);
+                    break;
+
+                case UI_ADD_COMMENT:
+                    player.addNewComment(controller.mAddComment);
+                    controller.mPlayerTrackView.setCommentMode(false);
+                    break;
+
+                case UI_UPDATE_COMMENT:
+                    if (controller.mShowComment) {
+                        controller.showCurrentComment(true);
+                    } else {
+                        controller.closeComment(false);
+                    }
+                    break;
+            }
+        }
     }
 }

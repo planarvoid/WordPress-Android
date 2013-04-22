@@ -14,6 +14,8 @@ import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
 
+import java.lang.ref.WeakReference;
+
 public class WaveformControllerLand extends WaveformController {
     private CommentPanel mCommentPanel;
 
@@ -28,24 +30,37 @@ public class WaveformControllerLand extends WaveformController {
         setStaticTransformationsEnabled(false);
     }
 
-    private final Handler mCommentHandler = new Handler() {
+    private static final class CommentHandler extends Handler {
+
+        private WeakReference<WaveformController> mRef;
+
+        private CommentHandler(WaveformController controller) {
+            this.mRef = new WeakReference<WaveformController>(controller);
+        }
+
         @Override
         public void handleMessage(Message msg) {
+            final WaveformController controller = mRef.get();
+            if (controller == null) {
+                return;
+            }
             switch (msg.what) {
                 case UI_SHOW_CURRENT_COMMENT:
-                    showCurrentComment(true);
+                    controller.showCurrentComment(true);
                     break;
 
                 case UI_ADD_COMMENT:
-                    mPlayer.addNewComment(mAddComment);
+                    controller.mPlayer.addNewComment(controller.mAddComment);
                     break;
 
                 case UI_TOGGLE_COMMENTS:
-                    mPlayer.toggleShowingComments();
+                    controller.mPlayer.toggleShowingComments();
                     break;
             }
         }
     };
+
+    private CommentHandler mCommentHandler = new CommentHandler(this);
 
     @Override
     protected boolean isLandscape() {
