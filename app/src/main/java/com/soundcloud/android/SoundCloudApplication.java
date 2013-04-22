@@ -255,7 +255,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public AccountManagerFuture<Bundle> addAccount(Activity activity) {
         return getAccountManager().addAccount(
                 getString(R.string.account_type),
-                Token.ACCESS_TOKEN, null, null, activity, null, null);
+                User.DataKeys.ACCESS_TOKEN, null, null, activity, null, null);
     }
 
     /**
@@ -310,13 +310,13 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         final AccountManager am = AccountManager.get(context);
         final boolean created = am.addAccountExplicitly(account, token.access, null);
         if (created) {
-            am.setAuthToken(account, Token.ACCESS_TOKEN,  token.access);
-            am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-            am.setUserData(account, Token.SCOPE, token.scope);
-            am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
-            am.setUserData(account, User.DataKeys.USERNAME, user.username);
-            am.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink);
-            am.setUserData(account, User.DataKeys.SIGNUP, via.name);
+            am.setAuthToken(account, User.DataKeys.ACCESS_TOKEN,  token.access);
+            am.setAuthToken(account, User.DataKeys.REFRESH_TOKEN, token.refresh);
+            am.setUserData(account,  User.DataKeys.SCOPE, token.scope);
+            am.setUserData(account,  User.DataKeys.USER_ID, Long.toString(user.id));
+            am.setUserData(account,  User.DataKeys.USERNAME, user.username);
+            am.setUserData(account,  User.DataKeys.USER_PERMALINK, user.permalink);
+            am.setUserData(account,  User.DataKeys.SIGNUP, via.name);
             return account;
         } else {
             return null;
@@ -387,15 +387,15 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private Token getToken(Account account) {
-        return new Token(getAccessToken(account), getRefreshToken(account), getAccountData(Token.SCOPE));
+        return new Token(getAccessToken(account), getRefreshToken(account), getAccountData(User.DataKeys.SCOPE));
     }
 
     private String getAccessToken(Account account) {
-        return getAccountManager().peekAuthToken(account, Token.ACCESS_TOKEN);
+        return getAccountManager().peekAuthToken(account, User.DataKeys.ACCESS_TOKEN);
     }
 
     private String getRefreshToken(Account account) {
-        return getAccountManager().peekAuthToken(account, Token.REFRESH_TOKEN);
+        return getAccountManager().peekAuthToken(account, User.DataKeys.REFRESH_TOKEN);
     }
 
     private AccountManager getAccountManager() {
@@ -577,10 +577,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         AccountManager am = getAccountManager();
         if (account != null && token.valid() && token.defaultScoped()) {
             am.setPassword(account, token.access);
-            am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
-            am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-            am.setUserData(account, Token.EXPIRES_IN, "" + token.expiresIn);
-            am.setUserData(account, Token.SCOPE, token.scope);
+            am.setAuthToken(account, User.DataKeys.ACCESS_TOKEN, token.access);
+            am.setAuthToken(account, User.DataKeys.REFRESH_TOKEN, token.refresh);
+            am.setUserData(account, User.DataKeys.EXPIRES_IN, "" + token.expiresIn);
+            am.setUserData(account, User.DataKeys.SCOPE, token.scope);
         }
     }
 

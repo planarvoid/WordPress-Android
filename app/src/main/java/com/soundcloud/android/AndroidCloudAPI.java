@@ -16,7 +16,7 @@ import java.util.List;
 
 public interface AndroidCloudAPI extends CloudAPI {
     String TAG = AndroidCloudAPI.class.getSimpleName();
-    URI REDIRECT_URI = URI.create("soundcloud://auth");
+    URI ANDROID_REDIRECT_URI = URI.create("soundcloud://auth");
 
     String getUserAgent();
     Env getEnv();
