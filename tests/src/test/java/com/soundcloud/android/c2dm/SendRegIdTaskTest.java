@@ -1,16 +1,14 @@
 package com.soundcloud.android.c2dm;
 
+import static com.soundcloud.android.Expect.expect;
+
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import org.apache.http.HttpStatus;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import com.xtremelabs.robolectric.Robolectric;
-
-import static com.soundcloud.android.Expect.expect;
 
 import java.io.IOException;
 

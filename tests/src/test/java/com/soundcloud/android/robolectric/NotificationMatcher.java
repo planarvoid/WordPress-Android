@@ -3,7 +3,6 @@ package com.soundcloud.android.robolectric;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.pivotallabs.greatexpectations.matchers.ObjectMatcher;
-import com.xtremelabs.robolectric.Robolectric;
 
 import android.app.Notification;
 import android.content.Intent;

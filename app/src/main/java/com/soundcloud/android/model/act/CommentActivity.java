@@ -1,7 +1,5 @@
 package com.soundcloud.android.model.act;
 
-import android.content.ContentValues;
-import android.database.Cursor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
@@ -11,6 +9,9 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
+
+import android.content.ContentValues;
+import android.database.Cursor;
 
 import java.util.List;
 

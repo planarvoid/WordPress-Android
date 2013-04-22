@@ -2,15 +2,14 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.imageloader.ImageLoader.Options;
 
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.app.Notification;

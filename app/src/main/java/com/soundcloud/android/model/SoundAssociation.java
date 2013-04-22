@@ -10,13 +10,11 @@ import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
-import android.util.Log;
 
 import java.util.Date;
 
@@ -207,6 +205,25 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     @Override
     public void refreshTimeSinceCreated(Context context) {
         _elapsedTime = null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (super.equals(o)) {
+            SoundAssociation that = (SoundAssociation) o;
+            return playable.equals(that.playable)
+                    && playable.getClass().equals(that.playable.getClass())
+                    && associationType == that.associationType;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + associationType;
+        result = 31 * result + playable.hashCode();
+        return result;
     }
 
     @Override

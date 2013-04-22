@@ -5,7 +5,6 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Creation;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;

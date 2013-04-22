@@ -3,7 +3,12 @@ package com.soundcloud.android.dao;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -131,21 +136,12 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
         getDAO().buildQuery().limit(1).queryAll();
 
         verify(resolverMock).query(
-                eq(getDAO().getContent().uri),
+                eq(getDAO().getContent().uri.buildUpon().appendQueryParameter("limit", "1").build()),
                 isNull(String[].class),
                 isNull(String.class),
                 isNull(String[].class),
-                eq("LIMIT 1"));
+                isNull(String.class));
 
-        // since limiting piggy-backs the LIMIT in the order clause, check that it doesn't fuck up ordering
-        getDAO().buildQuery().order("x ASC").limit(1).queryAll();
-
-        verify(resolverMock).query(
-                eq(getDAO().getContent().uri),
-                isNull(String[].class),
-                isNull(String.class),
-                isNull(String[].class),
-                eq("x ASC LIMIT 1"));
     }
 
     @Test
@@ -157,11 +153,11 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
 
         // one result found
         Cursor query = resolverMock.query(
-                eq(getDAO().getContent().uri),
+                eq(getDAO().getContent().uri.buildUpon().appendQueryParameter("limit", "1").build()),
                 isNull(String[].class),
                 isNull(String.class),
                 isNull(String[].class),
-                eq("LIMIT 1"));
+                isNull(String.class));
 
         when(query).thenReturn(new CursorStub(1));
         expect(getDAO().buildQuery().first()).toBeInstanceOf(Track.class);

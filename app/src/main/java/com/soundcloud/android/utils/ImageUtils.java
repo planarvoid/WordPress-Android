@@ -3,12 +3,12 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.imageloader.ImageLoader.Options;
 
-import android.annotation.TargetApi;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
 import com.soundcloud.android.imageloader.ImageLoader;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;

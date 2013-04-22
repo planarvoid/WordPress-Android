@@ -8,7 +8,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;

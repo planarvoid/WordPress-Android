@@ -1,11 +1,12 @@
 package com.soundcloud.android.model.act;
 
-import android.database.Cursor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
+
+import android.database.Cursor;
 
 public class TrackLikeActivity extends TrackActivity implements PlayableHolder {
     @JsonProperty public User user;

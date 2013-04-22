@@ -2,7 +2,6 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 
 import android.content.Context;

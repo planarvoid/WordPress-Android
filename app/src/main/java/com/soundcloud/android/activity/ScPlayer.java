@@ -39,6 +39,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 
+import java.lang.ref.WeakReference;
+
 public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener {
     public static final int REFRESH_DELAY = 1000;
 
@@ -473,22 +475,36 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         return !CloudPlaybackService.getState().isSupposedToBePlaying() ? REFRESH_DELAY : remaining;
     }
 
-    private final Handler mHandler = new Handler() {
+    private static final class PlayerHandler extends Handler {
+        private WeakReference<ScPlayer> mPlayerRef;
+
+        private PlayerHandler(ScPlayer context) {
+            this.mPlayerRef = new WeakReference<ScPlayer>(context);
+        }
+
         @Override
         public void handleMessage(Message msg) {
+            final ScPlayer player = mPlayerRef.get();
+            if (player == null) {
+                return;
+            }
             switch (msg.what) {
                 case REFRESH:
-                    long next = refreshNow();
-                    queueNextRefresh(next);
+                    long next = player.refreshNow();
+                    player.queueNextRefresh(next);
                     break;
                 case SEND_CURRENT_QUEUE_POSITION:
-                    if (mPlaybackService != null) mPlaybackService.setQueuePosition(getCurrentDisplayedTrackPosition());
+                    if (player.mPlaybackService != null) {
+                        player.mPlaybackService.setQueuePosition(player.getCurrentDisplayedTrackPosition());
+                    }
                     break;
                 default:
                     break;
             }
         }
-    };
+    }
+
+    private final Handler mHandler = new PlayerHandler(this);
 
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override

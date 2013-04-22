@@ -3,14 +3,21 @@ package com.soundcloud.android.service.sync;
 import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
 import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
 import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
-import static com.soundcloud.android.model.SoundAssociation.Type;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.Wrapper;
-import com.soundcloud.android.dao.*;
+import com.soundcloud.android.dao.ActivitiesStorage;
+import com.soundcloud.android.dao.BaseDAO;
+import com.soundcloud.android.dao.CollectionStorage;
+import com.soundcloud.android.dao.ConnectionDAO;
+import com.soundcloud.android.dao.PlaylistStorage;
+import com.soundcloud.android.dao.SoundAssociationStorage;
+import com.soundcloud.android.dao.Storage;
+import com.soundcloud.android.dao.TrackStorage;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
@@ -335,7 +342,7 @@ public class ApiSyncer {
         Result result = new Result(content.uri);
         if (!Content.ID_BASED.contains(content)) return result;
 
-        List<Long> local  = mCollectionStorage.getLocalIds(content, userId, -1, -1);
+        List<Long> local  = mCollectionStorage.getLocalIds(content, userId);
         List<Long> remote = mApi.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
 
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());

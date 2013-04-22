@@ -1,11 +1,12 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.provider.Content;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import com.soundcloud.android.provider.Content;
 
 enum SyncContent {
     MySounds    (Content.ME_SOUNDS,     SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),

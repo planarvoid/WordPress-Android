@@ -1,10 +1,10 @@
 
 package com.soundcloud.android.record;
 
-import java.io.File;
-
 import android.os.Environment;
 import android.os.StatFs;
+
+import java.io.File;
 
 /**
  * Calculates remaining recording time based on available disk space and

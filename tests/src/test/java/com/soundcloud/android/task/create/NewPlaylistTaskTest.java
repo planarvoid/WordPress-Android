@@ -3,10 +3,10 @@ package com.soundcloud.android.task.create;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -15,8 +15,6 @@ import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
 public class NewPlaylistTaskTest {

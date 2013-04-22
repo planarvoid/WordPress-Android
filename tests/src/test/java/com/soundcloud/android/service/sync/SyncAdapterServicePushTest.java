@@ -7,8 +7,6 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.c2dm.PushEvent;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;

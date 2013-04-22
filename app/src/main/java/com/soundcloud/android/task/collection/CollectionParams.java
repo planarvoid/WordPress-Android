@@ -1,8 +1,8 @@
 package com.soundcloud.android.task.collection;
 
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.api.Request;
 
 import android.net.Uri;
@@ -27,9 +27,9 @@ public class CollectionParams<T extends ScModel> {
 
         Uri.Builder b = contentUri.buildUpon();
         if (startIndex > 0) {
-            b.appendQueryParameter("offset", String.valueOf(startIndex));
+            b.appendQueryParameter(ScContentProvider.Parameter.OFFSET, String.valueOf(startIndex));
         }
-        b.appendQueryParameter("limit", String.valueOf(maxToLoad));
+        b.appendQueryParameter(ScContentProvider.Parameter.LIMIT, String.valueOf(maxToLoad));
         return b.build();
     }
 

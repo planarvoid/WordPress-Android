@@ -3,10 +3,8 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
@@ -14,6 +12,8 @@ import android.os.Parcelable;
 import android.provider.BaseColumns;
 
 public class ScModel implements Parcelable, ModelLike {
+
+    public static final String EXTRA_ID = "id";
     public static final int NOT_SET = -1;
     @JsonView(Views.Mini.class) public long id = NOT_SET;
 

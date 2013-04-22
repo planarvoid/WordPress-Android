@@ -1,13 +1,6 @@
 package com.soundcloud.android.service.playback;
 
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.PlayQueueManagerStore;
@@ -20,6 +13,14 @@ import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;

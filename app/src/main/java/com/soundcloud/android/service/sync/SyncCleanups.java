@@ -1,9 +1,10 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.Context;
-import android.net.Uri;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
+
+import android.content.Context;
+import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.List;

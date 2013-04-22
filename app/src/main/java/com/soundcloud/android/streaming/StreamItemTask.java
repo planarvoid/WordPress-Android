@@ -1,11 +1,8 @@
 package com.soundcloud.android.streaming;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import org.apache.http.HttpResponse;
 
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 
 import java.io.IOException;
 

@@ -1,12 +1,15 @@
 package com.soundcloud.android.model;
 
-import android.os.Parcel;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.soundcloud.android.Expect.expect;
+import android.os.Parcel;
+
+import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
 public class SoundAssociationTest {
@@ -40,6 +43,32 @@ public class SoundAssociationTest {
         soundAssociation2.setType(SoundAssociation.Type.TRACK_REPOST.type);
 
         expect(soundAssociation1.getListItemId()).not.toEqual(soundAssociation2.getListItemId());
+    }
+
+    @Test
+    public void testEquals() {
+        SoundAssociation a1 = new SoundAssociation(new Track(1), new Date(), SoundAssociation.Type.TRACK);
+
+        SoundAssociation a2;
+
+        a2 = new SoundAssociation(new Track(1), new Date(), SoundAssociation.Type.TRACK);
+        expect(a1).toEqual(a2);
+
+        a2 = new SoundAssociation(new Track(2), new Date(), SoundAssociation.Type.TRACK);
+        expect(a1).not.toEqual(a2);
+
+        a2 = new SoundAssociation(new Track(1), new Date(), SoundAssociation.Type.TRACK_LIKE);
+        expect(a1).not.toEqual(a2);
+
+        a2 = new SoundAssociation(new Playlist(1), new Date(), SoundAssociation.Type.TRACK);
+        expect(a1).not.toEqual(a2);
+
+        a2 = null;
+        expect(a1).not.toEqual(a2);
+
+        a2 = new SoundAssociation();
+        a2.id = 5;
+        expect(a1).not.toEqual(a2);
     }
 
     private void compareSoundItems(SoundAssociation soundItem, SoundAssociation soundItem2) {

@@ -65,6 +65,7 @@ public class ActionBarController {
         public MenuInflater getSupportMenuInflater();
         public void         invalidateOptionsMenu();
         public int          getMenuResourceId();
+        public void         onHomePressed();
     }
 
     public ActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView) {
@@ -177,7 +178,7 @@ public class ActionBarController {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (mActivity instanceof ScPlayer && mNowPlaying != null) {
-                mNowPlaying.onReceive(intent);
+                mNowPlaying.getStatusListener().onReceive(context, intent);
             }
 
             if (intent.getAction().equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
@@ -400,7 +401,7 @@ public class ActionBarController {
             View.OnClickListener toggleRootView = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mRootView.animateToggleMenu();
+                    mOwner.onHomePressed();
                 }
             };
 

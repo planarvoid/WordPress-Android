@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
+    <style name="Widget.Light.AutoCompleteTextView" parent="Widget.Sherlock.Light.SearchAutoCompleteTextView">
+        <item name="android:textColor">?textColorPrimaryInverse</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+    </style>
+    <style name="Widget.Light.DropDownItem" parent="Widget.Sherlock.Light.DropDownItem.Spinner">
+        <item name="android:textColor">?textColorPrimaryInverse</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+    </style>
+
     <style name="TextAppearance.ScActionBarTitle" parent="@style/TextAppearance.Sherlock.Widget.ActionBar.Title">
         <item name="android:textColor">@color/abs__primary_text_holo_dark</item>
     </style>
@@ -213,7 +226,7 @@
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">10dp</item>
-
+        <item name="android:layout_gravity">center</item>
         <item name="android:orientation">vertical</item>
     </style>
 
@@ -228,6 +241,7 @@
         <item name="android:layout_marginBottom">10dp</item>
 
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColorLink">@drawable/txt_light_states</item>
         <item name="android:gravity">center</item>
     </style>
 

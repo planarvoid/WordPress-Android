@@ -19,7 +19,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
- import android.widget.Toast;
+import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.net.URL;

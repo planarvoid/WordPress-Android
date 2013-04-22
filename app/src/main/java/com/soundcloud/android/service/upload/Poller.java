@@ -1,6 +1,14 @@
 package com.soundcloud.android.service.upload;
 
 
+import static com.soundcloud.android.service.upload.UploadService.TAG;
+
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.dao.TrackStorage;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,15 +17,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.dao.TrackStorage;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
 import java.io.IOException;
-
-import static com.soundcloud.android.service.upload.UploadService.TAG;
 
 public class Poller extends Handler {
     private static final long DEFAULT_MIN_TIME_BETWEEN_REQUESTS = 5000;

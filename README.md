@@ -63,6 +63,10 @@ Add a file `local.properties` to the app directory containing the path to the An
 
     $ echo "sdk.dir=/usr/local/Cellar/android-sdk/r20" > app/local.properties
 
+## Integration tests
+
+Documented on the wiki: [integration-tests][].
+
 ## Betas and releasing
 
 Documented on the wiki: [releasing][], [betas][].
@@ -76,4 +80,5 @@ Documented on the [wiki][].
 [wiki]: https://github.com/soundcloud/SoundCloud-Android/wiki/
 [releasing]: https://github.com/soundcloud/SoundCloud-Android/wiki/Releasing
 [betas]: https://github.com/soundcloud/SoundCloud-Android/wiki/Betas
+[integration-tests]: https://github.com/soundcloud/SoundCloud-Android/wiki/Integration-tests
 [JUnit default run config]: http://f.cl.ly/items/153m2C2d001j0Y1L1K02/Screen%20Shot%202012-11-27%20at%2012.57.25%20PM.png

@@ -1,6 +1,11 @@
 package com.soundcloud.android.activity.create;
 
-import static com.soundcloud.android.activity.create.ScCreate.CreateState.*;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.EDIT;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.EDIT_PLAYBACK;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_RECORD;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.PLAYBACK;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;

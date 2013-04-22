@@ -1,11 +1,11 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentResolver;
-import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+
+import android.content.ContentResolver;
 
 @RunWith(DefaultTestRunner.class)
 public abstract class AbstractDAOTest<T extends BaseDAO> {

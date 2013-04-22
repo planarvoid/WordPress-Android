@@ -1,5 +1,7 @@
 package com.soundcloud.android.view.tour;
 
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -9,9 +11,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.*;
-
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ParallaxPager extends ViewPager {
     class ParallaxInfo {

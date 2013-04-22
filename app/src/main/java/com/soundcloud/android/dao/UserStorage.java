@@ -1,12 +1,12 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.net.Uri;
-
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+
+import android.content.ContentResolver;
+import android.content.Context;
+import android.net.Uri;
 
 import java.util.EnumSet;
 

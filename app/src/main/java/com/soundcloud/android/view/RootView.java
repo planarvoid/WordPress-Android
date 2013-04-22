@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import static java.lang.Math.max;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.landing.ScLandingPage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +33,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Container for all activity content views plus the fly-in menu.
@@ -67,7 +70,7 @@ public class RootView extends ViewGroup {
     private static final String STATE_KEY               = "state_key";
     private static final String BLOCK_KEY               = "block_key";
 
-    private boolean mIsBlocked;
+    private boolean mIsBlocked, mShouldTrackGestures;
     private MainMenu mMenu;
     private ViewGroup mContent;
     private View mBlocker;
@@ -80,7 +83,7 @@ public class RootView extends ViewGroup {
 
     private OnMenuStateListener mOnMenuStateListener;
 
-    private final Handler mHandler = new SlidingHandler();
+    private final Handler mHandler = new SlidingHandler(this);
     private int mTouchDelta;
 
     private final Scroller mScroller;
@@ -154,6 +157,7 @@ public class RootView extends ViewGroup {
             }
         });
         mIsBlocked = false;
+        mShouldTrackGestures = context instanceof ScLandingPage;
 
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -527,7 +531,7 @@ public class RootView extends ViewGroup {
 
             case MotionEvent.ACTION_DOWN: {
                 final int x = (int) ev.getX();
-                if (!checkShouldTrack(x) || mIsBlocked) {
+                if (!mShouldTrackGestures || mIsBlocked || !checkShouldTrack(x)) {
                     mIsBeingDragged = false;
                     recycleVelocityTracker();
                     break;
@@ -942,13 +946,16 @@ public class RootView extends ViewGroup {
         return mIsBeingDragged || mAnimating;
     }
 
-    private class SlidingHandler extends Handler {
+    private static final class SlidingHandler extends Handler {
+        private WeakReference<View> mRef;
+
+        private SlidingHandler(View view) {
+            this.mRef = new WeakReference<View>(view);
+        }
+
         public void handleMessage(Message m) {
-            switch (m.what) {
-                case MSG_ANIMATE:
-                    invalidate();
-                    break;
-            }
+            final View view = mRef.get();
+            if (view != null && m.what == MSG_ANIMATE) view.invalidate();
         }
     }
 

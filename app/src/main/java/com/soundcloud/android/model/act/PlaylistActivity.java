@@ -1,6 +1,5 @@
 package com.soundcloud.android.model.act;
 
-import android.database.Cursor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
@@ -11,6 +10,8 @@ import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
+
+import android.database.Cursor;
 
 public class PlaylistActivity extends Activity implements PlayableHolder {
     @JsonProperty public Playlist playlist;

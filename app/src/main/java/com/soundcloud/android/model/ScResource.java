@@ -6,10 +6,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.dao.ContentValuesProvider;
 import com.soundcloud.android.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.net.Uri;
-import org.jetbrains.annotations.Nullable;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

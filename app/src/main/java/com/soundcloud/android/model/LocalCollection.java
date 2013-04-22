@@ -8,13 +8,9 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.SyncConfig;
 import org.jetbrains.annotations.NotNull;
 
-import android.content.AsyncQueryHandler;
-import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Handler;
 import android.text.TextUtils;
 
 /**

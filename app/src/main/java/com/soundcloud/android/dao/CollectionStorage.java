@@ -1,9 +1,7 @@
 package com.soundcloud.android.dao;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.net.Uri;
+import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
@@ -14,13 +12,15 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.soundcloud.android.dao.ResolverHelper.addPagingParams;
-import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
 
 public class CollectionStorage {
     private final ContentResolver mResolver;
@@ -50,9 +50,9 @@ public class CollectionStorage {
         return map.insert(mResolver);
     }
 
-    public List<Long> getLocalIds(Content content, long userId, int startIndex, int limit) {
+    public List<Long> getLocalIds(Content content, long userId) {
         return idCursorToList(mResolver.query(
-                addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit).build(),
+                Content.COLLECTION_ITEMS.uri,
                 new String[]{ DBHelper.CollectionItems.ITEM_ID },
                 DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
                 new String[]{ String.valueOf(content.collectionType), String.valueOf(userId) },

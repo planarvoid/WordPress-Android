@@ -4,7 +4,6 @@ import com.soundcloud.android.utils.IOUtils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.FloatMath;
 import android.util.Log;
 
 import java.io.File;

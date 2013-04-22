@@ -1,10 +1,10 @@
 package com.soundcloud.android.model;
 
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
 public class SearchTest {

@@ -1,7 +1,8 @@
 package com.soundcloud.android.robolectric;
 
-import android.database.Cursor;
 import com.pivotallabs.greatexpectations.matchers.ObjectMatcher;
+
+import android.database.Cursor;
 
 public class CursorMatcher<T extends Cursor, M extends CursorMatcher<T, M>> extends ObjectMatcher<T, M> {
 
