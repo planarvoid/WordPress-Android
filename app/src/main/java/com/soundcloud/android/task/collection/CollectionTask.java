@@ -10,6 +10,7 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
+@Deprecated
 public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnData, ReturnData> {
     private AndroidCloudAPI mApi;
     private WeakReference<Callback> mCallback;
