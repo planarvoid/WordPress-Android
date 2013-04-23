@@ -39,6 +39,9 @@ import java.io.IOException;
 
     public void onQueued() {
         localCollection = LocalCollection.fromContentUri(contentUri, context.getContentResolver(), true);
+        if (localCollection == null){
+            throw new IllegalStateException("Unable to create collection for uri " + contentUri);
+        }
         localCollection.updateSyncState(LocalCollection.SyncState.PENDING, context.getContentResolver());
     }
 
