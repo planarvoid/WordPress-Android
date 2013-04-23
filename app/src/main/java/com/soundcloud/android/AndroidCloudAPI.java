@@ -71,9 +71,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         private String userAgent;
 
         public static Wrapper create(Context context, @Nullable Token initialToken) {
-            ObjectMapper objectMapper = buildObjectMapper();
-            String clientId = context.getString(R.string.client_id);
-            return new Wrapper(context, objectMapper, clientId, getClientSecret(true), ANDROID_REDIRECT_URI, initialToken);
+            return new Wrapper(context, buildObjectMapper(), context.getString(R.string.client_id), getClientSecret(true), ANDROID_REDIRECT_URI, initialToken);
         }
 
         public static ObjectMapper buildObjectMapper() {
