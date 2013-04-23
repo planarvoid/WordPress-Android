@@ -267,6 +267,10 @@ public class User extends ScResource implements Refreshable {
         String SIGNUP          = "signup";
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
         String SEEN_CREATE_AUTOSAVE           = "seenCreateAutoSave";
+        String ACCESS_TOKEN  = "access_token";
+        String REFRESH_TOKEN = "refresh_token";
+        String SCOPE         = "scope";
+        String EXPIRES_IN    = "expires_in";
     }
 
     @Override

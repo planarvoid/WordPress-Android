@@ -51,7 +51,7 @@ public final class IntegrationTestHelper {
         } else if (account == null) {
             Log.d(TAG, "logging in");
             Context context = instrumentation.getTargetContext();
-            Wrapper wrapper = Wrapper.create(context, null);
+            Wrapper wrapper = new Wrapper(context, null);
             Token token;
             try {
                 token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);

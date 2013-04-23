@@ -70,10 +70,8 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
     private Context mContext;
     private String userAgent;
 
-    public static Wrapper create(Context context, @Nullable Token initialToken) {
-        ObjectMapper objectMapper = buildObjectMapper();
-        String clientId = context.getString(R.string.client_id);
-        return new Wrapper(context, objectMapper, clientId, getClientSecret(true), REDIRECT_URI, initialToken);
+    public Wrapper(Context context, @Nullable Token initialToken) {
+        this(context, buildObjectMapper(), context.getString(R.string.client_id), getClientSecret(true), ANDROID_REDIRECT_URI, initialToken);
     }
 
     public static ObjectMapper buildObjectMapper() {
@@ -85,7 +83,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
     }
 
 
-    public Wrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri, Token token) {
+    private Wrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri, Token token) {
         super(clientId, clientSecret, redirectUri, token);
         // context can be null in tests
         if (context == null) return;
