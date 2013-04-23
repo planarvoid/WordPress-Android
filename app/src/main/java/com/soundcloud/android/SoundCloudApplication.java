@@ -312,11 +312,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (created) {
             am.setAuthToken(account, User.DataKeys.ACCESS_TOKEN,  token.access);
             am.setAuthToken(account, User.DataKeys.REFRESH_TOKEN, token.refresh);
-            am.setUserData(account,  User.DataKeys.SCOPE, token.scope);
-            am.setUserData(account,  User.DataKeys.USER_ID, Long.toString(user.id));
-            am.setUserData(account,  User.DataKeys.USERNAME, user.username);
-            am.setUserData(account,  User.DataKeys.USER_PERMALINK, user.permalink);
-            am.setUserData(account,  User.DataKeys.SIGNUP, via.name);
+            am.setUserData(account, User.DataKeys.SCOPE, token.scope);
+            am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
+            am.setUserData(account, User.DataKeys.USERNAME, user.username);
+            am.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink);
+            am.setUserData(account, User.DataKeys.SIGNUP, via.name);
             return account;
         } else {
             return null;
