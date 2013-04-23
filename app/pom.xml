@@ -210,7 +210,7 @@
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-core</artifactId>
-            <version>0.7.0</version>
+            <version>0.8.0</version>
         </dependency>
     </dependencies>
 

@@ -3,7 +3,7 @@ package com.soundcloud.android.rx.event;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.subjects.Subject;
+import rx.subjects.PublishSubject;
 import rx.util.functions.Action1;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ public enum Event {
     LIKE_CHANGED,
     REPOST_CHANGED;
 
-    private final Subject<Object> event = Subject.create();
+    private final PublishSubject<Object> event = PublishSubject.create();
 
     public void fire() {
         event.onNext(null);
