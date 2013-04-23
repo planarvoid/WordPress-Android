@@ -36,7 +36,7 @@ public class UserStorage implements Storage<User> {
         return mUserDAO.queryByUri(uri);
     }
 
-    public void clearLoggedInUser() {
+    public void removeAssociationsFromLoggedInUser() {
         for (Content c : EnumSet.of(
                 Content.ME_SOUNDS,
                 Content.ME_LIKES,

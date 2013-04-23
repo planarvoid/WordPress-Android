@@ -209,7 +209,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         new Thread() {
             @Override
             public void run() {
-                new UserStorage(SoundCloudApplication.this).clearLoggedInUser();
+                new UserStorage(SoundCloudApplication.this).removeAssociationsFromLoggedInUser();
                 new ActivitiesStorage(SoundCloudApplication.this).clear(null);
 
                 PlayQueueManager.clearState(SoundCloudApplication.this);
