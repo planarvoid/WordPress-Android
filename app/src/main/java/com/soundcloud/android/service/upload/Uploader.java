@@ -144,7 +144,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
 
             //request to update my collection
-            LocalCollection.forceToStale(Content.ME_TRACKS.uri, api.getContext().getContentResolver());
+            LocalCollection.forceToStale(Content.ME_SOUNDS.uri, api.getContext().getContentResolver());
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 
             mUpload.onUploaded(api.getContext().getContentResolver());
