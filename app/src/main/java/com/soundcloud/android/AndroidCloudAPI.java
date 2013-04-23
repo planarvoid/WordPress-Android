@@ -49,7 +49,7 @@ import java.util.TimeZone;
 public interface AndroidCloudAPI extends CloudAPI {
     String TAG = AndroidCloudAPI.class.getSimpleName();
 
-    URI REDIRECT_URI = URI.create("soundcloud://auth");
+    URI ANDROID_REDIRECT_URI = URI.create("soundcloud://auth");
 
     String getUserAgent();
 
@@ -73,7 +73,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         public static Wrapper create(Context context, @Nullable Token initialToken) {
             ObjectMapper objectMapper = buildObjectMapper();
             String clientId = context.getString(R.string.client_id);
-            return new Wrapper(context, objectMapper, clientId, getClientSecret(true), REDIRECT_URI, initialToken);
+            return new Wrapper(context, objectMapper, clientId, getClientSecret(true), ANDROID_REDIRECT_URI, initialToken);
         }
 
         public static ObjectMapper buildObjectMapper() {
