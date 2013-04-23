@@ -222,6 +222,7 @@ public abstract class Activity extends ScModel implements Parcelable,
 
     public abstract Type        getType();
     public abstract User        getUser();
+    @Deprecated
     public abstract void        cacheDependencies();
 
     public List<ScResource> getDependentModels() {

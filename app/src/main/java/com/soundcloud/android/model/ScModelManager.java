@@ -27,10 +27,6 @@ public class ScModelManager {
         mResolver = c.getContentResolver();
     }
 
-    public Activity getActivityFromCursor(Cursor cursor) {
-        return Activity.Type.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.Activities.TYPE))).fromCursor(cursor);
-    }
-
     public Track getCachedTrackFromCursor(Cursor cursor) {
         return getCachedTrackFromCursor(cursor, DBHelper.Sounds._ID);
     }
