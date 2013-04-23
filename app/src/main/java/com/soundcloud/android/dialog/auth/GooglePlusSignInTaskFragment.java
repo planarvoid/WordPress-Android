@@ -16,7 +16,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 
-public class GooglePlusSignInTaskFragment extends LoginTaskFragment {
+public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
 
     public static final String ARG_ACCT_NAME    = "account_name";
     public static final String ARG_REQ_CODE     = "request_code";
