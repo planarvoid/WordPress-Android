@@ -5,32 +5,15 @@
               android:layout_width="fill_parent"
               android:layout_height="@dimen/tour_bottom_buttons_height"
               android:background="@android:color/transparent">
-
-    <Button android:id="@+id/facebook_btn"
-            style="@style/Tour.FacebookButton"
-            android:text="@string/authentication_log_in_with_facebook"
-
-            android:layout_width="0dp"
-            android:layout_weight="1"
-
-            android:layout_marginRight="10dp">
-        <requestFocus/>
-    </Button>
-
     <Button android:id="@+id/signup_btn"
             style="@style/Tour.Button"
             android:text="@string/authentication_sign_up"
-
             android:layout_width="0dp"
             android:layout_weight="1"
-
             android:layout_marginRight="10dp"/>
-
     <Button android:id="@+id/login_btn"
             style="@style/Tour.Button"
-
             android:layout_width="0dp"
             android:layout_weight="1"
-
             android:text="@string/authentication_log_in"/>
 </LinearLayout>

@@ -149,19 +149,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
         });
 
-        findViewById(R.id.google_plus_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onGooglePlusLogin();
-            }
-        });
-        findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               onFacebookLogin();
-            }
-        });
-
         findViewById(R.id.login_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -443,7 +430,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         return FOREGROUND_TAG.equals(tag) || PARALLAX_TAG.equals(tag);
     }
 
-    private void onGooglePlusLogin() {
+    @Override
+    public void onGooglePlusAuth() {
         final String[] names = AndroidUtils.getAccountsByType(this, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
         if (names.length == 0){
             onError(getString(R.string.authentication_no_google_accounts));
@@ -460,15 +448,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         }
     }
 
-    private void onGoogleAccountSelected(String name) {
-        // store the last account name in case we have to retry after startActivityForResult with G+ app
-        mLastGoogleAccountSelected = name;
-        getApp().track(Click.Login_with_googleplus);
-        GooglePlusSignInTaskFragment.create(name, RequestCodes.SIGNUP_VIA_GOOGLE)
-                .show(getSupportFragmentManager(), "google_acct_dialog");
-    }
-
-    private void onFacebookLogin() {
+    @Override
+    public void onFacebookAuth() {
         getApp().track(Click.Login_with_facebook);
         startActivityForResult(new Intent(this, Facebook.class), RequestCodes.SIGNUP_VIA_FACEBOOK);
     }
@@ -497,6 +478,14 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         } else {
             super.onAuthTaskComplete(user, via, wasApiSignupTask);
         }
+    }
+
+    private void onGoogleAccountSelected(String name) {
+        // store the last account name in case we have to retry after startActivityForResult with G+ app
+        mLastGoogleAccountSelected = name;
+        getApp().track(Click.Login_with_googleplus);
+        GooglePlusSignInTaskFragment.create(name, RequestCodes.SIGNUP_VIA_GOOGLE)
+                .show(getSupportFragmentManager(), "google_acct_dialog");
     }
 
     private SoundCloudApplication getApp() {

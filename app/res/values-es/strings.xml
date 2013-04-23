@@ -146,10 +146,10 @@
 
     <string name="search_for_query">Busca \'%s\'</string>
     <string name="done">Hecho</string>
-    <string name="tour_signup_header">Regístrate con tu cuenta</string>
+    <string name="tour_signup_header">O regístrate con tu cuenta</string>
     <string name="email">Correo electrónico</string>
     <string name="password">Contraseña</string>
-    <string name="tour_login_header">Conéctate con tu cuenta</string>
+    <string name="tour_login_header">O conéctate con tu cuenta</string>
     <string name="confirm">Confirmar</string>
 
     <string name="info">Info</string>
@@ -227,4 +227,6 @@
 
     <string name="list_empty_user_sets_message">%1$s no tiene actualmente ninguna sets.</string>
     <string name="list_empty_you_sets_message">Crear un conjunto de compartir una colección de sus canciones favoritas.</string>
+
+    <string name="authentication_log_in_with_google">Iniciar sesión con Google</string>
 </resources>

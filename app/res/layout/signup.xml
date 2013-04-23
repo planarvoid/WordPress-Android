@@ -7,6 +7,8 @@
     <ScrollView style="@style/SignUp.ScrollView">
         <LinearLayout style="@style/SignUp.Content">
 
+            <include layout="@layout/auth_buttons_social"/>
+
             <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Header"
                                                             android:text="@string/tour_signup_header"
 
