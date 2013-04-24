@@ -32,7 +32,6 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
     @NotNull
     abstract AuthTask   createAuthTask();
-    abstract Bundle     getTaskParams();
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -42,7 +41,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
         mTask = createAuthTask();
         mTask.setTaskOwner(this);
-        mTask.executeOnThreadPool(getTaskParams());
+        mTask.executeOnThreadPool(getArguments());
     }
 
     @Override

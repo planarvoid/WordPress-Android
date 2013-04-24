@@ -16,8 +16,8 @@ import java.io.File;
 
 public class AddUserInfoTaskFragment extends AuthTaskFragment {
 
-    public static final String USER_EXTRA = "user";
-    public static final String AVATAR_EXTRA = "avatar";
+    private static final String USER_EXTRA = "user";
+    private static final String AVATAR_EXTRA = "avatar";
 
     public static AddUserInfoTaskFragment create(User updatedUser, File avatarFile) {
         final Bundle param = new Bundle();
@@ -38,11 +38,6 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
                 (User) getArguments().getParcelable(USER_EXTRA),
                 getArguments().containsKey(AVATAR_EXTRA) ? new File(getArguments().getString(AVATAR_EXTRA)) : null
         );
-    }
-
-    @Override
-    Bundle getTaskParams() {
-        return getArguments();
     }
 
     @Override

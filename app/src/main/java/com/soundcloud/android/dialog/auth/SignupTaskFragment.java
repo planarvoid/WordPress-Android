@@ -25,8 +25,4 @@ public class SignupTaskFragment extends AuthTaskFragment {
         return new SignupTask((SoundCloudApplication) getActivity().getApplication());
     }
 
-    @Override
-    Bundle getTaskParams() {
-        return getArguments();
-    }
 }

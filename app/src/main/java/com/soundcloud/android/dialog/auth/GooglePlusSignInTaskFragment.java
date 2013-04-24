@@ -44,11 +44,6 @@ public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
     }
 
     @Override
-    Bundle getTaskParams() {
-        return null;
-    }
-
-    @Override
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
         Exception e = result.getException();
 

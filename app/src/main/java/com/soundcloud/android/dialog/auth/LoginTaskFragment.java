@@ -13,8 +13,8 @@ import android.os.Bundle;
 
 public class LoginTaskFragment extends AuthTaskFragment {
 
-    public static final String USERNAME_EXTRA = "username";
-    public static final String PASSWORD_EXTRA = "password";
+    private static final String USERNAME_EXTRA = "username";
+    private static final String PASSWORD_EXTRA = "password";
 
     public static LoginTaskFragment create(String username, String password) {
         final Bundle param = new Bundle();
@@ -33,11 +33,6 @@ public class LoginTaskFragment extends AuthTaskFragment {
     @Override
     AuthTask createAuthTask() {
         return new LoginTask((SoundCloudApplication) getActivity().getApplication());
-    }
-
-    @Override
-    Bundle getTaskParams() {
-        return getArguments();
     }
 
     @Override

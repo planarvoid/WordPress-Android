@@ -22,12 +22,9 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.List;
 
-/**
- *
- */
 public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskResult> {
 
-    public static final int ME_SYNC_DELAY_MILLIS = 30 * 1000;
+    private static final int ME_SYNC_DELAY_MILLIS = 30 * 1000;
 
     private final SoundCloudApplication mApp;
     private AuthTaskFragment mFragment;

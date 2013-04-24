@@ -21,8 +21,8 @@ import java.io.IOException;
 
 public class SignupTask extends AuthTask {
 
-    public static String KEY_USERNAME = "username";
-    public static String KEY_PASSWORD = "password";
+    public static final String KEY_USERNAME = "username";
+    public static final String KEY_PASSWORD = "password";
 
     public SignupTask(SoundCloudApplication app) {
         super(app);
