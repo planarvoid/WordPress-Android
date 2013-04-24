@@ -22,6 +22,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -214,6 +215,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 new SyncStateManager(SoundCloudApplication.this).clear();
                 new CollectionStorage(SoundCloudApplication.this).clear();
                 new ActivitiesStorage(SoundCloudApplication.this).clear(null);
+                SoundRecorder.getInstance(SoundCloudApplication.this).reset();
 
                 PlayQueueManager.clearState(SoundCloudApplication.this);
                 FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
