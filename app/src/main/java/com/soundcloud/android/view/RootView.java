@@ -22,6 +22,7 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.support.v4.view.ViewCompat;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -51,7 +52,6 @@ public class RootView extends ViewGroup {
     private static final int VELOCITY_UNITS             = 1000;
     private static final int MSG_ANIMATE                = 1000;
     private static final int ANIMATION_DURATION         = 300;
-    private static final int ANIMATION_FRAME_DURATION   = 1000 / 60;
     private static final int MENU_TARGET_WIDTH          = 230;
     private static final int BEZEL_HIT_WIDTH            = 30;
     private static final int OFFSET_RIGHT               = 60;   // action bar home icon mRight
@@ -83,7 +83,6 @@ public class RootView extends ViewGroup {
 
     private OnMenuStateListener mOnMenuStateListener;
 
-    private final Handler mHandler = new SlidingHandler(this);
     private int mTouchDelta;
 
     private final Scroller mScroller;
@@ -735,8 +734,7 @@ public class RootView extends ViewGroup {
         if (mOnMenuStateListener != null) mOnMenuStateListener.onScrollStarted();
         mScroller.startScroll(position, 0, motion, 0, ANIMATION_DURATION);
         mAnimating = true;
-        mHandler.removeMessages(MSG_ANIMATE);
-        mHandler.sendMessageAtTime(mHandler.obtainMessage(MSG_ANIMATE), SystemClock.uptimeMillis() + ANIMATION_FRAME_DURATION);
+        ViewCompat.postInvalidateOnAnimation(this);
         stopTracking();
     }
 
@@ -745,7 +743,6 @@ public class RootView extends ViewGroup {
     private void prepareTracking(int position) {
         if (mAnimating) {
             mAnimating = false;
-            mHandler.removeMessages(MSG_ANIMATE);
             onScrollComplete();
         }
         mIsBeingDragged = true;
@@ -766,6 +763,8 @@ public class RootView extends ViewGroup {
 
             if (position > expandedLeftContentPos){
                 position = (int) (expandedLeftContentPos + (position - expandedLeftContentPos) * .5);
+            } else if (position < 0){
+                position = position / 4;
             }
 
             int deltaX = position - left;
@@ -808,8 +807,7 @@ public class RootView extends ViewGroup {
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
             mContent.offsetLeftAndRight(mScroller.getCurrX() - mContent.getLeft());
-            mHandler.removeMessages(MSG_ANIMATE);
-            mHandler.sendMessageAtTime(mHandler.obtainMessage(MSG_ANIMATE), SystemClock.uptimeMillis() + ANIMATION_FRAME_DURATION);
+            ViewCompat.postInvalidateOnAnimation(this);
         } else {
             if (mAnimating && mScroller.isFinished()) {
                 if (mContent.getLeft() >= (getWidth() - mOffsetRight) / 2) {
@@ -944,19 +942,6 @@ public class RootView extends ViewGroup {
      */
     public boolean isMoving() {
         return mIsBeingDragged || mAnimating;
-    }
-
-    private static final class SlidingHandler extends Handler {
-        private WeakReference<View> mRef;
-
-        private SlidingHandler(View view) {
-            this.mRef = new WeakReference<View>(view);
-        }
-
-        public void handleMessage(Message m) {
-            final View view = mRef.get();
-            if (view != null && m.what == MSG_ANIMATE) view.invalidate();
-        }
     }
 
     static class SavedState extends BaseSavedState {

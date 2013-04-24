@@ -397,8 +397,12 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
     }
 
+    /**
+     * Set the pull to refresh state based on having a valid local collection (that has finished any async initialization)
+     * that is also in idle state. If not in that state, then set the loading state to prevent unwanted refreshes/syncs
+     */
     private void configurePullToRefreshState() {
-        if (mListView != null){
+        if (mListView != null && mLocalCollection != null) {
             if (mLocalCollection.isIdle()) {
                 if (mListView.isRefreshing()) mListView.onRefreshComplete();
             } else if (!mListView.isRefreshing()){
