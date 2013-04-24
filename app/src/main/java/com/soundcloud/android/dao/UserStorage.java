@@ -1,22 +1,15 @@
 package com.soundcloud.android.dao;
 
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
-import java.util.EnumSet;
-
 public class UserStorage implements Storage<User> {
     private UserDAO mUserDAO;
-    private final ContentResolver mResolver;
 
     public UserStorage(Context context) {
-        mResolver = context.getContentResolver();
-        mUserDAO = new UserDAO(mResolver);
+        mUserDAO = new UserDAO(context.getContentResolver());
     }
 
     @Override
@@ -34,17 +27,6 @@ public class UserStorage implements Storage<User> {
 
     public User getUserByUri(Uri uri) {
         return mUserDAO.queryByUri(uri);
-    }
-
-    public void removeAssociationsFromLoggedInUser() {
-        for (Content c : EnumSet.of(
-                Content.ME_SOUNDS,
-                Content.ME_LIKES,
-                Content.ME_FOLLOWINGS,
-                Content.ME_FOLLOWERS)) {
-            mResolver.delete(Content.COLLECTIONS.uri,
-                    DBHelper.Collections.URI + " = ?", new String[]{c.uri.toString()});
-        }
     }
 
 }

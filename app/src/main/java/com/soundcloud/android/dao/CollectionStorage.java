@@ -61,6 +61,10 @@ public class CollectionStorage {
         );
     }
 
+    public void clear() {
+        getDaoForContent(Content.COLLECTION_ITEMS).deleteAll();
+    }
+
     /**
      * @param api           the api
      * @param modelIds      a list of model ids

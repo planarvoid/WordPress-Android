@@ -11,6 +11,7 @@ import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.dao.ActivitiesStorage;
+import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -25,6 +26,7 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
+import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
@@ -209,7 +211,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         new Thread() {
             @Override
             public void run() {
-                new UserStorage(SoundCloudApplication.this).removeAssociationsFromLoggedInUser();
+                new SyncStateManager(SoundCloudApplication.this).clear();
+                new CollectionStorage(SoundCloudApplication.this).clear();
                 new ActivitiesStorage(SoundCloudApplication.this).clear(null);
 
                 PlayQueueManager.clearState(SoundCloudApplication.this);

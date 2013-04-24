@@ -80,6 +80,10 @@ public class SyncStateManager {
         return mLocalCollectionDao.deleteUri(content.uri);
     }
 
+    public void clear() {
+        mLocalCollectionDao.deleteAll();
+    }
+
     public boolean forceToStale(Uri uri) {
         LocalCollection lc = fromContent(uri);
         ContentValues cv = new ContentValues();
