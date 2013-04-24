@@ -60,7 +60,14 @@ public class ScModelManager {
     }
 
     public User getCachedUserFromPlayableCursor(Cursor cursor) {
-        return getCachedUserFromCursor(cursor, DBHelper.SoundView.USER_ID);
+        final long user_id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
+        User user = mUserCache.get(user_id);
+
+        if (user == null) {
+            user = User.fromTrackView(cursor);
+            mUserCache.put(user);
+        }
+        return user;
     }
 
     public User getCachedUserFromCursor(Cursor cursor) {
@@ -72,7 +79,7 @@ public class ScModelManager {
         User user = mUserCache.get(user_id);
 
         if (user == null) {
-            user = User.fromTrackView(cursor);
+            user = new User(cursor);
             mUserCache.put(user);
         }
         return user;
