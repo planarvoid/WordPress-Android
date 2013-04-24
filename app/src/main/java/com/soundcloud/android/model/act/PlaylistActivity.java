@@ -1,12 +1,15 @@
 package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SharingNote;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.DBHelper;
 
 import android.database.Cursor;
 
@@ -21,7 +24,7 @@ public class PlaylistActivity extends Activity implements PlayableHolder {
 
     public PlaylistActivity(Cursor c) {
         super(c);
-        playlist = new Playlist(c);
+        playlist = SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(c, DBHelper.ActivityView.SOUND_ID);
     }
 
     @Override
@@ -32,6 +35,11 @@ public class PlaylistActivity extends Activity implements PlayableHolder {
     @Override
     public User getUser() {
         return playlist == null ? null : playlist.user;
+    }
+
+    @Override
+    public void cacheDependencies() {
+        this.playlist = SoundCloudApplication.MODEL_MANAGER.cache(playlist);
     }
 
     @Override

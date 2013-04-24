@@ -75,7 +75,6 @@ public class UserBrowser extends ScActivity implements
     private FollowStatus mFollowStatus;
     private UserFragmentAdapter mAdapter;
     private FetchUserTask mLoadUserTask;
-    private UserStorage mUserStorage;
     protected ViewPager mPager;
     protected TitlePageIndicator mIndicator;
 
@@ -337,7 +336,7 @@ public class UserBrowser extends ScActivity implements
 
     private boolean loadUserByUri(Uri uri) {
         if (uri != null) {
-            mUser = mUserStorage.getUserByUri(uri);
+            mUser = new UserStorage(this).getUserByUri(uri);
         }
         return mUser != null;
     }

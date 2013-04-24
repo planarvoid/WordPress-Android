@@ -126,7 +126,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
             user_repost = cursor.getInt(repostIdx) == 1;
         }
 
-        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor);
+        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromSoundViewCursor(cursor);
 
     }
 
@@ -411,7 +411,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         }
     }
 
-    private static boolean isTrackCursor(Cursor cursor){
+    protected static boolean isTrackCursor(Cursor cursor){
         return cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds._TYPE)) == DB_TYPE_TRACK;
     }
 }
