@@ -39,6 +39,9 @@ import java.io.IOException;
 
     public void onQueued() {
         localCollection = LocalCollection.fromContentUri(contentUri, context.getContentResolver(), true);
+        if (localCollection == null){
+            throw new IllegalStateException("Unable to create collection for uri " + contentUri);
+        }
         localCollection.updateSyncState(LocalCollection.SyncState.PENDING, context.getContentResolver());
     }
 
@@ -52,7 +55,7 @@ import java.io.IOException;
         // make sure all requests going out on this thread have the background parameter set
         AndroidCloudAPI.Wrapper.setBackgroundMode(!isUI);
 
-        ApiSyncer syncer = new ApiSyncer(context);
+        ApiSyncer syncer = new ApiSyncer(context, context.getContentResolver());
 
         if (!localCollection.updateSyncState(LocalCollection.SyncState.SYNCING, context.getContentResolver())){
             return this;

@@ -12,9 +12,6 @@
     </string>
     <string name="visit_support">Visit Support</string>
 
-    <string name="waiting_for_sync">Waiting for sync...</string>
-
-    <string name="tab_title_my_sound_stream">Your Stream</string>
     <string name="tab_title_my_info">Your Info</string>
     <string name="tab_title_my_sounds">Your Sounds</string>
     <string name="tab_title_my_likes">Your Likes</string>
@@ -39,13 +36,6 @@
 
     <string name="info">Info</string>
 
-    <string name="action_bar_like">Like</string>
-    <string name="action_bar_search">Search</string>
-    <string name="action_bar_repost">Repost</string>
-    <string name="action_bar_comment">Comment</string>
-    <string name="action_bar_share">Share</string>
-    <string name="action_bar_info">Info</string>
-
     <string name="side_menu_activity">Activity</string>
     <string name="side_menu_record">Record</string>
     <string name="title_search">Search</string>
@@ -54,15 +44,8 @@
     <string name="side_menu_settings">Settings</string>
 
     <string name="side_menu_likes">Your likes</string>
-    <string name="side_menu_followings">People you follow</string>
     <string name="side_menu_friend_finder">Find friends</string>
     <string name="side_menu_suggested_users">Who to follow</string>
-
-    <string name="action_bar_follow">Follow</string>
-    <string name="action_bar_unfollow">Unfollow</string>
-
-    <string name="find_friends_on_facebook">Find friends on facebook</string>
-    <string name="connect_to_facebook">Connect to facebook</string>
 
     <string name="list_header_track_reposters">People who reposted this sound</string>
 
@@ -122,7 +105,6 @@
     <string name="crop_image_error">There was an error cropping your image.</string>
     <string name="add_comment_no_connection">Unable to add comment. Please check your data connection and try again.</string>
 
-    <string name="error_server_problems_title">Server Error</string>
     <string name="error_server_problems_message">There was a problem processing your request. Please try again later.</string>
     <string name="error_soundcloud_is_down">SoundCloud seems to be having server problems. We\'re working on it!</string>
     <string name="error_soundcloud_server_problems">SoundCloud had trouble processing your request.</string>
@@ -161,7 +143,6 @@
     <string name="accessibility_like_action">Like</string>
     <string name="accessibility_repost_action">Repost</string>
     <string name="accessibility_comment_action">Comment</string>
-    <string name="accessibility_stats_user_commented">You commented</string>
     <string name="accessibility_next_track">Next track</string>
     <string name="accessibility_toggle_playback">Toggle playback</string>
     <string name="accessibility_previous_track">Previous Track</string>
@@ -177,12 +158,9 @@
     </plurals>
 
     <string name="add_track_to_set">Add to set...</string>
-    <string name="creating_set">Creating set \'%s\'</string>
     <string name="create_new_set">Create new set</string>
     <string name="error_new_set_blank_title">Please enter a valid title</string>
-    <string name="error_creating_new_set">There was an error creating the set, please try again later.</string>
     <string name="add_set_private">Private</string>
-    <string name="add_set_public">Public</string>
 
     <string name="tab_title_my_sets">Your Sets</string>
     <string name="tab_title_user_sets">Sets</string>
@@ -191,4 +169,8 @@
     <string name="empty_playlist">This set has no sounds yet</string>
 
     <string name="playlist_removed">This set was not found on SoundCloud</string>
+
+    <string name="list_empty_user_sets_message">%1$s currently has no sets.</string>
+    <string name="list_empty_you_sets_message">Create a set to share a collection of your favorite sounds.</string>
+
 </resources>

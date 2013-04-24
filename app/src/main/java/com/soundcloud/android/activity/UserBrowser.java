@@ -253,6 +253,15 @@ public class UserBrowser extends ScActivity implements
                         mUser == null || mUser.username == null ? getString(R.string.this_user)
                                 : mUser.username));
 
+            case ME_PLAYLISTS:
+                return new EmptyListView(this).setMessageText(R.string.list_empty_you_sets_message);
+
+            case USER_PLAYLISTS:
+                return new EmptyListView(this)
+                        .setMessageText(getString(R.string.list_empty_user_sets_message,
+                                mUser == null || mUser.username == null ? getString(R.string.this_user)
+                                        : mUser.username));
+
             case ME_LIKES:
                 return new EmptyListView(this,
                         new Intent(Actions.WHO_TO_FOLLOW),
@@ -391,10 +400,14 @@ public class UserBrowser extends ScActivity implements
     public void onSuccess(User user) {
 
         user.last_updated = System.currentTimeMillis();
-        // update user locally and ensure 1 instance
-        mUser = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(user, ScResource.CacheUpdateMode.FULL);
+
 
         setUser(user);
+
+        // update user locally and ensure 1 instance
+        mUser = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.FULL);
+        SoundCloudApplication.MODEL_MANAGER.writeAsync(user);
+
         mUserDetailsFragment.onSuccess(mUser);
     }
 

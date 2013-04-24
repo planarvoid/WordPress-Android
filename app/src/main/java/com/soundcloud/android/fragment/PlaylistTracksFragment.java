@@ -70,7 +70,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mLocalCollection = getLocalCollection();
 
         if (mLocalCollection == null) {
-            Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT);
+            Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
             getActivity().finish();
         } else {
             mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
@@ -207,7 +207,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     private @Nullable LocalCollection getLocalCollection() {
-        return LocalCollection.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
+        return mPlaylist == null ? null : LocalCollection.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
     }
 
     public void scrollToPosition(int position) {
@@ -236,7 +236,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
         if (isAdded() && mLocalCollection.isIdle()) {
-            if (mListView != null) mListView.setRefreshing(true);
+            if (mListView != null) mListView.setRefreshing(false);
             activity.startService(new Intent(activity, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)

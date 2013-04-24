@@ -43,10 +43,6 @@ public class Han extends Solo {
         clickOnButtonResId(R.string.btn_done);
     }
 
-    public void clickOnNext() {
-        clickOnButtonResId(R.string.btn_next);
-    }
-
     public void clickOnPublish() {
         clickOnButtonResId(R.string.btn_publish);
     }

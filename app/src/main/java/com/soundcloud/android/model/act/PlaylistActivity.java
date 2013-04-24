@@ -35,7 +35,7 @@ public class PlaylistActivity extends Activity implements PlayableHolder {
 
     @Override
     public User getUser() {
-        return null;
+        return playlist == null ? null : playlist.user;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class PlaylistActivity extends Activity implements PlayableHolder {
 
     @Override
     public ScResource getRefreshableResource() {
-        return null; // TODO
+        return playlist;
     }
 
     @Override

@@ -36,7 +36,12 @@ public class TestApplication extends SoundCloudApplication {
 
     public TestApplication(Token token) {
         this.token = token;
-        mCloudApi = new Wrapper(null, null, "id", "secret", null, token);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mCloudApi = Wrapper.create(this, token);
     }
 
     @Override

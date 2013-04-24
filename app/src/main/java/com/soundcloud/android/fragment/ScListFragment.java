@@ -116,7 +116,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (mContent.isSyncable()) {
             final ContentResolver contentResolver = getActivity().getContentResolver();
             // TODO :  Move off the UI thread.
-            mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
+            mLocalCollection = LocalCollection.fromContentUriAsync(mContentUri, contentResolver);
             mLocalCollection.startObservingSelf(contentResolver, this);
             mChangeObserver = new ChangeObserver();
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
@@ -370,7 +370,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void checkAllowInitalAppend() {
         log("Should allow initial appending: [waitingOnInitialSync:" + waitingOnInitialSync() + ",mKeepGoing:" + mKeepGoing + "]"  );
         final ScBaseAdapter adapter = getListAdapter();
-        if (!mKeepGoing && !waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0) {
+        if (!mKeepGoing && !waitingOnInitialSync() && adapter != null && adapter.needsItems()) {
             mKeepGoing = true;
             append(false);
         }
@@ -380,7 +380,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public void onLocalCollectionChanged() {
         log("Local collection changed " + mLocalCollection);
         // do not autorefresh me_followings based on observing because this would refresh everytime you use the in list toggles
-        if (mContent != Content.ME_FOLLOWINGS) refreshSyncData();
+        if (mContent != Content.ME_FOLLOWINGS || getListAdapter().needsItems()) {
+            refreshSyncData();
+        } else {
+            checkAllowInitalAppend();
+        }
     }
 
     @Override
@@ -452,10 +456,14 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         refresh(true);
     }
 
-
     protected Request getRequest(boolean isRefresh) {
-        if (mContent == null || !mContent.hasRequest()) return null;
-        return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : mContent.request(mContentUri);
+        if (!isRefresh && !TextUtils.isEmpty(mNextHref)) {
+            return new Request(mNextHref);
+        } else if (mContent != null && mContent.hasRequest()) {
+            return mContent.request(mContentUri);
+        } else {
+            return null;
+        }
     }
 
     protected boolean canAppend() {
@@ -490,6 +498,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mNextHref = "";
         mKeepGoing = true;
         clearRefreshTask();
+        clearAppendTask();
         configureEmptyView();
 
         final ScBaseAdapter adp = getListAdapter();
@@ -650,10 +659,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 log("Auto refreshing content");
                 if (!isRefreshing()) {
                     refresh(false);
-                    // this is to show the user something at the initial load
-                    if (!mLocalCollection.hasSyncedBefore() && mListView != null) {
-                        mListView.setRefreshing();
-                    }
+                    if (mListView != null) mListView.setRefreshing(false);
                 }
             } else {
                 log("Skipping auto refresh");
@@ -665,6 +671,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void clearRefreshTask() {
         if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
         mRefreshTask = null;
+    }
+
+    private void clearAppendTask() {
+        if (mAppendTask != null && !AndroidUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
+        mAppendTask = null;
     }
 
     private final Handler connHandler = new Handler() {

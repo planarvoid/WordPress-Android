@@ -212,7 +212,7 @@
 
     <style name="Widget.ScTitlePageIndicator">
         <item name="android:background">@drawable/action_bar_background</item>
-        <item name="android:textSize">13dp</item>
+        <item name="android:textSize">13sp</item>
         <item name="selectedColor">@android:color/black</item>
 
         <item name="android:textColor">#666666</item>

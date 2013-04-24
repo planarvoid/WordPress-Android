@@ -1,8 +1,376 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
+    <style name="TextAppearance.ScActionBarTitle" parent="@style/TextAppearance.Sherlock.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/abs__primary_text_holo_dark</item>
+    </style>
 
+    <style name="txt_list_track_user">
+        <item name="android:textColor">@drawable/txt_list_track_user_states</item>
+        <item name="android:textSize">@dimen/list_txt_sub_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
 
+    <style name="txt_list_track_reposter" parent="txt_list_track_user">
+        <item name="android:textSize">@dimen/list_txt_sub_2_size</item>
+    </style>
+
+    <style name="PlayerActionSeparator">
+        <item name="android:background">@drawable/player_track_vert_separator_bg</item>
+        <item name="android:layout_width">2dp</item>
+        <item name="android:layout_height">38dp</item>
+    </style>
+
+    <style name="PlayerAction">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/btn_height</item>
+        <item name="android:textSize">@dimen/btn_text_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+    </style>
+
+    <style name="PlayerAction.ToggleButton">
+        <item name="android:layout_gravity">left|center</item>
+        <item name="android:background">@drawable/toggle_player_action_states</item>
+        <item name="android:minWidth">72dp</item>
+        <item name="android:paddingLeft">11dp</item>
+        <item name="android:paddingRight">11dp</item>
+        <item name="android:drawablePadding">6dp</item>
+    </style>
+
+    <style name="PlayerAction.ToggleButton.Like">
+        <item name="android:drawableLeft">@drawable/ic_toggle_player_like_states</item>
+        <item name="android:layout_marginLeft">10dp</item>
+    </style>
+
+    <style name="PlayerAction.ToggleButton.Repost">
+        <item name="android:drawableLeft">@drawable/ic_toggle_player_repost_states</item>
+        <item name="android:layout_marginLeft">5dp</item>
+    </style>
+
+    <style name="PlayerAction.Button">
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:layout_width">50dp</item>
+    </style>
+
+    <style name="PlayerAction.Button.AddToSet">
+        <item name="android:src">@drawable/ic_add_to_set</item>
+        <item name="android:background">@drawable/btn_default_darker_states</item>
+    </style>
+
+    <style name="PlayerAction.Button.Share">
+        <item name="android:src">@drawable/stats_share</item>
+        <item name="android:background">@drawable/btn_default_darker_states</item>
+    </style>
+
+    <style name="PlayerAction.Button.Info">
+        <item name="android:background">@null</item>
+        <item name="android:drawablePadding">0dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_width">45dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@drawable/toggle_txt_player_info_states</item>
+        <item name="android:textOn">@string/info</item>
+        <item name="android:textOff">@string/info</item>
+    </style>
+
+    <style name="UserBrowser"/>
+    <style name="UserBrowser.ToggleButton" parent="PlayerAction">
+        <item name="android:layout_height">@dimen/btn_height</item>
+        <item name="android:textSize">@dimen/btn_text_size</item>
+        <item name="android:background">@drawable/toggle_user_follow_states</item>
+        <item name="android:textColor">@drawable/toggle_txt_user_follow_states</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+    </style>
+
+    <style name="UserBrowser.ToggleButton.Follow">
+        <item name="android:id">@id/toggle_btn_follow</item>
+        <item name="android:background">@drawable/toggle_user_list_follow_states</item>
+        <item name="android:textOn">@string/btn_following</item>
+        <item name="android:textOff">@string/btn_follow</item>
+    </style>
+
+    <style name="Tour"/>
+    <style name="Tour.Button">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_weight">1</item>
+
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">center</item>
+
+        <item name="android:background">@drawable/next_button_white</item>
+
+        <item name="custom_font">fonts/Interstate-Light.ttf</item>
+    </style>
+
+    <style name="Tour.LeftButton" parent="Tour.Button">
+        <item name="android:background">@drawable/next_button_white_left</item>
+        <!--
+            We use negative margin to pull the left and right button closer to each other
+            so their outlines are on top of each other.
+
+            This makes it look like they share a separator instead of having two outlines
+            next to each other.
+        -->
+        <item name="android:layout_marginRight">-1dp</item>
+    </style>
+    <style name="Tour.RightButton" parent="Tour.Button">
+        <item name="android:background">@drawable/next_button_white_right</item>
+        <item name="android:layout_marginLeft">-1dp</item>
+    </style>
+
+    <style name="Tour.FacebookButton" parent="Tour.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_weight">0</item>
+
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:background">@drawable/next_button_blue</item>
+        <item name="android:drawableLeft">@drawable/facebook_button_logo</item>
+        <item name="android:drawablePadding">10dp</item>
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:focusableInTouchMode">true</item>
+    </style>
+
+    <style name="Tour.CallToAction.Base">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+
+        <item name="android:paddingLeft">5sp</item>
+        <item name="android:paddingRight">9sp</item>
+        <item name="android:paddingTop">0sp</item>
+        <item name="android:paddingBottom">1sp</item>
+
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:antialias">true</item>
+
+        <item name="jagged_background">#CC000000</item>
+        <item name="custom_font">fonts/Interstate-Light.ttf</item>
+    </style>
+
+    <style name="Tour.CallToAction" parent="Tour.CallToAction.Base">
+
+    </style>
+
+    <style name="Tour.Headline.Base" parent="Tour.CallToAction">
+        <item name="android:paddingTop">1sp</item>
+
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+    </style>
+
+    <style name="Tour.Headline" parent="Tour.Headline.Base">
+
+    </style>
+
+    <style name="Tour.RadioButton" parent="@android:style/Widget.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/tour_radio_button</item>
+        <item name="android:layout_width">6dp</item>
+        <item name="android:layout_height">6dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+    </style>
+
+    <style name="SignUp"/> <!-- and Login, too! -->
+
+    <style name="SignUp.Background">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:scaleType">matrix</item>
+    </style>
+
+    <style name="SignUp.Overlay">
+        <item name="android:background">@color/tour_overlay</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="SignUp.ScrollView.Base">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+    </style>
+
+    <style name="SignUp.ScrollView" parent="SignUp.ScrollView.Base">
+
+    </style>
+
+    <style name="SignUp.Content.Base">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">10dp</item>
+
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="SignUp.Content" parent="SignUp.Content.Base">
+    </style>
+
+    <style name="SignUp.Info">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="SignUp.Header" parent="SignUp.Info">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="SignUp.LoginForm">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/text_field</item>
+
+    </style>
+
+    <style name="SignUp.LabelRow">
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
+    <style name="SignUp.SeparatorRow">
+        <item name="android:background">@color/signup_separator</item>
+        <item name="android:layout_span">2</item>
+    </style>
+
+    <style name="SignUp.SeparatorView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:background">@color/signup_separator</item>
+    </style>
+
+    <style name="SignUp.Label">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">0</item>
+
+        <item name="android:padding">4dp</item>
+        <item name="android:layout_margin">4dp</item>
+
+        <item name="android:singleLine">true</item>
+        <item name="android:lines">1</item>
+        <item name="android:textColor">#000000</item>
+        <item name="android:textSize">16sp</item>
+
+        <item name="android:background">@null</item>
+
+        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+    </style>
+
+    <style name="SignUp.AddImageLabel">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+
+        <item name="android:padding">10dp</item>
+
+        <item name="android:background">@drawable/info_upload_image_bg</item>
+        <item name="android:clickable">true</item>
+        <item name="android:gravity">center</item>
+
+        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+    </style>
+
+    <style name="SignUp.MultiLineInfoLabel" parent="SignUp.Label">
+        <item name="android:singleLine">false</item>
+        <item name="android:lines">2</item>
+
+        <item name="custom_font">fonts/Interstate-Light.ttf</item>
+    </style>
+
+    <style name="SignUp.TextEntry" parent="SignUp.Label">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:imeOptions">actionNext</item>
+        <item name="android:cursorVisible">true</item>
+        <item name="custom_font">fonts/Interstate-Light.ttf</item>
+    </style>
+
+    <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">
+        <item name="android:inputType">textNoSuggestions|textEmailAddress</item>
+    </style>
+
+    <style name="SignUp.PasswordEntry" parent="SignUp.TextEntry">
+        <item name="android:inputType">textPassword</item>
+    </style>
+
+    <style name="Player"/>
+    <style name="Player.TrackInfo"/>
+
+    <style name="Player.TrackInfo.Table">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="Player.TrackInfo.Row">
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/list_selector_background</item>
+
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="Player.TrackInfo.SeparatorRow">
+        <item name="android:background">@color/track_info_separator</item>
+        <item name="android:layout_span">2</item>
+    </style>
+
+    <style name="Player.TrackInfo.SeparatorView">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/track_info_separator</item>
+    </style>
+
+    <style name="Player.TrackInfo.Icon">
+        <item name="android:layout_width">20dip</item>
+        <item name="android:layout_height">20dip</item>
+
+        <item name="android:layout_marginLeft">22dp</item>
+
+        <item name="android:scaleType">center</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Player.TrackInfo.Label" parent="txt_list_main">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">60dip</item>
+
+        <item name="android:gravity">left|center_vertical</item>
+
+        <item name="android:paddingLeft">6dip</item>
+        <item name="android:paddingRight">12dip</item>
+
+        <item name="android:drawableRight">@drawable/arrow_states</item>
+        <item name="android:drawablePadding">15dip</item>
+    </style>
+
+    <style name="Player.TrackInfo.Separator">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
 
 
     <!-- Standard animations for a non-full-screen window or activity. -->
@@ -208,19 +576,6 @@
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">-1</item>
         <item name="android:shadowRadius">1</item>
-    </style>
-
-    <style name="txt_list_playable_track_count">
-        <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
-        <item name="android:textSize">@dimen/list_txt_main_size</item>
-        <item name="android:background">@drawable/bg_dark_round_rect</item>
-        <item name="android:gravity">center</item>
-        <item name="android:minWidth">@dimen/list_playlist_track_count_dimension</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">@dimen/list_playlist_track_count_dimension</item>
-        <item name="android:paddingLeft">5dp</item>
-        <item name="android:paddingRight">5dp</item>
-        <item name="android:singleLine">true</item>
     </style>
 
     <style name="txt_search" parent="android:Widget.TextView">
@@ -599,6 +954,24 @@
         <item name="android:textAppearance">@style/txt_list_main</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="PlayableTrackCount">
+        <item name="android:layout_below">@id/playable_user_holder</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
+        <item name="android:textSize">@dimen/list_txt_main_size</item>
+        <item name="android:background">@drawable/bg_dark_round_rect</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minWidth">@dimen/list_playlist_track_count_dimension</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/list_playlist_track_count_dimension</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="Playlist">

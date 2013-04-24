@@ -572,7 +572,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         }
     }
 
-
     private int getCurrentDisplayedTrackPosition() {
         final PlayerTrackView currentTrackView = mTrackPager.getCurrentTrackView();
         return currentTrackView == null ? -1 : currentTrackView.getPlayPosition();
