@@ -156,6 +156,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return null;
     }
 
+    /**
+     * @return true if there's no data in the adapter, and we're not currently loading data
+     */
     public boolean needsItems() {
         return getCount() == 0;
     }

@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
@@ -16,6 +17,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
@@ -245,6 +247,28 @@ public class TestHelper {
         ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
         map.insert(resolver); // dependencies
         return resolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
+    }
+
+
+    public static int bulkInsertToCollectionItems(List<? extends ScResource> resources, Uri collectionUri) {
+        SoundCloudApplication application = DefaultTestRunner.application;
+        final long userId = SoundCloudApplication.getUserId();
+
+        BulkInsertMap map = new BulkInsertMap();
+        for (int i = 0; i < resources.size(); i++) {
+            ScResource r = resources.get(i);
+            if (r == null) continue;
+
+            r.putFullContentValues(map);
+            ContentValues contentValues = new ContentValues();
+
+            contentValues.put(DBHelper.CollectionItems.POSITION, i);
+            contentValues.put(DBHelper.CollectionItems.ITEM_ID, r.id);
+            contentValues.put(DBHelper.CollectionItems.USER_ID, userId);
+            map.add(collectionUri, contentValues);
+        }
+        ContentResolver resolver = application.getContentResolver();
+        return map.insert(resolver);
     }
 
     public static <T extends ScModel> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass) throws Exception {

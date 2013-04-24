@@ -41,6 +41,9 @@ import java.io.IOException;
 
     public void onQueued() {
         localCollection = mSyncStateManager.fromContent(contentUri);
+        if (localCollection == null){
+            throw new IllegalStateException("Unable to create collection for uri " + contentUri);
+        }
         mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.PENDING);
     }
 

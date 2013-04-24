@@ -183,7 +183,7 @@ public enum Content  {
 
 
     public static final EnumSet<Content> ID_BASED = EnumSet.of(
-            Content.ME_FOLLOWING,
+            Content.ME_FOLLOWINGS,
             Content.ME_FOLLOWERS,
             Content.ME_FRIENDS
     );

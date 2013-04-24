@@ -62,7 +62,7 @@ public class SoundAssociationStorageTest {
         final List<Track> tracks = createTracks(2);
         Playlist p = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        storage.addPlaylistCreation(p);
+        storage.addCreation(p);
         expect(p.toUri()).not.toBeNull();
         expect(Content.ME_PLAYLISTS).toHaveCount(1);
     }

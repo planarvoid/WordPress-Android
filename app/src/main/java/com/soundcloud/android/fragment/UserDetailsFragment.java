@@ -45,7 +45,10 @@ public class UserDetailsFragment extends Fragment {
         mDiscogsName = (TextView) mInfoView.findViewById(R.id.discogs_name);
         mMyspaceName = (TextView) mInfoView.findViewById(R.id.myspace_name);
         mDescription = (TextView) mInfoView.findViewById(R.id.description);
-        setUser(SoundCloudApplication.MODEL_MANAGER.getUser(mUserId));
+        User user = SoundCloudApplication.MODEL_MANAGER.getUser(mUserId);
+        if (user != null){
+            setUser(user);
+        }
         return mInfoView;
     }
 
