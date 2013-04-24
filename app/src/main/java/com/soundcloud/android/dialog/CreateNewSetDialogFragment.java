@@ -96,7 +96,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
             @Override
             public void run() {
                 // create and create playlist
-                soundAssociationStorage.addPlaylistCreation(
+                soundAssociationStorage.addCreation(
                         getPlaylistStorage().createNewUserPlaylist(
                                 loggedInUser,
                                 String.valueOf(text),

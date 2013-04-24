@@ -263,7 +263,7 @@ public class ApiSyncer {
                 // update local state
                 p.localToGlobal(mContext, added);
                 mPlaylistStorage.create(added);
-                mSoundAssociationStorage.addPlaylistCreation(added);
+                mSoundAssociationStorage.addCreation(added);
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
