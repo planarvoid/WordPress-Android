@@ -294,12 +294,13 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 EmptyListView.fromContent(context, mContent) : mEmptyListView);
 
         mListView.setEmptyView(mEmptyListView);
+        configurePullToRefreshState();
 
         if (isRefreshing() || waitingOnInitialSync()){
             final ScBaseAdapter listAdapter = getListAdapter();
             if (listAdapter == null || listAdapter.isEmpty()){
                 configureEmptyView();
-            } else {
+            } else if (isRefreshing()){
                 mListView.setRefreshing(false);
             }
         }
@@ -386,12 +387,23 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     @Override
     public void onLocalCollectionChanged(LocalCollection localCollection) {
         mLocalCollection = localCollection;
+        configurePullToRefreshState();
         log("Local collection changed " + mLocalCollection);
         // do not autorefresh me_followings based on observing because this would refresh everytime you use the in list toggles
         if (mContent != Content.ME_FOLLOWINGS || getListAdapter().needsItems()) {
             refreshSyncData();
         } else {
             checkAllowInitalAppend();
+        }
+    }
+
+    private void configurePullToRefreshState() {
+        if (mListView != null){
+            if (mLocalCollection.isIdle()) {
+                if (mListView.isRefreshing()) mListView.onRefreshComplete();
+            } else if (!mListView.isRefreshing()){
+                mListView.setRefreshing(false);
+            }
         }
     }
 
