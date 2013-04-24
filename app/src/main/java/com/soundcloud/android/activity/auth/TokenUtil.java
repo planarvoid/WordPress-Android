@@ -32,7 +32,7 @@ public class TokenUtil {
         return data;
     }
 
-    public static Token getToken(AndroidCloudAPI app, Bundle param) throws IOException {
+    public Token getToken(AndroidCloudAPI app, Bundle param) throws IOException {
         final String[] scopes = param.getStringArray(TokenKeys.SCOPES_EXTRA);
 
         if (param.containsKey(TokenKeys.CODE_EXTRA)) {

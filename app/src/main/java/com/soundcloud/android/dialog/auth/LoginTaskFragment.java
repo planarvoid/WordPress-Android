@@ -2,9 +2,11 @@ package com.soundcloud.android.dialog.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.auth.TokenUtil;
 import com.soundcloud.android.task.auth.AuthTask;
 import com.soundcloud.android.task.auth.AuthTaskResult;
 import com.soundcloud.android.task.auth.LoginTask;
+import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +34,8 @@ public class LoginTaskFragment extends AuthTaskFragment {
     @NotNull
     @Override
     AuthTask createAuthTask() {
-        return new LoginTask((SoundCloudApplication) getActivity().getApplication());
+        SoundCloudApplication application = (SoundCloudApplication) getActivity().getApplication();
+        return new LoginTask(application, new TokenUtil(), new FetchUserTask(application));
     }
 
     @Override

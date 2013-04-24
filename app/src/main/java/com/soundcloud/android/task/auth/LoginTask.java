@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.activity.auth.TokenUtil;
-import com.soundcloud.android.dialog.auth.AuthTaskFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.Log;
@@ -18,8 +17,14 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public class LoginTask extends AuthTask {
-    public LoginTask(@NotNull SoundCloudApplication application) {
+
+    private TokenUtil tokenUtils;
+    private FetchUserTask fetchUserTask;
+
+    public LoginTask(@NotNull SoundCloudApplication application, TokenUtil tokenUtils, FetchUserTask fetchUserTask) {
         super(application);
+        this.tokenUtils = tokenUtils;
+        this.fetchUserTask = fetchUserTask;
     }
 
     @Override
@@ -28,12 +33,13 @@ public class LoginTask extends AuthTask {
     }
 
     protected AuthTaskResult login(Bundle data) {
+        SoundCloudApplication app = getSoundCloudApplication();
+
         try {
-            Token token = TokenUtil.getToken(getSoundCloudApplication(), TokenUtil.configureDefaultScopeExtra(data));
+            Token token = tokenUtils.getToken(app, TokenUtil.configureDefaultScopeExtra(data));
             Log.d("LoginTask[Token](" + token + ")");
 
-            SoundCloudApplication app = getSoundCloudApplication();
-            final User user = new FetchUserTask(app).resolve(Request.to(Endpoints.MY_DETAILS));
+            final User user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));
             if (user == null) {
                 return AuthTaskResult.failure(app.getString(R.string.authentication_error_no_connection_message));
             }

@@ -114,6 +114,12 @@
             <artifactId>junit-interface</artifactId>
             <version>0.7</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>junit</artifactId>
+                    <groupId>junit</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

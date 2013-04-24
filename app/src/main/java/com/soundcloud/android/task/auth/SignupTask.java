@@ -23,9 +23,11 @@ public class SignupTask extends AuthTask {
 
     public static final String KEY_USERNAME = "username";
     public static final String KEY_PASSWORD = "password";
+    private TokenUtil tokenUtil;
 
-    public SignupTask(SoundCloudApplication app) {
+    public SignupTask(SoundCloudApplication app, TokenUtil tokenUtil) {
         super(app);
+        this.tokenUtil = tokenUtil;
     }
 
     @Override
@@ -37,7 +39,7 @@ public class SignupTask extends AuthTask {
             // do token exchange
             Token token;
             try {
-                token = TokenUtil.getToken(getSoundCloudApplication(), params[0]);
+                token = tokenUtil.getToken(getSoundCloudApplication(), params[0]);
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
                     return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }
