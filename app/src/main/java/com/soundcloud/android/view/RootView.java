@@ -758,6 +758,8 @@ public class RootView extends ViewGroup {
 
             if (position > expandedLeftContentPos){
                 position = (int) (expandedLeftContentPos + (position - expandedLeftContentPos) * .5);
+            } else if (position < 0){
+                position = position / 4;
             }
 
             int deltaX = position - left;
