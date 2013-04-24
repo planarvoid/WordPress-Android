@@ -1,7 +1,6 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.cache.ModelCache;
-import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.UriUtils;
@@ -59,12 +58,12 @@ public class ScModelManager {
         return playlist;
     }
 
-    public User getCachedUserFromPlayableCursor(Cursor cursor) {
+    public User getCachedUserFromSoundViewCursor(Cursor cursor) {
         final long user_id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
         User user = mUserCache.get(user_id);
 
         if (user == null) {
-            user = User.fromTrackView(cursor);
+            user = User.fromSoundView(cursor);
             mUserCache.put(user);
         }
         return user;
