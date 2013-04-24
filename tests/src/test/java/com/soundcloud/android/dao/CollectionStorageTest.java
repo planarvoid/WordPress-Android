@@ -77,7 +77,7 @@ public class CollectionStorageTest {
     public void shouldBulkInsertWithCollections() throws Exception {
         List<Track> items = createTracks();
         expect(storage.insertCollection(items, Content.ME_LIKES.uri, USER_ID)).toEqual(6);
-        expect(storage.getLikesCount()).toEqual(2);
+        expect(Content.ME_LIKES).toHaveCount(2);
     }
 
     public static List<Track> createTracks() {
