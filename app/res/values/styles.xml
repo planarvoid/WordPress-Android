@@ -144,24 +144,21 @@
     </style>
 
     <style name="Tour.SocialButton" parent="Tour.Button">
+        <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:minWidth">200dp</item>
-        <item name="android:maxWidth">400dp</item>
+        <item name="android:minWidth">250dp</item>
+        <item name="android:maxWidth">500dp</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:paddingLeft">43dp</item>
     </style>
 
     <style name="Tour.FacebookButton" parent="Tour.SocialButton">
-        <item name="android:textColor">#FFFFFFFF</item>
-        <item name="android:background">@drawable/next_button_blue</item>
-        <item name="android:drawableLeft">@drawable/facebook_button_logo</item>
-        <item name="android:drawablePadding">10dp</item>
-        <item name="android:gravity">left|center_vertical</item>
-        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:background">@drawable/btn_facebook</item>
     </style>
 
     <style name="Tour.GooglePlusButton" parent="Tour.SocialButton">
         <item name="android:background">@drawable/btn_google_plus</item>
-        <item name="android:textColor">#FFFFFFFF</item>
     </style>
 
     <style name="Tour.CallToAction.Base">
