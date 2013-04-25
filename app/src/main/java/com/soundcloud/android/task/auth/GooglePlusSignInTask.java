@@ -53,7 +53,6 @@ public class GooglePlusSignInTask extends LoginTask {
     }
 
     protected AuthTaskResult login(String token) {
-        // TODO : Google + grant type constant once ApiWrapper is updated
-        return login(tokenUtils.getGrantBundle("urn:soundcloud:oauth2:grant-type:google_plus&access_token=", token));
+        return login(tokenUtils.getGrantBundle(CloudAPI.GOOGLE_PLUS_GRANT_TYPE, token));
     }
 }
