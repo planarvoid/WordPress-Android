@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+
 /**
  * Android related utility functions.
  */
@@ -228,6 +229,11 @@ public final class AndroidUtils {
         }
     }
 
+    public static boolean accessibilityFeaturesAvailable(Context context) {
+        AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        return accessibilityManager != null && accessibilityManager.isEnabled();
+    }
+
     /**
      * Returns emails from the account manager paired and sorted by their frequency of usage
      *
@@ -246,25 +252,33 @@ public final class AndroidUtils {
                 }
             }
         }
+        return returnKeysSortedByValue(map);
+    }
 
-        TreeMap<String,Integer> sortedMap = new TreeMap<String,Integer>(new EmailValueComparator(map));
+    /* package */ static String[] returnKeysSortedByValue(HashMap<String, Integer> map) {
+        TreeMap<String, Integer> sortedMap = new TreeMap<String, Integer>(new MapValueComparator(map));
         sortedMap.putAll(map);
         return sortedMap.keySet().toArray(new String[map.size()]);
     }
 
-    public static boolean accessibilityFeaturesAvailable(Context context) {
-        AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
-        return accessibilityManager != null && accessibilityManager.isEnabled();
+    public static String[] getAccountsByType(Context context, String accountType) {
+        Account[] accounts = AccountManager.get(context).getAccountsByType(accountType);
+        final String[] names = new String[accounts.length];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = accounts[i].name;
+        }
+        return names;
     }
 
-    private static class EmailValueComparator implements Comparator<String> {
-        Map<String, Integer> base;
-        public EmailValueComparator(Map<String, Integer> base) {
-            this.base = base;
+
+    private static class MapValueComparator implements Comparator<String> {
+        Map<String, Integer> map;
+        public MapValueComparator(Map<String, Integer> map) {
+            this.map = map;
         }
 
         public int compare(String a, String b) {
-            if (base.get(a) >= base.get(b)) {
+            if (map.get(a) >= map.get(b)) {
                 return -1;
             } else {
                 return 1;

@@ -68,10 +68,13 @@ public class FacebookSSO extends AbstractLoginActivity {
     private static final String COM_FACEBOOK_APPLICATION = "com.facebook.application.";
     public static final String ACCESS_DENIED = "access_denied";
     public static final String ACCESS_DENIED_EXCEPTION = "OAuthAccessDeniedException";
+    private Bundle mLoginBundle;
+    private TokenInformationGenerator tokenInformationGenerator;
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        tokenInformationGenerator = new TokenInformationGenerator();
         Intent auth = getAuthIntent(this, DEFAULT_PERMISSIONS);
         if (validateAppSignatureForIntent(auth)) {
             startActivityForResult(auth, 0);
@@ -79,6 +82,19 @@ public class FacebookSSO extends AbstractLoginActivity {
             setResult(RESULT_OK,
                     new Intent().putExtra("error", "fb app not installed or sig invalid"));
             finish();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        /**
+         * Workaround for https://code.google.com/p/android/issues/detail?id=17787
+         * Login fragment has to be shown on or after onResume
+         */
+        if (mLoginBundle != null){
+            login(mLoginBundle);
+            mLoginBundle = null;
         }
     }
 
@@ -91,10 +107,8 @@ public class FacebookSSO extends AbstractLoginActivity {
                     Log.d(TAG, "got token: "+token);
                 }
                 token.store(this);
-
-                Bundle bundle = new Bundle();
-                bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, CloudAPI.FACEBOOK_GRANT_TYPE + token.accessToken);
-                login(bundle);
+                // save login bundle for login in onResume
+                mLoginBundle = tokenInformationGenerator.getGrantBundle(CloudAPI.FACEBOOK_GRANT_TYPE, token.accessToken);
 
             } catch (SSOException e) {
                 Log.w(TAG, "error getting Facebook token", e);

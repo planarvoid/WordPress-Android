@@ -48,8 +48,10 @@ public final class Consts {
         int MAKE_CONNECTION     = 9004;
         int IMAGE_CROP          = 9005;
 
-        int SIGNUP_VIA_FACEBOOK     = 8001;
-        int RECOVER_CODE            = 8002;
+        int SIGNUP_VIA_FACEBOOK                 = 8001;
+        int RECOVER_CODE                        = 8002;
+        int SIGNUP_VIA_GOOGLE                   = 8003;
+        int RECOVER_FROM_PLAY_SERVICES_ERROR    = 8004;
     }
 
     public static interface Keys {

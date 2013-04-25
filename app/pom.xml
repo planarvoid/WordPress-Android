@@ -150,6 +150,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+          <groupId>com.google.android.gms</groupId>
+          <artifactId>google-play-services</artifactId>
+          <version>6</version>
+          <type>apklib</type>
+        </dependency>
+        <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>annotations</artifactId>
             <version>4.1.1.4</version>

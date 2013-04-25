@@ -34,7 +34,7 @@
   <string name="authentication_recover_password_success">¡Compruebe su correo electrónico! Recibirá, en poco tiempo, un correo con instrucciones acerca de cómo restaurar su contraseña</string>
   <string name="authentication_recover_progress_message">Petición de restauración de contraseña</string>
   <string name="authentication_repeat_your_password">Repita la contraseña</string>
-  <string name="authentication_sign_up">Registro</string>
+  <string name="authentication_sign_up">Registro en SoundCloud</string>
   <string name="authentication_signup_error_message">Parece que hay un problema. Por favor, intente registrarse en SoundCloud.com.</string>
   <string name="authentication_signup_progress_message">Registrándose</string>
   <string name="authentication_support">Soporte</string>

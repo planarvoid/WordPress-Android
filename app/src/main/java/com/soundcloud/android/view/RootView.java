@@ -82,7 +82,6 @@ public class RootView extends ViewGroup {
     private @Nullable VelocityTracker mVelocityTracker;
 
     private OnMenuStateListener mOnMenuStateListener;
-
     private int mTouchDelta;
 
     private final Scroller mScroller;
