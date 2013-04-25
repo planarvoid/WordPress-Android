@@ -27,6 +27,7 @@ import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.api.Endpoints;
@@ -75,7 +76,6 @@ public class UserBrowser extends ScActivity implements
     private FollowStatus mFollowStatus;
     private UserFragmentAdapter mAdapter;
     private FetchUserTask mLoadUserTask;
-    private UserStorage mUserStorage;
     protected ViewPager mPager;
     protected TitlePageIndicator mIndicator;
 
@@ -337,7 +337,10 @@ public class UserBrowser extends ScActivity implements
 
     private boolean loadUserByUri(Uri uri) {
         if (uri != null) {
-            mUser = mUserStorage.getUserByUri(uri);
+            mUser = new UserStorage(this).getUserByUri(uri); //FIXME: DB access on UI thread
+            if (mUser == null) {
+                loadUserById(UriUtils.getLastSegmentAsLong(uri));
+            }
         }
         return mUser != null;
     }

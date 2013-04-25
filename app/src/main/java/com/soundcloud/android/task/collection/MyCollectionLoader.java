@@ -3,6 +3,7 @@ package com.soundcloud.android.task.collection;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.UserAssociationStore;
 import com.soundcloud.android.model.Friend;
@@ -81,15 +82,15 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
         if (itemsCursor != null) {
             while (itemsCursor.moveToNext())
                 if (Track.class.equals(resourceType)) {
-                    items.add(new Track(itemsCursor));
+                    items.add(SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(itemsCursor));
                 } else if (User.class.equals(resourceType)) {
-                    items.add(new User(itemsCursor));
+                    items.add(SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(itemsCursor));
                 } else if (Friend.class.equals(resourceType)) {
-                    items.add(new Friend(new User(itemsCursor)));
+                    items.add(new Friend(SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(itemsCursor)));
                 } else if (SoundAssociation.class.equals(resourceType)) {
                     items.add(new SoundAssociation(itemsCursor));
                 } else if (Playlist.class.equals(resourceType)) {
-                    items.add(new Playlist(itemsCursor));
+                    items.add(SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(itemsCursor));
                 } else {
                     throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
                 }

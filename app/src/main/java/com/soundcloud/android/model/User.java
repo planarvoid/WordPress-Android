@@ -237,7 +237,7 @@ public class User extends ScResource implements Refreshable {
         }
     }
 
-    public static User fromTrackView(Cursor cursor) {
+    public static User fromSoundView(Cursor cursor) {
         User u = new User();
         u.id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
         u.username = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USERNAME));
