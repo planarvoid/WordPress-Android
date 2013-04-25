@@ -76,7 +76,7 @@ public class FacebookWebFlow extends AbstractLoginActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(final WebView view, String url) {
-                if (url.startsWith(AndroidCloudAPI.REDIRECT_URI.toString())) {
+                if (url.startsWith(AndroidCloudAPI.ANDROID_REDIRECT_URI.toString())) {
                     Uri result = Uri.parse(url);
                     String error = result.getQueryParameter("error");
                     String code = result.getQueryParameter("code");
