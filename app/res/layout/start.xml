@@ -10,8 +10,8 @@
                                                         android:layout_height="fill_parent"
                                                         android:visibility="gone"/>
         <ImageView android:id="@+id/tour_logo"
-                   android:layout_width="110dp"
-                   android:layout_height="110dp"
+                   android:layout_width="@dimen/tour_logo_dimension"
+                   android:layout_height="@dimen/tour_logo_dimension"
                    android:tag="foreground"
                    android:src="@drawable/tour_logo"
                    android:layout_alignParentTop="true"
@@ -52,11 +52,10 @@
 
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"/>
-
-            <View android:id="@+id/splash"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"
-                  android:background="@drawable/splash_screen"/>
         </FrameLayout>
     </ScrollView>
+    <View android:id="@+id/splash"
+          android:layout_width="fill_parent"
+          android:layout_height="fill_parent"
+          android:background="@drawable/splash_screen"/>
 </RelativeLayout>

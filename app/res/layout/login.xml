@@ -36,8 +36,7 @@
         </TableLayout>
 
         <LinearLayout android:layout_width="fill_parent"
-                      android:layout_height="@dimen/tour_bottom_bar_height"
-
+                      android:layout_height="@dimen/tour_buttons_height"
                       android:layout_marginTop="10dip">
             <Button style="@style/Tour.Button"
                     android:id="@+id/btn_cancel"
