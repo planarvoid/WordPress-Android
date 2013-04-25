@@ -105,6 +105,12 @@
             <name>SoundCloud Internal proxy</name>
             <url>http://maven.int.s-cloud.net/content/groups/proxy</url>
         </repository>
+
+        <repository>
+            <id>soundcloud.internal.thirdparty.releases</id>
+            <name>SoundCloud Internal thirdparty</name>
+            <url>http://maven.int.s-cloud.net/content/repositories/thirdparty_releases</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
