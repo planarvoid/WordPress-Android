@@ -39,6 +39,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Date;
 
 /**
@@ -181,34 +182,43 @@ public class FacebookSSO extends AbstractLoginActivity {
         return intent;
     }
 
+    private static final class ExtendTokenHandler extends Handler {
+        private WeakReference<Context> mContextRef;
+
+        private ExtendTokenHandler(Context context) {
+            this.mContextRef = new WeakReference<Context>(context);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final Context context = mContextRef.get();
+            String aToken = msg.getData().getString(TOKEN);
+            long expiresAt = msg.getData().getLong(EXPIRES) * 1000L;
+            if (context != null && aToken != null) {
+                FBToken extendedToken = new FBToken(aToken, expiresAt);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "token refreshed via service: " + aToken + " ===> " + extendedToken);
+                }
+
+                if (!extendedToken.isExpired() && !extendedToken.isShortLived()) {
+                    extendedToken.store(context);
+                    extendedToken.sendToBackend(context);
+                } else {
+                    // either expired or short-lived, no point sending back to back-end
+                    Log.w(TAG, "not a valid token: " + extendedToken);
+                }
+            } else {
+                Log.w(TAG, "token is null or context expired");
+            }
+        }
+    }
+
     /* package */ static boolean extendAccessToken(final FBToken token, final Context context) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "extendAccessToken("+token+")");
         return token.accessToken != null &&
                 validateServiceIntent(context, getRefreshIntent()) &&
                 context.bindService(getRefreshIntent(), new ServiceConnection() {
-                    private final Messenger messenger = new Messenger(new Handler() {
-                        @Override
-                        public void handleMessage(Message msg) {
-                            String aToken = msg.getData().getString(TOKEN);
-                            long expiresAt = msg.getData().getLong(EXPIRES) * 1000L;
-                            if (aToken != null) {
-                                FBToken extendedToken = new FBToken(aToken, expiresAt);
-                                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                    Log.d(TAG, "token refreshed via service: " + token + " ===> " + extendedToken);
-                                }
-
-                                if (!extendedToken.isExpired() && !extendedToken.isShortLived()) {
-                                    extendedToken.store(context);
-                                    extendedToken.sendToBackend(context);
-                                } else {
-                                    // either expired or short-lived, no point sending back to back-end
-                                    Log.w(TAG, "not a valid token: " + extendedToken);
-                                }
-                            } else {
-                                Log.w(TAG, "token is null");
-                            }
-                        }
-                    });
+                    private final Messenger messenger = new Messenger(new ExtendTokenHandler(context));
                     private Messenger sender;
 
                     @Override

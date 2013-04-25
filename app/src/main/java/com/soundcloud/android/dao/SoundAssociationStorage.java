@@ -91,11 +91,11 @@ public class SoundAssociationStorage {
         return repost;
     }
 
-    public SoundAssociation addPlaylistCreation(Playlist playlist) {
-        playlist.created_at = new Date();
-        SoundAssociation playlistCreation = new SoundAssociation(playlist);
-        mSoundAssociationDAO.create(playlistCreation);
-        return playlistCreation;
+    public SoundAssociation addCreation(Playable playable) {
+        SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK : SoundAssociation.Type.PLAYLIST;
+        SoundAssociation creation = new SoundAssociation(playable, playable.created_at, assocType);
+        mSoundAssociationDAO.create(creation);
+        return creation;
     }
 
     public List<SoundAssociation> getSoundStreamItemsForCurrentUser() {

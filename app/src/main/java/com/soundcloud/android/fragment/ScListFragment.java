@@ -63,6 +63,8 @@ import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
+import java.lang.ref.WeakReference;
+
 public class ScListFragment extends SherlockListFragment implements PullToRefreshBase.OnRefreshListener,
                                                             DetachableResultReceiver.Receiver,
                                                             LocalCollection.OnChangeListener,
@@ -80,6 +82,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private @Nullable Content mContent;
     private @NotNull Uri mContentUri;
     private NetworkConnectivityListener connectivityListener;
+    private Handler connectivityHandler;
     private @Nullable CollectionTask mRefreshTask;
     private @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
@@ -133,7 +136,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public void onStart() {
         super.onStart();
         connectivityListener = new NetworkConnectivityListener();
-        connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
+        connectivityHandler = new ConnectivityHandler(this, connectivityListener);
+        connectivityListener.registerHandler(connectivityHandler, CONNECTIVITY_MSG);
 
         IntentFilter playbackFilter = new IntentFilter();
         playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
@@ -290,12 +294,13 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 EmptyListView.fromContent(context, mContent) : mEmptyListView);
 
         mListView.setEmptyView(mEmptyListView);
+        configurePullToRefreshState();
 
         if (isRefreshing() || waitingOnInitialSync()){
             final ScBaseAdapter listAdapter = getListAdapter();
             if (listAdapter == null || listAdapter.isEmpty()){
                 configureEmptyView();
-            } else {
+            } else if (isRefreshing()){
                 mListView.setRefreshing(false);
             }
         }
@@ -373,7 +378,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void checkAllowInitalAppend() {
         log("Should allow initial appending: [waitingOnInitialSync:" + waitingOnInitialSync() + ",mKeepGoing:" + mKeepGoing + "]"  );
         final ScBaseAdapter adapter = getListAdapter();
-        if (!mKeepGoing && !waitingOnInitialSync() && adapter != null && adapter.getItemCount() == 0) {
+        if (!mKeepGoing && !waitingOnInitialSync() && adapter != null && adapter.needsItems()) {
             mKeepGoing = true;
             append(false);
         }
@@ -382,12 +387,23 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     @Override
     public void onLocalCollectionChanged(LocalCollection localCollection) {
         mLocalCollection = localCollection;
+        configurePullToRefreshState();
         log("Local collection changed " + mLocalCollection);
         // do not autorefresh me_followings based on observing because this would refresh everytime you use the in list toggles
-        if (mContent != Content.ME_FOLLOWINGS || getListAdapter().isEmpty()) {
+        if (mContent != Content.ME_FOLLOWINGS || getListAdapter().needsItems()) {
             refreshSyncData();
         } else {
             checkAllowInitalAppend();
+        }
+    }
+
+    private void configurePullToRefreshState() {
+        if (mListView != null){
+            if (mLocalCollection.isIdle()) {
+                if (mListView.isRefreshing()) mListView.onRefreshComplete();
+            } else if (!mListView.isRefreshing()){
+                mListView.setRefreshing(false);
+            }
         }
     }
 
@@ -682,22 +698,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mAppendTask = null;
     }
 
-    private final Handler connHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case CONNECTIVITY_MSG:
-                        if (connectivityListener != null) {
-                            final NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
-                            if (networkInfo != null) {
-                                onDataConnectionUpdated(networkInfo.isConnectedOrConnecting());
-                            }
-                        }
-                        break;
-                }
-            }
-        };
-
     private void append(boolean force) {
         final Context context = getActivity();
         final ScBaseAdapter adapter = getListAdapter();
@@ -708,6 +708,32 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mAppendTask.executeOnThreadPool(getTaskParams(adapter, false));
         }
         adapter.setIsLoadingData(true);
+    }
+
+    private static final class ConnectivityHandler extends Handler {
+        private WeakReference<ScListFragment> mFragmentRef;
+        private WeakReference<NetworkConnectivityListener> mListenerRef;
+
+        private ConnectivityHandler(ScListFragment fragment, NetworkConnectivityListener listener) {
+            this.mFragmentRef = new WeakReference<ScListFragment>(fragment);
+            this.mListenerRef = new WeakReference<NetworkConnectivityListener>(listener);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final ScListFragment fragment = mFragmentRef.get();
+            final NetworkConnectivityListener listener = mListenerRef.get();
+            switch (msg.what) {
+                case CONNECTIVITY_MSG:
+                    if (fragment != null && listener != null) {
+                        final NetworkInfo networkInfo = listener.getNetworkInfo();
+                        if (networkInfo != null) {
+                            fragment.onDataConnectionUpdated(networkInfo.isConnectedOrConnecting());
+                        }
+                    }
+                    break;
+            }
+        }
     }
 
     private class ChangeObserver extends ContentObserver {

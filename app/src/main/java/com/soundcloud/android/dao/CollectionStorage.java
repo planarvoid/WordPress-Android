@@ -61,8 +61,8 @@ public class CollectionStorage {
         );
     }
 
-    public int getLikesCount() {
-        return getDaoForContent(Content.ME_LIKES).count();
+    public void clear() {
+        getDaoForContent(Content.COLLECTION_ITEMS).deleteAll();
     }
 
     /**

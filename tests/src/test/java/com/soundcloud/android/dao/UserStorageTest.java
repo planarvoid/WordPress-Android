@@ -1,27 +1,12 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import org.junit.Ignore;
+import org.junit.runner.RunWith;
+
+@Ignore
+@RunWith(DefaultTestRunner.class)
 public class UserStorageTest {
-
-
-    /*
-    SCMODEL TESTZ
-
-    @Test
-    public void shouldInsertUserWithDescriptionIfCurrentUser() throws Exception {
-        User u = new User();
-        u.id = USER_ID;
-        u.description = "i make beatz";
-
-        Uri uri = manager.write(u);
-        expect(uri).not.toBeNull();
-
-        User u2 = manager.getUser(uri);
-        expect(u2).not.toBeNull();
-        expect(u2.description).toEqual("i make beatz");
-    }
-
-
-     */
 
 
 }

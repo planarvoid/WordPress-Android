@@ -178,7 +178,7 @@ public class ActionBarController {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (mActivity instanceof ScPlayer && mNowPlaying != null) {
-                mNowPlaying.onReceive(intent);
+                mNowPlaying.getStatusListener().onReceive(context, intent);
             }
 
             if (intent.getAction().equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
