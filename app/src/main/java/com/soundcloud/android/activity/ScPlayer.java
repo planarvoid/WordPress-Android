@@ -6,6 +6,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.getPl
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -16,6 +17,7 @@ import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.PlayerTrackPager;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
@@ -262,10 +264,12 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             } else if (Intent.ACTION_VIEW.equals(action)) {
                 // Play from a View Intent, this probably came from quicksearch
                 if (intent.getData() != null) {
+                    //FIXME: DB access on UI thread
                     displayTrack = new TrackStorage(this).getTrack(intent.getData());
-                    if (displayTrack != null) {
-                        startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
+                    if (displayTrack == null) {
+                        displayTrack = SoundCloudApplication.MODEL_MANAGER.cache(new Track(UriUtils.getLastSegmentAsLong(intent.getData())));
                     }
+                    startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
                 }
             }
         }
