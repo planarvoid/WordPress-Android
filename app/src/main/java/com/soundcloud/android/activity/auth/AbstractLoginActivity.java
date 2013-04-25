@@ -32,9 +32,7 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        mAccountAuthenticatorResponse =
-                getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
-
+        mAccountAuthenticatorResponse = getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
         if (mAccountAuthenticatorResponse != null) {
             mAccountAuthenticatorResponse.onRequestContinued();
         }
@@ -46,8 +44,7 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
             if (mResultBundle != null) {
                 mAccountAuthenticatorResponse.onResult(mResultBundle);
             } else {
-                mAccountAuthenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED,
-                        "canceled");
+                mAccountAuthenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED, "canceled");
             }
             mAccountAuthenticatorResponse = null;
         }
@@ -98,5 +95,9 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
                         .show();
             }
         }
+    }
+
+    protected void setBundle(Bundle bundle){
+        this.mResultBundle = bundle;
     }
 }
