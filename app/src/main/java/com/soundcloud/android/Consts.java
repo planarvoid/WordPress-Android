@@ -89,7 +89,7 @@ public final class Consts {
     public enum GraphicSize {
         T500("t500x500", 500, 500),
         CROP("crop", 400, 400),
-        T300("t300x300", 300, 400),
+        T300("t300x300", 300, 300),
         LARGE("large", 100, 100),
         T67("t67x67", 67, 67),
         BADGE("badge", 47, 47),

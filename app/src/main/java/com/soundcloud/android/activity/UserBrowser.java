@@ -111,11 +111,6 @@ public class UserBrowser extends ScActivity implements
 
         setTextShadowForGrayBg(mUsername, mFullName, mFollowerCount, mTrackCount);
 
-        if (getResources().getDisplayMetrics().density > 1 || ImageUtils.isScreenXL(this)) {
-            mIcon.getLayoutParams().width = 100;
-            mIcon.getLayoutParams().height = 100;
-        }
-
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
