@@ -9,6 +9,7 @@ import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.dialog.auth.AddUserInfoTaskFragment;
 import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.dialog.auth.LoginTaskFragment;
@@ -318,10 +319,10 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onSkipDetails() {
-        new AuthTask(getApp()){
+        new AuthTask(getApp(), new UserStorage(getApp())){
             @Override
             protected AuthTaskResult doInBackground(Bundle... params) {
-                addAccount(mUser,SignupVia.API);
+                addAccount(mUser, getSoundCloudApplication().getToken(), SignupVia.API);
                 return null;
             }
 

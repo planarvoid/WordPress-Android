@@ -3,7 +3,8 @@ package com.soundcloud.android.task.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.activity.auth.TokenUtil;
+import com.soundcloud.android.activity.auth.TokenInformationGenerator;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.Log;
@@ -18,13 +19,18 @@ import java.io.IOException;
 
 public class LoginTask extends AuthTask {
 
-    private TokenUtil tokenUtils;
+    protected TokenInformationGenerator tokenUtils;
     private FetchUserTask fetchUserTask;
 
-    public LoginTask(@NotNull SoundCloudApplication application, TokenUtil tokenUtils, FetchUserTask fetchUserTask) {
-        super(application);
+    protected LoginTask(@NotNull SoundCloudApplication application, TokenInformationGenerator tokenUtils,
+                     FetchUserTask fetchUserTask, UserStorage userStorage) {
+        super(application, userStorage);
         this.tokenUtils = tokenUtils;
         this.fetchUserTask = fetchUserTask;
+    }
+
+    public LoginTask(@NotNull SoundCloudApplication application){
+        this(application, new TokenInformationGenerator(), new FetchUserTask(application), new UserStorage(application));
     }
 
     @Override
@@ -36,7 +42,7 @@ public class LoginTask extends AuthTask {
         SoundCloudApplication app = getSoundCloudApplication();
 
         try {
-            Token token = tokenUtils.getToken(app, TokenUtil.configureDefaultScopeExtra(data));
+            Token token = tokenUtils.getToken(app, tokenUtils.configureDefaultScopeExtra(data));
             Log.d("LoginTask[Token](" + token + ")");
 
             final User user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));
@@ -46,7 +52,7 @@ public class LoginTask extends AuthTask {
             Log.d("LoginTask[User](" + user + ")");
 
             SignupVia signupVia = token.getSignup() != null ? SignupVia.fromString(token.getSignup()) : SignupVia.NONE;
-            if (!addAccount(user, signupVia)) {
+            if (!addAccount(user, token, signupVia)) {
                 // might mean the account already existed or an unknown failure adding account.
                 // this should never happen, just show a generic error message
                 return AuthTaskResult.failure(app.getString(R.string.authentication_login_error_message));

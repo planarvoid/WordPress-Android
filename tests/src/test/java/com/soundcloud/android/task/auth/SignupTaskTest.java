@@ -3,7 +3,8 @@ package com.soundcloud.android.task.auth;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.auth.TokenUtil;
+import com.soundcloud.android.activity.auth.TokenInformationGenerator;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -22,12 +23,12 @@ import java.util.Arrays;
 public class SignupTaskTest {
 
     private SignupTask signupTask;
-    @Mock
-    private TokenUtil tokenUtil;
+    @Mock private TokenInformationGenerator tokenInformationGenerator;
+    @Mock private UserStorage userStorage;
 
     @Before
     public void setUp() throws Exception {
-        signupTask = new SignupTask(DefaultTestRunner.application, tokenUtil);
+        signupTask = new SignupTask(DefaultTestRunner.application, tokenInformationGenerator, userStorage);
     }
 
     @Test

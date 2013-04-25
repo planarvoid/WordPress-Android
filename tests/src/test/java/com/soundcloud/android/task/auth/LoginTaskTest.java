@@ -9,7 +9,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.activity.auth.TokenUtil;
+import com.soundcloud.android.activity.auth.TokenInformationGenerator;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.task.fetch.FetchUserTask;
@@ -29,29 +30,24 @@ import java.io.IOException;
 @RunWith(DefaultTestRunner.class)
 public class LoginTaskTest {
     private LoginTask loginTask;
-    @Mock
-    private SoundCloudApplication application;
-    @Mock
-    private TokenUtil tokenUtil;
-    @Mock
-    private Bundle bundle;
-    @Mock
-    private FetchUserTask fetchUserTask;
-    @Mock
-    private Token token;
-    @Mock
-    private User user;
+    @Mock private SoundCloudApplication application;
+    @Mock private TokenInformationGenerator tokenInformationGenerator;
+    @Mock private Bundle bundle;
+    @Mock private FetchUserTask fetchUserTask;
+    @Mock private Token token;
+    @Mock private User user;
+    @Mock private UserStorage userStorage;
 
     @Before
     public void setUp() throws IOException {
         initMocks(this);
-        loginTask = new LoginTask(application, tokenUtil, fetchUserTask);
+        loginTask = new LoginTask(application, tokenInformationGenerator, fetchUserTask, userStorage);
     }
 
     @Test
     public void shouldRequestTokenBasedOnBundleContents() throws Exception {
         loginTask.doInBackground(bundle);
-        verify(tokenUtil).getToken(application, bundle);
+        verify(tokenInformationGenerator).getToken(application, bundle);
     }
 
     @Test
@@ -73,9 +69,7 @@ public class LoginTaskTest {
 
     @Test
     public void shouldSpecifyOriginOfTokenIfTokenIsFromAPI() throws IOException {
-        when(tokenUtil.getToken(application, bundle)).thenReturn(token);
-        when(application.getToken()).thenReturn(token);
-        when(fetchUserTask.resolve(any(Request.class))).thenReturn(user);
+        setupMocksToReturnToken();
         when(token.getSignup()).thenReturn("api");
         loginTask.doInBackground(bundle);
         verify(application).addUserAccountAndEnableSync(user, token, SignupVia.API);
@@ -83,11 +77,33 @@ public class LoginTaskTest {
 
     @Test
     public void shouldNotSpecifySignupOriginIfTokenHasNoOriginString() throws IOException{
-        when(tokenUtil.getToken(application, bundle)).thenReturn(token);
-        when(application.getToken()).thenReturn(token);
-        when(fetchUserTask.resolve(any(Request.class))).thenReturn(user);
+        setupMocksToReturnToken();
         when(token.getSignup()).thenReturn(null);
         loginTask.doInBackground(bundle);
         verify(application).addUserAccountAndEnableSync(user, token, SignupVia.NONE);
+    }
+
+
+    @Test
+    public void shouldReturnFailureResultIfAddingAccountFails() throws IOException {
+        setupMocksToReturnToken();
+        when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(false);
+        assertThat(loginTask.doInBackground(bundle).wasSuccess(), is(false));
+
+    }
+
+    @Test
+    public void shouldReturnSuccessResultIfAddingAccountSucceeds() throws IOException {
+        setupMocksToReturnToken();
+        when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
+        assertThat(loginTask.doInBackground(bundle).wasSuccess(), is(true));
+
+    }
+
+
+    private void setupMocksToReturnToken() throws IOException {
+        when(tokenInformationGenerator.getToken(application, bundle)).thenReturn(token);
+        when(application.getToken()).thenReturn(token);
+        when(fetchUserTask.resolve(any(Request.class))).thenReturn(user);
     }
 }

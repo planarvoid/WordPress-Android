@@ -10,14 +10,13 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.api.Token;
 import org.apache.http.HttpResponse;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,10 +26,12 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
     private static final int ME_SYNC_DELAY_MILLIS = 30 * 1000;
 
     private final SoundCloudApplication mApp;
+    private UserStorage mUserStorage;
     private AuthTaskFragment mFragment;
 
-    public AuthTask(SoundCloudApplication application) {
-        mApp = application;
+    public AuthTask(SoundCloudApplication application, UserStorage userStorage) {
+        this.mApp = application;
+        this.mUserStorage = userStorage;
     }
 
     public void setTaskOwner(AuthTaskFragment taskOwner) {
@@ -48,10 +49,9 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
         mFragment.onTaskResult(result);
     }
 
-    protected Boolean addAccount(User user, SignupVia via) {
-        boolean accountCreated = mApp.addUserAccountAndEnableSync(user, mApp.getToken(), via);
-        if (accountCreated) {
-            new UserStorage(mApp).createOrUpdate(user);
+    protected Boolean addAccount(User user, Token token, SignupVia via) {
+        if (mApp.addUserAccountAndEnableSync(user, token, via)) {
+            mUserStorage.createOrUpdate(user);
             if (via != SignupVia.NONE) {
                 // user has signed up, schedule sync of user data to possibly refresh image data
                 // which gets processed asynchronously by the backend and is only available after signup has happened

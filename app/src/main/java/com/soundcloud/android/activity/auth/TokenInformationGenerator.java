@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-public class TokenUtil {
+public class TokenInformationGenerator {
 
     public static final String[] DEFAULT_SCOPES = {Token.SCOPE_NON_EXPIRING};
 
@@ -19,13 +19,13 @@ public class TokenUtil {
         String PASSWORD_EXTRA = "password";
     }
 
-    public static Bundle getGrantBundle(String grantType, String token) {
+    public Bundle getGrantBundle(String grantType, String token) {
         Bundle bundle = new Bundle();
         bundle.putString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA, grantType + token);
         return bundle;
     }
 
-    public static Bundle configureDefaultScopeExtra(Bundle data) {
+    public Bundle configureDefaultScopeExtra(Bundle data) {
         if (!data.containsKey(TokenKeys.SCOPES_EXTRA)) {
             data.putStringArray(TokenKeys.SCOPES_EXTRA, DEFAULT_SCOPES);
         }
@@ -36,7 +36,7 @@ public class TokenUtil {
         final String[] scopes = param.getStringArray(TokenKeys.SCOPES_EXTRA);
 
         if (param.containsKey(TokenKeys.CODE_EXTRA)) {
-            return app.authorizationCode(param.getString(TokenUtil.TokenKeys.CODE_EXTRA), scopes);
+            return app.authorizationCode(param.getString(TokenKeys.CODE_EXTRA), scopes);
 
         } else if (param.containsKey(TokenKeys.USERNAME_EXTRA)
                 && param.containsKey(TokenKeys.PASSWORD_EXTRA)) {
@@ -44,7 +44,7 @@ public class TokenUtil {
                     param.getString(TokenKeys.PASSWORD_EXTRA), scopes);
 
         } else if (param.containsKey(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA)) {
-            return app.extensionGrantType(param.getString(TokenUtil.TokenKeys.EXTENSION_GRANT_TYPE_EXTRA), scopes);
+            return app.extensionGrantType(param.getString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA), scopes);
 
         } else {
             throw new IllegalArgumentException("invalid param " + param);

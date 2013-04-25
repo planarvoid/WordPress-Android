@@ -3,8 +3,8 @@ package com.soundcloud.android.task.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.activity.auth.TokenUtil;
-import com.soundcloud.android.dialog.auth.AuthTaskFragment;
+import com.soundcloud.android.activity.auth.TokenInformationGenerator;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
@@ -23,11 +23,15 @@ public class SignupTask extends AuthTask {
 
     public static final String KEY_USERNAME = "username";
     public static final String KEY_PASSWORD = "password";
-    private TokenUtil tokenUtil;
+    private TokenInformationGenerator tokenInformationGenerator;
 
-    public SignupTask(SoundCloudApplication app, TokenUtil tokenUtil) {
-        super(app);
-        this.tokenUtil = tokenUtil;
+    protected SignupTask(SoundCloudApplication app, TokenInformationGenerator tokenInformationGenerator, UserStorage userStorage) {
+        super(app, userStorage);
+        this.tokenInformationGenerator = tokenInformationGenerator;
+    }
+
+    public SignupTask(SoundCloudApplication soundCloudApplication){
+        this(soundCloudApplication, new TokenInformationGenerator(), new UserStorage(soundCloudApplication));
     }
 
     @Override
@@ -39,7 +43,7 @@ public class SignupTask extends AuthTask {
             // do token exchange
             Token token;
             try {
-                token = tokenUtil.getToken(getSoundCloudApplication(), params[0]);
+                token = tokenInformationGenerator.getToken(getSoundCloudApplication(), params[0]);
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
                     return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }

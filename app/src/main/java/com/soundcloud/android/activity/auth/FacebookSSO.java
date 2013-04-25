@@ -68,10 +68,12 @@ public class FacebookSSO extends AbstractLoginActivity {
     public static final String ACCESS_DENIED = "access_denied";
     public static final String ACCESS_DENIED_EXCEPTION = "OAuthAccessDeniedException";
     private Bundle mLoginBundle;
+    private TokenInformationGenerator tokenInformationGenerator;
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        tokenInformationGenerator = new TokenInformationGenerator();
         Intent auth = getAuthIntent(this, DEFAULT_PERMISSIONS);
         if (validateAppSignatureForIntent(auth)) {
             startActivityForResult(auth, 0);
@@ -105,7 +107,7 @@ public class FacebookSSO extends AbstractLoginActivity {
                 }
                 token.store(this);
                 // save login bundle for login in onResume
-                mLoginBundle = TokenUtil.getGrantBundle(CloudAPI.FACEBOOK_GRANT_TYPE, token.accessToken);
+                mLoginBundle = tokenInformationGenerator.getGrantBundle(CloudAPI.FACEBOOK_GRANT_TYPE, token.accessToken);
 
             } catch (SSOException e) {
                 Log.w(TAG, "error getting Facebook token", e);

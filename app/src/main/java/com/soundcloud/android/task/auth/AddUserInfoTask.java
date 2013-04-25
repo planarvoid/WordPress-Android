@@ -3,7 +3,7 @@ package com.soundcloud.android.task.auth;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.dialog.auth.AuthTaskFragment;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Endpoints;
@@ -22,10 +22,14 @@ public class AddUserInfoTask extends AuthTask {
     private User mUpdatedUser;
     private File mAvatarFile;
 
-    public AddUserInfoTask(SoundCloudApplication app, User updatedUser, File avatarFile) {
-        super(app);
+    protected AddUserInfoTask(SoundCloudApplication app, User updatedUser, File avatarFile, UserStorage userStorage) {
+        super(app, userStorage);
         mUpdatedUser = updatedUser;
         mAvatarFile = avatarFile;
+    }
+
+    public AddUserInfoTask(SoundCloudApplication application, User updatedUser, File avatarFile){
+        this(application, updatedUser, avatarFile, new UserStorage(application));
     }
 
     @Override
@@ -44,7 +48,7 @@ public class AddUserInfoTask extends AuthTask {
             switch (resp.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_OK:
                     User u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
-                    addAccount(u, SignupVia.API);
+                    addAccount(u, getSoundCloudApplication().getToken(), SignupVia.API);
                     return AuthTaskResult.success(u, SignupVia.API);
 
                 case HttpStatus.SC_UNPROCESSABLE_ENTITY:
