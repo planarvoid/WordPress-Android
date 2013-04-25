@@ -273,9 +273,11 @@ public final class AnimUtils {
 
     public static void showView(Context context, final View view, boolean animated) {
         view.clearAnimation();
-        view.setVisibility(View.VISIBLE);
-        if (animated) {
-            view.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_in));
+        if (view.getVisibility() != View.VISIBLE){
+            view.setVisibility(View.VISIBLE);
+            if (animated) {
+                view.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_in));
+            }
         }
     }
 }

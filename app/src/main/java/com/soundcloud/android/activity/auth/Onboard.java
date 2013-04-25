@@ -71,8 +71,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Nullable private User mUser;
 
-    private View mTourBottomBar;
-    private View mTourLogo;
+    private View mTourBottomBar, mTourLogo, mOverlayBg;
 
     private List<TourLayout> mTourPages;
 
@@ -92,6 +91,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         mTourBottomBar = findViewById(R.id.tour_bottom_bar);
         mTourLogo      = findViewById(R.id.tour_logo);
         mViewPager     = (ViewPager) findViewById(R.id.tour_view);
+        mOverlayBg      = findViewById(R.id.overlay_bg);
 
         mTourPages = new ArrayList<TourLayout>();
         mTourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
@@ -367,7 +367,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 showForegroundViews(false);
 
                 showView(this, mViewPager, false);
-
+                hideView(this, mOverlayBg, animated);
                 hideView(this, getLogin(), animated);
                 hideView(this, getSignUp(), animated);
                 hideView(this, getUserDetails(), animated);
@@ -376,26 +376,27 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             case LOGIN:
                 hideForegroundViews(animated);
 
+                showView(this, mOverlayBg, animated);
                 showView(this, mViewPager, animated);
                 showView(this, getLogin(), animated);
                 hideView(this, getSignUp(), animated);
                 hideView(this, getUserDetails(), animated);
-                findViewById(R.id.auto_txt_email_address).requestFocus();
                 break;
 
             case SIGN_UP:
                 hideForegroundViews(animated);
 
+                showView(this, mOverlayBg, animated);
                 showView(this, mViewPager, animated);
                 hideView(this, getLogin(), animated);
                 showView(this, getSignUp(), animated);
                 hideView(this, getUserDetails(), animated);
-                findViewById(R.id.auto_txt_email_address).requestFocus();
                 break;
 
             case SIGN_UP_DETAILS:
                 hideForegroundViews(animated);
 
+                showView(this, mOverlayBg, animated);
                 showView(this, mViewPager, animated);
                 hideView(this, getLogin(), animated);
                 hideView(this, getSignUp(), animated);
