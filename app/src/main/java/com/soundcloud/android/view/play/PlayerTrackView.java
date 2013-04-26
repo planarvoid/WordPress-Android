@@ -4,8 +4,6 @@ import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
-import android.app.ActivityManager;
-import android.view.animation.AnimationUtils;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -27,6 +25,7 @@ import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -35,6 +34,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -93,8 +93,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         findViewById(R.id.btn_addToSet).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyPlaylistsDialogFragment.from(mTrack).show(
-                        mPlayer.getSupportFragmentManager(), "playlist_dialog");
+                if (mTrack != null){
+                    MyPlaylistsDialogFragment.from(mTrack).show(
+                            mPlayer.getSupportFragmentManager(), "playlist_dialog");
+                }
             }
         });
 
