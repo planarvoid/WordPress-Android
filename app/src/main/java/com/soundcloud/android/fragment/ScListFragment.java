@@ -96,6 +96,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     private SyncStateManager mSyncStateManager;
 
+    private int mRetainedListPosition;
+
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
     }
@@ -156,6 +158,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
         final ScBaseAdapter listAdapter = getListAdapter();
         if (listAdapter instanceof PlayableAdapter) listAdapter.notifyDataSetChanged();
+
+        if (mRetainedListPosition > 0) {
+            mListView.getRefreshableView().setSelection(mRetainedListPosition);
+        }
     }
 
     @Override
@@ -167,6 +173,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             getActivity().unregisterReceiver(mPlaylistChangedReceiver);
         }
         mIgnorePlaybackStatus = false;
+        mRetainedListPosition = mListView.getRefreshableView().getFirstVisiblePosition();
     }
 
     @Override
