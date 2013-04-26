@@ -93,7 +93,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         findViewById(R.id.btn_addToSet).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTrack != null){
+                if (mTrack != null && mPlayer.isForeground()){
                     MyPlaylistsDialogFragment.from(mTrack).show(
                             mPlayer.getSupportFragmentManager(), "playlist_dialog");
                 }
