@@ -1,5 +1,14 @@
 package com.soundcloud.android.view.play;
 
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.ScTextUtils;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -11,15 +20,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 
 public class CommentPanel extends RelativeLayout {
 
@@ -93,15 +93,16 @@ public class CommentPanel extends RelativeLayout {
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                if (mComment != null && mComment.track != null){
                     mPlayer.addNewComment(
                             Comment.build(
-                                mComment.track,
-                                mPlayer.getApp().getLoggedInUser(),
-                                mComment.timestamp,
-                                "",
-                                mComment.id,
-                                mComment.user.username));
-
+                                    mComment.track,
+                                    mPlayer.getApp().getLoggedInUser(),
+                                    mComment.timestamp,
+                                    "",
+                                    mComment.id,
+                                    mComment.user.username));
+                }
                 return true;
             }
         });
