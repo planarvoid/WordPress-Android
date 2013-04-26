@@ -39,10 +39,12 @@ import java.io.IOException;
 
     public void onQueued() {
         localCollection = LocalCollection.fromContentUri(contentUri, context.getContentResolver(), true);
-        if (localCollection == null){
-            throw new IllegalStateException("Unable to create collection for uri " + contentUri);
+        if (localCollection != null) {
+            localCollection.updateSyncState(LocalCollection.SyncState.PENDING, context.getContentResolver());
+        } else {
+            // Happens with database locking. This should just return with an unsuccessful result below
+            Log.e(TAG, "Unable to create collection for uri " + contentUri);
         }
-        localCollection.updateSyncState(LocalCollection.SyncState.PENDING, context.getContentResolver());
     }
 
     /**
@@ -50,7 +52,10 @@ import java.io.IOException;
      * @return
      */
     public CollectionSyncRequest execute() {
-        if (localCollection == null) throw new IllegalStateException("request has not been queued");
+        if (localCollection == null) {
+            Log.e(TAG, "No local collection available :" + contentUri);
+            return this;
+        }
 
         // make sure all requests going out on this thread have the background parameter set
         AndroidCloudAPI.Wrapper.setBackgroundMode(!isUI);
