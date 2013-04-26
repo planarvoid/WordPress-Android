@@ -379,7 +379,7 @@ public class ScContentProvider extends ContentProvider {
         String limit = uri.getQueryParameter(Parameter.LIMIT);
         String offset = uri.getQueryParameter(Parameter.OFFSET);
         if (limit != null && offset != null) {
-            return limit + "," + offset;
+            return offset + "," + limit;
         }
         return limit;
     }

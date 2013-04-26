@@ -484,16 +484,17 @@ public class ScContentProviderTest {
     public void shouldSupportOffsetParameter() {
         TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(1));
         TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(2));
+        TestHelper.insertWithDependencies(Content.TRACKS.uri, new Track(3));
 
-        expect(Content.TRACKS).toHaveCount(2);
+        expect(Content.TRACKS).toHaveCount(3);
 
         Uri limitedUri = Content.TRACKS.uri.buildUpon()
                 .appendQueryParameter("limit", "1")
-                .appendQueryParameter("offset", "1").build();
+                .appendQueryParameter("offset", "2").build();
         Cursor cursor = resolver.query(limitedUri, null, null, null, null);
         expect(cursor).toHaveCount(1);
         cursor.moveToFirst();
-        expect(cursor).toHaveColumn(BaseColumns._ID, 2L);
+        expect(cursor).toHaveColumn(BaseColumns._ID, 3L);
     }
 
 }
