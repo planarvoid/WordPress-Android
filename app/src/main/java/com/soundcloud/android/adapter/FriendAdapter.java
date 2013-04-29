@@ -17,13 +17,13 @@ public class FriendAdapter extends ScBaseAdapter<Friend> implements FollowStatus
     }
 
     @Override
-    protected IconLayout createRow(int position) {
-        return new UserlistRow(mContext);
+    protected IconLayout createRow(Context context, int position) {
+        return new UserlistRow(context);
     }
 
     @Override
-    public int handleListItemClick(int position, long id) {
-        mContext.startActivity(new Intent(mContext, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER, getItem(position).user));
+    public int handleListItemClick(Context context, int position, long id) {
+        context.startActivity(new Intent(context, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER, getItem(position).user));
         return ItemClickResults.LEAVING;
     }
 

@@ -16,13 +16,13 @@ public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> imp
     }
 
     @Override
-    protected IconLayout createRow(int position) {
-        return new PlayableRow(mContext);
+    protected IconLayout createRow(Context context, int position) {
+        return new PlayableRow(context);
     }
 
     @Override
-    public int handleListItemClick(int position, long id) {
-        PlayUtils.playFromAdapter(mContext, this, mData, position);
+    public int handleListItemClick(Context context, int position, long id) {
+        PlayUtils.playFromAdapter(context, this, mData, position);
         return ItemClickResults.LEAVING;
     }
 

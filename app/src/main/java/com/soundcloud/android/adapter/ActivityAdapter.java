@@ -65,36 +65,36 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     }
 
     @Override
-    protected IconLayout createRow(int position) {
+    protected IconLayout createRow(Context context, int position) {
         Activity.Type type = Activity.Type.values()[getItemViewType(position)];
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-                return new PlayableRow(mContext);
+                return new PlayableRow(context);
 
             case TRACK_REPOST:
             case PLAYLIST_REPOST:
                 return (mContent == Content.ME_ACTIVITIES) ?
-                        new RepostActivityRow(mContext) : new PlayableRow(mContext);
+                        new RepostActivityRow(context) : new PlayableRow(context);
 
             case PLAYLIST:
             case PLAYLIST_SHARING:
                 // TODO, playlist view
-                return new PlayableRow(mContext);
+                return new PlayableRow(context);
 
             case COMMENT:
-                return new CommentActivityRow(mContext);
+                return new CommentActivityRow(context);
 
             case TRACK_LIKE:
-                return new LikeActivityRow(mContext);
+                return new LikeActivityRow(context);
 
 
             case PLAYLIST_LIKE:
-                return new LikeActivityRow(mContext);
+                return new LikeActivityRow(context);
 
 
             case AFFILIATION:
-                return new AffiliationActivityRow(mContext);
+                return new AffiliationActivityRow(context);
 
 
             default:
@@ -129,7 +129,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     }
 
     @Override
-    public int handleListItemClick(int position, long id) {
+    public int handleListItemClick(Context context, int position, long id) {
 
         Activity.Type type = Activity.Type.values()[getItemViewType(position)];
         switch (type) {
@@ -137,7 +137,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
             case TRACK_SHARING:
             case PLAYLIST:
             case PLAYLIST_SHARING:
-                PlayUtils.playFromAdapter(mContext, this, mData, position);
+                PlayUtils.playFromAdapter(context, this, mData, position);
                 return ItemClickResults.LEAVING;
 
             case COMMENT:
@@ -145,27 +145,27 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
             case TRACK_REPOST:
                 if (mContent == Content.ME_ACTIVITIES) {
                     // todo, scroll to specific repost
-                    mContext.startActivity(new Intent(mContext, TrackInteractionActivity.class)
+                    context.startActivity(new Intent(context, TrackInteractionActivity.class)
                             .putExtra(Track.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    PlayUtils.playFromAdapter(mContext, this, mData, position);
+                    PlayUtils.playFromAdapter(context, this, mData, position);
                 }
                 return ItemClickResults.LEAVING;
             case PLAYLIST_LIKE:
             case PLAYLIST_REPOST:
                 if (mContent == Content.ME_ACTIVITIES) {
                     // todo, scroll to specific repost
-                    mContext.startActivity(new Intent(mContext, PlaylistInteractionActivity.class)
+                    context.startActivity(new Intent(context, PlaylistInteractionActivity.class)
                             .putExtra(Playlist.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    PlayUtils.playFromAdapter(mContext, this, mData, position);
+                    PlayUtils.playFromAdapter(context, this, mData, position);
                 }
                 return ItemClickResults.LEAVING;
 
             case AFFILIATION:
-                mContext.startActivity(new Intent(mContext, UserBrowser.class)
+                context.startActivity(new Intent(context, UserBrowser.class)
                         .putExtra(UserBrowser.EXTRA_USER, getItem(position).getUser()));
                 return ItemClickResults.LEAVING;
 

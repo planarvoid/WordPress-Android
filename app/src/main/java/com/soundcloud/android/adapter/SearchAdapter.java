@@ -11,6 +11,7 @@ import com.soundcloud.android.view.adapter.UserlistRow;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.net.Uri;
 
 public class SearchAdapter extends ScBaseAdapter<ScResource> implements PlayableAdapter {
@@ -28,6 +29,16 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> implements Playable
     }
 
     @Override
+    public void registerDataSetObserver(DataSetObserver observer) {
+        super.registerDataSetObserver(observer);
+    }
+
+    @Override
+    public void unregisterDataSetObserver(DataSetObserver observer) {
+        super.unregisterDataSetObserver(observer);
+    }
+
+    @Override
     public int getItemViewType(int position) {
         int type = super.getItemViewType(position);
         if (type == IGNORE_ITEM_VIEW_TYPE) return type;
@@ -36,27 +47,27 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> implements Playable
     }
 
     @Override
-    protected IconLayout createRow(int position) {
+    protected IconLayout createRow(Context context, int position) {
         int type = getItemViewType(position);
         switch (type) {
             case TYPE_TRACK:
-                return new PlayableRow(mContext);
+                return new PlayableRow(context);
             case TYPE_USER:
-                return new UserlistRow(mContext);
+                return new UserlistRow(context);
             default:
                 throw new IllegalArgumentException("no view for playlists yet");
         }
     }
 
     @Override
-    public int handleListItemClick(int position, long id) {
+    public int handleListItemClick(Context context, int position, long id) {
         int type = getItemViewType(position);
         switch (type) {
             case TYPE_TRACK:
-                PlayUtils.playFromAdapter(mContext,this,mData,position);
+                PlayUtils.playFromAdapter(context, this, mData, position);
                 return ItemClickResults.LEAVING;
             case TYPE_USER:
-                mContext.startActivity(new Intent(mContext, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER, getItem(position)));
+                context.startActivity(new Intent(context, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER, getItem(position)));
                 return ItemClickResults.LEAVING;
         }
         return ItemClickResults.IGNORE;

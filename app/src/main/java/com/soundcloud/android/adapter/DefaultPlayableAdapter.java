@@ -20,8 +20,8 @@ public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> implements P
     }
 
     @Override
-    protected IconLayout createRow(int position) {
-        return new PlayableRow(mContext);
+    protected IconLayout createRow(Context context, int position) {
+        return new PlayableRow(context);
     }
 
     @Override
@@ -30,8 +30,8 @@ public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> implements P
     }
 
     @Override
-    public int handleListItemClick(int position, long id) {
-        PlayUtils.playFromAdapter(mContext, this, mData, position);
+    public int handleListItemClick(Context context, int position, long id) {
+        PlayUtils.playFromAdapter(context, this, mData, position);
         return ItemClickResults.LEAVING;
     }
 

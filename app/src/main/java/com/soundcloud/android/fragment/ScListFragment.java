@@ -42,6 +42,7 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -185,7 +186,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     @Override
     public void onResume() {
         super.onResume();
-        if (getActivity() != null && mContent != null) {
+        if (mContent != null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
                 case ME_ACTIVITIES:
@@ -195,7 +196,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             }
         }
         final ScBaseAdapter adapter = getListAdapter();
-        if (adapter != null) adapter.onResume();
+        if (adapter != null) adapter.onResume(getScActivity());
 
         if (mPendingSync){
             mPendingSync = false;
@@ -326,7 +327,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         final ScBaseAdapter adapter = getListAdapter();
         if (adapter == null) return;
 
-        switch (adapter.handleListItemClick(position - getListView().getHeaderViewsCount(), id)){
+        switch (adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id)){
             case ScBaseAdapter.ItemClickResults.LEAVING:
                 mIgnorePlaybackStatus = true;
                 break;
@@ -437,7 +438,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
 
         mKeepGoing = data.keepGoing;
-        adapter.handleTaskReturnData(data);
+        adapter.handleTaskReturnData(data, getActivity());
         configureEmptyView(data.responseCode);
 
         final boolean notRefreshing = (data.wasRefresh || !isRefreshing()) && !waitingOnInitialSync();
@@ -511,14 +512,14 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
 
         final ScBaseAdapter adapter = getListAdapter();
-        if (adapter != null) {
+        if (adapter != null && getActivity() != null) {
             if (userRefresh) {
-                adapter.refreshCreationStamps();
+                adapter.refreshCreationStamps(getActivity());
                 if (adapter instanceof FollowStatus.Listener) {
                     FollowStatus.get(getActivity()).requestUserFollowings((FollowStatus.Listener) adapter);
                 }
             }
-            if (!isSyncable() && getActivity() != null) {
+            if (!isSyncable()) {
                 executeRefreshTask();
                 adapter.notifyDataSetChanged();
             }
