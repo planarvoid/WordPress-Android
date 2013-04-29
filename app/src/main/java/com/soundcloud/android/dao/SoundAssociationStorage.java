@@ -42,7 +42,7 @@ public class SoundAssociationStorage {
      */
     public SoundAssociation addLike(Playable playable) {
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
-        SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
+        SoundAssociation like = new SoundAssociation(playable, new Date(System.currentTimeMillis()), assocType);
         mSoundAssociationDAO.create(like);
         return like;
     }

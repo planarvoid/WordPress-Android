@@ -46,6 +46,16 @@ public class AssociationManagerTest {
     }
 
     @Test
+    public void shouldCreateNewLikeWithoutLikesCountSet() throws Exception {
+        Track t = createTrack();
+        t.likes_count = Track.NOT_SET;
+
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        associationManager.setLike(t, true);
+        expect(TestHelper.reload(t).user_like).toBeTrue();
+    }
+
+    @Test
     public void shouldNotChangeLikeCountIfAlreadyLiked() throws Exception {
         Track t = createTrack();
         TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE);
@@ -112,6 +122,18 @@ public class AssociationManagerTest {
         expect(t.user_repost).toBeTrue();
         expect(TestHelper.reload(t).user_repost).toBeTrue();
         expect(TestHelper.reload(t).reposts_count).toEqual(repostsCount + 1);
+    }
+
+    @Test
+    public void shouldAddNewRepostWithoutRepostCountSet() throws Exception {
+        Track t = createTrack();
+        t.reposts_count = Track.NOT_SET;
+
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        associationManager.setRepost(t, true);
+
+        expect(t.user_repost).toBeTrue();
+        expect(TestHelper.reload(t).user_repost).toBeTrue();
     }
 
     @Test
