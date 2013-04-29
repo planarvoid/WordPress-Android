@@ -136,17 +136,16 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
             if (notifyable.isEmpty()) return false;
             notifyable.sort();
-            NotificationMessage msg = new NotificationMessage(app.getResources(), notifyable, likes, comments, reposts);
 
-            if (activities.newerThan(ContentStats.getLastNotifiedItem(app, Content.ME_ACTIVITIES))) {
-                prefetchArtwork(app, activities);
-
+            if (notifyable.newerThan(ContentStats.getLastNotifiedItem(app, Content.ME_ACTIVITIES))) {
+                prefetchArtwork(app, notifyable);
+                NotificationMessage msg = new NotificationMessage(app.getResources(), notifyable, likes, comments, reposts);
                 NotificationMessage.showDashboardNotification(app, msg.ticker, msg.title, msg.message,
                         NotificationMessage.createNotificationIntent(Actions.ACTIVITY),
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID,
-                        activities.getFirstAvailableAvatar());
+                        notifyable.getFirstAvailableAvatar());
 
-                ContentStats.setLastNotifiedItem(app, Content.ME_ACTIVITIES, activities.getTimestamp());
+                ContentStats.setLastNotifiedItem(app, Content.ME_ACTIVITIES, notifyable.getTimestamp());
                 return true;
             } else return false;
         } else return false;
