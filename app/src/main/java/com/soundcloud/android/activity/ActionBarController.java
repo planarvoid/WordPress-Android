@@ -104,7 +104,9 @@ public class ActionBarController {
     public void onResume() {
         startListening();
         updateWaveformVisibility();
-        getNowPlaying().resume();
+        if (!(mActivity instanceof ScPlayer)) {
+            getNowPlaying().resume();
+        }
 
         if (mCloseSearchOnResume) {
             closeSearch(true);
