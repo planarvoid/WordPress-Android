@@ -2,6 +2,7 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociationHolder;
@@ -202,14 +203,14 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSaveAndRestoreLikesAsPlaylist() throws Exception {
         insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        pm.loadUri(Content.ME_LIKES.uri, 0, 56143158L);
         expect(pm.length()).toEqual(2);
-        expect(pm.getCurrentTrack().id).toEqual(56142962l);
-        expect(pm.getPosition()).toEqual(0);
+        expect(pm.getCurrentTrack().id).toEqual(56143158L);
+        expect(pm.getPosition()).toEqual(1);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getCurrentTrackId()).toEqual(56142962l);
-        expect(pm.getPosition()).toEqual(0);
+        expect(pm.getCurrentTrackId()).toEqual(56143158L);
+        expect(pm.getPosition()).toEqual(1);
     }
 
     @Test
@@ -343,17 +344,8 @@ public class PlayQueueManagerTest {
     }
 
     private void insertLikes() throws IOException {
-        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
-                ApiSyncerTest.class.getResourceAsStream("e1_likes.json"),
-                SoundAssociationHolder.class);
-
-        TestHelper.bulkInsert(Content.ME_LIKES.uri, old.collection);
-
-//        expect(SoundCloudApplication.MODEL_MANAGER.writeCollection(old.collection, Content.ME_LIKES.uri, USER_ID,
-//                ScResource.CacheUpdateMode.NONE)).toEqual(18); // 2 tracks, 1 playlist
-//
-        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(3); // 2 tracks, 1 playlist
+        List<Playable> likes = TestHelper.readResourceList("/com/soundcloud/android/service/sync/e1_likes.json");
+        expect(TestHelper.bulkInsert(Content.ME_LIKES.uri, likes)).toEqual(3);
     }
 
     private List<Track> createTracks(int n, boolean streamable, int startPos) {
