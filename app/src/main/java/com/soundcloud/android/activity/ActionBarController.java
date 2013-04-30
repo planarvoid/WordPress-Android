@@ -311,12 +311,14 @@ public class ActionBarController {
     }
 
     @NotNull public View getActionBarCustomView() {
-        if (mActionBarCustomView == null) {
-            final View customView = View.inflate(mActivity, R.layout.action_bar_custom_view, null);
-            setupHomeButton(customView.findViewById(R.id.custom_home));
-            mActionBarCustomView = customView;
-        }
+        if (mActionBarCustomView == null) mActionBarCustomView = createCustomView();
         return mActionBarCustomView;
+    }
+
+    protected View createCustomView() {
+        View customView = View.inflate(mActivity, R.layout.action_bar_custom_view, null);
+        setupHomeButton(customView.findViewById(R.id.custom_home));
+        return customView;
     }
 
     protected void setupHomeButton(View view) {
