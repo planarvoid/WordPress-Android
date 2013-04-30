@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -56,7 +55,6 @@ public class NowPlayingIndicator extends ProgressBar {
 
     private Rect mCanvasRect;
 
-    private boolean mListening;
     private Canvas mTempCanvas = new Canvas();
 
     private int mAdjustedWidth;
@@ -114,30 +112,10 @@ public class NowPlayingIndicator extends ProgressBar {
         setIndeterminate(false);
     }
 
-    void startListening() {
-        if (!mListening) {
-            mListening = true;
-            IntentFilter f = new IntentFilter();
-            f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-            f.addAction(CloudPlaybackService.META_CHANGED);
-            f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-            f.addAction(CloudPlaybackService.SEEKING);
-            getContext().registerReceiver(mStatusListener, new IntentFilter(f));
-        }
-    }
-
-    void stopListening(){
-        if (mListening){
-            getContext().unregisterReceiver(mStatusListener);
-        }
-        mListening = false;
-    }
-
     public void resume() {
         // Update the current track
         setCurrentTrack();
         startRefreshing();
-        startListening();
     }
 
     private void startRefreshing() {
@@ -205,7 +183,6 @@ public class NowPlayingIndicator extends ProgressBar {
 
     public void pause(){
         stopRefreshing();
-        stopListening();
     }
 
     public void destroy(){

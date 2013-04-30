@@ -123,7 +123,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         });
 
         if (getSupportActionBar() != null) {
-            mActionBarController = new ActionBarController(this, mRootView);
+            mActionBarController = createActionBarController(mRootView);
         }
 
         if (savedInstanceState == null) {
@@ -135,6 +135,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         f.addAction(Consts.GeneralIntents.UNAUTHORIZED);
         f.addAction(Actions.LOGGING_OUT);
         registerReceiver(mGeneralIntentListener, new IntentFilter(f));
+    }
+
+    protected ActionBarController createActionBarController(RootView rootView) {
+        return new NowPlayingActionBarController(this, rootView);
     }
 
     protected abstract int getSelectedMenuId();
