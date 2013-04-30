@@ -162,7 +162,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public void onStart() {
         super.onStart();
 
-        mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
+        if (mSyncStateManager != null){
+            mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
+        }
 
         connectivityListener = new NetworkConnectivityListener();
         connectivityHandler = new ConnectivityHandler(this, connectivityListener);
