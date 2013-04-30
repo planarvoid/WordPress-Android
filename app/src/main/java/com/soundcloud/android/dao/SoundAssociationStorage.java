@@ -27,11 +27,15 @@ import java.util.Map;
 public class SoundAssociationStorage {
 
     private final ContentResolver mResolver;
-    private final SoundAssociationDAO mSoundAssociationDAO;
+    private final SoundAssociationDAO mAllSoundAssocsDAO, mLikesDAO, mRepostsDAO, mTrackCreationsDAO, mPlaylistCreationsDAO;
 
     public SoundAssociationStorage(Context context) {
         mResolver = context.getContentResolver();
-        mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
+        mAllSoundAssocsDAO = new SoundAssociationDAO(mResolver);
+        mLikesDAO = SoundAssociationDAO.forContent(Content.ME_LIKES, mResolver);
+        mRepostsDAO = SoundAssociationDAO.forContent(Content.ME_REPOSTS, mResolver);
+        mTrackCreationsDAO = SoundAssociationDAO.forContent(Content.ME_SOUNDS, mResolver);
+        mPlaylistCreationsDAO = SoundAssociationDAO.forContent(Content.ME_PLAYLISTS, mResolver);
     }
 
     /**
@@ -43,7 +47,7 @@ public class SoundAssociationStorage {
     public SoundAssociation addLike(Playable playable) {
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
         SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
-        mSoundAssociationDAO.create(like);
+        mLikesDAO.create(like);
         return like;
     }
 
@@ -56,7 +60,7 @@ public class SoundAssociationStorage {
     public SoundAssociation removeLike(Playable playable) {
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
         SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
-        mSoundAssociationDAO.delete(like);
+        mLikesDAO.delete(like);
         if (playable instanceof Track) {
             new TrackDAO(mResolver).update((Track) playable);
         } else {
@@ -74,7 +78,7 @@ public class SoundAssociationStorage {
     public SoundAssociation addRepost(Playable playable) {
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
         SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
-        mSoundAssociationDAO.create(repost);
+        mRepostsDAO.create(repost);
         return repost;
     }
 
@@ -87,27 +91,34 @@ public class SoundAssociationStorage {
     public SoundAssociation removeRepost(Playable playable) {
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
         SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
-        mSoundAssociationDAO.delete(repost);
+        mRepostsDAO.delete(repost);
         return repost;
     }
 
-    public SoundAssociation addCreation(Playable playable) {
-        SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK : SoundAssociation.Type.PLAYLIST;
+    public SoundAssociation addCreation(Track playable) {
+        SoundAssociation.Type assocType = SoundAssociation.Type.TRACK;
         SoundAssociation creation = new SoundAssociation(playable, playable.created_at, assocType);
-        mSoundAssociationDAO.create(creation);
+        mTrackCreationsDAO.create(creation);
+        return creation;
+    }
+
+    public SoundAssociation addCreation(Playlist playable) {
+        SoundAssociation.Type assocType = SoundAssociation.Type.PLAYLIST;
+        SoundAssociation creation = new SoundAssociation(playable, playable.created_at, assocType);
+        mPlaylistCreationsDAO.create(creation);
         return creation;
     }
 
     public List<SoundAssociation> getSoundStreamItemsForCurrentUser() {
-        return mSoundAssociationDAO.queryAllByUri(Content.ME_SOUNDS.uri);
+        return mAllSoundAssocsDAO.queryAllByUri(Content.ME_SOUNDS.uri);
     }
 
     public List<SoundAssociation> getLikesForCurrentUser() {
-        return mSoundAssociationDAO.queryAllByUri(Content.ME_LIKES.uri);
+        return mAllSoundAssocsDAO.queryAllByUri(Content.ME_LIKES.uri);
     }
 
     public List<SoundAssociation> getPlaylistCreationsForCurrentUser() {
-        return mSoundAssociationDAO.queryAllByUri(Content.ME_PLAYLISTS.uri);
+        return mAllSoundAssocsDAO.queryAllByUri(Content.ME_PLAYLISTS.uri);
     }
 
     /**
@@ -164,7 +175,7 @@ public class SoundAssociationStorage {
             }
         }
 
-        mSoundAssociationDAO.createCollection(soundAssociations);
+        mAllSoundAssocsDAO.createCollection(soundAssociations);
 
         return changed;
     }

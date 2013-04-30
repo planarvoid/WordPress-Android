@@ -1,6 +1,8 @@
 package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
@@ -12,11 +14,18 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentResolver;
+import android.database.ContentObserver;
+import android.net.Uri;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -156,6 +165,62 @@ public class SoundAssociationStorageTest {
         List<SoundAssociation> result = storage.getPlaylistCreationsForCurrentUser();
         expect(result).toNumber(1);
         expect(result).toContain(new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST));
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenAddingLikes() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        storage.addLike(new Playlist(1L));
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/likes/1");
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenRemovingLikes() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        storage.removeLike(new Playlist(1L));
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/likes");
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenAddingReposts() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        storage.addRepost(new Playlist(1L));
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/reposts/1");
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenRemovingReposts() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        storage.removeRepost(new Playlist(1L));
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/reposts");
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenAddingTrackCreation() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        Track track = new Track(1L);
+        track.created_at = new Date();
+        storage.addCreation(track);
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/sounds/1");
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenAddingPlaylistCreation() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        storage.addCreation(Playlist.newUserPlaylist(new User(1L), "playlist", false, Collections.<Track>emptyList()));
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/playlists/1");
     }
 
     private void insertSoundAssociations(Track track, Playlist playlist) {
