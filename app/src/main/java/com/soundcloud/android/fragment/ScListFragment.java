@@ -322,6 +322,15 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        // null out view references to avoid leaking the current Context in case we detach/re-attach
+        mListView = null;
+        mEmptyListView = null;
+    }
+
+    @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         final ScBaseAdapter adapter = getListAdapter();
