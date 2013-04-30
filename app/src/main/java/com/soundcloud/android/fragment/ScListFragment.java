@@ -44,7 +44,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -87,7 +86,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private @Nullable CollectionTask mRefreshTask;
     private @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
-    private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync, mShouldListenForPlaylistChanges;
+    private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync, mObservingChanges;
     private CollectionTask mAppendTask;
     protected String mNextHref;
 
@@ -111,181 +110,19 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         return fragment;
     }
 
-    public ScListFragment() {
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        initContent();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-
-        mContentUri = (Uri) getArguments().get("contentUri");
-        mContent = Content.match(mContentUri);
         mKeepGoing = true;
-
-        if (mContent.isSyncable()) {
-            final ContentResolver contentResolver = getActivity().getContentResolver();
-            mSyncStateManager = new SyncStateManager();
-            mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
-            mChangeObserver = new ChangeObserver();
-            contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
-            refreshSyncData();
-        }
-
-        mShouldListenForPlaylistChanges = setupListAdapter();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        connectivityListener = new NetworkConnectivityListener();
-        connectivityHandler = new ConnectivityHandler(this, connectivityListener);
-        connectivityListener.registerHandler(connectivityHandler, CONNECTIVITY_MSG);
-
-        IntentFilter playbackFilter = new IntentFilter();
-        playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
-        playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
-        playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-        getActivity().registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
-
-        IntentFilter generalIntentFilter = new IntentFilter();
-        generalIntentFilter.addAction(Actions.CONNECTION_ERROR);
-        generalIntentFilter.addAction(Actions.LOGGING_OUT);
-        getActivity().registerReceiver(mGeneralIntentListener, generalIntentFilter);
-
-        if (mShouldListenForPlaylistChanges) {
-            listenForPlaylistChanges();
-        }
-
-        final ScBaseAdapter listAdapter = getListAdapter();
-        if (listAdapter instanceof PlayableAdapter) listAdapter.notifyDataSetChanged();
-
-        if (mRetainedListPosition > 0) {
-            mListView.getRefreshableView().setSelection(mRetainedListPosition);
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        getActivity().unregisterReceiver(mPlaybackStatusListener);
-        getActivity().unregisterReceiver(mGeneralIntentListener);
-        if (mShouldListenForPlaylistChanges && mPlaylistChangedReceiver != null) {
-            getActivity().unregisterReceiver(mPlaylistChangedReceiver);
-        }
-        mIgnorePlaybackStatus = false;
-        mRetainedListPosition = mListView.getRefreshableView().getFirstVisiblePosition();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        stopObservingChanges();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (mContent != null) {
-            switch (mContent) {
-                case ME_SOUND_STREAM:
-                case ME_ACTIVITIES:
-                    ContentStats.updateCount(getActivity(), mContent, 0);
-                    ContentStats.setLastSeen(getActivity(), mContent, System.currentTimeMillis());
-                    break;
-            }
-        }
-        final ScBaseAdapter adapter = getListAdapter();
-        if (adapter != null) adapter.onResume(getScActivity());
-
-        if (mPendingSync){
-            mPendingSync = false;
-            requestSync();
-        }
-    }
-
-    private boolean setupListAdapter() {
-        boolean listenForPlaylistChanges = false;
-        if (getListAdapter() == null && mContent != null) {
-            switch (mContent) {
-                case ME_SOUND_STREAM:
-                case ME_ACTIVITIES:
-                    mAdapter = new ActivityAdapter(mContentUri);
-                    listenForPlaylistChanges = true;
-                    break;
-                case ME_FOLLOWERS:
-                case ME_FOLLOWINGS:
-                case USER_FOLLOWINGS:
-                case USER_FOLLOWERS:
-                case TRACK_LIKERS:
-                case TRACK_REPOSTERS:
-                case PLAYLIST_LIKERS:
-                case PLAYLIST_REPOSTERS:
-                case SUGGESTED_USERS:
-                    mAdapter = new UserAdapter(mContentUri);
-                    break;
-                case ME_FRIENDS:
-                    mAdapter = new FriendAdapter(mContentUri);
-                    break;
-                case ME_SOUNDS:
-                    mAdapter = new MyTracksAdapter(getScActivity(), mContentUri);
-                    break;
-                case ME_LIKES:
-                case USER_LIKES:
-                case USER_SOUNDS:
-                    mAdapter = new SoundAssociationAdapter(mContentUri);
-                    listenForPlaylistChanges = true;
-                    break;
-                case SEARCH:
-                    mAdapter = new SearchAdapter(Content.SEARCH.uri);
-                    break;
-                case TRACK_COMMENTS:
-                    mAdapter = new CommentAdapter(mContentUri);
-                    break;
-                case ME_PLAYLISTS:
-                case USER_PLAYLISTS:
-                    listenForPlaylistChanges = true;
-                default:
-                    mAdapter = new DefaultPlayableAdapter(mContentUri);
-            }
-            setListAdapter(mAdapter);
-            configureEmptyView();
-            if (canAppend()) {
-                append(false);
-            } else {
-                mKeepGoing = false;
-            }
-        }
-
-        return listenForPlaylistChanges;
-    }
-
-    private void listenForPlaylistChanges() {
-        mPlaylistChangedReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (mAdapter != null) {
-                    PlayableAdapter playableAdapter = (PlayableAdapter) mAdapter;
-
-                    long playlistId = intent.getLongExtra(Playlist.EXTRA_ID, -1);
-                    int newTracksCount = intent.getIntExtra(Playlist.EXTRA_TRACKS_COUNT, -1);
-
-                    for (int i=0; i < mAdapter.getCount(); i++) {
-                        Playable playable = playableAdapter.getPlayable(i);
-                        if (playable instanceof Playlist && playable.id == playlistId) {
-                            Playlist playlist = (Playlist) playable;
-                            // TODO: this should be updated by the model manager
-
-                            playlist.setTrackCount(newTracksCount);
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    }
-                }
-            }
-        };
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Playlist.ACTION_CONTENT_CHANGED);
-        getActivity().registerReceiver(mPlaylistChangedReceiver, intentFilter);
+        setupListAdapter();
+        initContent();
     }
 
     @Override
@@ -322,12 +159,212 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
+
+        connectivityListener = new NetworkConnectivityListener();
+        connectivityHandler = new ConnectivityHandler(this, connectivityListener);
+        connectivityListener.registerHandler(connectivityHandler, CONNECTIVITY_MSG);
+
+        IntentFilter playbackFilter = new IntentFilter();
+        playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
+        playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
+        playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+        getActivity().registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
+
+        IntentFilter generalIntentFilter = new IntentFilter();
+        generalIntentFilter.addAction(Actions.CONNECTION_ERROR);
+        generalIntentFilter.addAction(Actions.LOGGING_OUT);
+        getActivity().registerReceiver(mGeneralIntentListener, generalIntentFilter);
+
+        if (mContent.shouldListenForPlaylistChanges()) {
+            listenForPlaylistChanges();
+        }
+
+        final ScBaseAdapter listAdapter = getListAdapter();
+        if (listAdapter instanceof PlayableAdapter) listAdapter.notifyDataSetChanged();
+
+        if (mRetainedListPosition > 0) {
+            mListView.getRefreshableView().setSelection(mRetainedListPosition);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        stopListening();
+        mIgnorePlaybackStatus = false;
+        mRetainedListPosition = mListView.getRefreshableView().getFirstVisiblePosition();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mContent != null) {
+            switch (mContent) {
+                case ME_SOUND_STREAM:
+                case ME_ACTIVITIES:
+                    ContentStats.updateCount(getActivity(), mContent, 0);
+                    ContentStats.setLastSeen(getActivity(), mContent, System.currentTimeMillis());
+                    break;
+            }
+        }
+        final ScBaseAdapter adapter = getListAdapter();
+        if (adapter != null) adapter.onResume(getScActivity());
+
+        if (mPendingSync){
+            mPendingSync = false;
+            requestSync();
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
 
         // null out view references to avoid leaking the current Context in case we detach/re-attach
         mListView = null;
         mEmptyListView = null;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        stopObservingChanges();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopObservingChanges();
+    }
+
+    private void initContent(){
+        if (mContentUri == null){
+            // only should happen once
+            mContentUri = (Uri) getArguments().get("contentUri");
+            mContent = Content.match(mContentUri);
+
+            if (mContent.isSyncable()) {
+                mSyncStateManager = new SyncStateManager();
+                mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
+                mChangeObserver = new ChangeObserver();
+                refreshSyncData();
+            }
+        }
+        // should happen once per activity lifecycle
+        startObservingChanges();
+    }
+
+    private void startObservingChanges(){
+        if (!mObservingChanges){
+            mObservingChanges = true;
+            if (mChangeObserver != null){
+                getActivity().getContentResolver().registerContentObserver(mContentUri, true, mChangeObserver);
+            }
+        }
+    }
+
+    private void stopObservingChanges(){
+        if (mObservingChanges){
+            mObservingChanges = false;
+            if (mChangeObserver != null) {
+                getActivity().getContentResolver().unregisterContentObserver(mChangeObserver);
+                mChangeObserver = null;
+            }
+        }
+    }
+
+    private void stopListening() {
+        getActivity().unregisterReceiver(mPlaybackStatusListener);
+        getActivity().unregisterReceiver(mGeneralIntentListener);
+        if (mContent.shouldListenForPlaylistChanges() && mPlaylistChangedReceiver != null) {
+            getActivity().unregisterReceiver(mPlaylistChangedReceiver);
+        }
+
+        if (mSyncStateManager != null && mLocalCollection != null) {
+            mSyncStateManager.removeChangeListener(mLocalCollection);
+        }
+    }
+
+    private void setupListAdapter() {
+        if (getListAdapter() == null && mContent != null) {
+            switch (mContent) {
+                case ME_SOUND_STREAM:
+                case ME_ACTIVITIES:
+                    mAdapter = new ActivityAdapter(mContentUri);
+                    break;
+                case ME_FOLLOWERS:
+                case ME_FOLLOWINGS:
+                case USER_FOLLOWINGS:
+                case USER_FOLLOWERS:
+                case TRACK_LIKERS:
+                case TRACK_REPOSTERS:
+                case PLAYLIST_LIKERS:
+                case PLAYLIST_REPOSTERS:
+                case SUGGESTED_USERS:
+                    mAdapter = new UserAdapter(mContentUri);
+                    break;
+                case ME_FRIENDS:
+                    mAdapter = new FriendAdapter(mContentUri);
+                    break;
+                case ME_SOUNDS:
+                    mAdapter = new MyTracksAdapter(getScActivity(), mContentUri);
+                    break;
+                case ME_LIKES:
+                case USER_LIKES:
+                case USER_SOUNDS:
+                    mAdapter = new SoundAssociationAdapter(mContentUri);
+                    break;
+                case SEARCH:
+                    mAdapter = new SearchAdapter(Content.SEARCH.uri);
+                    break;
+                case TRACK_COMMENTS:
+                    mAdapter = new CommentAdapter(mContentUri);
+                    break;
+                case ME_PLAYLISTS:
+                case USER_PLAYLISTS:
+                default:
+                    mAdapter = new DefaultPlayableAdapter(mContentUri);
+            }
+            setListAdapter(mAdapter);
+            configureEmptyView();
+            if (canAppend()) {
+                append(false);
+            } else {
+                mKeepGoing = false;
+            }
+        }
+    }
+
+    private void listenForPlaylistChanges() {
+        mPlaylistChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (mAdapter != null) {
+                    PlayableAdapter playableAdapter = (PlayableAdapter) mAdapter;
+
+                    long playlistId = intent.getLongExtra(Playlist.EXTRA_ID, -1);
+                    int newTracksCount = intent.getIntExtra(Playlist.EXTRA_TRACKS_COUNT, -1);
+
+                    for (int i = 0; i < mAdapter.getCount(); i++) {
+                        Playable playable = playableAdapter.getPlayable(i);
+                        if (playable instanceof Playlist && playable.id == playlistId) {
+                            Playlist playlist = (Playlist) playable;
+                            // TODO: this should be updated by the model manager
+
+                            playlist.setTrackCount(newTracksCount);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Playlist.ACTION_CONTENT_CHANGED);
+        getActivity().registerReceiver(mPlaylistChangedReceiver, intentFilter);
     }
 
     @Override
@@ -651,16 +688,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
     }
 
-    private void stopObservingChanges() {
-        if (mChangeObserver != null) {
-            getActivity().getContentResolver().unregisterContentObserver(mChangeObserver);
-            mChangeObserver = null;
-        }
-        if (mSyncStateManager != null && mLocalCollection != null) {
-            mSyncStateManager.removeChangeListener(mLocalCollection);
-        }
-    }
-
     private void onContentChanged() {
         final ScBaseAdapter listAdapter = getListAdapter();
         if (listAdapter instanceof ActivityAdapter && !((ActivityAdapter) listAdapter).isExpired(mLocalCollection)) {
@@ -795,6 +822,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         public void onReceive(Context context, Intent intent) {
             if (Actions.LOGGING_OUT.equals(intent.getAction())) {
                 stopObservingChanges();
+                stopListening();
             }
         }
     };
