@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public abstract class TouchLayout extends RelativeLayout  implements View.OnTouchListener {
@@ -38,7 +39,7 @@ public abstract class TouchLayout extends RelativeLayout  implements View.OnTouc
             mInputObjectPool.add(new InputObject(mInputObjectPool));
         }
 
-        mTouchThread = new TouchThread();
+        mTouchThread = new TouchThread(this);
         mTouchThread.start();
         setOnTouchListener(this);
 
@@ -104,12 +105,18 @@ public abstract class TouchLayout extends RelativeLayout  implements View.OnTouc
         if (mTouchThread != null) {
             mTouchThread.stopped = true;
             mTouchThread.interrupt();
+            mTouchThread = null;
         }
     }
 
-     private class TouchThread extends Thread {
+    private static class TouchThread extends Thread {
         private ArrayBlockingQueue<InputObject> inputQueue = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
+        private WeakReference<TouchLayout> mLayourRef;
         private boolean stopped = false;
+
+        private TouchThread(TouchLayout touchLayout) {
+            this.mLayourRef = new WeakReference<TouchLayout>(touchLayout);
+        }
 
         public synchronized void feedInput(InputObject input) {
             try {
@@ -126,7 +133,8 @@ public abstract class TouchLayout extends RelativeLayout  implements View.OnTouc
                 try {
                     input = inputQueue.take();
                     if (input.eventType == InputObject.EVENT_TYPE_TOUCH) {
-                        processInputObject(input);
+                        final TouchLayout touchLayout = mLayourRef.get();
+                        if (touchLayout != null) touchLayout.processInputObject(input);
                     }
                 } catch (InterruptedException ignored) {
                 } finally {
