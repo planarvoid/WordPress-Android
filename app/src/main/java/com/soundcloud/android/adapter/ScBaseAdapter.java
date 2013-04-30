@@ -49,7 +49,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public ScBaseAdapter(Context context, Uri uri) {
         mContent = Content.match(uri);
         mContentUri = uri;
-        mProgressView = View.inflate(context, R.layout.list_loading_item, null);
+        mProgressView = View.inflate(context.getApplicationContext(), R.layout.list_loading_item, null);
     }
 
     public int getItemCount() {
