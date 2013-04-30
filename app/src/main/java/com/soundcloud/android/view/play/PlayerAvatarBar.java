@@ -3,7 +3,7 @@ package com.soundcloud.android.view.play;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.ImageLoader.BitmapCallback;
+import com.soundcloud.android.imageloader.ImageLoader.BitmapLoadCallback;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -124,6 +124,11 @@ public class PlayerAvatarBar extends View {
         mUIHandler.removeMessages(REFRESH_AVATARS);
         mUIHandler.removeMessages(AVATARS_REFRESHED);
 
+        if (mAvatarRefreshThread != null){
+            mAvatarRefreshThread.interrupt();
+            mAvatarRefreshThread = null;
+        }
+
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
                 mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
@@ -163,7 +168,7 @@ public class PlayerAvatarBar extends View {
     private void loadAvatar(final Comment c){
         if (c == null || !c.shouldLoadIcon()) return;
 
-        ImageLoader.get(mContext).getBitmap(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new BitmapCallback() {
+        ImageLoader.get(mContext).getBitmap(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new BitmapLoadCallback() {
             @Override
             public void onImageLoaded(Bitmap bitmap, String uri) {
                 c.avatar = bitmap;
@@ -179,7 +184,7 @@ public class PlayerAvatarBar extends View {
             public void onImageError(String uri, Throwable error) {
                 Log.i(TAG, "Avatar Loading Error " + uri + " " + error.toString());
             }
-        }, new ImageLoader.Options());
+        }, mContext, new ImageLoader.Options());
     }
 
     private void refreshDefaultAvatar() {

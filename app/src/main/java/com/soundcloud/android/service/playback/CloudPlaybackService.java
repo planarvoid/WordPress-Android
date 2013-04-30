@@ -406,7 +406,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (mFocus.isTrackChangeSupported()) {
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap cached = ImageLoader.get(this).getBitmap(artworkUri, null, Options.dontLoadRemote());
+                final Bitmap cached = ImageLoader.get(this).getBitmap(artworkUri, null, null, Options.dontLoadRemote());
                 if (cached != null) {
                     // use a copy of the bitmap because it is going to get recycled afterwards
                     try {
@@ -418,12 +418,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     }
                 } else {
                     mFocus.onTrackChanged(track, null);
-                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
+                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapLoadCallback() {
                         public void onImageLoaded(Bitmap loadedBmp, String uri) {
                             if (track.equals(currentTrack)) onTrackChanged(track);
                         }
                         public void onImageError(String uri, Throwable error) {}
-                    });
+                    }, this);
                 }
             }
         }
@@ -762,12 +762,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap cachedBmp = ImageLoader.get(this).getBitmap(artworkUri, null, Options.dontLoadRemote());
+                final Bitmap cachedBmp = ImageLoader.get(this).getBitmap(artworkUri, null, null, Options.dontLoadRemote());
                 if (cachedBmp != null) {
                     view.setIcon(cachedBmp);
                 } else {
                     view.clearIcon();
-                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
+                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapLoadCallback() {
                         @Override public void onImageLoaded(Bitmap bitmap, String uri) {
                             //noinspection ObjectEquality
                             if (currentTrack == track) {
@@ -775,7 +775,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                                 startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
                             }
                         }
-                    });
+
+                        @Override
+                        public void onImageError(String url, Throwable error) {
+                        }
+                    }, null);
                 }
             } else {
                 view.clearIcon();
