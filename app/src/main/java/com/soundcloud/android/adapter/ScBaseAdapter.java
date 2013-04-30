@@ -107,9 +107,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public long getItemId(int position) {
         if (position >= mData.size()) return AdapterView.INVALID_ROW_ID;
 
-        Object o = getItem(position);
-        if (o instanceof ScModel && ((ScModel) o).getListItemId() != -1) {
-            return ((ScModel) o).getListItemId();
+        T o = getItem(position);
+        if (o.getListItemId() != -1) {
+            return o.getListItemId();
         }
         return position;
     }
