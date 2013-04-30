@@ -34,35 +34,22 @@ public class NowPlayingActionBarController extends ActionBarController {
     @Override
     public void onResume() {
         super.onResume();
-        startListening();
-        updateWaveformVisibility();
-        getNowPlaying().resume();
-    }
 
-    private void updateWaveformVisibility() {
-        if (CloudPlaybackService.getCurrentTrackId() < 0) {
-            getNowPlayingHolder().setVisibility(View.GONE);
-        } else {
-            getNowPlayingHolder().setVisibility(View.VISIBLE);
-        }
-    }
-
-    @NotNull
-    public NowPlayingIndicator getNowPlaying() {
         if (mNowPlaying == null) {
             mNowPlaying = (NowPlayingIndicator) getActionBarCustomView().findViewById(R.id.waveform_progress);
         }
-
-        return mNowPlaying;
-    }
-
-    @NotNull
-    public View getNowPlayingHolder() {
         if (mNowPlayingHolder == null) {
             mNowPlayingHolder = getActionBarCustomView().findViewById(R.id.waveform_holder);
         }
 
-        return mNowPlayingHolder;
+        mNowPlaying.resume();
+        startListening();
+
+        if (CloudPlaybackService.getCurrentTrackId() < 0) {
+            mNowPlayingHolder.setVisibility(View.GONE);
+        } else {
+            mNowPlayingHolder.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

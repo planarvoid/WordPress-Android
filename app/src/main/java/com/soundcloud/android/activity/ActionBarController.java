@@ -310,7 +310,8 @@ public class ActionBarController {
         }
     }
 
-    @NotNull public View getActionBarCustomView() {
+    @NotNull
+    public View getActionBarCustomView() {
         if (mActionBarCustomView == null) mActionBarCustomView = createCustomView();
         return mActionBarCustomView;
     }
@@ -330,14 +331,16 @@ public class ActionBarController {
         });
     }
 
-    @NotNull public View getMenuIndicator() {
+    @NotNull
+    public View getMenuIndicator() {
         if (mMenuIndicator == null) {
             mMenuIndicator = getActionBarCustomView().findViewById(R.id.custom_up);
         }
         return mMenuIndicator;
     }
 
-    @NotNull public RelativeLayout getSearchCustomView() {
+    @NotNull
+    public RelativeLayout getSearchCustomView() {
         if (mSearchCustomView == null) {
             mSearchCustomView = new RelativeLayout(mOwner.getSupportActionBar().getThemedContext());
         }
@@ -345,7 +348,8 @@ public class ActionBarController {
         return mSearchCustomView;
     }
 
-    @NotNull public SearchView getSearchView() {
+    @NotNull
+    public SearchView getSearchView() {
         if (mSearchView == null) {
             final Context themedContext = mOwner.getSupportActionBar().getThemedContext();
             mSearchView = createSearchView(themedContext);
