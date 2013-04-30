@@ -73,6 +73,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                                                             ImageLoader.LoadBlocker {
     private static final int CONNECTIVITY_MSG = 0;
     public static final String TAG = ScListFragment.class.getSimpleName();
+    private static final String EXTRA_CONTENT_URI = "contentUri";
 
     @Nullable private ScListView mListView;
     private ScBaseAdapter<?> mAdapter;
@@ -86,7 +87,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private @Nullable CollectionTask mRefreshTask;
     private @Nullable LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
-    private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync, mObservingChanges;
+    private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
     private CollectionTask mAppendTask;
     protected String mNextHref;
 
@@ -105,7 +106,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public static ScListFragment newInstance(Uri contentUri) {
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
-        args.putParcelable("contentUri", contentUri);
+        args.putParcelable(EXTRA_CONTENT_URI, contentUri);
         fragment.setArguments(args);
         return fragment;
     }
@@ -113,7 +114,20 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        initContent();
+        if (mContentUri == null) {
+            // only should happen once
+            mContentUri = (Uri) getArguments().get(EXTRA_CONTENT_URI);
+            mContent = Content.match(mContentUri);
+
+            if (mContent.isSyncable()) {
+                mSyncStateManager = new SyncStateManager();
+                mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
+                mChangeObserver = new ChangeObserver();
+                refreshSyncData();
+            }
+        }
+        // should happen once per activity lifecycle
+        startObservingChanges();
     }
 
     @Override
@@ -122,7 +136,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         setRetainInstance(true);
         mKeepGoing = true;
         setupListAdapter();
-        initContent();
     }
 
     @Override
@@ -237,45 +250,16 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         stopObservingChanges();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        stopObservingChanges();
-    }
-
-    private void initContent(){
-        if (mContentUri == null){
-            // only should happen once
-            mContentUri = (Uri) getArguments().get("contentUri");
-            mContent = Content.match(mContentUri);
-
-            if (mContent.isSyncable()) {
-                mSyncStateManager = new SyncStateManager();
-                mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
-                mChangeObserver = new ChangeObserver();
-                refreshSyncData();
-            }
-        }
-        // should happen once per activity lifecycle
-        startObservingChanges();
-    }
-
-    private void startObservingChanges(){
-        if (!mObservingChanges){
-            mObservingChanges = true;
-            if (mChangeObserver != null){
-                getActivity().getContentResolver().registerContentObserver(mContentUri, true, mChangeObserver);
-            }
+    private void startObservingChanges() {
+        if (mChangeObserver != null) {
+            getActivity().getContentResolver().registerContentObserver(mContentUri, true, mChangeObserver);
         }
     }
 
     private void stopObservingChanges(){
-        if (mObservingChanges){
-            mObservingChanges = false;
-            if (mChangeObserver != null) {
-                getActivity().getContentResolver().unregisterContentObserver(mChangeObserver);
-                mChangeObserver = null;
-            }
+        if (mChangeObserver != null) {
+            getActivity().getContentResolver().unregisterContentObserver(mChangeObserver);
+            mChangeObserver = null;
         }
     }
 
