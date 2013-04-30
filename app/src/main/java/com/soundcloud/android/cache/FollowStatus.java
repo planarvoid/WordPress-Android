@@ -50,7 +50,7 @@ public class FollowStatus {
 
     protected FollowStatus(final Context c) {
         mContext = c;
-        mSyncStateManager = new SyncStateManager(c);
+        mSyncStateManager = new SyncStateManager();
 
 
         mFollowingCollectionState = mSyncStateManager.fromContent(Content.ME_FOLLOWINGS);
@@ -67,9 +67,9 @@ public class FollowStatus {
         });
     }
 
-    public synchronized static FollowStatus get(Context c) {
+    public synchronized static FollowStatus get() {
         if (sInstance == null) {
-            sInstance = new FollowStatus(c.getApplicationContext());
+            sInstance = new FollowStatus(SoundCloudApplication.instance);
         }
         return sInstance;
     }

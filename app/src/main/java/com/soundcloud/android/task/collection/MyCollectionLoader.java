@@ -46,11 +46,11 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
                 // these don't sync with mini representations. we might only have ids
-                List<Long> storedIds = new UserAssociationStore(context).getStoredIds(params.getPagedUri());
+                List<Long> storedIds = new UserAssociationStore().getStoredIds(params.getPagedUri());
 
                 // if we already have all the data, this is a NOP
                 try {
-                    new CollectionStorage(context).fetchAndStoreMissingCollectionItems(api, storedIds, params.getContent(), false);
+                    new CollectionStorage().fetchAndStoreMissingCollectionItems(api, storedIds, params.getContent(), false);
                 } catch (CloudAPI.InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here

@@ -34,9 +34,9 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> implements Playable
     private ActivitiesStorage mActivitiesStorage;
 
 
-    public ActivityAdapter(Context context, Uri uri) {
-        super(context, uri);
-        mActivitiesStorage = new ActivitiesStorage(context);
+    public ActivityAdapter(Uri uri) {
+        super(uri);
+        mActivitiesStorage = new ActivitiesStorage();
     }
 
     @Override

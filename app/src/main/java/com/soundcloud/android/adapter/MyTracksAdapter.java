@@ -37,12 +37,12 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     private ChangeObserver mChangeObserver;
 
     public MyTracksAdapter(ScActivity activity, Uri uri) {
-        super(activity, uri);
-        refreshCursor(activity.getContentResolver());
+        super(uri);
+        ContentResolver contentResolver = activity.getApplicationContext().getContentResolver();
+        refreshCursor(contentResolver);
 
         mChangeObserver = new ChangeObserver(activity);
-        activity.getContentResolver()
-                .registerContentObserver(Content.RECORDINGS.uri, true, mChangeObserver);
+        contentResolver.registerContentObserver(Content.RECORDINGS.uri, true, mChangeObserver);
     }
 
     @Override

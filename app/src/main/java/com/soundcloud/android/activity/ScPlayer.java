@@ -265,7 +265,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 // Play from a View Intent, this probably came from quicksearch
                 if (intent.getData() != null) {
                     //FIXME: DB access on UI thread
-                    displayTrack = new TrackStorage(this).getTrack(intent.getData());
+                    displayTrack = new TrackStorage().getTrack(intent.getData());
                     if (displayTrack == null) {
                         displayTrack = SoundCloudApplication.MODEL_MANAGER.cache(new Track(UriUtils.getLastSegmentAsLong(intent.getData())));
                     }

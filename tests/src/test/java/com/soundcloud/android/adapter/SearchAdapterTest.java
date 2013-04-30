@@ -13,7 +13,7 @@ public class SearchAdapterTest {
 
     @Test
     public void shouldCreateAdapter() throws Exception {
-        SearchAdapter adapter = new SearchAdapter(DefaultTestRunner.application, Content.SEARCH.uri) {
+        SearchAdapter adapter = new SearchAdapter(Content.SEARCH.uri) {
             @Override
             protected IconLayout createRow(Context context, int position) {
                 return null;

@@ -305,7 +305,7 @@ public class UploadService extends Service {
                     || TRANSFER_CANCELLED.equals(action)
                     || TRANSFER_ERROR.equals(action);
             if (wasError) {
-                new RecordingStorage(context)
+                new RecordingStorage()
                         .updateStatus(recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))); // for list state
 
                 releaseLocks();
@@ -415,7 +415,7 @@ public class UploadService extends Service {
             soundRecorder.gotoIdleState();
         }
 
-        RecordingStorage recordings = new RecordingStorage(this);
+        RecordingStorage recordings = new RecordingStorage();
         if (!recording.isSaved()){
             recordings.create(recording);
             Uri uri = recording.toUri();

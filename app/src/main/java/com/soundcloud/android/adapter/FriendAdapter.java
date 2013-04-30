@@ -11,9 +11,9 @@ import android.content.Intent;
 import android.net.Uri;
 
 public class FriendAdapter extends ScBaseAdapter<Friend> implements FollowStatus.Listener {
-    public FriendAdapter(Context context, Uri uri) {
-        super(context, uri);
-        FollowStatus.get(context).requestUserFollowings(this);
+    public FriendAdapter(Uri uri) {
+        super(uri);
+        FollowStatus.get().requestUserFollowings(this);
     }
 
     @Override

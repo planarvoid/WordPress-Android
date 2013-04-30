@@ -10,8 +10,8 @@ import android.content.Intent;
 import android.net.Uri;
 
 public class CommentAdapter extends ScBaseAdapter<Comment> {
-    public CommentAdapter(Context context, Uri uri) {
-        super(context, uri);
+    public CommentAdapter(Uri uri) {
+        super(uri);
     }
 
     @Override

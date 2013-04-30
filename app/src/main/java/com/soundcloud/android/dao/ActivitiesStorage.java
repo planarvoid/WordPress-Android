@@ -2,6 +2,7 @@ package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
@@ -11,7 +12,6 @@ import com.soundcloud.android.service.sync.SyncStateManager;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -20,9 +20,9 @@ public class ActivitiesStorage {
     private ActivityDAO mActivitiesDAO;
     private final ContentResolver mResolver;
 
-    public ActivitiesStorage(Context context) {
-        mResolver = context.getContentResolver();
-        mSyncStateManager = new SyncStateManager(context);
+    public ActivitiesStorage() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
+        mSyncStateManager = new SyncStateManager();
         mActivitiesDAO = new ActivityDAO(mResolver);
     }
 

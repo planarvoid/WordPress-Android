@@ -11,9 +11,9 @@ import android.content.Intent;
 import android.net.Uri;
 
 public class UserAdapter extends ScBaseAdapter<User> implements FollowStatus.Listener {
-    public UserAdapter(Context context, Uri uri) {
-        super(context, uri);
-        FollowStatus.get(context).requestUserFollowings(this);
+    public UserAdapter(Uri uri) {
+        super(uri);
+        FollowStatus.get().requestUserFollowings(this);
     }
 
     @Override

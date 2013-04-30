@@ -46,10 +46,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     private View mProgressView;
 
     @SuppressWarnings("unchecked")
-    public ScBaseAdapter(Context context, Uri uri) {
+    public ScBaseAdapter(Uri uri) {
         mContent = Content.match(uri);
         mContentUri = uri;
-        mProgressView = View.inflate(context.getApplicationContext(), R.layout.list_loading_item, null);
     }
 
     public int getItemCount() {
@@ -118,6 +117,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public View getView(int index, View row, ViewGroup parent) {
 
         if (isPositionOfProgressElement(index)) {
+            if (mProgressView == null) {
+                mProgressView = View.inflate(parent.getContext().getApplicationContext(), R.layout.list_loading_item, null);
+            }
             return mProgressView;
         }
 

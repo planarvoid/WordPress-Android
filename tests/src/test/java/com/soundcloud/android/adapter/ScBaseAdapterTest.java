@@ -28,7 +28,7 @@ public class ScBaseAdapterTest {
 
     @Before
     public void setup() throws Exception {
-        adapter = new ScBaseAdapter<User>(DefaultTestRunner.application, Content.USER.uri) {
+        adapter = new ScBaseAdapter<User>(Content.USER.uri) {
             @Override
             protected IconLayout createRow(Context context, int position) {
                 return null;

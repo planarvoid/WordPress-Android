@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
@@ -28,8 +29,8 @@ public class SyncStateManager {
 
     private final Map<Long, ContentObserver> mContentObservers;
 
-    public SyncStateManager(Context context) {
-        mResolver = context.getContentResolver();
+    public SyncStateManager() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mLocalCollectionDao = new LocalCollectionDAO(mResolver);
         mContentObservers = new HashMap<Long, ContentObserver>();
     }

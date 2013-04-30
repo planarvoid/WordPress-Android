@@ -125,7 +125,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
         if (mContent.isSyncable()) {
             final ContentResolver contentResolver = getActivity().getContentResolver();
-            mSyncStateManager = new SyncStateManager(getActivity());
+            mSyncStateManager = new SyncStateManager();
             mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
             mChangeObserver = new ChangeObserver();
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
@@ -210,7 +210,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             switch (mContent) {
                 case ME_SOUND_STREAM:
                 case ME_ACTIVITIES:
-                    mAdapter = new ActivityAdapter(getActivity(), mContentUri);
+                    mAdapter = new ActivityAdapter(mContentUri);
                     listenForPlaylistChanges = true;
                     break;
                 case ME_FOLLOWERS:
@@ -222,10 +222,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 case PLAYLIST_LIKERS:
                 case PLAYLIST_REPOSTERS:
                 case SUGGESTED_USERS:
-                    mAdapter = new UserAdapter(getActivity(), mContentUri);
+                    mAdapter = new UserAdapter(mContentUri);
                     break;
                 case ME_FRIENDS:
-                    mAdapter = new FriendAdapter(getActivity(), mContentUri);
+                    mAdapter = new FriendAdapter(mContentUri);
                     break;
                 case ME_SOUNDS:
                     mAdapter = new MyTracksAdapter(getScActivity(), mContentUri);
@@ -233,20 +233,20 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 case ME_LIKES:
                 case USER_LIKES:
                 case USER_SOUNDS:
-                    mAdapter = new SoundAssociationAdapter(getActivity(), mContentUri);
+                    mAdapter = new SoundAssociationAdapter(mContentUri);
                     listenForPlaylistChanges = true;
                     break;
                 case SEARCH:
-                    mAdapter = new SearchAdapter(getActivity(), Content.SEARCH.uri);
+                    mAdapter = new SearchAdapter(Content.SEARCH.uri);
                     break;
                 case TRACK_COMMENTS:
-                    mAdapter = new CommentAdapter(getActivity(), mContentUri);
+                    mAdapter = new CommentAdapter(mContentUri);
                     break;
                 case ME_PLAYLISTS:
                 case USER_PLAYLISTS:
                     listenForPlaylistChanges = true;
                 default:
-                    mAdapter = new DefaultPlayableAdapter(getActivity(), mContentUri);
+                    mAdapter = new DefaultPlayableAdapter(mContentUri);
             }
             setListAdapter(mAdapter);
             configureEmptyView();
@@ -525,7 +525,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             if (userRefresh) {
                 adapter.refreshCreationStamps(getActivity());
                 if (adapter instanceof FollowStatus.Listener) {
-                    FollowStatus.get(getActivity()).requestUserFollowings((FollowStatus.Listener) adapter);
+                    FollowStatus.get().requestUserFollowings((FollowStatus.Listener) adapter);
                 }
             }
             if (!isSyncable()) {

@@ -105,7 +105,7 @@ public class Poller extends Handler {
 
     private void persistTrack(Track track) {
         track.setUpdated();
-        new TrackStorage(mApi.getContext()).createOrUpdate(track);
+        new TrackStorage().createOrUpdate(track);
     }
 
 }

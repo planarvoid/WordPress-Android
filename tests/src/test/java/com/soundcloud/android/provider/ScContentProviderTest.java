@@ -52,7 +52,7 @@ public class ScContentProviderTest {
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        activitiesStorage = new ActivitiesStorage(DefaultTestRunner.application);
+        activitiesStorage = new ActivitiesStorage();
     }
 
     @Test
@@ -438,7 +438,7 @@ public class ScContentProviderTest {
         expect(u.avatar_url).toEqual("https://i1.sndcdn.com/avatars-000013690441-hohfv1-tiny.jpg?2479809");
         expect(u.permalink_url).toEqual("http://soundcloud.com/katharina");
 
-        Track t = new TrackStorage(DefaultTestRunner.application).getTrack(64629168);
+        Track t = new TrackStorage().getTrack(64629168);
         expect(t).not.toBeNull();
         expect(t.title).toEqual("Halls - Roses For The Dead (Max Cooper remix)");
         expect(t.artwork_url).toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");

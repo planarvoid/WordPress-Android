@@ -11,8 +11,8 @@ import android.net.Uri;
 
 public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> implements PlayableAdapter {
 
-    public DefaultPlayableAdapter(Context context, Uri uri) {
-        super(context, uri);
+    public DefaultPlayableAdapter(Uri uri) {
+        super(uri);
     }
 
     @Override

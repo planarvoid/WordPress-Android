@@ -26,7 +26,7 @@ public class SuggestedUsers extends ScActivity implements ScLandingPage{
             findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new SyncStateManager(SuggestedUsers.this).forceToStale(Content.ME_SOUND_STREAM);
+                    new SyncStateManager().forceToStale(Content.ME_SOUND_STREAM);
                     startActivity(new Intent(Actions.STREAM));
                     finish();
                 }

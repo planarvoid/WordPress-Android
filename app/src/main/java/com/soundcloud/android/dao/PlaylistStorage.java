@@ -26,8 +26,8 @@ public class PlaylistStorage implements Storage<Playlist> {
     private final ContentResolver mResolver;
     private final PlaylistDAO mPlaylistDAO;
 
-    public PlaylistStorage(Context context) {
-        mResolver = context.getContentResolver();
+    public PlaylistStorage() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mPlaylistDAO = new PlaylistDAO(mResolver);
     }
 

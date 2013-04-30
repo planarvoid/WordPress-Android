@@ -19,8 +19,8 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> implements Playable
     private static final int TYPE_TRACK = 0;
     private static final int TYPE_USER = 1;
 
-    public SearchAdapter(Context context, Uri uri) {
-        super(context, uri);
+    public SearchAdapter(Uri uri) {
+        super(uri);
     }
 
     @Override

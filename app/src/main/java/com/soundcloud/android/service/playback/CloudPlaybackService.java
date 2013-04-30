@@ -528,7 +528,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         new Thread() {
             @Override
             public void run() {
-                new TrackStorage(CloudPlaybackService.this).markTrackAsPlayed(currentTrack);
+                new TrackStorage().markTrackAsPlayed(currentTrack);
             }
         }.start();
         startTrack(track);

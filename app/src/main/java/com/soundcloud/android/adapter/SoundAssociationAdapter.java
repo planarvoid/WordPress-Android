@@ -11,8 +11,8 @@ import android.content.Context;
 import android.net.Uri;
 
 public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> implements PlayableAdapter {
-    public SoundAssociationAdapter(Context context, Uri uri) {
-        super(context, uri);
+    public SoundAssociationAdapter(Uri uri) {
+        super(uri);
     }
 
     @Override
