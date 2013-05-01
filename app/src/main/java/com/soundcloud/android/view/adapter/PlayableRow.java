@@ -1,5 +1,8 @@
 package com.soundcloud.android.view.adapter;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
+import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
@@ -65,7 +68,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
     @Override
     public void display(int position, Parcelable p) {
-        if (!(p instanceof PlayableHolder)) throw new IllegalArgumentException("Not a valid track " + p);
+        checkArgument(p instanceof PlayableHolder, "Not a valid playable holder: " + p);
 
         super.display((PlayableHolder) p);
 

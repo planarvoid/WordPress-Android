@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Objects;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
@@ -445,15 +446,15 @@ public class Track extends Playable implements PlayableHolder {
 
     @Override
     public String toString() {
-        return "Track{" +
-                "id="+id+
-                ", title='" + title + "'" +
-                ", permalink_url='" + permalink_url + "'" +
-                ", artwork_url='" + artwork_url + "'" +
-                ", duration=" + duration +
-                ", state=" + state +
-                ", user=" + user +
-                '}';
+        return Objects.toStringHelper(this)
+                .add("id", id)
+                .add("title", title)
+                .add("permalink_url", permalink_url)
+                .add("artwork_url", artwork_url)
+                .add("duration", duration)
+                .add("state", state)
+                .add("user", user)
+                .toString();
     }
 
     public @Nullable URL getWaveformDataURL() {
