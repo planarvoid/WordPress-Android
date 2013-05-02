@@ -1,12 +1,9 @@
 package com.soundcloud.android.provider;
 
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FRIEND;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.LIKE;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.REPOST;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.SUGGESTED_USER;
-
+import android.app.SearchManager;
+import android.content.UriMatcher;
+import android.net.Uri;
+import android.util.SparseArray;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Connection;
@@ -26,14 +23,16 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
-import android.app.SearchManager;
-import android.content.UriMatcher;
-import android.net.Uri;
-import android.util.SparseArray;
-
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FRIEND;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.LIKE;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.REPOST;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.SUGGESTED_USER;
 
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
@@ -210,7 +209,7 @@ public enum Content  {
     }
 
     public boolean isSyncable() {
-        return id < SYNCABLE_CEILING;
+        return id < SYNCABLE_CEILING && id > 0;
     }
 
     public boolean isCollectionItem() {
@@ -222,7 +221,7 @@ public enum Content  {
     }
 
     public boolean isMine() {
-        return id < MINE_CEILING;
+        return id < MINE_CEILING && id > 0;
     }
 
     public Uri.Builder buildUpon() {
@@ -335,5 +334,10 @@ public enum Content  {
                         SyncConfig.DEFAULT_STALE_TIME;
 
         return System.currentTimeMillis() - lastSync > staleTime;
+    }
+
+    @Nullable
+    public Class<? extends ScModel> getModelType() {
+        return modelType;
     }
 }

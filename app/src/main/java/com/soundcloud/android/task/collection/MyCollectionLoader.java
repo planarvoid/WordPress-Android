@@ -1,7 +1,10 @@
 package com.soundcloud.android.task.collection;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.CollectionStorage;
@@ -16,15 +19,11 @@ import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.Log;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 /**
  * Loads collection from local storage. Model objects which are not in the database yet will
@@ -33,7 +32,7 @@ import java.util.List;
  * This is used to potentially complete partially synced collections. If the collection is
  * fully cached in the database no remote lookups are performed.
  */
-public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
+public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T> {
 
     @Override
     public ReturnData<T> load(AndroidCloudAPI api, CollectionParams<T> params) {
