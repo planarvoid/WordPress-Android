@@ -113,6 +113,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
                 case Status.WAITING:
                 case Status.CONNECTION_ERROR:
                 case Status.NO_CONNECTIONS:
+                    mStatusCode = mCurrentStatus;
                     mEmptyListView.setStatus(mCurrentStatus);
                     break;
 
