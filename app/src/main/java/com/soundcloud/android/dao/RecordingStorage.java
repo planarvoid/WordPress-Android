@@ -4,13 +4,14 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.model.Recording.getUserIdFromFile;
 import static com.soundcloud.android.model.Recording.isAmplitudeFile;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
@@ -28,8 +29,9 @@ public class RecordingStorage implements Storage<Recording> {
 
     private final RecordingDAO mRecordingDAO;
 
-    public RecordingStorage(Context context) {
-        mRecordingDAO = new RecordingDAO(context.getContentResolver());
+    public RecordingStorage() {
+        ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
+        mRecordingDAO = new RecordingDAO(resolver);
     }
 
     @Override

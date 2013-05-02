@@ -37,7 +37,6 @@ public class UserDetailsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        setRetainInstance(true);
         mUserId = getArguments().getLong("userId");
         mInfoView = (FrameLayout) inflater.inflate(R.layout.user_browser_details_view, null);
         mLocation = (TextView) mInfoView.findViewById(R.id.location);

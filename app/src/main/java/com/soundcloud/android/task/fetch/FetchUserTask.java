@@ -11,6 +11,6 @@ public class FetchUserTask extends FetchModelTask<User> {
 
     @Override
     protected void persist(User user) {
-        new UserStorage(mApi.getContext()).createOrUpdate(user);
+        new UserStorage().createOrUpdate(user);
     }
 }

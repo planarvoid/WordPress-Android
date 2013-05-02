@@ -15,6 +15,6 @@ public class FetchTrackTask extends FetchModelTask<Track> {
 
     @Override
     protected void persist(Track track) {
-        new TrackStorage(mApi.getContext()).createOrUpdate(track);
+        new TrackStorage().createOrUpdate(track);
     }
 }

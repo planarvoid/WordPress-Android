@@ -31,7 +31,7 @@ public class SignupTask extends AuthTask {
     }
 
     public SignupTask(SoundCloudApplication soundCloudApplication){
-        this(soundCloudApplication, new TokenInformationGenerator(), new UserStorage(soundCloudApplication));
+        this(soundCloudApplication, new TokenInformationGenerator(), new UserStorage());
     }
 
     @Override

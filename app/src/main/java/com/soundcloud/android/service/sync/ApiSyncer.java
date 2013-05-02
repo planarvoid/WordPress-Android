@@ -83,12 +83,12 @@ public class ApiSyncer {
         mApi = (AndroidCloudAPI) context.getApplicationContext();
         mResolver = resolver;
         mContext = context;
-        mSyncStateManager = new SyncStateManager(context);
-        mActivitiesStorage = new ActivitiesStorage(context);
-        mPlaylistStorage = new PlaylistStorage(context);
-        mSoundAssociationStorage = new SoundAssociationStorage(context);
-        mCollectionStorage = new CollectionStorage(context);
-        mUserStorage = new UserStorage(context);
+        mSyncStateManager = new SyncStateManager();
+        mActivitiesStorage = new ActivitiesStorage();
+        mPlaylistStorage = new PlaylistStorage();
+        mSoundAssociationStorage = new SoundAssociationStorage();
+        mCollectionStorage = new CollectionStorage();
+        mUserStorage = new UserStorage();
     }
 
     // Tests want to override this value
@@ -147,7 +147,7 @@ public class ApiSyncer {
                 case TRACK:
                 case USER:
                     // sucks, but we'll kick out CP anyway
-                    result = doResourceFetchAndInsert(uri, c == Content.TRACK ? new TrackStorage(mContext) : new UserStorage(mContext));
+                    result = doResourceFetchAndInsert(uri, c == Content.TRACK ? new TrackStorage() : new UserStorage());
                     break;
 
                 case PLAYLIST:

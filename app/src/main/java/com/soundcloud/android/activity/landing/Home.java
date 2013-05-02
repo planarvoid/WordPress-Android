@@ -85,7 +85,7 @@ public class Home extends ScActivity implements ScLandingPage {
             protected void onPostExecute(User user) {
                 if (user == null || user.isPrimaryEmailConfirmed()) {
                     if (user != null) {
-                        new UserStorage(Home.this).createOrUpdate(user);
+                        new UserStorage().createOrUpdate(user);
                     }
                 } else {
                     startActivityForResult(new Intent(Home.this, EmailConfirm.class)

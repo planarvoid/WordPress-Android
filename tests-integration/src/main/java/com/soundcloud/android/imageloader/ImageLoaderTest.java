@@ -51,7 +51,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
             @Override
             public void run() {
                 Bitmap bmp = loader.getBitmap(url,
-                        new ImageLoader.BitmapCallback() {
+                        new ImageLoader.BitmapLoadCallback() {
                             @Override
                             public void onImageLoaded(Bitmap bitmap, String uri) {
                                 latch.countDown();
@@ -61,7 +61,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
                                 latch.countDown();
                                 throwable[0] = error;
                             }
-                        });
+                        }, getInstrumentation().getContext());
                 assertNull(bmp);
             }
         });
@@ -80,7 +80,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    loader.getBitmap(u, new ImageLoader.BitmapCallback() {
+                    loader.getBitmap(u, new ImageLoader.BitmapLoadCallback() {
                         @Override
                         public void onImageError(String uri, Throwable error) {
                             latch.countDown();
@@ -91,7 +91,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
                             latch.countDown();
                             loaded.incrementAndGet();
                         }
-                    });
+                    }, getInstrumentation().getContext());
                 }
             });
         }
@@ -115,7 +115,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    loader.getBitmap(u, new ImageLoader.BitmapCallback() {
+                    loader.getBitmap(u, new ImageLoader.BitmapLoadCallback() {
                         @Override
                         public void onImageError(String uri, Throwable error) {
                             latch.countDown();
@@ -127,7 +127,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
                             latch.countDown();
                             loaded.incrementAndGet();
                         }
-                    });
+                    }, getInstrumentation().getContext());
                 }
             });
         }
@@ -161,7 +161,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
             @Override
             public void run() {
                 Bitmap bmp = loader.getBitmap(url,
-                        new ImageLoader.BitmapCallback() {
+                        new ImageLoader.BitmapLoadCallback() {
                             @Override
                             public void onImageLoaded(Bitmap bitmap, String uri) {
                                 latch.countDown();
@@ -171,7 +171,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
                             public void onImageError(String uri, Throwable error) {
                                 latch.countDown();
                             }
-                        });
+                        }, getInstrumentation().getContext());
                 assertNull(bmp);
             }
         });

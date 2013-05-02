@@ -31,7 +31,7 @@ public class AssociationManager {
     public AssociationManager(Context context, ScModelManager modelManager) {
         mContext = context;
         mModelManager = modelManager;
-        mSoundAssocStorage = new SoundAssociationStorage(context);
+        mSoundAssocStorage = new SoundAssociationStorage();
     }
 
     void setLike(@Nullable Playable playable, boolean likeAdded) {

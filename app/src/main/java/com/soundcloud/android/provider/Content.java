@@ -188,6 +188,17 @@ public enum Content  {
             Content.ME_FRIENDS
     );
 
+    public static final EnumSet<Content> LISTEN_FOR_PLAYLIST_CHANGES = EnumSet.of(
+            Content.ME_SOUND_STREAM,
+            Content.ME_ACTIVITIES,
+            Content.ME_SOUNDS,
+            Content.USER_SOUNDS,
+            Content.ME_LIKES,
+            Content.USER_LIKES,
+            Content.ME_PLAYLISTS,
+            Content.USER_PLAYLISTS
+    );
+
     static {
         for (Content c : Content.values()) {
             if (c.id >= 0 && c.uri != null) {
@@ -282,6 +293,10 @@ public enum Content  {
 
     public boolean hasRequest() {
         return remoteUri != null;
+    }
+
+    public boolean shouldListenForPlaylistChanges() {
+        return LISTEN_FOR_PLAYLIST_CHANGES.contains(this);
     }
 
     @Override

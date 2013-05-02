@@ -1,5 +1,6 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
@@ -29,8 +30,8 @@ public class SoundAssociationStorage {
     private final ContentResolver mResolver;
     private final SoundAssociationDAO mSoundAssociationDAO;
 
-    public SoundAssociationStorage(Context context) {
-        mResolver = context.getContentResolver();
+    public SoundAssociationStorage() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
     }
 

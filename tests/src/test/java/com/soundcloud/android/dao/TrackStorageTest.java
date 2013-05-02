@@ -21,7 +21,7 @@ public class TrackStorageTest {
 
     @Before
     public void before() {
-        storage = new TrackStorage(Robolectric.application);
+        storage = new TrackStorage();
     }
 
     @Test

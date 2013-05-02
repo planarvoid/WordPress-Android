@@ -37,7 +37,7 @@ public class CollectionStorageTest {
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        storage = new CollectionStorage(DefaultTestRunner.application);
+        storage = new CollectionStorage();
     }
 
     @Test

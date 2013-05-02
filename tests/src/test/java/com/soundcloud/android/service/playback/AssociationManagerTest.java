@@ -136,7 +136,7 @@ public class AssociationManagerTest {
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();
 
-        expect(new ActivitiesStorage(Robolectric.application).insert(Content.ME_SOUND_STREAM, a)).toBe(1);
+        expect(new ActivitiesStorage().insert(Content.ME_SOUND_STREAM, a)).toBe(1);
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 
@@ -153,7 +153,7 @@ public class AssociationManagerTest {
         Playlist playlist = (Playlist) a.get(0).getPlayable();
         playlist.reposts_count = Playlist.NOT_SET;
 
-        expect(new ActivitiesStorage(Robolectric.application).insert(Content.ME_SOUND_STREAM, a)).toBe(1);
+        expect(new ActivitiesStorage().insert(Content.ME_SOUND_STREAM, a)).toBe(1);
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 

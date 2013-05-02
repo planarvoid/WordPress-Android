@@ -1,15 +1,18 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
 public class UserStorage implements Storage<User> {
     private UserDAO mUserDAO;
 
-    public UserStorage(Context context) {
-        mUserDAO = new UserDAO(context.getContentResolver());
+    public UserStorage() {
+        ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
+        mUserDAO = new UserDAO(resolver);
     }
 
     @Override

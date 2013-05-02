@@ -143,11 +143,11 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private void onUploadSuccess(HttpResponse response) {
         try {
             Track track = api.getMapper().readValue(response.getEntity().getContent(), Track.class);
-            new TrackStorage(api.getContext()).createOrUpdate(track);
-            new SoundAssociationStorage(api.getContext()).addCreation(track);
+            new TrackStorage().createOrUpdate(track);
+            new SoundAssociationStorage().addCreation(track);
 
             //request to update my collection
-            new SyncStateManager(api.getContext()).forceToStale(Content.ME_SOUNDS.uri);
+            new SyncStateManager().forceToStale(Content.ME_SOUNDS.uri);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 
@@ -161,7 +161,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
                 IOUtils.deleteFile(artworkPath);
             }
 
-            new RecordingStorage(api.getContext()).updateStatus(mUpload);
+            new RecordingStorage().updateStatus(mUpload);
 
             broadcast(UploadService.TRANSFER_SUCCESS, track);
         } catch (IOException e) {

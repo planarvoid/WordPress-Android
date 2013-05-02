@@ -11,18 +11,18 @@ import android.content.Context;
 import android.net.Uri;
 
 public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> implements PlayableAdapter {
-    public SoundAssociationAdapter(Context context, Uri uri) {
-        super(context, uri);
+    public SoundAssociationAdapter(Uri uri) {
+        super(uri);
     }
 
     @Override
-    protected IconLayout createRow(int position) {
-        return new PlayableRow(mContext);
+    protected IconLayout createRow(Context context, int position) {
+        return new PlayableRow(context);
     }
 
     @Override
-    public int handleListItemClick(int position, long id) {
-        PlayUtils.playFromAdapter(mContext, this, mData, position);
+    public int handleListItemClick(Context context, int position, long id) {
+        PlayUtils.playFromAdapter(context, this, mData, position);
         return ItemClickResults.LEAVING;
     }
 

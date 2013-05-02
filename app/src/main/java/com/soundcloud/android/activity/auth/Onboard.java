@@ -319,7 +319,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onSkipDetails() {
-        new AuthTask(getApp(), new UserStorage(getApp())){
+        new AuthTask(getApp(), new UserStorage()){
             @Override
             protected AuthTaskResult doInBackground(Bundle... params) {
                 addAccount(mUser, getSoundCloudApplication().getToken(), SignupVia.API);

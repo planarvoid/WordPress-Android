@@ -27,7 +27,7 @@ public class SoundAssociationStorageTest {
     
     @Before
     public void initTest() {
-        storage = new SoundAssociationStorage(DefaultTestRunner.application);        
+        storage = new SoundAssociationStorage();
     }
     
     @Test
