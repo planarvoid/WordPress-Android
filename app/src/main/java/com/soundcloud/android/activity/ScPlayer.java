@@ -19,6 +19,7 @@ import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.PlayerTrackPager;
+import com.soundcloud.android.view.RootView;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
 import com.soundcloud.android.view.play.WaveformController;
@@ -216,6 +217,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     @Override
+    protected ActionBarController createActionBarController(RootView rootView) {
+        return new ActionBarController(this, rootView);
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         handleIntent(intent);
@@ -265,7 +271,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 // Play from a View Intent, this probably came from quicksearch
                 if (intent.getData() != null) {
                     //FIXME: DB access on UI thread
-                    displayTrack = new TrackStorage(this).getTrack(intent.getData());
+                    displayTrack = new TrackStorage().getTrack(intent.getData());
                     if (displayTrack == null) {
                         displayTrack = SoundCloudApplication.MODEL_MANAGER.cache(new Track(UriUtils.getLastSegmentAsLong(intent.getData())));
                     }

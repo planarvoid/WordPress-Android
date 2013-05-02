@@ -1,5 +1,6 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -7,7 +8,6 @@ import com.soundcloud.android.provider.DBHelper;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -17,8 +17,8 @@ public class PlayQueueManagerStore {
     private final ContentResolver mResolver;
     private final TrackDAO mTrackDAO;
 
-    public PlayQueueManagerStore(Context context) {
-        mResolver = context.getContentResolver();
+    public PlayQueueManagerStore() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mTrackDAO = new TrackDAO(mResolver);
     }
 

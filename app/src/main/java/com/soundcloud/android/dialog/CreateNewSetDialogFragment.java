@@ -90,8 +90,8 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
         final Account account = ((SoundCloudApplication) getActivity().getApplication()).getAccount();
 
         // Commit the playlist locally in the background
-        final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage(getActivity());
-        final SyncStateManager syncStateManager = new SyncStateManager(getActivity());
+        final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage();
+        final SyncStateManager syncStateManager = new SyncStateManager();
         new Thread(){
             @Override
             public void run() {

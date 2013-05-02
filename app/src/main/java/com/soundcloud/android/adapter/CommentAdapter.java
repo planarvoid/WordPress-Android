@@ -10,18 +10,18 @@ import android.content.Intent;
 import android.net.Uri;
 
 public class CommentAdapter extends ScBaseAdapter<Comment> {
-    public CommentAdapter(Context context, Uri uri) {
-        super(context, uri);
+    public CommentAdapter(Uri uri) {
+        super(uri);
     }
 
     @Override
-    protected IconLayout createRow(int position) {
-        return new CommentRow(mContext);
+    protected IconLayout createRow(Context context, int position) {
+        return new CommentRow(context);
     }
 
     @Override
-    public int handleListItemClick(int position, long id) {
-        mContext.startActivity(new Intent(mContext, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER,getItem(position).user));
+    public int handleListItemClick(Context context, int position, long id) {
+        context.startActivity(new Intent(context, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER,getItem(position).user));
         return ItemClickResults.LEAVING;
     }
 }

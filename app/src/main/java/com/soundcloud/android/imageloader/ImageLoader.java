@@ -92,6 +92,7 @@ public class ImageLoader {
      * {@link BindResult#ERROR}.
      */
     private final WeakHashMap<ImageView, String> mImageViewBinding;
+    private final WeakHashMap<Context, Set<BitmapLoadCallback>> mBitmapCallbackBinding;
 
     public ImageLoader() {
         this(null, null, DEFAULT_CACHE_SIZE, DEFAULT_TASK_LIMIT);
@@ -107,6 +108,7 @@ public class ImageLoader {
         mBitmapContentHandler = bitmapHandler != null ? bitmapHandler : new DownloadBitmapHandler();
         mPrefetchContentHandler = prefetchHandler;
         mImageViewBinding = new WeakHashMap<ImageView, String>();
+        mBitmapCallbackBinding= new WeakHashMap<Context, Set<BitmapLoadCallback>>();
 
         mRequests = new LinkedList<ImageRequest>();
         mBitmaps  = new BitmapCache<String>((int)cacheSize);
@@ -158,27 +160,49 @@ public class ImageLoader {
     }
 
     public Bitmap getBitmap(String url, Options options) {
-        return getBitmap(url, null, options);
+        return getBitmap(url, null, null, options);
     }
 
-    public Bitmap getBitmap(String url, @Nullable BitmapCallback callback) {
-        return getBitmap(url, callback, new Options());
+    public Bitmap getBitmap(String url, @Nullable BitmapLoadCallback callback, Context context) {
+        return getBitmap(url, callback, context, new Options());
     }
-
-    public Bitmap getBitmap(String url, @Nullable BitmapCallback callback, Options options) {
+    /**
+     *
+     * @param url image uri
+     * @param callback Callback to use when image is loaded
+     * @param context The callback will be tied to the lifecycle of this context. To avoid memory leaks,
+     *                use the shortest context possible that will still preserve the desired behavior.
+     * @param options
+     * @return
+     */
+    public Bitmap getBitmap(String url, @Nullable BitmapLoadCallback callback, Context context, Options options) {
         if (url == null) throw new IllegalArgumentException("url is null");
         if (options == null) options = new Options();
         final Bitmap memoryBmp = getBitmap(url);
         if (memoryBmp != null) {
             if (callback != null) {
-                callback.setResult(url, memoryBmp, null);
-                callback.send();
+                callback.onImageLoaded(memoryBmp, url);
             }
             return memoryBmp;
         } else if (options.loadRemotelyIfNecessary) {
-            queueRequest(url, callback, options);
+            if (callback != null){
+                preserveBitmapCallback(callback, context);
+                queueRequest(url, new BitmapCallback(callback), options);
+            }
         }
         return null;
+    }
+
+    /**
+     * Tie the callback to its given context lifecycle via a Set contained in a WeakHashMap.
+     * Without this, the callback would get garbage collected too soon
+     * @param callback
+     */
+    private void preserveBitmapCallback(BitmapLoadCallback callback, Context context) {
+        if (mBitmapCallbackBinding.get(context) == null){
+            mBitmapCallbackBinding.put(context,new HashSet<BitmapLoadCallback>());
+        }
+        mBitmapCallbackBinding.get(context).add(callback);
     }
 
     /**
@@ -565,16 +589,29 @@ public class ImageLoader {
         }
     }
 
+    /**
+     * Callback for loading a bitmap into memory
+     */
+    public static abstract class BitmapLoadCallback {
+        public abstract void onImageLoaded(Bitmap bitmap, String url);
+        public abstract void onImageError(String url, Throwable error);
+    }
+
     private interface ImageCallback {
         boolean unwanted();
         void setResult(String url, Bitmap bitmap, ImageError imageError);
         void send();
     }
 
-    public static class BitmapCallback implements ImageCallback {
+    private static class BitmapCallback implements ImageCallback {
         private String mUrl;
         private Bitmap mBitmap;
         private ImageError mError;
+        private WeakReference<BitmapLoadCallback> mBitmapLoadCallbackRef;
+
+        public BitmapCallback(BitmapLoadCallback callback){
+            mBitmapLoadCallbackRef = new WeakReference<BitmapLoadCallback>(callback);
+        }
 
         @Override
         public boolean unwanted() {
@@ -589,21 +626,18 @@ public class ImageLoader {
         }
 
         public void send() {
-            if (mError == null) {
-                onImageLoaded(mBitmap, mUrl);
-            } else {
-                onImageError(mUrl, mError.getCause());
+            final BitmapLoadCallback loadListener = mBitmapLoadCallbackRef.get();
+            if (loadListener != null){
+                if (mError == null) {
+                    loadListener.onImageLoaded(mBitmap, mUrl);
+                } else {
+                    loadListener.onImageError(mUrl, mError.getCause());
+                }
             }
-        }
-
-        public void onImageLoaded(Bitmap bitmap, String url) {
-        }
-
-        public void onImageError(String url, Throwable error) {
         }
     }
 
-    public final class ImageViewCallback implements ImageCallback {
+    private final class ImageViewCallback implements ImageCallback {
         private final WeakReference<ImageView> mImageView;
         private final Callback mCallback;
         private final Options mOptions;

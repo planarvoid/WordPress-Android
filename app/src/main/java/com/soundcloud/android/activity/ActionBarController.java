@@ -6,14 +6,12 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,10 +19,8 @@ import org.jetbrains.annotations.Nullable;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.net.Uri;
@@ -38,20 +34,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class ActionBarController {
-    @NotNull private ActionBarOwner mOwner;
-    @NotNull private Activity mActivity;
-    @NotNull private RootView mRootView;
+    @NotNull protected ActionBarOwner mOwner;
+    @NotNull protected Activity mActivity;
+    @NotNull protected RootView mRootView;
 
-    @Nullable private View           mActionBarCustomView;
-    @Nullable private RelativeLayout mSearchCustomView;
-    @Nullable private SearchView     mSearchView;
-
-    @Nullable private NowPlayingIndicator mNowPlaying;
-    @Nullable private View                mNowPlayingHolder;
-
-    @Nullable private View mMenuIndicator;
-
-    private boolean mListening;
+    @Nullable private View              mActionBarCustomView;
+    @Nullable private RelativeLayout    mSearchCustomView;
+    @Nullable private SearchView        mSearchView;
+    @Nullable private View              mMenuIndicator;
 
     private SuggestionsAdapter mSuggestionsAdapter;
 
@@ -72,40 +62,23 @@ public class ActionBarController {
         mOwner    = owner;
         mActivity = owner.getActivity();
         mRootView = rootView;
-
         configureCustomView();
     }
 
-    public interface PlaybackIntentReceiver {
-        void onReceive(Intent intent);
-    }
 
     public void setTitle(CharSequence title) {
-        TextView titleView = (TextView) getActionBarCustomView().findViewById(R.id.title);
-        titleView.setText(title);
-    }
-
-    public void onCloseSearch() {
-        if (TextUtils.isEmpty(getSearchView().getQuery())) {
-            toggleSearch();
-        } else {
-            getSearchView().setIconified(true);
-        }
+        ((TextView) getActionBarCustomView().findViewById(R.id.title)).setText(title);
     }
 
     public void onMenuOpenLeft() {
-        if (getMenuIndicator() != null) getMenuIndicator().setVisibility(View.GONE);
+        getMenuIndicator().setVisibility(View.GONE);
     }
 
     public void onMenuClosed() {
-        if (getMenuIndicator() != null && mRootView != null) getMenuIndicator().setVisibility(View.VISIBLE);
+        getMenuIndicator().setVisibility(View.VISIBLE);
     }
 
     public void onResume() {
-        startListening();
-        updateWaveformVisibility();
-        getNowPlaying().resume();
-
         if (mCloseSearchOnResume) {
             closeSearch(true);
             mCloseSearchOnResume = false;
@@ -113,10 +86,10 @@ public class ActionBarController {
     }
 
     public void onPause() {
-        stopListening();
-        if (!(mActivity instanceof ScPlayer)) {
-            getNowPlaying().pause();
-        }
+        /**
+         * nop for now, used by
+         * {@link com.soundcloud.android.activity.NowPlayingActionBarController#onPause()}
+         * **/
     }
 
     public void onDestroy() {
@@ -133,9 +106,7 @@ public class ActionBarController {
 
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState.getBoolean("closeSearchOnResume")) {
-            if (mRootView != null){
-                mRootView.unBlock(true);
-            }
+            mRootView.unBlock(true);
         } else {
             if (savedInstanceState.getBoolean("inSearchMode") != mInSearchMode) {
                 toggleSearch();
@@ -147,76 +118,20 @@ public class ActionBarController {
         }
     }
 
-    private void startListening() {
-        if (!mListening) {
-            mListening = true;
-            IntentFilter f = new IntentFilter();
-            f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-            f.addAction(CloudPlaybackService.META_CHANGED);
-            f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-            f.addAction(CloudPlaybackService.SEEKING);
-            mOwner.getActivity().registerReceiver(mStatusListener, new IntentFilter(f));
-        }
-    }
 
-    private void stopListening() {
-        if (mListening) {
-            mOwner.getActivity().unregisterReceiver(mStatusListener);
-        }
-        mListening = false;
-    }
-
-    private void updateWaveformVisibility() {
-        if (mActivity instanceof ScPlayer || CloudPlaybackService.getCurrentTrackId() < 0) {
-            getNowPlayingHolder().setVisibility(View.GONE);
-        } else {
-            getNowPlayingHolder().setVisibility(View.VISIBLE);
-        }
-    }
-
-    private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (mActivity instanceof ScPlayer && mNowPlaying != null) {
-                mNowPlaying.getStatusListener().onReceive(context, intent);
-            }
-
-            if (intent.getAction().equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
-                mOwner.invalidateOptionsMenu();
-            }
-        }
-    };
 
     private void configureCustomView(){
         if (mOwner.getSupportActionBar() != null) {
-            mOwner.getSupportActionBar().setCustomView(mInSearchMode && mRootView != null ?
+            mOwner.getSupportActionBar().setCustomView(mInSearchMode ?
                     getSearchCustomView() : getActionBarCustomView(), new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL)
             );
         }
-    }
-
-    private static View createDefaultCustomView(Activity activity,
-                                                @Nullable View.OnClickListener homeListener,
-                                                @Nullable View.OnClickListener waveformListener) {
-        View defaultCustomView = View.inflate(activity, R.layout.action_bar_custom_view, null);
-
-        defaultCustomView.findViewById(R.id.custom_home).setOnClickListener(homeListener);
-        defaultCustomView.findViewById(R.id.waveform_holder).setOnClickListener(waveformListener);
-
-        return defaultCustomView;
-    }
-
-    private static RelativeLayout createSearchCustomView(Context themedContext) {
-        RelativeLayout searchCustomView = new RelativeLayout(themedContext);
-
-        return searchCustomView;
     }
 
     private static SearchView createSearchView(Context themedContext) {
         SearchView searchView = new SearchView(themedContext);
         searchView.setLayoutParams(new ActionMenuView.LayoutParams(ActionMenuView.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.MATCH_PARENT));
         searchView.setGravity(Gravity.LEFT);
-
         return searchView;
     }
 
@@ -256,7 +171,6 @@ public class ActionBarController {
             }
         }
 
-
         SearchManager searchManager = (SearchManager) mActivity.getSystemService(Context.SEARCH_SERVICE);
         final SearchableInfo searchableInfo = searchManager.getSearchableInfo(mActivity.getComponentName());
         searchView.setSearchableInfo(searchableInfo);
@@ -285,7 +199,7 @@ public class ActionBarController {
         });
 
         // listeners for showing and hiding the content blocker
-        if (mRootView != null && useFullScreenSearch()) {
+        if (useFullScreenSearch()) {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
@@ -334,7 +248,7 @@ public class ActionBarController {
         if (mSearchView != null) {
             mSearchView.clearFocus();
         }
-        if (mRootView != null)mRootView.unBlock(instant);
+        mRootView.unBlock(instant);
         if (mInSearchMode) toggleSearch();
     }
 
@@ -356,7 +270,7 @@ public class ActionBarController {
         if (backToSetItem != null) {
             boolean visible = false;
             if ((mOwner.getActivity() instanceof ScPlayer)) {
-                Uri uri = CloudPlaybackService.getUri();
+                final Uri uri = CloudPlaybackService.getUri();
                 if (uri != null && Content.match(uri) == Content.PLAYLIST) {
                     visible = true;
                 }
@@ -372,7 +286,7 @@ public class ActionBarController {
                 return true;
 
             case R.id.close_search:
-                if (TextUtils.isEmpty(mSearchView.getQuery())) {
+                if (TextUtils.isEmpty(getSearchView().getQuery())) {
                     toggleSearch();
                 } else {
                     getSearchView().setIconified(true);
@@ -380,9 +294,9 @@ public class ActionBarController {
                 return true;
 
             case R.id.backToSet:
-                Intent intent = new Intent(mOwner.getActivity(), PlaylistActivity.class);
+                final Intent intent = new Intent(mOwner.getActivity(), PlaylistActivity.class);
                 intent.putExtra(PlaylistActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
-                Uri uri = CloudPlaybackService.getUri();
+                final Uri uri = CloudPlaybackService.getUri();
                 if (Content.match(uri) == Content.PLAYLIST) {
                     intent.setData(uri);
                 } else {
@@ -396,72 +310,50 @@ public class ActionBarController {
         }
     }
 
+    @NotNull
     public View getActionBarCustomView() {
-        if (mActionBarCustomView == null) {
-            View.OnClickListener toggleRootView = new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mOwner.onHomePressed();
-                }
-            };
-
-            // No open the player if we're already there
-            View.OnClickListener openPlayer = mActivity instanceof ScPlayer ? null : new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mRootView.isExpanded()) {
-                        ScActivity.startNavActivity(mActivity, ScPlayer.class, mRootView.getMenuBundle());
-                    } else {
-                        mActivity.startActivity(new Intent(Actions.PLAYER));
-                    }
-                }
-            };
-
-            mActionBarCustomView = createDefaultCustomView(mActivity, toggleRootView, openPlayer);
-        }
-
+        if (mActionBarCustomView == null) mActionBarCustomView = createCustomView();
         return mActionBarCustomView;
     }
 
-    @NotNull public NowPlayingIndicator getNowPlaying() {
-        if (mNowPlaying == null) {
-            mNowPlaying = (NowPlayingIndicator) getActionBarCustomView().findViewById(R.id.waveform_progress);
-        }
-
-        return mNowPlaying;
+    protected View createCustomView() {
+        View customView = View.inflate(mActivity, R.layout.action_bar_custom_view, null);
+        setupHomeButton(customView.findViewById(R.id.custom_home));
+        return customView;
     }
 
-    @NotNull public View getNowPlayingHolder() {
-        if (mNowPlayingHolder == null) {
-            mNowPlayingHolder = getActionBarCustomView().findViewById(R.id.waveform_holder);
-        }
-
-        return mNowPlayingHolder;
+    protected void setupHomeButton(View view) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOwner.onHomePressed();
+            }
+        });
     }
 
-    @NotNull public View getMenuIndicator() {
+    @NotNull
+    public View getMenuIndicator() {
         if (mMenuIndicator == null) {
             mMenuIndicator = getActionBarCustomView().findViewById(R.id.custom_up);
         }
-
         return mMenuIndicator;
     }
 
-    @NotNull public RelativeLayout getSearchCustomView() {
+    @NotNull
+    public RelativeLayout getSearchCustomView() {
         if (mSearchCustomView == null) {
-            Context themedContext = mOwner.getSupportActionBar().getThemedContext();
-            mSearchCustomView     = createSearchCustomView(themedContext);
+            mSearchCustomView = new RelativeLayout(mOwner.getSupportActionBar().getThemedContext());
         }
 
         return mSearchCustomView;
     }
 
-    @NotNull public SearchView getSearchView() {
+    @NotNull
+    public SearchView getSearchView() {
         if (mSearchView == null) {
-            Context themedContext = mOwner.getSupportActionBar().getThemedContext();
-            mSearchView           = createSearchView(themedContext);
+            final Context themedContext = mOwner.getSupportActionBar().getThemedContext();
+            mSearchView = createSearchView(themedContext);
             setupSearchView(mSearchView);
-
             getSearchCustomView().addView(mSearchView);
         }
 

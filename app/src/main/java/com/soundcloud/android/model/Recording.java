@@ -610,7 +610,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
                 return r;
             } else return null;
         } else if (intent.getData() != null) {
-            RecordingStorage recordings = new RecordingStorage(context);
+            RecordingStorage recordings = new RecordingStorage();
             return recordings.getRecordingByUri(intent.getData());
         } else {
             return null;

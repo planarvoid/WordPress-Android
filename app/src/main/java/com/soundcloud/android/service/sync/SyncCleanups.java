@@ -3,7 +3,6 @@ package com.soundcloud.android.service.sync;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 
-import android.content.Context;
 import android.net.Uri;
 
 import java.util.ArrayList;
@@ -32,8 +31,8 @@ enum SyncCleanups {
      *
      * @param manual manual sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
      */
-    public static List<Uri> getCleanupsDueForSync(Context c, boolean manual) {
-        SyncStateManager syncStateManager = new SyncStateManager(c);
+    public static List<Uri> getCleanupsDueForSync(boolean manual) {
+        SyncStateManager syncStateManager = new SyncStateManager();
 
         List<Uri> urisToSync = new ArrayList<Uri>();
         for (SyncCleanups sc : SyncCleanups.values()) {

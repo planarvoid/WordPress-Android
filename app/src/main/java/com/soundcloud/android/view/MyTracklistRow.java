@@ -147,12 +147,15 @@ public class MyTracklistRow extends PlayableRow {
             final String fileUri = Uri.fromFile(recording.artwork_path).toString();
             mImageLoader.getBitmap(
                     fileUri,
-                    new ImageLoader.BitmapCallback(){
+                    new ImageLoader.BitmapLoadCallback(){
                         @Override
                         public void onImageLoaded(Bitmap bitmap, String url) {
                             if (fileUri.equals(url)) setImageBitmap(recording, bitmap);
                         }
-                    },
+
+                        @Override
+                        public void onImageError(String url, Throwable error) { }
+                    }, getContext(),
                     ImageUtils.getImageLoaderOptionsWithResizeSet(recording.artwork_path, mTargetIconDimension, mTargetIconDimension, false)
             );
         }

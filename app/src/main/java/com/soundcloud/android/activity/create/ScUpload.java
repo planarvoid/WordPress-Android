@@ -108,7 +108,7 @@ public class ScUpload extends ScActivity {
 
                 if (mRecording.external_upload){
                     //FIXME 3/23/13 database access on UI thread
-                    new RecordingStorage(ScUpload.this).delete(mRecording);
+                    new RecordingStorage().delete(mRecording);
                 } else {
                     setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
                 }
@@ -210,7 +210,7 @@ public class ScUpload extends ScActivity {
     private void saveRecording() {
         mapToRecording(mRecording);
         if (mRecording != null) {
-            new RecordingStorage(this).create(mRecording);
+            new RecordingStorage().create(mRecording);
         }
     }
 

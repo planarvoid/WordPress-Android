@@ -99,7 +99,7 @@ public class UserBrowser extends ScActivity implements
         super.onCreate(bundle);
         setContentView(R.layout.user_browser);
 
-        mFollowStatus = FollowStatus.get(this);
+        mFollowStatus = FollowStatus.get();
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
@@ -332,7 +332,7 @@ public class UserBrowser extends ScActivity implements
 
     private boolean loadUserByUri(Uri uri) {
         if (uri != null) {
-            mUser = new UserStorage(this).getUserByUri(uri); //FIXME: DB access on UI thread
+            mUser = new UserStorage().getUserByUri(uri); //FIXME: DB access on UI thread
             if (mUser == null) {
                 loadUserById(UriUtils.getLastSegmentAsLong(uri));
             }
@@ -404,7 +404,7 @@ public class UserBrowser extends ScActivity implements
         new Thread(new Runnable() {
             @Override
             public void run() {
-                new UserStorage(UserBrowser.this).create(mUser);
+                new UserStorage().create(mUser);
             }
         }).start();
         mUserDetailsFragment.onSuccess(mUser);

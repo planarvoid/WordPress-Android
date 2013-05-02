@@ -15,12 +15,15 @@ import com.soundcloud.android.view.MyTracklistRow;
 import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.PlayableRow;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,20 +31,18 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     private Cursor mCursor;
     private boolean mDataValid;
     private List<Recording> mRecordingData;
-    private ScActivity mActivity;
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
 
     public MyTracksAdapter(ScActivity activity, Uri uri) {
-        super(activity, uri);
-        mActivity = activity;
-        refreshCursor();
+        super(uri);
+        ContentResolver contentResolver = activity.getApplicationContext().getContentResolver();
+        refreshCursor(contentResolver);
 
-        mChangeObserver = new ChangeObserver();
-        activity.getContentResolver()
-                .registerContentObserver(Content.RECORDINGS.uri, true, mChangeObserver);
+        mChangeObserver = new ChangeObserver(activity);
+        contentResolver.registerContentObserver(Content.RECORDINGS.uri, true, mChangeObserver);
     }
 
     @Override
@@ -58,9 +59,9 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     }
 
     @Override
-    protected IconLayout createRow(int position) {
+    protected IconLayout createRow(Context context, int position) {
         return getItemViewType(position) == TYPE_PENDING_RECORDING ?
-                new MyTracklistRow(mContext) : new PlayableRow(mContext);
+                new MyTracklistRow(context) : new PlayableRow(context);
     }
 
     @Override
@@ -81,8 +82,8 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
         return mRecordingData == null ? 0 : mRecordingData.size();
     }
 
-    private void refreshCursor() {
-        mCursor = mContext.getContentResolver().query(Content.RECORDINGS.uri, null,
+    private void refreshCursor(ContentResolver contentResolver) {
+        mCursor = contentResolver.query(Content.RECORDINGS.uri, null,
                 Recordings.UPLOAD_STATUS + " < " + Recording.Status.UPLOADED + " OR " + Recordings.UPLOAD_STATUS + " = " + Recording.Status.ERROR,
                 null,
                 Recordings.TIMESTAMP + " DESC");
@@ -102,7 +103,7 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
         notifyDataSetChanged();
 
         // updated recording functionality requires special handling of old recordings
-        DeprecatedRecordingProfile.migrateRecordings(mRecordingData, mContext.getContentResolver());
+        DeprecatedRecordingProfile.migrateRecordings(mRecordingData, contentResolver);
     }
 
 
@@ -141,32 +142,34 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
      * sub classes.
      *
      * @see ContentObserver#onChange(boolean)
+     * @param activity
      */
-    protected void onContentChanged() {
+    protected void onContentChanged(ScActivity activity) {
         mDataValid = false;
-        if (mActivity.isForeground() && mCursor == null) {
-            refreshCursor();
+        if (activity.isForeground() && mCursor == null) {
+            refreshCursor(activity.getContentResolver());
         }
         notifyDataSetChanged();
     }
 
-    public void onResume() {
+    @Override
+    public void onResume(ScActivity activity) {
         if (!mDataValid) {
-            onContentChanged();
+            onContentChanged(activity);
         }
     }
 
     @Override
-    public int handleListItemClick(int position, long id) {
+    public int handleListItemClick(Context context, int position, long id) {
         if (getItemViewType(position) == TYPE_PENDING_RECORDING){
             final Recording r = (Recording) getItem(position);
             if (r.upload_status == Recording.Status.UPLOADING) {
-                mContext.startActivity(r.getMonitorIntent());
+                context.startActivity(r.getMonitorIntent());
             } else {
-                mContext.startActivity(new Intent(mContext,(r.external_upload ? ScUpload.class : ScCreate.class)).setData(r.toUri()));
+                context.startActivity(new Intent(context,(r.external_upload ? ScUpload.class : ScCreate.class)).setData(r.toUri()));
             }
         } else {
-            PlayUtils.playFromAdapter(mContext, this, mData, position - mRecordingData.size());
+            PlayUtils.playFromAdapter(context, this, mData, position - mRecordingData.size());
         }
         return ItemClickResults.LEAVING;
     }
@@ -189,13 +192,12 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
         }
     }
 
-    public void onDestroy(){
-        mContext.getContentResolver().unregisterContentObserver(mChangeObserver);
-    }
-
     private class ChangeObserver extends ContentObserver {
-        public ChangeObserver() {
+        private WeakReference<ScActivity> mContextRef;
+
+        public ChangeObserver(ScActivity activity) {
             super(new Handler());
+            mContextRef = new WeakReference<ScActivity>(activity);
         }
 
         @Override
@@ -205,7 +207,8 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
 
         @Override
         public void onChange(boolean selfChange) {
-            onContentChanged();
+            ScActivity activity = mContextRef.get();
+            if (activity != null) onContentChanged(activity);
         }
     }
 
