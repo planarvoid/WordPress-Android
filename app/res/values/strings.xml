@@ -179,5 +179,6 @@
     <string name="authentication_no_google_accounts">Please setup a google account first.</string>
 
     <string name="authentication_log_in_with_google">Sign in with Google</string>
+    <string name="error_google_sign_in_failed">We couldn\'t log you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
 
 </resources>

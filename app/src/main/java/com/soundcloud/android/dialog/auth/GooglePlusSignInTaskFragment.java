@@ -5,10 +5,12 @@ import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.task.auth.AuthTask;
 import com.soundcloud.android.task.auth.AuthTaskResult;
 import com.soundcloud.android.task.auth.GooglePlusSignInTask;
+import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
@@ -62,6 +64,12 @@ public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
             activity.startActivityForResult(intent, getArguments().getInt(ARG_REQ_CODE));
             return null;
 
+        } else if (e instanceof CloudAPI.InvalidTokenException) {
+            // Normally this indicates that we could not swap the Google token for a SoundCloud API token, which can
+            // happen if users try to sign in via G+ without actually having a G+ account
+            // NOTE that using a dev build signed with a debug key that is NOT registered with the G+ client ID will
+            // also raise this error.
+            return activity.getString(R.string.error_google_sign_in_failed);
         } else if (e instanceof GoogleAuthException) {
             return "Unrecoverable error " + e.getMessage();
         } else {
