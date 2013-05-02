@@ -97,17 +97,17 @@ public class UserDetailsFragment extends Fragment {
                     if (mUserId == SoundCloudApplication.getUserId()) {
                         if (getActivity() != null) {
                             mEmptyInfoView.setMessageText(R.string.info_empty_you_message)
-                                    .setActionText(R.string.info_empty_you_action)
-                                    .setActionListener(getActivity(), new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")));
+                                    .setActionText(getString(R.string.info_empty_you_action))
+                                    .setButtonActions(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")), null);
                         }
                     } else {
                         mEmptyInfoView.setMessageText(R.string.info_empty_other_message)
-                                .setActionText(-1);
+                                .setActionText(null);
                     }
                     if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
                         // won't fit in most landscape views
                         mEmptyInfoView.setImage(-1);
-                        mEmptyInfoView.setActionText(-1);
+                        mEmptyInfoView.setActionText(null);
                     }
                 }
 

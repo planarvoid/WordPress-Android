@@ -12,6 +12,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.FriendFinderEmptyCollection;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,7 +70,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
         if (mEmptyListView != null) {
-            mEmptyListView.setButtonActionListener(new EmptyListView.ActionListener() {
+            mEmptyListView.setActionListener(new EmptyListView.ActionListener() {
                 @Override
                 public void onAction() {
                     if (isTaskFinished(mConnectionTask)) {
@@ -121,6 +122,8 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
                     super.configureEmptyView();
                     break;
             }
+        } else {
+            mEmptyListView = new FriendFinderEmptyCollection(getActivity());
         }
     }
 
