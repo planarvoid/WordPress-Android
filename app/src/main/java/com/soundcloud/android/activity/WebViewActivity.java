@@ -17,6 +17,7 @@ public class WebViewActivity extends Activity {
             setContentView(R.layout.web_view);
             WebView view = (WebView) findViewById(R.id.webview);
             view.getSettings().setJavaScriptEnabled(true);
+            view.getSettings().setDomStorageEnabled(true);
             view.getSettings().setBlockNetworkImage(false);
             view.getSettings().setLoadsImagesAutomatically(true);
             view.setWebViewClient(new WebViewClient() {
