@@ -6,7 +6,6 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,13 +15,15 @@ import android.view.View;
 
 public class NowPlayingActionBarController extends ActionBarController {
 
-    @Nullable private NowPlayingIndicator mNowPlaying;
-    @Nullable private View mNowPlayingHolder;
+    private NowPlayingIndicator mNowPlaying;
+    private View mNowPlayingHolder;
 
     private boolean mListening;
 
     public NowPlayingActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView) {
         super(owner, rootView);
+        mNowPlaying = (NowPlayingIndicator) getActionBarCustomView().findViewById(R.id.waveform_progress);
+        mNowPlayingHolder = getActionBarCustomView().findViewById(R.id.waveform_holder);
     }
 
     @Override
@@ -34,13 +35,6 @@ public class NowPlayingActionBarController extends ActionBarController {
     @Override
     public void onResume() {
         super.onResume();
-
-        if (mNowPlaying == null) {
-            mNowPlaying = (NowPlayingIndicator) getActionBarCustomView().findViewById(R.id.waveform_progress);
-        }
-        if (mNowPlayingHolder == null) {
-            mNowPlayingHolder = getActionBarCustomView().findViewById(R.id.waveform_holder);
-        }
 
         mNowPlaying.resume();
         startListening();
@@ -91,9 +85,7 @@ public class NowPlayingActionBarController extends ActionBarController {
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (mNowPlaying != null) {
-                mNowPlaying.getStatusListener().onReceive(context, intent);
-            }
+            mNowPlaying.getStatusListener().onReceive(context, intent);
 
             if (intent.getAction().equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                 mOwner.invalidateOptionsMenu();
