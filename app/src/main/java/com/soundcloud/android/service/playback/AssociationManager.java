@@ -91,12 +91,12 @@ public class AssociationManager {
         @Override
         public void onNewStatus(Playable playable, boolean isAssociated, boolean changed) {
             playable = (Playable) mModelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
-            if (changed && playable.likes_count > ScModel.NOT_SET) {
+            if (changed) {
                 if (isAssociated) {
-                    playable.likes_count += 1;
+                    if (playable.isLikesCountSet()) playable.likes_count += 1;
                     mSoundAssocStorage.addLike(playable);
                 } else {
-                    playable.likes_count -= 1;
+                    if (playable.isLikesCountSet()) playable.likes_count -= 1;
                     mSoundAssocStorage.removeLike(playable);
                 }
             }
@@ -109,17 +109,13 @@ public class AssociationManager {
         public void onNewStatus(Playable playable, boolean isAssociated, boolean changed) {
             playable = (Playable) mModelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
             if (changed) {
-                if (playable.isRepostCountSet()) {
-                    if (isAssociated) {
-                        playable.reposts_count += 1;
-                        mSoundAssocStorage.addRepost(playable);
-                    } else {
-                        playable.reposts_count -= 1;
-                        mSoundAssocStorage.removeRepost(playable);
-                    }
-                }
+                if (isAssociated) {
+                    if (playable.isRepostCountSet()) playable.reposts_count += 1;
+                    mSoundAssocStorage.addRepost(playable);
+                } else {
+                    if (playable.isRepostCountSet()) playable.reposts_count -= 1;
+                    mSoundAssocStorage.removeRepost(playable);
 
-                if (!isAssociated){
                     // quick and dirty way to remove reposts from
                     Activity.Type activityType = (playable instanceof Track) ? Activity.Type.TRACK_REPOST :
                             Activity.Type.PLAYLIST_REPOST;

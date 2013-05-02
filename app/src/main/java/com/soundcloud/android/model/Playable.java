@@ -373,6 +373,10 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         return user == null ? null : user.avatar_url;
     }
 
+    public boolean isLikesCountSet() {
+        return likes_count > NOT_SET;
+    }
+
     public boolean isRepostCountSet(){
         return reposts_count > NOT_SET;
     }
