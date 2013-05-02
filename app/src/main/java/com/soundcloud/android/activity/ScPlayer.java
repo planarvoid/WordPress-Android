@@ -19,6 +19,7 @@ import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.PlayerTrackPager;
+import com.soundcloud.android.view.RootView;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
 import com.soundcloud.android.view.play.WaveformController;
@@ -213,6 +214,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         closeCommentMode();
         pendingComment = comment;
         safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+    }
+
+    @Override
+    protected ActionBarController createActionBarController(RootView rootView) {
+        return new ActionBarController(this, rootView);
     }
 
     @Override

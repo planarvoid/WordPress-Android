@@ -531,8 +531,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     protected boolean canAppend() {
-        log("Can Append [mKeepGoing: " + mKeepGoing + "]");
-        return mKeepGoing;
+        log("Can Append [mKeepGoing: " + mKeepGoing + ", waitingOnInitialSync: "+waitingOnInitialSync()+"]");
+        return mKeepGoing && !waitingOnInitialSync();
     }
 
     protected void refresh(final boolean userRefresh) {
