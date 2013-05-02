@@ -345,6 +345,10 @@ public class PlayQueueManager {
             }
             return seekPos;
         } else {
+            if (TextUtils.isEmpty(lastUri)) {
+                // this is so the player can finish() instead of display waiting to the user
+                broadcastPlayQueueChanged();
+            }
             return -1; // seekpos
         }
     }

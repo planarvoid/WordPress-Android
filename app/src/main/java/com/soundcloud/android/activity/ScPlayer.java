@@ -523,7 +523,12 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-                setTrackDisplayFromService();
+                if (getPlaylistManager().isEmpty()){
+                    // Service has no playlist. Probably came from the widget. Kick them out to home
+                    onHomePressed();
+                } else {
+                    setTrackDisplayFromService();
+                }
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 onMetaChanged(queuePos);
 
