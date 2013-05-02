@@ -29,7 +29,7 @@ public class AddUserInfoTask extends AuthTask {
     }
 
     public AddUserInfoTask(SoundCloudApplication application, User updatedUser, File avatarFile){
-        this(application, updatedUser, avatarFile, new UserStorage(application));
+        this(application, updatedUser, avatarFile, new UserStorage());
     }
 
     @Override

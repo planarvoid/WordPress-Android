@@ -187,7 +187,7 @@ public class UploadServiceTest {
 
         svc.upload(recording);
 
-        RecordingStorage recordings = new RecordingStorage(svc);
+        RecordingStorage recordings = new RecordingStorage();
 
         Recording updated = recordings.getRecordingByUri(recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADING);
@@ -206,7 +206,7 @@ public class UploadServiceTest {
 
         svc.upload(recording);
 
-        Recording updated = new RecordingStorage(svc).getRecordingByUri(recording.toUri());
+        Recording updated = new RecordingStorage().getRecordingByUri(recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.ERROR);
     }
 
@@ -223,7 +223,7 @@ public class UploadServiceTest {
         expect(upload.isUploaded()).toBeTrue();
         expect(upload.resized_artwork_path).toEqual(upload.artwork_path);
 
-        Recording updated = new RecordingStorage(svc).getRecordingByUri(upload.toUri());
+        Recording updated = new RecordingStorage().getRecordingByUri(upload.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
     }
 
@@ -276,7 +276,7 @@ public class UploadServiceTest {
         Recording stuck = TestApplication.getValidRecording();
         stuck.upload_status = Recording.Status.UPLOADING;
 
-        RecordingStorage recordings = new RecordingStorage(svc);
+        RecordingStorage recordings = new RecordingStorage();
         recordings.create(stuck);
 
         UploadService service = startService();

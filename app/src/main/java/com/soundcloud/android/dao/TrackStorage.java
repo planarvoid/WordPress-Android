@@ -22,8 +22,8 @@ public class TrackStorage implements Storage<Track> {
     private TrackDAO mTrackDAO;
     private final ContentResolver mResolver;
 
-    public TrackStorage(Context context) {
-        mResolver = context.getContentResolver();
+    public TrackStorage() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mTrackDAO = new TrackDAO(mResolver);
     }
 

@@ -23,7 +23,7 @@ public class ActivitiesStorageTest {
     ActivitiesStorage storage;
 
     @Before public void before() {
-        storage = new ActivitiesStorage(Robolectric.application);
+        storage = new ActivitiesStorage();
     }
 
     @Test

@@ -11,19 +11,19 @@ import android.content.Intent;
 import android.net.Uri;
 
 public class UserAdapter extends ScBaseAdapter<User> implements FollowStatus.Listener {
-    public UserAdapter(Context context, Uri uri) {
-        super(context, uri);
-        FollowStatus.get(context).requestUserFollowings(this);
+    public UserAdapter(Uri uri) {
+        super(uri);
+        FollowStatus.get().requestUserFollowings(this);
     }
 
     @Override
-    protected IconLayout createRow(int position) {
-        return new UserlistRow(mContext);
+    protected IconLayout createRow(Context context, int position) {
+        return new UserlistRow(context);
     }
 
     @Override
-    public int handleListItemClick(int position, long id) {
-        mContext.startActivity(new Intent(mContext, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER,getItem(position)));
+    public int handleListItemClick(Context context, int position, long id) {
+        context.startActivity(new Intent(context, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER,getItem(position)));
         return ItemClickResults.LEAVING;
     }
 

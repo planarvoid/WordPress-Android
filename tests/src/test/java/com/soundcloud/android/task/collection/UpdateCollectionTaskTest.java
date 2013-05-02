@@ -39,7 +39,7 @@ public class UpdateCollectionTaskTest {
 
         UpdateCollectionTask task = new UpdateCollectionTask(api, "/tracks", new HashSet<Long>());
 
-        UserAdapter adapter = new UserAdapter(Robolectric.application, Content.USERS.uri);
+        UserAdapter adapter = new UserAdapter(Content.USERS.uri);
         User existingUser = new User(1);
         SoundCloudApplication.MODEL_MANAGER.cache(existingUser);
         adapter.addItems(Arrays.asList(existingUser));

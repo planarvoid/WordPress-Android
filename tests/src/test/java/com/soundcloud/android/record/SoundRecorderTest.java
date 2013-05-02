@@ -88,7 +88,7 @@ public class SoundRecorderTest {
         expect(saved).not.toBeNull();
         expect(saved.isSaved()).toBeTrue();
 
-        Recording r2 = new RecordingStorage(DefaultTestRunner.application).getRecordingByUri(saved.toUri());
+        Recording r2 = new RecordingStorage().getRecordingByUri(saved.toUri());
 
         assert r2 != null;
         expect(r2).not.toBeNull();

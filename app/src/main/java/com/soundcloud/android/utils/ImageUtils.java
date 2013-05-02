@@ -468,13 +468,13 @@ public final class ImageUtils {
         final String targetUri = targetSize.formatUri(uri);
         final ImageLoader imageLoader = ImageLoader.get(c);
         if (options == null) options = new Options();
-        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, Options.dontLoadRemote());
+        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, null, Options.dontLoadRemote());
         if (targetBitmap != null) {
             return imageLoader.bind(imageView, targetUri, callback, options);
         } else {
             for (Consts.GraphicSize gs : Consts.GraphicSize.values()) {
                 final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri),
-                        null,
+                        null, null,
                         Options.dontLoadRemote());
 
                 if (tempBitmap != null) {
@@ -491,28 +491,28 @@ public final class ImageUtils {
     @SuppressWarnings("UnusedDeclaration") // useful, keep plz
     public static Bitmap getBitmapSubstitute(Context c, String uri,
                                              Consts.GraphicSize targetSize,
-                                             ImageLoader.BitmapCallback callback,
+                                             ImageLoader.BitmapLoadCallback callback,
                                              Options options) {
         final String targetUri = targetSize.formatUri(uri);
         final ImageLoader imageLoader = ImageLoader.get(c);
         if (options == null) options = new Options();
 
-        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, Options.dontLoadRemote());
+        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, null, Options.dontLoadRemote());
         if (targetBitmap != null){
-            return imageLoader.getBitmap(targetUri, callback, options);
+            return imageLoader.getBitmap(targetUri, callback, c, options);
         } else {
             for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
-                final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri), null, Options.dontLoadRemote());
+                final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri), null, null, Options.dontLoadRemote());
                 if (tempBitmap != null && !tempBitmap.isRecycled()) {
                     if (callback != null) {
                         callback.onImageLoaded(tempBitmap, uri);
                     }
                     // get the normal one anyway, will be handled by the callback
-                    imageLoader.getBitmap(targetUri, callback, options);
+                    imageLoader.getBitmap(targetUri, callback, c, options);
                     return tempBitmap;
                 }
             }
-            return imageLoader.getBitmap(targetUri, callback, options);
+            return imageLoader.getBitmap(targetUri, callback, c, options);
         }
     }
 

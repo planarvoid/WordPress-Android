@@ -62,7 +62,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
-        final SyncStateManager syncStateManager = new SyncStateManager(Robolectric.application);
+        final SyncStateManager syncStateManager = new SyncStateManager();
         LocalCollection lc = syncStateManager.fromContent(Content.ME_SOUNDS);
         expect(lc.extra).toBeNull();
         expect(lc.size).toEqual(50);

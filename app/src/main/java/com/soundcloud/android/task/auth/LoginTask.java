@@ -30,7 +30,7 @@ public class LoginTask extends AuthTask {
     }
 
     public LoginTask(@NotNull SoundCloudApplication application){
-        this(application, new TokenInformationGenerator(), new FetchUserTask(application), new UserStorage(application));
+        this(application, new TokenInformationGenerator(), new FetchUserTask(application), new UserStorage());
     }
 
     @Override

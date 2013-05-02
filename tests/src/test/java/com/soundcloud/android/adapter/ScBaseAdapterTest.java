@@ -11,9 +11,12 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.view.adapter.IconLayout;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import android.content.Context;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,14 +28,14 @@ public class ScBaseAdapterTest {
 
     @Before
     public void setup() throws Exception {
-        adapter = new ScBaseAdapter<User>(DefaultTestRunner.application, Content.USER.uri) {
+        adapter = new ScBaseAdapter<User>(Content.USER.uri) {
             @Override
-            protected IconLayout createRow(int position) {
+            protected IconLayout createRow(Context context, int position) {
                 return null;
             }
 
             @Override
-            public int handleListItemClick(int position, long id) {
+            public int handleListItemClick(Context context, int position, long id) {
                 return ItemClickResults.IGNORE;
             }
         };
@@ -96,6 +99,6 @@ public class ScBaseAdapterTest {
         // should not appear, not refreshable
         staleModels.add(new Shortcut());
 
-        adapter.checkForStaleItems(staleModels);
+        adapter.checkForStaleItems(Robolectric.application, staleModels);
     }
 }
