@@ -76,15 +76,15 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
 
-    private ScListView mListView;
+    private @Nullable ScListView mListView;
     private ScBaseAdapter<?> mAdapter;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     protected @Nullable EmptyListView mEmptyListView;
     private EmptyListViewFactory mEmptyListViewFactory;
 
-    private @NotNull Content mContent;
-    private @NotNull Uri mContentUri;
+    private Content mContent;
+    private Uri mContentUri;
     private NetworkConnectivityListener connectivityListener;
     private Handler connectivityHandler;
     private @Nullable CollectionTask mRefreshTask;
@@ -117,15 +117,17 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        // only should happen once
-        mContentUri = (Uri) getArguments().get(EXTRA_CONTENT_URI);
-        mContent = Content.match(mContentUri);
+        if (mContentUri == null) {
+            // only should happen once
+            mContentUri = (Uri) getArguments().get(EXTRA_CONTENT_URI);
+            mContent = Content.match(mContentUri);
 
-        if (mContent.isSyncable()) {
-            mSyncStateManager = new SyncStateManager();
-            mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
-            mChangeObserver = new ChangeObserver();
-            refreshSyncData();
+            if (mContent.isSyncable()) {
+                mSyncStateManager = new SyncStateManager();
+                mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
+                mChangeObserver = new ChangeObserver();
+                refreshSyncData();
+            }
         }
         // should happen once per activity lifecycle
         startObservingChanges();
