@@ -1,23 +1,20 @@
 package com.soundcloud.android.task.collection;
 
 
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.api.Request;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
 public class CollectionTaskTest {
@@ -27,63 +24,41 @@ public class CollectionTaskTest {
     @Mock
     private CollectionTask.Callback callback;
     @Mock
-    private CollectionLoader syncableCollectionLoader;
+    private CollectionLoader loader;
     @Mock
-    private CollectionLoader remoteCollectionLoader;
-    @Mock
-    private CollectionLoader soundcloudActivityLoader;
+    private CollectionLoaderFactory collectionLoaderFactory;
     @Mock
     private CollectionParams collectionParams;
-    @Mock
-    private Request request;
     @Mock
     private ReturnData validReturnData;
 
     @Before
     public void setUp(){
         initMocks(this);
-        collectionTask = new CollectionTask(androidCloudApi, callback, syncableCollectionLoader, remoteCollectionLoader, soundcloudActivityLoader);
+        collectionTask = new CollectionTask(androidCloudApi, callback, collectionLoaderFactory);
     }
 
     @Test
-    public void shouldLoadCollectionFromActivityLoaderIfResourceIsASoundCloudActivity(){
-        when(collectionParams.getContent()).thenReturn(Content.ME_SOUND_STREAM);
-        when(soundcloudActivityLoader.load(androidCloudApi, collectionParams)).thenReturn(validReturnData);
-        ReturnData returnData = collectionTask.doInBackground(collectionParams);
-        assertThat(returnData, is(validReturnData));
-        verify(soundcloudActivityLoader).load(androidCloudApi,  collectionParams);
-        verifyZeroInteractions(remoteCollectionLoader, syncableCollectionLoader);
+    public void shouldLoadCollectionFromLoaderReturnedFromFactory(){
+        when(collectionLoaderFactory.createCollectionLoader(collectionParams)).thenReturn(loader);
+        collectionTask.doInBackground(collectionParams);
+        verify(loader).load(androidCloudApi,  collectionParams);
     }
 
     @Test
-    public void shouldLoadCollectionFromRemoteLoaderIfParamsHasAnEmbeddedRequest(){
-        when(collectionParams.getContent()).thenReturn(Content.COMMENTS);
-        when(collectionParams.getRequest()).thenReturn(request);
-        when(remoteCollectionLoader.load(androidCloudApi, collectionParams)).thenReturn(validReturnData);
-        ReturnData returnData = collectionTask.doInBackground(collectionParams);
-        assertThat(returnData, is(validReturnData));
-        verify(remoteCollectionLoader).load(androidCloudApi,  collectionParams);
-        verifyZeroInteractions(soundcloudActivityLoader, syncableCollectionLoader);
-    }
-
-    @Test
-    public void shouldLoadCollectionFromSyncableLoaderIfContentIsSyncable(){
-        when(collectionParams.getContent()).thenReturn(Content.ME_PLAYLISTS);
-        when(syncableCollectionLoader.load(androidCloudApi, collectionParams)).thenReturn(validReturnData);
-        ReturnData returnData = collectionTask.doInBackground(collectionParams);
-        assertThat(returnData, is(validReturnData));
-        verify(syncableCollectionLoader).load(androidCloudApi,  collectionParams);
-        verifyZeroInteractions(soundcloudActivityLoader, remoteCollectionLoader);
+    public void shouldReturnDataFromLoader(){
+        when(collectionLoaderFactory.createCollectionLoader(collectionParams)).thenReturn(loader);
+        when(loader.load(androidCloudApi, collectionParams)).thenReturn(validReturnData);
+        assertThat(collectionTask.doInBackground(collectionParams), is(validReturnData));
     }
 
     @Test
     public void shouldReturnAnEmptyDataSetIfContentDoesNotMatchAnyLoader(){
-        when(collectionParams.getContent()).thenReturn(Content.UNKNOWN);
+        when(collectionLoaderFactory.createCollectionLoader(collectionParams)).thenReturn(null);
         ReturnData returnData = collectionTask.doInBackground(collectionParams);
         assertThat(returnData, is(not(validReturnData)));
         assertThat(returnData.success, is(false));
         assertThat(returnData.newItems, is(nullValue()));
-        verifyZeroInteractions(soundcloudActivityLoader, remoteCollectionLoader, syncableCollectionLoader);
     }
 
     @Test
@@ -93,8 +68,8 @@ public class CollectionTaskTest {
     }
 
     @Test
-    public void shouldHandleNonExistenCallbackReferenceGraefully(){
-        collectionTask  = new CollectionTask(androidCloudApi, null, syncableCollectionLoader, remoteCollectionLoader, soundcloudActivityLoader);
+    public void shouldHandleNonExistentCallbackReferenceGracefully(){
+        collectionTask  = new CollectionTask(androidCloudApi, null, collectionLoaderFactory);
         collectionTask.onPostExecute(validReturnData);
     }
 
