@@ -119,6 +119,20 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="http" android:host="soundcloud.com" android:path="/search"/>
                 <data android:scheme="https" android:host="soundcloud.com" android:path="/search"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/search/sounds"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/search/sounds"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/search/people"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/search/people"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/search/sets"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/search/sets"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/search/groups"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/search/groups"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/people/search"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/people/search"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/tracks/search"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/tracks/search"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/groups/search"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/groups/search"/>
             </intent-filter>
         </activity>
 
