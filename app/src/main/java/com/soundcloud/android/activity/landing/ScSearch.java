@@ -117,14 +117,14 @@ public class ScSearch extends ScActivity {
         } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null
                 && !intent.getData().getPath().equals("/search") /* came from search url intercept */) {
             final Content c = Content.match(intent.getData());
-            if (c == Content.UNKNOWN){
+            if (c == Content.UNKNOWN) {
                 // probably handling a deeplink. Set the spinner from the last segment if it represents a valid category
                 final String segment = Uri.decode(intent.getData().getLastPathSegment());
                 final String titleCased = (Character.toTitleCase(segment.charAt(0)) + segment.substring(1).toLowerCase(Locale.US));
                 final int index = ((ArrayAdapter<String>) mSpinner.getAdapter()).getPosition(titleCased);
                 if (index != -1) mSpinner.setSelection(index);
 
-            } else if (c == Content.SEARCH_ITEM){
+            } else if (c == Content.SEARCH_ITEM) {
                 final String query = Uri.decode(intent.getData().getLastPathSegment());
                 mPendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
             } else {
