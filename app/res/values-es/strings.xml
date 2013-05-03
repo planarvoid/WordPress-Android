@@ -229,4 +229,6 @@
     <string name="list_empty_you_sets_message">Crear un conjunto de compartir una colección de sus canciones favoritas.</string>
 
     <string name="authentication_log_in_with_google">Iniciar sesión con Google</string>
+
+    <string name="updating">Actualizando...</string>
 </resources>
