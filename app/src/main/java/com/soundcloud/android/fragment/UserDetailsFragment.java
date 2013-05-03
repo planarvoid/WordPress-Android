@@ -22,7 +22,6 @@ import android.widget.TextView;
 public class UserDetailsFragment extends Fragment {
 
     private long mUserId;
-    private FrameLayout mInfoView;
     private TextView mLocation, mWebsite, mDiscogsName, mMyspaceName, mDescription;
     private EmptyListView mEmptyInfoView;
     private boolean mDisplayedInfo, mInfoError, mAllowEmpty;
@@ -38,17 +37,17 @@ public class UserDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mUserId = getArguments().getLong("userId");
-        mInfoView = (FrameLayout) inflater.inflate(R.layout.user_browser_details_view, null);
-        mLocation = (TextView) mInfoView.findViewById(R.id.location);
-        mWebsite = (TextView) mInfoView.findViewById(R.id.website);
-        mDiscogsName = (TextView) mInfoView.findViewById(R.id.discogs_name);
-        mMyspaceName = (TextView) mInfoView.findViewById(R.id.myspace_name);
-        mDescription = (TextView) mInfoView.findViewById(R.id.description);
+        View fragmentLayout = (FrameLayout) inflater.inflate(R.layout.user_browser_details_view, null);
+        mLocation = (TextView) fragmentLayout.findViewById(R.id.location);
+        mWebsite = (TextView) fragmentLayout.findViewById(R.id.website);
+        mDiscogsName = (TextView) fragmentLayout.findViewById(R.id.discogs_name);
+        mMyspaceName = (TextView) fragmentLayout.findViewById(R.id.myspace_name);
+        mDescription = (TextView) fragmentLayout.findViewById(R.id.description);
         User user = SoundCloudApplication.MODEL_MANAGER.getUser(mUserId);
         if (user != null){
             setUser(user);
         }
-        return mInfoView;
+        return fragmentLayout;
     }
 
     public void onSuccess(User user) {
@@ -80,8 +79,9 @@ public class UserDetailsFragment extends Fragment {
     }
 
     private void configureEmptyView() {
-        if (mDisplayedInfo && mEmptyInfoView != null && mEmptyInfoView.getParent() == mInfoView) {
-            mInfoView.removeView(mEmptyInfoView);
+        ViewGroup fragmentLayout = (ViewGroup) getView();
+        if (mDisplayedInfo && mEmptyInfoView != null && mEmptyInfoView.getParent() == fragmentLayout) {
+            fragmentLayout.removeView(mEmptyInfoView);
         } else if (!mDisplayedInfo) {
             if (mEmptyInfoView == null) {
                 mEmptyInfoView = new EmptyListView(getActivity());
@@ -114,11 +114,11 @@ public class UserDetailsFragment extends Fragment {
 
             }
 
-            if (mEmptyInfoView.getParent() != mInfoView) {
+            if (mEmptyInfoView.getParent() != fragmentLayout) {
                 if (mEmptyInfoView.getParent() instanceof ViewGroup){
                     ((ViewGroup) mEmptyInfoView.getParent()).removeView(mEmptyInfoView);
                 }
-                mInfoView.addView(mEmptyInfoView,
+                fragmentLayout.addView(mEmptyInfoView,
                         new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             }
         }
