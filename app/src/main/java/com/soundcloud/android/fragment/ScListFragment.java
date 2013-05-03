@@ -36,6 +36,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
@@ -75,13 +76,15 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
 
-    @Nullable private ScListView mListView;
+    private @Nullable ScListView mListView;
     private ScBaseAdapter<?> mAdapter;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     protected @Nullable EmptyListView mEmptyListView;
-    private @Nullable Content mContent;
-    private @NotNull Uri mContentUri;
+    private EmptyListViewFactory mEmptyListViewFactory;
+
+    private Content mContent;
+    private Uri mContentUri;
     private NetworkConnectivityListener connectivityListener;
     private Handler connectivityHandler;
     private @Nullable CollectionTask mRefreshTask;
@@ -134,6 +137,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        mEmptyListViewFactory = new EmptyListViewFactory().forContent(getActivity(), mContent, null);
         mKeepGoing = true;
         setupListAdapter();
     }
@@ -148,10 +152,13 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mListView = configureList(new ScListView(getActivity()));
         mListView.setOnRefreshListener(this);
         mListView.setOnScrollListener(this);
-        setEmptyCollection((mEmptyListView == null) ?
-                EmptyListView.fromContent(context, mContent) : mEmptyListView);
 
+        if (mEmptyListView == null) {
+            mEmptyListView = mEmptyListViewFactory.build(getActivity());
+        }
+        mEmptyListView.setStatus(mStatusCode);
         mListView.setEmptyView(mEmptyListView);
+
         configurePullToRefreshState();
 
         if (isRefreshing() || waitingOnInitialSync()){
@@ -367,12 +374,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
     }
 
-    public void setEmptyCollection(EmptyListView emptyCollection){
-        mEmptyListView = emptyCollection;
-        mEmptyListView.setStatus(mStatusCode);
-        if (getView() != null && getListView() != null) {
-            getListView().setEmptyView(emptyCollection);
-        }
+    public void setEmptyViewFactory(EmptyListViewFactory factory) {
+        mEmptyListViewFactory = factory;
     }
 
     @Nullable

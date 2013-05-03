@@ -28,7 +28,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.UriUtils;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -231,77 +231,6 @@ public class UserBrowser extends ScActivity implements
     public boolean onNavigationItemSelected(int itemPosition, long itemId) {
         return false;
     }
-
-    private EmptyListView getEmptyScreenFromContent(int position) {
-        switch (isYou() ? Tab.values()[position].youContent : Tab.values()[position].userContent){
-            case ME_SOUNDS:
-                return new EmptyListView(this, new Intent(Actions.RECORD))
-                        .setMessageText(R.string.list_empty_user_sounds_message)
-                        .setActionText(R.string.list_empty_user_sounds_action)
-                        .setImage(R.drawable.empty_rec);
-
-            case USER_SOUNDS:
-                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_tracks_text,
-                        mUser == null || mUser.username == null ? getString(R.string.this_user)
-                                : mUser.username));
-
-            case ME_PLAYLISTS:
-                return new EmptyListView(this).setMessageText(R.string.list_empty_you_sets_message);
-
-            case USER_PLAYLISTS:
-                return new EmptyListView(this)
-                        .setMessageText(getString(R.string.list_empty_user_sets_message,
-                                mUser == null || mUser.username == null ? getString(R.string.this_user)
-                                        : mUser.username));
-
-            case ME_LIKES:
-                return new EmptyListView(this,
-                        new Intent(Actions.WHO_TO_FOLLOW),
-                        new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101"))
-                ).setMessageText(R.string.list_empty_user_likes_message)
-                        .setActionText(R.string.list_empty_user_likes_action)
-                        .setImage(R.drawable.empty_like);
-
-            case USER_LIKES:
-                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_likes_text,
-                        mUser == null || mUser.username == null ? getString(R.string.this_user)
-                                : mUser.username));
-
-            case ME_FOLLOWERS:
-                User loggedInUser = getApp().getLoggedInUser();
-                if (loggedInUser == null || loggedInUser.track_count > 0) {
-                    return new EmptyListView(this, new Intent(Actions.YOUR_SOUNDS))
-                            .setMessageText(R.string.list_empty_user_followers_message)
-                            .setActionText(R.string.list_empty_user_followers_action)
-                            .setImage(R.drawable.empty_rec);
-                } else {
-                    return new EmptyListView(this, new Intent(Actions.RECORD))
-                            .setMessageText(R.string.list_empty_user_followers_nosounds_message)
-                            .setActionText(R.string.list_empty_user_followers_nosounds_action)
-                            .setImage(R.drawable.empty_share);
-                }
-
-            case USER_FOLLOWERS:
-                return new EmptyListView(this)
-                        .setMessageText(getString(R.string.empty_user_followers_text,
-                                mUser == null || mUser.username == null ? getString(R.string.this_user)
-                                        : mUser.username));
-
-            case ME_FOLLOWINGS:
-                return new EmptyListView(this, new Intent(Actions.WHO_TO_FOLLOW))
-                        .setMessageText(R.string.list_empty_user_following_message)
-                        .setActionText(R.string.list_empty_user_following_action)
-                        .setImage(R.drawable.empty_follow_3row);
-
-            case USER_FOLLOWINGS:
-                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_followings_text,
-                        mUser == null || mUser.username == null ? getString(R.string.this_user)
-                                : mUser.username));
-            default:
-                return new EmptyListView(this);
-        }
-    }
-
 
     @Override
     public Configuration onRetainCustomNonConfigurationInstance() {
@@ -564,12 +493,21 @@ public class UserBrowser extends ScActivity implements
 
         @Override
         public Fragment getItem(int position) {
-            if (Tab.values()[position] == Tab.details){
+            Tab currentTab = Tab.values()[position];
+            if (currentTab == Tab.details){
                 return mUserDetailsFragment;
             } else {
-                ScListFragment listFragment = ScListFragment.newInstance(isYou() ?
-                        Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
-                listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
+                Content content;
+                Uri contentUri;
+                if (isYou()) {
+                    content = currentTab.youContent;
+                    contentUri = content.uri;
+                } else {
+                    content = currentTab.userContent;
+                    contentUri = content.forId(mUser.id);
+                }
+                ScListFragment listFragment = ScListFragment.newInstance(contentUri);
+                listFragment.setEmptyViewFactory(new EmptyListViewFactory().forContent(UserBrowser.this, content, mUser));
                 return listFragment;
             }
         }
