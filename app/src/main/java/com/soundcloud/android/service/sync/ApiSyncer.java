@@ -1,13 +1,9 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.SyncResult;
-import android.database.Cursor;
-import android.net.Uri;
-import android.preference.PreferenceManager;
-import android.util.Log;
+import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
+import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
+import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -44,16 +40,21 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.SyncResult;
+import android.database.Cursor;
+import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
-import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
-import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
 
 /**

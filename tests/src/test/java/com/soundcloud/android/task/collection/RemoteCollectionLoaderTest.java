@@ -1,5 +1,12 @@
 package com.soundcloud.android.task.collection;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
@@ -14,13 +21,6 @@ import org.mockito.Mock;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.stub;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(SoundCloudTestRunner.class)
 public class RemoteCollectionLoaderTest {

@@ -1,9 +1,12 @@
 package com.soundcloud.android.provider;
 
-import android.app.SearchManager;
-import android.content.UriMatcher;
-import android.net.Uri;
-import android.util.SparseArray;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FRIEND;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.LIKE;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.REPOST;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.SUGGESTED_USER;
+
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Connection;
@@ -23,16 +26,14 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
+import android.app.SearchManager;
+import android.content.UriMatcher;
+import android.net.Uri;
+import android.util.SparseArray;
+
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FRIEND;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.LIKE;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.REPOST;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.SUGGESTED_USER;
 
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),

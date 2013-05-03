@@ -1,10 +1,7 @@
 package com.soundcloud.android.task.collection;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.CollectionStorage;
@@ -19,11 +16,15 @@ import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 /**
  * Loads collection from local storage. Model objects which are not in the database yet will

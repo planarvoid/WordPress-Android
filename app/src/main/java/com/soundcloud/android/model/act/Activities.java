@@ -1,8 +1,8 @@
 package com.soundcloud.android.model.act;
 
-import android.content.ContentValues;
-import android.text.TextUtils;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.InvalidTokenException;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
@@ -18,6 +18,10 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentValues;
+import android.text.TextUtils;
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,9 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.soundcloud.android.SoundCloudApplication.InvalidTokenException;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Activities extends CollectionHolder<Activity> {
     public static final int MAX_REQUESTS = 5;

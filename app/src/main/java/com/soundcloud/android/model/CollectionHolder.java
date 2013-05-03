@@ -1,6 +1,5 @@
 package com.soundcloud.android.model;
 
-import android.text.TextUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -11,6 +10,8 @@ import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+
+import android.text.TextUtils;
 
 import javax.annotation.Nullable;
 import java.net.URI;

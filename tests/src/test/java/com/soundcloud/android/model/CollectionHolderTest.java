@@ -1,16 +1,16 @@
 package com.soundcloud.android.model;
 
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class CollectionHolderTest {
     private CollectionHolder<ScResource> collectionHolder;
