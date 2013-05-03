@@ -22,7 +22,6 @@ import android.widget.TextView;
 public class UserDetailsFragment extends Fragment {
 
     private long mUserId;
-    private TextView mLocation, mWebsite, mDiscogsName, mMyspaceName, mDescription;
     private EmptyListView mEmptyInfoView;
     private boolean mDisplayedInfo, mInfoError, mAllowEmpty;
 
@@ -37,16 +36,12 @@ public class UserDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mUserId = getArguments().getLong("userId");
-        View fragmentLayout = (FrameLayout) inflater.inflate(R.layout.user_browser_details_view, null);
-        mLocation = (TextView) fragmentLayout.findViewById(R.id.location);
-        mWebsite = (TextView) fragmentLayout.findViewById(R.id.website);
-        mDiscogsName = (TextView) fragmentLayout.findViewById(R.id.discogs_name);
-        mMyspaceName = (TextView) fragmentLayout.findViewById(R.id.myspace_name);
-        mDescription = (TextView) fragmentLayout.findViewById(R.id.description);
+        ViewGroup fragmentLayout = (ViewGroup) inflater.inflate(R.layout.user_browser_details_view, null);
         User user = SoundCloudApplication.MODEL_MANAGER.getUser(mUserId);
         if (user != null){
-            setUser(user);
+            updateViews(fragmentLayout, user);
         }
+        configureEmptyView(fragmentLayout);
         return fragmentLayout;
     }
 
@@ -54,7 +49,11 @@ public class UserDetailsFragment extends Fragment {
         mAllowEmpty = true;
         if (getActivity() != null){
             mInfoError = false;
-            setUser(user);
+            ViewGroup fragmentLayout = (ViewGroup) getView();
+            if (fragmentLayout != null) {
+                updateViews(fragmentLayout, user);
+                configureEmptyView(fragmentLayout);
+            }
         }
     }
 
@@ -63,23 +62,21 @@ public class UserDetailsFragment extends Fragment {
         if (getActivity() != null) {
             mInfoError = true;
             if (!mDisplayedInfo) {
-                configureEmptyView();
+                ViewGroup fragmentLayout = (ViewGroup) getView();
+                if (fragmentLayout != null) configureEmptyView(fragmentLayout);
             }
         }
     }
 
-    private void setUser(User user) {
-        mDisplayedInfo = setupWebsite(user)
-                | setupDiscogs(user)
-                | setupMyspace(user)
-                | setupLocation(user)
-                | setupDescription(user);
-
-        configureEmptyView();
+    private void updateViews(ViewGroup fragmentLayout, User user) {
+        mDisplayedInfo = setupWebsite(fragmentLayout, user)
+                | setupDiscogs(fragmentLayout, user)
+                | setupMyspace(fragmentLayout, user)
+                | setupLocation(fragmentLayout, user)
+                | setupDescription(fragmentLayout, user);
     }
 
-    private void configureEmptyView() {
-        ViewGroup fragmentLayout = (ViewGroup) getView();
+    private void configureEmptyView(ViewGroup fragmentLayout) {
         if (mDisplayedInfo && mEmptyInfoView != null && mEmptyInfoView.getParent() == fragmentLayout) {
             fragmentLayout.removeView(mEmptyInfoView);
         } else if (!mDisplayedInfo) {
@@ -127,14 +124,15 @@ public class UserDetailsFragment extends Fragment {
 
 
 
-    private boolean setupDiscogs(final User user) {
+    private boolean setupDiscogs(ViewGroup fragmentLayout, final User user) {
+        TextView discogsName = (TextView) fragmentLayout.findViewById(R.id.discogs_name);
         if (!isEmpty(user.discogs_name)) {
 
-            mDiscogsName.setMovementMethod(LinkMovementMethod.getInstance());
-            mDiscogsName.setVisibility(View.VISIBLE);
-            mDiscogsName.setFocusable(true);
-            mDiscogsName.setClickable(true);
-            mDiscogsName.setOnClickListener(new View.OnClickListener() {
+            discogsName.setMovementMethod(LinkMovementMethod.getInstance());
+            discogsName.setVisibility(View.VISIBLE);
+            discogsName.setFocusable(true);
+            discogsName.setClickable(true);
+            discogsName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent viewIntent = new Intent(Intent.ACTION_VIEW,
@@ -144,42 +142,45 @@ public class UserDetailsFragment extends Fragment {
             });
             return true;
         } else {
-            mDiscogsName.setVisibility(View.GONE);
+            discogsName.setVisibility(View.GONE);
             return false;
         }
     }
 
-    private boolean setupDescription(User user) {
+    private boolean setupDescription(ViewGroup fragmentLayout, User user) {
+        TextView description = (TextView) fragmentLayout.findViewById(R.id.description);
         if (!isEmpty(user.description)) {
-            mDescription.setVisibility(View.VISIBLE);
-            mDescription.setText(ScTextUtils.fromHtml(user.description));
-            mDescription.setMovementMethod(LinkMovementMethod.getInstance());
+            description.setVisibility(View.VISIBLE);
+            description.setText(ScTextUtils.fromHtml(user.description));
+            description.setMovementMethod(LinkMovementMethod.getInstance());
             return true;
         } else {
-            mDescription.setVisibility(View.GONE);
+            description.setVisibility(View.GONE);
             return false;
         }
     }
 
-    private boolean setupLocation(User user) {
+    private boolean setupLocation(ViewGroup fragmentLayout, User user) {
         final String location = user.getLocation();
+        TextView locationView = (TextView) fragmentLayout.findViewById(R.id.location);
         if (!isEmpty(location)) {
-            mLocation.setText(getString(R.string.from) + " " + location);
-            mLocation.setVisibility(View.VISIBLE);
+            locationView.setText(getString(R.string.from) + " " + location);
+            locationView.setVisibility(View.VISIBLE);
             return true;
         } else {
-            mLocation.setVisibility(View.GONE);
+            locationView.setVisibility(View.GONE);
             return false;
         }
     }
 
-    private boolean setupWebsite(final User user) {
+    private boolean setupWebsite(ViewGroup fragmentLayout, final User user) {
+        TextView website = (TextView) fragmentLayout.findViewById(R.id.website);
         if (!isEmpty(user.website)) {
-            mWebsite.setText(user.getWebSiteTitle());
-            mWebsite.setVisibility(View.VISIBLE);
-            mWebsite.setFocusable(true);
-            mWebsite.setClickable(true);
-            mWebsite.setOnClickListener(new View.OnClickListener() {
+            website.setText(user.getWebSiteTitle());
+            website.setVisibility(View.VISIBLE);
+            website.setFocusable(true);
+            website.setClickable(true);
+            website.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(user.website));
@@ -188,18 +189,19 @@ public class UserDetailsFragment extends Fragment {
             });
             return true;
         } else {
-            mWebsite.setVisibility(View.GONE);
+            website.setVisibility(View.GONE);
             return false;
         }
     }
 
-    private boolean setupMyspace(final User user) {
+    private boolean setupMyspace(ViewGroup fragmentLayout, final User user) {
+        TextView myspaceName = (TextView) fragmentLayout.findViewById(R.id.myspace_name);
         if (!isEmpty(user.myspace_name)) {
-            mMyspaceName.setMovementMethod(LinkMovementMethod.getInstance());
-            mMyspaceName.setVisibility(View.VISIBLE);
-            mMyspaceName.setFocusable(true);
-            mMyspaceName.setClickable(true);
-            mMyspaceName.setOnClickListener(new View.OnClickListener() {
+            myspaceName.setMovementMethod(LinkMovementMethod.getInstance());
+            myspaceName.setVisibility(View.VISIBLE);
+            myspaceName.setFocusable(true);
+            myspaceName.setClickable(true);
+            myspaceName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent viewIntent =
@@ -210,7 +212,7 @@ public class UserDetailsFragment extends Fragment {
             });
             return true;
         } else {
-            mMyspaceName.setVisibility(View.GONE);
+            myspaceName.setVisibility(View.GONE);
             return false;
         }
     }
