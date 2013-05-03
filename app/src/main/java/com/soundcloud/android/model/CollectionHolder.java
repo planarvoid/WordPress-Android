@@ -3,6 +3,9 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
@@ -10,7 +13,9 @@ import org.apache.http.client.utils.URLEncodedUtils;
 
 import android.text.TextUtils;
 
+import javax.annotation.Nullable;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +28,12 @@ import java.util.List;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CollectionHolder<T> implements Iterable<T> {
+    private static final Predicate UNKNOWN_RESOURCE_PREDICATE = new Predicate() {
+        @Override
+        public boolean apply(@Nullable Object resource) {
+            return resource instanceof UnknownResource;
+        }
+    };
 
     @JsonProperty
     @JsonView(Views.Mini.class)
@@ -36,13 +47,13 @@ public class CollectionHolder<T> implements Iterable<T> {
     }
 
     public CollectionHolder(List<T> collection){
-        this.collection = collection;
+        this.collection = Lists.newArrayList(collection);
     }
 
     /** @noinspection unchecked*/
     @Override
     public Iterator<T> iterator() {
-        return collection != null ?  collection.iterator() : (Iterator<T>) Collections.EMPTY_LIST.iterator();
+        return collection.iterator();
     }
 
     public T get(int index) {
@@ -53,12 +64,16 @@ public class CollectionHolder<T> implements Iterable<T> {
         collection.add(e);
     }
 
-    public boolean hasMore() {
+    public List<T> getCollection(){
+        return Collections.unmodifiableList(collection);
+    }
+
+    public boolean moreResourcesExist() {
         return !TextUtils.isEmpty(next_href);
     }
 
     public Request getNextRequest() {
-        if (!hasMore()) {
+        if (!moreResourcesExist()) {
             throw new IllegalStateException("next_href is null");
         } else {
             return new Request(URI.create(next_href));
@@ -79,6 +94,15 @@ public class CollectionHolder<T> implements Iterable<T> {
             }
         }
         return null;
+    }
+
+    public void removeUnknownResources(){
+        Collection<T> unknownResources = Collections2.filter(collection, UNKNOWN_RESOURCE_PREDICATE);
+        collection.removeAll(unknownResources);
+    }
+
+    public String getNextHref(){
+        return TextUtils.isEmpty(next_href) ? null : next_href;
     }
 
     @Override

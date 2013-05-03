@@ -691,7 +691,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     private CollectionParams getTaskParams(@NotNull ScBaseAdapter adapter, final boolean refresh) {
         CollectionParams params = adapter.getParams(refresh);
-        params.request = buildRequest(refresh);
+        params.setRequest(buildRequest(refresh));
         params.refreshPageItems = !isSyncable();
         return params;
     }

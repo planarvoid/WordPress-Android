@@ -189,7 +189,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     static void startNavActivity(Context c, Class activity, Bundle rootViewState) {
-        Intent i = getNavIntent(c, activity, rootViewState);
         c.startActivity(getNavIntent(c, activity, rootViewState));
     }
 

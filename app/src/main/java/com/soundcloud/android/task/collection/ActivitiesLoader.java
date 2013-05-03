@@ -15,7 +15,7 @@ import android.util.Log;
 
 import java.io.IOException;
 
-public class ActivitiesLoader extends CollectionLoader<Activity> {
+public class ActivitiesLoader implements CollectionLoader<Activity> {
     @Override
     public ReturnData<Activity> load(AndroidCloudAPI api, CollectionParams<Activity> params) {
         final ActivitiesStorage storage = new ActivitiesStorage();

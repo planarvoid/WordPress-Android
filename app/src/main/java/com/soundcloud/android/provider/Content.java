@@ -210,7 +210,7 @@ public enum Content  {
     }
 
     public boolean isSyncable() {
-        return id < SYNCABLE_CEILING;
+        return id < SYNCABLE_CEILING && id > 0;
     }
 
     public boolean isCollectionItem() {
@@ -222,7 +222,7 @@ public enum Content  {
     }
 
     public boolean isMine() {
-        return id < MINE_CEILING;
+        return id < MINE_CEILING && id > 0;
     }
 
     public Uri.Builder buildUpon() {
@@ -335,5 +335,10 @@ public enum Content  {
                         SyncConfig.DEFAULT_STALE_TIME;
 
         return System.currentTimeMillis() - lastSync > staleTime;
+    }
+
+    @Nullable
+    public Class<? extends ScModel> getModelType() {
+        return modelType;
     }
 }

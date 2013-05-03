@@ -33,7 +33,7 @@ import java.util.List;
  * This is used to potentially complete partially synced collections. If the collection is
  * fully cached in the database no remote lookups are performed.
  */
-public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
+public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T> {
 
     @Override
     public ReturnData<T> load(AndroidCloudAPI api, CollectionParams<T> params) {
