@@ -202,14 +202,14 @@
         <dependency>
             <groupId>com.github.chrisbanes.pulltorefresh</groupId>
             <artifactId>library</artifactId>
-            <version>2.1.1-SOUNDCLOUD</version>
+            <version>2.1.2-SOUNDCLOUD</version>
             <type>apklib</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.chrisbanes.pulltorefresh</groupId>
             <artifactId>extra-listfragment</artifactId>
-            <version>2.1.1-SOUNDCLOUD</version>
+            <version>2.1.2-SOUNDCLOUD</version>
             <type>apklib</type>
             <scope>compile</scope>
         </dependency>
