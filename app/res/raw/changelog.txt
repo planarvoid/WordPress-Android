@@ -1,8 +1,9 @@
 $ 60
   % v current
-  _ 2013-04-26
+  _ 2013-05-03
     ! Google Plus
-    * Added Google Plus Sign in
+    * Numerous bug fixes and memory optimizations
+    - Added Google Plus Sign in
     - Storage layer refactor
     - Smoother RootView animations
     - Fixed some loading / pull to refresh bugs
