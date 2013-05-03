@@ -137,7 +137,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        mEmptyListViewFactory = new EmptyListViewFactory().configure(getActivity(), mContent, null);
+        mEmptyListViewFactory = new EmptyListViewFactory().forContent(getActivity(), mContent, null);
         mKeepGoing = true;
         setupListAdapter();
     }

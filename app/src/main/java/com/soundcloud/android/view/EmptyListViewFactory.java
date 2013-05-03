@@ -36,7 +36,7 @@ public class EmptyListViewFactory {
         return view;
     }
 
-    public EmptyListViewFactory configure(final Context context, final Content content, @Nullable final User user) {
+    public EmptyListViewFactory forContent(final Context context, final Content content, @Nullable final User user) {
         switch (content) {
             case ME_SOUND_STREAM:
                 mMessageText = context.getString(R.string.list_empty_stream_message);
