@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyListViewFactory;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -22,15 +23,23 @@ import android.widget.TextView;
 public class UserDetailsFragment extends Fragment {
 
     private long mUserId;
-    private EmptyListView mEmptyInfoView;
-    private boolean mDisplayedInfo, mInfoError, mAllowEmpty;
+    private EmptyListViewFactory mEmptyViewFactory;
+    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+    private boolean mDisplayedInfo;
 
     public static UserDetailsFragment newInstance(long userId) {
         UserDetailsFragment fragment = new UserDetailsFragment();
         Bundle args = new Bundle();
         args.putLong("userId", userId);
         fragment.setArguments(args);
+        fragment.setRetainInstance(true);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mEmptyViewFactory = new EmptyListViewFactory();
     }
 
     @Override
@@ -38,33 +47,32 @@ public class UserDetailsFragment extends Fragment {
         mUserId = getArguments().getLong("userId");
         ViewGroup fragmentLayout = (ViewGroup) inflater.inflate(R.layout.user_browser_details_view, null);
         User user = SoundCloudApplication.MODEL_MANAGER.getUser(mUserId);
-        if (user != null){
+        if (user != null) {
             updateViews(fragmentLayout, user);
         }
-        configureEmptyView(fragmentLayout);
         return fragmentLayout;
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        configureEmptyView((ViewGroup) view);
+    }
+
     public void onSuccess(User user) {
-        mAllowEmpty = true;
-        if (getActivity() != null){
-            mInfoError = false;
-            ViewGroup fragmentLayout = (ViewGroup) getView();
-            if (fragmentLayout != null) {
-                updateViews(fragmentLayout, user);
-                configureEmptyView(fragmentLayout);
-            }
+        mEmptyViewStatus = EmptyListView.Status.OK;
+        ViewGroup fragmentLayout = (ViewGroup) getView();
+        if (fragmentLayout != null) {
+            updateViews(fragmentLayout, user);
+            configureEmptyView(fragmentLayout);
         }
     }
 
     public void onError() {
-        mAllowEmpty = true;
-        if (getActivity() != null) {
-            mInfoError = true;
-            if (!mDisplayedInfo) {
-                ViewGroup fragmentLayout = (ViewGroup) getView();
-                if (fragmentLayout != null) configureEmptyView(fragmentLayout);
-            }
+        mEmptyViewStatus = EmptyListView.Status.ERROR;
+        ViewGroup fragmentLayout = (ViewGroup) getView();
+        if (fragmentLayout != null) {
+            configureEmptyView(fragmentLayout);
         }
     }
 
@@ -77,51 +85,40 @@ public class UserDetailsFragment extends Fragment {
     }
 
     private void configureEmptyView(ViewGroup fragmentLayout) {
-        if (mDisplayedInfo && mEmptyInfoView != null && mEmptyInfoView.getParent() == fragmentLayout) {
-            fragmentLayout.removeView(mEmptyInfoView);
-        } else if (!mDisplayedInfo) {
-            if (mEmptyInfoView == null) {
-                mEmptyInfoView = new EmptyListView(getActivity());
-            }
-            if (!mAllowEmpty) {
-                mEmptyInfoView.setStatus(EmptyListView.Status.WAITING);
-            } else {
-                if (mInfoError) {
-                    mEmptyInfoView.setStatus(EmptyListView.Status.ERROR);
+        EmptyListView emptyView = (EmptyListView) fragmentLayout.findViewById(android.R.id.empty);
+        if (emptyView != null) fragmentLayout.removeView(emptyView);
 
+        if (showEmptyView()) {
+            if (mEmptyViewStatus == EmptyListView.Status.OK) {
+                if (mUserId == SoundCloudApplication.getUserId()) {
+                    mEmptyViewFactory
+                            .withMessageText(getString(R.string.info_empty_you_message))
+                            .withActionText(getString(R.string.info_empty_you_action))
+                            .withPrimaryAction(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")));
                 } else {
-                    mEmptyInfoView.setStatus(EmptyListView.Status.OK);
-                    if (mUserId == SoundCloudApplication.getUserId()) {
-                        if (getActivity() != null) {
-                            mEmptyInfoView.setMessageText(R.string.info_empty_you_message)
-                                    .setActionText(getString(R.string.info_empty_you_action))
-                                    .setButtonActions(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")), null);
-                        }
-                    } else {
-                        mEmptyInfoView.setMessageText(R.string.info_empty_other_message)
-                                .setActionText(null);
-                    }
-                    if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-                        // won't fit in most landscape views
-                        mEmptyInfoView.setImage(-1);
-                        mEmptyInfoView.setActionText(null);
-                    }
+                    mEmptyViewFactory.withMessageText(getString(R.string.info_empty_other_message));
                 }
-
-
+                if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+                    // won't fit in most landscape views
+                    mEmptyViewFactory.withImage(-1);
+                    mEmptyViewFactory.withActionText(null);
+                }
             }
 
-            if (mEmptyInfoView.getParent() != fragmentLayout) {
-                if (mEmptyInfoView.getParent() instanceof ViewGroup){
-                    ((ViewGroup) mEmptyInfoView.getParent()).removeView(mEmptyInfoView);
-                }
-                fragmentLayout.addView(mEmptyInfoView,
-                        new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            }
+            emptyView = mEmptyViewFactory.build(getActivity());
+            emptyView.setId(android.R.id.empty);
+            emptyView.setStatus(mEmptyViewStatus);
+
+            fragmentLayout.addView(emptyView,
+                    new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
-
     }
 
+    private boolean showEmptyView() {
+        return mEmptyViewStatus == EmptyListView.Status.OK && !mDisplayedInfo
+                || mEmptyViewStatus == EmptyListView.Status.ERROR
+                || mEmptyViewStatus == EmptyListView.Status.WAITING;
+    }
 
 
     private boolean setupDiscogs(ViewGroup fragmentLayout, final User user) {

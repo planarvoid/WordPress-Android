@@ -130,6 +130,26 @@ public class EmptyListViewFactory {
         return this;
     }
 
+    public EmptyListViewFactory withMessageText(@Nullable String messageText) {
+        mMessageText = messageText;
+        return this;
+    }
+
+    public EmptyListViewFactory withActionText(@Nullable String actionText) {
+        mActionText = actionText;
+        return this;
+    }
+
+    public EmptyListViewFactory withImage(int imageId) {
+        mImage = imageId;
+        return this;
+    }
+
+    public EmptyListViewFactory withPrimaryAction(Intent action) {
+        mPrimaryAction = action;
+        return this;
+    }
+
     private String getTextForUser(Context context, int userBasedText, @Nullable User user) {
         return context.getString(userBasedText,
                 user == null || user.username == null ? context.getString(R.string.this_user)
