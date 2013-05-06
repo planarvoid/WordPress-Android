@@ -330,7 +330,7 @@ public class ApiSyncer {
                 mResolver.delete(c.uri, null, null);
             }
 
-            Observable<Activity> latestActivity = mActivitiesStorage.getLatestActivity(c);
+            final Activity latestActivity = mActivitiesStorage.getLatestActivity(c).singleOrDefault(null);
             if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(latestActivity))) {
                 // this can happen at the beginning of the list if the api returns the first item incorrectly
                 inserted = 0;
