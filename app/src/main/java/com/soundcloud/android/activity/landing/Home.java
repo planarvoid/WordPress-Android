@@ -7,7 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.auth.EmailConfirm;
 import com.soundcloud.android.dao.UserStorage;
-import com.soundcloud.android.fragment.ActivitiesFragment;
+import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.auth.AuthenticatorService;
@@ -33,7 +33,8 @@ public class Home extends ScActivity implements ScLandingPage {
         if (app.getAccount() != null) {
             if (state == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .add(mRootView.getContentHolderId(), ActivitiesFragment.create(Content.ME_SOUND_STREAM))
+//                        .add(mRootView.getContentHolderId(), ActivitiesFragment.create(Content.ME_SOUND_STREAM))
+                        .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
                         .commit();
 
                 if (SoundCloudApplication.BETA_MODE){
