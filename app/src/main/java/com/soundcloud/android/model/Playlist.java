@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.track.PlaylistActivity2;
+import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -205,7 +205,7 @@ public class Playlist extends Playable {
 
     @Override
     public Intent getViewIntent() {
-        return PlaylistActivity2.getIntent(this);
+        return PlaylistActivity.getIntent(this);
     }
 
     public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {

@@ -2,7 +2,7 @@ package com.soundcloud.android.utils;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.track.PlaylistActivity2;
+import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.PlayableHolder;
@@ -11,7 +11,6 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -104,7 +103,7 @@ public final class PlayUtils {
             playTrack(context, info);
 
         } else if (playable instanceof Playlist) {
-            PlaylistActivity2.start(context, (Playlist) playable);
+            PlaylistActivity.start(context, (Playlist) playable);
         } else {
             throw new AssertionError("Unexpected playable type");
         }
