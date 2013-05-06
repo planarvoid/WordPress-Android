@@ -85,7 +85,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
 
     @Override
     protected EmptyListView createEmptyView() {
-        final EmptyListView emptyView = getEmptyListViewFactory().configure(new FriendFinderEmptyView(getActivity()));
+        final EmptyListView emptyView = new FriendFinderEmptyView(getActivity());
         emptyView.setActionListener(new EmptyListView.ActionListener() {
             @Override
             public void onAction() {

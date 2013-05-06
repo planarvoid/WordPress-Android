@@ -527,10 +527,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         refresh(true);
     }
 
-    protected EmptyListViewFactory getEmptyListViewFactory() {
-        return mEmptyListViewFactory;
-    }
-
     protected EmptyListView getEmptyListView() {
         return mEmptyListView;
     }
