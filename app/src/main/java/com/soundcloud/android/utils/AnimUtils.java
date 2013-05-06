@@ -271,6 +271,14 @@ public final class AnimUtils {
         }
     }
 
+    public static void hideView(Context context, final View view, Animation.AnimationListener listener) {
+        view.clearAnimation();
+        if (view.getVisibility() == View.GONE) return;
+        Animation animation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+        animation.setAnimationListener(listener);
+        view.startAnimation(animation);
+    }
+
     public static void showView(Context context, final View view, boolean animated) {
         view.clearAnimation();
         if (view.getVisibility() != View.VISIBLE){

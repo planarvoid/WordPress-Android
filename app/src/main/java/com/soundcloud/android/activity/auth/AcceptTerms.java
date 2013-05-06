@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class AcceptTerms extends RelativeLayout {
 
@@ -21,6 +23,9 @@ public class AcceptTerms extends RelativeLayout {
 
     public interface AcceptTermsHandler {
         void onAcceptTerms(SignupVia signupVia, Bundle signupParams);
+        void onShowTermsOfUse();
+        void onShowPrivacyPolicy();
+        void onShowCookiePolicy();
         void onCancel();
     }
 
@@ -69,6 +74,34 @@ public class AcceptTerms extends RelativeLayout {
                 getAcceptTermsHandler().onAcceptTerms(mSignupVia, mSignupParams);
             }
         });
+
+        ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
+                getResources().getString(R.string.terms_of_use),
+                new ScTextUtils.ClickSpan.OnClickListener() {
+                    @Override
+                    public void onClick() {
+                        getAcceptTermsHandler().onShowTermsOfUse();
+                    }
+                }, false, false);
+
+        ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
+                getResources().getString(R.string.privacy),
+                new ScTextUtils.ClickSpan.OnClickListener() {
+                    @Override
+                    public void onClick() {
+                        getAcceptTermsHandler().onShowPrivacyPolicy();
+                    }
+                }, false, false);
+
+        ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
+                getResources().getString(R.string.cookie),
+                new ScTextUtils.ClickSpan.OnClickListener() {
+                    @Override
+                    public void onClick() {
+                        getAcceptTermsHandler().onShowPrivacyPolicy();
+                    }
+                }, false, false);
+
     }
 
     public Bundle getStateBundle() {

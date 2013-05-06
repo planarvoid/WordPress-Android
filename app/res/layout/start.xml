@@ -7,8 +7,7 @@
                   android:layout_height="fill_parent">
         <com.soundcloud.android.view.tour.ParallaxPager android:id="@+id/tour_view"
                                                         android:layout_width="fill_parent"
-                                                        android:layout_height="fill_parent"
-                                                        android:visibility="gone"/>
+                                                        android:layout_height="fill_parent"/>
         <ImageView android:id="@+id/tour_logo"
                    android:layout_width="@dimen/tour_logo_dimension"
                    android:layout_height="@dimen/tour_logo_dimension"
@@ -34,7 +33,7 @@
     </LinearLayout>
 
     <View style="@style/SignUp.Overlay" android:id="@+id/overlay_bg"/>
-    <ScrollView style="@style/SignUp.ScrollView">
+    <ScrollView android:id="@+id/scrollview" style="@style/SignUp.ScrollView">
         <RelativeLayout android:layout_width="match_parent"
                         android:layout_gravity="center"
                         android:gravity="center"

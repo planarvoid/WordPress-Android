@@ -38,6 +38,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -54,9 +55,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private static final String PARALLAX_TAG = "parallax";
 
     protected enum StartState {
-        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS
+        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS;
     }
-
     private static final String BUNDLE_STATE           = "BUNDLE_STATE";
     private static final String BUNDLE_USER            = "BUNDLE_USER";
     private static final String BUNDLE_LOGIN           = "BUNDLE_LOGIN";
@@ -64,21 +64,23 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
     private static final String BUNDLE_ACCEPT_TERMS    = "BUNDLE_ACCEPT_TERMS";
     private static final String LAST_GOOGLE_ACCT_USED  = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
-
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
+    private static final Uri PRIVACY_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy");
+    private static final Uri COOKIE_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy#cookies");
 
     private StartState mState = StartState.TOUR;
-    private String mLastGoogleAccountSelected;
 
+    private String mLastGoogleAccountSelected;
     @Nullable private User mUser;
 
-    private View mTourBottomBar, mTourLogo, mOverlayBg;
+    private View mTourBottomBar, mTourLogo, mOverlayBg, mScrollView;
 
     private List<TourLayout> mTourPages;
 
     private ViewPager mViewPager;
 
     @Nullable private Login  mLogin;
+
     @Nullable private SignUp mSignUp;
     @Nullable private UserDetails mUserDetails;
     @Nullable private AcceptTerms mAcceptTerms;
@@ -93,7 +95,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         mTourBottomBar = findViewById(R.id.tour_bottom_bar);
         mTourLogo      = findViewById(R.id.tour_logo);
         mViewPager     = (ViewPager) findViewById(R.id.tour_view);
-        mOverlayBg      = findViewById(R.id.overlay_bg);
+        mOverlayBg     = findViewById(R.id.overlay_bg);
+        mScrollView    = findViewById(R.id.scrollview);
 
         mTourPages = new ArrayList<TourLayout>();
         mTourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
@@ -160,7 +163,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 setState(StartState.LOGIN);
             }
         });
-
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -293,7 +295,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             mAcceptTerms = (AcceptTerms) stub.inflate();
             mAcceptTerms.setAcceptTermsHandler(this);
             mAcceptTerms.setState(mAcceptTermsBundle);
-            mAcceptTerms.setVisibility(View.VISIBLE);
+            mAcceptTerms.setVisibility(View.GONE);
         }
         return mAcceptTerms;
     }
@@ -382,78 +384,86 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         // check for nulls when hiding to avoid unnecessary instantiation
         switch (mState) {
             case TOUR:
-                hideView(this, mOverlayBg, animated);
-                if (mLogin != null)         hideView(this, getLogin(), animated);
-                if (mSignUp != null)        hideView(this, getSignUp(), animated);
-                if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
-                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
-
-                showForegroundViews(false);
-                showView(this, mViewPager, false);
+                onHideOverlay(animated);
                 break;
 
             case LOGIN:
-                hideForegroundViews(animated);
                 if (mSignUp != null)        hideView(this, getSignUp(), animated);
                 if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
                 if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
-
-                showView(this, mOverlayBg, animated);
-                showView(this, mViewPager, animated);
-                showView(this, getLogin(), animated);
+                showOverlay(getLogin(), animated);
                 break;
 
             case SIGN_UP:
-                hideForegroundViews(animated);
                 if (mLogin != null)         hideView(this, getLogin(), animated);
                 if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
                 if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
-
-                showView(this, mOverlayBg, animated);
-                showView(this, mViewPager, animated);
-                showView(this, getSignUp(), animated);
+                showOverlay(getSignUp(), animated);
                 break;
 
             case SIGN_UP_DETAILS:
-                hideForegroundViews(animated);
                 if (mLogin != null)         hideView(this, getLogin(), animated);
                 if (mSignUp != null)        hideView(this, getSignUp(), animated);
                 if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
-
-                showView(this, mOverlayBg, animated);
-                showView(this, mViewPager, animated);
-                showView(this, getUserDetails(), animated);
+                showOverlay(getUserDetails(), animated);
                 break;
 
             case ACCEPT_TERMS:
-                hideForegroundViews(animated);
                 if (mLogin != null)         hideView(this, getLogin(), animated);
                 if (mSignUp != null)        hideView(this, getSignUp(), animated);
                 if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
-
-                showView(this, mOverlayBg, animated);
-                showView(this, mViewPager, animated);
-                showView(this, getAcceptTerms(), animated);
+                showOverlay(getAcceptTerms(), animated);
                 break;
         }
     }
 
-    private void showForegroundViews(boolean animated) {
+    private void onHideOverlay(boolean animated){
         showView(this, mTourBottomBar, animated);
         showView(this, mTourLogo, animated);
+        hideView(this, mOverlayBg, animated);
 
+        // show foreground views
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
-            if (isForegroundView(view)) showView(this, view, animated);
+            if (isForegroundView(view)) showView(this, view, false);
+        }
+
+        if (animated && mScrollView.getVisibility() == View.VISIBLE){
+            hideView(this, mScrollView, mHideScrollViewListener);
+        } else {
+            mHideScrollViewListener.onAnimationEnd(null);
         }
     }
 
-    private void hideForegroundViews(boolean animated) {
+    private Animation.AnimationListener mHideScrollViewListener = new Animation.AnimationListener() {
+        @Override
+        public void onAnimationStart(Animation animation) {
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            mScrollView.setVisibility(View.GONE);
+            if (mLogin != null) hideView(Onboard.this, getLogin(), false);
+            if (mSignUp != null) hideView(Onboard.this, getSignUp(), false);
+            if (mUserDetails != null) hideView(Onboard.this, getUserDetails(), false);
+            if (mAcceptTerms != null) hideView(Onboard.this, getAcceptTerms(), false);
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+        }
+    };
+
+    private void showOverlay(View overlay, boolean animated){
         hideView(this, mTourBottomBar, animated);
         hideView(this, mTourLogo, animated);
 
+        // hide foreground views
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
             if (isForegroundView(view)) hideView(this, view, animated);
         }
+        showView(this, mScrollView, animated);
+        showView(this, mOverlayBg, animated);
+        showView(this, overlay, animated);
     }
 
     private TourLayout getCurrentTourLayout() {
@@ -490,10 +500,24 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     @Override
-    public void onTermsOfUse() {
+    public void onShowTermsOfUse() {
         getApp().track(Click.Signup_Signup_terms);
         startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE_URL));
     }
+
+    @Override
+    public void onShowPrivacyPolicy() {
+        getApp().track(Click.Signup_Signup_privacy);
+        startActivity(new Intent(Intent.ACTION_VIEW, PRIVACY_POLICY_URL));
+
+    }
+
+    @Override
+    public void onShowCookiePolicy() {
+        getApp().track(Click.Signup_Signup_cookies);
+        startActivity(new Intent(Intent.ACTION_VIEW, COOKIE_POLICY_URL));
+    }
+
 
     @Override
     public void onRecover(String email) {

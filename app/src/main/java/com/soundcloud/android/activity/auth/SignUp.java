@@ -28,7 +28,7 @@ public class SignUp extends AuthLayout {
     public interface SignUpHandler extends AuthHandler {
         void onSignUp(String email, String password);
         void onCancelSignUp();
-        void onTermsOfUse();
+        void onShowTermsOfUse();
     }
     public SignUp(Context context) {
         super(context);
@@ -143,7 +143,7 @@ public class SignUp extends AuthLayout {
                     @Override
                     public void onClick() {
                         if (mSignUpHandler != null) {
-                            mSignUpHandler.onTermsOfUse();
+                            mSignUpHandler.onShowTermsOfUse();
                         }
                         ;
                     }
