@@ -80,7 +80,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private ScBaseAdapter<?> mAdapter;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    protected @Nullable EmptyListView mEmptyListView;
+    private @Nullable EmptyListView mEmptyListView;
     private EmptyListViewFactory mEmptyListViewFactory;
 
     private Content mContent;
@@ -154,7 +154,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mListView.setOnScrollListener(this);
 
         if (mEmptyListView == null) {
-            mEmptyListView = mEmptyListViewFactory.build(getActivity());
+            mEmptyListView = createEmptyView();
         }
         mEmptyListView.setStatus(mStatusCode);
         mListView.setEmptyView(mEmptyListView);
@@ -176,6 +176,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         root.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
         return root;
+    }
+
+    protected EmptyListView createEmptyView() {
+        return mEmptyListViewFactory.build(getActivity());
     }
 
     @Override
@@ -521,6 +525,14 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     @Override
     public void onRefresh(PullToRefreshBase refreshView) {
         refresh(true);
+    }
+
+    protected EmptyListViewFactory getEmptyListViewFactory() {
+        return mEmptyListViewFactory;
+    }
+
+    protected EmptyListView getEmptyListView() {
+        return mEmptyListView;
     }
 
     protected Request getRequest(boolean isRefresh) {

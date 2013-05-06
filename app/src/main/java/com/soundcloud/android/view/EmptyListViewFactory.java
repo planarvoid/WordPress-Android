@@ -24,7 +24,10 @@ public class EmptyListViewFactory {
     private boolean mImageClickable;
 
     public EmptyListView build(Activity context) {
-        EmptyListView view = new EmptyListView(context);
+        return configure(new EmptyListView(context));
+    }
+
+    public EmptyListView configure(EmptyListView view) {
         if (mMessageText != null) view.setMessageText(mMessageText);
         if (mActionText != null) view.setActionText(mActionText);
         if (mSecondaryText != null) view.setSecondaryText(mSecondaryText);
