@@ -6,9 +6,9 @@ import com.soundcloud.android.fragment.FriendFinderFragment;
 import android.content.Context;
 import android.view.View;
 
-public class FriendFinderEmptyCollection extends EmptyListView {
+public class FriendFinderEmptyView extends EmptyListView {
 
-    public FriendFinderEmptyCollection(Context context) {
+    public FriendFinderEmptyView(Context context) {
         super(context);
     }
 
