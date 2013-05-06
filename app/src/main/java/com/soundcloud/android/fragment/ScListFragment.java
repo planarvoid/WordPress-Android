@@ -476,7 +476,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mRefreshTask = null; // allows isRefreshing to return false for display purposes
         }
 
-        mKeepGoing = data.keepGoing;
         adapter.handleTaskReturnData(data, getActivity());
         configureEmptyView(data.responseCode);
 
