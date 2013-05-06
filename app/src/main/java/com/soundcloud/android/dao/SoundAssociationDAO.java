@@ -15,6 +15,15 @@ class SoundAssociationDAO extends BaseDAO<SoundAssociation> {
         super(contentResolver);
     }
 
+    public static SoundAssociationDAO forContent(final Content content, final ContentResolver contentResolver) {
+        return new SoundAssociationDAO(contentResolver) {
+            @Override
+            public Content getContent() {
+                return content;
+            }
+        };
+    }
+
     @Override
     @NotNull
     public List<SoundAssociation> queryAll() {

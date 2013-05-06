@@ -464,7 +464,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
         Recording.clearRecordingFromIntent(intent);
 
         if (newState == CreateState.IDLE_RECORD) {
-            RecordingStorage recordings = new RecordingStorage(this);
+            RecordingStorage recordings = new RecordingStorage();
             mUnsavedRecordings = recordings.getUnsavedRecordings(
                     SoundRecorder.RECORD_DIR,
                     mRecorder.getRecording(),
@@ -989,7 +989,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
     }
 
     private void onSaveRecordingButtonClicked(List<Recording> recordings, boolean[] checked) {
-        RecordingStorage storage = new RecordingStorage(ScCreate.this).subscribeInBackground();
+        RecordingStorage storage = new RecordingStorage().subscribeInBackground();
         for (int i = 0; i < recordings.size(); i++) {
             if (checked[i]) {
                 DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless

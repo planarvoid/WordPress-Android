@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
@@ -35,8 +36,8 @@ public class SyncStateManager extends ScheduledOperations {
 
     private final Map<Long, ContentObserver> mContentObservers;
 
-    public SyncStateManager(Context context) {
-        mResolver = context.getContentResolver();
+    public SyncStateManager() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mLocalCollectionDao = new LocalCollectionDAO(mResolver);
         mContentObservers = new HashMap<Long, ContentObserver>();
     }
@@ -85,6 +86,10 @@ public class SyncStateManager extends ScheduledOperations {
 
     public boolean delete(Content content) {
         return mLocalCollectionDao.deleteUri(content.uri);
+    }
+
+    public void clear() {
+        mLocalCollectionDao.deleteAll();
     }
 
     public Observable<Void> forceToStale(final Uri uri) {
@@ -221,6 +226,7 @@ public class SyncStateManager extends ScheduledOperations {
 
         @Override
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+            final boolean wasUnregistered = mLocalCollection.id == 0;
             if (cursor != null && cursor.moveToFirst()) {
                 // the sync state record already existed, just inform the listener that it has changed
                 mLocalCollection.setFromCursor(cursor);
@@ -229,12 +235,14 @@ public class SyncStateManager extends ScheduledOperations {
                 // the record didn't exist yet; go ahead and create it before reporting any changes
                 mLocalCollectionDao.create(mLocalCollection);
                 mLocalCollection.sync_state = LocalCollection.SyncState.IDLE;
-                if (mListener != null) {
-                    mResolver.registerContentObserver(
-                            Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(mLocalCollection.getId())).build(),
-                            true, new ChangeObserver(mLocalCollection, mListener));
-                }
             }
+
+            if (wasUnregistered && mListener != null) {
+                mResolver.registerContentObserver(
+                        Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(mLocalCollection.getId())).build(),
+                        true, new ChangeObserver(mLocalCollection, mListener));
+            }
+
             if (cursor != null) cursor.close();
             if (mListener != null) mListener.onLocalCollectionChanged(mLocalCollection);
         }

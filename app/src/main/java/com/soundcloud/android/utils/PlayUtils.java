@@ -11,6 +11,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -24,11 +25,11 @@ public final class PlayUtils {
 
     private PlayUtils() {}
 
-    public static void playTrack(Context c, PlayInfo info) {
-        playTrack(c, info, true, false);
+    public static void playTrack(Context context, PlayInfo info) {
+        playTrack(context, info, true, false);
     }
 
-    public static void playTrack(Context c, PlayInfo info, boolean goToPlayer, boolean commentMode) {
+    public static void playTrack(Context context, PlayInfo info, boolean goToPlayer, boolean commentMode) {
         final Track t = info.initialTrack;
         Intent intent = new Intent();
         if (CloudPlaybackService.getCurrentTrackId() != t.id) {
@@ -51,11 +52,11 @@ public final class PlayUtils {
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 .putExtra("commentMode", commentMode);
 
-            c.startActivity(intent);
+            context.startActivity(intent);
         } else {
             intent.setAction(CloudPlaybackService.PLAY_ACTION);
 
-            c.startService(intent);
+            context.startService(intent);
         }
     }
 
@@ -74,8 +75,7 @@ public final class PlayUtils {
         return null;
     }
 
-    //TODO, super fugly. Rewrite.
-    public static void playFromAdapter(Context c, List<? extends ScModel> data, int position, Uri streamUri) {
+    public static void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri streamUri) {
         if (position > data.size() || !(data.get(position) instanceof PlayableHolder)) {
             throw new AssertionError("Invalid item " + position + ", must be a playable");
         }
@@ -101,10 +101,10 @@ public final class PlayUtils {
             info.position = adjustedPosition;
             info.playables = tracks;
 
-            playTrack(c, info);
+            playTrack(context, info);
 
         } else if (playable instanceof Playlist) {
-            PlaylistActivity2.start(c, (Playlist) playable);
+            PlaylistActivity2.start(context, (Playlist) playable);
         } else {
             throw new AssertionError("Unexpected playable type");
         }

@@ -62,8 +62,10 @@ import java.util.Set;
  * Performs the actual sync with the API. Used by {@link CollectionSyncRequest}.
  *
  * As a client, do not use this class directly, but use {@link SyncOperations} instead.
+ * 
+ * TODO: make package level visible again after removing {@link com.soundcloud.android.task.collection.ActivitiesLoader}
  */
-/* package */ class ApiSyncer {
+public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
     private static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 100;
@@ -86,12 +88,12 @@ import java.util.Set;
         mApi = (AndroidCloudAPI) context.getApplicationContext();
         mResolver = resolver;
         mContext = context;
-        mSyncStateManager = new SyncStateManager(context);
-        mActivitiesStorage = new ActivitiesStorage(context);
-        mPlaylistStorage = new PlaylistStorage(context);
-        mSoundAssociationStorage = new SoundAssociationStorage(context);
-        mCollectionStorage = new CollectionStorage(context);
-        mUserStorage = new UserStorage(context);
+        mSyncStateManager = new SyncStateManager();
+        mActivitiesStorage = new ActivitiesStorage();
+        mPlaylistStorage = new PlaylistStorage();
+        mSoundAssociationStorage = new SoundAssociationStorage();
+        mCollectionStorage = new CollectionStorage();
+        mUserStorage = new UserStorage();
     }
 
     // Tests want to override this value
@@ -150,7 +152,7 @@ import java.util.Set;
                 case TRACK:
                 case USER:
                     // sucks, but we'll kick out CP anyway
-                    Storage<? extends ScResource> storage = c == Content.TRACK ? new TrackStorage(mContext) : new UserStorage(mContext);
+                    Storage<? extends ScResource> storage = c == Content.TRACK ? new TrackStorage() : new UserStorage();
                     result = doResourceFetchAndInsert(uri, storage);
                     break;
 
@@ -267,7 +269,7 @@ import java.util.Set;
                 // update local state
                 p.localToGlobal(mContext, added);
                 mPlaylistStorage.create(added).last();
-                mSoundAssociationStorage.addPlaylistCreation(added).last();
+                mSoundAssociationStorage.addCreation(added).last();
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
@@ -323,7 +325,7 @@ import java.util.Set;
             Request request = future_href == null ? c.request() : Request.to(future_href);
             activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 
-                if (activities.hasMore()) {
+                if (activities.moreResourcesExist()) {
                 // delete all activities to avoid gaps in the data
                 mResolver.delete(c.uri, null, null);
             }

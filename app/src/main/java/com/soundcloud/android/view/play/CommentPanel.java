@@ -93,15 +93,16 @@ public class CommentPanel extends RelativeLayout {
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                if (mComment != null && mComment.track != null){
                     mPlayer.addNewComment(
                             Comment.build(
-                                mComment.track,
-                                mPlayer.getApp().getLoggedInUser(),
-                                mComment.timestamp,
-                                "",
-                                mComment.id,
-                                mComment.user.username));
-
+                                    mComment.track,
+                                    mPlayer.getApp().getLoggedInUser(),
+                                    mComment.timestamp,
+                                    "",
+                                    mComment.id,
+                                    mComment.user.username));
+                }
                 return true;
             }
         });

@@ -18,15 +18,14 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class SignUp extends RelativeLayout {
+public class SignUp extends AuthLayout {
     private static final String BUNDLE_EMAIL    = "BUNDLE_EMAIL";
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
     private static final String BUNDLE_CONFIRM  = "BUNDLE_CONFIRM";
 
-    public interface SignUpHandler {
+    public interface SignUpHandler extends AuthHandler {
         void onSignUp(String email, String password);
         void onCancelSignUp();
         void onTermsOfUse();
@@ -48,6 +47,11 @@ public class SignUp extends RelativeLayout {
     @Nullable private SignUpHandler mSignUpHandler;
 
     @Override
+    AuthHandler getAuthHandler() {
+        return mSignUpHandler;
+    }
+
+    @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
 
@@ -64,6 +68,19 @@ public class SignUp extends RelativeLayout {
                 getContext(), android.R.layout.simple_dropdown_item_1line, AndroidUtils.listEmails(getContext()));
         emailField.setAdapter(adapter);
         emailField.setThreshold(0);
+
+        findViewById(R.id.google_plus_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSignUpHandler.onGooglePlusAuth();
+            }
+        });
+        findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSignUpHandler.onFacebookAuth();
+            }
+        });
 
         repeatPasswordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})

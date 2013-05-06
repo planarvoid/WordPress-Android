@@ -6,6 +6,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.getPl
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -16,7 +17,9 @@ import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.PlayerTrackPager;
+import com.soundcloud.android.view.RootView;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
 import com.soundcloud.android.view.play.WaveformController;
@@ -38,6 +41,8 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+
+import java.lang.ref.WeakReference;
 
 public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener {
     public static final int REFRESH_DELAY = 1000;
@@ -212,6 +217,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     @Override
+    protected ActionBarController createActionBarController(RootView rootView) {
+        return new ActionBarController(this, rootView);
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         handleIntent(intent);
@@ -260,10 +270,12 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             } else if (Intent.ACTION_VIEW.equals(action)) {
                 // Play from a View Intent, this probably came from quicksearch
                 if (intent.getData() != null) {
-                    displayTrack = new TrackStorage(this).getTrack(intent.getData());
-                    if (displayTrack != null) {
-                        startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
+                    //FIXME: DB access on UI thread
+                    displayTrack = new TrackStorage().getTrack(intent.getData());
+                    if (displayTrack == null) {
+                        displayTrack = SoundCloudApplication.MODEL_MANAGER.cache(new Track(UriUtils.getLastSegmentAsLong(intent.getData())));
                     }
+                    startService(new Intent(CloudPlaybackService.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
                 }
             }
         }
@@ -473,22 +485,36 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         return !CloudPlaybackService.getState().isSupposedToBePlaying() ? REFRESH_DELAY : remaining;
     }
 
-    private final Handler mHandler = new Handler() {
+    private static final class PlayerHandler extends Handler {
+        private WeakReference<ScPlayer> mPlayerRef;
+
+        private PlayerHandler(ScPlayer context) {
+            this.mPlayerRef = new WeakReference<ScPlayer>(context);
+        }
+
         @Override
         public void handleMessage(Message msg) {
+            final ScPlayer player = mPlayerRef.get();
+            if (player == null) {
+                return;
+            }
             switch (msg.what) {
                 case REFRESH:
-                    long next = refreshNow();
-                    queueNextRefresh(next);
+                    long next = player.refreshNow();
+                    player.queueNextRefresh(next);
                     break;
                 case SEND_CURRENT_QUEUE_POSITION:
-                    if (mPlaybackService != null) mPlaybackService.setQueuePosition(getCurrentDisplayedTrackPosition());
+                    if (player.mPlaybackService != null) {
+                        player.mPlaybackService.setQueuePosition(player.getCurrentDisplayedTrackPosition());
+                    }
                     break;
                 default:
                     break;
             }
         }
-    };
+    }
+
+    private final Handler mHandler = new PlayerHandler(this);
 
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
@@ -497,7 +523,12 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-                setTrackDisplayFromService();
+                if (getPlaylistManager().isEmpty()){
+                    // Service has no playlist. Probably came from the widget. Kick them out to home
+                    onHomePressed();
+                } else {
+                    setTrackDisplayFromService();
+                }
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 onMetaChanged(queuePos);
 

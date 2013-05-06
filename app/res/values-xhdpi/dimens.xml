@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="list_icon_width">100px</dimen>
-    <dimen name="list_icon_height">100px</dimen>
+    <dimen name="list_icon_width">50dp</dimen>
+    <dimen name="list_icon_height">50dp</dimen>
 
-    <dimen name="share_user_icon_width">67px</dimen>
-    <dimen name="share_user_icon_height">67px</dimen>
+    <dimen name="share_user_icon_width">33dp</dimen>
+    <dimen name="share_user_icon_height">33dp</dimen>
 
-    <dimen name="share_progress_icon_width">150px</dimen>
-    <dimen name="share_progress_icon_height">150px</dimen>
+    <dimen name="share_progress_icon_width">75dp</dimen>
+    <dimen name="share_progress_icon_height">75dp</dimen>
 
-    <dimen name="slm_item_dashboard_counter_text_size">24px</dimen>
+    <dimen name="slm_item_dashboard_counter_text_size">12dp</dimen>
 </resources>

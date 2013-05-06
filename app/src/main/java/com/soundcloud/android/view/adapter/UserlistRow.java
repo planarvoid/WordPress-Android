@@ -100,7 +100,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     private void setFollowingStatus(boolean enabled) {
-        final boolean following = FollowStatus.get(getContext()).isFollowing(mUser);
+        final boolean following = FollowStatus.get().isFollowing(mUser);
         mFollowBtn.setEnabled(enabled);
         if (mUser.id == getCurrentUserId()) {
             mFollowBtn.setVisibility(View.INVISIBLE);
@@ -131,7 +131,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     private void toggleFollowing(final User user) {
         SoundCloudApplication app = SoundCloudApplication.fromContext(getContext());
         if (app != null) {
-            FollowStatus.get(getContext()).toggleFollowing(user, app, new Handler() {
+            FollowStatus.get().toggleFollowing(user, app, new Handler() {
                 @Override
                 public void handleMessage(Message msg) {
                     if (msg.what == 1) {

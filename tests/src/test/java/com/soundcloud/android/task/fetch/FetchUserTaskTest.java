@@ -41,7 +41,7 @@ public class FetchUserTaskTest {
         expect(user[0].username).toEqual("SoundCloud Android @ MWC");
         expect(user[0].isPrimaryEmailConfirmed()).toBeFalse();
 
-        User u = new UserStorage(DefaultTestRunner.application).getUser(3135930);
+        User u = new UserStorage().getUser(3135930);
         expect(u).not.toBeNull();
         expect(u.username).toEqual("SoundCloud Android @ MWC");
     }

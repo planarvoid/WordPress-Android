@@ -1,5 +1,18 @@
 $ 60
   % v current
+  _ 2013-05-03
+    ! Google Plus
+    * Numerous bug fixes and memory optimizations
+    - Added Google Plus Sign in
+    - Storage layer refactor
+    - Smoother RootView animations
+    - Fixed some loading / pull to refresh bugs
+    - Fixed loading of my sounds with local recordings
+    - Fixed automatic refreshing of my sounds after upload
+    - Fixed playlist creation for foreign characters
+
+$ 60
+  % v 2.5.3
   _ 2013-04-01
     ! Maintenance
     * Fixed overly aggressive uri matching

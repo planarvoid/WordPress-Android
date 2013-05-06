@@ -3,6 +3,7 @@ package com.soundcloud.android.task.collection;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.UserAssociationStore;
 import com.soundcloud.android.model.Friend;
@@ -33,7 +34,7 @@ import java.util.List;
  * fully cached in the database no remote lookups are performed.
  */
 @Deprecated
-public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
+public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T> {
 
     @Override
     public ReturnData<T> load(AndroidCloudAPI api, CollectionParams<T> params) {
@@ -46,11 +47,11 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
                 // these don't sync with mini representations. we might only have ids
-                List<Long> storedIds = new UserAssociationStore(context).getStoredIds(params.getPagedUri());
+                List<Long> storedIds = new UserAssociationStore().getStoredIds(params.getPagedUri());
 
                 // if we already have all the data, this is a NOP
                 try {
-                    new CollectionStorage(context).fetchAndStoreMissingCollectionItems(api, storedIds, params.getContent(), false);
+                    new CollectionStorage().fetchAndStoreMissingCollectionItems(api, storedIds, params.getContent(), false);
                 } catch (CloudAPI.InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here
@@ -82,15 +83,15 @@ public class MyCollectionLoader<T extends ScModel> extends CollectionLoader<T> {
         if (itemsCursor != null) {
             while (itemsCursor.moveToNext())
                 if (Track.class.equals(resourceType)) {
-                    items.add(new Track(itemsCursor));
+                    items.add(SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(itemsCursor));
                 } else if (User.class.equals(resourceType)) {
-                    items.add(new User(itemsCursor));
+                    items.add(SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(itemsCursor));
                 } else if (Friend.class.equals(resourceType)) {
-                    items.add(new Friend(new User(itemsCursor)));
+                    items.add(new Friend(SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(itemsCursor)));
                 } else if (SoundAssociation.class.equals(resourceType)) {
                     items.add(new SoundAssociation(itemsCursor));
                 } else if (Playlist.class.equals(resourceType)) {
-                    items.add(new Playlist(itemsCursor));
+                    items.add(SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(itemsCursor));
                 } else {
                     throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
                 }

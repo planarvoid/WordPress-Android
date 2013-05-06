@@ -51,7 +51,7 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
         mContentUri = (Uri) getArguments().get(EXTRA_STREAM_URI);
 
-        mActivitiesStorage = new ActivitiesStorage(getActivity()).scheduleFromActivity();
+        mActivitiesStorage = new ActivitiesStorage().scheduleFromActivity();
         mLoadFromLocalStorage = mActivitiesStorage.getLatestActivities(mContentUri, PAGE_SIZE);
         mSyncOperations = new SyncOperations<Activity>(getActivity(), mLoadFromLocalStorage).subscribeInBackground();
 
@@ -98,61 +98,25 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
         if (loggedInUser == null || loggedInUser.track_count > 0) {
             emptyView.setMessageText(R.string.list_empty_activity_message)
                     .setImage(R.drawable.empty_share)
-                    .setActionText(R.string.list_empty_activity_action)
-                    .setSecondaryText(R.string.list_empty_activity_secondary)
-                    .setButtonActionListener(new EmptyListView.ActionListener() {
-                        @Override
-                        public void onAction() {
-                            startActivity(new Intent(Actions.YOUR_SOUNDS));
-                        }
-
-                        @Override
-                        public void onSecondaryAction() {
-                            goTo101s();
-                        }
-                    });
+                    .setActionText(getString(R.string.list_empty_activity_action))
+                    .setSecondaryText(getString(R.string.list_empty_activity_secondary))
+                    .setButtonActions(new Intent(Actions.YOUR_SOUNDS), new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101")));
         } else {
-            final EmptyListView.ActionListener record = new EmptyListView.ActionListener() {
-                @Override
-                public void onAction() {
-                    startActivity(new Intent(Actions.RECORD));
-                }
-
-                @Override
-                public void onSecondaryAction() {
-                    goTo101s();
-                }
-            };
-
             emptyView.setMessageText(R.string.list_empty_activity_nosounds_message)
                     .setImage(R.drawable.empty_rec)
-                    .setActionText(R.string.list_empty_activity_nosounds_action)
-                    .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
-                    .setButtonActionListener(record)
-                    .setImageActionListener(record);
+                    .setActionText(getString(R.string.list_empty_activity_nosounds_action))
+                    .setSecondaryText(getString(R.string.list_empty_activity_nosounds_secondary))
+                    .setButtonActions(new Intent(Actions.RECORD), new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101")))
+                    .setImageActions(new Intent(Actions.RECORD), null);
         }
-    }
-
-    private void goTo101s() {
-        startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101")));
     }
 
     private void configureEmptySoundStream(EmptyListView emptyView) {
         emptyView.setMessageText(R.string.list_empty_stream_message)
                 .setImage(R.drawable.empty_follow)
-                .setActionText(R.string.list_empty_stream_action)
-                .setSecondaryText(R.string.list_empty_stream_secondary)
-                .setButtonActionListener(new EmptyListView.ActionListener() {
-                    @Override
-                    public void onAction() {
-                        startActivity(new Intent(Actions.WHO_TO_FOLLOW));
-                    }
-
-                    @Override
-                    public void onSecondaryAction() {
-                        startActivity(new Intent(Actions.FRIEND_FINDER));
-                    }
-                });
+                .setActionText(getString(R.string.list_empty_stream_action))
+                .setSecondaryText(getString(R.string.list_empty_stream_secondary))
+                .setButtonActions(new Intent(Actions.WHO_TO_FOLLOW), new Intent(Actions.FRIEND_FINDER));
     }
 
     @Override
@@ -170,6 +134,6 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
     @Override
     protected ScBaseAdapter<Activity> newAdapter() {
-        return new ActivityAdapter(getActivity(), null);
+        return new ActivityAdapter(null);
     }
 }

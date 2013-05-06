@@ -65,7 +65,7 @@ public class ScUpload extends ScActivity {
 
         setTitle(R.string.share);
 
-        mStorage = new RecordingStorage(this).subscribeInBackground();
+        mStorage = new RecordingStorage().subscribeInBackground();
 
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, this, getCurrentUserId())) != null) {

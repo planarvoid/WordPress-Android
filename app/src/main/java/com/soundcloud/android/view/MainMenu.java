@@ -188,10 +188,8 @@ public class MainMenu extends LinearLayout {
         private final List<SimpleListMenuItem> mMenuItems;
         private final SparseIntArray mLayouts;
         private int mOffsetRight;
-        private final Context mContext;
 
         public MenuAdapter(Context context) {
-            mContext = context;
             inflater = LayoutInflater.from(context);
             mMenuItems = new ArrayList<SimpleListMenuItem>();
             mLayouts = new SparseIntArray();
@@ -245,6 +243,7 @@ public class MainMenu extends LinearLayout {
         public View getView(int position, View convertView, ViewGroup parent) {
             final SimpleListMenuItem menuItem = mMenuItems.get(position);
             final ViewHolder holder;
+            final Context context = parent.getContext();
 
             if (convertView == null) {
                 final int layout_id = mMenuItems.get(position).layoutId;
@@ -286,12 +285,12 @@ public class MainMenu extends LinearLayout {
 
             boolean setDefaultImage = true;
             if (menuItem.id == R.id.nav_you) {
-                final User u = SoundCloudApplication.fromContext(mContext).getLoggedInUser();
+                final User u = SoundCloudApplication.fromContext(context).getLoggedInUser();
                 if (u != null) {
                     holder.text.setText(u.username);
-                    final String listAvatarUri = u.getListAvatarUri(mContext);
+                    final String listAvatarUri = u.getListAvatarUri(context);
                     setDefaultImage = TextUtils.isEmpty(listAvatarUri) ||
-                                      ImageLoader.get(mContext).bind(this, holder.image, listAvatarUri) != ImageLoader.BindResult.OK;
+                                      ImageLoader.get(context).bind(this, holder.image, listAvatarUri) != ImageLoader.BindResult.OK;
                 } else {
                     holder.text.setText(menuItem.text);
                 }

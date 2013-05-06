@@ -46,6 +46,16 @@ public class AssociationManagerTest {
     }
 
     @Test
+    public void shouldCreateNewLikeWithoutLikesCountSet() throws Exception {
+        Track t = createTrack();
+        t.likes_count = Track.NOT_SET;
+
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        associationManager.setLike(t, true);
+        expect(TestHelper.reload(t).user_like).toBeTrue();
+    }
+
+    @Test
     public void shouldNotChangeLikeCountIfAlreadyLiked() throws Exception {
         Track t = createTrack();
         TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE);
@@ -115,6 +125,18 @@ public class AssociationManagerTest {
     }
 
     @Test
+    public void shouldAddNewRepostWithoutRepostCountSet() throws Exception {
+        Track t = createTrack();
+        t.reposts_count = Track.NOT_SET;
+
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        associationManager.setRepost(t, true);
+
+        expect(t.user_repost).toBeTrue();
+        expect(TestHelper.reload(t).user_repost).toBeTrue();
+    }
+
+    @Test
     public void shouldAddPlaylistRepost() throws Exception {
         Playlist p = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
         TestHelper.insertWithDependencies(p);
@@ -136,7 +158,7 @@ public class AssociationManagerTest {
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();
 
-        expect(new ActivitiesStorage(Robolectric.application).insert(Content.ME_SOUND_STREAM, a)).toBe(1);
+        expect(new ActivitiesStorage().insert(Content.ME_SOUND_STREAM, a)).toBe(1);
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 
@@ -153,7 +175,7 @@ public class AssociationManagerTest {
         Playlist playlist = (Playlist) a.get(0).getPlayable();
         playlist.reposts_count = Playlist.NOT_SET;
 
-        expect(new ActivitiesStorage(Robolectric.application).insert(Content.ME_SOUND_STREAM, a)).toBe(1);
+        expect(new ActivitiesStorage().insert(Content.ME_SOUND_STREAM, a)).toBe(1);
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 

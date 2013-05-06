@@ -1,18 +1,14 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -37,8 +33,8 @@ public class EmptyListView extends RelativeLayout {
     @Nullable private View mErrorView;
     protected Button mBtnAction;
 
-    private int     mMessageResource, mLinkResource, mImageResource, mActionTextResource;
-    private String  mMessage;
+    private int     mMessageResource, mImageResource;
+    private String  mMessage, mSecondaryText, mActionText;
 
     private ActionListener mButtonActionListener;
     private ActionListener mImageActionListener;
@@ -51,33 +47,32 @@ public class EmptyListView extends RelativeLayout {
         int OK = SC_OK; //generic OK
     }
 
-    public EmptyListView(final Context context, final Intent... intents) {
+    public EmptyListView(final Context context) {
         super(context);
-        setActionListener(context, intents);
         init();
     }
 
     public EmptyListView(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        setActionListener(context);
         init();
     }
 
-    public EmptyListView setActionListener(final Context context, final Intent... intents) {
-        if (intents.length > 0) {
-            setButtonActionListener(new ActionListener() {
-                @Override
-                public void onAction() {
-                    context.startActivity(intents[0]);
+    public EmptyListView setButtonActions(@Nullable final Intent primaryAction, @Nullable final Intent secondaryAction) {
+        setActionListener(new ActionListener() {
+            @Override
+            public void onAction() {
+                if (primaryAction != null) {
+                    getContext().startActivity(primaryAction);
                 }
-                @Override
-                public void onSecondaryAction() {
-                    if (intents.length > 1) {
-                        context.startActivity(intents[1]);
-                    }
+            }
+
+            @Override
+            public void onSecondaryAction() {
+                if (secondaryAction != null) {
+                    getContext().startActivity(secondaryAction);
                 }
-            });
-        }
+            }
+        });
         return this;
     }
 
@@ -195,8 +190,8 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 setMessageText(mMessage);
             }
-            setSecondaryText(mLinkResource);
-            setActionText(mActionTextResource);
+            setSecondaryText(mSecondaryText);
+            setActionText(mActionText);
 
 
         } else {
@@ -252,11 +247,11 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setSecondaryText(int secondaryTextId) {
-        mLinkResource = secondaryTextId;
+    public EmptyListView setSecondaryText(String secondaryText) {
+        mSecondaryText = secondaryText;
         if (mTxtLink != null) {
-            if (secondaryTextId > 0) {
-                mTxtLink.setText(secondaryTextId);
+            if (secondaryText != null) {
+                mTxtLink.setText(secondaryText);
                 mTxtLink.setVisibility(View.VISIBLE);
                 ScTextUtils.clickify(mTxtLink, mTxtLink.getText().toString(), new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override
@@ -273,12 +268,12 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setActionText(int textId){
-        mActionTextResource = textId;
-        if (mBtnAction != null){
-            if (textId > 0){
+    public EmptyListView setActionText(@Nullable String actionText){
+        mActionText = actionText;
+        if (mBtnAction != null) {
+            if (actionText != null) {
                 mBtnAction.setVisibility(View.VISIBLE);
-                mBtnAction.setText(textId);
+                mBtnAction.setText(actionText);
             } else {
                 mBtnAction.setVisibility(View.INVISIBLE);
             }
@@ -286,8 +281,27 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setButtonActionListener(ActionListener listener){
+    public EmptyListView setActionListener(ActionListener listener){
         mButtonActionListener = listener;
+        return this;
+    }
+
+    public EmptyListView setImageActions(@Nullable final Intent primaryAction, @Nullable final Intent secondaryAction) {
+        setImageActionListener(new ActionListener() {
+            @Override
+            public void onAction() {
+                if (primaryAction != null) {
+                    getContext().startActivity(primaryAction);
+                }
+            }
+
+            @Override
+            public void onSecondaryAction() {
+                if (secondaryAction != null) {
+                    getContext().startActivity(secondaryAction);
+                }
+            }
+        });
         return this;
     }
 
@@ -299,76 +313,6 @@ public class EmptyListView extends RelativeLayout {
     public interface ActionListener {
         void onAction();
         void onSecondaryAction();
-    }
-
-    @Deprecated
-    public static EmptyListView fromContent(final Context context, final Content content) {
-        switch (content) {
-            case ME_SOUND_STREAM:
-                return new EmptyListView(context).setMessageText(R.string.list_empty_stream_message)
-                                        .setImage(R.drawable.empty_follow)
-                                        .setActionText(R.string.list_empty_stream_action)
-                                        .setSecondaryText(R.string.list_empty_stream_secondary)
-                                        .setButtonActionListener(new EmptyListView.ActionListener() {
-                                            @Override
-                                            public void onAction() {
-                                                context.startActivity(new Intent(Actions.WHO_TO_FOLLOW));
-                                            }
-
-                                            @Override
-                                            public void onSecondaryAction() {
-                                                context.startActivity(new Intent(Actions.FRIEND_FINDER));
-                                            }
-                                        });
-            case ME_ACTIVITIES:
-                User loggedInUser = SoundCloudApplication.fromContext(context).getLoggedInUser();
-                if (loggedInUser == null || loggedInUser.track_count > 0) {
-                                   return new EmptyListView(context).setMessageText(R.string.list_empty_activity_message)
-                                           .setImage(R.drawable.empty_share)
-                                           .setActionText(R.string.list_empty_activity_action)
-                                           .setSecondaryText(R.string.list_empty_activity_secondary)
-                                           .setButtonActionListener(new EmptyListView.ActionListener() {
-                                               @Override
-                                               public void onAction() {
-                                                   context.startActivity(new Intent(Actions.YOUR_SOUNDS));
-                                               }
-
-                                               @Override
-                                               public void onSecondaryAction() {
-                                                   goTo101s(context);
-                                               }
-                                           });
-                               } else {
-                                   final EmptyListView.ActionListener record = new EmptyListView.ActionListener() {
-                                       @Override
-                                       public void onAction() {
-                                           context.startActivity(new Intent(Actions.RECORD));
-                                       }
-
-                                       @Override
-                                       public void onSecondaryAction() {
-                                           goTo101s(context);
-                                       }
-                                   };
-
-                                   return new EmptyListView(context).setMessageText(R.string.list_empty_activity_nosounds_message)
-                                           .setImage(R.drawable.empty_rec)
-                                           .setActionText(R.string.list_empty_activity_nosounds_action)
-                                           .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
-                                           .setButtonActionListener(record)
-                                           .setImageActionListener(record);
-                               }
-
-            case ME_FRIENDS:
-                return new FriendFinderEmptyCollection(context);
-
-            default:
-                return new EmptyListView(context);
-        }
-    }
-
-    private static void goTo101s(Context context){
-        context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101")));
     }
 
 }

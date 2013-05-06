@@ -21,7 +21,7 @@ public class RecordingStorageTest {
 
     @Before
     public void setup() {
-        storage = new RecordingStorage(DefaultTestRunner.application);
+        storage = new RecordingStorage();
     }
 
     @Test

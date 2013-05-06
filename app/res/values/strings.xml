@@ -63,10 +63,10 @@
     <string name="search_for_query">Search for \'%s\'</string>
     <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
     <string name="done">Done</string>
-    <string name="tour_signup_header">Sign up with your account</string>
+    <string name="tour_signup_header">Or sign up with your account</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="tour_login_header">Log in with your account</string>
+    <string name="tour_login_header">Or sign in with your email address</string>
     <string name="confirm">Confirm</string>
 
     <string name="title_settings">Settings</string>
@@ -172,5 +172,15 @@
 
     <string name="list_empty_user_sets_message">%1$s currently has no sets.</string>
     <string name="list_empty_you_sets_message">Create a set to share a collection of your favorite sounds.</string>
+
+    <string name="dialog_select_google_account">Please select a Google account to Sign in with</string>
+    <string name="authentication_login_error_message">We couldn\'t log you in. Please try again.</string>
+    <string name="authentication_add_info_error">We couldn\'t update your info. Please try again.</string>
+    <string name="authentication_no_google_accounts">Please setup a google account first.</string>
+
+    <string name="authentication_log_in_with_google">Sign in with Google</string>
+    <string name="error_google_sign_in_failed">We couldn\'t log you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
+
+    <string name="updating">Updating...</string>
 
 </resources>

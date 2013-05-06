@@ -33,13 +33,6 @@ public class CollectionSyncRequestTest {
         expect(r3).not.toEqual(r2);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void shouldThrowIllegalStateExceptionIfExecuteWithoutOnQueued() throws Exception {
-        new CollectionSyncRequest(DefaultTestRunner.application,
-                Content.ME_FOLLOWER.uri, "someAction", false).execute();
-    }
-
-
     @Test
     public void shouldSetTheBackgroundParameterIfNonUiRequest() throws Exception {
         CollectionSyncRequest nonUi = new CollectionSyncRequest(DefaultTestRunner.application,

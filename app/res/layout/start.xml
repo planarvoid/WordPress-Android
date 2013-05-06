@@ -6,15 +6,12 @@
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent">
         <com.soundcloud.android.view.tour.ParallaxPager android:id="@+id/tour_view"
-                                                        android:background="#FF000000"
                                                         android:layout_width="fill_parent"
                                                         android:layout_height="fill_parent"
-
                                                         android:visibility="gone"/>
-
         <ImageView android:id="@+id/tour_logo"
-                   android:layout_width="110dp"
-                   android:layout_height="110dp"
+                   android:layout_width="@dimen/tour_logo_dimension"
+                   android:layout_height="@dimen/tour_logo_dimension"
                    android:tag="foreground"
                    android:src="@drawable/tour_logo"
                    android:layout_alignParentTop="true"
@@ -29,7 +26,6 @@
                   android:orientation="vertical"
                   android:tag="foreground"
                   android:layout_alignParentBottom="true"
-
                   android:visibility="gone"
                   android:layout_margin="10dp">
 
@@ -37,25 +33,29 @@
         <include layout="@layout/tour_buttons"/>
     </LinearLayout>
 
-    <ViewStub android:id="@+id/login_stub"
-              android:layout="@layout/login"
-               android:layout_width="fill_parent"
-              android:layout_height="fill_parent"/>
+    <View style="@style/SignUp.Overlay" android:id="@+id/overlay_bg"/>
+    <ScrollView style="@style/SignUp.ScrollView">
+        <FrameLayout android:layout_width="match_parent"
+                     android:layout_height="wrap_content">
+            <ViewStub android:id="@+id/login_stub"
+                      android:layout="@layout/login"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"/>
 
-    <ViewStub android:id="@+id/sign_up_stub"
-              android:layout="@layout/signup"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"/>
+            <ViewStub android:id="@+id/sign_up_stub"
+                      android:layout="@layout/signup"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"/>
 
-    <ViewStub android:id="@+id/user_details_stub"
-              android:layout="@layout/signup_details"
+            <ViewStub android:id="@+id/user_details_stub"
+                      android:layout="@layout/signup_details"
 
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"/>
-
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"/>
+        </FrameLayout>
+    </ScrollView>
     <View android:id="@+id/splash"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:background="@drawable/splash_screen"/>
-
+          android:layout_width="fill_parent"
+          android:layout_height="fill_parent"
+          android:background="@drawable/splash_screen"/>
 </RelativeLayout>

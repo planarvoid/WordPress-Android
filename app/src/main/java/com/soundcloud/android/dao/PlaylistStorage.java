@@ -35,8 +35,8 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     private final ContentResolver mResolver;
     private final PlaylistDAO mPlaylistDAO;
 
-    public PlaylistStorage(Context context) {
-        mResolver = context.getContentResolver();
+    public PlaylistStorage() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mPlaylistDAO = new PlaylistDAO(mResolver);
     }
 

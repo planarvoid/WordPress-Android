@@ -1,12 +1,13 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -16,8 +17,8 @@ public class PlayQueueManagerStore {
     private final ContentResolver mResolver;
     private final TrackDAO mTrackDAO;
 
-    public PlayQueueManagerStore(Context context) {
-        mResolver = context.getContentResolver();
+    public PlayQueueManagerStore() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mTrackDAO = new TrackDAO(mResolver);
     }
 
@@ -27,17 +28,18 @@ public class PlayQueueManagerStore {
 
     public int getPlayQueuePositionFromUri(Uri collectionUri, long itemId) {
         Cursor cursor = mResolver.query(collectionUri,
-                new String[]{ DBHelper.CollectionItems.POSITION },
-                DBHelper.CollectionItems.ITEM_ID + " = ?",
-                new String[] {String.valueOf(itemId)},
+                new String[]{DBHelper.SoundAssociationView._ID},
+                DBHelper.SoundAssociationView._TYPE + " = ?",
+                new String[]{String.valueOf(Playable.DB_TYPE_TRACK)},
                 null);
 
         int position = -1;
-        if (cursor != null && cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            position = cursor.getInt(0);
+        if (cursor != null) {
+            while (cursor.moveToNext() && position == -1) {
+                if (cursor.getLong(0) == itemId) position = cursor.getPosition();
+            }
+            cursor.close();
         }
-        if (cursor != null) cursor.close();
         return position;
     }
 

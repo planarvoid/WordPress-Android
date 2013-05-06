@@ -30,7 +30,7 @@ public class ScModelManager {
         return getCachedTrackFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
-    private Track getCachedTrackFromCursor(Cursor cursor, String idCol) {
+    public Track getCachedTrackFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Track track = mTrackCache.get(id);
 
@@ -46,7 +46,7 @@ public class ScModelManager {
         return getCachedPlaylistFromCursor(cursor, DBHelper.Sounds._ID);
     }
 
-    private Playlist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
+    public Playlist getCachedPlaylistFromCursor(Cursor cursor, String idCol) {
         final long id = cursor.getLong(cursor.getColumnIndex(idCol));
         Playlist playlist = mPlaylistCache.get(id);
 
@@ -58,8 +58,19 @@ public class ScModelManager {
         return playlist;
     }
 
+    public User getCachedUserFromSoundViewCursor(Cursor cursor) {
+        final long user_id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
+        User user = mUserCache.get(user_id);
+
+        if (user == null) {
+            user = User.fromSoundView(cursor);
+            mUserCache.put(user);
+        }
+        return user;
+    }
+
     public User getCachedUserFromCursor(Cursor cursor) {
-        return getCachedUserFromCursor(cursor, DBHelper.SoundView.USER_ID);
+        return getCachedUserFromCursor(cursor,DBHelper.Users._ID);
     }
 
     public User getCachedUserFromCursor(Cursor cursor, String col) {
@@ -67,7 +78,17 @@ public class ScModelManager {
         User user = mUserCache.get(user_id);
 
         if (user == null) {
-            user = User.fromTrackView(cursor);
+            user = new User(cursor);
+            mUserCache.put(user);
+        }
+        return user;
+    }
+
+    public User getCachedUserFromActivityCursor(Cursor itemsCursor) {
+        final long id = itemsCursor.getLong(itemsCursor.getColumnIndex(DBHelper.ActivityView.USER_ID));
+        User user = mUserCache.get(id);
+        if (user == null) {
+            user = User.fromActivityView(itemsCursor);
             mUserCache.put(user);
         }
         return user;

@@ -106,14 +106,14 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
             @Override
             public Observable<SoundAssociation> call(Playlist playlist) {
                 // store the newly created playlist as a sound association
-                final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage(getActivity());
-                return soundAssociationStorage.addPlaylistCreation(playlist);
+                final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage();
+                return soundAssociationStorage.addCreation(playlist);
             }
         }).subscribe(new Action1<SoundAssociation>() {
             @Override
             public void call(SoundAssociation soundAssociation) {
                 // force to stale so we know to update the playlists next time it is viewed
-                final SyncStateManager syncStateManager = new SyncStateManager(getActivity());
+                final SyncStateManager syncStateManager = new SyncStateManager();
                 syncStateManager.forceToStale(Content.ME_PLAYLISTS).last();
                 // request sync to push playlist at next possible opportunity
                 ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());

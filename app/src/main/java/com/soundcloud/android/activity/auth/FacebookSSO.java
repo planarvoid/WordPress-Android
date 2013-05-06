@@ -39,6 +39,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Date;
 
 /**
@@ -67,10 +68,13 @@ public class FacebookSSO extends AbstractLoginActivity {
     private static final String COM_FACEBOOK_APPLICATION = "com.facebook.application.";
     public static final String ACCESS_DENIED = "access_denied";
     public static final String ACCESS_DENIED_EXCEPTION = "OAuthAccessDeniedException";
+    private Bundle mLoginBundle;
+    private TokenInformationGenerator tokenInformationGenerator;
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        tokenInformationGenerator = new TokenInformationGenerator();
         Intent auth = getAuthIntent(this, DEFAULT_PERMISSIONS);
         if (validateAppSignatureForIntent(auth)) {
             startActivityForResult(auth, 0);
@@ -78,6 +82,19 @@ public class FacebookSSO extends AbstractLoginActivity {
             setResult(RESULT_OK,
                     new Intent().putExtra("error", "fb app not installed or sig invalid"));
             finish();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        /**
+         * Workaround for https://code.google.com/p/android/issues/detail?id=17787
+         * Login fragment has to be shown on or after onResume
+         */
+        if (mLoginBundle != null){
+            login(mLoginBundle);
+            mLoginBundle = null;
         }
     }
 
@@ -90,10 +107,8 @@ public class FacebookSSO extends AbstractLoginActivity {
                     Log.d(TAG, "got token: "+token);
                 }
                 token.store(this);
-
-                Bundle bundle = new Bundle();
-                bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, CloudAPI.FACEBOOK_GRANT_TYPE + token.accessToken);
-                login(bundle);
+                // save login bundle for login in onResume
+                mLoginBundle = tokenInformationGenerator.getGrantBundle(CloudAPI.FACEBOOK_GRANT_TYPE, token.accessToken);
 
             } catch (SSOException e) {
                 Log.w(TAG, "error getting Facebook token", e);
@@ -167,34 +182,43 @@ public class FacebookSSO extends AbstractLoginActivity {
         return intent;
     }
 
+    private static final class ExtendTokenHandler extends Handler {
+        private WeakReference<Context> mContextRef;
+
+        private ExtendTokenHandler(Context context) {
+            this.mContextRef = new WeakReference<Context>(context);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final Context context = mContextRef.get();
+            String aToken = msg.getData().getString(TOKEN);
+            long expiresAt = msg.getData().getLong(EXPIRES) * 1000L;
+            if (context != null && aToken != null) {
+                FBToken extendedToken = new FBToken(aToken, expiresAt);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "token refreshed via service: " + aToken + " ===> " + extendedToken);
+                }
+
+                if (!extendedToken.isExpired() && !extendedToken.isShortLived()) {
+                    extendedToken.store(context);
+                    extendedToken.sendToBackend(context);
+                } else {
+                    // either expired or short-lived, no point sending back to back-end
+                    Log.w(TAG, "not a valid token: " + extendedToken);
+                }
+            } else {
+                Log.w(TAG, "token is null or context expired");
+            }
+        }
+    }
+
     /* package */ static boolean extendAccessToken(final FBToken token, final Context context) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "extendAccessToken("+token+")");
         return token.accessToken != null &&
                 validateServiceIntent(context, getRefreshIntent()) &&
                 context.bindService(getRefreshIntent(), new ServiceConnection() {
-                    private final Messenger messenger = new Messenger(new Handler() {
-                        @Override
-                        public void handleMessage(Message msg) {
-                            String aToken = msg.getData().getString(TOKEN);
-                            long expiresAt = msg.getData().getLong(EXPIRES) * 1000L;
-                            if (aToken != null) {
-                                FBToken extendedToken = new FBToken(aToken, expiresAt);
-                                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                    Log.d(TAG, "token refreshed via service: " + token + " ===> " + extendedToken);
-                                }
-
-                                if (!extendedToken.isExpired() && !extendedToken.isShortLived()) {
-                                    extendedToken.store(context);
-                                    extendedToken.sendToBackend(context);
-                                } else {
-                                    // either expired or short-lived, no point sending back to back-end
-                                    Log.w(TAG, "not a valid token: " + extendedToken);
-                                }
-                            } else {
-                                Log.w(TAG, "token is null");
-                            }
-                        }
-                    });
+                    private final Messenger messenger = new Messenger(new ExtendTokenHandler(context));
                     private Messenger sender;
 
                     @Override

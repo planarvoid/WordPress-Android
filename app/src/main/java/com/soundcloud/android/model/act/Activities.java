@@ -214,7 +214,7 @@ public class Activities extends CollectionHolder<Activity> {
         switch (status) {
             case HttpStatus.SC_OK: {
                 Activities a = api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
-                if (a.size() < max && a.hasMore() && !a.isEmpty() && requestNumber < MAX_REQUESTS) {
+                if (a.size() < max && a.moreResourcesExist() && !a.isEmpty() && requestNumber < MAX_REQUESTS) {
                     /* should not happen in theory, but backend might limit max number per requests */
                     return a.merge(fetchRecent(api, a.getNextRequest(), max - a.size(), requestNumber+1));
                 } else {

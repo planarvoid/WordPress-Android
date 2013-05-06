@@ -153,14 +153,14 @@ class NotificationMessage {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
 
-            final Bitmap bmp = ImageLoader.get(context).getBitmap(artworkUri, null, Options.dontLoadRemote());
+            final Bitmap bmp = ImageLoader.get(context).getBitmap(artworkUri, null, null, Options.dontLoadRemote());
             if (bmp != null){
                 showDashboardNotification(context, ticker, intent, title, message, id, bmp);
             } else {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        ImageLoader.get(context).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
+                        ImageLoader.get(context).getBitmap(artworkUri, new ImageLoader.BitmapLoadCallback() {
                             public void onImageLoaded(Bitmap loadedBmp, String uri) {
                                 showDashboardNotification(context, ticker, intent, title, message, id, loadedBmp);
                             }
@@ -168,7 +168,7 @@ class NotificationMessage {
                             public void onImageError(String uri, Throwable error) {
                                 showDashboardNotification(context, ticker, intent, title, message, id, null);
                             }
-                        });
+                        }, context);
                     }
                 });
             }

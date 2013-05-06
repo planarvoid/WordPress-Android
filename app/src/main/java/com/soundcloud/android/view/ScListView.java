@@ -32,6 +32,7 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
         getRefreshableView().setLongClickable(false);
         getRefreshableView().setScrollingCacheEnabled(false);
         getRefreshableView().setCacheColorHint(Color.WHITE);
+        getLoadingLayoutProxy().setRefreshingLabel(getContext().getString(R.string.updating));
         setOnConfigureHeaderListener(this);
         setShowIndicator(false); // we don't want the indicator, it interferes with out timestamps
     }
@@ -50,10 +51,10 @@ public class ScListView extends PullToRefreshListView implements PullToRefreshBa
     public void onConfigureHeader() {
         if (!isRefreshing()) {
             if (mLastUpdated > 0) {
-                setLastUpdatedLabel(getResources().getString(R.string.pull_to_refresh_last_updated,
+                getLoadingLayoutProxy().setLastUpdatedLabel(getResources().getString(R.string.pull_to_refresh_last_updated,
                         ScTextUtils.getElapsedTimeString(getResources(), mLastUpdated, true)));
             } else {
-                setLastUpdatedLabel("");
+                getLoadingLayoutProxy().setLastUpdatedLabel("");
             }
         }
     }

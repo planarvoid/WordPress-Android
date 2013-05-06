@@ -11,7 +11,7 @@ public class CollectionParams<T extends ScModel> {
     public Class<T> loadModel;
     public Uri contentUri;
     public boolean isRefresh;
-    public Request request;
+    private Request request;
     public boolean refreshPageItems;
     public int startIndex;
     public int maxToLoad;
@@ -45,5 +45,17 @@ public class CollectionParams<T extends ScModel> {
                 ", maxToLoad=" + maxToLoad +
                 ", timestamp=" + timestamp +
                 '}';
+    }
+
+    public Request getRequest() {
+        return request;
+    }
+
+    public void setRequest(Request request) {
+        this.request = request;
+    }
+
+    public boolean isRefresh() {
+        return isRefresh;
     }
 }

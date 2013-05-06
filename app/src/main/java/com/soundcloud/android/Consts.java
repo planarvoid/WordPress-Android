@@ -48,8 +48,10 @@ public final class Consts {
         int MAKE_CONNECTION     = 9004;
         int IMAGE_CROP          = 9005;
 
-        int SIGNUP_VIA_FACEBOOK     = 8001;
-        int RECOVER_CODE            = 8002;
+        int SIGNUP_VIA_FACEBOOK                 = 8001;
+        int RECOVER_CODE                        = 8002;
+        int SIGNUP_VIA_GOOGLE                   = 8003;
+        int RECOVER_FROM_PLAY_SERVICES_ERROR    = 8004;
     }
 
     public static interface Keys {
@@ -87,7 +89,7 @@ public final class Consts {
     public enum GraphicSize {
         T500("t500x500", 500, 500),
         CROP("crop", 400, 400),
-        T300("t300x300", 300, 400),
+        T300("t300x300", 300, 300),
         LARGE("large", 100, 100),
         T67("t67x67", 67, 67),
         BADGE("badge", 47, 47),

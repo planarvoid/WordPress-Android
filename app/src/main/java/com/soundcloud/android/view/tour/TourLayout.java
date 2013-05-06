@@ -4,6 +4,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static java.lang.Math.max;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.task.ParallelAsyncTask;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
@@ -38,6 +40,7 @@ public class TourLayout extends FrameLayout {
 
         mBgResId = bgResId;
         mBgImageView = (ImageView) findViewById(R.id.tour_background_image);
+        mBgImageView.setVisibility(View.GONE);
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             private int lastHeight = -1, lastWidth = -1;
 
@@ -77,6 +80,7 @@ public class TourLayout extends FrameLayout {
             bitmapSize[1] = bitmap.getHeight();
             mBgImageView.setImageBitmap(bitmap);
         }
+        AnimUtils.showView(getContext(), mBgImageView, true);
         if (mLoadHandler != null) {
             mLoadHandler.sendEmptyMessage(bitmap == null ? IMAGE_ERROR : IMAGE_LOADED);
         }
@@ -97,47 +101,40 @@ public class TourLayout extends FrameLayout {
         ImageUtils.recycleImageViewBitmap(mBgImageView);
     }
 
-    public static void load(final Context context, int startPage, TourLayout... layouts) {
+    public static void load(final Context context, TourLayout... layouts) {
         if (layouts == null || layouts.length == 0) throw new IllegalArgumentException();
-        loadAsync(context, startPage, layouts);
+        loadAsync(context, layouts);
     }
 
-    private static AsyncTask loadAsync(final Context context, final int startPage, TourLayout... layouts) {
-        return new AsyncTask<TourLayout, Pair<TourLayout, Bitmap>, Void>() {
+    private static AsyncTask loadAsync(final Context context, TourLayout... layouts) {
+        return new ParallelAsyncTask<TourLayout, Pair<TourLayout, Bitmap>, Void>() {
             @Override
             protected Void doInBackground(TourLayout... layouts) {
-                final TourLayout initalLayout = layouts[startPage];
-                loadTourLayoutImage(initalLayout);
                 for (TourLayout layout : layouts) {
-                    if (layout != initalLayout) loadTourLayoutImage(layout);
+                    Point size = layout.getDisplaySize();
+                    Bitmap bitmap = null;
+                    // try / catch mostly for OOM of the huge images, but who knows really
+                    try {
+                        bitmap = ImageUtils.decodeSampledBitmapFromResource(
+                                context.getResources(),
+                                layout.mBgResId,
+                                size.x,
+                                size.y
+                        );
+                    } catch (Error ignored) { // will catch OOM
+                        Log.w(TAG, ignored);
+                    } catch (Exception ignored) {
+                        Log.w(TAG, ignored);
+                    }
+                    publishProgress(Pair.create(layout, bitmap));
                 }
                 return null;
             }
-
-            private void loadTourLayoutImage(TourLayout layout) {
-                Point size = layout.getDisplaySize();
-                Bitmap bitmap = null;
-                // try / catch mostly for OOM of the huge images, but who knows really
-                try {
-                    bitmap = ImageUtils.decodeSampledBitmapFromResource(
-                            context.getResources(),
-                            layout.mBgResId,
-                            size.x,
-                            size.y
-                    );
-                } catch (Error ignored) { // will catch OOM
-                    Log.w(TAG, ignored);
-                } catch (Exception ignored) {
-                    Log.w(TAG, ignored);
-                }
-                publishProgress(Pair.create(layout, bitmap));
-            }
-
             @Override
             protected void onProgressUpdate(Pair<TourLayout, Bitmap>... result) {
                 result[0].first.onBitmapLoaded(result[0].second);
             }
-        }.execute(layouts);
+        }.executeOnThreadPool(layouts);
     }
 
     public void setLoadHandler(Handler handler) {

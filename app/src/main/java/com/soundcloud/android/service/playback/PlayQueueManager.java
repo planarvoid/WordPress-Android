@@ -39,7 +39,7 @@ public class PlayQueueManager {
     public PlayQueueManager(Context context, long userId) {
         mContext = context;
         mUserId = userId;
-        mPlayQueueDAO = new PlayQueueManagerStore(mContext);
+        mPlayQueueDAO = new PlayQueueManagerStore();
 
     }
     public int length() {
@@ -201,7 +201,7 @@ public class PlayQueueManager {
     private AsyncTask loadCursor(final Uri uri, final int position) {
         return new ParallelAsyncTask<Uri,Void,List<Track>>() {
             @Override protected List<Track> doInBackground(Uri... params) {
-                return new TrackStorage(mContext).getTracksForUri(params[0]);
+                return new TrackStorage().getTracksForUri(params[0]);
             }
 
             @Override protected void onPostExecute(List<Track> newQueue) {
@@ -345,12 +345,16 @@ public class PlayQueueManager {
             }
             return seekPos;
         } else {
+            if (TextUtils.isEmpty(lastUri)) {
+                // this is so the player can finish() instead of display waiting to the user
+                broadcastPlayQueueChanged();
+            }
             return -1; // seekpos
         }
     }
 
     public static void clearState(Context context) {
-        new PlayQueueManagerStore(context).clearState();
+        new PlayQueueManagerStore().clearState();
         clearLastPlayed(context);
     }
 

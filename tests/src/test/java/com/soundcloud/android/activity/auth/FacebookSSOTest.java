@@ -52,6 +52,7 @@ public class FacebookSSOTest {
                 return true;
             }
         };
+        sso.setIntent(new Intent());
         sso.onCreate(null);
         ShadowActivity.IntentForResult act = shadowOf(sso).getNextStartedActivityForResult();
         expect(act).not.toBeNull();
@@ -62,6 +63,7 @@ public class FacebookSSOTest {
     @Test
     public void shouldReturnErrorIfSignatureIncorrect() throws Exception {
         FacebookSSO sso = new FacebookSSO();
+        sso.setIntent(new Intent());
         sso.onCreate(null);
         expect(shadowOf(sso).getResultCode()).toEqual(Activity.RESULT_OK);
         Intent result = shadowOf(sso).getResultIntent();

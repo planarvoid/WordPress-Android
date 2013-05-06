@@ -22,7 +22,7 @@ public class SyncStateManagerTest {
 
     @Before public void before() {
         resolver = DefaultTestRunner.application.getContentResolver();
-        syncStateManager = new SyncStateManager(DefaultTestRunner.application);
+        syncStateManager = new SyncStateManager();
     }
 
     @Test

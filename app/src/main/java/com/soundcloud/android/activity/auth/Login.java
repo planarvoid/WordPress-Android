@@ -18,14 +18,13 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class Login extends RelativeLayout {
+public class Login extends AuthLayout {
     private static final String BUNDLE_EMAIL    = "BUNDLE_EMAIL";
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
 
-    public interface LoginHandler {
+    public interface LoginHandler extends AuthHandler {
         void onLogin(String email, String password);
         void onCancelLogin();
         void onRecover(String email);
@@ -42,6 +41,11 @@ public class Login extends RelativeLayout {
 
     public Login(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    @Override
+    AuthHandler getAuthHandler() {
+        return mLoginHandler;
     }
 
     @Override

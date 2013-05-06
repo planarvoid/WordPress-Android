@@ -9,18 +9,18 @@ import android.view.View;
 
 public class PlaylistTracksAdapter2 extends ScBaseAdapter<Track> {
 
-    public PlaylistTracksAdapter2(Context context, Uri uri) {
-        super(context, uri);
+    public PlaylistTracksAdapter2(Uri uri) {
+        super(uri);
     }
 
     @Override
-    protected View createRow(int position) {
-        return new PlayableRow(mContext);
+    protected View createRow(Context context, int position) {
+        return new PlayableRow(context);
 
     }
 
     @Override
-    public int handleListItemClick(int position, long id) {
+    public int handleListItemClick(Context context, int position, long id) {
         return 0;
     }
 }

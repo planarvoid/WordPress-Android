@@ -206,7 +206,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         if (mRecording != null) {
-            if (deleteRecording) new RecordingStorage(mContext).delete(mRecording);
+            if (deleteRecording) new RecordingStorage().delete(mRecording);
             mRecording = null;
         }
     }
@@ -488,7 +488,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
             mRecording.setPlaybackStream(mPlaybackStream);
 
-            new RecordingStorage(mContext).createFromBaseValues(mRecording);
+            new RecordingStorage().createFromBaseValues(mRecording);
 
             final Uri uri = mRecording.toUri();
             if (uri != null) {

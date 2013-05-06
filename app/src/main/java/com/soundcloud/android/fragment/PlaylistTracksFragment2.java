@@ -59,7 +59,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
 
         mPlaylist = Playlist.fromBundle(getArguments());
 
-        PlaylistStorage playlistStorage = new PlaylistStorage(getActivity()).scheduleFromActivity();
+        PlaylistStorage playlistStorage = new PlaylistStorage().scheduleFromActivity();
 
         mLoadPlaylistFromLocalStorage = playlistStorage.loadPlaylistWithTracks(mPlaylist.getId());
         mLoadTracksFromLocalStorage = playlistStorage.loadPlaylistTracks(mPlaylist.getId());
@@ -77,7 +77,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
 
     @Override
     protected ScBaseAdapter<Track> newAdapter() {
-        return new PlaylistTracksAdapter2(getActivity(), (Uri) getArguments().get(Playlist.EXTRA_URI));
+        return new PlaylistTracksAdapter2((Uri) getArguments().get(Playlist.EXTRA_URI));
     }
 
     @Override

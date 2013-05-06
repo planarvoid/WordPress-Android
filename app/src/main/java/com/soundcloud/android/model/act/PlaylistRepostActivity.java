@@ -1,8 +1,10 @@
 package com.soundcloud.android.model.act;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.PlayableHolder;
 import com.soundcloud.android.model.RepostActivity;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +20,7 @@ public class PlaylistRepostActivity extends PlaylistActivity implements Playable
 
     public PlaylistRepostActivity(Cursor c) {
         super(c);
-        user = User.fromActivityView(c);
+        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromActivityCursor(c);
     }
 
     @Override
@@ -29,6 +31,12 @@ public class PlaylistRepostActivity extends PlaylistActivity implements Playable
     @Override
     public User getUser() {
         return user;
+    }
+
+    @Override
+    public void cacheDependencies() {
+        super.cacheDependencies();
+        this.user = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.MINI);
     }
 
     @NotNull

@@ -66,24 +66,31 @@ public class FacebookWebFlow extends AbstractLoginActivity {
 
             @Override
             public void onPageStarted(WebView view, String u, Bitmap favicon) {
-                showDialog(progress);
+                if (!isFinishing()) {
+                    progress.show();
+                }
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                dismissDialog(progress);
+                if (!isFinishing() && progress != null) {
+                    try {
+                        progress.dismiss();
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                }
             }
 
             @Override
             public boolean shouldOverrideUrlLoading(final WebView view, String url) {
-                if (url.startsWith(AndroidCloudAPI.REDIRECT_URI.toString())) {
+                if (url.startsWith(AndroidCloudAPI.ANDROID_REDIRECT_URI.toString())) {
                     Uri result = Uri.parse(url);
                     String error = result.getQueryParameter("error");
                     String code = result.getQueryParameter("code");
 
                     if (!TextUtils.isEmpty(code) && error == null) {
                         Bundle params = new Bundle();
-                        params.putString(CODE_EXTRA, code);
+                        params.putString(TokenInformationGenerator.TokenKeys.CODE_EXTRA, code);
                         if ("1".equals(result.getQueryParameter("signed_up"))) {
                             params.putString(SignupVia.EXTRA, SignupVia.FACEBOOK_WEBFLOW.name);
                         }
@@ -118,9 +125,9 @@ public class FacebookWebFlow extends AbstractLoginActivity {
         if (IOUtils.isConnected(this)) {
             final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
             removeAllCookies();
-            String[] options = new String[SCOPES_TO_REQUEST.length+1];
+            String[] options = new String[TokenInformationGenerator.DEFAULT_SCOPES.length+1];
             options[0] = Endpoints.FACEBOOK_CONNECT;
-            System.arraycopy(SCOPES_TO_REQUEST, 0, options, 1, SCOPES_TO_REQUEST.length);
+            System.arraycopy(TokenInformationGenerator.DEFAULT_SCOPES, 0, options, 1, TokenInformationGenerator.DEFAULT_SCOPES.length);
 
             mWebview.loadUrl(api.authorizationCodeUrl(options).toString());
         } else {

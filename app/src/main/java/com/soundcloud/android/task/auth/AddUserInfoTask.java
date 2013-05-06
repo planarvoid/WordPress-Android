@@ -1,51 +1,66 @@
 package com.soundcloud.android.task.auth;
 
-import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.AsyncApiTask;
+import com.soundcloud.android.utils.Log;
+import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 
-import android.util.Pair;
+import android.os.Bundle;
 
 import java.io.File;
 import java.io.IOException;
 
-public class AddUserInfoTask extends AsyncApiTask<Pair<User,File>, Void, User> {
-    public AddUserInfoTask(AndroidCloudAPI api) {
-        super(api);
+public class AddUserInfoTask extends AuthTask {
+
+    private User mUpdatedUser;
+    private File mAvatarFile;
+
+    protected AddUserInfoTask(SoundCloudApplication app, User updatedUser, File avatarFile, UserStorage userStorage) {
+        super(app, userStorage);
+        mUpdatedUser = updatedUser;
+        mAvatarFile = avatarFile;
+    }
+
+    public AddUserInfoTask(SoundCloudApplication application, User updatedUser, File avatarFile){
+        this(application, updatedUser, avatarFile, new UserStorage());
     }
 
     @Override
-    protected User doInBackground(final Pair<User, File>... params) {
-        final User u = params[0].first;
-        final File file = params[0].second;
+    protected AuthTaskResult doInBackground(Bundle... params) {
         try {
-            Request updateMe = Request.to(MY_DETAILS).with(
-                    Params.User.NAME, u.username,
-                    Params.User.PERMALINK, u.permalink);
+            Request updateMe = Request.to(Endpoints.MY_DETAILS).with(
+                    Params.User.NAME, mUpdatedUser.username,
+                    Params.User.PERMALINK, mUpdatedUser.permalink);
 
             // resize and attach file if present
-            if (file != null && file.canWrite()) {
-                // XXX really overwrite file?
-                // ImageUtils.resizeImageFile(file, file, 800, 800);
-
-                updateMe.withFile(Params.User.AVATAR, file);
+            if (mAvatarFile != null && mAvatarFile.canWrite()) {
+                updateMe.withFile(Params.User.AVATAR, mAvatarFile);
             }
-            HttpResponse resp = mApi.put(updateMe);
+            SoundCloudApplication app = getSoundCloudApplication();
+            HttpResponse resp = app.put(updateMe);
             switch (resp.getStatusLine().getStatusCode()) {
-                case SC_OK:
-                    return mApi.getMapper().readValue(resp.getEntity().getContent(), User.class);
-                case SC_UNPROCESSABLE_ENTITY:
-                    extractErrors(resp);
+                case HttpStatus.SC_OK:
+                    User u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    addAccount(u, getSoundCloudApplication().getToken(), SignupVia.API);
+                    return AuthTaskResult.success(u, SignupVia.API);
+
+                case HttpStatus.SC_UNPROCESSABLE_ENTITY:
+                    return AuthTaskResult.failure(extractErrors(resp));
+
                 default:
-                    warn("unexpected response", resp);
-                    return null;
+                    Log.e("unexpected response: " + resp);
+                    return AuthTaskResult.failure(app.getString(R.string.authentication_add_info_error));
             }
         } catch (IOException e) {
-            warn("error updating details", e);
-            return null;
+            Log.e("IOException while adding user details: " + e.getMessage());
+            return AuthTaskResult.failure(e);
         }
     }
 }

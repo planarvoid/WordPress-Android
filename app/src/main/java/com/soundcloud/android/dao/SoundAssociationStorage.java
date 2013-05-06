@@ -1,5 +1,6 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
@@ -33,11 +34,15 @@ import java.util.Map;
 public class SoundAssociationStorage extends ScheduledOperations {
 
     private final ContentResolver mResolver;
-    private final SoundAssociationDAO mSoundAssociationDAO;
+    private final SoundAssociationDAO mAllSoundAssocsDAO, mLikesDAO, mRepostsDAO, mTrackCreationsDAO, mPlaylistCreationsDAO;
 
-    public SoundAssociationStorage(Context context) {
-        mResolver = context.getContentResolver();
-        mSoundAssociationDAO = new SoundAssociationDAO(mResolver);
+    public SoundAssociationStorage() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
+        mAllSoundAssocsDAO = new SoundAssociationDAO(mResolver);
+        mLikesDAO = SoundAssociationDAO.forContent(Content.ME_LIKES, mResolver);
+        mRepostsDAO = SoundAssociationDAO.forContent(Content.ME_REPOSTS, mResolver);
+        mTrackCreationsDAO = SoundAssociationDAO.forContent(Content.ME_SOUNDS, mResolver);
+        mPlaylistCreationsDAO = SoundAssociationDAO.forContent(Content.ME_PLAYLISTS, mResolver);
     }
 
     /**
@@ -49,7 +54,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
     public SoundAssociation addLike(Playable playable) {
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
         SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
-        mSoundAssociationDAO.create(like);
+        mLikesDAO.create(like);
         return like;
     }
 
@@ -62,7 +67,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
     public SoundAssociation removeLike(Playable playable) {
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
         SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
-        mSoundAssociationDAO.delete(like);
+        mLikesDAO.delete(like);
         if (playable instanceof Track) {
             new TrackDAO(mResolver).update((Track) playable);
         } else {
@@ -80,7 +85,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
     public SoundAssociation addRepost(Playable playable) {
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
         SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
-        mSoundAssociationDAO.create(repost);
+        mRepostsDAO.create(repost);
         return repost;
     }
 
@@ -93,36 +98,45 @@ public class SoundAssociationStorage extends ScheduledOperations {
     public SoundAssociation removeRepost(Playable playable) {
         SoundAssociation.Type assocType = (playable instanceof Track) ? SoundAssociation.Type.TRACK_REPOST : SoundAssociation.Type.PLAYLIST_REPOST;
         SoundAssociation repost = new SoundAssociation(playable, new Date(), assocType);
-        mSoundAssociationDAO.delete(repost);
+        mRepostsDAO.delete(repost);
         return repost;
     }
 
-    public Observable<SoundAssociation> addPlaylistCreation(final Playlist playlist) {
+    public Observable<SoundAssociation> addCreation(final Track track) {
+        return addCreation(track, mTrackCreationsDAO, SoundAssociation.Type.TRACK);
+    }
+
+    public Observable<SoundAssociation> addCreation(final Playlist playlist) {
+        return addCreation(playlist, mPlaylistCreationsDAO, SoundAssociation.Type.PLAYLIST);
+    }
+
+    private Observable<SoundAssociation> addCreation(final Playable playable, final BaseDAO<SoundAssociation> dao, final SoundAssociation.Type assocType) {
         return schedule(Observable.create(new Func1<Observer<SoundAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<SoundAssociation> observer) {
-                playlist.created_at = new Date();
-                SoundAssociation playlistCreation = new SoundAssociation(playlist);
-                mSoundAssociationDAO.create(playlistCreation);
+                playable.created_at = new Date();
+                SoundAssociation creation = new SoundAssociation(playable, playable.created_at, assocType);
+                dao.create(creation);
 
-                observer.onNext(playlistCreation);
+                observer.onNext(creation);
                 observer.onCompleted();
 
                 return Subscriptions.empty();
             }
+
         }));
     }
 
     public List<SoundAssociation> getSoundStreamItemsForCurrentUser() {
-        return mSoundAssociationDAO.queryAllByUri(Content.ME_SOUNDS.uri);
+        return mAllSoundAssocsDAO.queryAllByUri(Content.ME_SOUNDS.uri);
     }
 
     public List<SoundAssociation> getLikesForCurrentUser() {
-        return mSoundAssociationDAO.queryAllByUri(Content.ME_LIKES.uri);
+        return mAllSoundAssocsDAO.queryAllByUri(Content.ME_LIKES.uri);
     }
 
     public List<SoundAssociation> getPlaylistCreationsForCurrentUser() {
-        return mSoundAssociationDAO.queryAllByUri(Content.ME_PLAYLISTS.uri);
+        return mAllSoundAssocsDAO.queryAllByUri(Content.ME_PLAYLISTS.uri);
     }
 
     /**
@@ -179,7 +193,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
             }
         }
 
-        mSoundAssociationDAO.createCollection(soundAssociations);
+        mAllSoundAssocsDAO.createCollection(soundAssociations);
 
         return changed;
     }

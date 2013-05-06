@@ -56,7 +56,7 @@ public class ReactiveListFragmentTest {
 
             @Override
             protected ScBaseAdapter<Track> newAdapter() {
-                return new PlaylistTracksAdapter2(Robolectric.application, Content.PLAYLIST_TRACKS.uri);
+                return new PlaylistTracksAdapter2(Content.PLAYLIST_TRACKS.uri);
             }
 
             @Override

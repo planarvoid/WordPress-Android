@@ -3,7 +3,6 @@ package com.soundcloud.android.view;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
@@ -26,7 +25,9 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
 
-public class NowPlayingIndicator extends ProgressBar implements ActionBarController.PlaybackIntentReceiver{
+import java.lang.ref.WeakReference;
+
+public class NowPlayingIndicator extends ProgressBar {
     private static final int REFRESH = 1;
 
     private static final int TOP_ORANGE       = 0xFFFF4400;
@@ -60,6 +61,8 @@ public class NowPlayingIndicator extends ProgressBar implements ActionBarControl
     private WaveformController.WaveformState mWaveformState;
     private int mWaveformErrorCount;
     private WaveformData mWaveformData;
+
+    private final Handler mHandler = new RefreshHandler(this);
 
     @SuppressWarnings("UnusedDeclaration")
     public NowPlayingIndicator(Context context) {
@@ -191,19 +194,6 @@ public class NowPlayingIndicator extends ProgressBar implements ActionBarControl
         mHandler.removeMessages(REFRESH);
     }
 
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (mTrack != null) {
-                switch (msg.what) {
-                    case REFRESH:
-                        setProgress((int) CloudPlaybackService.getCurrentProgress());
-                        queueNextRefresh(mRefreshDelay);
-                }
-            }
-        }
-    };
-
     private void queueNextRefresh(long delay) {
         Message msg = mHandler.obtainMessage(REFRESH);
         mHandler.removeMessages(REFRESH);
@@ -249,6 +239,10 @@ public class NowPlayingIndicator extends ProgressBar implements ActionBarControl
 
     private void setWaveformMask() {
         this.mWaveformMask = createWaveformMask(mWaveformData, mAdjustedWidth, getHeight());
+    }
+
+    public BroadcastReceiver getStatusListener() {
+        return mStatusListener;
     }
 
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
@@ -315,20 +309,23 @@ public class NowPlayingIndicator extends ProgressBar implements ActionBarControl
         return mask;
     }
 
-    public void onReceive(Intent intent) {
-        String action = intent.getAction();
-        if (action.equals(CloudPlaybackService.META_CHANGED)) {
-            setCurrentTrack();
+    private static final class RefreshHandler extends Handler {
+        private WeakReference<NowPlayingIndicator> mRef;
 
-        } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
-            if (intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false)) {
-                startRefreshing();
-            } else {
-                stopRefreshing();
+        private RefreshHandler(NowPlayingIndicator nowPlaying) {
+            this.mRef = new WeakReference<NowPlayingIndicator>(nowPlaying);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final NowPlayingIndicator nowPlaying = mRef.get();
+            if (nowPlaying != null && nowPlaying.mTrack != null) {
+                switch (msg.what) {
+                    case REFRESH:
+                        nowPlaying.setProgress((int) CloudPlaybackService.getCurrentProgress());
+                        nowPlaying.queueNextRefresh(nowPlaying.mRefreshDelay);
+                }
             }
-
-        } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE) || action.equals(CloudPlaybackService.SEEKING)) {
-            if (CloudPlaybackService.getState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
         }
     }
 }

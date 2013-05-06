@@ -5,6 +5,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Creation;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Refreshable;
@@ -20,7 +21,9 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.adapter.ListRow;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.view.View;
@@ -34,7 +37,6 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
-    protected Context mContext;
     protected Content mContent;
     protected Uri mContentUri;
     @NotNull protected List<T> mData = new ArrayList<T>();
@@ -44,11 +46,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     private View mProgressView;
 
     @SuppressWarnings("unchecked")
-    public ScBaseAdapter(Context context, Uri uri) {
-        mContext = context;
+    public ScBaseAdapter(Uri uri) {
         mContent = Content.match(uri);
         mContentUri = uri;
-        mProgressView = View.inflate(context, R.layout.list_loading_item, null);
     }
 
     public int getItemCount() {
@@ -121,12 +121,15 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     public View getView(int index, View row, ViewGroup parent) {
 
         if (isPositionOfProgressElement(index)) {
+            if (mProgressView == null) {
+                mProgressView = View.inflate(parent.getContext().getApplicationContext(), R.layout.list_loading_item, null);
+            }
             return mProgressView;
         }
 
         View rowView;
         if (row == null) {
-            rowView = createRow(index);
+            rowView = createRow(parent.getContext(), index);
         } else {
             rowView = row;
         }
@@ -137,15 +140,11 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         return rowView;
     }
 
-    protected abstract View createRow(int position);
+    protected abstract View createRow(Context context, int position);
 
     public void clearData() {
         mData.clear();
         mPage = 0;
-    }
-
-    // not used?
-    public void onDestroy() {
     }
 
     // needed?
@@ -153,19 +152,22 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         return mContent;
     }
 
+    /**
+     * @return true if there's no data in the adapter, and we're not currently loading data
+     */
     public boolean needsItems() {
         return getCount() == 0;
     }
 
 
-    public void onResume() {
-        refreshCreationStamps();
+    public void onResume(ScActivity activity) {
+        refreshCreationStamps(activity);
     }
 
-    public void refreshCreationStamps() {
+    public void refreshCreationStamps(@NotNull Activity activity) {
         for (ScModel resource : mData) {
             if (resource instanceof Creation) {
-                ((Creation) resource).refreshTimeSinceCreated(mContext);
+                ((Creation) resource).refreshTimeSinceCreated(activity);
             }
         }
     }
@@ -203,9 +205,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         return params;
     }
 
-    public abstract int handleListItemClick(int position, long id);
-
-    public void handleTaskReturnData(ReturnData<T> data) {
+    public void handleTaskReturnData(ReturnData<T> data, @Nullable Activity activity) {
         if (data.success) {
             if (data.wasRefresh) {
                 onSuccessfulRefresh();
@@ -224,7 +224,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
                 }
             }
             */
-            checkForStaleItems(mData);
+
+            if (activity != null) {
+                checkForStaleItems(activity, mData);
+            }
         }
         setIsLoadingData(false);
     }
@@ -233,10 +236,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         clearData();
     }
 
-    protected void checkForStaleItems(List<? extends ScModel> items) {
+    protected void checkForStaleItems(@NotNull Context context, List<? extends ScModel> items) {
         if (items.isEmpty()) return;
 
-        final boolean onWifi = IOUtils.isWifiConnected(mContext);
+        final boolean onWifi = IOUtils.isWifiConnected(context);
         Set<Long> trackUpdates = new HashSet<Long>();
         Set<Long> userUpdates = new HashSet<Long>();
         Set<Long> playlistUpdates = new HashSet<Long>();
@@ -256,7 +259,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
                 }
             }
         }
-        final AndroidCloudAPI api = SoundCloudApplication.fromContext(mContext);
+        final AndroidCloudAPI api = SoundCloudApplication.fromContext(context);
         if (!trackUpdates.isEmpty()) {
             UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS, trackUpdates);
             task.setAdapter(this);
@@ -275,6 +278,8 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
             task.executeOnThreadPool("representation", "compact");
         }
     }
+
+    public abstract int handleListItemClick(Context context, int position, long id);
 
     public interface ItemClickResults {
         int IGNORE = 0;

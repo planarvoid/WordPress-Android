@@ -189,6 +189,25 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
                 isNull(String.class));
     }
 
+    @Test
+    public void shouldDeleteSingleRecord() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+        Track track = new Track(1);
+
+        getDAO().delete(track, "title = ?", "new track");
+
+        verify(resolverMock).delete(eq(track.toUri()), eq("title = ?"), eq(new String[]{"new track"}));
+    }
+
+    @Test
+    public void shouldDeleteAllRecords() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().deleteAll();
+
+        verify(resolverMock).delete(eq(Content.TRACKS.uri), isNull(String.class), eq(new String[]{}));
+    }
+
     private static class TestDAO extends BaseDAO<Track> {
 
         protected TestDAO(ContentResolver contentResolver) {

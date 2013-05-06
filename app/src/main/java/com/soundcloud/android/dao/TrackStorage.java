@@ -1,5 +1,6 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -27,8 +28,8 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     private TrackDAO mTrackDAO;
     private final ContentResolver mResolver;
 
-    public TrackStorage(Context context) {
-        mResolver = context.getContentResolver();
+    public TrackStorage() {
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mTrackDAO = new TrackDAO(mResolver);
     }
 
@@ -66,22 +67,21 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     public List<Track> getTracksForUri(Uri uri) {
         Cursor cursor;
         try {
-            cursor = mResolver.query(uri, null, null, null, null);
+            cursor = mResolver.query(uri, null, DBHelper.SoundView._TYPE + " = ?",
+                    new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
         } catch (IllegalArgumentException e) {
             // in case we load a deprecated URI, just don't load the playlist
             Log.e(PlayQueueManager.class.getSimpleName(), "Tried to load an invalid uri " + uri);
             return Collections.emptyList();
         }
         if (cursor != null) {
+            boolean isActivityCursor = Content.match(uri).isActivitiesItem();
             List<Track> newQueue = new ArrayList<Track>(cursor.getCount());
             while (cursor.moveToNext()) {
-
-                // TODO filter on DB level so this check is not needed
-               int typeIdx  = cursor.getColumnIndex(DBHelper.Sounds._TYPE);
-               int typeIdx2 = cursor.getColumnIndex(DBHelper.ActivityView.SOUND_TYPE);
-               if (cursor.getInt(typeIdx == -1 ? typeIdx2 : typeIdx) == Playable.DB_TYPE_TRACK) {
-                    newQueue.add(new Track(cursor));
-               }
+                final Track trackFromCursor = isActivityCursor ?
+                        SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID) :
+                        SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor);
+                newQueue.add(trackFromCursor);
             }
             cursor.close();
             return newQueue;

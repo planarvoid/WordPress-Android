@@ -36,19 +36,27 @@ import java.io.IOException;
         this.action = action;
         this.result = new ApiSyncer.Result(contentUri);
         this.isUI = isUI;
-        mSyncStateManager = new SyncStateManager(context);
+        mSyncStateManager = new SyncStateManager();
     }
 
     public void onQueued() {
         localCollection = mSyncStateManager.fromContent(contentUri);
-        mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.PENDING);
+        if (localCollection != null) {
+            mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.PENDING);
+        } else {
+            // Happens with database locking. This should just return with an unsuccessful result below
+            Log.e(TAG, "Unable to create collection for uri " + contentUri);
+        }
     }
 
     /**
      * Execute the sync request. This should happen on a separate worker thread.
      */
     public CollectionSyncRequest execute() {
-        if (localCollection == null) throw new IllegalStateException("request has not been queued");
+        if (localCollection == null) {
+            Log.e(TAG, "No local collection available :" + contentUri);
+            return this;
+        }
 
         // make sure all requests going out on this thread have the background parameter set
         Wrapper.setBackgroundMode(!isUI);

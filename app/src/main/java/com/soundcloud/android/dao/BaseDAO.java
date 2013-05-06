@@ -123,8 +123,12 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return delete(resource.toUri(), where, whereArgs);
     }
 
+    public boolean deleteAll() {
+        return delete(getContent().uri, null);
+    }
+
     @Deprecated
-    public boolean delete(Uri uri, @Nullable String where, String... whereArgs) {
+    protected boolean delete(Uri uri, @Nullable String where, String... whereArgs) {
         return mResolver.delete(uri, where, whereArgs) == 1;
     }
 

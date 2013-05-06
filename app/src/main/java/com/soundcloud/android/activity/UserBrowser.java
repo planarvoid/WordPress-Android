@@ -27,7 +27,8 @@ import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -75,7 +76,6 @@ public class UserBrowser extends ScActivity implements
     private FollowStatus mFollowStatus;
     private UserFragmentAdapter mAdapter;
     private FetchUserTask mLoadUserTask;
-    private UserStorage mUserStorage;
     protected ViewPager mPager;
     protected TitlePageIndicator mIndicator;
 
@@ -99,7 +99,7 @@ public class UserBrowser extends ScActivity implements
         super.onCreate(bundle);
         setContentView(R.layout.user_browser);
 
-        mFollowStatus = FollowStatus.get(this);
+        mFollowStatus = FollowStatus.get();
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
@@ -110,11 +110,6 @@ public class UserBrowser extends ScActivity implements
         mVrStats = findViewById(R.id.vr_stats);
 
         setTextShadowForGrayBg(mUsername, mFullName, mFollowerCount, mTrackCount);
-
-        if (getResources().getDisplayMetrics().density > 1 || ImageUtils.isScreenXL(this)) {
-            mIcon.getLayoutParams().width = 100;
-            mIcon.getLayoutParams().height = 100;
-        }
 
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -237,77 +232,6 @@ public class UserBrowser extends ScActivity implements
         return false;
     }
 
-    private EmptyListView getEmptyScreenFromContent(int position) {
-        switch (isYou() ? Tab.values()[position].youContent : Tab.values()[position].userContent){
-            case ME_SOUNDS:
-                return new EmptyListView(this, new Intent(Actions.RECORD))
-                        .setMessageText(R.string.list_empty_user_sounds_message)
-                        .setActionText(R.string.list_empty_user_sounds_action)
-                        .setImage(R.drawable.empty_rec);
-
-            case USER_SOUNDS:
-                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_tracks_text,
-                        mUser == null || mUser.username == null ? getString(R.string.this_user)
-                                : mUser.username));
-
-            case ME_PLAYLISTS:
-                return new EmptyListView(this).setMessageText(R.string.list_empty_you_sets_message);
-
-            case USER_PLAYLISTS:
-                return new EmptyListView(this)
-                        .setMessageText(getString(R.string.list_empty_user_sets_message,
-                                mUser == null || mUser.username == null ? getString(R.string.this_user)
-                                        : mUser.username));
-
-            case ME_LIKES:
-                return new EmptyListView(this,
-                        new Intent(Actions.WHO_TO_FOLLOW),
-                        new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101"))
-                ).setMessageText(R.string.list_empty_user_likes_message)
-                        .setActionText(R.string.list_empty_user_likes_action)
-                        .setImage(R.drawable.empty_like);
-
-            case USER_LIKES:
-                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_likes_text,
-                        mUser == null || mUser.username == null ? getString(R.string.this_user)
-                                : mUser.username));
-
-            case ME_FOLLOWERS:
-                User loggedInUser = getApp().getLoggedInUser();
-                if (loggedInUser == null || loggedInUser.track_count > 0) {
-                    return new EmptyListView(this, new Intent(Actions.YOUR_SOUNDS))
-                            .setMessageText(R.string.list_empty_user_followers_message)
-                            .setActionText(R.string.list_empty_user_followers_action)
-                            .setImage(R.drawable.empty_rec);
-                } else {
-                    return new EmptyListView(this, new Intent(Actions.RECORD))
-                            .setMessageText(R.string.list_empty_user_followers_nosounds_message)
-                            .setActionText(R.string.list_empty_user_followers_nosounds_action)
-                            .setImage(R.drawable.empty_share);
-                }
-
-            case USER_FOLLOWERS:
-                return new EmptyListView(this)
-                        .setMessageText(getString(R.string.empty_user_followers_text,
-                                mUser == null || mUser.username == null ? getString(R.string.this_user)
-                                        : mUser.username));
-
-            case ME_FOLLOWINGS:
-                return new EmptyListView(this, new Intent(Actions.WHO_TO_FOLLOW))
-                        .setMessageText(R.string.list_empty_user_following_message)
-                        .setActionText(R.string.list_empty_user_following_action)
-                        .setImage(R.drawable.empty_follow_3row);
-
-            case USER_FOLLOWINGS:
-                return new EmptyListView(this).setMessageText(getString(R.string.empty_user_followings_text,
-                        mUser == null || mUser.username == null ? getString(R.string.this_user)
-                                : mUser.username));
-            default:
-                return new EmptyListView(this);
-        }
-    }
-
-
     @Override
     public Configuration onRetainCustomNonConfigurationInstance() {
         return toConfiguration();
@@ -337,7 +261,10 @@ public class UserBrowser extends ScActivity implements
 
     private boolean loadUserByUri(Uri uri) {
         if (uri != null) {
-            mUser = mUserStorage.getUserByUri(uri);
+            mUser = new UserStorage().getUserByUri(uri); //FIXME: DB access on UI thread
+            if (mUser == null) {
+                loadUserById(UriUtils.getLastSegmentAsLong(uri));
+            }
         }
         return mUser != null;
     }
@@ -406,7 +333,7 @@ public class UserBrowser extends ScActivity implements
         new Thread(new Runnable() {
             @Override
             public void run() {
-                new UserStorage(UserBrowser.this).create(mUser);
+                new UserStorage().create(mUser);
             }
         }).start();
         mUserDetailsFragment.onSuccess(mUser);
@@ -566,12 +493,21 @@ public class UserBrowser extends ScActivity implements
 
         @Override
         public Fragment getItem(int position) {
-            if (Tab.values()[position] == Tab.details){
+            Tab currentTab = Tab.values()[position];
+            if (currentTab == Tab.details){
                 return mUserDetailsFragment;
             } else {
-                ScListFragment listFragment = ScListFragment.newInstance(isYou() ?
-                        Tab.values()[position].youContent.uri : Tab.values()[position].userContent.forId(mUser.id));
-                listFragment.setEmptyCollection(getEmptyScreenFromContent(position));
+                Content content;
+                Uri contentUri;
+                if (isYou()) {
+                    content = currentTab.youContent;
+                    contentUri = content.uri;
+                } else {
+                    content = currentTab.userContent;
+                    contentUri = content.forId(mUser.id);
+                }
+                ScListFragment listFragment = ScListFragment.newInstance(contentUri);
+                listFragment.setEmptyViewFactory(new EmptyListViewFactory().forContent(UserBrowser.this, content, mUser));
                 return listFragment;
             }
         }

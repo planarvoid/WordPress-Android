@@ -11,6 +11,7 @@ import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.dao.ActivitiesStorage;
+import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -21,10 +22,12 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
+import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
@@ -71,7 +74,7 @@ import java.net.URI;
 import java.util.List;
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=3e22e330",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=fc54b4c2",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
@@ -113,7 +116,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mImageLoader = createImageLoader();
         final Account account = getAccount();
 
-        mCloudApi = Wrapper.create(this, account == null ? null : getToken(account));
+        mCloudApi = new Wrapper(this, account == null ? null : getToken(account));
         mCloudApi.setTokenListener(this);
 
         MODEL_MANAGER = new ScModelManager(this);
@@ -142,7 +145,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             });
 
             try {
-                C2DMReceiver.register(this, getCurrentUserId());
+                C2DMReceiver.register(this);
             } catch (Exception e){
                 SoundCloudApplication.handleSilentException("Could not register c2dm ",e);
             }
@@ -209,8 +212,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         new Thread() {
             @Override
             public void run() {
-                new UserStorage(SoundCloudApplication.this).clearLoggedInUser();
-                new ActivitiesStorage(SoundCloudApplication.this).clear(null);
+                new SyncStateManager().clear();
+                new CollectionStorage().clear();
+                new ActivitiesStorage().clear(null);
+                SoundRecorder.getInstance(SoundCloudApplication.this).reset();
 
                 PlayQueueManager.clearState(SoundCloudApplication.this);
                 FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
@@ -255,7 +260,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public AccountManagerFuture<Bundle> addAccount(Activity activity) {
         return getAccountManager().addAccount(
                 getString(R.string.account_type),
-                Token.ACCESS_TOKEN, null, null, activity, null, null);
+                User.DataKeys.ACCESS_TOKEN, null, null, activity, null, null);
     }
 
     /**
@@ -310,9 +315,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         final AccountManager am = AccountManager.get(context);
         final boolean created = am.addAccountExplicitly(account, token.access, null);
         if (created) {
-            am.setAuthToken(account, Token.ACCESS_TOKEN,  token.access);
-            am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-            am.setUserData(account, Token.SCOPE, token.scope);
+            am.setAuthToken(account, User.DataKeys.ACCESS_TOKEN,  token.access);
+            am.setAuthToken(account, User.DataKeys.REFRESH_TOKEN, token.refresh);
+            am.setUserData(account, User.DataKeys.SCOPE, token.scope);
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink);
@@ -387,15 +392,15 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private Token getToken(Account account) {
-        return new Token(getAccessToken(account), getRefreshToken(account), getAccountData(Token.SCOPE));
+        return new Token(getAccessToken(account), getRefreshToken(account), getAccountData(User.DataKeys.SCOPE));
     }
 
     private String getAccessToken(Account account) {
-        return getAccountManager().peekAuthToken(account, Token.ACCESS_TOKEN);
+        return getAccountManager().peekAuthToken(account, User.DataKeys.ACCESS_TOKEN);
     }
 
     private String getRefreshToken(Account account) {
-        return getAccountManager().peekAuthToken(account, Token.REFRESH_TOKEN);
+        return getAccountManager().peekAuthToken(account, User.DataKeys.REFRESH_TOKEN);
     }
 
     private AccountManager getAccountManager() {
@@ -577,10 +582,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         AccountManager am = getAccountManager();
         if (account != null && token.valid() && token.defaultScoped()) {
             am.setPassword(account, token.access);
-            am.setAuthToken(account, Token.ACCESS_TOKEN, token.access);
-            am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-            am.setUserData(account, Token.EXPIRES_IN, "" + token.expiresIn);
-            am.setUserData(account, Token.SCOPE, token.scope);
+            am.setAuthToken(account, User.DataKeys.ACCESS_TOKEN, token.access);
+            am.setAuthToken(account, User.DataKeys.REFRESH_TOKEN, token.refresh);
+            am.setUserData(account, User.DataKeys.EXPIRES_IN, "" + token.expiresIn);
+            am.setUserData(account, User.DataKeys.SCOPE, token.scope);
         }
     }
 

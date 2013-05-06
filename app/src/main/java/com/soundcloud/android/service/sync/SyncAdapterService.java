@@ -21,7 +21,6 @@ import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.net.Uri;
@@ -130,9 +129,9 @@ public class SyncAdapterService extends Service {
             ContentStats.setLastSeen(app, Content.ME_ACTIVITIES, now);
         }
 
-        final SyncStateManager syncStateManager = new SyncStateManager(app);
-        final PlaylistStorage playlistStorage = new PlaylistStorage(app);
-        final UserStorage userStorage = new UserStorage(app);
+        final SyncStateManager syncStateManager = new SyncStateManager();
+        final PlaylistStorage playlistStorage = new PlaylistStorage();
+        final UserStorage userStorage = new UserStorage();
 
         final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, userStorage, playlistStorage);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
@@ -205,7 +204,7 @@ public class SyncAdapterService extends Service {
                 }
 
                 // see if there are any local playlists that need to be pushed
-                if (new PlaylistStorage(app).hasLocalPlaylists()){
+                if (new PlaylistStorage().hasLocalPlaylists()){
                     urisToSync.add(Content.ME_PLAYLISTS.uri);
                 }
 
@@ -213,7 +212,7 @@ public class SyncAdapterService extends Service {
                 final Set<Uri> playlistsDueForSync = playlistStorage.getPlaylistsDueForSync();
                 if (playlistsDueForSync != null) urisToSync.addAll(playlistsDueForSync);
 
-                final List<Uri> dueForSync = SyncCleanups.getCleanupsDueForSync(app, manual);
+                final List<Uri> dueForSync = SyncCleanups.getCleanupsDueForSync(manual);
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "cleanups due for sync:" + dueForSync);
                 }
@@ -266,12 +265,12 @@ public class SyncAdapterService extends Service {
         switch (clearMode) {
             case CLEAR_ALL:
                 ContentStats.clear(app);
-                clearActivities(app);
+                clearActivities();
                 break;
             case REWIND_LAST_DAY:
                 final long rewindTime = 24 * 3600000L; // 1d
                 ContentStats.rewind(app, rewindTime);
-                clearActivities(app);
+                clearActivities();
                 break;
             default:
         }
@@ -281,9 +280,9 @@ public class SyncAdapterService extends Service {
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
-    private static void clearActivities(Context context) {
+    private static void clearActivities() {
         // drop all activities before re-sync
-        int deleted =  new ActivitiesStorage(context).clear(null);
+        int deleted =  new ActivitiesStorage().clear(null);
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "deleted "+deleted+ " activities");
         }

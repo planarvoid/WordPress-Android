@@ -33,7 +33,7 @@
   <string name="authentication_recover_password_success">Go check your mail! You\'ll receive an email with instructions on how to reset your password shortly</string>
   <string name="authentication_recover_progress_message">Requesting password reset</string>
   <string name="authentication_repeat_your_password">Repeat your password</string>
-  <string name="authentication_sign_up">Sign Up</string>
+  <string name="authentication_sign_up">Sign up for SoundCloud</string>
   <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
   <string name="authentication_signup_progress_message">Signing you up</string>
   <string name="authentication_support">Support</string>

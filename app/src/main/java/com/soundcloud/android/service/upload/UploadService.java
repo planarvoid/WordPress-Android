@@ -44,6 +44,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -132,7 +133,7 @@ public class UploadService extends Service {
 
     private IntentHandler mIntentHandler;
     private UploadHandler mUploadHandler;
-    private ProcessingHandler mProcessingHandler;
+    private Handler mProcessingHandler;
 
     // notifications
     private NotificationManager nm;
@@ -145,11 +146,11 @@ public class UploadService extends Service {
         super.onCreate();
         Log.d(TAG, "upload service started");
 
-        mRecordingStorage = new RecordingStorage(this);
+        mRecordingStorage = new RecordingStorage();
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
-        mIntentHandler = new IntentHandler(createLooper("UploadService", Process.THREAD_PRIORITY_DEFAULT));
-        mUploadHandler = new UploadHandler(createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT));
-        mProcessingHandler = new ProcessingHandler(createLooper("Processing", Process.THREAD_PRIORITY_BACKGROUND));
+        mIntentHandler = new IntentHandler(this, createLooper("UploadService", Process.THREAD_PRIORITY_DEFAULT));
+        mUploadHandler = new UploadHandler(this, createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT));
+        mProcessingHandler = new Handler(createLooper("Processing", Process.THREAD_PRIORITY_BACKGROUND));
 
         mBroadcastManager.registerReceiver(mReceiver, getIntentFilter());
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -198,24 +199,33 @@ public class UploadService extends Service {
      * Note: success/failure signalling is handled via {@link LocalBroadcastManager}, which also handles
      * the (re-)queuing of tasks to correct queue.
      */
-    private final class UploadHandler extends Handler {
-        public UploadHandler(Looper looper) {
+    private static final class UploadHandler extends Handler {
+        private WeakReference<UploadService> mServiceRef;
+
+        private UploadHandler(UploadService service, Looper looper) {
             super(looper);
+            mServiceRef = new WeakReference<UploadService>(service);
         }
+
         @Override public void handleMessage(Message msg) {
+            final UploadService service = mServiceRef.get();
+            if (service == null) {
+                return;
+            }
+
             Upload upload = (Upload) msg.obj;
 
             Log.d(TAG, "handleMessage("+upload+")");
 
             if (upload.recording.needsResizing()) {
-                post(new ImageResizer(UploadService.this, upload.recording));
+                post(new ImageResizer(service, upload.recording));
             } else if (upload.recording.needsProcessing()) {
-                mProcessingHandler.post(new Processor(UploadService.this, upload.recording));
+                service.mProcessingHandler.post(new Processor(service, upload.recording));
             } else if (upload.recording.needsEncoding()) {
-                mProcessingHandler.post(new Encoder(UploadService.this, upload.recording));
+                service.mProcessingHandler.post(new Encoder(service, upload.recording));
             } else {
                 // perform the actual upload
-                post(new Uploader((AndroidCloudAPI) getApplication(), upload.recording));
+                post(new Uploader((AndroidCloudAPI) service.getApplication(), upload.recording));
             }
         }
     }
@@ -580,27 +590,25 @@ public class UploadService extends Service {
                 : DateFormat.getDateFormat(context).format(date);
     }
 
-    private final class IntentHandler extends Handler {
-        public IntentHandler(Looper looper) {
+    private static final class IntentHandler extends Handler {
+        private WeakReference<UploadService> mServiceRef;
+
+        public IntentHandler(UploadService service, Looper looper) {
             super(looper);
+            mServiceRef = new WeakReference<UploadService>(service);
         }
         @Override
         public void handleMessage(Message msg) {
+            final UploadService service = mServiceRef.get();
             final Intent intent = (Intent) msg.obj;
-            Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
-            if (r != null) {
+            final Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
+            if (service != null && r != null) {
                 if (Actions.UPLOAD.equals(intent.getAction())) {
-                    upload(r);
+                    service.upload(r);
                 } else if (Actions.UPLOAD_CANCEL.equals(intent.getAction())) {
-                    cancel(r);
+                    service.cancel(r);
                 }
             }
-        }
-    }
-
-    private final class ProcessingHandler extends Handler {
-        public ProcessingHandler(Looper looper) {
-            super(looper);
         }
     }
 }

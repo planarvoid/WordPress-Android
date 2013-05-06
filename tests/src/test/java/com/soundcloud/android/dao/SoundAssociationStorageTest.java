@@ -11,12 +11,16 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentResolver;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -27,7 +31,7 @@ public class SoundAssociationStorageTest {
     
     @Before
     public void initTest() {
-        storage = new SoundAssociationStorage(DefaultTestRunner.application);        
+        storage = new SoundAssociationStorage();
     }
     
     @Test
@@ -62,7 +66,7 @@ public class SoundAssociationStorageTest {
         final List<Track> tracks = createTracks(2);
         Playlist p = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        SoundAssociation playlistCreation = storage.addPlaylistCreation(p).last();
+        SoundAssociation playlistCreation = storage.addCreation(p).last();
         expect(playlistCreation).not.toBeNull();
         expect(p.toUri()).not.toBeNull();
         expect(Content.ME_PLAYLISTS).toHaveCount(1);
@@ -157,6 +161,63 @@ public class SoundAssociationStorageTest {
         List<SoundAssociation> result = storage.getPlaylistCreationsForCurrentUser();
         expect(result).toNumber(1);
         expect(result).toContain(new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST));
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenAddingLikes() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        storage.addLike(new Playlist(1L));
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/likes/1");
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenRemovingLikes() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        storage.removeLike(new Playlist(1L));
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/likes");
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenAddingReposts() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        storage.addRepost(new Playlist(1L));
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/reposts/1");
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenRemovingReposts() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        storage.removeRepost(new Playlist(1L));
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/reposts");
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenAddingTrackCreation() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        Track track = new Track(1L);
+        track.created_at = new Date();
+        storage.addCreation(track).subscribe(ScActions.NO_OP);
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/sounds/1");
+    }
+
+    @Test
+    public void shouldNotifyContentObserverWhenAddingPlaylistCreation() {
+        ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
+
+        Playlist playlist = Playlist.newUserPlaylist(new User(1L), "playlist", false, Collections.<Track>emptyList());
+        storage.addCreation(playlist).subscribe(ScActions.NO_OP);
+
+        expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/playlists/1");
     }
 
     private void insertSoundAssociations(Track track, Playlist playlist) {

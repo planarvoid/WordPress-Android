@@ -183,9 +183,20 @@ public enum Content  {
 
 
     public static final EnumSet<Content> ID_BASED = EnumSet.of(
-            Content.ME_FOLLOWING,
+            Content.ME_FOLLOWINGS,
             Content.ME_FOLLOWERS,
             Content.ME_FRIENDS
+    );
+
+    public static final EnumSet<Content> LISTEN_FOR_PLAYLIST_CHANGES = EnumSet.of(
+            Content.ME_SOUND_STREAM,
+            Content.ME_ACTIVITIES,
+            Content.ME_SOUNDS,
+            Content.USER_SOUNDS,
+            Content.ME_LIKES,
+            Content.USER_LIKES,
+            Content.ME_PLAYLISTS,
+            Content.USER_PLAYLISTS
     );
 
     static {
@@ -199,7 +210,7 @@ public enum Content  {
     }
 
     public boolean isSyncable() {
-        return id < SYNCABLE_CEILING;
+        return id < SYNCABLE_CEILING && id > 0;
     }
 
     public boolean isCollectionItem() {
@@ -211,7 +222,7 @@ public enum Content  {
     }
 
     public boolean isMine() {
-        return id < MINE_CEILING;
+        return id < MINE_CEILING && id > 0;
     }
 
     public Uri.Builder buildUpon() {
@@ -284,6 +295,10 @@ public enum Content  {
         return remoteUri != null;
     }
 
+    public boolean shouldListenForPlaylistChanges() {
+        return LISTEN_FOR_PLAYLIST_CHANGES.contains(this);
+    }
+
     @Override
     public String toString() {
         return "Content." + name();
@@ -320,5 +335,10 @@ public enum Content  {
                         SyncConfig.DEFAULT_STALE_TIME;
 
         return System.currentTimeMillis() - lastSync > staleTime;
+    }
+
+    @Nullable
+    public Class<? extends ScModel> getModelType() {
+        return modelType;
     }
 }

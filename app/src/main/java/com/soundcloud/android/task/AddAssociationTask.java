@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.task;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.api.Request;
@@ -8,8 +9,8 @@ import com.soundcloud.api.Request;
 import java.io.IOException;
 
 public class AddAssociationTask extends AssociatedSoundTask {
-    public AddAssociationTask(SoundCloudApplication scApp, Playable playable) {
-        super(scApp, playable);
+    public AddAssociationTask(AndroidCloudAPI api, Playable playable) {
+        super(api, playable);
     }
 
     @Override

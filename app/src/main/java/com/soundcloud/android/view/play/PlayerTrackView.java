@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.play;
 
+
 import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
@@ -93,8 +94,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         findViewById(R.id.btn_addToSet).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyPlaylistsDialogFragment.from(mTrack).show(
-                        mPlayer.getSupportFragmentManager(), "playlist_dialog");
+                if (mTrack != null && mPlayer.isForeground()){
+                    MyPlaylistsDialogFragment.from(mTrack).show(
+                            mPlayer.getSupportFragmentManager(), "playlist_dialog");
+                }
             }
         });
 

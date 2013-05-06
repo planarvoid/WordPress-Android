@@ -4,11 +4,17 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociationHolder;
+import com.soundcloud.android.model.SoundAssociationTest;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.service.sync.ApiSyncerTest;
+import com.soundcloud.android.task.collection.RemoteCollectionLoaderTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +37,7 @@ public class CollectionStorageTest {
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        storage = new CollectionStorage(DefaultTestRunner.application);
+        storage = new CollectionStorage();
     }
 
     @Test
@@ -77,7 +83,33 @@ public class CollectionStorageTest {
     public void shouldBulkInsertWithCollections() throws Exception {
         List<Track> items = createTracks();
         expect(storage.insertCollection(items, Content.ME_LIKES.uri, USER_ID)).toEqual(6);
-        expect(storage.getLikesCount()).toEqual(2);
+        expect(Content.ME_LIKES).toHaveCount(2);
+    }
+
+    @Test
+    public void shouldRemoveSyncedContentForLoggedInUser() throws Exception {
+        SoundAssociationHolder sounds = TestHelper.readJson(SoundAssociationHolder.class, SoundAssociationTest.class, "sounds.json");
+        TestHelper.bulkInsert(Content.ME_SOUNDS.uri,sounds.collection);
+
+        SoundAssociationHolder likes = TestHelper.readJson(SoundAssociationHolder.class, ApiSyncerTest.class, "e1_likes.json");
+        TestHelper.bulkInsert(Content.ME_LIKES.uri, likes.collection);
+
+        ScResource.ScResourceHolder<User> followedUsers = TestHelper.readJson(ScResource.ScResourceHolder.class, RemoteCollectionLoaderTest.class, "me_followings.json");
+        TestHelper.bulkInsertToCollectionItems(followedUsers.collection, Content.ME_FOLLOWINGS.uri);
+
+        ScResource.ScResourceHolder<User> followers = TestHelper.readJson(ScResource.ScResourceHolder.class, RemoteCollectionLoaderTest.class, "me_followers.json");
+        TestHelper.bulkInsertToCollectionItems(followers.collection, Content.ME_FOLLOWERS.uri);
+
+        expect(Content.ME_SOUNDS).toHaveCount(38);
+        expect(Content.ME_LIKES).toHaveCount(3);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(50);
+        expect(Content.ME_FOLLOWERS).toHaveCount(50);
+
+        storage.clear();
+        expect(Content.ME_SOUNDS).toHaveCount(0);
+        expect(Content.ME_LIKES).toHaveCount(0);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(0);
+        expect(Content.ME_FOLLOWERS).toHaveCount(0);
     }
 
     public static List<Track> createTracks() {

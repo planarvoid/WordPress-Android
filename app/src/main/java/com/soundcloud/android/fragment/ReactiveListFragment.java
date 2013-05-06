@@ -128,7 +128,7 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         //TODO: item click handling does NOT belong in an adapter...
         int itemPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
-        mAdapter.handleListItemClick(itemPosition, id);
+        mAdapter.handleListItemClick(getActivity(), itemPosition, id);
     }
 
     @Override

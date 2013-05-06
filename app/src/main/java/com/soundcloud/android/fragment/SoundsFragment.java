@@ -32,7 +32,7 @@ public class SoundsFragment extends ReactiveListFragment<SoundAssociation> {
 
     @Override
     protected ScBaseAdapter<SoundAssociation> newAdapter() {
-        return new SoundAssociationAdapter(getActivity(), mContentUri);
+        return new SoundAssociationAdapter(mContentUri);
     }
 
     @Override
