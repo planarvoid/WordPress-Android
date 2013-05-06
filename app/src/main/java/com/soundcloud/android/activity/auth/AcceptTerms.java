@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
@@ -36,6 +35,7 @@ public class AcceptTerms extends RelativeLayout {
     public AcceptTerms(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
+
     public AcceptTermsHandler getAcceptTermsHandler() {
         return mAcceptTermsHandler;
     }
@@ -69,17 +69,6 @@ public class AcceptTerms extends RelativeLayout {
                 getAcceptTermsHandler().onAcceptTerms(mSignupVia, mSignupParams);
             }
         });
-
-//        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_i_forgot_my_password)),
-//                getResources().getString(R.string.authentication_I_forgot_my_password),
-//                new ScTextUtils.ClickSpan.OnClickListener() {
-//                    @Override
-//                    public void onClick() {
-//                        if (getLoginHandler() != null) {
-//                            getLoginHandler().onRecover(emailField.getText().toString());
-//                        }
-//                    }
-//                }, true, false);
     }
 
     public Bundle getStateBundle() {
@@ -91,9 +80,7 @@ public class AcceptTerms extends RelativeLayout {
 
     public void setState(@Nullable Bundle bundle) {
         if (bundle == null) return;
-        final String via = bundle.getString(BUNDLE_SIGNUP_VIA);
-        Log.i("asdf","SEt state " + via);
-        mSignupVia = SignupVia.fromString(via);
+        mSignupVia = SignupVia.fromString(bundle.getString(BUNDLE_SIGNUP_VIA));
         mSignupParams = bundle.getBundle(BUNDLE_SIGNUP_PARAMS);
     }
 }

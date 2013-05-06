@@ -228,9 +228,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         if (mSignUp      != null) outState.putBundle(BUNDLE_SIGN_UP, mSignUp.getStateBundle());
         if (mUserDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, mUserDetails.getStateBundle());
         if (mAcceptTerms != null) outState.putBundle(BUNDLE_ACCEPT_TERMS, mAcceptTerms.getStateBundle());
-
-
-
     }
 
     @Override
@@ -243,9 +240,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         mLoginBundle       = savedInstanceState.getBundle(BUNDLE_LOGIN);
         mSignUpBundle      = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
         mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
-
         mAcceptTermsBundle = savedInstanceState.getBundle(BUNDLE_ACCEPT_TERMS);
-        Log.i("asdf","Just set accept terms bundle " + mAcceptTermsBundle);
 
         final StartState state = (StartState) savedInstanceState.getSerializable(BUNDLE_STATE);
         setState(state, false);
@@ -294,6 +289,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     public AcceptTerms getAcceptTerms(){
         if (mAcceptTerms == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.accept_terms_stub);
+
             mAcceptTerms = (AcceptTerms) stub.inflate();
             mAcceptTerms.setAcceptTermsHandler(this);
             mAcceptTerms.setState(mAcceptTermsBundle);
