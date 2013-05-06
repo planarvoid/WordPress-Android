@@ -131,6 +131,10 @@
         <item name="android:minWidth">100dp</item>
     </style>
 
+    <style name="Tour.TermsButton" parent="Tour.Button">
+        <item name="android:minWidth">100dp</item>
+    </style>
+
     <style name="Tour.SignupButton" parent="Tour.BottomButton">
         <item name="android:layout_marginRight">15dp</item>
         <item name="android:background">@drawable/next_button_orange</item>
@@ -214,12 +218,17 @@
 
     <style name="SignUp.ScrollView.Base">
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_centerInParent">true</item>
+        <item name="android:layout_height">fill_parent</item>
     </style>
 
     <style name="SignUp.ScrollView" parent="SignUp.ScrollView.Base">
 
+    </style>
+
+    <style name="SignUp.Content.Stub">
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="SignUp.Content.Base">
@@ -227,6 +236,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">10dp</item>
         <item name="android:layout_gravity">center</item>
+        <item name="android:layout_centerInParent">true</item>
         <item name="android:orientation">vertical</item>
     </style>
 

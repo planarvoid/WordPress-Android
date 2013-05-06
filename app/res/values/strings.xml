@@ -182,5 +182,10 @@
     <string name="error_google_sign_in_failed">We couldn\'t log you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
 
     <string name="updating">Updating...</string>
+    <string name="btn_continue">Continue</string>
+
+    <string name="auth_disclaime_title">One more step</string>
+    <string name="auth_disclaimer_message">By tapping \"Continue\", you agree to the Terms of Use, Cookie and Privacy policies of SoundCloud.</string>
+
 
 </resources>

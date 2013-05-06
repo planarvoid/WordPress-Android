@@ -48,13 +48,13 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
+public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler, AcceptTerms.AcceptTermsHandler {
 
     private static final String FOREGROUND_TAG = "foreground";
     private static final String PARALLAX_TAG = "parallax";
 
     protected enum StartState {
-        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
+        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS
     }
 
     private static final String BUNDLE_STATE           = "BUNDLE_STATE";
@@ -62,6 +62,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private static final String BUNDLE_LOGIN           = "BUNDLE_LOGIN";
     private static final String BUNDLE_SIGN_UP         = "BUNDLE_SIGN_UP";
     private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
+    private static final String BUNDLE_ACCEPT_TERMS    = "BUNDLE_ACCEPT_TERMS";
     private static final String LAST_GOOGLE_ACCT_USED  = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
 
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
@@ -80,7 +81,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Nullable private Login  mLogin;
     @Nullable private SignUp mSignUp;
     @Nullable private UserDetails mUserDetails;
-    @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle;
+    @Nullable private AcceptTerms mAcceptTerms;
+    @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle, mAcceptTermsBundle;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -225,6 +227,10 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         if (mLogin       != null) outState.putBundle(BUNDLE_LOGIN, mLogin.getStateBundle());
         if (mSignUp      != null) outState.putBundle(BUNDLE_SIGN_UP, mSignUp.getStateBundle());
         if (mUserDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, mUserDetails.getStateBundle());
+        if (mAcceptTerms != null) outState.putBundle(BUNDLE_ACCEPT_TERMS, mAcceptTerms.getStateBundle());
+
+
+
     }
 
     @Override
@@ -237,6 +243,9 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         mLoginBundle       = savedInstanceState.getBundle(BUNDLE_LOGIN);
         mSignUpBundle      = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
         mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
+
+        mAcceptTermsBundle = savedInstanceState.getBundle(BUNDLE_ACCEPT_TERMS);
+        Log.i("asdf","Just set accept terms bundle " + mAcceptTermsBundle);
 
         final StartState state = (StartState) savedInstanceState.getSerializable(BUNDLE_STATE);
         setState(state, false);
@@ -282,6 +291,17 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         return mUserDetails;
     }
 
+    public AcceptTerms getAcceptTerms(){
+        if (mAcceptTerms == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.accept_terms_stub);
+            mAcceptTerms = (AcceptTerms) stub.inflate();
+            mAcceptTerms.setAcceptTermsHandler(this);
+            mAcceptTerms.setState(mAcceptTermsBundle);
+            mAcceptTerms.setVisibility(View.VISIBLE);
+        }
+        return mAcceptTerms;
+    }
+
     @Override
     public void onLogin(String email, String password) {
         LoginTaskFragment.create(email, password).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
@@ -294,7 +314,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onSignUp(final String email, final String password) {
-        SignupTaskFragment.create(email,password).show(getSupportFragmentManager(), "signup_task");
+        proposeTermsOfUse(SignupVia.API, SignupTaskFragment.getParams(email, password));
     }
 
     @Override
@@ -338,6 +358,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         switch (getState()) {
             case LOGIN:
             case SIGN_UP:
+            case ACCEPT_TERMS:
                 setState(StartState.TOUR);
                 break;
 
@@ -362,45 +383,61 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     public void setState(StartState state, boolean animated) {
         mState = state;
 
+        // check for nulls when hiding to avoid unnecessary instantiation
         switch (mState) {
             case TOUR:
-                showForegroundViews(false);
-
-                showView(this, mViewPager, false);
                 hideView(this, mOverlayBg, animated);
-                hideView(this, getLogin(), animated);
-                hideView(this, getSignUp(), animated);
-                hideView(this, getUserDetails(), animated);
+                if (mLogin != null)         hideView(this, getLogin(), animated);
+                if (mSignUp != null)        hideView(this, getSignUp(), animated);
+                if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
+                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
+
+                showForegroundViews(false);
+                showView(this, mViewPager, false);
                 break;
 
             case LOGIN:
                 hideForegroundViews(animated);
+                if (mSignUp != null)        hideView(this, getSignUp(), animated);
+                if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
+                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
 
                 showView(this, mOverlayBg, animated);
                 showView(this, mViewPager, animated);
                 showView(this, getLogin(), animated);
-                hideView(this, getSignUp(), animated);
-                hideView(this, getUserDetails(), animated);
                 break;
 
             case SIGN_UP:
                 hideForegroundViews(animated);
+                if (mLogin != null)         hideView(this, getLogin(), animated);
+                if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
+                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
 
                 showView(this, mOverlayBg, animated);
                 showView(this, mViewPager, animated);
-                hideView(this, getLogin(), animated);
                 showView(this, getSignUp(), animated);
-                hideView(this, getUserDetails(), animated);
                 break;
 
             case SIGN_UP_DETAILS:
                 hideForegroundViews(animated);
+                if (mLogin != null)         hideView(this, getLogin(), animated);
+                if (mSignUp != null)        hideView(this, getSignUp(), animated);
+                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
 
                 showView(this, mOverlayBg, animated);
                 showView(this, mViewPager, animated);
-                hideView(this, getLogin(), animated);
-                hideView(this, getSignUp(), animated);
                 showView(this, getUserDetails(), animated);
+                break;
+
+            case ACCEPT_TERMS:
+                hideForegroundViews(animated);
+                if (mLogin != null)         hideView(this, getLogin(), animated);
+                if (mSignUp != null)        hideView(this, getSignUp(), animated);
+                if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
+
+                showView(this, mOverlayBg, animated);
+                showView(this, mViewPager, animated);
+                showView(this, getAcceptTerms(), animated);
                 break;
         }
     }
@@ -453,7 +490,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Override
     public void onFacebookAuth() {
         getApp().track(Click.Login_with_facebook);
-        startActivityForResult(new Intent(this, Facebook.class), RequestCodes.SIGNUP_VIA_FACEBOOK);
+        proposeTermsOfUse(SignupVia.FACEBOOK_SSO, null);
     }
 
     @Override
@@ -472,6 +509,26 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     }
 
     @Override
+    public void onAcceptTerms(SignupVia signupVia, Bundle signupParams) {
+        switch (signupVia){
+            case GOOGLE_PLUS:
+                GooglePlusSignInTaskFragment.create(signupParams).show(getSupportFragmentManager(), "signup_dialog");
+                break;
+            case FACEBOOK_SSO:
+                startActivityForResult(new Intent(this, Facebook.class), RequestCodes.SIGNUP_VIA_FACEBOOK);
+                break;
+            case API:
+                SignupTaskFragment.create(signupParams).show(getSupportFragmentManager(), "signup_dialog");
+                break;
+        }
+    }
+
+    @Override
+    public void onCancel() {
+        setState(StartState.TOUR);
+    }
+
+    @Override
     public void onAuthTaskComplete(User user, SignupVia via, boolean wasApiSignupTask) {
         if (wasApiSignupTask){
             SignupLog.writeNewSignupAsync();
@@ -486,8 +543,17 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         // store the last account name in case we have to retry after startActivityForResult with G+ app
         mLastGoogleAccountSelected = name;
         getApp().track(Click.Login_with_googleplus);
-        GooglePlusSignInTaskFragment.create(name, RequestCodes.SIGNUP_VIA_GOOGLE)
-                .show(getSupportFragmentManager(), "google_acct_dialog");
+        proposeTermsOfUse(SignupVia.GOOGLE_PLUS, GooglePlusSignInTaskFragment.getParams(name, RequestCodes.SIGNUP_VIA_GOOGLE));
+    }
+
+    /**
+     * Set signup params on accept terms view and change state
+     * @param signupVia
+     * @param params
+     */
+    private void proposeTermsOfUse(SignupVia signupVia, Bundle params){
+        getAcceptTerms().setSignupParams(signupVia, params);
+        setState(StartState.ACCEPT_TERMS);
     }
 
     private SoundCloudApplication getApp() {

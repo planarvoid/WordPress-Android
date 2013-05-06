@@ -9,13 +9,16 @@ import android.os.Bundle;
 
 public class SignupTaskFragment extends AuthTaskFragment {
 
-    public static SignupTaskFragment create(String username, String password){
+    public static Bundle getParams(String username, String password){
         Bundle b = new Bundle();
         b.putString(SignupTask.KEY_USERNAME, username);
         b.putString(SignupTask.KEY_PASSWORD, password);
+        return b;
+    }
 
+    public static SignupTaskFragment create(Bundle params){
         SignupTaskFragment signupTaskFragment = new SignupTaskFragment();
-        signupTaskFragment.setArguments(b);
+        signupTaskFragment.setArguments(params);
         return signupTaskFragment;
     }
 
