@@ -250,8 +250,7 @@ public final class AnimUtils {
         if (!animated) {
             view.setVisibility(View.GONE);
         } else {
-            Animation animation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
-            animation.setAnimationListener(new Animation.AnimationListener() {
+            hideView(context, view,new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
                 }
@@ -267,7 +266,6 @@ public final class AnimUtils {
                 public void onAnimationRepeat(Animation animation) {
                 }
             });
-            view.startAnimation(animation);
         }
     }
 

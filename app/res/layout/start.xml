@@ -32,8 +32,10 @@
         <include layout="@layout/tour_buttons"/>
     </LinearLayout>
 
-    <View style="@style/SignUp.Overlay" android:id="@+id/overlay_bg"/>
-    <ScrollView android:id="@+id/scrollview" style="@style/SignUp.ScrollView">
+    <View android:id="@+id/overlay_bg"
+          style="@style/SignUp.Overlay"/>
+    <ScrollView android:id="@+id/scrollview"
+                style="@style/SignUp.ScrollView">
         <RelativeLayout android:layout_width="match_parent"
                         android:layout_gravity="center"
                         android:gravity="center"

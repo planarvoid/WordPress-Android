@@ -186,7 +186,6 @@
     <string name="cookie">Cookie</string>
     <string name="privacy">Privacy</string>
 
-
     <string name="auth_disclaime_title">One more step</string>
     <string name="auth_disclaimer_message">By tapping \"Continue\", you agree to the Terms of Use, Cookie and Privacy policies of SoundCloud.</string>
 

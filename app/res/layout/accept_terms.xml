@@ -6,7 +6,7 @@
     <LinearLayout style="@style/SignUp.Content">
 
         <TextView android:id="@android:id/title"
-                  style="@style/SignUp.TermsHeader"
+                  style="@style/SignUp.TermsText"
                   android:text="@string/auth_disclaime_title"/>
         <TextView android:id="@android:id/message"
                   style="@style/SignUp.TermsMessage"

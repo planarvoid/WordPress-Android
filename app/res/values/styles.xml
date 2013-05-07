@@ -251,9 +251,6 @@
         <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
     </style>
 
-    <style name="SignUp.TermsHeader" parent="SignUp.TermsText">
-    </style>
-
     <style name="SignUp.TermsMessage" parent="SignUp.TermsText">
         <item name="android:layout_margin">10dp</item>
     </style>

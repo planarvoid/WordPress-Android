@@ -80,7 +80,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private ViewPager mViewPager;
 
     @Nullable private Login  mLogin;
-
     @Nullable private SignUp mSignUp;
     @Nullable private UserDetails mUserDetails;
     @Nullable private AcceptTerms mAcceptTerms;
