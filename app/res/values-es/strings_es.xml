@@ -13,7 +13,7 @@
   <string name="authentication_add_info_progress_message">Añadiendo información</string>
   <string name="authentication_add_info_username_hint">Nombre de usuario</string>
   <string name="authentication_by_signing_in_I_agree_to_the">Al registrarme, acepto las Condiciones y política de Privacidad de SoundCloud.</string>
-  <string name="authentication_choose_a_password">Elija una contraseña</string>
+  <string name="authentication_choose_a_password">Elije una contraseña</string>
   <string name="authentication_error_incomplete_fields">Por favor, rellene todos los campos.</string>
   <string name="authentication_error_invalid_email">Por favor, introduzca un correo electrónico válido.</string>
   <string name="authentication_error_no_connection_message">Por favor, verifique la configuración de red.</string>
@@ -33,7 +33,7 @@
   <string name="authentication_recover_password_msg">Introduzca su dirección de correo electrónico y le enviaremos un enlace que le permitirá cambiar de contraseña. ¿Tiene problemas? Contacte con el soporte.</string>
   <string name="authentication_recover_password_success">¡Compruebe su correo electrónico! Recibirá, en poco tiempo, un correo con instrucciones acerca de cómo restaurar su contraseña</string>
   <string name="authentication_recover_progress_message">Petición de restauración de contraseña</string>
-  <string name="authentication_repeat_your_password">Repita la contraseña</string>
+  <string name="authentication_repeat_your_password">Repite la contraseña</string>
   <string name="authentication_sign_up">Registro en SoundCloud</string>
   <string name="authentication_signup_error_message">Parece que hay un problema. Por favor, intente registrarse en SoundCloud.com.</string>
   <string name="authentication_signup_progress_message">Registrándose</string>
@@ -299,7 +299,7 @@
   <string name="raw">Raw.</string>
   <string name="record_another_sound">Grabar otro sonido</string>
   <string name="record_insert_sd_card">Por favor, introduzca una tarjeta SD para grabar.</string>
-  <string name="record_instructions">Compartir sus sonidos</string>
+  <string name="record_instructions">Compartir tus sonidos</string>
   <string name="record_storage_is_full">La memoria está llena</string>
   <string name="recorded_afternoon">%s tarde</string>
   <string name="recorded_at">%1$s a %2$s</string>
@@ -309,11 +309,11 @@
   <string name="recording_not_found">No se encontró ninguna grabación.</string>
   <string name="reset">Descartar</string>
   <string name="sc_upload_add_image">Añadir\nImagen</string>
-  <string name="sc_upload_only_you">Solo usted</string>
+  <string name="sc_upload_only_you">Solo tú</string>
   <string name="sc_upload_private">Privado \u00A0</string>
   <string name="sc_upload_public">Público \u00A0</string>
-  <string name="sc_upload_sharing_options_private">Su sonido se hará privado en SoundCloud. Añada cualquier sonido que desee compartir en privado más adelante.</string>
-  <string name="sc_upload_sharing_options_public">Su sonido se hará público en SoundCloud. ¿Qué otras redes desearía compartir?</string>
+  <string name="sc_upload_sharing_options_private">Tu sonido se hará privado en SoundCloud. Añade cualquier sonido que desees compartir en privado más adelante.</string>
+  <string name="sc_upload_sharing_options_public">Tu sonido se hará público en SoundCloud. ¿Qué otras redes desearía compartir?</string>
   <string name="sc_upload_with_access">Con acceso</string>
   <string name="search_hint">Buscar SoundCloud</string>
   <string name="search_settings_description">Buscar sonidos</string>
