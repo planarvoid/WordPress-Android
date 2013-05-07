@@ -73,7 +73,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private String mLastGoogleAccountSelected;
     @Nullable private User mUser;
 
-    private View mTourBottomBar, mTourLogo, mOverlayBg, mScrollView;
+    private View mTourBottomBar, mTourLogo, mOverlayBg, mOverlayHolder;
 
     private List<TourLayout> mTourPages;
 
@@ -91,11 +91,11 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         overridePendingTransition(0, 0);
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
-        mTourBottomBar = findViewById(R.id.tour_bottom_bar);
-        mTourLogo      = findViewById(R.id.tour_logo);
-        mViewPager     = (ViewPager) findViewById(R.id.tour_view);
-        mOverlayBg     = findViewById(R.id.overlay_bg);
-        mScrollView    = findViewById(R.id.scrollview);
+        mTourBottomBar  = findViewById(R.id.tour_bottom_bar);
+        mTourLogo       = findViewById(R.id.tour_logo);
+        mViewPager      = (ViewPager) findViewById(R.id.tour_view);
+        mOverlayBg      = findViewById(R.id.overlay_bg);
+        mOverlayHolder  = findViewById(R.id.overlay_holder);
 
         mTourPages = new ArrayList<TourLayout>();
         mTourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
@@ -407,9 +407,9 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 break;
 
             case ACCEPT_TERMS:
-                if (mLogin != null)         hideView(this, getLogin(), animated);
-                if (mSignUp != null)        hideView(this, getSignUp(), animated);
-                if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
+                if (mLogin != null)         hideView(this, getLogin(), false);
+                if (mSignUp != null)        hideView(this, getSignUp(), false);
+                if (mUserDetails != null)   hideView(this, getUserDetails(), false);
                 showOverlay(getAcceptTerms(), animated);
                 break;
         }
@@ -425,8 +425,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             if (isForegroundView(view)) showView(this, view, false);
         }
 
-        if (animated && mScrollView.getVisibility() == View.VISIBLE){
-            hideView(this, mScrollView, mHideScrollViewListener);
+        if (animated && mOverlayHolder.getVisibility() == View.VISIBLE){
+            hideView(this, mOverlayHolder, mHideScrollViewListener);
         } else {
             mHideScrollViewListener.onAnimationEnd(null);
         }
@@ -439,7 +439,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
         @Override
         public void onAnimationEnd(Animation animation) {
-            mScrollView.setVisibility(View.GONE);
+            mOverlayHolder.setVisibility(View.GONE);
             if (mLogin != null) hideView(Onboard.this, getLogin(), false);
             if (mSignUp != null) hideView(Onboard.this, getSignUp(), false);
             if (mUserDetails != null) hideView(Onboard.this, getUserDetails(), false);
@@ -459,7 +459,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
             if (isForegroundView(view)) hideView(this, view, animated);
         }
-        showView(this, mScrollView, animated);
+        showView(this, mOverlayHolder, animated);
         showView(this, mOverlayBg, animated);
         showView(this, overlay, animated);
     }

@@ -218,7 +218,7 @@
 
     <style name="SignUp.ScrollView.Base">
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="SignUp.ScrollView" parent="SignUp.ScrollView.Base">
@@ -226,7 +226,6 @@
     </style>
 
     <style name="SignUp.Content.Stub">
-        <item name="android:layout_centerInParent">true</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>

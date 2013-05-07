@@ -34,29 +34,33 @@
 
     <View android:id="@+id/overlay_bg"
           style="@style/SignUp.Overlay"/>
-    <ScrollView android:id="@+id/scrollview"
-                style="@style/SignUp.ScrollView">
-        <RelativeLayout android:layout_width="match_parent"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:layout_height="wrap_content">
-            <ViewStub android:id="@+id/login_stub"
-                      android:layout="@layout/login"
-                      style="@style/SignUp.Content.Stub"/>
+    <RelativeLayout android:layout_width="match_parent"
+                    android:id="@+id/overlay_holder"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_height="match_parent">
+        <ScrollView style="@style/SignUp.ScrollView">
+            <FrameLayout android:layout_width="match_parent"
+                         android:layout_height="wrap_content">
 
-            <ViewStub android:id="@+id/sign_up_stub"
-                      android:layout="@layout/signup"
-                      style="@style/SignUp.Content.Stub"/>
+                <ViewStub android:id="@+id/login_stub"
+                          android:layout="@layout/login"
+                          style="@style/SignUp.Content.Stub"/>
 
-            <ViewStub android:id="@+id/user_details_stub"
-                      android:layout="@layout/signup_details"
-                      style="@style/SignUp.Content.Stub"/>
+                <ViewStub android:id="@+id/sign_up_stub"
+                          android:layout="@layout/signup"
+                          style="@style/SignUp.Content.Stub"/>
 
-            <ViewStub android:id="@+id/accept_terms_stub"
-                      android:layout="@layout/accept_terms"
-                      style="@style/SignUp.Content.Stub"/>
-        </RelativeLayout>
-    </ScrollView>
+                <ViewStub android:id="@+id/user_details_stub"
+                          android:layout="@layout/signup_details"
+                          style="@style/SignUp.Content.Stub"/>
+
+                <ViewStub android:id="@+id/accept_terms_stub"
+                          android:layout="@layout/accept_terms"
+                          style="@style/SignUp.Content.Stub"/>
+            </FrameLayout>
+        </ScrollView>
+    </RelativeLayout>
     <View android:id="@+id/splash"
           android:layout_width="fill_parent"
           android:layout_height="fill_parent"
