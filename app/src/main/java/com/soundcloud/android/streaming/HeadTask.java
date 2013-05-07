@@ -24,7 +24,7 @@ class HeadTask extends StreamItemTask implements HttpStatus {
         Bundle b = new Bundle();
         try {
             if (Log.isLoggable(LOG_TAG, Log.VERBOSE)) {
-                Log.v(LOG_TAG, "resolving " + item.url);
+                Log.v(LOG_TAG, "resolving " + item.streamItemUrl());
             }
 
             Stream stream = api.resolveStreamUrl(item.streamItemUrl(), skipLogging);
