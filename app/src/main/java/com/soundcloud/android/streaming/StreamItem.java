@@ -224,6 +224,10 @@ public class StreamItem implements Parcelable {
         }
     }
 
+    public String streamItemUrl() {
+        return url.toString();
+    }
+
     /* package */ void write(DataOutputStream dos) throws IOException {
         dos.writeUTF(url.toString());
         dos.writeLong(mContentLength);
