@@ -539,6 +539,9 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 SignupTaskFragment.create(signupParams).show(getSupportFragmentManager(), "signup_dialog");
                 break;
         }
+
+        hideView(this, getAcceptTerms(), true);
+
     }
 
     @Override
@@ -555,6 +558,14 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         } else {
             super.onAuthTaskComplete(user, via, wasApiSignupTask);
         }
+    }
+
+    @Override
+    public void onError(String message){
+        if (!isFinishing()) {
+            setState(StartState.TOUR);
+        }
+        super.onError(message);
     }
 
     private void onGoogleAccountSelected(String name) {
