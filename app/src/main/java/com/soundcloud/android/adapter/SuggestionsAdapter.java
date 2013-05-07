@@ -133,6 +133,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     public Uri getItemIntentData(int position) {
         Cursor cursor = (Cursor) getItem(position);
         final String data = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA));
+        cursor.close();
         return Uri.parse(data);
     }
 
