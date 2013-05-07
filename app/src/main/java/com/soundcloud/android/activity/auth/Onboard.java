@@ -247,8 +247,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         setState(state, false);
     }
 
-
-    public Login getLogin() {
+    private Login getLogin() {
         if (mLogin == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
 
@@ -261,7 +260,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         return mLogin;
     }
 
-    public SignUp getSignUp() {
+    private SignUp getSignUp() {
         if (mSignUp == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.sign_up_stub);
 
@@ -274,7 +273,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         return mSignUp;
     }
 
-    public UserDetails getUserDetails() {
+    private UserDetails getUserDetails() {
         if (mUserDetails == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.user_details_stub);
 
@@ -287,7 +286,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         return mUserDetails;
     }
 
-    public AcceptTerms getAcceptTerms(){
+    private AcceptTerms getAcceptTerms(){
         if (mAcceptTerms == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.accept_terms_stub);
 
