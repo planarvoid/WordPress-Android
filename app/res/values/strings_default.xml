@@ -12,7 +12,7 @@
   <string name="authentication_add_info_msg">Almost done. Now choose a username and add a photo to personalize your profile.</string>
   <string name="authentication_add_info_progress_message">Adding your info</string>
   <string name="authentication_add_info_username_hint">Your username</string>
-  <string name="authentication_by_signing_in_I_agree_to_the">By signing up I agree to the Terms of Use of SoundCloud.</string>
+  <string name="authentication_by_signing_in_I_agree_to_the">By signing up I agree to the Terms of Use and Privacy policy of SoundCloud.</string>
   <string name="authentication_choose_a_password">Choose a password</string>
   <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
   <string name="authentication_error_invalid_email">Please enter a valid email.</string>

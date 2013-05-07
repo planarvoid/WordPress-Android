@@ -29,6 +29,7 @@ public class SignUp extends AuthLayout {
         void onSignUp(String email, String password);
         void onCancelSignUp();
         void onShowTermsOfUse();
+        void onShowPrivacyPolicy();
     }
     public SignUp(Context context) {
         super(context);
@@ -147,7 +148,19 @@ public class SignUp extends AuthLayout {
                         }
                         ;
                     }
-                }, true, false);
+                }, false, false);
+
+        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
+                getResources().getString(R.string.privacy),
+                new ScTextUtils.ClickSpan.OnClickListener() {
+                    @Override
+                    public void onClick() {
+                        if (mSignUpHandler != null) {
+                            mSignUpHandler.onShowPrivacyPolicy();
+                        }
+                        ;
+                    }
+                }, false, false);
     }
 
     static boolean checkPassword(CharSequence password) {

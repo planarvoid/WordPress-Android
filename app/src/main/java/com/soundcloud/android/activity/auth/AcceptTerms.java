@@ -93,15 +93,6 @@ public class AcceptTerms extends RelativeLayout {
                     }
                 }, false, false);
 
-        ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
-                getResources().getString(R.string.cookie),
-                new ScTextUtils.ClickSpan.OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        getAcceptTermsHandler().onShowPrivacyPolicy();
-                    }
-                }, false, false);
-
     }
 
     public Bundle getStateBundle() {
