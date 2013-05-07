@@ -1,6 +1,7 @@
 package com.soundcloud.android.streaming;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Stream;
 import org.apache.http.HttpStatus;
@@ -37,7 +38,7 @@ class HeadTask extends StreamItemTask implements HttpStatus {
 
             b.putInt("status", statusCode);
 
-            if (statusCode >= 400 && statusCode <= 499) {
+            if (Wrapper.isStatusCodeClientError(statusCode)) {
                 item.markUnavailable(statusCode);
                 return b;
             } else {

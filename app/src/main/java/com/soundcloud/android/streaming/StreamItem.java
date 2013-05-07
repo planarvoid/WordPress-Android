@@ -32,7 +32,7 @@ public class StreamItem implements Parcelable {
     public final List<Integer> downloadedChunks =
             Collections.synchronizedList(new ArrayList<Integer>());
 
-    /* package */ final URL url;
+    private final URL url;
     public final String urlHash;
     public final long trackId;
 
@@ -226,6 +226,10 @@ public class StreamItem implements Parcelable {
 
     public String streamItemUrl() {
         return url.toString();
+    }
+
+    public URL getUrl() {
+        return url;
     }
 
     /* package */ void write(DataOutputStream dos) throws IOException {
