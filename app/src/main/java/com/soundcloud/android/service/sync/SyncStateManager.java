@@ -223,9 +223,7 @@ public class SyncStateManager {
             }
 
             if (wasUnregistered && mListener != null) {
-                mResolver.registerContentObserver(
-                        Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(mLocalCollection.getId())).build(),
-                        true, new ChangeObserver(mLocalCollection, mListener));
+                addChangeListener(mLocalCollection, mListener);
             }
 
             if (cursor != null) cursor.close();
