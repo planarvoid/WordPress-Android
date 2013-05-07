@@ -50,6 +50,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         dialog.setMessage(getString(R.string.authentication_login_progress_message));
         dialog.setIndeterminate(true);
         dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
         return dialog;
     }
 
