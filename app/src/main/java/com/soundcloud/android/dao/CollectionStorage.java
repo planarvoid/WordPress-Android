@@ -94,6 +94,10 @@ public class CollectionStorage {
         if (modelIds.isEmpty()) return Collections.emptyList();
 
         BaseDAO<ScResource> dao = getDaoForContent(content);
+        modelIds = new ArrayList<Long>();
+        for (long i = 0; i < 10000; i++){
+            modelIds.add(i);
+        }
         // copy so we don't modify the original
         List<Long> ids = new ArrayList<Long>(modelIds);
         if (!ignoreStored) {
