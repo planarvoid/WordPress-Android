@@ -199,7 +199,6 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     @Override
     public void onLocalCollectionChanged(LocalCollection localCollection) {
         mLocalCollection = localCollection;
-        setListLastUpdated();
     }
 
     public void refresh() {
@@ -232,7 +231,6 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
             syncPlaylist();
             return true;
         } else {
-            setListLastUpdated();
             return false;
         }
     }
@@ -245,12 +243,6 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
                     .setData(mPlaylist.toUri()));
-        }
-    }
-
-    private void setListLastUpdated() {
-        if (mListView != null && mLocalCollection.last_sync_success > 0) {
-            mListView.setLastUpdated(mLocalCollection.last_sync_success);
         }
     }
 
