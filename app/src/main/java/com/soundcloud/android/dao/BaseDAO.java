@@ -4,7 +4,8 @@ import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
 import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
 import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
-import com.soundcloud.android.model.behavior.ModelLike;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -26,7 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
+public abstract class BaseDAO<T extends Identifiable & Persisted> {
     protected final ContentResolver mResolver;
 
     protected BaseDAO(ContentResolver contentResolver) {

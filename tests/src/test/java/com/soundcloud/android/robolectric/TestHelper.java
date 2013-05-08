@@ -6,12 +6,11 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
-import com.soundcloud.android.dao.ContentValuesProvider;
-import com.soundcloud.android.model.behavior.ModelLike;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -211,17 +210,17 @@ public class TestHelper {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_REMOVED);
     }
 
-    public static Uri insert(Uri contentUri, ContentValuesProvider insertable) {
+    public static Uri insert(Uri contentUri, Persisted insertable) {
         Uri uri = Robolectric.application.getContentResolver().insert(contentUri, insertable.buildContentValues());
         expect(uri).not.toBeNull();
         return uri;
     }
 
-    public static <T extends ContentValuesProvider & ModelLike> Uri insert(T insertable) {
+    public static <T extends Persisted & Identifiable> Uri insert(T insertable) {
         return insert(insertable.toUri(), insertable);
     }
 
-    public static <T extends ContentValuesProvider & ModelLike> Uri insertWithDependencies(Uri contentUri, T resource) {
+    public static <T extends Persisted & Identifiable> Uri insertWithDependencies(Uri contentUri, T resource) {
         ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
         final BulkInsertMap dependencies = new BulkInsertMap();
         resource.putDependencyValues(dependencies);
@@ -230,7 +229,7 @@ public class TestHelper {
         return resolver.insert(contentUri, resource.buildContentValues());
     }
 
-    public static <T extends ContentValuesProvider & ModelLike> Uri insertWithDependencies(T resource) {
+    public static <T extends Persisted & Identifiable> Uri insertWithDependencies(T resource) {
         return insertWithDependencies(resource.toUri(), resource);
     }
 
@@ -240,7 +239,7 @@ public class TestHelper {
         return sa;
     }
 
-    public static <T extends ContentValuesProvider & ModelLike> int bulkInsert(Collection<T> items) {
+    public static <T extends Persisted & Identifiable> int bulkInsert(Collection<T> items) {
         BulkInsertMap map = new BulkInsertMap();
         for (T m : items) {
             m.putFullContentValues(map);
@@ -248,7 +247,7 @@ public class TestHelper {
         return map.insert(DefaultTestRunner.application.getContentResolver());
     }
 
-    public static <T extends ContentValuesProvider & ModelLike> int bulkInsert(Uri uri, Collection<T> resources) {
+    public static <T extends Persisted & Identifiable> int bulkInsert(Uri uri, Collection<T> resources) {
         List<ContentValues> items = new ArrayList<ContentValues>();
         BulkInsertMap map = new BulkInsertMap();
 
@@ -283,7 +282,7 @@ public class TestHelper {
         return map.insert(resolver);
     }
 
-    public static <T extends ScModel> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass) throws Exception {
+    public static <T extends Persisted> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass) throws Exception {
         Cursor itemsCursor = DefaultTestRunner.application.getContentResolver().query(contentUri, null, null, null, null);
         List<T> items = new ArrayList<T>();
         if (itemsCursor != null) {
@@ -299,7 +298,7 @@ public class TestHelper {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends ScModel> T reload(final T model) {
+    public static <T extends Persisted> T reload(final T model) {
         try {
             Class<T> clazz = (Class<T>) model.getClass();
             return loadLocalContent(model.toUri(), clazz).get(0);
