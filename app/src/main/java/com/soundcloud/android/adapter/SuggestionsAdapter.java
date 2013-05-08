@@ -266,7 +266,14 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private Cursor withHeader(Cursor c1) {
-        return new MergeCursor(new Cursor[] { createHeader(mCurrentConstraint), c1 });
+        return new MergeCursor(new Cursor[] { createHeader(mCurrentConstraint), c1 }) {
+            // for full screen IMEs (e.g. in landscape mode), not the view will be used but the toString method to
+            // show results on the keyboard word completion list
+            @Override
+            public String toString() {
+                return getString(getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1));
+            }
+        };
     }
 
     private MatrixCursor createHeader(String constraint) {
