@@ -1,5 +1,12 @@
-$ 60
-  % v current
+$ 62
+  % v 2.6.1-BETA1
+  _ 2013-05-08
+    ! ???
+    * Upgraded Pull To Refresh library
+    * Fixed player touch crash
+
+$ 61
+  % v 2.6.0
   _ 2013-05-08
     ! Google Plus
     * Added support for Google+ sign in
