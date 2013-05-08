@@ -28,6 +28,7 @@ import java.util.Set;
 
 public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     protected final ContentResolver mResolver;
+    public static final int RESOLVER_BATCH_SIZE = 500;
 
     protected BaseDAO(ContentResolver contentResolver) {
         this.mResolver = contentResolver;
@@ -220,17 +221,22 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
 
     /**
      * @return a list of all ids for which objects are stored in the db.
+     * DO NOT REMOVE BATCHING, SQlite has a variable limit that may vary per device
+     * http://www.sqlite.org/limits.html
      */
     public List<Long> getStoredIds(List<Long> ids) {
-        return idCursorToList(
-                mResolver.query(
-                    getContent().uri,
-                    new String[]{BaseColumns._ID},
-                    getWhereInClause(BaseColumns._ID, ids.size()) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0",
-                    longListToStringArr(ids),
-                    null
-                )
-        );
+        int i = 0;
+        List<Long> storedIds = new ArrayList<Long>();
+        while (i < ids.size()) {
+            List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
+            storedIds.addAll(idCursorToList(
+                    mResolver.query(getContent().uri, new String[]{BaseColumns._ID},
+                            getWhereInClause(BaseColumns._ID, batch.size()) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
+                            , longListToStringArr(batch), null)
+            ));
+            i += RESOLVER_BATCH_SIZE;
+        }
+        return storedIds;
     }
 
     public final class QueryBuilder {
