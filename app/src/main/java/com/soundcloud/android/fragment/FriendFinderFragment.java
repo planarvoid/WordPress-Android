@@ -12,7 +12,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.view.EmptyListView;
-import com.soundcloud.android.view.FriendFinderEmptyCollection;
+import com.soundcloud.android.view.FriendFinderEmptyView;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,9 +21,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import java.util.Set;
@@ -66,26 +63,6 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
         requestConnections(getActivity());
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = super.onCreateView(inflater, container, savedInstanceState);
-        mEmptyListView = new FriendFinderEmptyCollection(getActivity());
-        mEmptyListView.setActionListener(new EmptyListView.ActionListener() {
-            @Override
-            public void onAction() {
-                if (isTaskFinished(mConnectionTask)) {
-                    setStatus(Status.WAITING, false);
-                    mConnectionTask = loadFacebookConnections();
-                }
-            }
-
-            @Override
-            public void onSecondaryAction() {
-            }
-        });
-        return v;
-    }
-
     public void setStatus(int status, boolean reset) {
         mCurrentStatus = status;
         configureEmptyView();
@@ -107,20 +84,38 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     }
 
     @Override
-    protected void configureEmptyView() {
-        if (mEmptyListView != null) {
-            switch (mCurrentStatus) {
-                case Status.WAITING:
-                case Status.CONNECTION_ERROR:
-                case Status.NO_CONNECTIONS:
-                    mStatusCode = mCurrentStatus;
-                    mEmptyListView.setStatus(mCurrentStatus);
-                    break;
-
-                case Status.FB_CONNECTION:
-                    super.configureEmptyView();
-                    break;
+    protected EmptyListView createEmptyView() {
+        final EmptyListView emptyView = new FriendFinderEmptyView(getActivity());
+        emptyView.setActionListener(new EmptyListView.ActionListener() {
+            @Override
+            public void onAction() {
+                if (isTaskFinished(mConnectionTask)) {
+                    setStatus(Status.WAITING, false);
+                    mConnectionTask = loadFacebookConnections();
+                }
             }
+
+            @Override
+            public void onSecondaryAction() {
+            }
+        });
+        return emptyView;
+    }
+
+    @Override
+    protected void configureEmptyView() {
+        switch (mCurrentStatus) {
+            case Status.WAITING:
+            case Status.CONNECTION_ERROR:
+            case Status.NO_CONNECTIONS:
+                mStatusCode = mCurrentStatus;
+                final EmptyListView listView = getEmptyListView();
+                if (listView != null) listView.setStatus(mCurrentStatus);
+                break;
+
+            case Status.FB_CONNECTION:
+                super.configureEmptyView();
+                break;
         }
     }
 

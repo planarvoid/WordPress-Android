@@ -225,7 +225,7 @@ public class StreamLoader {
             StreamItem item = future.item;
             Range chunkRange = future.byteRange.chunkRange(mStorage.chunkSize);
 
-            Index missingIndexes = mStorage.getMissingChunksForItem(item.url.toString(), chunkRange);
+            Index missingIndexes = mStorage.getMissingChunksForItem(item.streamItemUrl(), chunkRange);
             if (missingIndexes.isEmpty()) {
                 fulfilledCallbacks.add(future);
             } else {
@@ -236,7 +236,7 @@ public class StreamLoader {
 
         for (StreamFuture sf : fulfilledCallbacks) {
             try {
-                sf.setByteBuffer(mStorage.fetchStoredDataForUrl(sf.item.url.toString(), sf.byteRange));
+                sf.setByteBuffer(mStorage.fetchStoredDataForUrl(sf.item.streamItemUrl(), sf.byteRange));
                 mPlayerCallbacks.remove(sf);
             } catch (IOException e) {
                 Log.w(LOG_TAG, e);
@@ -357,7 +357,7 @@ public class StreamLoader {
                         }
                     }
                     try {
-                        loader.mStorage.storeData(t.item.url.toString(), t.buffer, t.chunkRange.start);
+                        loader.mStorage.storeData(t.item.streamItemUrl(), t.buffer, t.chunkRange.start);
                         loader.fulfillPlayerCallbacks();
                     } catch (IOException e) {
                         Log.e(LOG_TAG, "exception storing data", e);

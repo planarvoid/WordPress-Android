@@ -133,6 +133,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     public Uri getItemIntentData(int position) {
         Cursor cursor = (Cursor) getItem(position);
         final String data = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA));
+        cursor.close();
         return Uri.parse(data);
     }
 
@@ -265,7 +266,14 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private Cursor withHeader(Cursor c1) {
-        return new MergeCursor(new Cursor[] { createHeader(mCurrentConstraint), c1 });
+        return new MergeCursor(new Cursor[] { createHeader(mCurrentConstraint), c1 }) {
+            // for full screen IMEs (e.g. in landscape mode), not the view will be used but the toString method to
+            // show results on the keyboard word completion list
+            @Override
+            public String toString() {
+                return getString(getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1));
+            }
+        };
     }
 
     private MatrixCursor createHeader(String constraint) {

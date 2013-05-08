@@ -16,6 +16,8 @@ public enum Click implements Event {
 
     Signup_Signup             ("Signup", "Signup",              Type.navigation, Level2.Entry),
     Signup_Signup_terms       ("Signup", "Signup_terms",        Type.navigation, Level2.Entry),
+    Signup_Signup_privacy     ("Signup", "Signup_privacy",      Type.navigation, Level2.Entry),
+    Signup_Signup_cookies     ("Signup", "Signup_cookies",      Type.navigation, Level2.Entry),
     Signup_Signup_done        ("Signup", "Signup_done",         Type.navigation, Level2.Entry),
     Signup_Signup_details_next("Signup", "Signup_details_next", Type.navigation, Level2.Entry),
     Signup_Signup_details_skip("Signup", "Signup_details_skip", Type.navigation, Level2.Entry),

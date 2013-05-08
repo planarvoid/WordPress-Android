@@ -17,11 +17,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
 import android.util.SparseArray;
 import android.view.MotionEvent;
@@ -34,8 +31,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
-
-import java.lang.ref.WeakReference;
 
 /**
  * Container for all activity content views plus the fly-in menu.
@@ -186,7 +181,7 @@ public class RootView extends ViewGroup {
 
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
-        mExpandedState = COLLAPSED_FULL_CLOSED;
+        if (mExpandedState == 0) mExpandedState = COLLAPSED_FULL_CLOSED;
         mActivePointerId = INVALID_POINTER;
         setAlwaysDrawnWithCacheEnabled(false);
     }

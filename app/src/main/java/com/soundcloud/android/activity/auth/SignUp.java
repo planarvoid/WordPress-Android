@@ -28,7 +28,8 @@ public class SignUp extends AuthLayout {
     public interface SignUpHandler extends AuthHandler {
         void onSignUp(String email, String password);
         void onCancelSignUp();
-        void onTermsOfUse();
+        void onShowTermsOfUse();
+        void onShowPrivacyPolicy();
     }
     public SignUp(Context context) {
         super(context);
@@ -143,11 +144,23 @@ public class SignUp extends AuthLayout {
                     @Override
                     public void onClick() {
                         if (mSignUpHandler != null) {
-                            mSignUpHandler.onTermsOfUse();
+                            mSignUpHandler.onShowTermsOfUse();
                         }
                         ;
                     }
-                }, true, false);
+                }, false, false);
+
+        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
+                getResources().getString(R.string.privacy),
+                new ScTextUtils.ClickSpan.OnClickListener() {
+                    @Override
+                    public void onClick() {
+                        if (mSignUpHandler != null) {
+                            mSignUpHandler.onShowPrivacyPolicy();
+                        }
+                        ;
+                    }
+                }, false, false);
     }
 
     static boolean checkPassword(CharSequence password) {

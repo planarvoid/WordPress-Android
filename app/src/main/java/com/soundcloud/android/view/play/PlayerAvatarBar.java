@@ -61,19 +61,17 @@ public class PlayerAvatarBar extends View {
     private ImageLoader mBitmapLoader;
     private Consts.GraphicSize mAvatarGraphicsSize;
 
-    private Context mContext;
     private boolean mLandscape;
 
     public PlayerAvatarBar(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
-        mContext = context;
         mBitmapLoader = ImageLoader.get(context.getApplicationContext());
 
-        if (ImageUtils.isScreenXL(mContext)) {
+        if (ImageUtils.isScreenXL(context)) {
             mAvatarGraphicsSize= Consts.GraphicSize.LARGE;
         } else {
-            mAvatarGraphicsSize = mContext.getResources().getDisplayMetrics().density > 1 ?
+            mAvatarGraphicsSize = context.getResources().getDisplayMetrics().density > 1 ?
                     Consts.GraphicSize.BADGE :
                     Consts.GraphicSize.SMALL;
         }
@@ -97,7 +95,7 @@ public class PlayerAvatarBar extends View {
         mBgMatrix = new Matrix();
         mActiveMatrix = new Matrix();
 
-        if (ImageUtils.isScreenXL(mContext)) {
+        if (ImageUtils.isScreenXL(context)) {
             mTargetSize = Consts.GraphicSize.LARGE;
             mAvatarWidth = (int) (AVATAR_WIDTH_LARGE * mDensity);
         } else {
@@ -150,7 +148,7 @@ public class PlayerAvatarBar extends View {
     }
 
     public void setTrackData(long duration, List<Comment> newItems){
-        ImageLoader.get(mContext).clearErrors();
+        ImageLoader.get(getContext()).clearErrors();
         mDuration = duration;
         mCurrentComments = newItems;
         for (Comment c : newItems){
@@ -168,7 +166,7 @@ public class PlayerAvatarBar extends View {
     private void loadAvatar(final Comment c){
         if (c == null || !c.shouldLoadIcon()) return;
 
-        ImageLoader.get(mContext).getBitmap(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new BitmapLoadCallback() {
+        ImageLoader.get(getContext()).getBitmap(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new BitmapLoadCallback() {
             @Override
             public void onImageLoaded(Bitmap bitmap, String uri) {
                 c.avatar = bitmap;
@@ -184,13 +182,13 @@ public class PlayerAvatarBar extends View {
             public void onImageError(String uri, Throwable error) {
                 Log.i(TAG, "Avatar Loading Error " + uri + " " + error.toString());
             }
-        }, mContext, new ImageLoader.Options());
+        }, getContext(), new ImageLoader.Options());
     }
 
     private void refreshDefaultAvatar() {
         if (mAvatarWidth > 0 && (mDefaultAvatar == null || mDefaultAvatar.isRecycled())) {
-            mDefaultAvatar = BitmapFactory.decodeResource(mContext.getResources(),
-                    ImageUtils.isScreenXL(mContext) ? R.drawable.avatar_badge_large : R.drawable.avatar_badge);
+            mDefaultAvatar = BitmapFactory.decodeResource(getContext().getResources(),
+                    ImageUtils.isScreenXL(getContext()) ? R.drawable.avatar_badge_large : R.drawable.avatar_badge);
             mDefaultAvatarScale = ((float) mAvatarWidth) / mDefaultAvatar.getHeight();
         }
     }
@@ -203,9 +201,9 @@ public class PlayerAvatarBar extends View {
 
             float mDensity = getContext().getResources().getDisplayMetrics().density;
             if (mDensity > 1) {
-                mAvatarWidth = ImageUtils.isScreenXL(mContext) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : getHeight() ;
+                mAvatarWidth = ImageUtils.isScreenXL(getContext()) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : getHeight() ;
             } else {
-                mAvatarWidth = ImageUtils.isScreenXL(mContext)? AVATAR_WIDTH_LARGE : getHeight();
+                mAvatarWidth = ImageUtils.isScreenXL(getContext())? AVATAR_WIDTH_LARGE : getHeight();
             }
             refreshDefaultAvatar();
 

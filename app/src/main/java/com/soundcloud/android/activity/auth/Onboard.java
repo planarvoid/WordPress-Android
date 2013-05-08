@@ -38,6 +38,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -48,30 +49,32 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler {
+public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler, AcceptTerms.AcceptTermsHandler {
 
     private static final String FOREGROUND_TAG = "foreground";
     private static final String PARALLAX_TAG = "parallax";
+    private static final String SIGNUP_DIALOG_TAG = "signup_dialog";
 
     protected enum StartState {
-        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS
+        TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS;
     }
-
     private static final String BUNDLE_STATE           = "BUNDLE_STATE";
     private static final String BUNDLE_USER            = "BUNDLE_USER";
     private static final String BUNDLE_LOGIN           = "BUNDLE_LOGIN";
     private static final String BUNDLE_SIGN_UP         = "BUNDLE_SIGN_UP";
     private static final String BUNDLE_SIGN_UP_DETAILS = "BUNDLE_SIGN_UP_DETAILS";
+    private static final String BUNDLE_ACCEPT_TERMS    = "BUNDLE_ACCEPT_TERMS";
     private static final String LAST_GOOGLE_ACCT_USED  = "BUNDLE_LAST_GOOGLE_ACCOUNT_USED";
-
     private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
+    private static final Uri PRIVACY_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy");
+    private static final Uri COOKIE_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy#cookies");
 
     private StartState mState = StartState.TOUR;
-    private String mLastGoogleAccountSelected;
 
+    private String mLastGoogleAccountSelected;
     @Nullable private User mUser;
 
-    private View mTourBottomBar, mTourLogo, mOverlayBg;
+    private View mTourBottomBar, mTourLogo, mOverlayBg, mOverlayHolder;
 
     private List<TourLayout> mTourPages;
 
@@ -80,7 +83,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Nullable private Login  mLogin;
     @Nullable private SignUp mSignUp;
     @Nullable private UserDetails mUserDetails;
-    @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle;
+    @Nullable private AcceptTerms mAcceptTerms;
+    @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle, mAcceptTermsBundle;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -88,10 +92,11 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         overridePendingTransition(0, 0);
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
-        mTourBottomBar = findViewById(R.id.tour_bottom_bar);
-        mTourLogo      = findViewById(R.id.tour_logo);
-        mViewPager     = (ViewPager) findViewById(R.id.tour_view);
+        mTourBottomBar  = findViewById(R.id.tour_bottom_bar);
+        mTourLogo       = findViewById(R.id.tour_logo);
+        mViewPager      = (ViewPager) findViewById(R.id.tour_view);
         mOverlayBg      = findViewById(R.id.overlay_bg);
+        mOverlayHolder  = findViewById(R.id.overlay_holder);
 
         mTourPages = new ArrayList<TourLayout>();
         mTourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
@@ -158,7 +163,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 setState(StartState.LOGIN);
             }
         });
-
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,6 +229,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         if (mLogin       != null) outState.putBundle(BUNDLE_LOGIN, mLogin.getStateBundle());
         if (mSignUp      != null) outState.putBundle(BUNDLE_SIGN_UP, mSignUp.getStateBundle());
         if (mUserDetails != null) outState.putBundle(BUNDLE_SIGN_UP_DETAILS, mUserDetails.getStateBundle());
+        if (mAcceptTerms != null) outState.putBundle(BUNDLE_ACCEPT_TERMS, mAcceptTerms.getStateBundle());
     }
 
     @Override
@@ -237,13 +242,13 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         mLoginBundle       = savedInstanceState.getBundle(BUNDLE_LOGIN);
         mSignUpBundle      = savedInstanceState.getBundle(BUNDLE_SIGN_UP);
         mUserDetailsBundle = savedInstanceState.getBundle(BUNDLE_SIGN_UP_DETAILS);
+        mAcceptTermsBundle = savedInstanceState.getBundle(BUNDLE_ACCEPT_TERMS);
 
         final StartState state = (StartState) savedInstanceState.getSerializable(BUNDLE_STATE);
         setState(state, false);
     }
 
-
-    public Login getLogin() {
+    private Login getLogin() {
         if (mLogin == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
 
@@ -256,7 +261,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         return mLogin;
     }
 
-    public SignUp getSignUp() {
+    private SignUp getSignUp() {
         if (mSignUp == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.sign_up_stub);
 
@@ -269,7 +274,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         return mSignUp;
     }
 
-    public UserDetails getUserDetails() {
+    private UserDetails getUserDetails() {
         if (mUserDetails == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.user_details_stub);
 
@@ -280,6 +285,18 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         }
 
         return mUserDetails;
+    }
+
+    private AcceptTerms getAcceptTerms(){
+        if (mAcceptTerms == null) {
+            ViewStub stub = (ViewStub) findViewById(R.id.accept_terms_stub);
+
+            mAcceptTerms = (AcceptTerms) stub.inflate();
+            mAcceptTerms.setAcceptTermsHandler(this);
+            mAcceptTerms.setState(mAcceptTermsBundle);
+            mAcceptTerms.setVisibility(View.GONE);
+        }
+        return mAcceptTerms;
     }
 
     @Override
@@ -294,7 +311,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onSignUp(final String email, final String password) {
-        SignupTaskFragment.create(email,password).show(getSupportFragmentManager(), "signup_task");
+        proposeTermsOfUse(SignupVia.API, SignupTaskFragment.getParams(email, password));
     }
 
     @Override
@@ -338,6 +355,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         switch (getState()) {
             case LOGIN:
             case SIGN_UP:
+            case ACCEPT_TERMS:
                 setState(StartState.TOUR);
                 break;
 
@@ -362,65 +380,89 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     public void setState(StartState state, boolean animated) {
         mState = state;
 
+        // check for nulls when hiding to avoid unnecessary instantiation
         switch (mState) {
             case TOUR:
-                showForegroundViews(false);
-
-                showView(this, mViewPager, false);
-                hideView(this, mOverlayBg, animated);
-                hideView(this, getLogin(), animated);
-                hideView(this, getSignUp(), animated);
-                hideView(this, getUserDetails(), animated);
+                onHideOverlay(animated);
                 break;
 
             case LOGIN:
-                hideForegroundViews(animated);
-
-                showView(this, mOverlayBg, animated);
-                showView(this, mViewPager, animated);
-                showView(this, getLogin(), animated);
-                hideView(this, getSignUp(), animated);
-                hideView(this, getUserDetails(), animated);
+                if (mSignUp != null)        hideView(this, getSignUp(), animated);
+                if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
+                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
+                showOverlay(getLogin(), animated);
                 break;
 
             case SIGN_UP:
-                hideForegroundViews(animated);
-
-                showView(this, mOverlayBg, animated);
-                showView(this, mViewPager, animated);
-                hideView(this, getLogin(), animated);
-                showView(this, getSignUp(), animated);
-                hideView(this, getUserDetails(), animated);
+                if (mLogin != null)         hideView(this, getLogin(), animated);
+                if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
+                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
+                showOverlay(getSignUp(), animated);
                 break;
 
             case SIGN_UP_DETAILS:
-                hideForegroundViews(animated);
+                if (mLogin != null)         hideView(this, getLogin(), animated);
+                if (mSignUp != null)        hideView(this, getSignUp(), animated);
+                if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
+                showOverlay(getUserDetails(), animated);
+                break;
 
-                showView(this, mOverlayBg, animated);
-                showView(this, mViewPager, animated);
-                hideView(this, getLogin(), animated);
-                hideView(this, getSignUp(), animated);
-                showView(this, getUserDetails(), animated);
+            case ACCEPT_TERMS:
+                if (mLogin != null)         hideView(this, getLogin(), false);
+                if (mSignUp != null)        hideView(this, getSignUp(), false);
+                if (mUserDetails != null)   hideView(this, getUserDetails(), false);
+                showOverlay(getAcceptTerms(), animated);
                 break;
         }
     }
 
-    private void showForegroundViews(boolean animated) {
+    private void onHideOverlay(boolean animated){
         showView(this, mTourBottomBar, animated);
         showView(this, mTourLogo, animated);
+        hideView(this, mOverlayBg, animated);
 
+        // show foreground views
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
-            if (isForegroundView(view)) showView(this, view, animated);
+            if (isForegroundView(view)) showView(this, view, false);
+        }
+
+        if (animated && mOverlayHolder.getVisibility() == View.VISIBLE){
+            hideView(this, mOverlayHolder, mHideScrollViewListener);
+        } else {
+            mHideScrollViewListener.onAnimationEnd(null);
         }
     }
 
-    private void hideForegroundViews(boolean animated) {
+    private Animation.AnimationListener mHideScrollViewListener = new Animation.AnimationListener() {
+        @Override
+        public void onAnimationStart(Animation animation) {
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            mOverlayHolder.setVisibility(View.GONE);
+            if (mLogin != null) hideView(Onboard.this, getLogin(), false);
+            if (mSignUp != null) hideView(Onboard.this, getSignUp(), false);
+            if (mUserDetails != null) hideView(Onboard.this, getUserDetails(), false);
+            if (mAcceptTerms != null) hideView(Onboard.this, getAcceptTerms(), false);
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+        }
+    };
+
+    private void showOverlay(View overlay, boolean animated){
         hideView(this, mTourBottomBar, animated);
         hideView(this, mTourLogo, animated);
 
+        // hide foreground views
         for (View view : allChildViewsOf(getCurrentTourLayout())) {
             if (isForegroundView(view)) hideView(this, view, animated);
         }
+        showView(this, mOverlayHolder, animated);
+        showView(this, mOverlayBg, animated);
+        showView(this, overlay, animated);
     }
 
     private TourLayout getCurrentTourLayout() {
@@ -453,14 +495,28 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Override
     public void onFacebookAuth() {
         getApp().track(Click.Login_with_facebook);
-        startActivityForResult(new Intent(this, Facebook.class), RequestCodes.SIGNUP_VIA_FACEBOOK);
+        proposeTermsOfUse(SignupVia.FACEBOOK_SSO, null);
     }
 
     @Override
-    public void onTermsOfUse() {
+    public void onShowTermsOfUse() {
         getApp().track(Click.Signup_Signup_terms);
         startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE_URL));
     }
+
+    @Override
+    public void onShowPrivacyPolicy() {
+        getApp().track(Click.Signup_Signup_privacy);
+        startActivity(new Intent(Intent.ACTION_VIEW, PRIVACY_POLICY_URL));
+
+    }
+
+    @Override
+    public void onShowCookiePolicy() {
+        getApp().track(Click.Signup_Signup_cookies);
+        startActivity(new Intent(Intent.ACTION_VIEW, COOKIE_POLICY_URL));
+    }
+
 
     @Override
     public void onRecover(String email) {
@@ -469,6 +525,29 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             recoveryIntent.putExtra("email", email);
         }
         startActivityForResult(recoveryIntent, RequestCodes.RECOVER_CODE);
+    }
+
+    @Override
+    public void onAcceptTerms(SignupVia signupVia, Bundle signupParams) {
+        switch (signupVia){
+            case GOOGLE_PLUS:
+                GooglePlusSignInTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
+                break;
+            case FACEBOOK_SSO:
+                startActivityForResult(new Intent(this, Facebook.class), RequestCodes.SIGNUP_VIA_FACEBOOK);
+                break;
+            case API:
+                SignupTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
+                break;
+        }
+
+        hideView(this, getAcceptTerms(), true);
+
+    }
+
+    @Override
+    public void onCancel() {
+        setState(StartState.TOUR);
     }
 
     @Override
@@ -482,12 +561,29 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         }
     }
 
+    @Override
+    public void onError(String message){
+        if (!isFinishing()) {
+            setState(StartState.TOUR);
+        }
+        super.onError(message);
+    }
+
     private void onGoogleAccountSelected(String name) {
         // store the last account name in case we have to retry after startActivityForResult with G+ app
         mLastGoogleAccountSelected = name;
         getApp().track(Click.Login_with_googleplus);
-        GooglePlusSignInTaskFragment.create(name, RequestCodes.SIGNUP_VIA_GOOGLE)
-                .show(getSupportFragmentManager(), "google_acct_dialog");
+        proposeTermsOfUse(SignupVia.GOOGLE_PLUS, GooglePlusSignInTaskFragment.getParams(name, RequestCodes.SIGNUP_VIA_GOOGLE));
+    }
+
+    /**
+     * Set signup params on accept terms view and change state
+     * @param signupVia
+     * @param params
+     */
+    private void proposeTermsOfUse(SignupVia signupVia, Bundle params){
+        getAcceptTerms().setSignupParams(signupVia, params);
+        setState(StartState.ACCEPT_TERMS);
     }
 
     private SoundCloudApplication getApp() {
@@ -544,15 +640,23 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
 
             case RequestCodes.SIGNUP_VIA_GOOGLE: {
-                if (resultCode == RESULT_OK) onGoogleAccountSelected(mLastGoogleAccountSelected);
+                onGoogleActivityResult(resultCode);
                 break;
             }
 
             case RequestCodes.RECOVER_FROM_PLAY_SERVICES_ERROR: {
-                if (resultCode == RESULT_OK) onGoogleAccountSelected(mLastGoogleAccountSelected);
+                onGoogleActivityResult(resultCode);
                 break;
             }
 
+        }
+    }
+
+    private void onGoogleActivityResult(int resultCode) {
+        if (resultCode == RESULT_OK) {
+            // just kick off another task with the last account selected
+            final Bundle params = GooglePlusSignInTaskFragment.getParams(mLastGoogleAccountSelected, RequestCodes.SIGNUP_VIA_GOOGLE);
+            GooglePlusSignInTaskFragment.create(params).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
         }
     }
 }
