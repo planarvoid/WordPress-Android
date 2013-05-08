@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.utils.InputObject;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -15,6 +16,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 public abstract class TouchLayout extends RelativeLayout implements View.OnTouchListener {
     private static final int INPUT_QUEUE_SIZE = 20;
     private ArrayBlockingQueue<InputObject> mInputObjectPool;
+    @Nullable
     private TouchThread mTouchThread;
 
 
@@ -47,6 +49,7 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
 
 
     public boolean onTouch(View v, MotionEvent event) {
+        if (mTouchThread == null) return false;
         try {
             // Fix scrolling inside workspace view
             if ((event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN) && getParent() != null) {
