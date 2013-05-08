@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.behavior.ModelLike;
 
 import android.content.ContentValues;
 import android.database.Cursor;

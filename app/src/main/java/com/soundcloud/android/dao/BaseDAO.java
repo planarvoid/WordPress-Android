@@ -4,7 +4,7 @@ import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
 import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
 import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
-import com.soundcloud.android.model.ModelLike;
+import com.soundcloud.android.model.behavior.ModelLike;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;

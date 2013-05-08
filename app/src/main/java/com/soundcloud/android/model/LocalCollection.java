@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.dao.ContentValuesProvider;
 import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.model.behavior.ModelLike;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;

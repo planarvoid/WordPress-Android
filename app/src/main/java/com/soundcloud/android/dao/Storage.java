@@ -1,6 +1,6 @@
 package com.soundcloud.android.dao;
 
-import com.soundcloud.android.model.ModelLike;
+import com.soundcloud.android.model.behavior.ModelLike;
 import rx.Observable;
 
 

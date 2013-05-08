@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.dao.ContentValuesProvider;
+import com.soundcloud.android.model.behavior.ModelLike;
 import com.soundcloud.android.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -94,10 +94,6 @@ public abstract class ScResource
     public abstract Uri toUri();
 
     public abstract Uri getBulkInsertUri();
-
-    public abstract User getUser();
-
-    @Nullable public abstract Playable getPlayable();
 
     public Intent getViewIntent(){
         return null;

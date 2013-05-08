@@ -5,7 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
