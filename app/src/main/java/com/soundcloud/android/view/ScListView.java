@@ -30,7 +30,6 @@ public class ScListView extends PullToRefreshListView {
         getRefreshableView().setScrollingCacheEnabled(false);
         getRefreshableView().setCacheColorHint(Color.WHITE);
         getLoadingLayoutProxy().setRefreshingLabel(getContext().getString(R.string.updating));
-        setShowIndicator(false); // we don't want the indicator, it interferes with out timestamps
     }
 
     @Override

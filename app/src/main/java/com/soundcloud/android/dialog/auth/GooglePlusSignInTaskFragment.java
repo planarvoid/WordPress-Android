@@ -25,13 +25,16 @@ public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
 
     private static final String GOOGLE_PLUS_SCOPE = "oauth2:https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email";
 
-    public static GooglePlusSignInTaskFragment create(String name, int requestCode) {
+    public static Bundle getParams(String name, int requestCode) {
         Bundle b = new Bundle();
         b.putString(ARG_ACCT_NAME, name);
         b.putInt(ARG_REQ_CODE, requestCode);
+        return b;
+    }
 
+    public static GooglePlusSignInTaskFragment create(Bundle params) {
         GooglePlusSignInTaskFragment fragment = new GooglePlusSignInTaskFragment();
-        fragment.setArguments(b);
+        fragment.setArguments(params);
         return fragment;
     }
 

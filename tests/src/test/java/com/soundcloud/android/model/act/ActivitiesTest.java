@@ -189,7 +189,7 @@ public class ActivitiesTest {
     @Test
     public void testGetNextRequest() throws Exception {
         Activities a1 = getActivities("/com/soundcloud/android/service/sync/e1_activities_1.json");
-        expect(a1.hasMore()).toBeTrue();
+        expect(a1.moreResourcesExist()).toBeTrue();
         expect(a1.getNextRequest().toUrl()).toEqual("/e1/me/activities?cursor=79fd0100-07e7-11e2-8aa5-5d4327b064fb");
     }
 
@@ -202,7 +202,7 @@ public class ActivitiesTest {
         expect(a.size()).toEqual(0);
         expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
         expect(a.isEmpty()).toBeTrue();
-        expect(a.hasMore()).toBeFalse();
+        expect(a.moreResourcesExist()).toBeFalse();
     }
 
     @Test
@@ -215,7 +215,7 @@ public class ActivitiesTest {
         Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 100);
         expect(a.size()).toEqual(50);
         expect(a.future_href).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
-        expect(a.hasMore()).toBeFalse();
+        expect(a.moreResourcesExist()).toBeFalse();
     }
 
     @Test
@@ -226,7 +226,7 @@ public class ActivitiesTest {
         Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 20);
         expect(a.size()).toEqual(22); // 1 page
         expect(a.future_href).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
-        expect(a.hasMore()).toBeTrue();
+        expect(a.moreResourcesExist()).toBeTrue();
     }
 
     @Test

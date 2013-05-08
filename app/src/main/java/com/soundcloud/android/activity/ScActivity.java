@@ -189,7 +189,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     static void startNavActivity(Context c, Class activity, Bundle rootViewState) {
-        Intent i = getNavIntent(c, activity, rootViewState);
         c.startActivity(getNavIntent(c, activity, rootViewState));
     }
 
@@ -512,6 +511,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
             } else if (action.equals(Consts.GeneralIntents.UNAUTHORIZED) && mIsForeground) {
                 safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
             } else if (action.equals(Actions.LOGGING_OUT)){
+                mRootView.close();
                 finish();
             }
         }

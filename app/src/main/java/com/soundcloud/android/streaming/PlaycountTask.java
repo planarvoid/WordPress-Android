@@ -37,7 +37,7 @@ public class PlaycountTask extends StreamItemTask {
 
     private Bundle logWithRangeRequest(Bundle b) throws IOException {
         // request 1st byte to get counted as play
-        HttpResponse resp = api.get(Request.to(item.url.getPath()).range(0, 1));
+        HttpResponse resp = api.get(Request.to(item.getUrl().getPath()).range(0, 1));
 
         final int status = resp.getStatusLine().getStatusCode();
         switch (status) {

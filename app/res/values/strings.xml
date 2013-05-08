@@ -3,7 +3,7 @@
     <string name="legal">Legal</string>
     <string name="legal_summary">Legal information</string>
 
-    <string name="terms_of_service">Terms of Use</string>
+    <string name="terms_of_use">Terms of Use</string>
     <string name="privacy_policy">Privacy Policy</string>
 
     <string name="dialog_transcoding_failed_title">Transcoding failed</string>
@@ -182,5 +182,9 @@
     <string name="error_google_sign_in_failed">We couldn\'t log you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
 
     <string name="updating">Updating...</string>
+    <string name="btn_continue">Continue</string>
+    <string name="privacy">Privacy</string>
 
+    <string name="auth_disclaime_title">One more step</string>
+    <string name="auth_disclaimer_message">By tapping \"Continue\", you agree to the Terms of Use and Privacy policy of SoundCloud.</string>
 </resources>

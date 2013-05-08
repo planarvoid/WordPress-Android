@@ -25,7 +25,7 @@ public class ReturnData<T extends ScModel> {
                       boolean keepGoing,
                       boolean success) {
 
-        this.wasRefresh = params.isRefresh;
+        this.wasRefresh = params.isRefresh();
         this.newItems = newItems;
         this.nextHref = nextHref;
         this.keepGoing = keepGoing;
@@ -47,8 +47,8 @@ public class ReturnData<T extends ScModel> {
 
 
     public  static class Error<T extends ScModel> extends ReturnData<T> {
-        public Error() {
-            super(null, null, null, EmptyListView.Status.CONNECTION_ERROR, false, false);
+        public Error(CollectionParams<T> parameters) {
+            super(null, parameters, null, EmptyListView.Status.CONNECTION_ERROR, false, false);
         }
     }
 }

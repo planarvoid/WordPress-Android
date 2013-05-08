@@ -1,6 +1,7 @@
 package com.soundcloud.android.streaming;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Wrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Stream;
 import org.apache.http.HttpStatus;
@@ -24,28 +25,25 @@ class HeadTask extends StreamItemTask implements HttpStatus {
         Bundle b = new Bundle();
         try {
             if (Log.isLoggable(LOG_TAG, Log.VERBOSE)) {
-                Log.v(LOG_TAG, "resolving " + item.url);
+                Log.v(LOG_TAG, "resolving " + item.streamItemUrl());
             }
 
-            Stream stream = api.resolveStreamUrl(item.url.toString(), skipLogging);
-//            b.putSerializable("stream", stream);
+            Stream stream = api.resolveStreamUrl(item.streamItemUrl(), skipLogging);
             item.initializeFromStream(stream);
             b.putBoolean("success", true);
             return b;
         } catch (CloudAPI.ResolverException e) {
             Log.w(LOG_TAG, "error resolving " + item, e);
-            b.putInt("status", e.getStatusCode());
+            final int statusCode = e.getStatusCode();
 
-            switch (e.getStatusCode()) {
-                case SC_PAYMENT_REQUIRED:
-                case SC_NOT_FOUND:
-                case SC_GONE:
-                    item.markUnavailable(e.getStatusCode());
-                    return b;
+            b.putInt("status", statusCode);
 
-                default:
-                    item.setHttpError(e.getStatusCode());
-                    throw e;
+            if (Wrapper.isStatusCodeClientError(statusCode)) {
+                item.markUnavailable(statusCode);
+                return b;
+            } else {
+                item.setHttpError(statusCode);
+                throw e;
             }
         }
     }

@@ -36,6 +36,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
@@ -75,13 +76,15 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
 
-    @Nullable private ScListView mListView;
+    private @Nullable ScListView mListView;
     private ScBaseAdapter<?> mAdapter;
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    protected @Nullable EmptyListView mEmptyListView;
-    private @Nullable Content mContent;
-    private @NotNull Uri mContentUri;
+    private @Nullable EmptyListView mEmptyListView;
+    private EmptyListViewFactory mEmptyListViewFactory;
+
+    private Content mContent;
+    private Uri mContentUri;
     private NetworkConnectivityListener connectivityListener;
     private Handler connectivityHandler;
     private @Nullable CollectionTask mRefreshTask;
@@ -121,9 +124,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
             if (mContent.isSyncable()) {
                 mSyncStateManager = new SyncStateManager();
-                mLocalCollection = mSyncStateManager.fromContentAsync(mContentUri, this);
                 mChangeObserver = new ChangeObserver();
-                refreshSyncData();
             }
         }
         // should happen once per activity lifecycle
@@ -134,6 +135,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        mEmptyListViewFactory = new EmptyListViewFactory().forContent(getActivity(), mContent, null);
         mKeepGoing = true;
         setupListAdapter();
     }
@@ -148,10 +150,13 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mListView = configureList(new ScListView(getActivity()));
         mListView.setOnRefreshListener(this);
         mListView.setOnScrollListener(this);
-        setEmptyCollection((mEmptyListView == null) ?
-                EmptyListView.fromContent(context, mContent) : mEmptyListView);
 
+        if (mEmptyListView == null) {
+            mEmptyListView = createEmptyView();
+        }
+        mEmptyListView.setStatus(mStatusCode);
         mListView.setEmptyView(mEmptyListView);
+
         configurePullToRefreshState();
 
         if (isRefreshing() || waitingOnInitialSync()){
@@ -169,6 +174,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         root.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
         return root;
+    }
+
+    protected EmptyListView createEmptyView() {
+        return mEmptyListViewFactory.build(getActivity());
     }
 
     @Override
@@ -367,12 +376,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
     }
 
-    public void setEmptyCollection(EmptyListView emptyCollection){
-        mEmptyListView = emptyCollection;
-        mEmptyListView.setStatus(mStatusCode);
-        if (getView() != null && getListView() != null) {
-            getListView().setEmptyView(emptyCollection);
-        }
+    public void setEmptyViewFactory(EmptyListViewFactory factory) {
+        mEmptyListViewFactory = factory;
     }
 
     @Nullable
@@ -442,7 +447,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
      * that is also in idle state. If not in that state, then set the loading state to prevent unwanted refreshes/syncs
      */
     private void configurePullToRefreshState() {
-        if (mListView != null && mLocalCollection != null) {
+        if (isInLayout() && mListView != null && mLocalCollection != null) {
             if (mLocalCollection.isIdle()) {
                 if (mListView.isRefreshing()) mListView.onRefreshComplete();
             } else if (!mListView.isRefreshing()){
@@ -469,7 +474,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mRefreshTask = null; // allows isRefreshing to return false for display purposes
         }
 
-        mKeepGoing = data.keepGoing;
         adapter.handleTaskReturnData(data, getActivity());
         configureEmptyView(data.responseCode);
 
@@ -520,6 +524,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         refresh(true);
     }
 
+    protected EmptyListView getEmptyListView() {
+        return mEmptyListView;
+    }
+
     protected Request getRequest(boolean isRefresh) {
         if (!isRefresh && !TextUtils.isEmpty(mNextHref)) {
             return new Request(mNextHref);
@@ -531,8 +539,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     protected boolean canAppend() {
-        log("Can Append [mKeepGoing: " + mKeepGoing + ", waitingOnInitialSync: "+waitingOnInitialSync()+"]");
-        return mKeepGoing && !waitingOnInitialSync();
+        log("Can Append [mKeepGoing: " + mKeepGoing + "]");
+        return mKeepGoing;
     }
 
     protected void refresh(final boolean userRefresh) {
@@ -684,7 +692,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     private CollectionParams getTaskParams(@NotNull ScBaseAdapter adapter, final boolean refresh) {
         CollectionParams params = adapter.getParams(refresh);
-        params.request = buildRequest(refresh);
+        params.setRequest(buildRequest(refresh));
         params.refreshPageItems = !isSyncable();
         return params;
     }

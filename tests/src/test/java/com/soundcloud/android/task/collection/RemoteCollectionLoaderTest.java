@@ -1,77 +1,81 @@
 package com.soundcloud.android.task.collection;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.api.Request;
-import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
-import android.net.Uri;
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class RemoteCollectionLoaderTest {
 
+    private RemoteCollectionLoader<ScResource> remoteCollectionLoader;
+    @Mock
+    private AndroidCloudAPI androidCloudApi;
+    @Mock
+    private CollectionParams<ScResource> parameters;
+    @Mock
+    private Request request;
+    @Mock
+    private CollectionHolder<ScResource> collectionHolder;
+
+    @Before
+    public void setup() throws IOException {
+        initMocks(this);
+        remoteCollectionLoader = new RemoteCollectionLoader<ScResource>();
+
+        stub(parameters.getRequest()).toReturn(request);
+        stub(androidCloudApi.readCollection(request)).toReturn(collectionHolder);
+    }
+
+
     @Test
-    public void shouldLoadTrackCollection() throws Exception {
-
-        final String url = "/users/123/favorites?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE;
-        TestHelper.addCannedResponse(getClass(), url, "me_favorites.json");
-
-        final Uri contentUri1 = Content.USER_LIKES.forId(123l);
-        ReturnData<ScResource> returnData = new RemoteCollectionLoader<ScResource>().load((AndroidCloudAPI) Robolectric.application,new CollectionParams<ScResource>(){
-            {
-                contentUri = contentUri1;
-                request = new Request(url);
-                loadModel = ScResource.class;
-            }
-        });
-
-        expect(returnData.success).toBeTrue();
-        expect(returnData.newItems).not.toBeEmpty();
+    public void shouldRemoveUnknownResourcesFromCollectionHolder() throws IOException {
+        remoteCollectionLoader.load(androidCloudApi,parameters);
+        verify(collectionHolder).removeUnknownResources();
     }
 
     @Test
-    public void shouldLoadMixedCollection() throws Exception {
+    public void shouldReturnAResultWithInformationFromTheCollectionHolder(){
+        List<ScResource> collection = new ArrayList<ScResource>();
+        String nextHref = "linkylink";
+        when(collectionHolder.getCollection()).thenReturn(collection);
+        when(collectionHolder.getNextHref()).thenReturn(nextHref);
+        when(collectionHolder.moreResourcesExist()).thenReturn(true);
 
-        final String url = "/search?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE;
-        TestHelper.addCannedResponse(getClass(), url, "mixed.json");
+        ReturnData<ScResource> responseData = remoteCollectionLoader.load(androidCloudApi, parameters);
 
-        final Uri contentUri1 = Content.SEARCH.uri;
-        ReturnData<ScResource> returnData = new RemoteCollectionLoader<ScResource>().load((AndroidCloudAPI) Robolectric.application, new CollectionParams<ScResource>() {
-            {
-                contentUri = contentUri1;
-                request = new Request(url);
-                loadModel = ScResource.class;
-            }
-        });
+        assertThat(responseData.newItems, is(collection));
+        assertThat(responseData.success, is(true));
+        assertThat(responseData.keepGoing, is(true));
+        assertThat(responseData.nextHref, is(nextHref));
+        assertThat(responseData.responseCode, is(200));
+    }
 
-        expect(returnData.success).toBeTrue();
-        expect(returnData.newItems).not.toBeEmpty();
+    @Test
+    public void shouldReturnAResultThatSpecificAnErrorIfIOExceptionOccurs() throws IOException {
+        when(parameters.isRefresh()).thenReturn(true);
+        when(androidCloudApi.readCollection(request)).thenThrow(IOException.class);
+        ReturnData<ScResource> responseData = remoteCollectionLoader.load(androidCloudApi, parameters);
+        assertThat(responseData.success, is(false));
+        assertThat(responseData.wasRefresh, is(true));
+        assertThat(responseData.responseCode, is(EmptyListView.Status.CONNECTION_ERROR));
 
-        List<Track> t = new ArrayList<Track>();
-        List<User> u = new ArrayList<User>();
-
-        for (ScResource newItem : returnData.newItems){
-            if (newItem instanceof Track){
-                t.add((Track) newItem);
-            } else if (newItem instanceof User){
-                u.add((User) newItem);
-            }
-        }
-
-        expect(t).not.toBeEmpty();
-        expect(u).not.toBeEmpty();
     }
 }

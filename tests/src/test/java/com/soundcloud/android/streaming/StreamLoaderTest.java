@@ -65,8 +65,8 @@ public class StreamLoaderTest {
     public void shouldGetAChunkFromStorage() throws Exception {
         setupChunkArray();
         storage.storeMetadata(item);
-        storage.storeData(item.url, sampleBuffers.get(0), 0);
-        Buffer actual = loader.getDataForUrl(item.url, Range.from(0, TEST_CHUNK_SIZE)).get();
+        storage.storeData(item.getUrl(), sampleBuffers.get(0), 0);
+        Buffer actual = loader.getDataForUrl(item.getUrl(), Range.from(0, TEST_CHUNK_SIZE)).get();
         ByteBuffer expected = readToByteBuffer(testFile, TEST_CHUNK_SIZE);
 
         expect(actual).toEqual(expected);
@@ -74,15 +74,15 @@ public class StreamLoaderTest {
 
     @Test(expected = RuntimeException.class)
     public void getAChunkFromStorageWithEmptyStorage() throws Exception {
-        loader.getDataForUrl(item.url.toString(), Range.from(0, TEST_CHUNK_SIZE)).get();
+        loader.getDataForUrl(item.streamItemUrl(), Range.from(0, TEST_CHUNK_SIZE)).get();
     }
 
     @Test
     public void shouldGetAllBytesFromStorage() throws Exception {
         setupChunkArray();
         storage.storeMetadata(item);
-        for (int i : sampleChunkIndexes) storage.storeData(item.url, sampleBuffers.get(i), i);
-        expect((Buffer) loader.getDataForUrl(item.url, Range.from(0, testFile.length())).get())
+        for (int i : sampleChunkIndexes) storage.storeData(item.getUrl(), sampleBuffers.get(i), i);
+        expect((Buffer) loader.getDataForUrl(item.getUrl(), Range.from(0, testFile.length())).get())
                 .toEqual(readToByteBuffer(testFile));
     }
 
@@ -90,8 +90,8 @@ public class StreamLoaderTest {
     public void shouldReturnAReadOnlyBuffer() throws Exception {
         setupChunkArray();
         storage.storeMetadata(item);
-        for (int i : sampleChunkIndexes) storage.storeData(item.url, sampleBuffers.get(i), i);
-        expect(loader.getDataForUrl(item.url, Range.from(0, 1000)).get().isReadOnly()).toBeTrue();
+        for (int i : sampleChunkIndexes) storage.storeData(item.getUrl(), sampleBuffers.get(i), i);
+        expect(loader.getDataForUrl(item.getUrl(), Range.from(0, 1000)).get().isReadOnly()).toBeTrue();
     }
 
     @Test
@@ -100,14 +100,14 @@ public class StreamLoaderTest {
         final int missingChunk = 1;
         sampleChunkIndexes.remove(missingChunk);
         storage.storeMetadata(item);
-        for (int i : sampleChunkIndexes) storage.storeData(item.url, sampleBuffers.get(i), i);
+        for (int i : sampleChunkIndexes) storage.storeData(item.getUrl(), sampleBuffers.get(i), i);
 
         pendingHeadRequests(testFile);
         pendingDataRequest("bytes=1024-2047", 206, sampleBuffers.get(missingChunk));
         pendingPlaycountRequest(item);
 
         final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
-        StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
+        StreamFuture cb = loader.getDataForUrl(item.getUrl(), requestedRange);
 
         expect(cb.isDone()).toBeTrue();
         expect((Buffer) cb.get()).toEqual(sampleBuffers.get(missingChunk).slice().limit(300));
@@ -127,7 +127,7 @@ public class StreamLoaderTest {
         pendingPlaycountRequest(item);
 
         final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
-        StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
+        StreamFuture cb = loader.getDataForUrl(item.getUrl(), requestedRange);
         expect(cb.isDone()).toBeTrue();
         expect((Buffer) cb.get()).toEqual(sampleBuffers.get(1).slice().limit(300));
     }
@@ -141,7 +141,7 @@ public class StreamLoaderTest {
         pendingDataRequest("bytes=1024-2047", 404, ByteBuffer.allocate(0));
 
         final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
-        StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
+        StreamFuture cb = loader.getDataForUrl(item.getUrl(), requestedRange);
         expect(cb.isDone()).toBeFalse();
         expect(cb.item.isAvailable()).toBeFalse();
     }
@@ -154,7 +154,7 @@ public class StreamLoaderTest {
         pendingPlaycountRequest(item);
 
         final Range firstRange = Range.from(0, 700);
-        StreamFuture cb = loader.getDataForUrl(item.url, firstRange);
+        StreamFuture cb = loader.getDataForUrl(item.getUrl(), firstRange);
 
         expect(cb.isDone()).toBeTrue();
 
@@ -166,7 +166,7 @@ public class StreamLoaderTest {
         pendingDataRequest("bytes=1024-2047", 206, sampleBuffers.get(1));
 
         final Range secondRange = Range.from(1024, 500);
-        cb = loader.getDataForUrl(item.url, secondRange);
+        cb = loader.getDataForUrl(item.getUrl(), secondRange);
 
         expect(cb.isDone()).toBeTrue();
         expect((Buffer) cb.get()).toEqual(sampleBuffers.get(1).slice().limit(500));
@@ -182,7 +182,7 @@ public class StreamLoaderTest {
         pendingPlaycountRequest(item);
 
         // needs a GET of 2 chunks (500-1500)
-        StreamFuture cb = loader.getDataForUrl(item.url, Range.from(500, 1000));
+        StreamFuture cb = loader.getDataForUrl(item.getUrl(), Range.from(500, 1000));
 
         expect(cb.isDone()).toBeTrue();
         ByteBuffer actual = cb.get();
@@ -269,7 +269,7 @@ public class StreamLoaderTest {
 
         @Override
         public boolean storeMetadata(StreamItem item) {
-            return _metadata.put(item.url.toString(), item) != null;
+            return _metadata.put(item.streamItemUrl(), item) != null;
         }
 
         @Override

@@ -319,7 +319,7 @@ public class ApiSyncer {
             Request request = future_href == null ? c.request() : Request.to(future_href);
             activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 
-                if (activities.hasMore()) {
+                if (activities.moreResourcesExist()) {
                 // delete all activities to avoid gaps in the data
                 mResolver.delete(c.uri, null, null);
             }

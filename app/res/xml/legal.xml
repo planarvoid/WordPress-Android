@@ -14,7 +14,7 @@
     </Preference>
 
     <Preference android:key="terms_of_service"
-            android:title="@string/terms_of_service"
+            android:title="@string/terms_of_use"
             >
 
         <intent android:action="android.intent.action.VIEW"

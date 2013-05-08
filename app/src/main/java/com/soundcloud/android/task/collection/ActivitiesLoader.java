@@ -15,12 +15,13 @@ import android.util.Log;
 
 import java.io.IOException;
 
-public class ActivitiesLoader extends CollectionLoader<Activity> {
+public class ActivitiesLoader implements CollectionLoader<Activity> {
     @Override
     public ReturnData<Activity> load(AndroidCloudAPI api, CollectionParams<Activity> params) {
         final ActivitiesStorage storage = new ActivitiesStorage();
 
-        boolean keepGoing, success = false;
+        boolean keepGoing = true;
+        boolean success = false;
         int responseCode = EmptyListView.Status.OK;
         Activities newActivities;
 
@@ -47,8 +48,8 @@ public class ActivitiesLoader extends CollectionLoader<Activity> {
             } else {
                 success = true;
             }
+            keepGoing = success && newActivities.size() > 0;
         }
-        keepGoing = success && newActivities.size() > 0;
         return new ReturnData<Activity>(newActivities.collection, params, null, responseCode,  keepGoing, success);
     }
 
