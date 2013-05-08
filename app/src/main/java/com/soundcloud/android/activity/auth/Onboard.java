@@ -53,6 +53,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     private static final String FOREGROUND_TAG = "foreground";
     private static final String PARALLAX_TAG = "parallax";
+    private static final String SIGNUP_DIALOG_TAG = "signup_dialog";
 
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS;
@@ -530,13 +531,13 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     public void onAcceptTerms(SignupVia signupVia, Bundle signupParams) {
         switch (signupVia){
             case GOOGLE_PLUS:
-                GooglePlusSignInTaskFragment.create(signupParams).show(getSupportFragmentManager(), "signup_dialog");
+                GooglePlusSignInTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
                 break;
             case FACEBOOK_SSO:
                 startActivityForResult(new Intent(this, Facebook.class), RequestCodes.SIGNUP_VIA_FACEBOOK);
                 break;
             case API:
-                SignupTaskFragment.create(signupParams).show(getSupportFragmentManager(), "signup_dialog");
+                SignupTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
                 break;
         }
 
@@ -639,15 +640,23 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
 
             case RequestCodes.SIGNUP_VIA_GOOGLE: {
-                if (resultCode == RESULT_OK) onGoogleAccountSelected(mLastGoogleAccountSelected);
+                onGoogleActivityResult(resultCode);
                 break;
             }
 
             case RequestCodes.RECOVER_FROM_PLAY_SERVICES_ERROR: {
-                if (resultCode == RESULT_OK) onGoogleAccountSelected(mLastGoogleAccountSelected);
+                onGoogleActivityResult(resultCode);
                 break;
             }
 
+        }
+    }
+
+    private void onGoogleActivityResult(int resultCode) {
+        if (resultCode == RESULT_OK) {
+            // just kick off another task with the last account selected
+            final Bundle params = GooglePlusSignInTaskFragment.getParams(mLastGoogleAccountSelected, RequestCodes.SIGNUP_VIA_GOOGLE);
+            GooglePlusSignInTaskFragment.create(params).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
         }
     }
 }
