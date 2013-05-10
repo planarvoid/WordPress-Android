@@ -10,11 +10,7 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public class AuthenticationManager {
-
-    public String getGoogleAccountToken(Context context, String accountName, String scope) throws GoogleAuthException, IOException {
-        Bundle bundle = new Bundle();
-        bundle.putString(GoogleAuthUtil.KEY_REQUEST_VISIBLE_ACTIVITIES,
-                "http://schemas.google.com/AddActivity http://schemas.google.com/CreateActivity http://schemas.google.com/ListenActivity");
+    public String getGoogleAccountToken(Context context, String accountName, String scope, Bundle bundle) throws GoogleAuthException, IOException {
         return GoogleAuthUtil.getToken(context, accountName, scope, bundle);
     }
 
