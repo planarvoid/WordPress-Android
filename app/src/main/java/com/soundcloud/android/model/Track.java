@@ -342,7 +342,7 @@ public class Track extends Playable implements PlayableHolder {
         comments = t.comments;
     }
 
-    private boolean isCompleteTrack(){
+    public boolean isCompleteTrack(){
         return state != null && created_at != null && duration > 0;
     }
 

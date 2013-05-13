@@ -2,18 +2,24 @@ package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.android.database.TestCursor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +28,11 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
 public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
@@ -208,6 +217,43 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
         verify(resolverMock).delete(eq(Content.TRACKS.uri), isNull(String.class), eq(new String[]{}));
     }
 
+    @Test
+    public void shouldGetIdsOfPersistedResources() {
+        // regression test for exceptions we got due to http://www.sqlite.org/limits.html
+        final int SQLITE_VARIABLE_LIMIT = 999;
+        TestDAO dao = new TestDAO(Robolectric.application.getContentResolver());
+        Long[] requestedIds = new Long[SQLITE_VARIABLE_LIMIT + 1]; // make sure we don't crash on the variable limit
+        Arrays.fill(requestedIds, 1L);
+        requestedIds[0] = 2L;
+
+        Track track1 = buildCompleteTrack(1L);
+        Track track2 = buildCompleteTrack(2L);
+
+        TestHelper.bulkInsert(track1, track2);
+
+        Set<Long> storedIds = dao.getStoredIds(Lists.newArrayList(requestedIds));
+        expect(storedIds).toContainExactly(1L, 2L);
+    }
+
+    @Test
+    public void shouldGetIdsOfPersistedResourcesInBatches() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+        Long[] requestedIds = new Long[1300];
+        Arrays.fill(requestedIds, 1L);
+
+        final int expectedBatchCount = 3;
+
+        getDAO().getStoredIds(Lists.newArrayList(requestedIds));
+
+        verify(resolverMock, times(expectedBatchCount)).query(
+                eq(Content.TRACKS.uri),
+                eq(new String[]{BaseColumns._ID}),
+                anyString(),
+                any(String[].class),
+                isNull(String.class));
+        verifyNoMoreInteractions(resolverMock);
+    }
+
     private static class TestDAO extends BaseDAO<Track> {
 
         protected TestDAO(ContentResolver contentResolver) {
@@ -248,5 +294,14 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
             itemsLeft -= 1;
             return true;
         }
+    }
+
+    private Track buildCompleteTrack(long id) {
+        Track track = new Track(id);
+        track.created_at = new Date();
+        track.state = Track.State.FINISHED;
+        track.duration = 100;
+        expect(track.isCompleteTrack()).toBeTrue();
+        return track;
     }
 }

@@ -224,9 +224,9 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
      * DO NOT REMOVE BATCHING, SQlite has a variable limit that may vary per device
      * http://www.sqlite.org/limits.html
      */
-    public List<Long> getStoredIds(List<Long> ids) {
+    public Set<Long> getStoredIds(List<Long> ids) {
         int i = 0;
-        List<Long> storedIds = new ArrayList<Long>();
+        Set<Long> storedIds = new HashSet<Long>();
         while (i < ids.size()) {
             List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
             storedIds.addAll(idCursorToList(
