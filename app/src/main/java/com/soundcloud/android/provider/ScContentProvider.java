@@ -788,8 +788,8 @@ public class ScContentProvider extends ContentProvider {
 
         if (table == null) throw new IllegalArgumentException("No table for URI "+uri);
 
+        db.beginTransaction();
         try {
-            db.beginTransaction();
             boolean failed = false;
 
             if (recreateTable) {
