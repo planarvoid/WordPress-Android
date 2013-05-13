@@ -199,6 +199,48 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     }
 
     @Test
+    public void shouldQueryAllRecordsWithWhereInClause() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().buildQuery().whereIn("_id", "1", "2", "3").queryAll();
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                eq("_id IN (?,?,?)"),
+                eq(new String[]{"1", "2", "3"}),
+                isNull(String.class));
+    }
+
+    @Test
+    public void shouldCombineWhereAndWhereInClauses() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().buildQuery().whereIn("_id", "1", "2", "3").where("AND x = ?", "4").queryAll();
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                eq("_id IN (?,?,?) AND x = ?"),
+                eq(new String[]{"1", "2", "3", "4"}),
+                isNull(String.class));
+    }
+
+    @Test
+    public void shouldQueryForIds() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().buildQuery().where("x = ?", "1").queryIds();
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                eq(new String[]{BaseColumns._ID}),
+                eq("x = ?"),
+                eq(new String[]{"1"}),
+                isNull(String.class));
+    }
+
+    @Test
     public void shouldDeleteSingleRecord() {
         ContentResolver resolverMock = getDAO().getContentResolver();
         Track track = new Track(1);
@@ -215,43 +257,6 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
         getDAO().deleteAll();
 
         verify(resolverMock).delete(eq(Content.TRACKS.uri), isNull(String.class), eq(new String[]{}));
-    }
-
-    @Test
-    public void shouldGetIdsOfPersistedResources() {
-        // regression test for exceptions we got due to http://www.sqlite.org/limits.html
-        final int SQLITE_VARIABLE_LIMIT = 999;
-        TestDAO dao = new TestDAO(Robolectric.application.getContentResolver());
-        Long[] requestedIds = new Long[SQLITE_VARIABLE_LIMIT + 1]; // make sure we don't crash on the variable limit
-        Arrays.fill(requestedIds, 1L);
-        requestedIds[0] = 2L;
-
-        Track track1 = buildCompleteTrack(1L);
-        Track track2 = buildCompleteTrack(2L);
-
-        TestHelper.bulkInsert(track1, track2);
-
-        Set<Long> storedIds = dao.getStoredIds(Lists.newArrayList(requestedIds));
-        expect(storedIds).toContainExactly(1L, 2L);
-    }
-
-    @Test
-    public void shouldGetIdsOfPersistedResourcesInBatches() {
-        ContentResolver resolverMock = getDAO().getContentResolver();
-        Long[] requestedIds = new Long[1300];
-        Arrays.fill(requestedIds, 1L);
-
-        final int expectedBatchCount = 3;
-
-        getDAO().getStoredIds(Lists.newArrayList(requestedIds));
-
-        verify(resolverMock, times(expectedBatchCount)).query(
-                eq(Content.TRACKS.uri),
-                eq(new String[]{BaseColumns._ID}),
-                anyString(),
-                any(String[].class),
-                isNull(String.class));
-        verifyNoMoreInteractions(resolverMock);
     }
 
     private static class TestDAO extends BaseDAO<Track> {
@@ -296,12 +301,4 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
         }
     }
 
-    private Track buildCompleteTrack(long id) {
-        Track track = new Track(id);
-        track.created_at = new Date();
-        track.state = Track.State.FINISHED;
-        track.duration = 100;
-        expect(track.isCompleteTrack()).toBeTrue();
-        return track;
-    }
 }

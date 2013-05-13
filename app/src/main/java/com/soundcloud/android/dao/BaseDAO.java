@@ -1,13 +1,15 @@
 package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
-import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
 import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
@@ -18,17 +20,21 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
-    protected final ContentResolver mResolver;
     public static final int RESOLVER_BATCH_SIZE = 500;
+
+    protected final ContentResolver mResolver;
 
     protected BaseDAO(ContentResolver contentResolver) {
         this.mResolver = contentResolver;
@@ -149,6 +155,20 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return new QueryBuilder(contentUri).queryAll();
     }
 
+    private List<Long> queryIdsByUri(Uri contentUri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        Cursor c = mResolver.query(contentUri, new String[]{BaseColumns._ID}, selection, selectionArgs, null);
+        if (c != null) {
+            List<Long> ids = new ArrayList<Long>(c.getCount());
+            while (c.moveToNext()) {
+                ids.add(c.getLong(0));
+            }
+            c.close();
+            return ids;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
     private List<T> queryAllByUri(Uri contentUri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String order) {
         Cursor c = mResolver.query(contentUri, projection, selection, selectionArgs, order);
         if (c != null) {
@@ -218,49 +238,56 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return klass;
     }
 
-
-    /**
-     * @return a list of all ids for which objects are stored in the db.
-     * DO NOT REMOVE BATCHING, SQlite has a variable limit that may vary per device
-     * http://www.sqlite.org/limits.html
-     */
-    public Set<Long> getStoredIds(List<Long> ids) {
-        int i = 0;
-        Set<Long> storedIds = new HashSet<Long>();
-        while (i < ids.size()) {
-            List<Long> batch = ids.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, ids.size()));
-            storedIds.addAll(idCursorToList(
-                    mResolver.query(getContent().uri, new String[]{BaseColumns._ID},
-                            getWhereInClause(BaseColumns._ID, batch.size()) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " > 0"
-                            , longListToStringArr(batch), null)
-            ));
-            i += RESOLVER_BATCH_SIZE;
-        }
-        return storedIds;
-    }
-
     public final class QueryBuilder {
         private final Uri mContentUri;
-        private String[] mProjection, mSelectionArgs;
-        private String mSelection, mOrder;
+        private @Nullable String[] mProjection;
+        private @Nullable String mOrder;
+        private StringBuilder mSelection;
+        private List<String> mSelectionArgs;
         private int mLimit;
 
         public QueryBuilder(Uri contentUri) {
+            mSelection = new StringBuilder();
+            mSelectionArgs = new LinkedList<String>();
             mContentUri = contentUri;
         }
 
-        public QueryBuilder where(@Nullable final String selection, @Nullable final String... selectionArgs) {
-            mSelection = selection;
-            mSelectionArgs = selectionArgs;
+        public QueryBuilder where(final String selection, final String... selectionArgs) {
+            mSelection.append(selection);
+            mSelectionArgs.addAll(Arrays.asList(selectionArgs));
             return this;
         }
 
-        public QueryBuilder select(@Nullable final String... projection) {
+        public QueryBuilder whereIn(final String column, final List<?> values) {
+            mSelection.append(column).append(" IN (");
+            List<String> wildcards = Lists.transform(values, new Function<Object, String>() {
+                @Override
+                public String apply(@javax.annotation.Nullable Object input) {
+                    return "?";
+                }
+            });
+            List<String> stringValues = Lists.transform(values, new Function<Object, String>() {
+                @Override
+                public String apply(Object input) {
+                    return input.toString();
+                }
+            });
+            Joiner.on(",").appendTo(mSelection, wildcards);
+            mSelection.append(") ");
+            mSelectionArgs.addAll(stringValues);
+            return this;
+        }
+
+        public QueryBuilder whereIn(String column, String... values) {
+            return whereIn(column, Arrays.asList(values));
+        }
+
+        public QueryBuilder select(final String... projection) {
             mProjection = projection;
             return this;
         }
 
-        public QueryBuilder order(@Nullable final String order) {
+        public QueryBuilder order(final String order) {
             mOrder = order;
             return this;
         }
@@ -271,12 +298,19 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
 
         public List<T> queryAll() {
-            Uri contentUri = mContentUri;
-            if (mLimit > 0) {
-                contentUri = mContentUri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.LIMIT, String.valueOf(mLimit)).build();
-            }
+            Uri contentUri = resolveContentUri();
 
-            return queryAllByUri(contentUri, mProjection, mSelection, mSelectionArgs, mOrder);
+            String selection = resolveSelection();
+            String[] selectionArgs = resolveSelectionArgs();
+            return queryAllByUri(contentUri, mProjection, selection, selectionArgs, mOrder);
+        }
+
+        public List<Long> queryIds() {
+            Uri contentUri = resolveContentUri();
+
+            String selection = resolveSelection();
+            String[] selectionArgs = resolveSelectionArgs();
+            return queryIdsByUri(contentUri, selection, selectionArgs);
         }
 
         public @Nullable T first() {
@@ -287,5 +321,30 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
                 return all.get(0);
             }
         }
+
+        private Uri resolveContentUri() {
+            Uri contentUri = mContentUri;
+            if (mLimit > 0) {
+                contentUri = mContentUri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.LIMIT, String.valueOf(mLimit)).build();
+            }
+            return contentUri;
+        }
+
+        private @Nullable String[] resolveSelectionArgs() {
+            String[] selectionArgs = null;
+            if (!mSelectionArgs.isEmpty()) {
+                selectionArgs = Iterables.toArray(mSelectionArgs, String.class);
+            }
+            return selectionArgs;
+        }
+
+        private @Nullable String resolveSelection() {
+            String selection = null;
+            if (!TextUtils.isEmpty(mSelection)) {
+                selection = mSelection.toString().trim();
+            }
+            return selection;
+        }
+
     }
 }
