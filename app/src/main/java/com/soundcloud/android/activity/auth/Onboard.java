@@ -529,6 +529,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
 
     @Override
     public void onAcceptTerms(SignupVia signupVia, Bundle signupParams) {
+        setState(StartState.TOUR);
         switch (signupVia){
             case GOOGLE_PLUS:
                 GooglePlusSignInTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
@@ -559,14 +560,6 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         } else {
             super.onAuthTaskComplete(user, via, wasApiSignupTask);
         }
-    }
-
-    @Override
-    public void onError(String message){
-        if (!isFinishing()) {
-            setState(StartState.TOUR);
-        }
-        super.onError(message);
     }
 
     private void onGoogleAccountSelected(String name) {
