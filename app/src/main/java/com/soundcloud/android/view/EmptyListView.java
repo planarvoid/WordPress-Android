@@ -83,7 +83,7 @@ public class EmptyListView extends RelativeLayout {
         ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.empty_list, this);
 
-        final Animation animationIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in_long);
+        final Animation animationIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in_med);
         setLayoutAnimation(new LayoutAnimationController(animationIn));
 
         mEmptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
