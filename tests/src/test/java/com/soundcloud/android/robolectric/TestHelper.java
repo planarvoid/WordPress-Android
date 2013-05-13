@@ -25,6 +25,7 @@ import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import com.xtremelabs.robolectric.shadows.ShadowNetworkInfo;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import scala.actors.threadpool.Arrays;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -234,6 +235,10 @@ public class TestHelper {
             m.putFullContentValues(map);
         }
         return map.insert(DefaultTestRunner.application.getContentResolver());
+    }
+
+    public static int bulkInsert(ScResource... items) {
+        return bulkInsert(Arrays.asList(items));
     }
 
     public static int bulkInsert(Uri uri, Collection<? extends ScResource> resources) {
