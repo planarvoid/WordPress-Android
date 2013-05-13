@@ -141,7 +141,7 @@ public class PlayerAvatarBar extends View {
         if (mCanvasBmp != null) mCanvasBmp.recycle();
         if (mNextCanvasBmp != null) mNextCanvasBmp.recycle();
 
-        mCanvasBmp = mNextCanvasBmp = null;
+        mCanvasBmp = null;
 
         invalidate();
 
@@ -243,6 +243,7 @@ public class PlayerAvatarBar extends View {
 
                     if (Thread.currentThread().isInterrupted()) {
                         mNextCanvasBmp.recycle();
+                        mNextCanvasBmp = null;
                     } else {
                         if (!mUIHandler.hasMessages(AVATARS_REFRESHED)) {
                             Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
