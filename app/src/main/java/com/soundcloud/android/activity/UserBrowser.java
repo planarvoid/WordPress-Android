@@ -160,7 +160,6 @@ public class UserBrowser extends ScActivity implements
             }
 
             loadDetails();
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         } else {
             // if the user is null at this stage there is nothing we can do, except finishing
             finish();
