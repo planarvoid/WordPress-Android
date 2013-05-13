@@ -7,12 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.CollectionStorage;
-import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.PrefetchHandler;
@@ -22,12 +17,8 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
-import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
@@ -52,10 +43,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -164,6 +152,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         FacebookSSO.extendAccessTokenIfNeeded(this);
     }
 
+    public Long getLoggedInUsersId(){
+        return getLoggedInUser().getId();
+    }
+
     public synchronized User getLoggedInUser() {
         if (mLoggedInUser == null) {
             final long id = getAccountDataLong(User.DataKeys.USER_ID);
@@ -183,53 +175,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mLoggedInUser;
     }
 
-    public void clearSoundCloudAccount(@Nullable final Runnable onSuccess, @Nullable final Runnable onError) {
-        final Account account = getAccount();
-        if (account != null) {
-            getAccountManager().removeAccount(account, new AccountManagerCallback<Boolean>() {
-                @Override public void run(AccountManagerFuture<Boolean> future) {
-                    try {
-                        if (future.getResult()) {
-                            onAccountRemoved(account);
-                            if (onSuccess != null) onSuccess.run();
-                        } else if (onError != null) onError.run();
-                    } catch (OperationCanceledException e) {
-                        if (onError != null) onError.run();
-                    } catch (IOException e) {
-                        if (onError != null) onError.run();
-                    } catch (AuthenticatorException e) {
-                        if (onError != null) onError.run();
-                    }
-                }
-            }, /*handler, null == main*/ null);
-        } else if (onError != null) {
-            onError.run();
-        }
-    }
-
-    //TODO: This should be on a different class, e.g. a LoginManager
-    public void onAccountRemoved(Account account) {
-        new Thread() {
-            @Override
-            public void run() {
-                new SyncStateManager().clear();
-                new CollectionStorage().clear();
-                new ActivitiesStorage().clear(null);
-                SoundRecorder.getInstance(SoundCloudApplication.this).reset();
-
-                PlayQueueManager.clearState(SoundCloudApplication.this);
-                FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
-            }
-        }.run();
-
-        sendBroadcast(new Intent(Actions.LOGGING_OUT));
-        sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
-
-        FollowStatus.clearState();
-        C2DMReceiver.unregister(this);
-        ConnectionsCache.set(null);
+    public void clearLoggedInUser() {
         mLoggedInUser = null;
-        mCloudApi.invalidateToken();
     }
 
     protected ImageLoader createImageLoader() {
@@ -274,10 +221,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
 
-            // sync shortcuts so suggest works properly
-            Intent intent = new Intent(this, ApiSyncService.class)
-                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                    .setData(Content.ME_SHORTCUT.uri);
+                // sync shortcuts so suggest works properly
+                Intent intent = new Intent(this, ApiSyncService.class)
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                        .setData(Content.ME_SHORTCUT.uri);
 
             startService(intent);
 

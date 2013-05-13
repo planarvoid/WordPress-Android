@@ -36,6 +36,10 @@ public class PlayQueueManager {
     private long mUserId;
     private AsyncTask mLoadTask;
 
+    public PlayQueueManager(Context context) {
+        this(context, ((SoundCloudApplication)context.getApplicationContext()).getLoggedInUsersId());
+    }
+
     public PlayQueueManager(Context context, long userId) {
         mContext = context;
         mUserId = userId;
@@ -353,12 +357,12 @@ public class PlayQueueManager {
         }
     }
 
-    public static void clearState(Context context) {
+    public void clearState(Context context) {
         new PlayQueueManagerStore().clearState();
         clearLastPlayed(context);
     }
 
-    public static void clearLastPlayed(Context context) {
+    public void clearLastPlayed(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .remove(Consts.PrefKeys.SC_PLAYQUEUE_URI)
                 .commit();

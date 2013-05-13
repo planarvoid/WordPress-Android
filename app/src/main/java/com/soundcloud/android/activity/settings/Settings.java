@@ -266,28 +266,28 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                                 final ProgressDialog progress = AndroidUtils.showProgress(a, R.string.settings_logging_out);
 
                                 app.track(Click.Log_out_box_ok);
-                                app.clearSoundCloudAccount(
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                app.addAccount(a);
-                                                progress.dismiss();
-                                                a.finish();
-                                            }
-                                        },
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                progress.dismiss();
-                                                new AlertDialog.Builder(a)
-                                                        .setIcon(android.R.drawable.ic_dialog_alert)
-                                                        .setMessage(R.string.settings_error_revoking_account_message)
-                                                        .setPositiveButton(android.R.string.ok, null)
-                                                        .create()
-                                                        .show();
-                                            }
-                                        }
-                                );
+//                                app.clearSoundCloudAccount(
+//                                        new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                app.addAccount(a);
+//                                                progress.dismiss();
+//                                                a.finish();
+//                                            }
+//                                        },
+//                                        new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                progress.dismiss();
+//                                                new AlertDialog.Builder(a)
+//                                                        .setIcon(android.R.drawable.ic_dialog_alert)
+//                                                        .setMessage(R.string.settings_error_revoking_account_message)
+//                                                        .setPositiveButton(android.R.string.ok, null)
+//                                                        .create()
+//                                                        .show();
+//                                            }
+//                                        }
+//                                );
                             }
                         })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
