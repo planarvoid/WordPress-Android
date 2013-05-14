@@ -123,7 +123,7 @@ public class UserBrowser extends ScActivity implements
         mToggleFollow = (ToggleButton) findViewById(R.id.toggle_btn_follow);
 
         // if root view is expanded, wait to instantiate the fragments until it is closed as it causes severe jank
-        mDelayContent = mRootView.isExpanded();
+        mDelayContent = mRootView.isExpanded() && bundle == null;
 
         mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -160,7 +160,6 @@ public class UserBrowser extends ScActivity implements
             }
 
             loadDetails();
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         } else {
             // if the user is null at this stage there is nothing we can do, except finishing
             finish();
@@ -534,9 +533,7 @@ public class UserBrowser extends ScActivity implements
         }
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            final View v = View.inflate(UserBrowser.this, R.layout.empty_list,null);
-            container.addView(v);
-            return v;
+            return new View(UserBrowser.this);
         }
         @Override
         public boolean isViewFromObject(View view, Object object) {

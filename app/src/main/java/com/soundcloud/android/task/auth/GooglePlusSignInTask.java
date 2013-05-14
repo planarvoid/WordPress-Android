@@ -2,6 +2,7 @@ package com.soundcloud.android.task.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AuthenticationManager;
 import com.soundcloud.android.activity.auth.TokenInformationGenerator;
@@ -10,10 +11,18 @@ import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class GooglePlusSignInTask extends LoginTask {
-    protected String mAccountName, mScope;
+    private static final String ADD_ACTIVITY    = "http://schemas.google.com/AddActivity";
+    private static final String CREATE_ACTIVITY = "http://schemas.google.com/CreateActivity";
+    private static final String LISTEN_ACTIVITY = "http://schemas.google.com/ListenActivity";
+
+    private static final String[] REQUEST_ACTIVITIES = { ADD_ACTIVITY, CREATE_ACTIVITY, LISTEN_ACTIVITY };
+
+    private String mAccountName, mScope;
+    private Bundle mExtras;
     private AuthenticationManager mAuthenticationManager;
 
     public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope) {
@@ -27,6 +36,9 @@ public class GooglePlusSignInTask extends LoginTask {
         mAccountName = accountName;
         mScope = scope;
         mAuthenticationManager = authenticationManager;
+
+        mExtras = new Bundle();
+        mExtras.putString(GoogleAuthUtil.KEY_REQUEST_VISIBLE_ACTIVITIES, TextUtils.join(" ", REQUEST_ACTIVITIES));
     }
 
     @Override
@@ -35,7 +47,7 @@ public class GooglePlusSignInTask extends LoginTask {
         boolean googleTokenValid = false;
         for (int triesLeft = 2; triesLeft > 0 && !googleTokenValid; triesLeft--){
             try {
-                String token = mAuthenticationManager.getGoogleAccountToken(getSoundCloudApplication(), mAccountName, mScope);
+                String token = mAuthenticationManager.getGoogleAccountToken(getSoundCloudApplication(), mAccountName, mScope, mExtras);
                 result = login(token);
 
                 googleTokenValid = !(result.getException() instanceof CloudAPI.InvalidTokenException);

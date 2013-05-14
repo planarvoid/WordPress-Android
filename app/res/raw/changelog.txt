@@ -1,9 +1,10 @@
 $ 62
-  % v 2.6.1-BETA1
-  _ 2013-05-08
-    ! ???
-    * Upgraded Pull To Refresh library
-    * Fixed player touch crash
+  % v current
+  _ 2013-05-09
+    ! Maintenance
+    * App stability and crash fixes for larger accounts
+    - Upgraded Pull To Refresh library
+    - Fixed player touch crash
 
 $ 61
   % v 2.6.0
