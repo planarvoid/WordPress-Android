@@ -241,6 +241,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     public final class QueryBuilder {
+        private static final int INITIAL_SELECTION_CAPACITY = 200;
+
         private final Uri mContentUri;
         private @Nullable String[] mProjection;
         private @Nullable String mOrder;
@@ -249,7 +251,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         private int mLimit;
 
         public QueryBuilder(Uri contentUri) {
-            mSelection = new StringBuilder();
+            mSelection = new StringBuilder(INITIAL_SELECTION_CAPACITY);
             mSelectionArgs = new LinkedList<String>();
             mContentUri = contentUri;
         }
