@@ -86,6 +86,20 @@ public class SyncStateManagerTest {
         expect(syncStateManager.fromContent(uri).shouldAutoRefresh()).toBeFalse();
     }
 
+    @Test
+    public void shouldInitializeNewLocalCollectionIfNotInDatabase() {
+        final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
+                System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
+
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, new LocalCollection.OnChangeListener() {
+            @Override
+            public void onLocalCollectionChanged(LocalCollection localCollection) {
+                expect(localCollection.last_sync_success).toEqual(-1L);
+                expect(localCollection.sync_state).toEqual(LocalCollection.SyncState.IDLE);
+            }
+        });
+    }
+
     private LocalCollection insertLocalCollection(Uri contentUri) {
         LocalCollection collection = new LocalCollection(contentUri);
         new LocalCollectionDAO(resolver).create(collection);

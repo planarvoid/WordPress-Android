@@ -177,6 +177,26 @@ public class SyncStateManager {
         if (observer != null) mResolver.unregisterContentObserver(observer);
     }
 
+    /* package */ void onCollectionAsyncQueryReturn(Cursor cursor, LocalCollection localCollection, LocalCollection.OnChangeListener listener) {
+        final boolean wasUnregistered = localCollection.id == 0;
+        if (cursor != null && cursor.moveToFirst()) {
+            // the sync state record already existed, just inform the listener that it has changed
+            localCollection.setFromCursor(cursor);
+        } else {
+            // create a new local collection in intialized state
+            localCollection = new LocalCollection(localCollection.uri);
+            // the record didn't exist yet; go ahead and create it before reporting any changes
+            mLocalCollectionDao.create(localCollection);
+        }
+
+        if (wasUnregistered && listener != null) {
+            addChangeListener(localCollection, listener);
+        }
+
+        if (cursor != null) cursor.close();
+        if (listener != null) listener.onLocalCollectionChanged(localCollection);
+    }
+
     private class ChangeObserver extends ContentObserver {
         private final LocalCollection mSyncState;
         private final LocalCollection.OnChangeListener mListener;
@@ -211,23 +231,7 @@ public class SyncStateManager {
 
         @Override
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
-            final boolean wasUnregistered = mLocalCollection.id == 0;
-            if (cursor != null && cursor.moveToFirst()) {
-                // the sync state record already existed, just inform the listener that it has changed
-                mLocalCollection.setFromCursor(cursor);
-                cursor.close();
-            } else {
-                // the record didn't exist yet; go ahead and create it before reporting any changes
-                mLocalCollectionDao.create(mLocalCollection);
-                mLocalCollection.sync_state = LocalCollection.SyncState.IDLE;
-            }
-
-            if (wasUnregistered && mListener != null) {
-                addChangeListener(mLocalCollection, mListener);
-            }
-
-            if (cursor != null) cursor.close();
-            if (mListener != null) mListener.onLocalCollectionChanged(mLocalCollection);
+            onCollectionAsyncQueryReturn(cursor, mLocalCollection, mListener);
         }
     }
 
