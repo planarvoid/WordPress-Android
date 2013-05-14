@@ -74,8 +74,15 @@ public class FollowStatus {
         return sInstance;
     }
 
-    public synchronized static void set(FollowStatus status) {
-        sInstance = status;
+    public synchronized static void clearState(){
+        if (sInstance != null){
+            sInstance.stopListening();
+            sInstance = null;
+        }
+    }
+
+    public void stopListening(){
+        mSyncStateManager.removeChangeListener(mFollowingCollectionState);
     }
 
     public int getFollowingCount(){
