@@ -12,7 +12,7 @@ import com.soundcloud.android.activity.landing.FriendFinder;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.ScLandingPage;
-import com.soundcloud.android.activity.landing.SuggestedUsers;
+import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -111,7 +111,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startNavActivity(ScActivity.this, FriendFinder.class, menuBundle);
                         return true;
                     case R.id.nav_suggested_users:
-                        startNavActivity(ScActivity.this, SuggestedUsers.class, menuBundle);
+                        startNavActivity(ScActivity.this, SuggestedUsersActivity.class, menuBundle);
                         return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));

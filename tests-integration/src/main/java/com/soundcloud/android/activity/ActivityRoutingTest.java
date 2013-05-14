@@ -8,7 +8,7 @@ import com.soundcloud.android.activity.landing.FriendFinder;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.ScSearch;
-import com.soundcloud.android.activity.landing.SuggestedUsers;
+import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.AccountSettings;
 
@@ -73,7 +73,7 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     }
 
     public void testSuggestedUsers() throws Exception {
-        assertActivityStarted(SuggestedUsers.class, Actions.WHO_TO_FOLLOW);
+        assertActivityStarted(SuggestedUsersActivity.class, Actions.WHO_TO_FOLLOW);
     }
 
     public void testSearch() throws Exception {
