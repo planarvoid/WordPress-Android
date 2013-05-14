@@ -662,7 +662,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     private void doneRefreshing() {
-        if (isSyncable()) setListLastUpdated();
         if (mListView != null) {
             mListView.onRefreshComplete();
         }
@@ -672,12 +671,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         return mContent != null && mContent.isSyncable();
     }
 
-
-    private void setListLastUpdated() {
-        if (mLocalCollection != null && mListView != null && mLocalCollection.last_sync_success > 0) {
-            mListView.setLastUpdated(mLocalCollection.last_sync_success);
-        }
-    }
 
     private void onContentChanged() {
         final ScBaseAdapter listAdapter = getListAdapter();
@@ -713,7 +706,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     private void refreshSyncData() {
         if (isSyncable() && mLocalCollection != null) {
-            setListLastUpdated();
             if (mLocalCollection.shouldAutoRefresh()) {
                 log("Auto refreshing content");
                 if (!isRefreshing()) {

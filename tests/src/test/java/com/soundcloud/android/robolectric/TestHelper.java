@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -245,6 +246,10 @@ public class TestHelper {
             m.putFullContentValues(map);
         }
         return map.insert(DefaultTestRunner.application.getContentResolver());
+    }
+
+    public static int bulkInsert(ScResource... items) {
+        return bulkInsert(Arrays.asList(items));
     }
 
     public static <T extends Persisted & Identifiable> int bulkInsert(Uri uri, Collection<T> resources) {

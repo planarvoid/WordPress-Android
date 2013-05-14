@@ -1,5 +1,13 @@
-$ 60
+$ 62
   % v current
+  _ 2013-05-13
+    ! Maintenance
+    * App stability and crash fixes for larger accounts
+    - Upgraded Pull To Refresh library
+    - Fixed player touch crash
+
+$ 61
+  % v 2.6.0
   _ 2013-05-08
     ! Google Plus
     * Added support for Google+ sign in

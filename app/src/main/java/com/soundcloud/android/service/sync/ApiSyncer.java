@@ -23,6 +23,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -455,15 +456,17 @@ public class ApiSyncer {
     }
 
     private List<Long> handleDeletions(Content content, List<Long> local, List<Long> remote) {
-        // This only works when items are unique in a collection, fine for now
+        // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
-
         itemDeletions.removeAll(remote);
         if (!itemDeletions.isEmpty()) {
             log("Need to remove " + itemDeletions.size() + " items");
-            mResolver.delete(content.uri,
-                getWhereInClause(DBHelper.CollectionItems.ITEM_ID, itemDeletions.size()),
-                longListToStringArr(itemDeletions));
+            int i = 0;
+            while (i < itemDeletions.size()) {
+                List<Long> batch = itemDeletions.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, itemDeletions.size()));
+                mResolver.delete(content.uri, getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch.size()), longListToStringArr(batch));
+                i += BaseDAO.RESOLVER_BATCH_SIZE;
+            }
         }
         return itemDeletions;
     }
