@@ -2,6 +2,8 @@ package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScResource;
@@ -81,7 +83,7 @@ public class CollectionStorage {
             List<Long> batch = ids.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, ids.size()));
             List<Long> newIds = dao.buildQuery()
                     .select(BaseColumns._ID)
-                    .whereIn(BaseColumns._ID, batch)
+                    .whereIn(BaseColumns._ID, Lists.transform(batch, Functions.toStringFunction()))
                     .where("AND " + DBHelper.ResourceTable.LAST_UPDATED + " > ?", "0")
                     .queryIds();
             storedIds.addAll(newIds);

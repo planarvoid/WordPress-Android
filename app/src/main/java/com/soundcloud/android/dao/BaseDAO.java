@@ -3,10 +3,8 @@ package com.soundcloud.android.dao;
 import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
 import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.model.ModelLike;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -262,23 +260,12 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
             return this;
         }
 
-        public QueryBuilder whereIn(final String column, final List<?> values) {
+        public QueryBuilder whereIn(final String column, final List<String> values) {
             mSelection.append(column).append(" IN (");
-            List<String> wildcards = Lists.transform(values, new Function<Object, String>() {
-                @Override
-                public String apply(@javax.annotation.Nullable Object input) {
-                    return "?";
-                }
-            });
-            List<String> stringValues = Lists.transform(values, new Function<Object, String>() {
-                @Override
-                public String apply(Object input) {
-                    return input.toString();
-                }
-            });
+            List<String> wildcards = Collections.nCopies(values.size(), "?");
             Joiner.on(",").appendTo(mSelection, wildcards);
             mSelection.append(") ");
-            mSelectionArgs.addAll(stringValues);
+            mSelectionArgs.addAll(values);
             return this;
         }
 
