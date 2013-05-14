@@ -77,9 +77,8 @@ public class CollectionStorage {
      */
     public Set<Long> getStoredIds(final Content content, List<Long> ids) {
         BaseDAO<ScResource> dao = getDaoForContent(content);
-        int i = 0;
         Set<Long> storedIds = new HashSet<Long>();
-        while (i < ids.size()) {
+        for (int i=0; i < ids.size(); i += BaseDAO.RESOLVER_BATCH_SIZE) {
             List<Long> batch = ids.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, ids.size()));
             List<Long> newIds = dao.buildQuery()
                     .select(BaseColumns._ID)
@@ -87,7 +86,6 @@ public class CollectionStorage {
                     .where("AND " + DBHelper.ResourceTable.LAST_UPDATED + " > ?", "0")
                     .queryIds();
             storedIds.addAll(newIds);
-            i += BaseDAO.RESOLVER_BATCH_SIZE;
         }
         return storedIds;
     }
