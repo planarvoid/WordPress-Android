@@ -2,18 +2,24 @@ package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.android.database.TestCursor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +28,11 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
 public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
@@ -190,6 +199,48 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
     }
 
     @Test
+    public void shouldQueryAllRecordsWithWhereInClause() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().buildQuery().whereIn("_id", "1", "2", "3").queryAll();
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                eq("_id IN (?,?,?)"),
+                eq(new String[]{"1", "2", "3"}),
+                isNull(String.class));
+    }
+
+    @Test
+    public void shouldCombineWhereAndWhereInClauses() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().buildQuery().whereIn("_id", "1", "2", "3").where("AND x = ?", "4").queryAll();
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                isNull(String[].class),
+                eq("_id IN (?,?,?) AND x = ?"),
+                eq(new String[]{"1", "2", "3", "4"}),
+                isNull(String.class));
+    }
+
+    @Test
+    public void shouldQueryForIds() {
+        ContentResolver resolverMock = getDAO().getContentResolver();
+
+        getDAO().buildQuery().where("x = ?", "1").queryIds();
+
+        verify(resolverMock).query(
+                eq(getDAO().getContent().uri),
+                eq(new String[]{BaseColumns._ID}),
+                eq("x = ?"),
+                eq(new String[]{"1"}),
+                isNull(String.class));
+    }
+
+    @Test
     public void shouldDeleteSingleRecord() {
         ContentResolver resolverMock = getDAO().getContentResolver();
         Track track = new Track(1);
@@ -249,4 +300,5 @@ public class BaseDAOTest extends AbstractDAOTest<BaseDAO<Track>> {
             return true;
         }
     }
+
 }
