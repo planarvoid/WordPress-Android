@@ -156,43 +156,46 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
     }
 
     private List<Long> queryIdsByUri(Uri contentUri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        Cursor c = mResolver.query(contentUri, new String[]{BaseColumns._ID}, selection, selectionArgs, null);
-        if (c != null) {
-            List<Long> ids = new ArrayList<Long>(c.getCount());
-            while (c.moveToNext()) {
-                ids.add(c.getLong(0));
+        Cursor cursor = mResolver.query(contentUri, new String[]{BaseColumns._ID}, selection, selectionArgs, null);
+        if (cursor == null) return Collections.emptyList();
+
+        try {
+            List<Long> ids = new ArrayList<Long>(cursor.getCount());
+            while (cursor.moveToNext()) {
+                ids.add(cursor.getLong(0));
             }
-            c.close();
             return ids;
-        } else {
-            return Collections.emptyList();
+        } finally {
+            cursor.close();
         }
     }
 
     private List<T> queryAllByUri(Uri contentUri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String order) {
-        Cursor c = mResolver.query(contentUri, projection, selection, selectionArgs, order);
-        if (c != null) {
-            List<T> objects = new ArrayList<T>(c.getCount());
-            while (c.moveToNext()) {
-                objects.add(objFromCursor(c));
+        Cursor cursor = mResolver.query(contentUri, projection, selection, selectionArgs, order);
+        if (cursor == null) return Collections.emptyList();
+
+        try {
+            List<T> objects = new ArrayList<T>(cursor.getCount());
+            while (cursor.moveToNext()) {
+                objects.add(objFromCursor(cursor));
             }
-            c.close();
             return objects;
-        } else {
-            return Collections.emptyList();
+        } finally {
+            cursor.close();
         }
     }
 
     public @Nullable T queryById(long id) {
         Cursor cursor = mResolver.query(getContent().forId(id), null, null, null, null);
+        if (cursor == null) return null;
+
         try {
-            if (cursor != null && cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
                 return objFromCursor(cursor);
-            } else {
-                return null;
             }
+            return null;
         } finally {
-            if (cursor != null) cursor.close();
+            cursor.close();
         }
     }
 
@@ -206,12 +209,13 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
 
     public int count(@Nullable String where, String... whereArgs) {
         Cursor cursor = mResolver.query(getContent().uri, null, where, whereArgs, null);
-        int count = 0;
-        if (cursor != null) {
-            count = cursor.getCount();
+        if (cursor == null) return 0;
+
+        try {
+            return cursor.getCount();
+        } finally {
             cursor.close();
         }
-        return count;
     }
 
     protected T objFromCursor(Cursor cursor) {
