@@ -25,7 +25,6 @@ import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import com.xtremelabs.robolectric.shadows.ShadowNetworkInfo;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
-import scala.actors.threadpool.Arrays;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -43,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
