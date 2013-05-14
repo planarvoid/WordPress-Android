@@ -225,8 +225,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         sendBroadcast(new Intent(Actions.LOGGING_OUT));
         sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
 
+        FollowStatus.clearState();
         C2DMReceiver.unregister(this);
-        FollowStatus.set(null);
         ConnectionsCache.set(null);
         mLoggedInUser = null;
         mCloudApi.invalidateToken();
