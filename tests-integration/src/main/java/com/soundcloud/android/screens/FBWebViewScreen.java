@@ -11,16 +11,16 @@ public class FBWebViewScreen {
         solo = driver;
     }
 
-    public void typeEmail(String text){
+    public void typeEmail(String text) {
         solo.waitForWebElement(By.name("email"));
         solo.typeTextInWebElement(By.name("email"), text);
     }
-    public void typePassword(String text){
+    public void typePassword(String text) {
         solo.waitForWebElement(By.name("pass"));
         solo.typeTextInWebElement(By.name("pass"), text);
     }
 
-    public void submit(){
+    public void submit() {
         solo.waitForWebElement(By.name("login"));
         solo.clickOnWebElement(By.name("login"));
         if (solo._searchText("Do you want the browser to remember this password?", true)) {

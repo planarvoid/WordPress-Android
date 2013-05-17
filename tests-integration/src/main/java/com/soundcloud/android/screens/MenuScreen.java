@@ -35,6 +35,6 @@ public class MenuScreen {
 
     public String getUserName() {
         TextView you = (TextView) youMenu().findViewById(R.id.main_menu_item_text);
-        return (String) you.getText();
+        return you.getText().toString();
     }
 }
