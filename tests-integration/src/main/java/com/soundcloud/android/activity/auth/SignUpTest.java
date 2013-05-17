@@ -103,7 +103,6 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
 
             solo.waitForActivity(CropImageActivity.class);
             solo.clickOnText("Save");
-//            solo.assertActivity(UserDetails.class);
 
             // make sure add image prompt is gone
             solo.searchText(solo.getString(R.string.add_image), true);
