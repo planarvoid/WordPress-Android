@@ -1,21 +1,21 @@
 package com.soundcloud.android.login;
 
 
+import android.webkit.WebView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.FacebookWebFlow;
 import com.soundcloud.android.activity.auth.Onboard;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.screens.RecoverPasswordScreen;
-import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.IntegrationTestHelper;
-import com.soundcloud.android.tests.UsersHelper;
 import com.soundcloud.android.screens.FBWebViewScreen;
 import com.soundcloud.android.screens.LoginScreen;
 import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.RecoverPasswordScreen;
+import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.tests.IntegrationTestHelper;
 
-import android.webkit.WebView;
+import static com.soundcloud.android.tests.TestUser.*;
 
 /*
  * As a User
@@ -48,12 +48,10 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
      * So that I can listen to my favourite tracks
      */
     public void testSCUserLoginFlow() throws Exception {
-        UsersHelper scUser = new UsersHelper("scTestAccount");
-
         loginScreen.clickLogInButton();
-        loginScreen.loginAs(scUser.login(), scUser.password());
+        loginScreen.loginAs(scTestAccount.username, scTestAccount.password);
 
-        assertEquals(scUser.login(), menuScreen.getUserName());
+        assertEquals(scTestAccount.username, menuScreen.getUserName());
     }
 
     /*
@@ -62,13 +60,12 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
     * So that I don't need to create another SC account
     */
     public void testGPlusLoginFlow() throws Exception {
-        UsersHelper user = new UsersHelper("GPlusAccount");
 
         loginScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
 
         //FIXME Assuming that we have more than one g+ account, there should be another test for this
-        loginScreen.selectUserFromDialog(user.email());
+        loginScreen.selectUserFromDialog(GPlusAccount.email);
 
         solo.assertText("One more step");
 
@@ -83,11 +80,10 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
     * So that I can set up proper google Plus account
     */
     public void testGoogleAccountLoginError() throws Exception {
-        UsersHelper user = new UsersHelper("noGPlusAccount");
 
         loginScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
-        loginScreen.selectUserFromDialog(user.email());
+        loginScreen.selectUserFromDialog(noGPlusAccount.email);
 
         solo.assertText("One more step");
 
@@ -103,7 +99,6 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
     * So that I don't need to create another account
     */
     public void testLoginWithFacebookWebFlow() throws Throwable {
-        UsersHelper user = new UsersHelper("scAccount");
 
         if (FacebookSSO.isSupported(getInstrumentation().getTargetContext())) {
             log("Facebook SSO is available, not testing WebFlow");
@@ -120,11 +115,11 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
             solo.sleep(500);
         }
 
-        FBWebViewScreen.typeEmail(user.email());
-        FBWebViewScreen.typePassword(user.password());
+        FBWebViewScreen.typeEmail(scAccount.email);
+        FBWebViewScreen.typePassword(scAccount.password);
         FBWebViewScreen.submit();
 
-        assertEquals(user.login(), menuScreen.getUserName());
+        assertEquals(scAccount.username, menuScreen.getUserName());
         assertNotNull("FB request timed out", webView.getUrl());
         assertTrue("got url:" + webView.getUrl(), webView.getUrl().contains("facebook.com"));
     }
@@ -145,10 +140,8 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
      * So that I can correct myself
      */
     public void testLoginWithWrongCredentials() {
-        UsersHelper scUser = new UsersHelper("scTestAccount");
-
         loginScreen.clickLogInButton();
-        loginScreen.loginAs(scUser.login(), "wrong-password", false);
+        loginScreen.loginAs(scTestAccount.username, "wrong-password", false);
 
         solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
 
@@ -164,10 +157,8 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
      * So that I am sure no one can modify my account
      */
     public void testLoginAndLogout() throws Exception {
-        UsersHelper user = new UsersHelper("scAccount");
-
         loginScreen.clickLogInButton();
-        loginScreen.loginAs(user.email(), user.password());
+        loginScreen.loginAs(scAccount.email, scAccount.password);
         menuScreen.logout();
 
         assertNull(getLoggedInUser().username);
