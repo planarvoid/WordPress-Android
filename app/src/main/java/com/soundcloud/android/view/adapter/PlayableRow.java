@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapter;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
@@ -112,7 +111,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
                 mReposter.setVisibility(View.VISIBLE);
                 User reposter = null;
 
-                if (sa.user == null)  {
+                if (sa.owner == null)  {
                     // currently active user
                     if (getContext() instanceof UserBrowser) {
                         reposter = ((UserBrowser)getContext()).getUser();

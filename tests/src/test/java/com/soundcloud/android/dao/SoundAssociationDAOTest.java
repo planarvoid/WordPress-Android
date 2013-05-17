@@ -83,7 +83,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Track track = new Track(1);
         SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_SOUNDS).toHaveCount(1);
@@ -99,7 +99,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Playlist playlist = new Playlist(1);
         SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_SOUNDS).toHaveCount(1);
@@ -115,7 +115,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Track track = new Track(1);
         SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_LIKE);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_LIKES).toHaveCount(1);
@@ -131,7 +131,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Track track = new Track(1);
         SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_REPOST);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_REPOSTS).toHaveCount(1);
@@ -147,7 +147,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Playlist playlist = new Playlist(1);
         SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_LIKE);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_LIKES).toHaveCount(1);
@@ -163,7 +163,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Playlist playlist = new Playlist(1);
         SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_REPOST);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_REPOSTS).toHaveCount(1);

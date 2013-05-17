@@ -17,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DBHelper";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION  = 22;
+    public static final int DATABASE_VERSION  = 23;
     private static final String DATABASE_NAME = "SoundCloud";
 
     public DBHelper(Context context) {
@@ -99,6 +99,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 22:
                             success = upgradeTo22(db, oldVersion);
+                            break;
+                        case 23:
+                            success = upgradeTo23(db, oldVersion);
                             break;
                         default:
                             break;
@@ -396,6 +399,20 @@ public class DBHelper extends SQLiteOpenHelper {
             " AND " + Table.COLLECTION_ITEMS.name + "." + CollectionItems.RESOURCE_TYPE + " = " + "SoundView." + SoundView._TYPE + ")" +
             " ORDER BY " + SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC";
 
+    static final String DATABASE_CREATE_USER_ASSOCIATION_VIEW = " AS SELECT " +
+            "CollectionItems." + CollectionItems.CREATED_AT + " as " + UserAssociationView.USER_ASSOCIATION_TIMESTAMP +
+            ", CollectionItems." + CollectionItems.COLLECTION_TYPE + " as " + UserAssociationView.USER_ASSOCIATION_TYPE +
+            ", CollectionItems." + CollectionItems.USER_ID + " as " + UserAssociationView.USER_ASSOCIATION_USER_ID +
+
+            // user data
+            ", Users.*" +
+            " FROM " + Table.COLLECTION_ITEMS.name + " " +
+            " LEFT JOIN Users ON(" +
+            "   " + Table.COLLECTION_ITEMS.name + "." + CollectionItems.ITEM_ID + " = " + Table.USERS.name + "." + Users._ID +
+            " AND " + Table.COLLECTION_ITEMS.name + "." + CollectionItems.RESOURCE_TYPE + " = " + Table.USERS.name + "." + Users._TYPE + ")" +
+            // this is the default position as returned by the server, which is ordered by last active users (subject to change)
+            " ORDER BY " + CollectionItems.POSITION + " ASC";
+
     /**
      * A view which aggregates playlist members from the sounds and playlist_tracks table
      */
@@ -587,7 +604,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper#DATABASE_CREATE_USERS}
      */
-    public static final class Users extends ResourceTable  {
+    public static class Users extends ResourceTable  {
         public static final String USERNAME     = "username";
         public static final String AVATAR_URL   = "avatar_url";
         public static final String CITY         = "city";
@@ -809,10 +826,22 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
+    public final static class AssociationView {
+        public static final String ASSOCIATION_TIMESTAMP    = "association_timestamp";
+        public static final String ASSOCIATION_TYPE         = "association_type";
+        public static final String ASSOCIATION_USER_ID      = "association_user_id";
+    }
+
+    public final static class UserAssociationView extends Users {
+        public static final String USER_ASSOCIATION_TIMESTAMP   = AssociationView.ASSOCIATION_TIMESTAMP;
+        public static final String USER_ASSOCIATION_TYPE        = AssociationView.ASSOCIATION_TYPE;
+        public static final String USER_ASSOCIATION_USER_ID     = AssociationView.ASSOCIATION_USER_ID;
+    }
+
     public final static class SoundAssociationView extends SoundView {
-        public static final String SOUND_ASSOCIATION_TIMESTAMP = "sound_association_timestamp";
-        public static final String SOUND_ASSOCIATION_TYPE      = "sound_association_type";
-        public static final String SOUND_ASSOCIATION_USER_ID   = "sound_association_user_id";
+        public static final String SOUND_ASSOCIATION_TIMESTAMP = AssociationView.ASSOCIATION_TIMESTAMP;
+        public static final String SOUND_ASSOCIATION_TYPE      = AssociationView.ASSOCIATION_TYPE;
+        public static final String SOUND_ASSOCIATION_USER_ID   = AssociationView.ASSOCIATION_USER_ID;
     }
 
     public final static class PlaylistTracksView extends SoundView {
@@ -1091,6 +1120,19 @@ public class DBHelper extends SQLiteOpenHelper {
     // deduplicate logic in schema
     private static boolean upgradeTo22(SQLiteDatabase db, int oldVersion) {
         return upgradeTo21(db, oldVersion);
+    }
+
+    // Added User Associations view and refactored association views in general
+    private static boolean upgradeTo23(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.SOUND_ASSOCIATION_VIEW.recreate(db);
+            Table.USER_ASSOCIATION_VIEW.recreate(db);
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade21 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
     }
 
     private static void cleanActivities(SQLiteDatabase db){

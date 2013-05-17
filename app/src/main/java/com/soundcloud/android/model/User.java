@@ -31,7 +31,8 @@ import android.text.TextUtils;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
 public class User extends ScResource implements Refreshable {
-    public static final String EXTRA = "user";
+    public static final int     TYPE = 0;
+    public static final String  EXTRA = "user";
 
     @Nullable @JsonView(Views.Mini.class) public String username;
     @Nullable @JsonView(Views.Mini.class) public String uri;
