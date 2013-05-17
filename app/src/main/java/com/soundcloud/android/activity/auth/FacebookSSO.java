@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
+import static android.content.SharedPreferences.Editor;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -396,7 +398,9 @@ public class FacebookSSO extends AbstractLoginActivity {
 
         public static void clear(Context context) {
             SharedPreferences prefs = context.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE);
-            prefs.edit().clear().commit();
+            Editor editor = prefs.edit();
+            editor.clear();
+            editor.commit();
         }
 
         public @Nullable static FBToken fromIntent(@NotNull Intent intent) {
