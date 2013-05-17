@@ -1,7 +1,11 @@
 package com.soundcloud.android.login;
 
 
-import android.webkit.WebView;
+import static com.soundcloud.android.tests.TestUser.GPlusAccount;
+import static com.soundcloud.android.tests.TestUser.noGPlusAccount;
+import static com.soundcloud.android.tests.TestUser.scAccount;
+import static com.soundcloud.android.tests.TestUser.scTestAccount;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.FacebookSSO;
@@ -14,8 +18,9 @@ import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.RecoverPasswordScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
+import com.soundcloud.android.tests.Waiter;
 
-import static com.soundcloud.android.tests.TestUser.*;
+import android.webkit.WebView;
 
 /*
  * As a User
@@ -26,6 +31,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
     private LoginScreen loginScreen;
     private RecoverPasswordScreen recoveryScreen;
     private FBWebViewScreen FBWebViewScreen;
+    private Waiter waiter;
 
     public LoginFlowTest() {
         super(Onboard.class);
@@ -36,10 +42,11 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
         IntegrationTestHelper.logOut(getInstrumentation());
         super.setUp();
 
-        loginScreen = new LoginScreen(solo);
-        recoveryScreen = new RecoverPasswordScreen(solo);
-        menuScreen = new MenuScreen(solo);
+        loginScreen     = new LoginScreen(solo);
+        recoveryScreen  = new RecoverPasswordScreen(solo);
+        menuScreen      = new MenuScreen(solo);
         FBWebViewScreen = new FBWebViewScreen(solo);
+        waiter          = new Waiter(solo);
     }
 
     /*
@@ -67,7 +74,9 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
         //FIXME Assuming that we have more than one g+ account, there should be another test for this
         loginScreen.selectUserFromDialog(GPlusAccount.email);
 
-        solo.assertText("One more step");
+        // Then termsOfUse dialog should be shown
+        solo.assertText(R.string.auth_disclaimer_title);
+        solo.assertText(R.string.auth_disclaimer_message);
 
         loginScreen.clickOnContinueButton();
         //TODO Finish the flow once we fix the g+ sign in
@@ -85,7 +94,9 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
         loginScreen.clickSignInWithGoogleButton();
         loginScreen.selectUserFromDialog(noGPlusAccount.email);
 
-        solo.assertText("One more step");
+        // Then termsOfUse dialog should be shown
+        solo.assertText(R.string.auth_disclaimer_title);
+        solo.assertText(R.string.auth_disclaimer_message);
 
         loginScreen.clickOnContinueButton();
 
@@ -100,20 +111,23 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
     */
     public void testLoginWithFacebookWebFlow() throws Throwable {
 
+        // TODO: Control FB SSO on the device.
         if (FacebookSSO.isSupported(getInstrumentation().getTargetContext())) {
             log("Facebook SSO is available, not testing WebFlow");
 
         }
         loginScreen.clickLogInButton();
         solo.performClick(this, R.id.facebook_btn);
+
+        //Then termsOfUse dialog should be shown
+        solo.assertText(R.string.auth_disclaimer_title);
+        solo.assertText(R.string.auth_disclaimer_message);
+
         loginScreen.clickOnContinueButton();
-        solo.assertDialogClosed();
+
         WebView webView = solo.assertActivity(FacebookWebFlow.class).getWebView();
         assertNotNull(webView);
-        int i = 0;
-        while (webView.getUrl() == null && i++ < 40) {
-            solo.sleep(500);
-        }
+        assertTrue(waiter.waitForWebViewToLoad(webView));
 
         FBWebViewScreen.typeEmail(scAccount.email);
         FBWebViewScreen.typePassword(scAccount.password);

@@ -1,20 +1,22 @@
 package com.soundcloud.android.screens;
 
-import com.jayway.android.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.Onboard;
 import com.soundcloud.android.activity.auth.Recover;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.Waiter;
 
 import android.widget.EditText;
 
 public class LoginScreen {
 
     private Han solo;
+    private Waiter waiter;
 
     public LoginScreen(Han driver) {
-        solo = driver;
+        solo    = driver;
+        waiter  = new Waiter(solo);
     }
 
     public EditText email() {
@@ -69,17 +71,8 @@ public class LoginScreen {
     }
     public void clickOnContinueButton() {
         solo.clickOnButton(R.string.btn_continue);
+        waiter.waitForTextToDisappear("Logging you in");
 
-        //TODO Move this and create a class responsible for waiting
-        Condition condition = new Condition() {
-
-            @Override
-            public boolean isSatisfied() {
-                return !solo._searchText("Logging you in", true);
-            }
-        };
-
-        solo.waitForCondition(condition, 5000);
     }
 
     // Logs in
