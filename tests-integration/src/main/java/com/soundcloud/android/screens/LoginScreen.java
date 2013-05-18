@@ -50,6 +50,10 @@ public class LoginScreen {
         solo.clickOnOK();
     }
 
+    public void clickOnFBSignInButton() {
+        solo.clickOnButtonResId(R.id.facebook_btn);
+    }
+
     public void clickSignInWithGoogleButton() {
         solo.clickOnButton(R.string.authentication_log_in_with_google);
     }
@@ -75,8 +79,7 @@ public class LoginScreen {
 
     }
 
-    // Logs in
-    public LoginScreen loginAs(String username, String password) {
+    public void loginAs(String username, String password) {
 
         solo.clearEditText(email());
         typeUsername(username);
@@ -84,10 +87,9 @@ public class LoginScreen {
         solo.clickOnDone();
         solo.waitForActivity(Home.class);
         solo.waitForViewId(R.id.title, 5000);
-        return this;
     }
 
-    public LoginScreen loginAs(String username, String password, boolean validCredentials) {
+    public void loginAs(String username, String password, boolean validCredentials) {
         solo.clearEditText(email());
 
         typeUsername(username);
@@ -98,8 +100,6 @@ public class LoginScreen {
             solo.waitForActivity(Home.class);
             solo.waitForView(solo.getView(R.id.title));
         }
-
-        return this;
     }
 
 }

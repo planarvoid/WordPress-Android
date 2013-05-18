@@ -117,7 +117,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
 
         }
         loginScreen.clickLogInButton();
-        solo.performClick(this, R.id.facebook_btn);
+        loginScreen.clickOnFBSignInButton();
 
         //Then termsOfUse dialog should be shown
         solo.assertText(R.string.auth_disclaimer_title);
