@@ -56,9 +56,9 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
      */
     public void testSCUserLoginFlow() throws Exception {
         loginScreen.clickLogInButton();
-        loginScreen.loginAs(scTestAccount.username, scTestAccount.password);
+        loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
 
-        assertEquals(scTestAccount.username, menuScreen.getUserName());
+        assertEquals(scTestAccount.getUsername(), menuScreen.getUserName());
     }
 
     /*
@@ -72,7 +72,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
         loginScreen.clickSignInWithGoogleButton();
 
         //FIXME Assuming that we have more than one g+ account, there should be another test for this
-        loginScreen.selectUserFromDialog(GPlusAccount.email);
+        loginScreen.selectUserFromDialog(GPlusAccount.getEmail());
 
         // Then termsOfUse dialog should be shown
         solo.assertText(R.string.auth_disclaimer_title);
@@ -92,7 +92,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
 
         loginScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
-        loginScreen.selectUserFromDialog(noGPlusAccount.email);
+        loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
 
         // Then termsOfUse dialog should be shown
         solo.assertText(R.string.auth_disclaimer_title);
@@ -129,11 +129,11 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
         assertNotNull(webView);
         assertTrue(waiter.waitForWebViewToLoad(webView));
 
-        FBWebViewScreen.typeEmail(scAccount.email);
-        FBWebViewScreen.typePassword(scAccount.password);
+        FBWebViewScreen.typeEmail(scAccount.getEmail());
+        FBWebViewScreen.typePassword(scAccount.getPassword());
         FBWebViewScreen.submit();
 
-        assertEquals(scAccount.username, menuScreen.getUserName());
+        assertEquals(scAccount.getUsername(), menuScreen.getUserName());
         assertNotNull("FB request timed out", webView.getUrl());
         assertTrue("got url:" + webView.getUrl(), webView.getUrl().contains("facebook.com"));
     }
@@ -155,7 +155,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
      */
     public void testLoginWithWrongCredentials() {
         loginScreen.clickLogInButton();
-        loginScreen.loginAs(scTestAccount.username, "wrong-password", false);
+        loginScreen.loginAs(scTestAccount.getUsername(), "wrong-password", false);
 
         solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
 
@@ -172,7 +172,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
      */
     public void testLoginAndLogout() throws Exception {
         loginScreen.clickLogInButton();
-        loginScreen.loginAs(scAccount.email, scAccount.password);
+        loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
         menuScreen.logout();
 
         assertNull(getLoggedInUser().username);
