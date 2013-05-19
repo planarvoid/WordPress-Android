@@ -339,10 +339,10 @@ public class Han  {
         solo.sleep(1000);
     }
 
-    public void searchText(String text, boolean onlyVisible) {
+    public void assertTextFound(String text, boolean onlyVisible) {
         assertTrue("Text " + text + " not found", solo.searchText(text, onlyVisible));
     }
-    public Boolean _searchText(String text, boolean onlyVisible) {
+    public boolean searchText(String text, boolean onlyVisible) {
         return solo.searchText(text, onlyVisible);
     }
 

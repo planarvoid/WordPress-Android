@@ -16,7 +16,7 @@ public class Waiter {
 
             @Override
             public boolean isSatisfied() {
-                return !solo._searchText(text, true);
+                return !solo.searchText(text, true);
             }
         };
         return solo.waitForCondition(condition, 5000);

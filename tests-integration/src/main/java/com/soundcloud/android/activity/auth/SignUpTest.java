@@ -80,7 +80,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
             solo.clickOnText("Save");
 
             // make sure add image prompt is gone
-            solo.searchText(solo.getString(R.string.add_image), true);
+            solo.assertTextFound(solo.getString(R.string.add_image), true);
 
             // clear image
             solo.clickLongOnView(R.id.artwork);
@@ -105,7 +105,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
             solo.clickOnText("Save");
 
             // make sure add image prompt is gone
-            solo.searchText(solo.getString(R.string.add_image), true);
+            solo.assertTextFound(solo.getString(R.string.add_image), true);
 
             // clear image
             solo.clickLongOnView(R.id.artwork);
