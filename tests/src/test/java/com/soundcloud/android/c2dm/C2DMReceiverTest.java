@@ -63,7 +63,7 @@ public class C2DMReceiverTest {
 
     @Test
     public void unregisterShouldTriggerServiceStart() throws Exception {
-        C2DMReceiver.unregister(DefaultTestRunner.application);
+        new C2DMReceiver().unregister(DefaultTestRunner.application);
 
         ShadowApplication ctxt = Robolectric.shadowOf(DefaultTestRunner.application);
 
@@ -79,7 +79,7 @@ public class C2DMReceiverTest {
                 Consts.PrefKeys.C2DM_DEVICE_URL, "http://foo");
 
 
-        C2DMReceiver.unregister(DefaultTestRunner.application);
+        new C2DMReceiver().unregister(DefaultTestRunner.application);
 
         Robolectric.addHttpResponseRule("DELETE", "http://foo", new TestHttpResponse(200, ""));
         C2DMReceiver.processDeletionQueue(DefaultTestRunner.application, null);
@@ -89,7 +89,7 @@ public class C2DMReceiverTest {
     public void itShouldntDoAnyThingOnPreGingerbread() throws Exception {
         TestHelper.setSdkVersion(5);
         C2DMReceiver.register(DefaultTestRunner.application);
-        C2DMReceiver.unregister(DefaultTestRunner.application);
+        new C2DMReceiver().unregister(DefaultTestRunner.application);
     }
 
     @Test

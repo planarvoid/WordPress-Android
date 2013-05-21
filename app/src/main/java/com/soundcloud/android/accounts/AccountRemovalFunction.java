@@ -1,9 +1,13 @@
 package com.soundcloud.android.accounts;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.content.Context;
+import android.content.Intent;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
-import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FollowStatus;
@@ -18,43 +22,42 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
-import android.content.Context;
-import android.content.Intent;
+import static com.soundcloud.android.activity.auth.FacebookSSO.FBToken;
 
-public class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
-    private Account soundCloudAccount;
-    private SoundCloudApplication soundCloudApplication;
-    private CollectionStorage collectionStorage;
-    private ActivitiesStorage activitiesStorage;
-    private SoundRecorder soundRecorder;
-    private AccountManager accountManager;
-    private SyncStateManager syncStateManager;
-    private PlayQueueManager playQueueManager;
+class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
+    private Context mContext;
+    private Account mSoundCloudAccount;
+    private CollectionStorage mCollectionStorage;
+    private ActivitiesStorage mActivitiesStorage;
+    private SoundRecorder mSoundRecorder;
+    private AccountManager mAccountManager;
+    private SyncStateManager mSyncStateManager;
+    private PlayQueueManager mPlayQueueManager;
+    private C2DMReceiver mC2DMReceiver;
 
     public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context){
-        this(soundCloudAccount, context, accountManager, new SyncStateManager(), new CollectionStorage(), new ActivitiesStorage(),
-                SoundRecorder.getInstance(context), new PlayQueueManager(context));
+        this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context), new ActivitiesStorage(context),
+                SoundRecorder.getInstance(context), new PlayQueueManager(context), new C2DMReceiver());
     }
 
     AccountRemovalFunction(Account soundCloudAccount, Context context, AccountManager accountManager, SyncStateManager syncStateManager,
-                           CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage, SoundRecorder soundRecorder, PlayQueueManager playQueueManager) {
-        this.soundCloudAccount = soundCloudAccount;
-        this.soundCloudApplication = (SoundCloudApplication)context.getApplicationContext();
-        this.accountManager = accountManager;
-        this.syncStateManager = syncStateManager;
-        this.collectionStorage = collectionStorage;
-        this.activitiesStorage = activitiesStorage;
-        this.soundRecorder = soundRecorder;
-        this.playQueueManager = playQueueManager;
+                           CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage,
+                           SoundRecorder soundRecorder, PlayQueueManager playQueueManager, C2DMReceiver c2DMReceiver) {
+        mSoundCloudAccount = soundCloudAccount;
+        mContext = context;
+        mAccountManager = accountManager;
+        mSyncStateManager = syncStateManager;
+        mCollectionStorage = collectionStorage;
+        mActivitiesStorage = activitiesStorage;
+        mSoundRecorder = soundRecorder;
+        mPlayQueueManager = playQueueManager;
+        mC2DMReceiver = c2DMReceiver;
     }
 
     @Override
     public Subscription call(Observer<Void> observer) {
         try {
-            AccountManagerFuture<Boolean> accountRemovalFuture = accountManager.removeAccount(soundCloudAccount,null,null);
+            AccountManagerFuture<Boolean> accountRemovalFuture = mAccountManager.removeAccount(mSoundCloudAccount,null,null);
 
             if (accountRemovalFuture.getResult()) {
                 finaliseAccountRemoval();
@@ -66,26 +69,33 @@ public class AccountRemovalFunction implements Func1<Observer<Void>, Subscriptio
         } catch (Exception e) {
             observer.onError(e);
         }
+
         return Subscriptions.empty();
     }
 
+    /**
+     * TODO Should we just delete the private data directory? Context.getFilesDir()
+     */
     private void finaliseAccountRemoval() {
-        syncStateManager.clear();
-        collectionStorage.clear();
-        activitiesStorage.clear(null);
-        soundRecorder.reset();
 
-        playQueueManager.clearState(soundCloudApplication);
-        FacebookSSO.FBToken.clear(soundCloudApplication);
+        mSyncStateManager.clear();
+        mCollectionStorage.clear();
+        mActivitiesStorage.clear(null);
+        mSoundRecorder.reset();
 
-        soundCloudApplication.sendBroadcast(new Intent(Actions.LOGGING_OUT));
-        soundCloudApplication.sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
+        mPlayQueueManager.clearState();
+        FBToken.clear(mContext);
 
-        C2DMReceiver.unregister(soundCloudApplication);
+        mContext.sendBroadcast(new Intent(Actions.LOGGING_OUT));
+        mContext.sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
+
+
+        mC2DMReceiver.unregister(mContext);
         FollowStatus.clearState();
         ConnectionsCache.reset();
-        soundCloudApplication.clearLoggedInUser();
-        soundCloudApplication.invalidateToken();
+        SoundCloudApplication applicationContext = (SoundCloudApplication)mContext.getApplicationContext();
+        applicationContext.clearLoggedInUser();
+        applicationContext.invalidateToken();
     }
 
 }

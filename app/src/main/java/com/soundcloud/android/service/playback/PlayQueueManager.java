@@ -357,9 +357,9 @@ public class PlayQueueManager {
         }
     }
 
-    public void clearState(Context context) {
+    public void clearState() {
         new PlayQueueManagerStore().clearState();
-        clearLastPlayed(context);
+        clearLastPlayed(mContext);
     }
 
     public void clearLastPlayed(Context context) {

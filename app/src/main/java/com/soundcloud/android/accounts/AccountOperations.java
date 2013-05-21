@@ -6,6 +6,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.R;
+import com.soundcloud.android.rx.ScSchedulers;
 import rx.Observable;
 
 import android.accounts.Account;
@@ -13,6 +14,7 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import rx.Observer;
 
 import java.io.IOException;
 
@@ -49,12 +51,11 @@ public class AccountOperations {
         return accounts != null && accounts.length == 1 ? accounts[0] : null;
     }
 
-    public Observable<Void> removeSoundCloudAccount() {
+    public void removeSoundCloudAccount(Observer<Void> observer) {
         Account soundCloudAccount = getSoundCloudAccount();
         checkNotNull(soundCloudAccount, "One does not simply remove something that does not exist");
 
-        Observable<Void> accountRemovalObservable = Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager, context));
-        Observable<Void> resetStateObservable = Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager, context));
-        return Observable.concat(accountRemovalObservable, resetStateObservable);
+        Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager, context))
+                .subscribe(observer, ScSchedulers.BACKGROUND_SCHEDULER);
     }
 }

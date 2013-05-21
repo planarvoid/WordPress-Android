@@ -6,11 +6,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
+import android.content.Context;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.ScResource;
@@ -21,6 +19,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
 import com.soundcloud.android.task.collection.RemoteCollectionLoaderTest;
@@ -50,7 +49,7 @@ public class CollectionStorageTest {
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        storage = new CollectionStorage();
+        storage = new CollectionStorage(DefaultTestRunner.application);
     }
 
     @Test
@@ -92,7 +91,10 @@ public class CollectionStorageTest {
     @Test
     public void shouldGetIdsOfPersistedResourcesInBatches() {
         ContentResolver resolverMock = mock(ContentResolver.class);
-        storage = new CollectionStorage(resolverMock);
+        Context mockContext = mock(Context.class);
+        when(mockContext.getContentResolver()).thenReturn(resolverMock);
+        storage = new CollectionStorage(mockContext);
+
         Long[] requestedIds = new Long[1300];
         Arrays.fill(requestedIds, 1L);
 

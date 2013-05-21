@@ -37,7 +37,11 @@ public class SyncStateManager extends ScheduledOperations {
     private final Map<Long, ContentObserver> mContentObservers;
 
     public SyncStateManager() {
-        mResolver = SoundCloudApplication.instance.getContentResolver();
+        this(SoundCloudApplication.instance);
+    }
+
+    public SyncStateManager(Context context){
+        mResolver = context.getContentResolver();
         mLocalCollectionDao = new LocalCollectionDAO(mResolver);
         mContentObservers = new HashMap<Long, ContentObserver>();
     }

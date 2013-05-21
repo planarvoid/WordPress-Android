@@ -20,6 +20,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.res.Resources;
+import rx.Observer;
 
 public class AccountOperationsTest {
     private AccountOperations accountOperations;
@@ -31,6 +32,8 @@ public class AccountOperationsTest {
     private Account scAccount;
     @Mock
     private Context context;
+    @Mock
+    private Observer<Void> observer;
 
     @Before
     public void setUp() {
@@ -81,14 +84,14 @@ public class AccountOperationsTest {
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionWhenRemovingAccountIfAccountDoesNotExist(){
         when(accountManager.getAccountsByType(anyString())).thenReturn(null);
-        accountOperations.removeSoundCloudAccount();
+        accountOperations.removeSoundCloudAccount(observer);
     }
 
     @Test
-    @Ignore("Need to further refactor the SCApplication object")
+    @Ignore("SCApplication needs more refactoring")
     public void shouldReturnObservableWithAccountRemovalFunction(){
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
-        Observable<Void> result = accountOperations.removeSoundCloudAccount();
-        assertThat(result, is(notNullValue()));
+        accountOperations.removeSoundCloudAccount(observer);
+        verify(observer).onCompleted();
     }
 }

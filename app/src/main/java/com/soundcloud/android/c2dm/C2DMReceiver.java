@@ -126,7 +126,7 @@ public class C2DMReceiver extends BroadcastReceiver {
 //        processDeletionQueue(context, lock);
     }
 
-    public static synchronized void unregister(Context context) {
+    public synchronized void unregister(Context context) {
         if (!isEnabled()) return;
 
         clearRegistrationData(context);

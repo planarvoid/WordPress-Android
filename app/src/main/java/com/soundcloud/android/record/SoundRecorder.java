@@ -136,8 +136,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
         return instance;
     }
-
-    public SoundRecorder(Context context, AudioConfig config) {
+    protected SoundRecorder(Context context, AudioConfig config) {
         mContext = context;
         mConfig = config;
         mState = State.IDLE;

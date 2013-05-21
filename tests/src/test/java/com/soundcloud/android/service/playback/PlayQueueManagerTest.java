@@ -323,7 +323,7 @@ public class PlayQueueManagerTest {
         pm.setPlayQueue(createTracks(10, true, 0), 5);
         pm.saveQueue(1235);
 
-        pm.clearState(Robolectric.application);
+        pm.clearState();
         expect(pm.reloadQueue()).toEqual(-1L);
 
         PlayQueueManager pm2 = new PlayQueueManager(Robolectric.application, USER_ID);
