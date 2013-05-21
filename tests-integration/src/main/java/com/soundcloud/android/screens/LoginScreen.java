@@ -51,7 +51,7 @@ public class LoginScreen {
     }
 
     public void clickOnFBSignInButton() {
-        solo.clickOnButtonResId(R.id.facebook_btn);
+        solo.clickOnText(R.string.authentication_log_in_with_facebook);
     }
 
     public void clickSignInWithGoogleButton() {
