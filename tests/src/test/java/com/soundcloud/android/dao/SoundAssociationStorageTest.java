@@ -66,7 +66,7 @@ public class SoundAssociationStorageTest {
         final List<Track> tracks = createTracks(2);
         Playlist p = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        SoundAssociation playlistCreation = storage.addCreation(p).last();
+        SoundAssociation playlistCreation = storage.addCreation(p).toBlockingObservable().last();
         expect(playlistCreation).not.toBeNull();
         expect(p.toUri()).not.toBeNull();
         expect(Content.ME_PLAYLISTS).toHaveCount(1);

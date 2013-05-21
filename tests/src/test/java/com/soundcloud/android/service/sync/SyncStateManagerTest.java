@@ -72,7 +72,7 @@ public class SyncStateManagerTest {
         syncStateManager.updateLastSyncSuccessTime(uri, 200);
         expect(syncStateManager.fromContent(uri).last_sync_success).toEqual(200L);
 
-        syncStateManager.forceToStale(uri).last();
+        syncStateManager.forceToStale(uri).toBlockingObservable().last();
         expect(syncStateManager.fromContent(uri).last_sync_success).toEqual(0L);
     }
 

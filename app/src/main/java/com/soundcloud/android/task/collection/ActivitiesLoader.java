@@ -26,7 +26,7 @@ public class ActivitiesLoader implements CollectionLoader<Activity> {
         Activities newActivities;
 
         if (params.isRefresh) {
-            newActivities = storage.getCollectionSince(params.contentUri, params.timestamp).last();
+            newActivities = storage.getCollectionSince(params.contentUri, params.timestamp).toBlockingObservable().last();
             success = true;
         } else {
             newActivities = getOlderActivities(storage, params);
@@ -56,6 +56,6 @@ public class ActivitiesLoader implements CollectionLoader<Activity> {
     private Activities getOlderActivities(ActivitiesStorage storage, CollectionParams params) {
         return storage.getCollectionBefore(
                 params.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(params.maxToLoad)).build(),
-                params.timestamp).last();
+                params.timestamp).toBlockingObservable().last();
     }
 }

@@ -106,7 +106,7 @@ public class SyncOperationsTest {
         TestHelper.insert(syncState); // this will insert with default values
 
         Observable<String> syncOp = syncOps.syncNow(Content.ME_ACTIVITIES.uri);
-        Observable<String> observable = syncOps.syncIfNecessary(Content.ME_ACTIVITIES.uri, syncOp).last();
+        Observable<String> observable = syncOps.syncIfNecessary(Content.ME_ACTIVITIES.uri, syncOp).toBlockingObservable().last();
         expect(observable).toBe(syncOp);
     }
 
@@ -117,10 +117,10 @@ public class SyncOperationsTest {
         TestHelper.insert(syncState);
 
         Observable<String> syncOp = syncOps.syncNow(Content.ME_ACTIVITIES.uri);
-        Observable<String> observable = syncOps.syncIfNecessary(Content.ME_ACTIVITIES.uri, syncOp).last();
+        Observable<String> observable = syncOps.syncIfNecessary(Content.ME_ACTIVITIES.uri, syncOp).toBlockingObservable().last();
 
         // we can't actually test the emitted observable for identity, but if it calls the observer with the result
         // from local storage, we know it was the local storage observable
-        expect(observable.last()).toEqual("string data");
+        expect(observable.toBlockingObservable().last()).toEqual("string data");
     }
 }

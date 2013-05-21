@@ -114,7 +114,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
             public void call(SoundAssociation soundAssociation) {
                 // force to stale so we know to update the playlists next time it is viewed
                 final SyncStateManager syncStateManager = new SyncStateManager();
-                syncStateManager.forceToStale(Content.ME_PLAYLISTS).last();
+                syncStateManager.forceToStale(Content.ME_PLAYLISTS).toBlockingObservable().last();
                 // request sync to push playlist at next possible opportunity
                 ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
             }

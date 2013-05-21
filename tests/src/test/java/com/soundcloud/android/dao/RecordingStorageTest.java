@@ -29,7 +29,7 @@ public class RecordingStorageTest {
         Recording r = TestHelper.createRecording(USER_ID);
         TestHelper.insertWithDependencies(r);
         expect(r.exists()).toBeTrue();
-        expect(storage.delete(r).last()).toBeTrue();
+        expect(storage.delete(r).toBlockingObservable().last()).toBeTrue();
         expect(r.exists()).toBeFalse();
     }
 
@@ -38,7 +38,7 @@ public class RecordingStorageTest {
         Recording r = TestHelper.createRecording(USER_ID);
         TestHelper.insertWithDependencies(r);
         r.external_upload = true;
-        expect(storage.delete(r).last()).toBeFalse();
+        expect(storage.delete(r).toBlockingObservable().last()).toBeFalse();
         expect(r.exists()).toBeTrue();
     }
 

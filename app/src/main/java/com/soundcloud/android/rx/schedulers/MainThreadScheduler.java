@@ -2,10 +2,7 @@ package com.soundcloud.android.rx.schedulers;
 
 import rx.Scheduler;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
-import rx.util.AtomicObservableSubscription;
-import rx.util.functions.Action0;
-import rx.util.functions.Func0;
+import rx.operators.AtomicObservableSubscription;
 import rx.util.functions.Func2;
 
 import android.os.Handler;
