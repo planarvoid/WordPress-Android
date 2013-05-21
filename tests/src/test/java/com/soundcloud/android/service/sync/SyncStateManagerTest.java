@@ -103,17 +103,13 @@ public class SyncStateManagerTest {
     }
 
     @Test
-    public void shouldNotAddListenerWithFirstAsyncQuery() {
+    public void shouldNotAddListenerWhenCollectionAlreadyHasId() {
         final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
                 System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
         lc.id = 123L;
-
-        final long[] id = {0};
         final LocalCollection.OnChangeListener listener = new LocalCollection.OnChangeListener() {
             @Override
-            public void onLocalCollectionChanged(LocalCollection localCollection) {
-                id[0] = localCollection.id;
-            }
+            public void onLocalCollectionChanged(LocalCollection localCollection) {}
         };
         syncStateManager.onCollectionAsyncQueryReturn(null, lc, listener);
         expect(syncStateManager.hasObservers()).toBeFalse();
