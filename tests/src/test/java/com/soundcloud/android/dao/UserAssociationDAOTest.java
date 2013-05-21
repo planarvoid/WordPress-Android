@@ -112,7 +112,6 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
     }
 
-    @Test
     private void insertUser() {
         User user = new User(TARGET_USER_ID);
         TestHelper.insertWithDependencies(user);
