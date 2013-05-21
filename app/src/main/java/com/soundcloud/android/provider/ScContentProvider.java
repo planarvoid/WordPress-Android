@@ -171,7 +171,7 @@ public class ScContentProvider extends ContentProvider {
                 final boolean defaultCols = _columns == null;
                 qb.setTables(makeCollectionJoin(Table.USERS));
                 if (_columns == null) {
-                    _columns = formatWithUser(getUserViewColumns(Table.USER_ASSOCIATION_VIEW), userId);
+                    _columns = formatWithUser(getUserViewColumns(Table.USERS), userId);
                 }
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
 
@@ -188,22 +188,6 @@ public class ScContentProvider extends ContentProvider {
                 MatrixCursor c = new MatrixCursor(new String[] { BaseColumns._ID}, 1);
                 c.addRow(new Object[]{SoundCloudApplication.getUserId()});
                 return c;
-
-            case USER_LIKES:
-            case USER_REPOSTS:
-                qb.setTables(makeCollectionJoin(Table.SOUND_VIEW));
-                if (_columns == null) _columns = formatWithUser(getSoundViewColumns(Table.SOUND_VIEW), userId);
-                makeCollectionSelection(qb, uri.getPathSegments().get(1), content.collectionType);
-                _sortOrder = makeCollectionSort(uri, sortOrder);
-                break;
-
-            case USER_FOLLOWERS:
-            case USER_FOLLOWINGS:
-                qb.setTables(makeCollectionJoin(Table.USERS));
-                if (_columns == null) _columns = formatWithUser(getUserViewColumns(Table.USER_ASSOCIATION_VIEW),userId);
-                makeCollectionSelection(qb, uri.getPathSegments().get(1), content.collectionType);
-                _sortOrder = makeCollectionSort(uri, sortOrder);
-                break;
 
             case TRACKS:
             case PLAYLISTS:
@@ -560,10 +544,6 @@ public class ScContentProvider extends ContentProvider {
             case ME_REPOSTS:
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
-            case USER_LIKES:
-            case USER_REPOSTS:
-            case USER_FOLLOWINGS:
-            case USER_FOLLOWERS:
             case ME_FRIENDS:
 
                 whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + userIdFromContext
@@ -758,13 +738,9 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_LIKES:
-            case USER_LIKES:
             case ME_REPOSTS:
-            case USER_REPOSTS:
             case ME_FOLLOWERS:
-            case USER_FOLLOWERS:
             case ME_FOLLOWINGS:
-            case USER_FOLLOWINGS:
             case ME_FRIENDS:
             case SUGGESTED_USERS:
                 table = Table.COLLECTION_ITEMS;
