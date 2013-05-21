@@ -87,17 +87,62 @@ public class SyncStateManagerTest {
     }
 
     @Test
+    public void shouldAddListenerWithFirstAsyncQuery() {
+        final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
+                System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
+
+        final long[] id = {0};
+        final LocalCollection.OnChangeListener listener = new LocalCollection.OnChangeListener() {
+            @Override
+            public void onLocalCollectionChanged(LocalCollection localCollection) {
+                id[0] = localCollection.id;
+            }
+        };
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, listener);
+        expect(syncStateManager.getObserverById(id[0]).getListener()).toBe(listener);
+    }
+
+    @Test
+    public void shouldNotAddListenerWithFirstAsyncQuery() {
+        final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
+                System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
+        lc.id = 123L;
+
+        final long[] id = {0};
+        final LocalCollection.OnChangeListener listener = new LocalCollection.OnChangeListener() {
+            @Override
+            public void onLocalCollectionChanged(LocalCollection localCollection) {
+                id[0] = localCollection.id;
+            }
+        };
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, listener);
+        expect(syncStateManager.hasObservers()).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotAddObserverWithNoListener() {
+        final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
+                System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, null);
+        expect(syncStateManager.hasObservers()).toBeFalse();
+    }
+
+    @Test
     public void shouldInitializeNewLocalCollectionIfNotInDatabase() {
         final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
                 System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
 
+        final boolean[] listenerCalled = {false};
         syncStateManager.onCollectionAsyncQueryReturn(null, lc, new LocalCollection.OnChangeListener() {
             @Override
             public void onLocalCollectionChanged(LocalCollection localCollection) {
                 expect(localCollection.last_sync_success).toEqual(-1L);
                 expect(localCollection.sync_state).toEqual(LocalCollection.SyncState.IDLE);
+                listenerCalled[0] = true;
+
             }
         });
+        expect(listenerCalled[0]).toBeTrue();
     }
 
     private LocalCollection insertLocalCollection(Uri contentUri) {

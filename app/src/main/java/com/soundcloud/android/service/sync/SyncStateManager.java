@@ -197,7 +197,15 @@ public class SyncStateManager {
         if (listener != null) listener.onLocalCollectionChanged(localCollection);
     }
 
-    private class ChangeObserver extends ContentObserver {
+    /* package */ ChangeObserver getObserverById(long id){
+        return (ChangeObserver) mContentObservers.get(id);
+    }
+
+    /* package */ boolean hasObservers() {
+        return mContentObservers != null && !mContentObservers.isEmpty();
+    }
+
+    /* package */ class ChangeObserver extends ContentObserver {
         private final LocalCollection mSyncState;
         private final LocalCollection.OnChangeListener mListener;
 
@@ -216,6 +224,10 @@ public class SyncStateManager {
         public void onChange(boolean selfChange) {
             SyncStateQueryHandler handler = new SyncStateQueryHandler(mSyncState, mListener);
             handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(mSyncState.getId())}, null);
+        }
+
+        public LocalCollection.OnChangeListener getListener(){
+            return mListener;
         }
     }
 
