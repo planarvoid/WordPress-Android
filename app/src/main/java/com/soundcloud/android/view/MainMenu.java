@@ -259,7 +259,7 @@ public class MainMenu extends LinearLayout {
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-
+            convertView.setId(menuItem.id); // used for testing
             switch (menuItem.id) {
                 case (R.id.nav_stream):
                     final int streamCount = ContentStats.count(Content.ME_SOUND_STREAM);

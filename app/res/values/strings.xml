@@ -185,6 +185,6 @@
     <string name="btn_continue">Continue</string>
     <string name="privacy">Privacy</string>
 
-    <string name="auth_disclaime_title">One more step</string>
+    <string name="auth_disclaimer_title">One more step</string>
     <string name="auth_disclaimer_message">By tapping \"Continue\", you agree to the Terms of Use and Privacy policy of SoundCloud.</string>
 </resources>
