@@ -403,6 +403,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "CollectionItems." + CollectionItems.CREATED_AT + " as " + UserAssociationView.USER_ASSOCIATION_TIMESTAMP +
             ", CollectionItems." + CollectionItems.COLLECTION_TYPE + " as " + UserAssociationView.USER_ASSOCIATION_TYPE +
             ", CollectionItems." + CollectionItems.USER_ID + " as " + UserAssociationView.USER_ASSOCIATION_USER_ID +
+            ", CollectionItems." + CollectionItems.POSITION + " as " + UserAssociationView.USER_ASSOCIATION_POSITION +
 
             // user data
             ", Users.*" +
@@ -830,12 +831,14 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String ASSOCIATION_TIMESTAMP    = "association_timestamp";
         public static final String ASSOCIATION_TYPE         = "association_type";
         public static final String ASSOCIATION_USER_ID      = "association_user_id";
+        public static final String ASSOCIATION_POSITION     = "association_position";
     }
 
     public final static class UserAssociationView extends Users {
         public static final String USER_ASSOCIATION_TIMESTAMP   = AssociationView.ASSOCIATION_TIMESTAMP;
         public static final String USER_ASSOCIATION_TYPE        = AssociationView.ASSOCIATION_TYPE;
         public static final String USER_ASSOCIATION_USER_ID     = AssociationView.ASSOCIATION_USER_ID;
+        public static final String USER_ASSOCIATION_POSITION = AssociationView.ASSOCIATION_POSITION;
     }
 
     public final static class SoundAssociationView extends SoundView {

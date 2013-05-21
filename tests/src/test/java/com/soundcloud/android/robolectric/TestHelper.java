@@ -14,6 +14,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -227,6 +228,12 @@ public class TestHelper {
         SoundAssociation sa = new SoundAssociation(playable, new Date(), assocType);
         TestHelper.insertWithDependencies(Content.COLLECTION_ITEMS.uri, sa);
         return sa;
+    }
+
+    public static UserAssociation insertAsUserAssociation(User user, UserAssociation.Type assocType) {
+        UserAssociation ua = new UserAssociation(user, new Date(), assocType);
+        TestHelper.insertWithDependencies(Content.COLLECTION_ITEMS.uri, ua);
+        return ua;
     }
 
     public static int bulkInsert(Collection<? extends ScResource> items) {

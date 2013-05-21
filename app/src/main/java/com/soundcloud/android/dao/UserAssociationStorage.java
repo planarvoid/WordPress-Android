@@ -8,10 +8,16 @@ import android.net.Uri;
 
 import java.util.List;
 
-public class UserAssociationStore {
+/**
+ * Use this storage facade to persist information about user-to-user relations to the database.
+ * These relations currently are: followers and followings.
+ *
+ * @see com.soundcloud.android.model.UserAssociation.Type
+ */
+public class UserAssociationStorage {
     private final ContentResolver mResolver;
 
-    public UserAssociationStore() {
+    public UserAssociationStorage() {
         mResolver = SoundCloudApplication.instance.getContentResolver();
     }
 
