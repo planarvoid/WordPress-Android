@@ -131,7 +131,7 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
         if (c == null || last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
 
         // do not auto refresh users when the list opens, because users are always changing
-        if (User.class.equals(c.modelType)) return last_sync_success <= 0;
+        if (c.isUserBased()) return last_sync_success <= 0;
 
         final long staleTime = (Track.class.equals(c.modelType))    ? SyncConfig.TRACK_STALE_TIME :
                                (Playlist.class.equals(c.modelType)) ? SyncConfig.PLAYLIST_STALE_TIME :

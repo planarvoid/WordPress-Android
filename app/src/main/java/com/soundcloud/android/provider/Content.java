@@ -328,9 +328,13 @@ public enum Content  {
         return sUris.get(uri);
     }
 
+    public boolean isUserBased(){
+        return User.class.equals(modelType) || UserAssociation.class.equals(modelType);
+    }
+
     public boolean isStale(long lastSync) {
         // do not auto refresh users when the list opens, because users are always changing
-        if (modelType == User.class) return lastSync <= 0;
+        if (isUserBased()) return lastSync <= 0;
         final long staleTime = (modelType == Track.class) ? SyncConfig.TRACK_STALE_TIME :
                 (modelType == Activity.class) ? SyncConfig.ACTIVITY_STALE_TIME :
                         SyncConfig.DEFAULT_STALE_TIME;
