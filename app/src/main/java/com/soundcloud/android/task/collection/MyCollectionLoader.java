@@ -12,6 +12,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
@@ -89,6 +90,8 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
                     items.add(new Friend(SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(itemsCursor)));
                 } else if (SoundAssociation.class.equals(resourceType)) {
                     items.add(new SoundAssociation(itemsCursor));
+                } else if (UserAssociation.class.equals(resourceType)) {
+                    items.add(new UserAssociation(itemsCursor));
                 } else if (Playlist.class.equals(resourceType)) {
                     items.add(SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(itemsCursor));
                 } else {
