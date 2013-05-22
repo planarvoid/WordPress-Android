@@ -30,7 +30,7 @@ import android.text.TextUtils;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
-public class User extends ScResource implements Refreshable {
+public class User extends ScResource implements UserHolder {
     public static final int     TYPE = 0;
     public static final String  EXTRA = "user";
 

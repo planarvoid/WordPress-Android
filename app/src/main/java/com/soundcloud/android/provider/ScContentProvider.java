@@ -156,15 +156,18 @@ public class ScContentProvider extends ContentProvider {
                 if ("1".equals(uri.getQueryParameter(Parameter.IDS_ONLY))) {
                     qb.setTables(Table.COLLECTION_ITEMS.name);
                     _columns = new String[]{DBHelper.CollectionItems.ITEM_ID};
+                    makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
+                    _sortOrder = makeCollectionSort(uri, sortOrder);
+
                 } else {
                     qb.setTables(Table.USER_ASSOCIATION_VIEW.name);
                     if (_columns == null) {
                         _columns = formatWithUser(getUserViewColumns(Table.USER_ASSOCIATION_VIEW), userId);
                     }
+                    makeUserAssociationSelection(qb, String.valueOf(userId), content.collectionType);
+                    _sortOrder = makeCollectionSort(uri, sortOrder != null ?
+                                            sortOrder : DBHelper.UserAssociationView.USER_ASSOCIATION_POSITION);
                 }
-                makeUserAssociationSelection(qb, String.valueOf(userId), content.collectionType);
-                _sortOrder = makeCollectionSort(uri, sortOrder != null ?
-                        sortOrder : DBHelper.UserAssociationView.USER_ASSOCIATION_POSITION);
                 break;
 
             case ME_FRIENDS:

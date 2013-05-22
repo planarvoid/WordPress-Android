@@ -16,7 +16,7 @@ import java.util.Date;
 /**
  * Currently maps to nothing on the back end. However, we should create UserAssociations there so we are consistent
  */
-public class UserAssociation extends Association {
+public class UserAssociation extends Association implements UserHolder {
 
     private @NotNull User mUser;
 
