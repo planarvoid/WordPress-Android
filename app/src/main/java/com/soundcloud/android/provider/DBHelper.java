@@ -219,11 +219,11 @@ public class DBHelper extends SQLiteOpenHelper {
             "myspace_name VARCHAR(255)," +
 
             // counts
-            "track_count INTEGER," +
-            "followers_count INTEGER," +
-            "followings_count INTEGER," +
-            "public_favorites_count INTEGER," +
-            "private_tracks_count INTEGER," +
+            "track_count INTEGER DEFAULT -1," +
+            "followers_count INTEGER DEFAULT -1," +
+            "followings_count INTEGER DEFAULT -1," +
+            "public_favorites_count INTEGER DEFAULT -1," +
+            "private_tracks_count INTEGER DEFAULT -1," +
 
             // internal
             "last_updated INTEGER" +
