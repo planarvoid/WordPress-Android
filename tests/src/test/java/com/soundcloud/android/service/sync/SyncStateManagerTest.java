@@ -2,6 +2,7 @@ package com.soundcloud.android.service.sync;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
@@ -10,6 +11,8 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -19,8 +22,10 @@ public class SyncStateManagerTest {
 
     SyncStateManager syncStateManager;
     ContentResolver resolver;
+    @Mock LocalCollection.OnChangeListener onLocalCollectionChangeListener;
 
     @Before public void before() {
+        MockitoAnnotations.initMocks(this);
         resolver = DefaultTestRunner.application.getContentResolver();
         syncStateManager = new SyncStateManager();
     }
@@ -91,15 +96,8 @@ public class SyncStateManagerTest {
         final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
                 System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
 
-        final long[] id = {0};
-        final LocalCollection.OnChangeListener listener = new LocalCollection.OnChangeListener() {
-            @Override
-            public void onLocalCollectionChanged(LocalCollection localCollection) {
-                id[0] = localCollection.id;
-            }
-        };
-        syncStateManager.onCollectionAsyncQueryReturn(null, lc, listener);
-        expect(syncStateManager.getObserverById(id[0]).getListener()).toBe(listener);
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, onLocalCollectionChangeListener);
+        expect(syncStateManager.getObserverById(1).getListener()).toBe(onLocalCollectionChangeListener);
     }
 
     @Test
@@ -107,11 +105,7 @@ public class SyncStateManagerTest {
         final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
                 System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
         lc.id = 123L;
-        final LocalCollection.OnChangeListener listener = new LocalCollection.OnChangeListener() {
-            @Override
-            public void onLocalCollectionChanged(LocalCollection localCollection) {}
-        };
-        syncStateManager.onCollectionAsyncQueryReturn(null, lc, listener);
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, onLocalCollectionChangeListener);
         expect(syncStateManager.hasObservers()).toBeFalse();
     }
 
@@ -128,17 +122,11 @@ public class SyncStateManagerTest {
         final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
                 System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
 
-        final boolean[] listenerCalled = {false};
-        syncStateManager.onCollectionAsyncQueryReturn(null, lc, new LocalCollection.OnChangeListener() {
-            @Override
-            public void onLocalCollectionChanged(LocalCollection localCollection) {
-                expect(localCollection.last_sync_success).toEqual(-1L);
-                expect(localCollection.sync_state).toEqual(LocalCollection.SyncState.IDLE);
-                listenerCalled[0] = true;
+        final LocalCollection initLc = new LocalCollection(Content.ME_LIKES.uri);
+        initLc.id = 1;
 
-            }
-        });
-        expect(listenerCalled[0]).toBeTrue();
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, onLocalCollectionChangeListener);
+        verify(onLocalCollectionChangeListener).onLocalCollectionChanged(initLc);
     }
 
     private LocalCollection insertLocalCollection(Uri contentUri) {
