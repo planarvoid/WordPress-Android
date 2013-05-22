@@ -333,6 +333,10 @@ public class User extends ScResource implements Refreshable {
         return ImageUtils.checkIconShouldLoad(avatar_url);
     }
 
+    public boolean isFollowersCountSet() {
+        return followers_count > NOT_SET;
+    }
+
     public Plan getPlan() {
         return Plan.fromApi(plan);
     }

@@ -409,6 +409,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_ACTIVITIES:
             case ME_LIKES:
             case ME_REPOSTS:
+            case ME_FOLLOWINGS:
                 id = content.table.insertOrReplace(db, values);
                 if (id >= 0 && values.containsKey(BaseColumns._ID)) {
                     id = values.getAsLong(BaseColumns._ID);
