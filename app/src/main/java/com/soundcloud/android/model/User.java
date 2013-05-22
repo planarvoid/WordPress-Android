@@ -261,6 +261,24 @@ public class User extends ScResource implements UserHolder {
         return new Intent(Actions.USER_BROWSER).putExtra(UserBrowser.EXTRA_USER, this);
     }
 
+    public boolean addAFollower() {
+        if (isFollowersCountSet()) {
+            followers_count++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean removeAFollower() {
+        if (isFollowersCountSet()){
+            followers_count--;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static interface DataKeys {
         String USERNAME        = "currentUsername";
         String USER_ID         = "currentUserId";

@@ -1,11 +1,7 @@
 package com.soundcloud.android.dao;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Association;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
@@ -53,7 +49,7 @@ public class UserAssociationStorage {
     public UserAssociation addFollowing(User user) {
         UserAssociation.Type assocType = UserAssociation.Type.FOLLOWING;
         UserAssociation following = new UserAssociation(user, new Date(), assocType);
-        if (user.isFollowersCountSet()) user.followers_count++;
+        user.addAFollower();
         mFollowingsDAO.create(following);
         return following;
     }
@@ -68,8 +64,7 @@ public class UserAssociationStorage {
         UserAssociation.Type assocType = SoundAssociation.Type.FOLLOWING;
         UserAssociation following = new UserAssociation(user, new Date(), assocType);
 
-        if (mFollowingsDAO.delete(following) && user.isFollowersCountSet()) {
-            user.followers_count--;
+        if (mFollowingsDAO.delete(following) && user.removeAFollower()) {
             new UserDAO(mResolver).update(user);
         }
         return following;
