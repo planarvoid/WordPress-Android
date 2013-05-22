@@ -43,9 +43,8 @@ public class SoundAssociation extends Association implements PlayableHolder {
      * @param typeEnum the kind of association
      */
     public SoundAssociation(@NotNull Playable playable, Date associatedAt, Type typeEnum) {
+        super(associatedAt, typeEnum.collectionType);
         this.playable = playable;
-        this.created_at = associatedAt;
-        this.associationType = typeEnum.collectionType;
     }
 
     /**
@@ -68,19 +67,8 @@ public class SoundAssociation extends Association implements PlayableHolder {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return playable;
-    }
-
-
-    @Override
-    public boolean isStale() {
-        return playable.isStale();
-    }
-
-    @Override
-    public boolean isIncomplete() {
-        return playable.isIncomplete();
     }
 
     public SoundAssociation(Parcel in) {
@@ -173,7 +161,6 @@ public class SoundAssociation extends Association implements PlayableHolder {
     public String toString() {
         return "SoundAssociation{" +
                 "associationType=" + associationType +
-                ", type='" + type + '\'' +
                 ", created_at=" + created_at +
                 ", playable=" + playable +
                 ", user=" + owner +

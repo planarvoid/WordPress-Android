@@ -1,8 +1,8 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -65,7 +65,7 @@ public class ScBaseAdapterTest {
             }
 
             @Override
-            public ScResource getRefreshableResource() {
+            public Refreshable getRefreshableResource() {
                 return new Track(2);
             }
         });

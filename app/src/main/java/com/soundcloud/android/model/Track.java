@@ -475,7 +475,7 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return this;
     }
 

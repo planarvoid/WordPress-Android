@@ -46,7 +46,7 @@ public class Friend extends ScResource implements UserHolder {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return user;
     }
 

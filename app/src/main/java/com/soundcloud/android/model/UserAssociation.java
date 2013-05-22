@@ -2,13 +2,11 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 
 import java.util.Date;
@@ -19,9 +17,6 @@ import java.util.Date;
 public class UserAssociation extends Association implements UserHolder {
 
     private @NotNull User mUser;
-
-    @SuppressWarnings("UnusedDeclaration") //for deserialization
-    public UserAssociation() { }
 
     public UserAssociation(Cursor cursor) {
         mUser = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
@@ -40,11 +35,6 @@ public class UserAssociation extends Association implements UserHolder {
     public UserAssociation(Parcel in) {
         super(in);
         mUser = in.readParcelable(ClassLoader.getSystemClassLoader());
-    }
-
-    @Override
-    public Uri getBulkInsertUri() {
-        return Content.COLLECTION_ITEMS.uri;
     }
 
     @Override
@@ -74,18 +64,8 @@ public class UserAssociation extends Association implements UserHolder {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return mUser;
-    }
-
-    @Override
-    public boolean isStale() {
-        return mUser.isStale();
-    }
-
-    @Override
-    public boolean isIncomplete() {
-        return mUser.isIncomplete();
     }
 
     public int getResourceType() {

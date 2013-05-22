@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.SoundAssociationHolder;
@@ -92,8 +93,8 @@ public class SoundAssociationStorageTest {
         // expect change, syncing with 2 items
         SoundAssociationHolder holder = new SoundAssociationHolder();
         holder.collection = new ArrayList<SoundAssociation>();
-        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK_REPOST.type));
-        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK.type));
+        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK_REPOST));
+        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK));
 
         expect(storage.syncToLocal(holder.collection, Content.ME_SOUNDS.uri)).toBeTrue();
         expect(Content.ME_SOUNDS).toHaveCount(2);
@@ -119,7 +120,7 @@ public class SoundAssociationStorageTest {
 
         SoundAssociationHolder holder = new SoundAssociationHolder();
         holder.collection = new ArrayList<SoundAssociation>();
-        holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK_LIKE.type));
+        holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK_LIKE));
 
         expect(storage.syncToLocal(holder.collection, Content.ME_LIKES.uri)).toBeTrue();
         expect(Content.ME_LIKES).toHaveCount(1);
@@ -232,10 +233,10 @@ public class SoundAssociationStorageTest {
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_LIKE);
     }
 
-    private SoundAssociation createAssociation(long id, String type) {
+    private SoundAssociation createAssociation(long id, Association.Type type) {
         SoundAssociation soundAssociation1 = new SoundAssociation();
         soundAssociation1.playable = new Track(id);
-        soundAssociation1.setType(type);
+        soundAssociation1.setType(type.name());
         soundAssociation1.created_at = new Date(System.currentTimeMillis());
         return soundAssociation1;
     }

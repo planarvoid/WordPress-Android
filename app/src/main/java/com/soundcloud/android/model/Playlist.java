@@ -168,7 +168,7 @@ public class Playlist extends Playable {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return this;
     }
 

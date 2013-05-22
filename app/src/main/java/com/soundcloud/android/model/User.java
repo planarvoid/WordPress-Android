@@ -275,7 +275,7 @@ public class User extends ScResource implements UserHolder {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return this;
     }
 
