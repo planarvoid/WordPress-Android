@@ -18,13 +18,13 @@ import java.util.Date;
  */
 public class UserAssociation extends Association {
 
-    public @NotNull User user;
+    private @NotNull User mUser;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
     public UserAssociation() { }
 
     public UserAssociation(Cursor cursor) {
-        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
+        mUser = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
     }
 
     /**
@@ -34,12 +34,12 @@ public class UserAssociation extends Association {
      */
     public UserAssociation(@NotNull User user, Date associatedAt, Type typeEnum) {
         super(associatedAt, typeEnum.collectionType);
-        this.user = user;
+        this.mUser = user;
     }
 
     public UserAssociation(Parcel in) {
         super(in);
-        user = in.readParcelable(ClassLoader.getSystemClassLoader());
+        mUser = in.readParcelable(ClassLoader.getSystemClassLoader());
     }
 
     @Override
@@ -49,7 +49,7 @@ public class UserAssociation extends Association {
 
     @Override
     public User getUser() {
-        return user;
+        return mUser;
     }
 
     @Nullable
@@ -61,31 +61,31 @@ public class UserAssociation extends Association {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeParcelable(user, 0);
+        dest.writeParcelable(mUser, 0);
     }
 
     public long getItemId() {
-        return user.getId();
+        return mUser.getId();
     }
 
     @Override
     public long getListItemId() {
-        return user.getId();
+        return mUser.getId();
     }
 
     @Override
     public ScResource getRefreshableResource() {
-        return user;
+        return mUser;
     }
 
     @Override
     public boolean isStale() {
-        return user.isStale();
+        return mUser.isStale();
     }
 
     @Override
     public boolean isIncomplete() {
-        return user.isIncomplete();
+        return mUser.isIncomplete();
     }
 
     public int getResourceType() {
@@ -97,6 +97,6 @@ public class UserAssociation extends Association {
     @Override
     public void putDependencyValues(BulkInsertMap destination) {
         super.putDependencyValues(destination);
-        user.putFullContentValues(destination);
+        mUser.putFullContentValues(destination);
     }
 }
