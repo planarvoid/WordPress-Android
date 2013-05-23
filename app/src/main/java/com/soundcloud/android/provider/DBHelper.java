@@ -1198,6 +1198,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     TextUtils.join(",", toAppendCols),
                     TextUtils.join(",", fromAppendCols),
                     Table.COLLECTION_ITEMS.name,
+                    CollectionItems.COLLECTION_TYPE,
                     TextUtils.join(",", userTypes));
 
             db.execSQL(sql);
