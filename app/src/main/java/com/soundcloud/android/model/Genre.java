@@ -1,26 +1,37 @@
 package com.soundcloud.android.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class Genre extends ScModel {
 
-    private String mName, mGrouping;
+    public enum Grouping { MUSIC, AUDIO }
+
+    private String mName, mPermalink;
+    private Grouping mGrouping;
 
     public String getName() {
         return mName;
     }
 
-    @JsonProperty
     public void setName(String name) {
         this.mName = name;
     }
 
-    public String getGrouping() {
+    public Grouping getGrouping() {
         return mGrouping;
     }
 
-    @JsonProperty
     public void setGrouping(String grouping) {
+        this.mGrouping = Grouping.valueOf(grouping);
+    }
+
+    public void setGrouping(Grouping grouping) {
         this.mGrouping = grouping;
+    }
+
+    public String getPermalink() {
+        return mPermalink;
+    }
+
+    public void setPermalink(String permalink) {
+        this.mPermalink = permalink;
     }
 }

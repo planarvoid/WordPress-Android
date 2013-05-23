@@ -1,25 +1,42 @@
 package com.soundcloud.android.model;
 
+import com.google.common.base.Objects;
+
+import java.util.Collections;
 import java.util.List;
 
-public class GenreBucket extends ScModel {
+public class GenreBucket {
 
     private Genre mGenre;
-    private List<User> mCreators;
+    private List<User> mUsers;
+
+    public GenreBucket(Genre genre) {
+        mGenre = genre;
+        mUsers = Collections.emptyList();
+    }
 
     public Genre getGenre() {
         return mGenre;
     }
 
     public void setGenre(Genre genre) {
-        this.mGenre = genre;
+        mGenre = genre;
     }
 
-    public List<User> getCreators() {
-        return mCreators;
+    public List<User> getUsers() {
+        return mUsers;
     }
 
-    public void setCreators(List<User> creators) {
-        this.mCreators = creators;
+    public void setUsers(List<User> users) {
+        mUsers = users;
+    }
+
+    public boolean hasUsers() {
+        return !mUsers.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("genre", mGenre.getName()).add("users count", mUsers.size()).toString();
     }
 }
