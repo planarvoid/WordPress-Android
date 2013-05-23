@@ -6,25 +6,13 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-public abstract class StreamItemTask implements Runnable {
+public abstract class StreamItemTask {
     final StreamItem item;
     final AndroidCloudAPI api;
-    private boolean executed;
 
     public StreamItemTask(StreamItem item, AndroidCloudAPI api) {
         this.item = item;
         this.api = api;
-    }
-
-    @Override
-    public void run() {
-        try {
-            execute();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            executed = true;
-        }
     }
 
     public abstract Bundle execute() throws IOException;
@@ -32,8 +20,6 @@ public abstract class StreamItemTask implements Runnable {
     @Override
     public String toString() {
         return getClass().getSimpleName()+"{" +
-                "item=" + item +
-                ", executed=" + executed +
-                '}';
+                "item=" + item + '}';
     }
 }

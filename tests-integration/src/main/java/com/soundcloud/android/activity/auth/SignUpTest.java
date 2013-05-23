@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.cropimage.CropImageActivity;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
@@ -75,11 +76,11 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
             // FakeCamera will provide an image
             solo.sleep(1000);
 
-            assertTrue(solo.waitForActivity("CropImage"));
+            solo.waitForActivity(CropImageActivity.class);
             solo.clickOnText("Save");
 
             // make sure add image prompt is gone
-            assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
+            solo.assertTextFound(solo.getString(R.string.add_image), true);
 
             // clear image
             solo.clickLongOnView(R.id.artwork);
@@ -100,12 +101,11 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
             // FakeGallery will provide an image
             solo.sleep(1000);
 
-            assertTrue(solo.waitForActivity("CropImage"));
+            solo.waitForActivity(CropImageActivity.class);
             solo.clickOnText("Save");
-//            solo.assertActivity(UserDetails.class);
 
             // make sure add image prompt is gone
-            assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
+            solo.assertTextFound(solo.getString(R.string.add_image), true);
 
             // clear image
             solo.clickLongOnView(R.id.artwork);
@@ -146,7 +146,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
 
         solo.assertText(R.string.side_menu_stream);
 
-        solo.logoutViaSettings();
+        menuScreen.logout();
 
         performSignup(email, "password", "password");
 
