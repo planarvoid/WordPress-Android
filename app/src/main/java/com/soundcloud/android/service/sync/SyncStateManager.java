@@ -1,11 +1,5 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.*;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Handler;
-import android.preference.PreferenceManager;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
@@ -13,6 +7,17 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
+
+import android.content.AsyncQueryHandler;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;

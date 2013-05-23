@@ -1,8 +1,9 @@
 package com.soundcloud.android.service.sync;
 
 
-import android.content.ContentResolver;
-import android.net.Uri;
+import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.verify;
+
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
@@ -13,8 +14,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.verify;
+import android.content.ContentResolver;
+import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
 public class SyncStateManagerTest {
