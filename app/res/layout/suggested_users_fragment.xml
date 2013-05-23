@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView android:id="@+id/suggested_users_titletext"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Choose your favorite categories"
+              android:textStyle="bold"/>
+    <TextView android:id="@+id/suggested_users_subtitletext"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Follow people trending in the SoundCloud community"/>
+
+
+    <ListView android:id="@android:id/list"
+              android:layout_width="match_parent"
+              android:layout_height="0dp"
+              android:layout_weight="1"/>
+
+</LinearLayout>
