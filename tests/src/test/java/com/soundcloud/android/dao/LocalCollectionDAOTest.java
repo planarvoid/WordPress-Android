@@ -20,7 +20,7 @@ public class LocalCollectionDAOTest extends AbstractDAOTest<LocalCollectionDAO> 
         LocalCollection c = new LocalCollection(uri, -1, -1, 0, -1, null);
         expect(getDAO().create(c)).toBeGreaterThan(0L);
 
-        expect(c.uri).toEqual(uri);
+        expect(c.getUri()).toEqual(uri);
         expect(c.last_sync_attempt).toBe(-1L);
         expect(c.last_sync_success).toBe(-1L);
         expect(c.size).toBe(-1);
@@ -42,7 +42,7 @@ public class LocalCollectionDAOTest extends AbstractDAOTest<LocalCollectionDAO> 
         final Uri uri = Uri.parse("foo");
         LocalCollection c = new LocalCollection(uri, 1, 1, 1, 2, "some-extra");
         getDAO().create(c);
-        expect(c.uri).toEqual(uri);
+        expect(c.getUri()).toEqual(uri);
         expect(c.last_sync_attempt).toBe(1L);
         expect(c.last_sync_success).toBe(1L);
         expect(c.size).toBe(2);
@@ -59,8 +59,8 @@ public class LocalCollectionDAOTest extends AbstractDAOTest<LocalCollectionDAO> 
         getDAO().create(c);
         LocalCollection c2 = getDAO().fromContentUri(uri, true);
 
-        expect(c.id).toEqual(c2.id);
-        expect(c.uri).toEqual(c2.uri);
+        expect(c.getId()).toEqual(c2.getId());
+        expect(c.getUri()).toEqual(c2.getUri());
         expect(c.last_sync_attempt).toEqual(c2.last_sync_attempt);
         expect(c.last_sync_success).toEqual(c2.last_sync_success);
         expect(c.size).toEqual(c2.size);

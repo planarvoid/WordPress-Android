@@ -18,8 +18,8 @@ import android.text.TextUtils;
  * See {@link DBHelper.Collections}.
  */
 public class LocalCollection implements ModelLike, ContentValuesProvider {
-    public long id;
-    public final Uri uri;
+    private long id;
+    private final Uri uri;
 
     /** timestamp of last successful sync */
     public long last_sync_success = -1;
@@ -31,10 +31,6 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
     public int size = -1;
     /** collection specific data - future_href for activities, sync misses for rest */
     public String extra;
-
-    public boolean hasSyncedBefore() {
-        return last_sync_success > 0;
-    }
 
     public interface OnChangeListener {
         void onLocalCollectionChanged(LocalCollection localCollection);
@@ -55,13 +51,21 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
     }
 
     public LocalCollection(Cursor c) {
-        id = c.getInt(c.getColumnIndex(DBHelper.Collections._ID));
+        setId(c.getInt(c.getColumnIndex(DBHelper.Collections._ID)));
         uri = Uri.parse(c.getString(c.getColumnIndex(DBHelper.Collections.URI)));
         setFromCursor(c);
     }
 
+    public boolean hasSyncedBefore() {
+        return last_sync_success > 0;
+    }
+
+    public Uri getUri() {
+        return uri;
+    }
+
     public void setFromCursor(Cursor c) {
-        if (id <= 0) id = c.getInt(c.getColumnIndex(DBHelper.Collections._ID));
+        if (getId() <= 0) setId(c.getInt(c.getColumnIndex(DBHelper.Collections._ID)));
         last_sync_attempt = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC_ATTEMPT));
         last_sync_success = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
         sync_state = c.getInt(c.getColumnIndex(DBHelper.Collections.SYNC_STATE));
@@ -92,8 +96,8 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
     @Override
     public String toString() {
         return "LocalCollection{" +
-                "id=" + id +
-                ", uri=" + uri +
+                "id=" + getId() +
+                ", uri=" + getUri() +
                 ", last_sync_attempt=" + last_sync_attempt +
                 ", last_sync_success=" + last_sync_success +
                 ", sync_state='" + sync_state + '\'' +
@@ -105,13 +109,13 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        if (id > 0) cv.put(DBHelper.Collections._ID, id);
+        if (getId() > 0) cv.put(DBHelper.Collections._ID, getId());
         if (sync_state != -1) cv.put(DBHelper.Collections.SYNC_STATE, sync_state);
         if (size != -1) cv.put(DBHelper.Collections.SIZE, size);
         if (last_sync_attempt != -1) cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, last_sync_attempt);
         if (last_sync_success != -1) cv.put(DBHelper.Collections.LAST_SYNC, last_sync_success);
         if (!TextUtils.isEmpty(extra)) cv.put(DBHelper.Collections.EXTRA, extra);
-        cv.put(DBHelper.Collections.URI, uri.toString());
+        cv.put(DBHelper.Collections.URI, getUri().toString());
         return cv;
     }
 
@@ -124,8 +128,8 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
     }
 
     public boolean shouldAutoRefresh() {
-        if (!isIdle() || id <= 0) return false;
-        Content c = Content.match(uri);
+        if (!isIdle() || getId() <= 0) return false;
+        Content c = Content.match(getUri());
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
         if (c == null || last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
@@ -141,6 +145,10 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
         return System.currentTimeMillis() - last_sync_success > staleTime;
     }
 
+    public boolean hasNotBeenRegistered(){
+        return id == 0;
+    }
+
     @Override
     public long getId() {
         return id;
@@ -152,7 +160,7 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
     }
 
     public Uri toUri() {
-        return Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build();
+        return Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(getId())).build();
     }
 
     @Override
@@ -161,21 +169,21 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
         if (o == null || getClass() != o.getClass()) return false;
         LocalCollection that = (LocalCollection) o;
 
-        if (id != that.id) return false;
+        if (getId() != that.getId()) return false;
         if (last_sync_attempt != that.last_sync_attempt) return false;
         if (last_sync_success != that.last_sync_success) return false;
         if (size != that.size) return false;
         if (sync_state != that.sync_state) return false;
         if (extra != null ? !extra.equals(that.extra) : that.extra != null) return false;
         //noinspection RedundantIfStatement
-        if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
+        if (getUri() != null ? !getUri().equals(that.getUri()) : that.getUri() != null) return false;
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (uri != null ? uri.hashCode() : 0);
+        int result = (int) (getId() ^ (getId() >>> 32));
+        result = 31 * result + (getUri() != null ? getUri().hashCode() : 0);
         result = 31 * result + (int) (last_sync_attempt ^ (last_sync_attempt >>> 32));
         result = 31 * result + (int) (last_sync_success ^ (last_sync_success >>> 32));
         result = 31 * result + size;

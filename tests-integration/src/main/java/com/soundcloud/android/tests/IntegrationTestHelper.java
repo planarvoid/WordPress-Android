@@ -27,6 +27,7 @@ import java.io.IOException;
 public final class IntegrationTestHelper {
     public static final String USERNAME = "android-testing";
     public static final String PASSWORD = "android-testing";
+    public static final Integer TIMEOUT = 1000;
 
     private IntegrationTestHelper() {}
     private static final String TAG = IntegrationTestHelper.class.getSimpleName();
@@ -36,8 +37,8 @@ public final class IntegrationTestHelper {
     }
 
     public static Account loginAs(final Instrumentation instrumentation,
-                               final String username,
-                               final String password) throws Exception {
+                                  final String username,
+                                  final String password) throws Exception {
 
 
         final Account account = getAccount(instrumentation.getTargetContext());

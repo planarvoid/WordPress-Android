@@ -236,6 +236,7 @@
         <profile>
             <id>beta</id>
             <properties>
+                <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>beta-key</keystore.alias>
                 <release.type>beta</release.type>
             </properties>
@@ -262,6 +263,7 @@
         <profile>
             <id>release</id>
             <properties>
+                <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>jons keystore</keystore.alias>
                 <release.type>market</release.type>
             </properties>

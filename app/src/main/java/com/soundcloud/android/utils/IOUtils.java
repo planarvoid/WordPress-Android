@@ -406,10 +406,10 @@ public final class IOUtils {
         }
     }
 
-    public static void close(Closeable file) {
-        if (file != null) {
+    public static void close(Closeable closeable) {
+        if (closeable != null) {
             try {
-                file.close();
+                closeable.close();
             } catch (IOException ignored) {
             }
         }
