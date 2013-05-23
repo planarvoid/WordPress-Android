@@ -1,5 +1,11 @@
-$ 62
+$ 63
   % v current
+  _ 2013-05-14
+    ! Maintenance
+    * Fixed occasional false empty screens after logout/login
+
+$ 62
+  % v 2.6.1
   _ 2013-05-13
     ! Maintenance
     * App stability and crash fixes for larger accounts

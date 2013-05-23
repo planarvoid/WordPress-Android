@@ -42,7 +42,7 @@ import java.io.IOException;
     public void onQueued() {
         localCollection = mSyncStateManager.fromContent(contentUri);
         if (localCollection != null) {
-            mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.PENDING);
+            mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.PENDING);
         } else {
             // Happens with database locking. This should just return with an unsuccessful result below
             Log.e(TAG, "Unable to create collection for uri " + contentUri);
@@ -63,7 +63,7 @@ import java.io.IOException;
 
         ApiSyncer syncer = new ApiSyncer(context, context.getContentResolver());
 
-        if (!mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.SYNCING)) {
+        if (!mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.SYNCING)) {
             return this;
         }
 
@@ -74,12 +74,12 @@ import java.io.IOException;
 
         } catch (CloudAPI.InvalidTokenException e) {
             Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
-            mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.IDLE);
+            mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             result = ApiSyncer.Result.fromAuthException(contentUri);
             context.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
         } catch (IOException e) {
             Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
-            mSyncStateManager.updateSyncState(localCollection.id, LocalCollection.SyncState.IDLE);
+            mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             result = ApiSyncer.Result.fromIOException(contentUri);
         } finally {
             // should be taken care of when thread dies, but needed for tests
