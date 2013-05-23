@@ -97,7 +97,8 @@ public class SyncStateManagerTest {
                 System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
 
         syncStateManager.onCollectionAsyncQueryReturn(null, lc, onLocalCollectionChangeListener);
-        expect(syncStateManager.getObserverById(1).getListener()).toBe(onLocalCollectionChangeListener);
+        final SyncStateManager.ChangeObserver observerById = syncStateManager.getObserverById(1);
+        expect(observerById.getListener()).toBe(onLocalCollectionChangeListener);
 
     }
 

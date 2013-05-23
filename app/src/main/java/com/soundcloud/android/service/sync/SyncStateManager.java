@@ -181,6 +181,7 @@ public class SyncStateManager {
 
     /* package */ void onCollectionAsyncQueryReturn(Cursor cursor, LocalCollection localCollection, LocalCollection.OnChangeListener listener) {
         try {
+            final boolean wasRegistered = localCollection.hasNotBeenRegistered();
             if (cursor != null && cursor.moveToFirst()) {
                 // the sync state record already existed, just inform the listener that it has changed
                 localCollection.setFromCursor(cursor);
@@ -190,8 +191,7 @@ public class SyncStateManager {
                 // the record didn't exist yet; go ahead and create it before reporting any changes
                 mLocalCollectionDao.create(localCollection);
             }
-
-            if (localCollection.hasNotBeenRegistered() && listener != null) {
+            if (wasRegistered && listener != null) {
                 addChangeListener(localCollection, listener);
             }
         } finally {
