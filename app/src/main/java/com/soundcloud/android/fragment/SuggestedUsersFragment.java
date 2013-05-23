@@ -91,7 +91,7 @@ public class SuggestedUsersFragment extends SherlockListFragment {
         @Override
         protected void onError(SuggestedUsersFragment fragment, Exception error) {
             //TODO proper error message
-            AndroidUtils.showToast(fragment.getActivity(), "Failed obtaining suggested users");
+            AndroidUtils.showToast(fragment.getActivity(), R.string.error_get_genre_buckets);
         }
     }
 }
