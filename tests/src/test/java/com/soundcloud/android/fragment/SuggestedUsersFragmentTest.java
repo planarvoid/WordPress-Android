@@ -16,6 +16,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.Observable;
 
+import android.view.View;
+
 @RunWith(SoundCloudTestRunner.class)
 public class SuggestedUsersFragmentTest {
 
@@ -34,7 +36,7 @@ public class SuggestedUsersFragmentTest {
 
     @Test
     public void shouldFetchGenreBucketsIntoListAdapterInOnCreate() {
-        fragment.onCreate(null);
+        fragment.onViewCreated(new View(Robolectric.application), null);
         expect(adapter.getCount()).toBe(2);
     }
 }
