@@ -10,10 +10,10 @@ import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.text.TextUtils;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
