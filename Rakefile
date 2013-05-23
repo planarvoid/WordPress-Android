@@ -159,6 +159,17 @@ def gitsha1()
   end
 end
 
+namespace :debug do
+    desc "Build Debug APK"
+    task :build do
+        sh "mvn clean install -Psign --projects app"
+    end
+
+    task :build_deploy => :build do
+        sh "mvn android:deploy --projects app"
+    end
+end
+
 namespace :release do
   desc "tag the current release"
   task :tag do
@@ -307,7 +318,7 @@ end
 # use for the facebook integration
 namespace :keyhash do
   {
-    :debug => { :alias => 'androiddebugkey', :keystore => '~/.android/debug.keystore' },
+    :debug => { :alias => 'androiddebugkey', :keystore => "#{File.expand_path(__FILE__)}/debug.keystore" },
     :beta  => { :alias => 'beta-key', :keystore => 'soundcloud_sign/soundcloud.ks' },
     :production  => { :alias => 'jons keystore', :keystore => 'soundcloud_sign/soundcloud.ks' }
   }.each do |type, config|
