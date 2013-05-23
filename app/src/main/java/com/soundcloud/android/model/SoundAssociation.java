@@ -23,9 +23,7 @@ public class SoundAssociation extends Association implements PlayableHolder {
     public @NotNull Playable playable;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
-    public SoundAssociation() {
-        super();
-    }
+    public SoundAssociation() { }
 
     public SoundAssociation(Cursor cursor) {
         super(cursor);

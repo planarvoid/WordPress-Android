@@ -287,8 +287,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SOUND_STREAM:
                 if (_columns == null) {
-                    final String[] rawColumns = getSoundViewColumns(Table.ACTIVITY_VIEW,
-                            DBHelper.ActivityView.SOUND_ID, DBHelper.ActivityView.SOUND_TYPE);
+                    final String[] rawColumns = getSoundViewColumns(Table.ACTIVITY_VIEW);
 
                     _columns = formatWithUser(rawColumns, userId);
                 }
@@ -869,20 +868,6 @@ public class ScContentProvider extends ContentProvider {
         return b.toString();
     }
 
-    static String makeCollectionJoin(Table table) {
-        String join = table.name + " LEFT JOIN " + Table.COLLECTION_ITEMS.name +
-                " ON (" + table.id + " = " + DBHelper.CollectionItems.ITEM_ID;
-        join += " AND " + table.type + " = " + DBHelper.CollectionItems.RESOURCE_TYPE;
-        join += ")";
-        return join;
-    }
-
-    static SCQueryBuilder makeCollectionSelection(SCQueryBuilder qb, String userId, int collectionType) {
-        qb.appendWhere(Table.COLLECTION_ITEMS.name+"."+ DBHelper.CollectionItems.USER_ID + " = " + userId);
-        qb.appendWhere(" AND "+DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType);
-        return qb;
-    }
-
     // TODO, move this logic out of here and into Storage classes
     static SCQueryBuilder makeSoundAssociationSelection(SCQueryBuilder qb, String userId, int[] collectionType) {
         qb.appendWhere(Table.SOUND_ASSOCIATION_VIEW.name + "." + DBHelper.SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID + " = " + userId);
@@ -989,41 +974,35 @@ public class ScContentProvider extends ContentProvider {
     }
 
     private static String[] getSoundViewColumns(Table table) {
-        return getSoundViewColumns(table, table.id, table.type);
-    }
-
-    private static String[] getSoundViewColumns(Table table, String idCol, String typeCol) {
         return new String[]{
                 table.name + ".*",
-                "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                        + " WHERE " + idCol + " = " + DBHelper.CollectionItems.ITEM_ID
-                        + " AND " + typeCol + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
+                "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS + ", " + Table.SOUNDS.name
+                        + " WHERE " + DBHelper.Sounds._ID + " = " + DBHelper.CollectionItems.ITEM_ID
+                        + " AND " + DBHelper.Sounds._TYPE + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
-                        + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_LIKE,
+                        + " AND " + Table.COLLECTION_ITEMS.name + "." +  DBHelper.CollectionItems.USER_ID + " = $$$)"
+                        + " AS " + DBHelper.SoundView.USER_LIKE,
 
-                "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                        + " WHERE " + idCol + " = " + DBHelper.CollectionItems.ITEM_ID
-                        + " AND " + typeCol + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
+                "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS + ", " + Table.SOUNDS.name
+                        + " WHERE " + DBHelper.Sounds._ID + " = " + DBHelper.CollectionItems.ITEM_ID
+                        + " AND " + DBHelper.Sounds._TYPE + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.REPOST
-                        + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.SoundView.USER_REPOST
+                        + " AND " + Table.COLLECTION_ITEMS.name + "." +  DBHelper.CollectionItems.USER_ID + " = $$$)"
+                        + " AS " + DBHelper.SoundView.USER_REPOST
         };
     }
 
     public static String[] getUserViewColumns(Table table) {
-        return getUserViewColumns(table, table.id, table.type);
-    }
-
-    public static String[] getUserViewColumns(Table table, String idCol, String typeCol) {
         return new String[]{
                 table + ".*",
-                "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                        + " WHERE " + idCol + " = " + DBHelper.CollectionItems.ITEM_ID
-                        + " AND " + typeCol + " = " + FOLLOWING
-                        + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWING,
-                "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                        + " WHERE " + idCol + " = " + DBHelper.CollectionItems.ITEM_ID
-                        + " AND " + typeCol + " = " + FOLLOWER
-                        + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWER
+                "EXISTS (SELECT 1 FROM " + Table.USER_ASSOCIATIONS + ", " + Table.USERS.name
+                        + " WHERE " + DBHelper.Users._ID + " = " + DBHelper.UserAssociations.TARGET_ID
+                        + " AND " + DBHelper.UserAssociations.ASSOCIATION_TYPE + " = " + FOLLOWING
+                        + " AND " + DBHelper.UserAssociations.OWNER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWING,
+                "EXISTS (SELECT 1 FROM " + Table.USER_ASSOCIATIONS + ", " + Table.USERS.name
+                        + " WHERE " + DBHelper.Users._ID + " = " + DBHelper.UserAssociations.TARGET_ID
+                        + " AND " + DBHelper.UserAssociations.ASSOCIATION_TYPE + " = " + FOLLOWER
+                        + " AND " + DBHelper.UserAssociations.OWNER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWER
         };
     }
 
