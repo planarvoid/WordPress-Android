@@ -15,9 +15,17 @@
               android:text="Follow people trending in the SoundCloud community"/>
 
 
-    <ListView android:id="@android:id/list"
-              android:layout_width="match_parent"
-              android:layout_height="0dp"
-              android:layout_weight="1"/>
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        <ListView android:id="@android:id/list"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"/>
+
+        <include layout="@layout/indeterminate_progress"/>
+
+    </FrameLayout>
 
 </LinearLayout>

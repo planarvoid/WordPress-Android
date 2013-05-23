@@ -3,7 +3,6 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.GenreBucket;
 import com.soundcloud.android.utils.Log;
-import rx.util.functions.Action0;
 import rx.util.functions.Action1;
 
 import android.view.LayoutInflater;
@@ -59,19 +58,13 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         return itemLayout;
     }
 
-    public final Action1<GenreBucket> onNext = new Action1<GenreBucket>() {
-        @Override
-        public void call(GenreBucket bucket) {
-            Log.d(SuggestedUsersAdapter.this, "adapter: got " + bucket);
-            addItem(bucket);
-        }
-    };
-
-    public final Action0 onCompleted = new Action0() {
-        @Override
-        public void call() {
-            Log.d(SuggestedUsersAdapter.this, "adapter: onCompleted");
-            notifyDataSetChanged();
-        }
-    };
+    public Action1<GenreBucket> onNextGenreBucket() {
+        return new Action1<GenreBucket>() {
+            @Override
+            public void call(GenreBucket bucket) {
+                Log.d(SuggestedUsersAdapter.this, "adapter: got " + bucket);
+                addItem(bucket);
+            }
+        };
+    }
 }
