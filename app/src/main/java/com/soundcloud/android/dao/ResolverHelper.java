@@ -1,8 +1,10 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.provider.ScContentProvider;
 import org.jetbrains.annotations.NotNull;
 
 import android.database.Cursor;
+import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,5 +46,9 @@ public class ResolverHelper {
             i++;
         }
         return idList;
+    }
+
+    public static Uri addIdOnlyParameter(Uri uri){
+        return uri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build();
     }
 }

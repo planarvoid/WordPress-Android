@@ -49,8 +49,8 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
     @Test
     public void shouldQueryForAll() {
         expect(getDAO().queryAll()).toNumber(0);
-        TestHelper.insertAsSoundAssociation(new Track(TARGET_USER_ID), SoundAssociation.Type.FOLLOWING);
-        TestHelper.insertAsSoundAssociation(new Track(TARGET_USER_ID), SoundAssociation.Type.FOLLOWER);
+        TestHelper.insertAsUserAssociation(new User(TARGET_USER_ID), SoundAssociation.Type.FOLLOWING);
+        TestHelper.insertAsUserAssociation(new User(TARGET_USER_ID), SoundAssociation.Type.FOLLOWER);
         expect(getDAO().queryAll()).toNumber(2);
     }
 
@@ -59,13 +59,13 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         expect(Content.ME_FOLLOWINGS).toHaveCount(0);
 
         User user = new User(1);
-        UserAssociation ua = new UserAssociation(user, new Date(), UserAssociation.Type.FOLLOWING);
+        UserAssociation ua = new UserAssociation(user, UserAssociation.Type.FOLLOWING, new Date());
         ua.owner = new User(AbstractDAOTest.OWNER_ID);
         getDAO().create(ua);
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView._ID, user.getId());
-        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_USER_ID, AbstractDAOTest.OWNER_ID);
+        expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWING);
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView._TYPE, User.TYPE);
     }
@@ -75,13 +75,13 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         expect(Content.ME_FOLLOWERS).toHaveCount(0);
 
         User user = new User(1);
-        UserAssociation ua = new UserAssociation(user, new Date(), UserAssociation.Type.FOLLOWER);
+        UserAssociation ua = new UserAssociation(user, UserAssociation.Type.FOLLOWER, new Date());
         ua.owner = new User(AbstractDAOTest.OWNER_ID);
         getDAO().create(ua);
 
         expect(Content.ME_FOLLOWERS).toHaveCount(1);
         expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, DBHelper.UserAssociationView._ID, user.getId());
-        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_USER_ID, AbstractDAOTest.OWNER_ID);
+        expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
         expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWER);
         expect(Content.ME_FOLLOWERS).toHaveColumnAt(0, DBHelper.UserAssociationView._TYPE, User.TYPE);
     }

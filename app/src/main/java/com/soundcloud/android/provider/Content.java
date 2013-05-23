@@ -5,7 +5,6 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FRIEND;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.LIKE;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.REPOST;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.SUGGESTED_USER;
 
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Comment;
@@ -39,9 +38,9 @@ import java.util.Map;
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
     ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
-    ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, UserAssociation.class, FOLLOWING, Table.COLLECTION_ITEMS),
+    ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, UserAssociation.class, FOLLOWING, Table.USER_ASSOCIATIONS),
     ME_FOLLOWING("me/followings/#", null, 104, UserAssociation.class, -1, null),
-    ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
+    ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.USER_ASSOCIATIONS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
     ME_LIKES("me/likes", TempEndpoints.e1.USER_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
@@ -72,8 +71,7 @@ public enum Content  {
 
     ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND, Table.COLLECTION_ITEMS),
 
-    SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, User.class, SUGGESTED_USER, null),
-
+    SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, User.class, -1, null),
 
     SOUNDS("sounds", null, 200, Playable.class, -1, Table.SOUNDS),
 
@@ -119,6 +117,8 @@ public enum Content  {
     COLLECTION_PAGE("collection_pages/#", null, 1003, null, -1, Table.COLLECTION_PAGES),
     COLLECTION_ITEMS("collection_items", null, 1004, null, -1, Table.COLLECTION_ITEMS),
     COLLECTION_ITEM("collection_items/#", null, 1005, null, -1, Table.COLLECTION_ITEMS),
+
+    USER_ASSOCIATIONS("user_associations", null, 1010, null, -1, Table.USER_ASSOCIATIONS),
 
     RECORDINGS("recordings", null, 1100, Recording.class, -1, Table.RECORDINGS),
     RECORDING("recordings/#", null, 1101, Recording.class, -1, Table.RECORDINGS),

@@ -6,6 +6,7 @@ import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
 
@@ -19,15 +20,11 @@ public class UserAssociation extends Association implements UserHolder {
     private @NotNull User mUser;
 
     public UserAssociation(Cursor cursor) {
+        super(cursor);
         mUser = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
     }
 
-    /**
-     * Use this ctor to create user associations for followings or followers
-     * @param user the user that was followed or is following the owner
-     * @param typeEnum the kind of association (FOLLOWER or FOLLOWING)
-     */
-    public UserAssociation(@NotNull User user, Date associatedAt, Type typeEnum) {
+    public UserAssociation(@NotNull User user, Type typeEnum, Date associatedAt) {
         super(associatedAt, typeEnum.collectionType);
         this.mUser = user;
     }
@@ -56,6 +53,17 @@ public class UserAssociation extends Association implements UserHolder {
 
     public long getItemId() {
         return mUser.getId();
+    }
+
+    @Override
+    public ContentValues buildContentValues() {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.UserAssociations.TARGET_ID, getItemId());
+        cv.put(DBHelper.UserAssociations.OWNER_ID, SoundCloudApplication.getUserId());
+        cv.put(DBHelper.UserAssociations.ASSOCIATION_TYPE, associationType);
+        cv.put(DBHelper.UserAssociations.RESOURCE_TYPE, getResourceType());
+        cv.put(DBHelper.UserAssociations.CREATED_AT, created_at.getTime());
+        return cv;
     }
 
     @Override

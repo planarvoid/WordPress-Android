@@ -7,6 +7,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,7 +15,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 
-import javax.annotation.Nullable;
 import java.util.Date;
 
 public abstract class Association extends ScResource implements Refreshable, Creation {
@@ -47,9 +47,9 @@ public abstract class Association extends ScResource implements Refreshable, Cre
     public Association() {}
 
     public Association(Cursor cursor){
-        associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
-        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
-        owner = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromSoundViewCursor(cursor);
+        owner = SoundCloudApplication.MODEL_MANAGER.getUser(cursor.getLong(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_OWNER_ID)));
+        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_TIMESTAMP)));
+        associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_TYPE));
     }
 
     public Association(Date associatedAt, int associationType) {

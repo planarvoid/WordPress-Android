@@ -231,8 +231,8 @@ public class TestHelper {
     }
 
     public static UserAssociation insertAsUserAssociation(User user, UserAssociation.Type assocType) {
-        UserAssociation ua = new UserAssociation(user, new Date(), assocType);
-        TestHelper.insertWithDependencies(Content.COLLECTION_ITEMS.uri, ua);
+        UserAssociation ua = new UserAssociation(user, assocType, new Date());
+        TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, ua);
         return ua;
     }
 
@@ -261,8 +261,7 @@ public class TestHelper {
         return resolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
     }
 
-
-    public static int bulkInsertToCollectionItems(List<? extends ScResource> resources, Uri collectionUri) {
+    public static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri) {
         SoundCloudApplication application = DefaultTestRunner.application;
         final long userId = SoundCloudApplication.getUserId();
 
@@ -274,9 +273,9 @@ public class TestHelper {
             r.putFullContentValues(map);
             ContentValues contentValues = new ContentValues();
 
-            contentValues.put(DBHelper.CollectionItems.POSITION, i);
-            contentValues.put(DBHelper.CollectionItems.ITEM_ID, r.id);
-            contentValues.put(DBHelper.CollectionItems.USER_ID, userId);
+            contentValues.put(DBHelper.UserAssociations.POSITION, i);
+            contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.id);
+            contentValues.put(DBHelper.UserAssociations.OWNER_ID, userId);
             map.add(collectionUri, contentValues);
         }
         ContentResolver resolver = application.getContentResolver();

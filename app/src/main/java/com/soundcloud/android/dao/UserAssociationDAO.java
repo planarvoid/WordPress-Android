@@ -34,9 +34,9 @@ class UserAssociationDAO extends BaseDAO<UserAssociation> {
 
     @Override
     public boolean delete(UserAssociation resource) {
-        String where = DBHelper.CollectionItems.ITEM_ID + "=? AND " +
-                DBHelper.CollectionItems.RESOURCE_TYPE + "=? AND " +
-                DBHelper.CollectionItems.COLLECTION_TYPE + "=?";
+        String where = DBHelper.UserAssociations.TARGET_ID + "=? AND " +
+                DBHelper.UserAssociations.RESOURCE_TYPE + "=? AND " +
+                DBHelper.UserAssociations.ASSOCIATION_TYPE + "=?";
 
         return delete(getContent().uri,
                 where,
@@ -47,7 +47,7 @@ class UserAssociationDAO extends BaseDAO<UserAssociation> {
 
     @Override
     public Content getContent() {
-        return Content.COLLECTION_ITEMS;
+        return Content.USER_ASSOCIATIONS;
     }
 
     @NotNull
