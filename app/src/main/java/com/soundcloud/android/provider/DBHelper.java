@@ -1,6 +1,7 @@
 package com.soundcloud.android.provider;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
 
@@ -1166,11 +1167,19 @@ public class DBHelper extends SQLiteOpenHelper {
         return upgradeTo21(db, oldVersion);
     }
 
-    // Added User Associations view and refactored association views in general
+    // Moved UserAssociations to new table, added User Associations view and refactored association views in general
     private static boolean upgradeTo23(SQLiteDatabase db, int oldVersion) {
         try {
             Table.USER_ASSOCIATIONS.recreate(db);
             String[] toAppendCols = new String[]{
+                    UserAssociations.OWNER_ID,
+                    UserAssociations.TARGET_ID,
+                    UserAssociations.RESOURCE_TYPE,
+                    UserAssociations.ASSOCIATION_TYPE,
+                    UserAssociations.POSITION,
+                    UserAssociations.CREATED_AT
+            };
+            String[] fromAppendCols = new String[]{
                     CollectionItems.USER_ID,
                     CollectionItems.ITEM_ID,
                     CollectionItems.RESOURCE_TYPE,
@@ -1178,21 +1187,13 @@ public class DBHelper extends SQLiteOpenHelper {
                     CollectionItems.POSITION,
                     CollectionItems.CREATED_AT
             };
-            String[] fromAppendCols = new String[]{
-                    UserAssociations.OWNER_ID,
-                    UserAssociations.TARGET_ID,
-                    UserAssociations.RESOURCE_TYPE,
-                    UserAssociations.ASSOCIATION_TYPE,
-                    UserAssociations.POSITION,
-                    CollectionItems.CREATED_AT
-            };
-            Object[] userTypes = new Object[]{
-                    ScContentProvider.CollectionItemTypes.FOLLOWER,
-                    ScContentProvider.CollectionItemTypes.FOLLOWING,
-                    ScContentProvider.CollectionItemTypes.FRIEND
+            String[] userTypes = new String[]{
+                    String.valueOf(ScContentProvider.CollectionItemTypes.FOLLOWER),
+                    String.valueOf(ScContentProvider.CollectionItemTypes.FOLLOWING),
+                    String.valueOf(ScContentProvider.CollectionItemTypes.FRIEND)
             };
 
-            final String sql = String.format( Locale.ENGLISH,
+            String sql = String.format( Locale.ENGLISH,
                     "INSERT INTO %s (%s) SELECT %s from %s where %s in (%s)",
                     Table.USER_ASSOCIATIONS.name,
                     TextUtils.join(",", toAppendCols),
@@ -1202,6 +1203,12 @@ public class DBHelper extends SQLiteOpenHelper {
                     TextUtils.join(",", userTypes));
 
             db.execSQL(sql);
+
+            int moved = db.delete(Table.COLLECTION_ITEMS.name,
+                    ResolverHelper.getWhereInClause(CollectionItems.COLLECTION_TYPE, userTypes.length),
+                    userTypes);
+
+            Log.d(TAG,"Moved " + moved + " associations to the UserAssociations table during upgrade");
 
             Table.SOUND_ASSOCIATION_VIEW.recreate(db);
             Table.USER_ASSOCIATION_VIEW.recreate(db);
