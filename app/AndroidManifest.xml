@@ -497,14 +497,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".CodeReceiver">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SECRET_CODE"/>
-                <!-- *#*#SCPLAYDEBUG#*#* -->
-                <data android:scheme="android_secret_code" android:host="12345"/>
-            </intent-filter>
-        </receiver>
-
         <receiver android:name=".provider.ScContentProvider$TrackUnavailableListener">
             <intent-filter>
                 <action android:name="com.soundcloud.android.trackunavailable"/>
