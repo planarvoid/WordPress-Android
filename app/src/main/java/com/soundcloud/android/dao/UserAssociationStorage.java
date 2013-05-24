@@ -69,7 +69,7 @@ public class UserAssociationStorage {
                                 final int startPosition, int batchSize) {
         // insert in batches so as to not hold a write lock in a single transaction for too long
         int positionOffset = startPosition;
-        for (int i = startPosition; i < targetIds.size(); i += batchSize) {
+        for (int i = 0; i < targetIds.size(); i += batchSize) {
 
             List<Long> idBatch = targetIds.subList(i, Math.min(i + batchSize, targetIds.size()));
             ContentValues[] cv = new ContentValues[idBatch.size()];
