@@ -1,14 +1,14 @@
 package com.soundcloud.android.tests;
 
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -62,7 +62,7 @@ public final class IntegrationTestHelper {
             }
             User user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
             assertNotNull("could not get test user", user);
-            assertNotNull("addAccount failed", SoundCloudApplication.addAccount(context, user, token, SignupVia.NONE));
+            assertNotNull("addAccount failed", new AccountOperations(instrumentation.getContext()).addSoundCloudAccountExplicitly(user, token, SignupVia.NONE));
             return account;
         } else {
             Log.d(TAG, "already logged in as user "+account);
@@ -77,9 +77,7 @@ public final class IntegrationTestHelper {
     public static boolean logOut(Context context) throws Exception {
         Account account = getAccount(context);
         if (account != null) {
-            assertTrue(AccountManager.get(context).removeAccount(account, null, null).getResult());
-            SoundCloudApplication app = (SoundCloudApplication) context.getApplicationContext();
-            app.onAccountRemoved(account);
+            new AccountOperations(context).removeSoundCloudAccount(new ScObserver<Void>() {});
             return true;
         } else {
             return false;
