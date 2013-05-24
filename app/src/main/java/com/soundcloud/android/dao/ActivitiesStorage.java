@@ -26,6 +26,7 @@ public class ActivitiesStorage {
         mActivitiesDAO = new ActivityDAO(mResolver);
     }
 
+    @Deprecated
     public Activities getSince(Uri contentUri, long since)  {
         if (Log.isLoggable(TAG, Log.DEBUG))
             Log.d(TAG, "Activities.getSince("+contentUri+", since="+since+")");
@@ -44,15 +45,17 @@ public class ActivitiesStorage {
         return activities;
     }
 
+    @Deprecated
     public Activities getSince(Content content, long before)  {
         return getSince(content.uri, before);
     }
 
+    @Deprecated
     public Activities get(Content content) {
         return getSince(content, 0);
     }
 
-
+    @Deprecated
     public @Nullable Activity getLastActivity(Content content) {
         return mActivitiesDAO.buildQuery(content.uri)
                 .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
@@ -60,6 +63,7 @@ public class ActivitiesStorage {
                 .first();
     }
 
+    @Deprecated
     public @Nullable Activity getFirstActivity(Content content) {
         return mActivitiesDAO.buildQuery(content.uri)
                 .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
@@ -67,6 +71,7 @@ public class ActivitiesStorage {
                 .first();
     }
 
+    @Deprecated
     public Activities getBefore(Uri contentUri, long before)  {
         if (Log.isLoggable(TAG, Log.DEBUG))
             Log.d(TAG, "Activities.getBefore("+contentUri+", before="+before+")");
@@ -82,11 +87,13 @@ public class ActivitiesStorage {
         return activities;
     }
 
+    @Deprecated
     public int getCountSince(long since, Content content) {
         String selection = DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?";
         return mActivitiesDAO.count(selection, String.valueOf(content.id), String.valueOf(since));
     }
 
+    @Deprecated
     public int clear(@Nullable Content content) {
         Content contentToDelete = Content.ME_ALL_ACTIVITIES;
         if (content != null) {
@@ -107,6 +114,7 @@ public class ActivitiesStorage {
         return mResolver.delete(contentToDelete.uri, null, null);
     }
 
+    @Deprecated
     public int insert(Content content, Activities activities) {
         return mActivitiesDAO.insert(content, activities);
     }
