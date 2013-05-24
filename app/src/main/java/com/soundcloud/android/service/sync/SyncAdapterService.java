@@ -3,6 +3,7 @@ package com.soundcloud.android.service.sync;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
@@ -277,7 +278,7 @@ public class SyncAdapterService extends Service {
 
         final Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
+        ContentResolver.requestSync(new AccountOperations(app).getSoundCloudAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
     private static void clearActivities() {

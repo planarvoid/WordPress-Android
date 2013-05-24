@@ -7,6 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -61,6 +62,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private TransportBar mTransportBar;
     private @Nullable CloudPlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1, mCommentingPosition = -1;
+    private AccountOperations accountOperations;
 
     public int getCommentPosition() {
         return mCommentingPosition;
@@ -78,6 +80,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.sc_player);
+        accountOperations = new AccountOperations(this);
 
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
         mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);
@@ -90,7 +93,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTransportBar.setOnPauseListener(mPauseListener);
         mTransportBar.setOnCommentListener(mCommentListener);
 
-        mShouldShowComments = getApp().getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
+        mShouldShowComments = accountOperations.getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -128,7 +131,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     public void toggleShowingComments() {
         mShouldShowComments = !mShouldShowComments;
-        getApp().setAccountData(PLAYER_SHOWING_COMMENTS, mShouldShowComments);
+        accountOperations.setAccountData(PLAYER_SHOWING_COMMENTS, Boolean.toString(mShouldShowComments));
     }
 
     public boolean shouldShowComments() {

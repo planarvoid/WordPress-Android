@@ -3,7 +3,7 @@ package com.soundcloud.android.c2dm;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.SyncAdapterService;
@@ -52,9 +52,12 @@ public class C2DMReceiver extends BroadcastReceiver {
     public static final String SC_URI                  = "uri";
 
     private PowerManager.WakeLock mWakeLock;
+    private AccountOperations accountOperations;
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        accountOperations = new AccountOperations(context);
+
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceive(" + intent + ")");
 
         if (mWakeLock == null) {
@@ -126,7 +129,7 @@ public class C2DMReceiver extends BroadcastReceiver {
 //        processDeletionQueue(context, lock);
     }
 
-    public static synchronized void unregister(Context context) {
+    public synchronized void unregister(Context context) {
         if (!isEnabled()) return;
 
         clearRegistrationData(context);
@@ -227,11 +230,9 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private void onReceiveMessage(Context context, Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceiveMessage(" + intent + ")");
-        final Account account = SoundCloudApplication.fromContext(context).getAccount();
 
-        if (account == null) {
-            Log.w(TAG, "push event received but no account registered - ignoring");
-        } else {
+        if (accountOperations.soundCloudAccountExists()) {
+            Account account = accountOperations.getSoundCloudAccount();
             final PushEvent event = PushEvent.fromIntent(intent);
             switch (event) {
                 case LIKE:
@@ -256,7 +257,10 @@ public class C2DMReceiver extends BroadcastReceiver {
                     // other types not handled yet
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "unhandled event "+event);
             }
+        }  else {
+            Log.w(TAG, "push event received but no account registered - ignoring");
         }
+
     }
 
     /* package */ static String getRegistrationData(Context context, String key) {

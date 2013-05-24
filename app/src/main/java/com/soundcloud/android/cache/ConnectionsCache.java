@@ -44,8 +44,8 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
         return sInstance;
     }
 
-    public synchronized static void set(ConnectionsCache status) {
-        sInstance = status;
+    public synchronized static void reset() {
+        sInstance = null;
     }
 
     private void onContentChanged() {

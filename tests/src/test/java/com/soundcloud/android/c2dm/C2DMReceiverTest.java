@@ -1,6 +1,7 @@
 package com.soundcloud.android.c2dm;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -8,6 +9,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowAccountManager;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -30,7 +32,7 @@ public class C2DMReceiverTest {
     public void registerShouldTriggerServiceStart() throws Exception {
         C2DMReceiver.register(DefaultTestRunner.application);
 
-        ShadowApplication ctxt = Robolectric.shadowOf(DefaultTestRunner.application);
+        ShadowApplication ctxt = shadowOf(DefaultTestRunner.application);
 
         Intent svc = ctxt.getNextStartedService();
         expect(svc.getAction()).toEqual(C2DMReceiver.ACTION_REGISTER);
@@ -45,7 +47,7 @@ public class C2DMReceiverTest {
         C2DMReceiver.setRegistrationData(DefaultTestRunner.application, Consts.PrefKeys.C2DM_DEVICE_URL, "http://foo.com");
         C2DMReceiver.register(DefaultTestRunner.application);
 
-        ShadowApplication ctxt = Robolectric.shadowOf(DefaultTestRunner.application);
+        ShadowApplication ctxt = shadowOf(DefaultTestRunner.application);
         Intent svc = ctxt.getNextStartedService();
         expect(svc).toBeNull();
     }
@@ -63,9 +65,9 @@ public class C2DMReceiverTest {
 
     @Test
     public void unregisterShouldTriggerServiceStart() throws Exception {
-        C2DMReceiver.unregister(DefaultTestRunner.application);
+        new C2DMReceiver().unregister(DefaultTestRunner.application);
 
-        ShadowApplication ctxt = Robolectric.shadowOf(DefaultTestRunner.application);
+        ShadowApplication ctxt = shadowOf(DefaultTestRunner.application);
 
         Intent svc = ctxt.getNextStartedService();
         expect(svc.getAction()).toEqual(C2DMReceiver.ACTION_UNREGISTER);
@@ -79,7 +81,7 @@ public class C2DMReceiverTest {
                 Consts.PrefKeys.C2DM_DEVICE_URL, "http://foo");
 
 
-        C2DMReceiver.unregister(DefaultTestRunner.application);
+        new C2DMReceiver().unregister(DefaultTestRunner.application);
 
         Robolectric.addHttpResponseRule("DELETE", "http://foo", new TestHttpResponse(200, ""));
         C2DMReceiver.processDeletionQueue(DefaultTestRunner.application, null);
@@ -89,13 +91,13 @@ public class C2DMReceiverTest {
     public void itShouldntDoAnyThingOnPreGingerbread() throws Exception {
         TestHelper.setSdkVersion(5);
         C2DMReceiver.register(DefaultTestRunner.application);
-        C2DMReceiver.unregister(DefaultTestRunner.application);
+        new C2DMReceiver().unregister(DefaultTestRunner.application);
     }
 
     @Test
     public void shouldForceSyncOnPushNotification() throws Exception {
-        Account account = new Account("test", "type");
-        DefaultTestRunner.application.useAccount(account);
+        Account account = new Account("test", "com.soundcloud.android.account");
+        shadowOf(ShadowAccountManager.get(DefaultTestRunner.application)).addAccount(account);
 
         C2DMReceiver receiver = new C2DMReceiver();
 

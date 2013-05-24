@@ -8,6 +8,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.CommentAdapter;
@@ -100,6 +101,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private SyncStateManager mSyncStateManager;
 
     private int mRetainedListPosition;
+    private AccountOperations accountOperations;
 
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
@@ -137,6 +139,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         mEmptyListViewFactory = new EmptyListViewFactory().forContent(getActivity(), mContent, null);
         mKeepGoing = true;
         setupListAdapter();
+        accountOperations = new AccountOperations(getActivity());
     }
 
     @Override
@@ -616,7 +619,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void onDataConnectionUpdated(boolean isConnected) {
         final ScBaseAdapter adapter = getListAdapter();
         if (isConnected && adapter != null) {
-            if (adapter.needsItems() && getScActivity() != null && getScActivity().getApp().getAccount() != null) {
+            if (adapter.needsItems() && getScActivity() != null && accountOperations.soundCloudAccountExists()) {
                 refresh(false);
             }
         }

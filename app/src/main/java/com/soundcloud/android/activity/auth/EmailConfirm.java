@@ -6,6 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.tracking.Page;
@@ -26,10 +27,12 @@ import java.io.IOException;
 public class EmailConfirm extends ScActivity {
     public static final String PREF_LAST_REMINDED = "confirmation_last_reminded";
     public static final int REMIND_PERIOD = 86400 * 1000 * 7; // 1 week
+    private AccountOperations accountOperations;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        accountOperations = new AccountOperations(this);
         final long lastReminded = getLastReminded();
 
         if (lastReminded > 0 && System.currentTimeMillis() - lastReminded < REMIND_PERIOD) {
@@ -69,16 +72,16 @@ public class EmailConfirm extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getApp().track(getClass());
+        getApp().track(EmailConfirm.class);
     }
 
     private void updateLastReminded() {
-        getApp().setAccountData(PREF_LAST_REMINDED, System.currentTimeMillis() + "");
+        accountOperations.setAccountData(PREF_LAST_REMINDED, System.currentTimeMillis() + "");
     }
 
     // XXX this check should happen earlier
     private long getLastReminded() {
-        return getApp().getAccountDataLong(PREF_LAST_REMINDED);
+        return accountOperations.getAccountDataLong(PREF_LAST_REMINDED);
     }
 
     static class ResendConfirmationTask extends AsyncApiTask<Void, Void, Boolean> {

@@ -30,7 +30,7 @@ public class AssociationManagerTest {
     @Before
     public void before() {
         associationManager = new AssociationManager(Robolectric.application,  SoundCloudApplication.MODEL_MANAGER);
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
     }
 
     @Test

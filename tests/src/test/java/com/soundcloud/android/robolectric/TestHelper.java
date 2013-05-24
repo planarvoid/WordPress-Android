@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.behavior.Identifiable;
 import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.Playable;
@@ -21,12 +22,14 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowAccountManager;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import com.xtremelabs.robolectric.shadows.ShadowNetworkInfo;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 
+import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -356,5 +359,17 @@ public class TestHelper {
         Playlist playlist = Playlist.newUserPlaylist(user, title, isPrivate, tracks);
         insertWithDependencies(playlist);
         return playlist;
+    }
+
+    public static void setUserId(long id){
+        ShadowAccountManager shadowAccountManager = shadowOf(ShadowAccountManager.get(DefaultTestRunner.application));
+        AccountOperations accountOperations = new AccountOperations(DefaultTestRunner.application);
+
+        if(!accountOperations.soundCloudAccountExists()){
+            shadowAccountManager.addAccount(new Account("name", "com.soundcloud.android.account"));
+        }
+
+        accountOperations.setAccountData(User.DataKeys.USER_ID, Long.toString(id));
+
     }
 }

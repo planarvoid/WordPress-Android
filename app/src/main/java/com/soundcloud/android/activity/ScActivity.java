@@ -7,6 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.landing.FriendFinder;
 import com.soundcloud.android.activity.landing.Home;
@@ -63,13 +64,15 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
+    private AccountOperations accountOperations;
+
     @Nullable
     private ActionBarController mActionBarController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        accountOperations = new AccountOperations(this);
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
 
@@ -234,7 +237,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     protected void onResume() {
         super.onResume();
 
-        if (getApp().getAccount() == null) {
+        if (!accountOperations.soundCloudAccountExists()) {
             pausePlayback();
             finish();
             return;

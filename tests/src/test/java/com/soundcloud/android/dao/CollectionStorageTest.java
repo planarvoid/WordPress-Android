@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.AndroidCloudAPI;
@@ -31,6 +32,7 @@ import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.provider.BaseColumns;
 
 import java.util.ArrayList;
@@ -48,9 +50,9 @@ public class CollectionStorageTest {
 
     @Before
     public void before() {
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        storage = new CollectionStorage();
+        storage = new CollectionStorage(DefaultTestRunner.application);
     }
 
     @Test
@@ -92,7 +94,10 @@ public class CollectionStorageTest {
     @Test
     public void shouldGetIdsOfPersistedResourcesInBatches() {
         ContentResolver resolverMock = mock(ContentResolver.class);
-        storage = new CollectionStorage(resolverMock);
+        Context mockContext = mock(Context.class);
+        when(mockContext.getContentResolver()).thenReturn(resolverMock);
+        storage = new CollectionStorage(mockContext);
+
         Long[] requestedIds = new Long[1300];
         Arrays.fill(requestedIds, 1L);
 

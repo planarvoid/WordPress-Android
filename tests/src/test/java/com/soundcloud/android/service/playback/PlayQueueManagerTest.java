@@ -32,7 +32,7 @@ public class PlayQueueManagerTest {
     public void before() {
         resolver = Robolectric.application.getContentResolver();
         pm = new PlayQueueManager(Robolectric.application, USER_ID);
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
     }
 
     @Test
@@ -323,7 +323,7 @@ public class PlayQueueManagerTest {
         pm.setPlayQueue(createTracks(10, true, 0), 5);
         pm.saveQueue(1235);
 
-        PlayQueueManager.clearState(Robolectric.application);
+        pm.clearState();
         expect(pm.reloadQueue()).toEqual(-1L);
 
         PlayQueueManager pm2 = new PlayQueueManager(Robolectric.application, USER_ID);

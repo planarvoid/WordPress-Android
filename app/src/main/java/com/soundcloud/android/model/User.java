@@ -228,6 +228,13 @@ public class User extends ScResource implements Refreshable {
         }
     }
 
+    public String username(){
+        return username;
+    }
+
+    public String permalink(){
+        return permalink;
+    }
     public String getDisplayName() {
         if (!TextUtils.isEmpty(username)){
             return username;
