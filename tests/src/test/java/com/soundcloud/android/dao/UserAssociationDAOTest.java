@@ -33,16 +33,6 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
     @Before
     public void before() {
         super.before();
-        // add a collection item that is not a UserAssociation, so that we can test for
-        // proper separation of other data stored in the CollectionItems table
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.CollectionItems.ITEM_ID, 1L);
-        cv.put(DBHelper.CollectionItems.USER_ID, OWNER_ID);
-        cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, CollectionItemTypes.LIKE);
-        DBHelper helper = new DBHelper(DefaultTestRunner.application);
-        Content.COLLECTION_ITEMS.table.insertOrReplace(helper.getWritableDatabase(), cv);
-        expect(resolver.query(Content.COLLECTION_ITEMS.uri, null, null, null, null).getCount()).toBe(1);
-
         insertUser();
     }
 

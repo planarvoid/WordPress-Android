@@ -282,6 +282,18 @@ public class TestHelper {
         return map.insert(resolver);
     }
 
+    public static int bulkInsertDummyIdsToUserAssociations(Uri collectionUri, int count, long userId) {
+        ContentValues[] cv = new ContentValues[count];
+        for (int i = 0; i < count; i++) {
+            cv[i] = new ContentValues();
+            cv[i].put(DBHelper.UserAssociations.POSITION, i);
+            cv[i].put(DBHelper.UserAssociations.TARGET_ID, i);
+            cv[i].put(DBHelper.UserAssociations.OWNER_ID, userId);
+        }
+        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        return resolver.bulkInsert(collectionUri, cv);
+    }
+
     public static <T extends ScModel> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass) throws Exception {
         Cursor itemsCursor = DefaultTestRunner.application.getContentResolver().query(contentUri, null, null, null, null);
         List<T> items = new ArrayList<T>();

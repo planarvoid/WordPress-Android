@@ -170,7 +170,7 @@ public class ApiSyncerTest {
         syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
         verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
         verify(resolver).query(eq(ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWERS.uri)),
-                eq((String[]) null), eq((String) null), eq((String[]) null), eq((String) null));
+                isNull(String[].class), isNull(String.class), isNull(String[].class), isNull(String.class));
         verifyNoMoreInteractions(resolver);
     }
 
@@ -188,7 +188,7 @@ public class ApiSyncerTest {
 
         verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
         verify(resolver).query(eq(ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWERS.uri)),
-                eq((String[]) null), eq((String) null), eq((String[]) null), eq((String) null));
+                isNull(String[].class), isNull(String.class), isNull(String[].class), isNull(String.class));
         verifyNoMoreInteractions(resolver);
     }
 

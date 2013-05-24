@@ -41,11 +41,9 @@ public class UserAssociationStorage {
 
     public List<Long> deleteAssociations(Uri uri, List<Long> itemDeletions) {
         if (!itemDeletions.isEmpty()) {
-            int i = 0;
-            while (i < itemDeletions.size()) {
+            for (int i = 0; i < itemDeletions.size(); i += BaseDAO.RESOLVER_BATCH_SIZE) {
                 List<Long> batch = itemDeletions.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, itemDeletions.size()));
                 mResolver.delete(uri, getWhereInClause(DBHelper.UserAssociations.TARGET_ID, batch.size()), longListToStringArr(batch));
-                i += BaseDAO.RESOLVER_BATCH_SIZE;
             }
         }
         return itemDeletions;
@@ -69,23 +67,12 @@ public class UserAssociationStorage {
 
     public void insertInBatches(final Content content, final long ownerId, final List<Long> targetIds,
                                 final int startPosition, int batchSize) {
-        int numBatches = 1;
-        if (targetIds.size() > batchSize) {
-            // split up the transaction into batches, so as to not block readers too long
-            numBatches = (int) Math.ceil((float) targetIds.size() / batchSize);
-        } else {
-            batchSize = targetIds.size();
-        }
-
         // insert in batches so as to not hold a write lock in a single transaction for too long
         int positionOffset = startPosition;
-        for (int i = 0; i < numBatches; i++) {
-            int batchStart = i * batchSize;
-            int batchEnd = Math.min(batchStart + batchSize, targetIds.size());
+        for (int i = startPosition; i < targetIds.size(); i += batchSize) {
 
-            List<Long> idBatch = targetIds.subList(batchStart, batchEnd);
+            List<Long> idBatch = targetIds.subList(i, Math.min(i + batchSize, targetIds.size()));
             ContentValues[] cv = new ContentValues[idBatch.size()];
-
             for (int j = 0; j < idBatch.size(); j++) {
                 long id = idBatch.get(j);
                 cv[j] = new ContentValues();

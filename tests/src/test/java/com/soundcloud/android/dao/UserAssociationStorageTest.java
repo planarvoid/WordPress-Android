@@ -50,16 +50,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldGetLocalIds() throws Exception {
-        final int SIZE = 107;
-        ContentValues[] cv = new ContentValues[SIZE];
-        for (int i = 0; i < SIZE; i++) {
-            cv[i] = new ContentValues();
-            cv[i].put(DBHelper.UserAssociations.POSITION, i);
-            cv[i].put(DBHelper.UserAssociations.TARGET_ID, i);
-            cv[i].put(DBHelper.UserAssociations.OWNER_ID, USER_ID);
-        }
-
-        resolver.bulkInsert(Content.ME_FOLLOWERS.uri, cv);
+        TestHelper.bulkInsertDummyIdsToUserAssociations(Content.ME_FOLLOWERS.uri, 107, USER_ID);
         List<Long> localIds = storage.getStoredIds(Content.ME_FOLLOWERS.uri);
         expect(localIds.size()).toEqual(107);
     }
