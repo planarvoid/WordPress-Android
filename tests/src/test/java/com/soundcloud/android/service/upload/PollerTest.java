@@ -36,7 +36,7 @@ public class PollerTest {
 
     @Before
     public void before() {
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(Robolectric.application);
         lbm.registerReceiver(receiver, UploadService.getIntentFilter());

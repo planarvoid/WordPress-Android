@@ -37,7 +37,7 @@ public class ActivitiesTest {
 
     @Before
     public void before() {
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
         // XXX Code in Activities refers to MODEL_MANAGER, remove circular references
         manager = SoundCloudApplication.MODEL_MANAGER;
         resolver = Robolectric.application.getContentResolver();

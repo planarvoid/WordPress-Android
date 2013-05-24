@@ -18,7 +18,7 @@ public class ConnectionTest {
 
     @Test
     public void shouldPersistConnections() throws Exception {
-        DefaultTestRunner.application.setCurrentUserId(100L);
+        TestHelper.setUserId(100L);
 
         Connection[] connections = TestHelper.getObjectMapper()
                 .readValue(ApiSyncerTest.class.getResourceAsStream("connections.json"), Connection[].class);

@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.auth.EmailConfirm;
 import com.soundcloud.android.dao.UserStorage;
@@ -24,13 +25,15 @@ import android.util.Log;
 
 public class Home extends ScActivity implements ScLandingPage {
     private FetchUserTask mFetchUserTask;
+    private AccountOperations accountOperations;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        accountOperations = new AccountOperations(this);
         setTitle(getString(R.string.side_menu_stream));
         final SoundCloudApplication app = getApp();
-        if (app.getAccount() != null) {
+        if (accountOperations.soundCloudAccountExists()) {
             if (state == null) {
                 getSupportFragmentManager().beginTransaction()
 //                        .add(mRootView.getContentHolderId(), ActivitiesFragment.create(Content.ME_SOUND_STREAM))
@@ -46,7 +49,7 @@ public class Home extends ScActivity implements ScLandingPage {
             }
 
             if (IOUtils.isConnected(this) &&
-                    app.getAccount() != null &&
+                    accountOperations.soundCloudAccountExists() &&
                     app.getToken().valid() &&
                     !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
                     !justAuthenticated(getIntent())) {
@@ -63,8 +66,8 @@ public class Home extends ScActivity implements ScLandingPage {
     @Override
     protected void onResume() {
         super.onResume();
-        if (getApp().getAccount() == null) {
-            getApp().addAccount(this);
+        if (!accountOperations.soundCloudAccountExists()) {
+            accountOperations.addSoundCloudAccountManually(this);
             finish();
         }
     }

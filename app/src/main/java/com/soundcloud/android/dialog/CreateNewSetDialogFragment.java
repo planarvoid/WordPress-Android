@@ -2,6 +2,7 @@ package com.soundcloud.android.dialog;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.dao.SoundAssociationStorage;
 import com.soundcloud.android.model.Playlist;
@@ -31,6 +32,8 @@ import android.widget.Toast;
 
 public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 
+    private AccountOperations accountOperations;
+
     public static CreateNewSetDialogFragment from(long trackId) {
 
         Bundle b = new Bundle();
@@ -43,7 +46,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+        accountOperations = new AccountOperations(getActivity());
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_create_new_set, null);
@@ -93,7 +96,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 
     private void createPlaylist(final Editable text, final boolean isPrivate) {
         final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
-        final Account account = ((SoundCloudApplication) getActivity().getApplication()).getAccount();
+        final Account account = accountOperations.getSoundCloudAccount();
 
         PlaylistStorage playlistStorage = getPlaylistStorage().subscribeInBackground();
         // insert the new playlist into the database

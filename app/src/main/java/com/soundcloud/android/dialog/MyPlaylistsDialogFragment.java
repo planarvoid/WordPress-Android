@@ -2,6 +2,7 @@ package com.soundcloud.android.dialog;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -42,6 +43,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
     private static final int NEW_PLAYLIST_ITEM = -1;
 
     private MyPlaylistsAdapter mAdapter;
+    private AccountOperations accountOperations;
 
     public static MyPlaylistsDialogFragment from(Track track) {
         Bundle b = new Bundle();
@@ -55,6 +57,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        accountOperations = new AccountOperations(getActivity());
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         mAdapter = new MyPlaylistsAdapter(getActivity());
 
@@ -104,7 +107,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
         // tell the service to update the playlist
         final SoundCloudApplication soundCloudApplication = SoundCloudApplication.fromContext(getActivity());
         if (soundCloudApplication != null) {
-            ContentResolver.requestSync(soundCloudApplication.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
+            ContentResolver.requestSync(accountOperations.getSoundCloudAccount(), ScContentProvider.AUTHORITY, new Bundle());
         }
 
         final TextView txtTrackCount = (TextView) view.findViewById(R.id.trackCount);

@@ -56,7 +56,7 @@ public class ApiSyncerTest {
 
     @Before
     public void before() {
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
         syncStateManager = new SyncStateManager();
         activitiesStorage = new ActivitiesStorage();

@@ -6,6 +6,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class FollowStatusTest  {
     public void shouldCacheFollowerList() throws Exception {
         // AsyncQueryHandler does not seem to be implemented in Robolectic yet. However, this query is tested elsewhere
 
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
 
         final FollowStatus status = new FollowStatus(DefaultTestRunner.application);
         final int SIZE = 5;

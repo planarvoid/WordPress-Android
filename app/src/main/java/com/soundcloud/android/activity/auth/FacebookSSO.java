@@ -6,6 +6,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
@@ -72,11 +73,13 @@ public class FacebookSSO extends AbstractLoginActivity {
     public static final String ACCESS_DENIED_EXCEPTION = "OAuthAccessDeniedException";
     private Bundle mLoginBundle;
     private TokenInformationGenerator tokenInformationGenerator;
+    private AccountOperations accountOperations;
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         tokenInformationGenerator = new TokenInformationGenerator();
+        accountOperations = new AccountOperations(this);
         Intent auth = getAuthIntent(this, DEFAULT_PERMISSIONS);
         if (validateAppSignatureForIntent(auth)) {
             startActivityForResult(auth, 0);
@@ -358,10 +361,12 @@ public class FacebookSSO extends AbstractLoginActivity {
 
         public boolean store(Context context) {
             // also store in account manager
-            Account acc = SoundCloudApplication.fromContext(context).getAccount();
-            if (acc !=  null) {
+            AccountOperations accountOperations = new AccountOperations(context);
+
+            if (accountOperations.soundCloudAccountExists()) {
+                Account account = accountOperations.getSoundCloudAccount();
                 AccountManager accountManager = AccountManager.get(context);
-                accountManager.setAuthToken(acc, TOKEN_TYPE, accessToken);
+                accountManager.setAuthToken(account, TOKEN_TYPE, accessToken);
             }
 
             SharedPreferences prefs = context.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE);

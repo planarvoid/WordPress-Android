@@ -46,7 +46,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     @Before
     public void before() {
         super.before();
-        DefaultTestRunner.application.setCurrentUserId(100L);
+        TestHelper.setUserId(100L);
 
         // add a collection item that is not a SoundAssociation, so that we can test for
         // proper separation of other data stored in the CollectionItems table

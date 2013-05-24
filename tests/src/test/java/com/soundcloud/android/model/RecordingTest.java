@@ -8,6 +8,7 @@ import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Params;
 import com.xtremelabs.robolectric.Robolectric;
@@ -44,7 +45,7 @@ public class RecordingTest {
     @Before
     public void setup() throws Exception {
         res = Robolectric.application.getResources();
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
     }
 
     @Test

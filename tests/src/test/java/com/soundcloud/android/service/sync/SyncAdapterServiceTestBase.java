@@ -53,6 +53,7 @@ public abstract class SyncAdapterServiceTestBase {
         cv.put(DBHelper.Users._ID, 133201L);
         cv.put(DBHelper.Users.USERNAME, "Foo Bar");
         Robolectric.application.getContentResolver().insert(Content.USERS.uri, cv);
+        TestHelper.setUserId(133201L);
 
         // always notify
         PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
@@ -60,7 +61,6 @@ public abstract class SyncAdapterServiceTestBase {
                 .putString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY, 0+"")
                 .commit();
 
-        DefaultTestRunner.application.setCurrentUserId(100l);
     }
 
     @After

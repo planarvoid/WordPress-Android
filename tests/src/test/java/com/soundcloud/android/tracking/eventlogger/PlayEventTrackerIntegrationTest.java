@@ -42,7 +42,7 @@ public class PlayEventTrackerIntegrationTest {
 
     @Before
     public void setup() {
-        DefaultTestRunner.application.setCurrentUserId(1);
+        TestHelper.setUserId(1);
         List<Track> tracks = Arrays.asList(new Track[] { currentTrack, nextTrack });
 
 //        SoundCloudDB.insertCollection(DefaultTestRunner.application.getContentResolver(),
@@ -67,7 +67,7 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test
     public void shouldTrackPlayEventForFirstTrack() {
-        DefaultTestRunner.application.setCurrentUserId(456);
+        TestHelper.setUserId(456);
 
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
 
@@ -82,7 +82,7 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test
     public void shouldTrackPlayEventForLoggedOutUser() {
-        DefaultTestRunner.application.setCurrentUserId(-1);
+        TestHelper.setUserId(-1);
 
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
 
