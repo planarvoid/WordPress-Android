@@ -1,8 +1,10 @@
 package com.soundcloud.android.model;
 
+import com.google.common.base.Objects;
+
 public class Genre extends ScModel {
 
-    public enum Grouping { MUSIC, AUDIO }
+    public enum Grouping { FACEBOOK_LIKES, FACEBOOK_FRIENDS, MUSIC, AUDIO }
 
     private String mName, mPermalink;
     private Grouping mGrouping;
@@ -33,5 +35,19 @@ public class Genre extends ScModel {
 
     public void setPermalink(String permalink) {
         this.mPermalink = permalink;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Genre)) {
+            return false;
+        }
+        Genre that = (Genre) o;
+        return Objects.equal(mPermalink, that.mPermalink);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mPermalink);
     }
 }
