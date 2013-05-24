@@ -9,12 +9,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.annotation.TargetApi;
@@ -25,12 +27,16 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceGroup;
-import android.util.Log;
+import android.preference.PreferenceManager;
+import com.soundcloud.android.utils.Log;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -50,6 +56,10 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
+    public static final String VERSION = "version";
+    public static final int CLICKS_TO_DEBUG_MODE = 5;
+
+    private int mClicksToDebug = CLICKS_TO_DEBUG_MODE;
 
     private ProgressDialog mDeleteDialog;
 
@@ -187,11 +197,43 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                     }
                 });
 
+        final Preference versionPref = findPreference(VERSION);
+        versionPref.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        mClicksToDebug--;
+                        if (mClicksToDebug == 0) {
+                            togglePlaybackDebugMode();
+                            mClicksToDebug = CLICKS_TO_DEBUG_MODE; // reset for another toggle
+                        }
+                        return true;
+                    }
+                });
+
+        try {
+            versionPref.setSummary(getPackageManager()
+                    .getPackageInfo(getPackageName(), 0).versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Unable to get verion info ", e);
+            versionPref.setSummary(getString(R.string.unavailable));
+        }
+
+
         if (!SoundCloudApplication.DEV_MODE) {
             getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
         } else {
             DevSettings.setup(this, getApp());
         }
+    }
+
+    private void togglePlaybackDebugMode() {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final boolean enabled = !preferences.getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false);
+        SharedPreferencesUtils.apply(preferences.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, enabled));
+
+        Log.d(CloudPlaybackService.TAG, "toggling error reporting (enabled=" + enabled + ")");
+        AndroidUtils.showToast(this, getString(R.string.playback_error_logging, getText(enabled ? R.string.enabled : R.string.disabled)));
+
     }
 
     public void safeShowDialog(int dialogId) {

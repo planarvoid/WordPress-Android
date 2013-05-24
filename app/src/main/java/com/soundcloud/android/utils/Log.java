@@ -53,6 +53,12 @@ public class Log {
         }
     }
 
+    public static void e(@NotNull final String tag, @NotNull final String message, @NotNull Throwable exception) {
+        if (android.util.Log.isLoggable(tag, android.util.Log.ERROR)) {
+            android.util.Log.e(tag, message, exception);
+        }
+    }
+
     public static void e(@NotNull final Object obj, @NotNull final String message) {
         e(obj.getClass().getSimpleName(), message);
     }
