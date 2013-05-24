@@ -7,6 +7,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import com.google.common.collect.ContiguousSet;
+import com.google.common.collect.DiscreteDomain;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -73,7 +77,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldInsertInSingleBatchIfCollectionIsSmallEnough() throws Exception {
-        List<Long> ids = createIdList(BATCH_SIZE);
+        List<Long> ids = Lists.newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE), DiscreteDomain.longs()));
 
         ContentResolver resolver = Mockito.mock(ContentResolver.class);
         new UserAssociationStorage(resolver).insertInBatches(Content.ME_FOLLOWERS,USER_ID,ids,0, BATCH_SIZE);
@@ -83,7 +87,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldInsertInBatchesIfCollectionIsTooLarge() throws Exception {
-        List<Long> ids = createIdList(BATCH_SIZE * 2);
+        List<Long> ids = Lists.newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE * 2), DiscreteDomain.longs()));
 
         ContentResolver resolver = Mockito.mock(ContentResolver.class);
         new UserAssociationStorage(resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
@@ -107,11 +111,4 @@ public class UserAssociationStorageTest {
         return items;
     }
 
-    private static List<Long> createIdList(int count) {
-        List<Long> ids = new ArrayList<Long>();
-        for (long i = 0; i < count; i++) {
-            ids.add(i);
-        }
-        return ids;
-    }
 }
