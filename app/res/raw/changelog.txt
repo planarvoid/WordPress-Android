@@ -1,5 +1,14 @@
-$ 62
+$ 63
   % v current
+  _ 2013-05-24
+    ! Maintenance
+    * Restored lockscreen
+    * Fixed occasional false empty screens after logout/login
+    * Made playback debugging available in non-dialer devices
+    * Fixed cancelable auth dialogs
+
+$ 62
+  % v 2.6.1
   _ 2013-05-13
     ! Maintenance
     * App stability and crash fixes for larger accounts

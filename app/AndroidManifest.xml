@@ -3,7 +3,7 @@
       package="com.soundcloud.android"
       android:versionName="2.6.2-BETA1"
       android:installLocation="auto"
-      android:versionCode="62">
+      android:versionCode="63">
 
     <supports-screens android:anyDensity="true" />
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
@@ -494,14 +494,6 @@
 
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACCOUNT_ADDED" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name=".CodeReceiver">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SECRET_CODE"/>
-                <!-- *#*#SCPLAYDEBUG#*#* -->
-                <data android:scheme="android_secret_code" android:host="12345"/>
             </intent-filter>
         </receiver>
 

@@ -406,10 +406,21 @@ public final class IOUtils {
         }
     }
 
-    public static void close(Closeable file) {
-        if (file != null) {
+    /**
+     * Closes a cursor. These cannot use the {@link this#close(java.io.Closeable)}
+     * function as cursors do not implement Closeable pre-honecomb
+     * @param cursor
+     */
+    public static void close(Cursor cursor) {
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
+
+    public static void close(Closeable closeable) {
+        if (closeable != null) {
             try {
-                file.close();
+                closeable.close();
             } catch (IOException ignored) {
             }
         }

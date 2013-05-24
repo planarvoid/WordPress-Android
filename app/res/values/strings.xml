@@ -188,6 +188,9 @@
     <string name="auth_disclaimer_title">One more step</string>
     <string name="auth_disclaimer_message">By tapping \"Continue\", you agree to the Terms of Use and Privacy policy of SoundCloud.</string>
 
+    <string name="version">Version</string>
+    <string name="unavailable">Unavailable</string>
+
     <!-- onboarding -->
     <string name="onboarding_genres_large_title">Choose your favorite categories</string>
     <string name="onboarding_genres_sub_title">Follow people trending in the SoundCloud community.\nTap each category to see full list.</string>
