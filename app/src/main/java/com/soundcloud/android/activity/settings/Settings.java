@@ -35,7 +35,7 @@ import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import com.soundcloud.android.utils.Log;
 import android.widget.Toast;
 
 import java.io.File;
@@ -214,7 +214,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
             versionPref.setSummary(getPackageManager()
                     .getPackageInfo(getPackageName(), 0).versionName);
         } catch (PackageManager.NameNotFoundException e) {
-            Log.i(TAG,"Unable to get verion info ", e);
+            Log.e(TAG, "Unable to get verion info ", e);
             versionPref.setSummary(getString(R.string.unavailable));
         }
 
@@ -227,16 +227,13 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     }
 
     private void togglePlaybackDebugMode() {
-        final SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(this);
-        final boolean enabled = !pm.getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false);
-        SharedPreferencesUtils.apply(pm.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, enabled));
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final boolean enabled = !preferences.getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false);
+        SharedPreferencesUtils.apply(preferences.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, enabled));
 
-        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-            Log.d(CloudPlaybackService.TAG, "toggling error reporting (enabled=" + enabled + ")");
-        }
+        Log.d(CloudPlaybackService.TAG, "toggling error reporting (enabled=" + enabled + ")");
+        AndroidUtils.showToast(this, getString(R.string.playback_error_logging, getText(enabled ? R.string.enabled : R.string.disabled)));
 
-        Toast.makeText(this, getString(R.string.playback_error_logging,
-                getText(enabled ? R.string.enabled : R.string.disabled)), Toast.LENGTH_LONG).show();
     }
 
     public void safeShowDialog(int dialogId) {
