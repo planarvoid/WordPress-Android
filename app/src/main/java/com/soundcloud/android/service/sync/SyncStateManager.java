@@ -6,6 +6,7 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Observer;
@@ -55,8 +56,9 @@ public class SyncStateManager extends ScheduledOperations {
     /**
      * Returns a blank sync state record which will be either loaded or created asynchronously and redelivered through
      * the given listener.
+     *
      * @param contentUri content URI for the sync state to observe
-     * @param listener callback that's called when load or insert finished
+     * @param listener   callback that's called when load or insert finished
      * @return the sync state instance
      */
     @NotNull
@@ -77,7 +79,7 @@ public class SyncStateManager extends ScheduledOperations {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.LAST_SYNC, time);
 
-        return mLocalCollectionDao.update(lc.id, cv);
+        return mLocalCollectionDao.update(lc.getId(), cv);
     }
 
     public Observable<Void> forceToStale(final Content content) {
@@ -101,7 +103,7 @@ public class SyncStateManager extends ScheduledOperations {
                 cv.put(DBHelper.Collections.LAST_SYNC, 0);
                 cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, 0);
 
-                mLocalCollectionDao.update(lc.id, cv);
+                mLocalCollectionDao.update(lc.getId(), cv);
                 observer.onCompleted();
 
                 return Subscriptions.empty();
@@ -133,7 +135,7 @@ public class SyncStateManager extends ScheduledOperations {
         ContentValues cv = new ContentValues();
         final int misses = lc.syncMisses() + 1;
         cv.put(DBHelper.Collections.EXTRA, misses);
-        if (mLocalCollectionDao.update(lc.id, cv)) {
+        if (mLocalCollectionDao.update(lc.getId(), cv)) {
             return misses;
         } else {
             return -1;
@@ -181,8 +183,8 @@ public class SyncStateManager extends ScheduledOperations {
 
         // if the record is created asynchronously, we may not have a valid ID at this point yet (and by extension
         // cannot construct a content URI) so only actually register the observer if an ID is set.
-        if (lc.id > 0) {
-            final Uri contentUri = Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(lc.id)).build();
+        if (lc.getId() > 0) {
+            final Uri contentUri = Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(lc.getId())).build();
             mResolver.registerContentObserver(contentUri, true, observer);
         }
     }
@@ -192,7 +194,39 @@ public class SyncStateManager extends ScheduledOperations {
         if (observer != null) mResolver.unregisterContentObserver(observer);
     }
 
-    private class ChangeObserver extends ContentObserver {
+    /* package */ void onCollectionAsyncQueryReturn(Cursor cursor, LocalCollection localCollection, LocalCollection.OnChangeListener listener) {
+        try {
+            final boolean wasRegistered = localCollection.hasNotBeenRegistered();
+            if (cursor != null && cursor.moveToFirst()) {
+                // the sync state record already existed, just inform the listener that it has changed
+                localCollection.setFromCursor(cursor);
+            } else {
+                // create a new local collection in intialized state
+                localCollection = new LocalCollection(localCollection.getUri());
+                // the record didn't exist yet; go ahead and create it before reporting any changes
+                mLocalCollectionDao.create(localCollection);
+            }
+            if (wasRegistered && listener != null) {
+                addChangeListener(localCollection, listener);
+            }
+        } finally {
+            IOUtils.close(cursor);
+        }
+
+        if (listener != null) {
+            listener.onLocalCollectionChanged(localCollection);
+        }
+    }
+
+    /* package */ ChangeObserver getObserverById(long id) {
+        return (ChangeObserver) mContentObservers.get(id);
+    }
+
+    /* package */ boolean hasObservers() {
+        return mContentObservers != null && !mContentObservers.isEmpty();
+    }
+
+    /* package */ class ChangeObserver extends ContentObserver {
         private final LocalCollection mSyncState;
         private final LocalCollection.OnChangeListener mListener;
 
@@ -212,6 +246,10 @@ public class SyncStateManager extends ScheduledOperations {
             SyncStateQueryHandler handler = new SyncStateQueryHandler(mSyncState, mListener);
             handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(mSyncState.getId())}, null);
         }
+
+        public LocalCollection.OnChangeListener getListener() {
+            return mListener;
+        }
     }
 
     private class SyncStateQueryHandler extends AsyncQueryHandler {
@@ -226,26 +264,9 @@ public class SyncStateManager extends ScheduledOperations {
 
         @Override
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
-            final boolean wasUnregistered = mLocalCollection.id == 0;
-            if (cursor != null && cursor.moveToFirst()) {
-                // the sync state record already existed, just inform the listener that it has changed
-                mLocalCollection.setFromCursor(cursor);
-                cursor.close();
-            } else {
-                // the record didn't exist yet; go ahead and create it before reporting any changes
-                mLocalCollectionDao.create(mLocalCollection);
-                mLocalCollection.sync_state = LocalCollection.SyncState.IDLE;
-            }
-
-            if (wasUnregistered && mListener != null) {
-                addChangeListener(mLocalCollection, mListener);
-            }
-
-            if (cursor != null) cursor.close();
-            if (mListener != null) mListener.onLocalCollectionChanged(mLocalCollection);
+            onCollectionAsyncQueryReturn(cursor, mLocalCollection, mListener);
         }
     }
-
 
 
 }

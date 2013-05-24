@@ -236,4 +236,7 @@
 
     <string name="auth_disclaimer_title">Un paso más</string>
     <string name="auth_disclaimer_message">Al hacer uso de \"Continuar \", aceptas Condiciones y política de Privacidad de SoundCloud.</string>
+
+    <string name="version">Versión</string>
+    <string name="unavailable">indisponible</string>
 </resources>
