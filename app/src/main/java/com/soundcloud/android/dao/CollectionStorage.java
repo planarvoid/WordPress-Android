@@ -43,6 +43,7 @@ public class CollectionStorage {
      * DO NOT REMOVE BATCHING, SQlite has a variable limit that may vary per device
      * http://www.sqlite.org/limits.html
      */
+    @Deprecated
     public Set<Long> getStoredIds(final Content content, List<Long> ids) {
         BaseDAO<ScResource> dao = getDaoForContent(content);
         Set<Long> storedIds = new HashSet<Long>();
@@ -71,6 +72,7 @@ public class CollectionStorage {
      * @throws java.io.IOException
      */
     // TODO really pass in api as parameter?
+    @Deprecated
     public int fetchAndStoreMissingCollectionItems(AndroidCloudAPI api,
                                                    @NotNull List<Long> modelIds,
                                                    final Content content,
@@ -83,6 +85,7 @@ public class CollectionStorage {
     }
 
     // TODO really pass in api as parameter?
+    @Deprecated
     private List<ScResource> fetchMissingCollectionItems(AndroidCloudAPI api,
                                                         @NotNull List<Long> modelIds,
                                                         final Content content,

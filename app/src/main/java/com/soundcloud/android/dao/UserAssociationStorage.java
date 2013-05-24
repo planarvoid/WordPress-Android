@@ -33,12 +33,14 @@ public class UserAssociationStorage {
         mResolver = resolver;
     }
 
+    @Deprecated
     public List<Long> getStoredIds(Uri uri) {
         return ResolverHelper.idCursorToList(
                 mResolver.query(ResolverHelper.addIdOnlyParameter(uri), null, null, null, null)
         );
     }
 
+    @Deprecated
     public List<Long> deleteAssociations(Uri uri, List<Long> itemDeletions) {
         if (!itemDeletions.isEmpty()) {
             for (int i = 0; i < itemDeletions.size(); i += BaseDAO.RESOLVER_BATCH_SIZE) {
@@ -49,6 +51,7 @@ public class UserAssociationStorage {
         return itemDeletions;
     }
 
+    @Deprecated
     public int insertAssociations(@NotNull List<? extends ScResource> resources, @NotNull Uri collectionUri, long userId) {
         BulkInsertMap map = new BulkInsertMap();
         for (int i = 0; i < resources.size(); i++) {
@@ -65,6 +68,7 @@ public class UserAssociationStorage {
         return map.insert(mResolver);
     }
 
+    @Deprecated
     public void insertInBatches(final Content content, final long ownerId, final List<Long> targetIds,
                                 final int startPosition, int batchSize) {
         // insert in batches so as to not hold a write lock in a single transaction for too long
