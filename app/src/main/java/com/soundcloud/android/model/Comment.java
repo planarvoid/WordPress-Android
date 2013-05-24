@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.behavior.RelatesToPlayable;
+import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -53,7 +55,7 @@ import java.util.Date;
  */
 
 
-public class Comment extends ScResource {
+public class Comment extends ScResource implements RelatesToUser, RelatesToPlayable {
     @JsonProperty @JsonView(Views.Mini.class) public Date created_at;
     @JsonProperty @JsonView(Views.Mini.class) public long user_id;
     @JsonProperty @JsonView(Views.Mini.class) public long track_id;

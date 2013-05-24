@@ -8,8 +8,16 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Action1;
+import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -19,10 +27,11 @@ import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class PlaylistStorage implements Storage<Playlist> {
+public class PlaylistStorage extends ScheduledOperations implements Storage<Playlist> {
     private final ContentResolver mResolver;
     private final PlaylistDAO mPlaylistDAO;
 
@@ -39,8 +48,16 @@ public class PlaylistStorage implements Storage<Playlist> {
      * @param playlist the playlist to store
      */
     @Override
-    public void create(Playlist playlist) {
-        mPlaylistDAO.create(playlist);
+    public Observable<Playlist> create(final Playlist playlist) {
+        return schedule(Observable.create(new Func1<Observer<Playlist>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Playlist> observer) {
+                mPlaylistDAO.create(playlist);
+                observer.onNext(playlist);
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     /**
@@ -48,7 +65,7 @@ public class PlaylistStorage implements Storage<Playlist> {
      *
      * @see #create(com.soundcloud.android.model.Playlist)
      */
-    public Playlist createNewUserPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
+    public Observable<Playlist> createNewUserPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
         ArrayList<Track> tracks = new ArrayList<Track>(trackIds.length);
         for (long trackId : trackIds){
             Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
@@ -56,32 +73,47 @@ public class PlaylistStorage implements Storage<Playlist> {
         }
 
         Playlist playlist = Playlist.newUserPlaylist(user, title, isPrivate, tracks);
-        create(playlist);
-        return playlist;
+        return create(playlist);
     }
 
-// TODO: Do we actually need update functionality for playlists?
-//    public boolean update(Playlist playlist) {
-//        return mPlaylistDAO.update(playlist);
-//    }
-
-    public @Nullable Playlist getPlaylistWithTracks(long playlistId) {
-        Playlist playlist = mPlaylistDAO.queryById(playlistId);
-        if (playlist != null) {
-            playlist.tracks = loadPlaylistTracks(playlistId);
-        }
-        return playlist;
+    public Observable<Playlist> loadPlaylistWithTracks(final long playlistId) {
+        return schedule(Observable.create(new Func1<Observer<Playlist>, Subscription>() {
+            @Override
+            public Subscription call(final Observer<Playlist> observer) {
+                final Playlist playlist = mPlaylistDAO.queryById(playlistId);
+                if (playlist != null) {
+                    loadPlaylistTracks(playlistId).toList().subscribe(new Action1<List<Track>>() {
+                        @Override
+                        public void call(List<Track> tracks) {
+                            playlist.tracks = tracks;
+                            observer.onNext(playlist);
+                            observer.onCompleted();
+                        }
+                    });
+                } else {
+                    observer.onCompleted();
+                }
+                return Subscriptions.empty();
+            }
+        }));
     }
 
-    public List<Track> loadPlaylistTracks(long playlistId){
-        List<Track> tracks = new ArrayList<Track>();
-        Cursor cursor = mResolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)), null, null, null, null);
-        if (cursor == null) return tracks;
-        while (cursor.moveToNext()) {
-            tracks.add(new Track(cursor));
-        }
-        cursor.close();
-        return tracks;
+    //TODO: use DAO, not ContentResolver
+    public Observable<Track> loadPlaylistTracks(final long playlistId) {
+        return schedule(Observable.create(new Func1<Observer<Track>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Track> observer) {
+                Cursor cursor = mResolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)), null, null, null, null);
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        observer.onNext(new Track(cursor));
+                    }
+                    cursor.close();
+                }
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     public Uri addTrackToPlaylist(Playlist playlist, long trackId){

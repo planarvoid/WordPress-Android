@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.dao.ContentValuesProvider;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -17,7 +18,7 @@ import android.text.TextUtils;
  * Represents the state of a local collection sync, including last sync and size.
  * See {@link DBHelper.Collections}.
  */
-public class LocalCollection implements ModelLike, ContentValuesProvider {
+public class LocalCollection implements Identifiable, Persisted {
     private long id;
     private final Uri uri;
 
@@ -160,7 +161,12 @@ public class LocalCollection implements ModelLike, ContentValuesProvider {
     }
 
     public Uri toUri() {
-        return Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(getId())).build();
+        return getBulkInsertUri().buildUpon().appendPath(String.valueOf(id)).build();
+    }
+
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.COLLECTIONS.uri;
     }
 
     @Override

@@ -19,14 +19,4 @@ public class UnknownResource extends ScResource {
     public Uri getBulkInsertUri() {
         return null;
     }
-
-    @Override
-    public User getUser() {
-        return null;
-    }
-
-    @Override
-    public Track getPlayable() {
-        return null;
-    }
 }

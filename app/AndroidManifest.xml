@@ -170,7 +170,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.landing.SuggestedUsers" android:label="@string/side_menu_suggested_users">
+        <activity android:name=".activity.landing.SuggestedUsersActivity" android:label="@string/side_menu_suggested_users">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.WHO_TO_FOLLOW"/>
                 <category android:name="android.intent.category.DEFAULT"/>

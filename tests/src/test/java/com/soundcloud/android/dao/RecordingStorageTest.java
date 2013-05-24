@@ -27,16 +27,18 @@ public class RecordingStorageTest {
     @Test
     public void shouldDeleteRecording() throws Exception {
         Recording r = TestHelper.createRecording(USER_ID);
+        TestHelper.insertWithDependencies(r);
         expect(r.exists()).toBeTrue();
-        expect(storage.delete(r)).toBeTrue();
+        expect(storage.delete(r).toBlockingObservable().last()).toBeTrue();
         expect(r.exists()).toBeFalse();
     }
 
     @Test
     public void shouldNotDeleteRecordingIfExternal() throws Exception {
         Recording r = TestHelper.createRecording(USER_ID);
+        TestHelper.insertWithDependencies(r);
         r.external_upload = true;
-        expect(storage.delete(r)).toBeFalse();
+        expect(storage.delete(r).toBlockingObservable().last()).toBeFalse();
         expect(r.exists()).toBeTrue();
     }
 

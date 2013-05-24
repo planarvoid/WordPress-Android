@@ -6,16 +6,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.Wrapper;
-import com.soundcloud.android.dao.ContentValuesProvider;
-import com.soundcloud.android.model.ModelLike;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
-import com.soundcloud.android.model.Refreshable;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
@@ -56,8 +57,8 @@ public abstract class Activity extends ScModel implements Parcelable,
         Refreshable,
         Comparable<Activity>,
         PlayableHolder,
-        ModelLike,
-        ContentValuesProvider {
+        Identifiable,
+        Persisted {
 
     @JsonProperty public String uuid;
     @JsonProperty public Date created_at;
@@ -313,7 +314,13 @@ public abstract class Activity extends ScModel implements Parcelable,
         return false;
     }
 
+    @Override
     public Uri toUri() {
         return null;
+    }
+
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.ME_ALL_ACTIVITIES.uri;
     }
 }

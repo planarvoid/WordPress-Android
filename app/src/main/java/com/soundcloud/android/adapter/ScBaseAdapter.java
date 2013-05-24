@@ -6,9 +6,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.model.Creation;
+import com.soundcloud.android.model.behavior.Creation;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Refreshable;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -36,7 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter implements IScAdapter {
+public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     protected Content mContent;
     protected Uri mContentUri;
     @NotNull protected List<T> mData = new ArrayList<T>();
@@ -81,6 +81,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return mData.get(location);
     }
 
+    public T getLastItem() {
+        return getItem(getItemCount() - 1);
+    }
+
     public @NotNull List<T> getItems() {
         return mData;
     }
@@ -106,9 +110,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public long getItemId(int position) {
         if (position >= mData.size()) return AdapterView.INVALID_ROW_ID;
 
-        T o = getItem(position);
-        if (o.getListItemId() != -1) {
-            return o.getListItemId();
+        final T item = getItem(position);
+        if (item.getListItemId() != -1) {
+            return item.getListItemId();
         }
         return position;
     }
@@ -144,7 +148,6 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     }
 
     // needed?
-    @Override
     public Content getContent() {
         return mContent;
     }
@@ -172,10 +175,20 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public boolean shouldRequestNextPage(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
         // if loading, subtract the loading item from total count
-        boolean lastItemReached = ((mIsLoadingData ? totalItemCount - 1 : totalItemCount) > 0)
-                && (totalItemCount - visibleItemCount * 2 < firstVisibleItem);
+        int lookAheadSize = visibleItemCount * 2;
+        int itemCount = mIsLoadingData ? totalItemCount - 1 : totalItemCount; // size without the loading spinner
+        boolean lastItemReached = itemCount > 0 && (itemCount - lookAheadSize <= firstVisibleItem);
 
         return !mIsLoadingData && lastItemReached;
+    }
+
+    public void insertItem(T item) {
+        int indexOfItem = mData.indexOf(item);
+        if (indexOfItem  >= 0) {
+            mData.set(indexOfItem, item);
+        } else {
+            mData.add(item);
+        }
     }
 
     public void addItems(List<T> newItems) {

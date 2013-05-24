@@ -1,6 +1,6 @@
 package com.soundcloud.android.model.act;
 
-import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.behavior.PlayableHolder;
 
 import android.database.Cursor;
 

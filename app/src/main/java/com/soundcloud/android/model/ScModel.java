@@ -3,15 +3,15 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.behavior.Identifiable;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.BaseColumns;
 
-public class ScModel implements Parcelable, ModelLike {
+public class ScModel implements Parcelable, Identifiable {
 
     public static final String EXTRA_ID = "id";
     public static final int NOT_SET = -1;
@@ -56,10 +56,5 @@ public class ScModel implements Parcelable, ModelLike {
     @Override
     public void setId(long id) {
         this.id = id;
-    }
-
-    @Override
-    public Uri toUri() {
-        return null;
     }
 }

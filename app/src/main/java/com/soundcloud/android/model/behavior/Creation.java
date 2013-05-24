@@ -1,4 +1,4 @@
-package com.soundcloud.android.model;
+package com.soundcloud.android.model.behavior;
 
 import android.content.Context;
 

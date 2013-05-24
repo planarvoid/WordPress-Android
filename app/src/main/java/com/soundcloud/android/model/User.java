@@ -11,6 +11,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
@@ -339,16 +340,6 @@ public class User extends ScResource implements Refreshable {
     @Override
     public Uri getBulkInsertUri() {
         return Content.USERS.uri;
-    }
-
-    @Override @JsonIgnore
-    public User getUser() {
-        return this;
-    }
-
-    @Override @JsonIgnore
-    public Track getPlayable() {
-        return null;
     }
 
     @Override

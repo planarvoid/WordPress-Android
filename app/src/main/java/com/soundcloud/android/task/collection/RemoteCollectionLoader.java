@@ -11,6 +11,7 @@ import android.util.Log;
 
 import java.io.IOException;
 
+@Deprecated
 public class RemoteCollectionLoader<T extends ScResource> implements CollectionLoader<T> {
 
     @Override

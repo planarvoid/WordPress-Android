@@ -4,7 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.fragment.ScListFragment;
+import com.soundcloud.android.fragment.SuggestedUsersFragment;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.SyncStateManager;
 
@@ -13,7 +13,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
-public class SuggestedUsers extends ScActivity implements ScLandingPage{
+public class SuggestedUsersActivity extends ScActivity implements ScLandingPage {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -39,7 +39,7 @@ public class SuggestedUsers extends ScActivity implements ScLandingPage{
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(listHolderId, ScListFragment.newInstance(Content.SUGGESTED_USERS))
+                    .add(listHolderId, new SuggestedUsersFragment())
                     .commit();
         }
     }

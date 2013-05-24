@@ -2,6 +2,9 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -21,7 +24,7 @@ import java.util.Date;
 /**
  * Maps to <code>stream_item</code> item on backend.
  */
-public class SoundAssociation extends ScResource implements PlayableHolder, Refreshable {
+public class SoundAssociation extends ScResource implements PlayableHolder, Refreshable, RelatesToUser {
 
     private CharSequence _elapsedTime;
     public enum Type {

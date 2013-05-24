@@ -14,7 +14,6 @@ import com.soundcloud.android.adapter.CommentAdapter;
 import com.soundcloud.android.adapter.DefaultPlayableAdapter;
 import com.soundcloud.android.adapter.FriendAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
@@ -208,7 +207,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         }
 
         final ScBaseAdapter listAdapter = getListAdapter();
-        if (listAdapter instanceof PlayableAdapter) listAdapter.notifyDataSetChanged();
+        listAdapter.notifyDataSetChanged();
 
         if (mRetainedListPosition > 0) {
             mListView.getRefreshableView().setSelection(mRetainedListPosition);
@@ -306,7 +305,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                     mAdapter = new FriendAdapter(mContentUri);
                     break;
                 case ME_SOUNDS:
-                    mAdapter = new MyTracksAdapter(getScActivity(), mContentUri);
+                    mAdapter = new MyTracksAdapter(getScActivity());
                     break;
                 case ME_LIKES:
                 case USER_LIKES:
@@ -339,13 +338,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (mAdapter != null) {
-                    PlayableAdapter playableAdapter = (PlayableAdapter) mAdapter;
-
                     long playlistId = intent.getLongExtra(Playlist.EXTRA_ID, -1);
                     int newTracksCount = intent.getIntExtra(Playlist.EXTRA_TRACKS_COUNT, -1);
 
                     for (int i = 0; i < mAdapter.getCount(); i++) {
-                        Playable playable = playableAdapter.getPlayable(i);
+                        Playable playable = (Playable) mAdapter.getItem(i);
                         if (playable instanceof Playlist && playable.id == playlistId) {
                             Playlist playlist = (Playlist) playable;
                             // TODO: this should be updated by the model manager
@@ -791,7 +788,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         @Override
         public void onReceive(Context context, Intent intent) {
             final ScBaseAdapter adapter = getListAdapter();
-            if (mIgnorePlaybackStatus || !(adapter instanceof PlayableAdapter)) return;
+            if (mIgnorePlaybackStatus) return;
 
             final String action = intent.getAction();
             if (CloudPlaybackService.META_CHANGED.equals(action)

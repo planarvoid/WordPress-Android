@@ -7,6 +7,12 @@ import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -25,7 +31,7 @@ import java.util.Map;
  *
  * @see SoundAssociation.Type
  */
-public class SoundAssociationStorage {
+public class SoundAssociationStorage extends ScheduledOperations {
 
     private final ContentResolver mResolver;
     private final SoundAssociationDAO mAllSoundAssocsDAO, mLikesDAO, mRepostsDAO, mTrackCreationsDAO, mPlaylistCreationsDAO;
@@ -96,18 +102,29 @@ public class SoundAssociationStorage {
         return repost;
     }
 
-    public SoundAssociation addCreation(Track playable) {
-        SoundAssociation.Type assocType = SoundAssociation.Type.TRACK;
-        SoundAssociation creation = new SoundAssociation(playable, playable.created_at, assocType);
-        mTrackCreationsDAO.create(creation);
-        return creation;
+    public Observable<SoundAssociation> addCreation(final Track track) {
+        return addCreation(track, mTrackCreationsDAO, SoundAssociation.Type.TRACK);
     }
 
-    public SoundAssociation addCreation(Playlist playable) {
-        SoundAssociation.Type assocType = SoundAssociation.Type.PLAYLIST;
-        SoundAssociation creation = new SoundAssociation(playable, playable.created_at, assocType);
-        mPlaylistCreationsDAO.create(creation);
-        return creation;
+    public Observable<SoundAssociation> addCreation(final Playlist playlist) {
+        return addCreation(playlist, mPlaylistCreationsDAO, SoundAssociation.Type.PLAYLIST);
+    }
+
+    private Observable<SoundAssociation> addCreation(final Playable playable, final BaseDAO<SoundAssociation> dao, final SoundAssociation.Type assocType) {
+        return schedule(Observable.create(new Func1<Observer<SoundAssociation>, Subscription>() {
+            @Override
+            public Subscription call(Observer<SoundAssociation> observer) {
+                playable.created_at = new Date();
+                SoundAssociation creation = new SoundAssociation(playable, playable.created_at, assocType);
+                dao.create(creation);
+
+                observer.onNext(creation);
+                observer.onCompleted();
+
+                return Subscriptions.empty();
+            }
+
+        }));
     }
 
     public List<SoundAssociation> getSoundStreamItemsForCurrentUser() {

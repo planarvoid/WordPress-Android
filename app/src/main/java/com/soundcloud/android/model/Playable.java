@@ -8,6 +8,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ImageUtils;
@@ -26,7 +29,7 @@ import android.text.TextUtils;
 
 import java.util.Date;
 
-public abstract class Playable extends ScResource implements PlayableHolder, Refreshable, Parcelable {
+public abstract class Playable extends ScResource implements PlayableHolder, RelatesToUser, Refreshable, Parcelable {
     public static final int DB_TYPE_TRACK    = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
 
