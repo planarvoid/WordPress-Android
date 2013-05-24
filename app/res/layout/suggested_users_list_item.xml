@@ -4,9 +4,26 @@
               android:layout_height="match_parent"
               android:gravity="center_vertical">
 
+    <LinearLayout android:id="@+id/suggested_users_list_header"
+                  android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:visibility="gone">
+
+        <TextView android:id="@+id/suggested_users_list_header_title"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_margin="5dp"
+                  android:layout_gravity="left"
+                  android:textStyle="bold" />
+
+    </LinearLayout>
+
     <TextView android:id="@android:id/text1"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
+              android:layout_below="@id/suggested_users_list_header"
+              android:layout_alignWithParentIfMissing="true"
               android:textStyle="bold"/>
 
     <TextView android:id="@android:id/text2"

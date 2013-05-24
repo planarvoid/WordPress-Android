@@ -2,12 +2,19 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.model.Genre;
 import com.soundcloud.android.model.GenreBucket;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import android.view.View;
+import android.widget.FrameLayout;
+
+import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SuggestedUsersAdapterTest {
@@ -25,18 +32,51 @@ public class SuggestedUsersAdapterTest {
     }
 
     @Test
-    public void shouldDetermineProperItemViewTypeToDistinguishSectionHeadersFromListElements() {
-        adapter.notifyDataSetChanged();
-        // -- FACEBOOK
-        expect(adapter.getItemViewType(0)).toBe(SuggestedUsersAdapter.ItemViewType.HEADER.ordinal());
-        expect(adapter.getItemViewType(1)).toBe(SuggestedUsersAdapter.ItemViewType.GENRE_BUCKET.ordinal());
-        expect(adapter.getItemViewType(2)).toBe(SuggestedUsersAdapter.ItemViewType.GENRE_BUCKET.ordinal());
-        // -- MUSIC
-        expect(adapter.getItemViewType(3)).toBe(SuggestedUsersAdapter.ItemViewType.HEADER.ordinal());
-        expect(adapter.getItemViewType(4)).toBe(SuggestedUsersAdapter.ItemViewType.GENRE_BUCKET.ordinal());
-        // -- AUDIO
-        expect(adapter.getItemViewType(5)).toBe(SuggestedUsersAdapter.ItemViewType.HEADER.ordinal());
-        expect(adapter.getItemViewType(6)).toBe(SuggestedUsersAdapter.ItemViewType.GENRE_BUCKET.ordinal());
+    public void shouldMapCorrectlyFromGenreGroupingsToListSections() {
+        Genre.Grouping fbLikes = facebookLikes().getGenre().getGrouping();
+        expect(SuggestedUsersAdapter.Section.fromGenreGrouping(fbLikes)).toEqual(SuggestedUsersAdapter.Section.FACEBOOK);
+
+        Genre.Grouping fbFriends = facebookFriends().getGenre().getGrouping();
+        expect(SuggestedUsersAdapter.Section.fromGenreGrouping(fbFriends)).toEqual(SuggestedUsersAdapter.Section.FACEBOOK);
+
+        Genre.Grouping music = music().getGenre().getGrouping();
+        expect(SuggestedUsersAdapter.Section.fromGenreGrouping(music)).toEqual(SuggestedUsersAdapter.Section.MUSIC);
+
+        Genre.Grouping audio = audio().getGenre().getGrouping();
+        expect(SuggestedUsersAdapter.Section.fromGenreGrouping(audio)).toEqual(SuggestedUsersAdapter.Section.AUDIO);
+    }
+
+    @Test
+    public void shouldBuildListPositionsToSectionsMapWhileAddingNewItems() {
+        Map<Integer, SuggestedUsersAdapter.Section> sectionMap = adapter.getListPositionsToSectionsMap();
+
+        expect(sectionMap).not.toBeNull();
+        expect(sectionMap.size()).toBe(3);
+        expect(sectionMap.get(0)).toEqual(SuggestedUsersAdapter.Section.FACEBOOK); // 2 items under Facebook
+        expect(sectionMap.get(2)).toEqual(SuggestedUsersAdapter.Section.MUSIC); // 1 item under Music
+        expect(sectionMap.get(3)).toEqual(SuggestedUsersAdapter.Section.AUDIO); // 1 item under Audio
+    }
+
+    @Test
+    public void shouldGetViewWithHeader() {
+        final int positionWithHeader = 0;
+        View itemLayout = adapter.getView(positionWithHeader, null, new FrameLayout(Robolectric.application));
+
+        expect(itemLayout).not.toBeNull();
+        View headerView = itemLayout.findViewById(R.id.suggested_users_list_header);
+        expect(headerView).not.toBeNull();
+        expect(headerView.getVisibility()).toEqual(View.VISIBLE);
+    }
+
+    @Test
+    public void shouldGetViewWithoutHeader() {
+        final int positionWithoutHeader = 1;
+        View itemLayout = adapter.getView(positionWithoutHeader, null, new FrameLayout(Robolectric.application));
+
+        expect(itemLayout).not.toBeNull();
+        View headerView = itemLayout.findViewById(R.id.suggested_users_list_header);
+        expect(headerView).not.toBeNull();
+        expect(headerView.getVisibility()).toEqual(View.GONE);
     }
 
     private GenreBucket audio() {

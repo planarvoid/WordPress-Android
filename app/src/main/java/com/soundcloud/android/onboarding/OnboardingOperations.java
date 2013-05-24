@@ -48,7 +48,24 @@ public class OnboardingOperations extends ScheduledOperations {
 
                 buckets.add(bucket);
 
-                SystemClock.sleep(250);
+                SystemClock.sleep(100);
+            }
+
+            final String[] audioGenreKeys = resources.getStringArray(R.array.audio_genre_keys);
+            final String[] audioGenreNames = resources.getStringArray(R.array.audio_genre_names);
+
+            for (int i=0; i < audioGenreKeys.length; i++) {
+                Genre genre = new Genre();
+                genre.setPermalink(audioGenreKeys[i]);
+                genre.setGrouping(Genre.Grouping.AUDIO);
+                genre.setName(audioGenreNames[i]);
+
+                GenreBucket bucket = new GenreBucket(genre);
+                bucket.setUsers(users);
+
+                buckets.add(bucket);
+
+                SystemClock.sleep(100);
             }
 
             return buckets;
