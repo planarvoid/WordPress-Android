@@ -121,16 +121,6 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return Content.RECORDINGS.uri;
     }
 
-    @Override
-    public User getUser() {
-        return null;
-    }
-
-    @Override
-    public Track getPlayable() {
-        return null;
-    }
-
     public static interface Status {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
         int UPLOADING           = 1; // currently uploading

@@ -4,11 +4,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.task.ParallelAsyncTask;
-
-import android.util.Log;
+import com.soundcloud.android.utils.Log;
 
 import java.lang.ref.WeakReference;
 
+@Deprecated
 public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnData, ReturnData> {
     private final AndroidCloudAPI mApi;
     private final WeakReference<Callback> mCallback;
@@ -39,11 +39,9 @@ public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnDa
     @Override
     protected ReturnData doInBackground(CollectionParams... xparams) {
         CollectionParams params = xparams[0];
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, getClass().getSimpleName() + "Loading collection with params: " + params);
-        }
+        Log.d(TAG, getClass().getSimpleName() + "Loading collection with params: " + params);
         CollectionLoader loader = mCollectionLoaderFactory.createCollectionLoader(params);
-        return loader == null ?  new ReturnData(params) : loader.load(mApi,params);
+        return loader == null ? new ReturnData(params) : loader.load(mApi,params);
     }
 
 }

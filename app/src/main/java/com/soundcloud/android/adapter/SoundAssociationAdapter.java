@@ -1,6 +1,5 @@
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.PlayUtils;
@@ -10,7 +9,7 @@ import com.soundcloud.android.view.adapter.PlayableRow;
 import android.content.Context;
 import android.net.Uri;
 
-public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> implements PlayableAdapter {
+public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> {
     public SoundAssociationAdapter(Uri uri) {
         super(uri);
     }
@@ -22,17 +21,9 @@ public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> imp
 
     @Override
     public int handleListItemClick(Context context, int position, long id) {
-        PlayUtils.playFromAdapter(context, this, mData, position);
+        Uri streamUri = Content.match(mContentUri).isMine() ? mContentUri : null;
+        PlayUtils.playFromAdapter(context, mData, position, streamUri);
         return ItemClickResults.LEAVING;
     }
 
-    @Override
-    public Uri getPlayableUri() {
-        return Content.match(mContentUri).isMine() ? mContentUri : null;
-    }
-
-    @Override
-    public Playable getPlayable(int position) {
-        return getItem(position).getPlayable();
-    }
 }

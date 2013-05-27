@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;

@@ -3,10 +3,10 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.soundcloud.android.dao.ContentValuesProvider;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -27,7 +27,7 @@ import android.net.Uri;
         @JsonSubTypes.Type(value = Friend.class, name = "friend")})
 public abstract class ScResource
         extends ScModel
-        implements ModelLike, ContentValuesProvider {
+        implements Identifiable, Persisted {
 
     @JsonIgnore
     public long last_updated = NOT_SET;
@@ -90,14 +90,6 @@ public abstract class ScResource
         putDependencyValues(destination);
         destination.add(getBulkInsertUri(), buildContentValues());
     }
-
-    public abstract Uri toUri();
-
-    public abstract Uri getBulkInsertUri();
-
-    public abstract User getUser();
-
-    @Nullable public abstract Playable getPlayable();
 
     public Intent getViewIntent(){
         return null;

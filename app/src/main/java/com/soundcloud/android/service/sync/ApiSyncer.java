@@ -30,6 +30,7 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -38,6 +39,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -58,6 +60,10 @@ import java.util.Set;
 
 /**
  * Performs the actual sync with the API. Used by {@link CollectionSyncRequest}.
+ *
+ * As a client, do not use this class directly, but use {@link SyncOperations} instead.
+ * 
+ * TODO: make package level visible again after removing {@link com.soundcloud.android.task.collection.ActivitiesLoader}
  */
 public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
@@ -146,7 +152,8 @@ public class ApiSyncer {
                 case TRACK:
                 case USER:
                     // sucks, but we'll kick out CP anyway
-                    result = doResourceFetchAndInsert(uri, c == Content.TRACK ? new TrackStorage() : new UserStorage());
+                    Storage<? extends ScResource> storage = c == Content.TRACK ? new TrackStorage() : new UserStorage();
+                    result = doResourceFetchAndInsert(uri, storage);
                     break;
 
                 case PLAYLIST:
@@ -261,8 +268,8 @@ public class ApiSyncer {
 
                 // update local state
                 p.localToGlobal(mContext, added);
-                mPlaylistStorage.create(added);
-                mSoundAssociationStorage.addCreation(added);
+                mPlaylistStorage.create(added).toBlockingObservable().last();
+                mSoundAssociationStorage.addCreation(added).toBlockingObservable().last();
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
@@ -302,11 +309,11 @@ public class ApiSyncer {
         final int inserted;
         Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
-            final Activity lastActivity = mActivitiesStorage.getLastActivity(c);
+            final Activity oldestActivity = mActivitiesStorage.getOldestActivity(c).toBlockingObservable().singleOrDefault(null);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
-            if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
+            if (oldestActivity != null) request.add("cursor", oldestActivity.toGUID());
             activities = Activities.fetch(mApi, request);
-            if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(lastActivity))) {
+            if (activities == null || activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(oldestActivity))) {
                 // this can happen at the end of the list
                 inserted = 0;
             } else {
@@ -323,7 +330,8 @@ public class ApiSyncer {
                 mResolver.delete(c.uri, null, null);
             }
 
-            if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(mActivitiesStorage.getFirstActivity(c)))) {
+            final Activity latestActivity = mActivitiesStorage.getLatestActivity(c).toBlockingObservable().singleOrDefault(null);
+            if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(latestActivity))) {
                 // this can happen at the beginning of the list if the api returns the first item incorrectly
                 inserted = 0;
             } else {
@@ -522,7 +530,7 @@ public class ApiSyncer {
             }
             if (c != null) c.close();
 
-            mPlaylistStorage.create(p);
+            p = mPlaylistStorage.create(p).toBlockingObservable().last();
             final Uri insertedUri = p.toUri();
             if (insertedUri != null) {
                 log("inserted " + insertedUri.toString());

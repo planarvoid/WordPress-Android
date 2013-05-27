@@ -90,7 +90,8 @@ public class ApiSyncerTest {
         expect(Content.USERS).toHaveCount(28);
         expect(Content.PLAYLISTS).toHaveCount(8);
 
-        Activities incoming = activitiesStorage.getSince(Content.ME_SOUND_STREAM, -1);
+        Activities incoming = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, -1)
+                .toBlockingObservable().lastOrDefault(Activities.EMPTY);
 
         expect(incoming.size()).toEqual(TOTAL_STREAM_SIZE);
         expect(incoming.getUniquePlayables().size()).toEqual(TOTAL_STREAM_SIZE);
@@ -130,7 +131,8 @@ public class ApiSyncerTest {
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.COMMENTS).toHaveCount(5);
 
-        Activities own = activitiesStorage.getSince(Content.ME_ACTIVITIES, -1);
+        Activities own = activitiesStorage.getCollectionSince(Content.ME_ACTIVITIES.uri, -1)
+                .toBlockingObservable().lastOrDefault(Activities.EMPTY);
         expect(own.size()).toEqual(17);
 
         assertResolverNotified(Content.TRACKS.uri,
@@ -330,7 +332,7 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(Result.CHANGED);
         expect(Content.PLAYLISTS).toHaveCount(1);
 
-        Playlist p = playlistStorage.getPlaylistWithTracks(2524386l);
+        Playlist p = playlistStorage.loadPlaylistWithTracks(2524386l).toBlockingObservable().lastOrDefault(null);
 
 
         expect(p.title).toEqual("fall into fall");
@@ -363,7 +365,7 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(Result.CHANGED);
         expect(Content.TRACKS).toHaveCount(44);
 
-        Playlist p = playlistStorage.getPlaylistWithTracks(playlist.id);
+        Playlist p = playlistStorage.loadPlaylistWithTracks(playlist.id).toBlockingObservable().lastOrDefault(null);
         expect(p.tracks.size()).toBe(43);
         expect(p.tracks.get(1).title).toEqual("recording on thursday afternoon");
     }
@@ -460,7 +462,8 @@ public class ApiSyncerTest {
         sync(Content.ME_SOUND_STREAM.uri, "track_and_track_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(2);
-        Activities incoming = activitiesStorage.getSince(Content.ME_SOUND_STREAM, -1);
+        Activities incoming = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, -1)
+                .toBlockingObservable().lastOrDefault(Activities.EMPTY);
 
         expect(incoming.size()).toEqual(2);
         Activity a1 = incoming.get(0);
@@ -485,7 +488,8 @@ public class ApiSyncerTest {
         sync(Content.ME_SOUND_STREAM.uri, "playlist_and_playlist_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
-        Activities incoming = activitiesStorage.getSince(Content.ME_SOUND_STREAM, -1);
+        Activities incoming = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, -1)
+                .toBlockingObservable().lastOrDefault(Activities.EMPTY);
 
         expect(incoming.size()).toEqual(1);
         Activity a1 = incoming.get(0);

@@ -5,9 +5,8 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.utils.PlayUtils;
@@ -20,14 +19,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Handler;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
+public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     private Cursor mCursor;
     private boolean mDataValid;
     private List<Recording> mRecordingData;
@@ -36,8 +34,8 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
 
-    public MyTracksAdapter(ScActivity activity, Uri uri) {
-        super(uri);
+    public MyTracksAdapter(ScActivity activity) {
+        super(Content.ME_SOUNDS.uri);
         ContentResolver contentResolver = activity.getApplicationContext().getContentResolver();
         refreshCursor(contentResolver);
 
@@ -124,7 +122,7 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
         }
     }
     @Override
-    public ScModel getItem(int position) {
+    public ScResource getItem(int position) {
         if (mRecordingData != null) {
             if (position < mRecordingData.size()) {
                 return mRecordingData.get(position);
@@ -169,26 +167,15 @@ public class MyTracksAdapter extends ScBaseAdapter implements PlayableAdapter {
                 context.startActivity(new Intent(context,(r.external_upload ? ScUpload.class : ScCreate.class)).setData(r.toUri()));
             }
         } else {
-            PlayUtils.playFromAdapter(context, this, mData, position - mRecordingData.size());
+            PlayUtils.playFromAdapter(context, mData, position - mRecordingData.size(), mContentUri);
         }
         return ItemClickResults.LEAVING;
     }
 
-    @Override
-    public Uri getPlayableUri() {
-        return mContentUri;
-    }
-
-    @Override
-    public Playable getPlayable(int position) {
-        if (mRecordingData != null) {
-            if (position < mRecordingData.size()) {
-                return null;
-            } else {
-                return (Playable) super.getItem(position - mRecordingData.size());
-            }
-        } else {
-            return (Playable) super.getItem(position);
+    public void onDestroy() {
+        Context context = mChangeObserver.mContextRef.get();
+        if (context != null ) {
+            context.getContentResolver().unregisterContentObserver(mChangeObserver);
         }
     }
 

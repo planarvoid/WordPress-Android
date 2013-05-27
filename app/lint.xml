@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
-     
+     
     <issue id="MissingTranslation">
         <ignore path="res/values/dev.xml" />
         <ignore path="res/values/keys.xml" />

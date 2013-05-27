@@ -6,7 +6,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.Home;
-import com.soundcloud.android.activity.landing.SuggestedUsers;
+import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
 import com.soundcloud.android.dialog.auth.AuthTaskFragment;
 import com.soundcloud.android.dialog.auth.LoginTaskFragment;
 import com.soundcloud.android.model.User;
@@ -72,7 +72,7 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
                 .putExtra(SignupVia.EXTRA, via.name));
 
         if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {
-            startActivity(new Intent(this, SuggestedUsers.class)
+            startActivity(new Intent(this, SuggestedUsersActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     .putExtra(Consts.Keys.WAS_SIGNUP, true));
         } else {

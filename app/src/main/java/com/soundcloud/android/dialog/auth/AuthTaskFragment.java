@@ -38,6 +38,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        setCancelable(false);
 
         mTask = createAuthTask();
         mTask.setTaskOwner(this);

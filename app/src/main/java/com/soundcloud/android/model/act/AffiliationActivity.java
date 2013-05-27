@@ -3,9 +3,9 @@ package com.soundcloud.android.model.act;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.behavior.Refreshable;
 
 import android.database.Cursor;
 

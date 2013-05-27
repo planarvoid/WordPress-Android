@@ -33,6 +33,7 @@ public class Home extends ScActivity implements ScLandingPage {
         if (app.getAccount() != null) {
             if (state == null) {
                 getSupportFragmentManager().beginTransaction()
+//                        .add(mRootView.getContentHolderId(), ActivitiesFragment.create(Content.ME_SOUND_STREAM))
                         .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
                         .commit();
 

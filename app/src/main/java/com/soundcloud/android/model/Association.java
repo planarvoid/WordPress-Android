@@ -2,6 +2,10 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.behavior.Creation;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -17,7 +21,7 @@ import android.os.Parcel;
 
 import java.util.Date;
 
-public abstract class Association extends ScResource implements Refreshable, Creation {
+public abstract class Association extends ScResource implements PlayableHolder, Refreshable, RelatesToUser, Creation {
 
     public enum Type {
         TRACK(ScContentProvider.CollectionItemTypes.TRACK),
@@ -131,9 +135,6 @@ public abstract class Association extends ScResource implements Refreshable, Cre
 
     @Override
     public abstract long getListItemId();
-
-    @Override
-    public abstract Refreshable getRefreshableResource();
 
     @Override
     public boolean isStale() {
