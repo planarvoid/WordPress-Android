@@ -1,11 +1,12 @@
 $ 63
   % v current
-  _ 2013-05-24
+  _ 2013-05-27
     ! Maintenance
-    * Restored lockscreen
-    * Fixed occasional false empty screens after logout/login
-    * Made playback debugging available in non-dialer devices
-    * Fixed cancelable auth dialogs
+    * Fixed device default notification styling
+    - Restored lockscreen
+    - Fixed occasional false empty screens after logout/login
+    - Made playback debugging available in non-dialer devices
+    - Fixed cancelable auth dialogs
 
 $ 62
   % v 2.6.1
