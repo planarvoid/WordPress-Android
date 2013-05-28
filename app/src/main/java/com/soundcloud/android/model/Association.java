@@ -2,10 +2,16 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.behavior.Creation;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,34 +19,30 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 
-import javax.annotation.Nullable;
 import java.util.Date;
 
-public abstract class Association extends ScResource implements Refreshable, Creation {
+public abstract class Association extends ScResource implements PlayableHolder, Refreshable, RelatesToUser, Creation {
 
     public enum Type {
-        TRACK("track", ScContentProvider.CollectionItemTypes.TRACK),
-        TRACK_REPOST("track_repost", ScContentProvider.CollectionItemTypes.REPOST),
-        TRACK_LIKE("track_like", ScContentProvider.CollectionItemTypes.LIKE),
-        PLAYLIST("playlist", ScContentProvider.CollectionItemTypes.PLAYLIST),
-        PLAYLIST_REPOST("playlist_repost", ScContentProvider.CollectionItemTypes.REPOST),
-        PLAYLIST_LIKE("playlist_like", ScContentProvider.CollectionItemTypes.LIKE),
-        FOLLOWING("following", ScContentProvider.CollectionItemTypes.FOLLOWING),
-        FOLLOWER("follower", ScContentProvider.CollectionItemTypes.FOLLOWER);
+        TRACK(ScContentProvider.CollectionItemTypes.TRACK),
+        TRACK_REPOST(ScContentProvider.CollectionItemTypes.REPOST),
+        TRACK_LIKE(ScContentProvider.CollectionItemTypes.LIKE),
+        PLAYLIST(ScContentProvider.CollectionItemTypes.PLAYLIST),
+        PLAYLIST_REPOST(ScContentProvider.CollectionItemTypes.REPOST),
+        PLAYLIST_LIKE(ScContentProvider.CollectionItemTypes.LIKE),
+        FOLLOWING(ScContentProvider.CollectionItemTypes.FOLLOWING),
+        FOLLOWER(ScContentProvider.CollectionItemTypes.FOLLOWER);
 
-        Type(String type, int collectionType) {
-            this.type = type;
+        Type(int collectionType) {
             this.collectionType = collectionType;
         }
 
-        public final String type;
         public final int collectionType;
     }
 
 
     public @Nullable User   owner;
     public int              associationType;
-    public String           type;
     public Date             created_at;
 
     protected CharSequence mElapsedTime;
@@ -49,9 +51,9 @@ public abstract class Association extends ScResource implements Refreshable, Cre
     public Association() {}
 
     public Association(Cursor cursor){
-        associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
-        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
-        owner = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromSoundViewCursor(cursor);
+        owner = SoundCloudApplication.MODEL_MANAGER.getUser(cursor.getLong(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_OWNER_ID)));
+        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_TIMESTAMP)));
+        associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_TYPE));
     }
 
     public Association(Date associatedAt, int associationType) {
@@ -98,11 +100,15 @@ public abstract class Association extends ScResource implements Refreshable, Cre
     @JsonProperty("type")
     public void setType(String type) {
         for (Type t : Type.values()) {
-            if (t.type.equalsIgnoreCase(type)) {
+            if (t.name().equalsIgnoreCase(type)) {
                 associationType = t.collectionType;
+                break;
             }
         }
-        this.type = type;
+    }
+
+    public void setType(Type type){
+        associationType = type.collectionType;
     }
 
     @Override
@@ -118,6 +124,11 @@ public abstract class Association extends ScResource implements Refreshable, Cre
         mElapsedTime = null;
     }
 
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.COLLECTION_ITEMS.uri;
+    }
+
     protected abstract int getResourceType();
 
     protected abstract long getItemId();
@@ -126,11 +137,12 @@ public abstract class Association extends ScResource implements Refreshable, Cre
     public abstract long getListItemId();
 
     @Override
-    public abstract ScResource getRefreshableResource();
+    public boolean isStale() {
+        return getRefreshableResource().isStale();
+    }
 
     @Override
-    public abstract boolean isStale();
-
-    @Override
-    public abstract boolean isIncomplete();
+    public boolean isIncomplete() {
+        return getRefreshableResource().isIncomplete();
+    }
 }

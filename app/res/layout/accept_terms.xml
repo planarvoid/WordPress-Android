@@ -7,7 +7,7 @@
 
         <TextView android:id="@android:id/title"
                   style="@style/SignUp.TermsText"
-                  android:text="@string/auth_disclaime_title"/>
+                  android:text="@string/auth_disclaimer_title"/>
         <TextView android:id="@android:id/message"
                   style="@style/SignUp.TermsMessage"
                   android:text="@string/auth_disclaimer_message"/>

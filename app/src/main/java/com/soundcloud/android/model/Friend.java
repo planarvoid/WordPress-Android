@@ -1,6 +1,8 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +10,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-public class Friend extends ScResource implements UserHolder {
+public class Friend extends ScResource implements Refreshable, RelatesToUser {
     @SuppressWarnings("UnusedDeclaration")
     public long[] connection_ids;
     public User user;
@@ -31,11 +33,6 @@ public class Friend extends ScResource implements UserHolder {
     }
 
     @Override
-    public Track getPlayable() {
-        return null;
-    }
-
-    @Override
     public Intent getViewIntent() {
         return getUser().getViewIntent();
     }
@@ -46,7 +43,7 @@ public class Friend extends ScResource implements UserHolder {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return user;
     }
 

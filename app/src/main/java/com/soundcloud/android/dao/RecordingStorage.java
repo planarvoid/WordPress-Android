@@ -7,8 +7,14 @@ import static com.soundcloud.android.model.Recording.isAmplitudeFile;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -25,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RecordingStorage implements Storage<Recording> {
+public class RecordingStorage extends ScheduledOperations implements Storage<Recording> {
 
     private final RecordingDAO mRecordingDAO;
 
@@ -35,8 +41,16 @@ public class RecordingStorage implements Storage<Recording> {
     }
 
     @Override
-    public void create(Recording resource) {
-        mRecordingDAO.create(resource);
+    public Observable<Recording> create(final Recording recording) {
+        return schedule(Observable.create(new Func1<Observer<Recording>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Recording> observer) {
+                mRecordingDAO.create(recording);
+                observer.onNext(recording);
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     public void createFromBaseValues(Recording recording) {
@@ -108,14 +122,25 @@ public class RecordingStorage implements Storage<Recording> {
         return unsaved;
     }
 
-    public boolean delete(Recording recording) {
-        boolean deleted = false;
-        if (!recording.external_upload || recording.isLegacyRecording()) {
-            deleted = IOUtils.deleteFile(recording.audio_path);
-        }
-        IOUtils.deleteFile(recording.getEncodedFile());
-        IOUtils.deleteFile(recording.getAmplitudeFile());
-        if (recording.id > 0) mRecordingDAO.delete(recording);
-        return deleted;
+    public Observable<Boolean> delete(final Recording recording) {
+        return schedule(Observable.create(new Func1<Observer<Boolean>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Boolean> observer) {
+                boolean deleted = false;
+                if (!recording.external_upload || recording.isLegacyRecording()) {
+                    deleted = IOUtils.deleteFile(recording.audio_path);
+                }
+                IOUtils.deleteFile(recording.getEncodedFile());
+                IOUtils.deleteFile(recording.getAmplitudeFile());
+                if (recording.id > 0) {
+                    mRecordingDAO.delete(recording);
+                }
+
+                observer.onNext(deleted);
+                observer.onCompleted();
+
+                return Subscriptions.empty();
+            }
+        }));
     }
 }

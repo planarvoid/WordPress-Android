@@ -3,18 +3,17 @@ package com.soundcloud.android.utils;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.PlaylistActivity;
-import com.soundcloud.android.adapter.PlayableAdapter;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +74,7 @@ public final class PlayUtils {
         return null;
     }
 
-    public static void playFromAdapter(Context context, PlayableAdapter adapter, List<? extends ScModel> data, int position) {
+    public static void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri streamUri) {
         if (position > data.size() || !(data.get(position) instanceof PlayableHolder)) {
             throw new AssertionError("Invalid item " + position + ", must be a playable");
         }
@@ -84,7 +83,7 @@ public final class PlayUtils {
         if (playable instanceof Track) {
             PlayInfo info = new PlayInfo();
             info.initialTrack = (Track) ((PlayableHolder) data.get(position)).getPlayable();
-            info.uri = adapter.getPlayableUri();
+            info.uri = streamUri;
 
             List<Track> tracks = new ArrayList<Track>(data.size());
 

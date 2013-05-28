@@ -6,10 +6,11 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -211,7 +212,17 @@ public class TestHelper {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_REMOVED);
     }
 
-    public static Uri insertWithDependencies(Uri contentUri, ScResource resource) {
+    public static Uri insert(Uri contentUri, Persisted insertable) {
+        Uri uri = Robolectric.application.getContentResolver().insert(contentUri, insertable.buildContentValues());
+        expect(uri).not.toBeNull();
+        return uri;
+    }
+
+    public static <T extends Persisted & Identifiable> Uri insert(T insertable) {
+        return insert(insertable.toUri(), insertable);
+    }
+
+    public static <T extends Persisted & Identifiable> Uri insertWithDependencies(Uri contentUri, T resource) {
         ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
         final BulkInsertMap dependencies = new BulkInsertMap();
         resource.putDependencyValues(dependencies);
@@ -220,7 +231,7 @@ public class TestHelper {
         return resolver.insert(contentUri, resource.buildContentValues());
     }
 
-    public static Uri insertWithDependencies(ScResource resource) {
+    public static <T extends Persisted & Identifiable> Uri insertWithDependencies(T resource) {
         return insertWithDependencies(resource.toUri(), resource);
     }
 
@@ -231,14 +242,14 @@ public class TestHelper {
     }
 
     public static UserAssociation insertAsUserAssociation(User user, UserAssociation.Type assocType) {
-        UserAssociation ua = new UserAssociation(user, new Date(), assocType);
-        TestHelper.insertWithDependencies(Content.COLLECTION_ITEMS.uri, ua);
+        UserAssociation ua = new UserAssociation(user, assocType, new Date());
+        TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, ua);
         return ua;
     }
 
-    public static int bulkInsert(Collection<? extends ScResource> items) {
+    public static <T extends Persisted & Identifiable> int bulkInsert(Collection<T> items) {
         BulkInsertMap map = new BulkInsertMap();
-        for (ScResource m : items) {
+        for (T m : items) {
             m.putFullContentValues(map);
         }
         return map.insert(DefaultTestRunner.application.getContentResolver());
@@ -248,11 +259,11 @@ public class TestHelper {
         return bulkInsert(Arrays.asList(items));
     }
 
-    public static int bulkInsert(Uri uri, Collection<? extends ScResource> resources) {
+    public static <T extends Persisted & Identifiable> int bulkInsert(Uri uri, Collection<T> resources) {
         List<ContentValues> items = new ArrayList<ContentValues>();
         BulkInsertMap map = new BulkInsertMap();
 
-        for (ScResource resource : resources) {
+        for (T resource : resources) {
             resource.putDependencyValues(map);
             items.add(resource.buildContentValues());
         }
@@ -261,8 +272,7 @@ public class TestHelper {
         return resolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
     }
 
-
-    public static int bulkInsertToCollectionItems(List<? extends ScResource> resources, Uri collectionUri) {
+    public static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri) {
         SoundCloudApplication application = DefaultTestRunner.application;
         final long userId = SoundCloudApplication.getUserId();
 
@@ -274,16 +284,28 @@ public class TestHelper {
             r.putFullContentValues(map);
             ContentValues contentValues = new ContentValues();
 
-            contentValues.put(DBHelper.CollectionItems.POSITION, i);
-            contentValues.put(DBHelper.CollectionItems.ITEM_ID, r.id);
-            contentValues.put(DBHelper.CollectionItems.USER_ID, userId);
+            contentValues.put(DBHelper.UserAssociations.POSITION, i);
+            contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.id);
+            contentValues.put(DBHelper.UserAssociations.OWNER_ID, userId);
             map.add(collectionUri, contentValues);
         }
         ContentResolver resolver = application.getContentResolver();
         return map.insert(resolver);
     }
 
-    public static <T extends ScModel> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass) throws Exception {
+    public static int bulkInsertDummyIdsToUserAssociations(Uri collectionUri, int count, long userId) {
+        ContentValues[] cv = new ContentValues[count];
+        for (int i = 0; i < count; i++) {
+            cv[i] = new ContentValues();
+            cv[i].put(DBHelper.UserAssociations.POSITION, i);
+            cv[i].put(DBHelper.UserAssociations.TARGET_ID, i);
+            cv[i].put(DBHelper.UserAssociations.OWNER_ID, userId);
+        }
+        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        return resolver.bulkInsert(collectionUri, cv);
+    }
+
+    public static <T extends Persisted> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass) throws Exception {
         Cursor itemsCursor = DefaultTestRunner.application.getContentResolver().query(contentUri, null, null, null, null);
         List<T> items = new ArrayList<T>();
         if (itemsCursor != null) {
@@ -299,7 +321,7 @@ public class TestHelper {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends ScModel> T reload(final T model) {
+    public static <T extends Persisted> T reload(final T model) {
         try {
             Class<T> clazz = (Class<T>) model.getClass();
             return loadLocalContent(model.toUri(), clazz).get(0);

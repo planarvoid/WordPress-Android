@@ -12,7 +12,9 @@ DEFAULT_LEVELS = %w(
    StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
    ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
    VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
-   PlayEventTracker PlayEventTrackerApi
+   PlayEventTracker PlayEventTrackerApi ReactiveScheduler ScObservables ReactiveListFragment ActivitiesFragment
+   DetachableObserver SyncOperations ActivitiesStorage PlaylistStorage TrackStorage
+   LoadItemsObserver
 )
 DISABLED_LEVELS = %w()
 
@@ -157,6 +159,17 @@ def gitsha1()
     raise "could not get current HEAD" unless $?.success?
     head.strip!
   end
+end
+
+namespace :debug do
+    desc "Build Debug APK"
+    task :build do
+        sh "mvn clean install -Psign --projects app"
+    end
+
+    task :build_deploy => :build do
+        sh "mvn android:deploy --projects app"
+    end
 end
 
 namespace :release do
@@ -307,7 +320,7 @@ end
 # use for the facebook integration
 namespace :keyhash do
   {
-    :debug => { :alias => 'androiddebugkey', :keystore => '~/.android/debug.keystore' },
+    :debug => { :alias => 'androiddebugkey', :keystore => "#{File.expand_path(__FILE__)}/debug.keystore" },
     :beta  => { :alias => 'beta-key', :keystore => 'soundcloud_sign/soundcloud.ks' },
     :production  => { :alias => 'jons keystore', :keystore => 'soundcloud_sign/soundcloud.ks' }
   }.each do |type, config|

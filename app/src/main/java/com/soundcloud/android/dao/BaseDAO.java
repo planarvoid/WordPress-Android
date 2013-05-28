@@ -5,7 +5,8 @@ import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
-import com.soundcloud.android.model.ModelLike;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -29,7 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
+public abstract class BaseDAO<T extends Identifiable & Persisted> {
     public static final int RESOLVER_BATCH_SIZE = 500;
 
     protected final ContentResolver mResolver;
@@ -66,7 +67,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
 
     @Deprecated
     protected long create(Uri uri, ContentValues values) {
-        Uri objUri = mResolver.insert(uri,  values);
+        Uri objUri = mResolver.insert(uri, values);
         if (objUri != null) {
             try {
                 return Long.parseLong(objUri.getLastPathSegment());
@@ -95,8 +96,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
         if (!toRemove.isEmpty()) {
             return mResolver.delete(getContent().uri,
-                getWhereInClause(BaseColumns._ID, toRemove.size()),
-                longListToStringArr(toRemove));
+                    getWhereInClause(BaseColumns._ID, toRemove.size()),
+                    longListToStringArr(toRemove));
         } else {
             return 0;
         }
@@ -137,22 +138,27 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return mResolver.delete(uri, where, whereArgs) == 1;
     }
 
+    @NotNull
     public QueryBuilder buildQuery() {
         return buildQuery(getContent().uri);
     }
 
+    @NotNull
     public QueryBuilder buildQuery(Uri contentUri) {
         return new QueryBuilder(contentUri);
     }
 
+    @NotNull
     public List<T> queryAll() {
         return queryAllByUri(getContent().uri);
     }
 
+    @NotNull
     protected List<T> queryAllByUri(Uri contentUri) {
         return new QueryBuilder(contentUri).queryAll();
     }
 
+    @NotNull
     private List<Long> queryIdsByUri(Uri contentUri, @Nullable String selection, @Nullable String[] selectionArgs) {
         Cursor cursor = mResolver.query(contentUri, new String[]{BaseColumns._ID}, selection, selectionArgs, null);
         if (cursor == null) return Collections.emptyList();
@@ -168,6 +174,7 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
     }
 
+    @NotNull
     private List<T> queryAllByUri(Uri contentUri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String order) {
         Cursor cursor = mResolver.query(contentUri, projection, selection, selectionArgs, order);
         if (cursor == null) return Collections.emptyList();
@@ -183,7 +190,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
     }
 
-    public @Nullable T queryById(long id) {
+    @Nullable
+    public T queryById(long id) {
         Cursor cursor = mResolver.query(getContent().forId(id), null, null, null, null);
         if (cursor == null) return null;
 
@@ -197,7 +205,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         }
     }
 
-    public @Nullable T queryByUri(Uri uri) {
+    @Nullable
+    public T queryByUri(Uri uri) {
         return queryById(UriUtils.getLastSegmentAsLong(uri));
     }
 
@@ -233,7 +242,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
         return mResolver;
     }
 
-    public @NotNull Class<T> getModelClass() {
+    @NotNull
+    public Class<T> getModelClass() {
         @SuppressWarnings("unchecked")
         Class<T> klass = (Class<T>) getContent().modelType;
         if (klass == null) throw new DAOException("No modelclass defined");
@@ -306,7 +316,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
             return queryIdsByUri(contentUri, selection, selectionArgs);
         }
 
-        public @Nullable T first() {
+        @Nullable
+        public T first() {
             List<T> all = limit(1).queryAll();
             if (all.isEmpty()) {
                 return null;
@@ -323,7 +334,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
             return contentUri;
         }
 
-        private @Nullable String[] resolveSelectionArgs() {
+        @Nullable
+        private String[] resolveSelectionArgs() {
             String[] selectionArgs = null;
             if (!mSelectionArgs.isEmpty()) {
                 selectionArgs = Iterables.toArray(mSelectionArgs, String.class);
@@ -331,7 +343,8 @@ public abstract class BaseDAO<T extends ModelLike & ContentValuesProvider> {
             return selectionArgs;
         }
 
-        private @Nullable String resolveSelection() {
+        @Nullable
+        private String resolveSelection() {
             String selection = null;
             if (!TextUtils.isEmpty(mSelection)) {
                 selection = mSelection.toString().trim();

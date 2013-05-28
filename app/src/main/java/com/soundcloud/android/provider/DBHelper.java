@@ -1,6 +1,7 @@
 package com.soundcloud.android.provider;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
 
@@ -10,7 +11,10 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.util.Log;
+
+import java.util.Locale;
 
 
 public class DBHelper extends SQLiteOpenHelper {
@@ -338,6 +342,21 @@ public class DBHelper extends SQLiteOpenHelper {
             "PRIMARY KEY(user_id, item_id, collection_type, resource_type) ON CONFLICT REPLACE"+
             ");";
 
+    /**
+     * {@link DBHelper.UserAssociations}
+     */
+    static final String DATABASE_CREATE_USER_ASSOCIATIONS = "(" +
+            "owner_id INTEGER, " +
+            "target_id INTEGER," +                  // the target user of the association
+            "association_type INTEGER, " +          // the type of association (e.g. Following, Follower)
+            "resource_type INTEGER DEFAULT 0, " +   // currently unused, but if we add groups...
+            "position INTEGER, " +                  // as returned from the api
+            "created_at INTEGER, " +                // indicates when this was created on the api
+            "added_at INTEGER, " +                  // when was this added locally (pre-api sync)
+            "removed_at INTEGER, " +                // when was this removed locally (pre-api sync)
+            "PRIMARY KEY(owner_id, target_id, association_type, resource_type) ON CONFLICT REPLACE" +
+            ");";
+
 
     static final String DATABASE_CREATE_SOUND_VIEW = "AS SELECT " +
             "Sounds." + Sounds._ID + " as " + SoundView._ID +
@@ -389,7 +408,7 @@ public class DBHelper extends SQLiteOpenHelper {
         static final String DATABASE_CREATE_SOUND_ASSOCIATION_VIEW = "AS SELECT " +
             "CollectionItems." + CollectionItems.CREATED_AT + " as " + SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP +
             ", CollectionItems." + CollectionItems.COLLECTION_TYPE + " as " + SoundAssociationView.SOUND_ASSOCIATION_TYPE +
-            ", CollectionItems." + CollectionItems.USER_ID + " as " + SoundAssociationView.SOUND_ASSOCIATION_USER_ID +
+            ", CollectionItems." + CollectionItems.USER_ID + " as " + SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID +
 
             // track+user data
             ", SoundView.*" +
@@ -399,20 +418,27 @@ public class DBHelper extends SQLiteOpenHelper {
             " AND " + Table.COLLECTION_ITEMS.name + "." + CollectionItems.RESOURCE_TYPE + " = " + "SoundView." + SoundView._TYPE + ")" +
             " ORDER BY " + SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP + " DESC";
 
+    /**
+     * A view which combines user associations with users.
+     * This currently excludes :
+     * @see UserAssociationView.USER_ASSOCIATION_OWNER_ID   (currently is always the logged in user)
+     * @see UserAssociations.RESOURCE_TYPE (currently only 1 type in the user table, might change if we add groups)
+     */
     static final String DATABASE_CREATE_USER_ASSOCIATION_VIEW = " AS SELECT " +
-            "CollectionItems." + CollectionItems.CREATED_AT + " as " + UserAssociationView.USER_ASSOCIATION_TIMESTAMP +
-            ", CollectionItems." + CollectionItems.COLLECTION_TYPE + " as " + UserAssociationView.USER_ASSOCIATION_TYPE +
-            ", CollectionItems." + CollectionItems.USER_ID + " as " + UserAssociationView.USER_ASSOCIATION_USER_ID +
-            ", CollectionItems." + CollectionItems.POSITION + " as " + UserAssociationView.USER_ASSOCIATION_POSITION +
+            "UserAssociations." + UserAssociations.CREATED_AT + " as " + UserAssociationView.USER_ASSOCIATION_TIMESTAMP +
+            ", UserAssociations." + UserAssociations.ASSOCIATION_TYPE + " as " + UserAssociationView.USER_ASSOCIATION_TYPE +
+            ", UserAssociations." + CollectionItems.POSITION + " as " + UserAssociationView.USER_ASSOCIATION_POSITION +
+            ", UserAssociations." + UserAssociations.ADDED_AT + " as " + UserAssociationView.USER_ASSOCIATION_ADDED_AT +
+            ", UserAssociations." + UserAssociations.REMOVED_AT + " as " + UserAssociationView.USER_ASSOCIATION_REMOVED_AT +
+            ", UserAssociations." + UserAssociations.OWNER_ID + " as " + UserAssociationView.USER_ASSOCIATION_OWNER_ID +
 
             // user data
             ", Users.*" +
-            " FROM " + Table.COLLECTION_ITEMS.name + " " +
+            " FROM " + Table.USER_ASSOCIATIONS.name + " " +
             " LEFT JOIN Users ON(" +
-            "   " + Table.COLLECTION_ITEMS.name + "." + CollectionItems.ITEM_ID + " = " + Table.USERS.name + "." + Users._ID +
-            " AND " + Table.COLLECTION_ITEMS.name + "." + CollectionItems.RESOURCE_TYPE + " = " + Table.USERS.name + "." + Users._TYPE + ")" +
+            "   " + Table.USER_ASSOCIATIONS.name + "." + UserAssociations.TARGET_ID + " = " + Table.USERS.name + "." + Users._ID + ")" +
             // this is the default position as returned by the server, which is ordered by last active users (subject to change)
-            " ORDER BY " + CollectionItems.POSITION + " ASC";
+            " ORDER BY " + UserAssociations.POSITION + " ASC";
 
     /**
      * A view which aggregates playlist members from the sounds and playlist_tracks table
@@ -599,6 +625,21 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String RESOURCE_TYPE   = "resource_type";  // used by sounds to determine playlist or track
         public static final String POSITION        = "position";
         public static final String CREATED_AT      = "created_at";
+        public static final String SORT_ORDER = POSITION + " ASC";
+    }
+
+    /**
+     * {@link DBHelper#DATABASE_CREATE_USER_ASSOCIATIONS}
+     */
+    public static final class UserAssociations {
+        public static final String OWNER_ID = "owner_id"; // the source user of the association
+        public static final String TARGET_ID = "target_id";// the target user of the association
+        public static final String ASSOCIATION_TYPE = "association_type"; // the type of association (e.g. Following, Follower)
+        public static final String RESOURCE_TYPE = "resource_type";  // currently unused, but if we add groups...
+        public static final String POSITION = "position"; // as returned from the api
+        public static final String CREATED_AT = "created_at"; // indicates when this was created on the api
+        public static final String ADDED_AT = "added_at"; // when was this added locally (pre-api sync)
+        public static final String REMOVED_AT = "removed_at"; // when was this removed locally (pre-api sync)
         public static final String SORT_ORDER = POSITION + " ASC";
     }
 
@@ -828,23 +869,24 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public final static class AssociationView {
-        public static final String ASSOCIATION_TIMESTAMP    = "association_timestamp";
-        public static final String ASSOCIATION_TYPE         = "association_type";
-        public static final String ASSOCIATION_USER_ID      = "association_user_id";
-        public static final String ASSOCIATION_POSITION     = "association_position";
+        public static final String ASSOCIATION_TIMESTAMP = "association_timestamp";
+        public static final String ASSOCIATION_TYPE = "association_type";
+        public static final String ASSOCIATION_OWNER_ID = "association_owner_id";
     }
 
     public final static class UserAssociationView extends Users {
         public static final String USER_ASSOCIATION_TIMESTAMP   = AssociationView.ASSOCIATION_TIMESTAMP;
         public static final String USER_ASSOCIATION_TYPE        = AssociationView.ASSOCIATION_TYPE;
-        public static final String USER_ASSOCIATION_USER_ID     = AssociationView.ASSOCIATION_USER_ID;
-        public static final String USER_ASSOCIATION_POSITION = AssociationView.ASSOCIATION_POSITION;
+        public static final String USER_ASSOCIATION_OWNER_ID    = AssociationView.ASSOCIATION_OWNER_ID;
+        public static final String USER_ASSOCIATION_POSITION    = "user_association_position";
+        public static final String USER_ASSOCIATION_ADDED_AT    = "user_association_added_at";
+        public static final String USER_ASSOCIATION_REMOVED_AT  = "user_association_removed_at";
     }
 
     public final static class SoundAssociationView extends SoundView {
         public static final String SOUND_ASSOCIATION_TIMESTAMP = AssociationView.ASSOCIATION_TIMESTAMP;
-        public static final String SOUND_ASSOCIATION_TYPE      = AssociationView.ASSOCIATION_TYPE;
-        public static final String SOUND_ASSOCIATION_USER_ID   = AssociationView.ASSOCIATION_USER_ID;
+        public static final String SOUND_ASSOCIATION_TYPE = AssociationView.ASSOCIATION_TYPE;
+        public static final String SOUND_ASSOCIATION_OWNER_ID = AssociationView.ASSOCIATION_OWNER_ID;
     }
 
     public final static class PlaylistTracksView extends SoundView {
@@ -1125,11 +1167,52 @@ public class DBHelper extends SQLiteOpenHelper {
         return upgradeTo21(db, oldVersion);
     }
 
-    // Added User Associations view and refactored association views in general
+    // Moved UserAssociations to new table, added User Associations view and refactored association views in general
     private static boolean upgradeTo23(SQLiteDatabase db, int oldVersion) {
         try {
+            Table.USER_ASSOCIATIONS.recreate(db);
+            String[] toAppendCols = new String[]{
+                    UserAssociations.OWNER_ID,
+                    UserAssociations.TARGET_ID,
+                    UserAssociations.RESOURCE_TYPE,
+                    UserAssociations.ASSOCIATION_TYPE,
+                    UserAssociations.POSITION,
+                    UserAssociations.CREATED_AT
+            };
+            String[] fromAppendCols = new String[]{
+                    CollectionItems.USER_ID,
+                    CollectionItems.ITEM_ID,
+                    CollectionItems.RESOURCE_TYPE,
+                    CollectionItems.COLLECTION_TYPE,
+                    CollectionItems.POSITION,
+                    CollectionItems.CREATED_AT
+            };
+            String[] userTypes = new String[]{
+                    String.valueOf(ScContentProvider.CollectionItemTypes.FOLLOWER),
+                    String.valueOf(ScContentProvider.CollectionItemTypes.FOLLOWING),
+                    String.valueOf(ScContentProvider.CollectionItemTypes.FRIEND)
+            };
+
+            String sql = String.format( Locale.ENGLISH,
+                    "INSERT INTO %s (%s) SELECT %s from %s where %s in (%s)",
+                    Table.USER_ASSOCIATIONS.name,
+                    TextUtils.join(",", toAppendCols),
+                    TextUtils.join(",", fromAppendCols),
+                    Table.COLLECTION_ITEMS.name,
+                    CollectionItems.COLLECTION_TYPE,
+                    TextUtils.join(",", userTypes));
+
+            db.execSQL(sql);
+
+            int moved = db.delete(Table.COLLECTION_ITEMS.name,
+                    ResolverHelper.getWhereInClause(CollectionItems.COLLECTION_TYPE, userTypes.length),
+                    userTypes);
+
+            Log.d(TAG,"Moved " + moved + " associations to the UserAssociations table during upgrade");
+
             Table.SOUND_ASSOCIATION_VIEW.recreate(db);
             Table.USER_ASSOCIATION_VIEW.recreate(db);
+
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade21 " +

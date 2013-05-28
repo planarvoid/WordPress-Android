@@ -10,15 +10,16 @@ import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.text.TextUtils;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 
 /**
@@ -56,12 +57,12 @@ public class CollectionHolder<T> implements Iterable<T> {
         return collection.iterator();
     }
 
-    public T get(int index) {
-        return collection.get(index);
+    public boolean add(T item) {
+        return collection.add(item);
     }
 
-    public void add(T e) {
-        collection.add(e);
+    public T get(int index) {
+        return collection.get(index);
     }
 
     public List<T> getCollection(){
@@ -81,7 +82,7 @@ public class CollectionHolder<T> implements Iterable<T> {
     }
 
     public boolean isEmpty() {
-        return size() == 0;
+        return collection.isEmpty();
     }
 
     public String getCursor() {
@@ -116,5 +117,6 @@ public class CollectionHolder<T> implements Iterable<T> {
     public int size() {
         return collection != null ? collection.size() : 0;
     }
+
 }
 

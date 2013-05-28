@@ -257,10 +257,8 @@ public class ScModelManager {
             playlist.user = cache(playlist.user, updateMode);
         }
 
-        if (playlist.tracks != null) {
-            for (int i = 0; i < playlist.tracks.size(); i++) {
-                playlist.tracks.set(i, cache(playlist.tracks.get(i), updateMode));
-            }
+        for (int i = 0; i < playlist.tracks.size(); i++) {
+            playlist.tracks.set(i, cache(playlist.tracks.get(i), updateMode));
         }
 
         if (mPlaylistCache.containsKey(playlist.id)) {

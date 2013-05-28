@@ -1,9 +1,8 @@
 package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.SoundAssociationHolder;
@@ -13,16 +12,13 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
-import android.database.ContentObserver;
-import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,7 +67,8 @@ public class SoundAssociationStorageTest {
         final List<Track> tracks = createTracks(2);
         Playlist p = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        storage.addCreation(p);
+        SoundAssociation playlistCreation = storage.addCreation(p).toBlockingObservable().last();
+        expect(playlistCreation).not.toBeNull();
         expect(p.toUri()).not.toBeNull();
         expect(Content.ME_PLAYLISTS).toHaveCount(1);
     }
@@ -92,8 +89,8 @@ public class SoundAssociationStorageTest {
         // expect change, syncing with 2 items
         SoundAssociationHolder holder = new SoundAssociationHolder();
         holder.collection = new ArrayList<SoundAssociation>();
-        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK_REPOST.type));
-        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK.type));
+        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK_REPOST));
+        holder.collection.add(createAssociation(66376067l, SoundAssociation.Type.TRACK));
 
         expect(storage.syncToLocal(holder.collection, Content.ME_SOUNDS.uri)).toBeTrue();
         expect(Content.ME_SOUNDS).toHaveCount(2);
@@ -119,7 +116,7 @@ public class SoundAssociationStorageTest {
 
         SoundAssociationHolder holder = new SoundAssociationHolder();
         holder.collection = new ArrayList<SoundAssociation>();
-        holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK_LIKE.type));
+        holder.collection.add(createAssociation(56143158l, SoundAssociation.Type.TRACK_LIKE));
 
         expect(storage.syncToLocal(holder.collection, Content.ME_LIKES.uri)).toBeTrue();
         expect(Content.ME_LIKES).toHaveCount(1);
@@ -209,7 +206,7 @@ public class SoundAssociationStorageTest {
 
         Track track = new Track(1L);
         track.created_at = new Date();
-        storage.addCreation(track);
+        storage.addCreation(track).subscribe(ScActions.NO_OP);
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/sounds/1");
     }
@@ -218,7 +215,8 @@ public class SoundAssociationStorageTest {
     public void shouldNotifyContentObserverWhenAddingPlaylistCreation() {
         ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
 
-        storage.addCreation(Playlist.newUserPlaylist(new User(1L), "playlist", false, Collections.<Track>emptyList()));
+        Playlist playlist = Playlist.newUserPlaylist(new User(1L), "playlist", false, Collections.<Track>emptyList());
+        storage.addCreation(playlist).subscribe(ScActions.NO_OP);
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/playlists/1");
     }
@@ -232,10 +230,10 @@ public class SoundAssociationStorageTest {
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_LIKE);
     }
 
-    private SoundAssociation createAssociation(long id, String type) {
+    private SoundAssociation createAssociation(long id, Association.Type type) {
         SoundAssociation soundAssociation1 = new SoundAssociation();
         soundAssociation1.playable = new Track(id);
-        soundAssociation1.setType(type);
+        soundAssociation1.setType(type.name());
         soundAssociation1.created_at = new Date(System.currentTimeMillis());
         return soundAssociation1;
     }

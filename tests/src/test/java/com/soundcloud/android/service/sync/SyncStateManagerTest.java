@@ -2,6 +2,7 @@ package com.soundcloud.android.service.sync;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
@@ -10,6 +11,8 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -19,8 +22,10 @@ public class SyncStateManagerTest {
 
     SyncStateManager syncStateManager;
     ContentResolver resolver;
+    @Mock LocalCollection.OnChangeListener onLocalCollectionChangeListener;
 
     @Before public void before() {
+        MockitoAnnotations.initMocks(this);
         resolver = DefaultTestRunner.application.getContentResolver();
         syncStateManager = new SyncStateManager();
     }
@@ -33,7 +38,7 @@ public class SyncStateManagerTest {
         LocalCollection syncState = syncStateManager.fromContent(contentUri);
         expect(Content.COLLECTIONS).toHaveCount(1);
         expect(syncState).not.toBeNull();
-        expect(syncState.uri).toEqual(contentUri);
+        expect(syncState.getUri()).toEqual(contentUri);
     }
 
     @Test
@@ -72,7 +77,7 @@ public class SyncStateManagerTest {
         syncStateManager.updateLastSyncSuccessTime(uri, 200);
         expect(syncStateManager.fromContent(uri).last_sync_success).toEqual(200L);
 
-        syncStateManager.forceToStale(uri);
+        syncStateManager.forceToStale(uri).toBlockingObservable().last();
         expect(syncStateManager.fromContent(uri).last_sync_success).toEqual(0L);
     }
 
@@ -82,8 +87,48 @@ public class SyncStateManagerTest {
         LocalCollection lc = new LocalCollection(uri, 100, 1, LocalCollection.SyncState.IDLE, 0, null);
         new LocalCollectionDAO(resolver).create(lc);
         expect(lc.shouldAutoRefresh()).toBeTrue();
-        syncStateManager.updateSyncState(lc.id, LocalCollection.SyncState.SYNCING);
+        syncStateManager.updateSyncState(lc.getId(), LocalCollection.SyncState.SYNCING);
         expect(syncStateManager.fromContent(uri).shouldAutoRefresh()).toBeFalse();
+    }
+
+    @Test
+    public void shouldAddListenerWithFirstAsyncQuery() {
+        final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
+                System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
+
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, onLocalCollectionChangeListener);
+        final SyncStateManager.ChangeObserver observerById = syncStateManager.getObserverById(1);
+        expect(observerById.getListener()).toBe(onLocalCollectionChangeListener);
+
+    }
+
+    @Test
+    public void shouldNotAddListenerWhenCollectionAlreadyHasId() {
+        final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
+                System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
+        lc.setId(123L);
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, onLocalCollectionChangeListener);
+        expect(syncStateManager.hasObservers()).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotAddObserverWithNoListener() {
+        final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
+                System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, null);
+        expect(syncStateManager.hasObservers()).toBeFalse();
+    }
+
+    @Test
+    public void shouldInitializeNewLocalCollectionIfNotInDatabase() {
+        final LocalCollection lc = new LocalCollection(Content.ME_LIKES.uri,
+                System.currentTimeMillis(), System.currentTimeMillis(), LocalCollection.SyncState.SYNCING, 50, "extra");
+
+        final LocalCollection initLc = new LocalCollection(Content.ME_LIKES.uri);
+        initLc.setId(1);
+
+        syncStateManager.onCollectionAsyncQueryReturn(null, lc, onLocalCollectionChangeListener);
+        verify(onLocalCollectionChangeListener).onLocalCollectionChanged(initLc);
     }
 
     private LocalCollection insertLocalCollection(Uri contentUri) {

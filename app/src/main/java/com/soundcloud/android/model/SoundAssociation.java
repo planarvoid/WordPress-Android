@@ -2,6 +2,9 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -23,9 +26,7 @@ public class SoundAssociation extends Association implements PlayableHolder {
     public @NotNull Playable playable;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
-    public SoundAssociation() {
-        super();
-    }
+    public SoundAssociation() { }
 
     public SoundAssociation(Cursor cursor) {
         super(cursor);
@@ -43,9 +44,8 @@ public class SoundAssociation extends Association implements PlayableHolder {
      * @param typeEnum the kind of association
      */
     public SoundAssociation(@NotNull Playable playable, Date associatedAt, Type typeEnum) {
+        super(associatedAt, typeEnum.collectionType);
         this.playable = playable;
-        this.created_at = associatedAt;
-        this.associationType = typeEnum.collectionType;
     }
 
     /**
@@ -68,19 +68,8 @@ public class SoundAssociation extends Association implements PlayableHolder {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return playable;
-    }
-
-
-    @Override
-    public boolean isStale() {
-        return playable.isStale();
-    }
-
-    @Override
-    public boolean isIncomplete() {
-        return playable.isIncomplete();
     }
 
     public SoundAssociation(Parcel in) {
@@ -173,7 +162,6 @@ public class SoundAssociation extends Association implements PlayableHolder {
     public String toString() {
         return "SoundAssociation{" +
                 "associationType=" + associationType +
-                ", type='" + type + '\'' +
                 ", created_at=" + created_at +
                 ", playable=" + playable +
                 ", user=" + owner +

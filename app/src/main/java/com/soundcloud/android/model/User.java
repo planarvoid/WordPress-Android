@@ -11,10 +11,12 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
 import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -279,6 +281,12 @@ public class User extends ScResource implements UserHolder {
         }
     }
 
+    @NotNull
+    @Override
+    public User getUser() {
+        return this;
+    }
+
     public static interface DataKeys {
         String USERNAME        = "currentUsername";
         String USER_ID         = "currentUserId";
@@ -293,7 +301,7 @@ public class User extends ScResource implements UserHolder {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return this;
     }
 
@@ -362,16 +370,6 @@ public class User extends ScResource implements UserHolder {
     @Override
     public Uri getBulkInsertUri() {
         return Content.USERS.uri;
-    }
-
-    @Override @JsonIgnore
-    public User getUser() {
-        return this;
-    }
-
-    @Override @JsonIgnore
-    public Track getPlayable() {
-        return null;
     }
 
     @Override

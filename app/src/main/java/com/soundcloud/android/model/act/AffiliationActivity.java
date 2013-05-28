@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.behavior.Refreshable;
 
 import android.database.Cursor;
 
@@ -42,7 +43,7 @@ public class AffiliationActivity extends Activity {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return user;
     }
 

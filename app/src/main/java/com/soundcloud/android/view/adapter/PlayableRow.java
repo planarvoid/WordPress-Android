@@ -6,9 +6,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.RepostActivity;
+import com.soundcloud.android.model.behavior.Repost;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -101,8 +101,8 @@ public class PlayableRow extends PlayableBar implements ListRow {
     private void setupReposter() {
         mReposter.setVisibility(View.GONE);
 
-        if (mPlayableHolder instanceof RepostActivity) {
-            mReposter.setText(((RepostActivity) mPlayableHolder).getReposter().username);
+        if (mPlayableHolder instanceof Repost) {
+            mReposter.setText(((Repost) mPlayableHolder).getReposter().username);
             mReposter.setVisibility(View.VISIBLE);
 
         } else if (mPlayableHolder instanceof SoundAssociation) {

@@ -1,14 +1,14 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 
 import java.util.Date;
@@ -20,19 +20,12 @@ public class UserAssociation extends Association implements UserHolder {
 
     private @NotNull User mUser;
 
-    @SuppressWarnings("UnusedDeclaration") //for deserialization
-    public UserAssociation() { }
-
     public UserAssociation(Cursor cursor) {
+        super(cursor);
         mUser = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
     }
 
-    /**
-     * Use this ctor to create user associations for followings or followers
-     * @param user the user that was followed or is following the owner
-     * @param typeEnum the kind of association (FOLLOWER or FOLLOWING)
-     */
-    public UserAssociation(@NotNull User user, Date associatedAt, Type typeEnum) {
+    public UserAssociation(@NotNull User user, Type typeEnum, Date associatedAt) {
         super(associatedAt, typeEnum.collectionType);
         this.mUser = user;
     }
@@ -40,11 +33,6 @@ public class UserAssociation extends Association implements UserHolder {
     public UserAssociation(Parcel in) {
         super(in);
         mUser = in.readParcelable(ClassLoader.getSystemClassLoader());
-    }
-
-    @Override
-    public Uri getBulkInsertUri() {
-        return Content.COLLECTION_ITEMS.uri;
     }
 
     @Override
@@ -69,23 +57,24 @@ public class UserAssociation extends Association implements UserHolder {
     }
 
     @Override
+    public ContentValues buildContentValues() {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.UserAssociations.TARGET_ID, getItemId());
+        cv.put(DBHelper.UserAssociations.OWNER_ID, SoundCloudApplication.getUserId());
+        cv.put(DBHelper.UserAssociations.ASSOCIATION_TYPE, associationType);
+        cv.put(DBHelper.UserAssociations.RESOURCE_TYPE, getResourceType());
+        cv.put(DBHelper.UserAssociations.CREATED_AT, created_at.getTime());
+        return cv;
+    }
+
+    @Override
     public long getListItemId() {
         return mUser.getId();
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return mUser;
-    }
-
-    @Override
-    public boolean isStale() {
-        return mUser.isStale();
-    }
-
-    @Override
-    public boolean isIncomplete() {
-        return mUser.isIncomplete();
     }
 
     public int getResourceType() {

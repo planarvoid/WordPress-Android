@@ -11,7 +11,6 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,13 +32,13 @@ public class ActivitiesStorageTest {
         expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         expect(
-                storage.getSince(Content.ME_SOUND_STREAM,
-                        toTime("2012/09/27 14:08:01 +0000")).size()
+                storage.getCollectionSince(Content.ME_SOUND_STREAM.uri,
+                        toTime("2012/09/27 14:08:01 +0000")).toBlockingObservable().lastOrDefault(Activities.EMPTY).size()
         ).toEqual(2);
 
         expect(
-                storage.getBefore(Content.ME_SOUND_STREAM.uri,
-                        toTime("2012/09/26 15:00:00 +0000")).size()
+                storage.getCollectionBefore(Content.ME_SOUND_STREAM.uri,
+                        toTime("2012/09/26 15:00:00 +0000")).toBlockingObservable().lastOrDefault(Activities.EMPTY).size()
         ).toEqual(1);
     }
 
@@ -53,9 +52,9 @@ public class ActivitiesStorageTest {
     }
 
     @Test
-    public void shouldGetFirstAndLastActivity() throws Exception {
-        Activity first = storage.getFirstActivity(Content.ME_SOUND_STREAM);
-        Activity last = storage.getLastActivity(Content.ME_SOUND_STREAM);
+    public void shouldGetLatestAndOldestActivity() throws Exception {
+        Activity first = storage.getLatestActivity(Content.ME_SOUND_STREAM).toBlockingObservable().lastOrDefault(null);
+        Activity last = storage.getOldestActivity(Content.ME_SOUND_STREAM).toBlockingObservable().lastOrDefault(null);
         expect(first).toBeNull();
         expect(last).toBeNull();
 
@@ -64,25 +63,35 @@ public class ActivitiesStorageTest {
 
         expect(storage.insert(Content.ME_SOUND_STREAM, one_of_each)).toBe(7);
 
-        first = storage.getFirstActivity(Content.ME_SOUND_STREAM);
+        first = storage.getLatestActivity(Content.ME_SOUND_STREAM).toBlockingObservable().lastOrDefault(null);
         expect(first).not.toBeNull();
         expect(first.uuid).toEqual("8e3bf200-0744-11e2-9817-590114067ab0");
 
-        last = storage.getLastActivity(Content.ME_SOUND_STREAM);
+        last = storage.getOldestActivity(Content.ME_SOUND_STREAM).toBlockingObservable().lastOrDefault(null);
         expect(last).not.toBeNull();
         expect(last.uuid).toEqual("75e9d700-0819-11e2-81bb-70dbfa89bdb9");
         expect(first.created_at.after(last.created_at)).toBeTrue();
     }
 
     @Test
-    public void shouldGetLastActivity() throws Exception {
+    public void shouldGetOldestActivity() throws Exception {
         Activities a = TestHelper.readJson(Activities.class, SyncAdapterServiceTest.class,  "e1_stream_1.json");
         storage.insert(Content.ME_SOUND_STREAM, a);
         expect(Content.ME_SOUND_STREAM).toHaveCount(22);
 
         expect(
-                storage.getLastActivity(Content.ME_SOUND_STREAM).created_at.getTime()
+                storage.getOldestActivity(Content.ME_SOUND_STREAM).toBlockingObservable().lastOrDefault(null).created_at.getTime()
         ).toEqual(toTime("2012/09/26 14:52:27 +0000"));
+    }
+
+    @Test
+    public void shouldGetLatestNActivities() throws IOException {
+        Activities a = TestHelper.readJson(Activities.class, SyncAdapterServiceTest.class,  "e1_stream_1.json");
+        storage.insert(Content.ME_SOUND_STREAM, a);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(22);
+
+        expect(storage.getLatestActivities(Content.ME_SOUND_STREAM.uri, 0).toList().toBlockingObservable().last()).toNumber(22);
+        expect(storage.getLatestActivities(Content.ME_SOUND_STREAM.uri, 5).toList().toBlockingObservable().last()).toNumber(5);
     }
 
     @Test

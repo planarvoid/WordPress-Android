@@ -10,13 +10,13 @@ import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
-import android.util.Log;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -55,29 +55,43 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
                 // notification related
                 if (SyncConfig.shouldUpdateDashboard(app)) {
-
-                    final ActivitiesStorage activitiesStorage = new ActivitiesStorage();
-                    final long frequency = SyncConfig.getNotificationsFrequency(app);
-                    final long delta = System.currentTimeMillis() - ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM);
-                    if (delta > frequency) {
-                        final long lastStreamSeen = ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM);
-                        final Activities stream = !SyncConfig.isIncomingEnabled(app, extras) ? Activities.EMPTY :
-                                activitiesStorage.getSince(Content.ME_SOUND_STREAM, lastStreamSeen);
-
-
-                        maybeNotifyStream(app, stream);
-                    } else if (Log.isLoggable(SyncAdapterService.TAG, Log.DEBUG)) {
-                            Log.d(SyncAdapterService.TAG, "skipping stream notification, delta "+delta+" < frequency="+frequency);
-                    }
-
-                    final long lastOwnSeen = ContentStats.getLastSeen(app, Content.ME_ACTIVITIES);
-                    final Activities news = !SyncConfig.isActivitySyncEnabled(app, extras) ? Activities.EMPTY :
-                            activitiesStorage.getSince(Content.ME_ACTIVITIES, lastOwnSeen);
-                    maybeNotifyActivity(app, news, extras);
+                    createSystemNotification();
                 }
                 break;
             }
         }
+    }
+
+    private void createSystemNotification() {
+        final ActivitiesStorage activitiesStorage = new ActivitiesStorage();
+        final long frequency = SyncConfig.getNotificationsFrequency(app);
+        final long delta = System.currentTimeMillis() - ContentStats.getLastNotified(app, Content.ME_SOUND_STREAM);
+
+        // deliver incoming sounds, if the user has enabled this
+        if (SyncConfig.isIncomingEnabled(app, extras)) {
+            if (delta > frequency) {
+                final long lastStreamSeen = ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM);
+                Activities activities = activitiesStorage
+                        .getCollectionSince(Content.ME_SOUND_STREAM.uri, lastStreamSeen)
+                        .toBlockingObservable()
+                        .lastOrDefault(Activities.EMPTY);
+                maybeNotifyStream(app, activities);
+
+            } else {
+                Log.d(SyncAdapterService.TAG, "skipping stream notification, delta " + delta + " < frequency=" + frequency);
+            }
+        }
+
+        // deliver incoming activities, if the user has enabled this
+        if (SyncConfig.isActivitySyncEnabled(app, extras)) {
+            final long lastOwnSeen = ContentStats.getLastSeen(app, Content.ME_ACTIVITIES);
+            Activities activities = activitiesStorage
+                    .getCollectionSince(Content.ME_ACTIVITIES.uri, lastOwnSeen)
+                    .toBlockingObservable()
+                    .lastOrDefault(Activities.EMPTY);
+            maybeNotifyActivity(app, activities, extras);
+        }
+
     }
 
     private boolean maybeNotifyStream(SoundCloudApplication app, Activities stream) {
@@ -112,7 +126,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
 
             return true;
         } else {
-            if (Log.isLoggable(SyncAdapterService.TAG, Log.DEBUG)) Log.d(SyncAdapterService.TAG, "no new items, skip track notfication");
+            Log.d(SyncAdapterService.TAG, "no new items, skip track notfication");
             return false;
         }
     }

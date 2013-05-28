@@ -9,7 +9,7 @@ import com.soundcloud.android.view.adapter.PlayableRow;
 import android.content.Context;
 import android.net.Uri;
 
-public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> implements PlayableAdapter {
+public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> {
 
     public DefaultPlayableAdapter(Uri uri) {
         super(uri);
@@ -22,17 +22,8 @@ public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> implements P
 
     @Override
     public int handleListItemClick(Context context, int position, long id) {
-        PlayUtils.playFromAdapter(context, this, mData, position);
+        Uri streamUri = mContent.isMine() ? mContentUri : null;
+        PlayUtils.playFromAdapter(context, mData, position, streamUri);
         return ItemClickResults.LEAVING;
-    }
-
-    @Override
-    public Uri getPlayableUri() {
-        return mContent.isMine() ? mContentUri : null;
-    }
-
-    @Override
-    public Playable getPlayable(int position) {
-        return getItem(position);
     }
 }

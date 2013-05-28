@@ -96,16 +96,6 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     }
 
     @Override
-    public User getUser() {
-        return null;
-    }
-
-    @Override
-    public Playable getPlayable() {
-        return null;
-    }
-
-    @Override
     public int describeContents() {
         return 0;
     }
