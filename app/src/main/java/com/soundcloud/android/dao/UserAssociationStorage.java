@@ -35,7 +35,7 @@ public class UserAssociationStorage {
     }
 
     public UserAssociationStorage(ContentResolver resolver) {
-        mResolver = SoundCloudApplication.instance.getContentResolver();
+        mResolver = resolver;
         mFollowingsDAO = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, mResolver);
     }
 
