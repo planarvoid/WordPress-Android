@@ -23,6 +23,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -189,7 +190,7 @@ public class SoundRecorderService extends Service  {
 
     private Notification createRecordingNotification(Recording recording) {
         mRecordPendingIntent = PendingIntent.getActivity(this, 0, recording.getViewIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
-        mRecordNotification = createOngoingNotification(mRecordPendingIntent);
+        mRecordNotification = createOngoingNotification(this, mRecordPendingIntent);
         mRecordNotification.setLatestEventInfo(this, getString(R.string.cloud_recorder_event_title),
                 getString(R.string.cloud_recorder_event_message, 0),
                 mRecordPendingIntent);
@@ -221,8 +222,7 @@ public class SoundRecorderService extends Service  {
         PendingIntent pi = PendingIntent.getActivity(
                 getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification notification = createOngoingNotification(
-                pi);
+        Notification notification = createOngoingNotification(this, pi);
 
         notification.setLatestEventInfo(getApplicationContext(), getApplicationContext()
                 .getString(R.string.cloud_recorder_playback_event_title), title,
@@ -239,13 +239,12 @@ public class SoundRecorderService extends Service  {
         nm.notify(RECORD_NOTIFY_ID, notification);
     }
 
-    public static Notification createOngoingNotification(PendingIntent pendingIntent) {
-        Notification notification = new Notification();
-        notification.icon = R.drawable.ic_notification_cloud;
-        notification.when = System.currentTimeMillis();
-        notification.contentIntent = pendingIntent;
-        notification.flags |= Notification.FLAG_ONGOING_EVENT;
-        return notification;
+    public static Notification createOngoingNotification(Context context, PendingIntent pendingIntent) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        builder.setSmallIcon(R.drawable.ic_notification_cloud);
+        builder.setContentIntent(pendingIntent);
+        builder.setOngoing(true);
+        return builder.build();
     }
 
     private void acquireWakeLock() {

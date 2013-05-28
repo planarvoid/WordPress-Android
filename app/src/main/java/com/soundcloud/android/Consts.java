@@ -132,6 +132,18 @@ public final class Consts {
             }
         }
 
+        public static String formatUriForNotificationLargeIcon(Context c, String uri) {
+            return getNotificationLargeIconGraphicSize(c).formatUri(uri);
+        }
+
+        public static GraphicSize getNotificationLargeIconGraphicSize(Context c) {
+            if (c.getResources().getDisplayMetrics().density > 2) {
+                return GraphicSize.T300;
+            } else {
+                return GraphicSize.LARGE;
+            }
+        }
+
         public static String formatUriForSearchSuggestionsList(Context c, String uri) {
             return getSearchSuggestionsListItemGraphicSize(c).formatUri(uri);
         }
