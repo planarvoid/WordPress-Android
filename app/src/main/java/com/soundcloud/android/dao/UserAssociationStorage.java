@@ -4,6 +4,7 @@ import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
 import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.User;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 
 import java.util.Date;
@@ -46,6 +48,24 @@ public class UserAssociationStorage {
         return ResolverHelper.idCursorToList(
                 mResolver.query(ResolverHelper.addIdOnlyParameter(uri), null, null, null, null)
         );
+    }
+
+    public List<UserAssociation> getFollowings() {
+        return mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll();
+    }
+
+    public List<UserAssociation> getFollowingsNeedingSync() {
+        return mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT + " IS NOT NULL OR " +
+                DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NOT NULL"
+        ).queryAll();
+    }
+
+    public boolean hasFollowingsNeedingSync() {
+        return mUserAssociationDAO.count(
+                DBHelper.UserAssociations.ASSOCIATION_TYPE + " = ? AND (" +
+                        DBHelper.UserAssociations.ADDED_AT + " IS NOT NULL OR " +
+                        DBHelper.UserAssociations.REMOVED_AT + " IS NOT NULL )"
+                , String.valueOf(Association.Type.FOLLOWING.collectionType)) > 0;
     }
 
     /**
