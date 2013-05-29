@@ -79,7 +79,7 @@ public class UserAssociation extends Association implements UserHolder {
 
     @Override
     public long getListItemId() {
-        return mUser.getId();
+        return getUser().id << 32 + associationType;
     }
 
     @Override
@@ -121,5 +121,25 @@ public class UserAssociation extends Association implements UserHolder {
 
     public boolean isMarkedForRemoval() {
         return mRemovedAt != null && mRemovedAt.getTime() > 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserAssociation)) return false;
+        if (!super.equals(o)) return false;
+
+        UserAssociation that = (UserAssociation) o;
+
+        if (!mUser.equals(that.mUser)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + mUser.hashCode();
+        return result;
     }
 }
