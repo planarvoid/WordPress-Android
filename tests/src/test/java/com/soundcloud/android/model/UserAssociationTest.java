@@ -50,6 +50,39 @@ public class UserAssociationTest {
         expect(a1).not.toEqual(a2);
     }
 
+    @Test
+    public void testShouldBeMarkedForAddition() {
+        UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
+        association.markForAddition();
+        expect(association.isMarkedForAddition()).toBeTrue();
+    }
+
+    @Test
+    public void testShouldBeMarkedForRemoval() {
+        UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
+        association.markForRemoval();
+        expect(association.isMarkedForRemoval()).toBeTrue();
+    }
+
+    @Test
+    public void testShouldNotBeMarkedForAdditionAfterMarkedForRemoval() {
+        UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
+        association.markForAddition();
+        expect(association.isMarkedForAddition()).toBeTrue();
+        association.markForRemoval();
+        expect(association.isMarkedForAddition()).toBeFalse();
+    }
+
+    @Test
+    public void testShouldNotBeMarkedForRemovalAfterMarkedForAddition() {
+        UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
+        association.markForRemoval();
+        expect(association.isMarkedForRemoval()).toBeTrue();
+        association.markForAddition();
+        expect(association.isMarkedForRemoval()).toBeFalse();
+    }
+
+
     private void compareUserAssociations(UserAssociation userAssociation, UserAssociation userAssociation2) {
         expect(userAssociation2.id).toEqual(userAssociation.id);
         expect(userAssociation2.created_at).toEqual(userAssociation.created_at);
