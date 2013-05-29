@@ -49,7 +49,7 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         expect(Content.ME_FOLLOWINGS).toHaveCount(0);
 
         User user = new User(1);
-        UserAssociation ua = new UserAssociation(user, UserAssociation.Type.FOLLOWING, new Date());
+        UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
         ua.owner = new User(AbstractDAOTest.OWNER_ID);
         getDAO().create(ua);
 
@@ -65,7 +65,7 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         expect(Content.ME_FOLLOWERS).toHaveCount(0);
 
         User user = new User(1);
-        UserAssociation ua = new UserAssociation(user, UserAssociation.Type.FOLLOWER, new Date());
+        UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWER, user);
         ua.owner = new User(AbstractDAOTest.OWNER_ID);
         getDAO().create(ua);
 

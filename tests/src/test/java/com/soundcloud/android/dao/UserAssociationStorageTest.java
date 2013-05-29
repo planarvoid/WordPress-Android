@@ -31,13 +31,11 @@ import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class UserAssociationStorageTest {
+    final private static long USER_ID = 1L;
+    final private static int BATCH_SIZE = 5;
+    final private static int INITIAL_FOLLOWERS_COUNT = 3;
+
     private User user;
-    private int initialFollowersCount = 3;
-
-
-    final static long USER_ID = 1L;
-    public static final int BATCH_SIZE = 5;
-
     private ContentResolver resolver;
     private UserAssociationStorage storage;
 
@@ -47,35 +45,51 @@ public class UserAssociationStorageTest {
         resolver = DefaultTestRunner.application.getContentResolver();
         storage = new UserAssociationStorage();
         user = new User(1);
-                    user.followers_count = initialFollowersCount;
     }
 
-        @Test
-        public void shouldStoreFollowingAndNotUpdateFollowersCount() {
-            storage.addFollowing(user);
-            expect(Content.ME_FOLLOWINGS).toHaveCount(1);
-            expect(TestHelper.reload(user).followers_count).toBe(initialFollowersCount + 1);
-        }
+    @Test
+    public void shouldMarkFollowingForAdditionAndUpdateFollowersCount() {
+        user.followers_count = INITIAL_FOLLOWERS_COUNT;
+        storage.addFollowing(user);
 
-        @Test
-        public void shouldRemoveFollowingAndUpdateFollowerCount() {
-            TestHelper.insertAsUserAssociation(user, UserAssociation.Type.FOLLOWING);
-            expect(Content.ME_FOLLOWINGS).toHaveCount(1);
-            expect(TestHelper.reload(user).followers_count).toBe(initialFollowersCount);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
+        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT + 1);
+        expect(UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, resolver).query(user.id).isMarkedForAddition()).toBeTrue();
+    }
 
-            storage.removeFollowing(user);
-            expect(Content.ME_FOLLOWINGS).toHaveCount(0);
-            expect(TestHelper.reload(user).followers_count).toBe(initialFollowersCount - 1);
-        }
+    @Test
+    public void shouldFailToMarkExistingFollowingForAdditionAndNotUpdateFollowersCount() {
+        user.followers_count = INITIAL_FOLLOWERS_COUNT;
+        TestHelper.insertAsUserAssociation(user, UserAssociation.Type.FOLLOWING);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
 
-        @Test
-        public void shouldFailToRemoveFollowingAndNotUpdateFollowerCount() {
-            TestHelper.insertWithDependencies(user);
-            expect(TestHelper.reload(user).followers_count).toBe(initialFollowersCount);
+        storage.addFollowing(user);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
+        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT);
+    }
 
-            storage.removeFollowing(user);
-            expect(TestHelper.reload(user).followers_count).toBe(initialFollowersCount);
-        }
+    @Test
+    public void shouldMarkFollowingForRemovalAndUpdateFollowingCount() {
+        user.followers_count = INITIAL_FOLLOWERS_COUNT;
+        TestHelper.insertAsUserAssociation(user, UserAssociation.Type.FOLLOWING);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
+        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT);
+        storage.removeFollowing(user);
+
+        expect(Content.ME_FOLLOWINGS).toHaveCount(1);// should still exist but marked for removal
+        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT - 1);
+        expect(UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, resolver).query(user.id).isMarkedForRemoval()).toBeTrue();
+    }
+
+    @Test
+    public void shouldFailToMarkNonExistantFollowingForRemovalAndNotUpdateFollowerCount() {
+        user.followers_count = INITIAL_FOLLOWERS_COUNT;
+        TestHelper.insertWithDependencies(user);
+        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT);
+
+        storage.removeFollowing(user);
+        expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT);
+    }
 
     @Test
     public void shouldBulkInsertAssociations() throws Exception {

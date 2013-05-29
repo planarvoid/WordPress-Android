@@ -603,6 +603,7 @@ public class ScContentProvider extends ContentProvider {
         final Content content = Content.match(uri);
         switch (content) {
             case COLLECTIONS:
+            case USER_ASSOCIATIONS:
                 count = db.update(content.table.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;

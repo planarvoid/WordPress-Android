@@ -242,7 +242,7 @@ public class TestHelper {
     }
 
     public static UserAssociation insertAsUserAssociation(User user, UserAssociation.Type assocType) {
-        UserAssociation ua = new UserAssociation(user, assocType, new Date());
+        UserAssociation ua = new UserAssociation(assocType, user);
         TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, ua);
         return ua;
     }

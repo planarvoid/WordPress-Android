@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class UserAssociationStorage {
     private final ContentResolver mResolver;
+    private final UserAssociationDAO mUserAssociationDAO;
     private final UserAssociationDAO mFollowingsDAO;
 
     public UserAssociationStorage() {
@@ -36,6 +37,7 @@ public class UserAssociationStorage {
 
     public UserAssociationStorage(ContentResolver resolver) {
         mResolver = resolver;
+        mUserAssociationDAO = new UserAssociationDAO(mResolver);
         mFollowingsDAO = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, mResolver);
     }
 
@@ -54,10 +56,14 @@ public class UserAssociationStorage {
      * @return the new association created
      */
     public UserAssociation addFollowing(User user) {
-        UserAssociation.Type assocType = UserAssociation.Type.FOLLOWING;
-        UserAssociation following = new UserAssociation(user, assocType, new Date());
-        user.addAFollower();
-        mFollowingsDAO.create(following);
+        UserAssociation following = mFollowingsDAO.query(user.id);
+        if (following == null || following.isMarkedForRemoval()){
+            following = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
+            following.markForAddition();
+            user.addAFollower();
+            mFollowingsDAO.create(following);
+
+        }
         return following;
     }
 
@@ -69,13 +75,13 @@ public class UserAssociationStorage {
      * @return
      */
     public UserAssociation removeFollowing(User user) {
-        UserAssociation.Type assocType = SoundAssociation.Type.FOLLOWING;
-        UserAssociation following = new UserAssociation(user, assocType, new Date());
-
-        if (mFollowingsDAO.delete(following) && user.removeAFollower()) {
+        final UserAssociation following = new UserAssociation(SoundAssociation.Type.FOLLOWING, user);
+        following.markForRemoval();
+        if (mUserAssociationDAO.update(following) && user.removeAFollower()) {
             new UserDAO(mResolver).update(user);
+            return following;
         }
-        return following;
+        return null;
     }
 
     @Deprecated
