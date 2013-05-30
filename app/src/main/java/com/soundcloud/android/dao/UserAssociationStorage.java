@@ -78,7 +78,7 @@ public class UserAssociationStorage {
      */
     public UserAssociation addFollowing(User user) {
         UserAssociation following = mFollowingsDAO.query(user.id);
-        if (following == null || following.getLocalSyncState() != UserAssociation.LocalState.PENDING_ADDITION){
+        if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL){
             following = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
             following.markForAddition();
             user.addAFollower();
