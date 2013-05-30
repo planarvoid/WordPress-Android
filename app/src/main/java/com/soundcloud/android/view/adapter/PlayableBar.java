@@ -3,7 +3,6 @@ package com.soundcloud.android.view.adapter;
 import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -11,6 +10,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.TrackRepostActivity;
+import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -135,7 +135,7 @@ public class PlayableBar extends IconLayout {
 
     @Override
     public String getIconRemoteUri() {
-        return Consts.GraphicSize.formatUriForList(getContext(), mPlayableHolder.getPlayable().getArtwork());
+        return ImageSize.formatUriForList(getContext(), mPlayableHolder.getPlayable().getArtwork());
     }
 
     @Override

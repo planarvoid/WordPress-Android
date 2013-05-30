@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import com.soundcloud.android.tests.NonUiTest;
 import com.soundcloud.android.tests.ScAndroidTestCase;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.graphics.BitmapFactory;
 import android.test.FlakyTest;

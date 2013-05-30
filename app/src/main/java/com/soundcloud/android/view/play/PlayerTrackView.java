@@ -5,7 +5,6 @@ import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
@@ -20,7 +19,8 @@ import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
@@ -238,7 +238,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                     getContext(),
                     mArtwork,
                     mTrack.getArtwork(),
-                    Consts.GraphicSize.getPlayerGraphicSize(getContext()),
+                    ImageSize.getPlayerGraphicSize(getContext()),
                     new ImageLoader.Callback() {
                         @Override
                         public void onImageError(ImageView view, String url, Throwable error) {
@@ -309,7 +309,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         if (mTrack != null && mTrack.hasAvatar()) {
             mCurrentAvatarBindResult = ImageLoader.get(mPlayer).bind(
                     mAvatar,
-                    Consts.GraphicSize.formatUriForList(mPlayer, mTrack.getAvatarUrl()),
+                    ImageSize.formatUriForList(mPlayer, mTrack.getAvatarUrl()),
                     new ImageLoader.Callback() {
                         @Override
                         public void onImageError(ImageView view, String url, Throwable error) {

@@ -1,13 +1,9 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.utils.ImageUtils;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.text.TextUtils;
 
 import java.io.File;
 
@@ -84,119 +80,6 @@ public final class Consts {
     public interface OptionsMenu {
         // TODO: still used in location picker
         int REFRESH = 202;
-    }
-
-    public enum GraphicSize {
-        T500("t500x500", 500, 500),
-        CROP("crop", 400, 400),
-        T300("t300x300", 300, 300),
-        LARGE("large", 100, 100),
-        T67("t67x67", 67, 67),
-        BADGE("badge", 47, 47),
-        SMALL("small", 32, 32),
-        TINY_ARTWORK("tiny", 20, 20),
-        TINY_AVATAR("tiny", 18, 18),
-        MINI("mini", 16, 16),
-        Unknown("large", 100, 100);
-
-        public final int width;
-        public final int height;
-        public final String key;
-
-        GraphicSize(String key, int width, int height) {
-            this.key = key;
-            this.width = width;
-            this.height = height;
-        }
-
-        public static GraphicSize fromString(String s) {
-            for (GraphicSize gs : values()) {
-                if (gs.key.equalsIgnoreCase(s)) return gs;
-            }
-            return Unknown;
-        }
-
-        public static String formatUriForList(Context c, String uri){
-            return getListItemGraphicSize(c).formatUri(uri);
-        }
-
-        public static GraphicSize getListItemGraphicSize(Context c) {
-            if (ImageUtils.isScreenXL(c)) {
-                return GraphicSize.LARGE;
-            } else {
-                if (c.getResources().getDisplayMetrics().density > 1) {
-                    return GraphicSize.LARGE;
-                } else {
-                    return GraphicSize.BADGE;
-                }
-            }
-        }
-
-        public static String formatUriForSearchSuggestionsList(Context c, String uri) {
-            return getSearchSuggestionsListItemGraphicSize(c).formatUri(uri);
-        }
-
-        public static GraphicSize getSearchSuggestionsListItemGraphicSize(Context c) {
-            if (ImageUtils.isScreenXL(c)) {
-                return GraphicSize.T67;
-            } else {
-                if (c.getResources().getDisplayMetrics().density > 1) {
-                    return GraphicSize.BADGE;
-                } else {
-                    return GraphicSize.SMALL;
-                }
-            }
-        }
-
-        public static String formatUriForPlayer(Context c, String uri) {
-            return getPlayerGraphicSize(c).formatUri(uri);
-        }
-
-        public static GraphicSize getPlayerGraphicSize(Context c) {
-            // for now, just return T500. logic will come with more screen support
-            return GraphicSize.T500;
-        }
-
-        public String formatUri(String uri) {
-            if (TextUtils.isEmpty(uri)) return null;
-            for (GraphicSize size : GraphicSize.values()) {
-                if (uri.contains("-" + size.key) && this != size) {
-                    return uri.replace("-" + size.key, "-" + key);
-                }
-            }
-            Uri u = Uri.parse(uri);
-            if (u.getPath().equals("/resolve/image")) {
-                String size = u.getQueryParameter("size");
-                if (size == null) {
-                    return u.buildUpon().appendQueryParameter("size", key).toString();
-                } else if (!size.equals(key)) {
-                    return uri.replace(size, key);
-                }
-            }
-            return uri;
-        }
-
-        public static GraphicSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
-            GraphicSize valid = null;
-            for (GraphicSize gs : values()) {
-                if (fillDimensions){
-                    if (gs.width >= width && gs.height >= height) {
-                        valid = gs;
-                    } else {
-                        break;
-                    }
-                } else {
-                    if (gs.width >= width || gs.height >= height) {
-                        valid = gs;
-                    } else {
-                        break;
-                    }
-                }
-
-            }
-            return valid == null ? Unknown : valid;
-        }
-
     }
 
     public interface GeneralIntents {
