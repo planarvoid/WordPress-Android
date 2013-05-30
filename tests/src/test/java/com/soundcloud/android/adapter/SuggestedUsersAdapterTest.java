@@ -2,9 +2,11 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Genre;
 import com.soundcloud.android.model.GenreBucket;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -13,6 +15,7 @@ import org.junit.runner.RunWith;
 
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import java.util.Map;
 
@@ -79,6 +82,40 @@ public class SuggestedUsersAdapterTest {
         expect(headerView.getVisibility()).toEqual(View.GONE);
     }
 
+    @Test
+    public void shouldSetCorrectBucketTextForSingleUser() {
+        GenreBucket bucket = adapter.getItem(0);
+        bucket.setUsers(Lists.newArrayList(buildUser("Skrillex")));
+
+        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
+
+        TextView textView = (TextView) itemLayout.findViewById(android.R.id.text2);
+        expect(textView.getText()).toEqual("Skrillex");
+    }
+
+    @Test
+    public void shouldSetCorrectBucketTextForTwoUsers() {
+        GenreBucket bucket = adapter.getItem(0);
+        bucket.setUsers(Lists.newArrayList(buildUser("Skrillex"), buildUser("Forss")));
+
+        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
+
+        TextView textView = (TextView) itemLayout.findViewById(android.R.id.text2);
+        expect(textView.getText()).toEqual("Skrillex, Forss");
+    }
+
+    @Test
+    public void shouldSetCorrectBucketTextForMultipleUsers() {
+        GenreBucket bucket = adapter.getItem(0);
+        bucket.setUsers(Lists.newArrayList(
+                buildUser("Skrillex"), buildUser("Forss"), buildUser("Rick Astley")));
+
+        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
+
+        TextView textView = (TextView) itemLayout.findViewById(android.R.id.text2);
+        expect(textView.getText()).toEqual("Skrillex, Forss and 1 other");
+    }
+
     private GenreBucket audio() {
         Genre audioGenre = new Genre();
         audioGenre.setGrouping(Genre.Grouping.AUDIO);
@@ -101,5 +138,11 @@ public class SuggestedUsersAdapterTest {
         Genre fbLikesGenre = new Genre();
         fbLikesGenre.setGrouping(Genre.Grouping.FACEBOOK_LIKES);
         return new GenreBucket(fbLikesGenre);
+    }
+
+    private User buildUser(String name) {
+        User user = new User();
+        user.username = name;
+        return user;
     }
 }

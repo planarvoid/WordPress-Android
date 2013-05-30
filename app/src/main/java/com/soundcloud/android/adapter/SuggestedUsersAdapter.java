@@ -4,10 +4,12 @@ import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Genre;
 import com.soundcloud.android.model.GenreBucket;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.Log;
 import rx.util.functions.Action1;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -120,11 +122,24 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     }
 
     private void configureItemContent(GenreBucket genreBucket, ItemViewHolder viewHolder) {
-        viewHolder.genreTitle.setText(genreBucket.getGenre().getName());
-        if (genreBucket.hasUsers()) {
-            // TODO
-            viewHolder.genreSubtitle.setText(genreBucket.getUsers().size() + " users");
+        final Resources res = viewHolder.genreTitle.getContext().getResources();
+        final List<User> users = genreBucket.getUsers();
+        final int numUsers = users.size();
+
+        StringBuilder sb = new StringBuilder();
+        if (numUsers == 1) {
+            sb.append(users.get(0).getDisplayName());
+        } else if (numUsers > 1) {
+            sb.append(users.get(0).getDisplayName()).append(", ");
+            sb.append(users.get(1).getDisplayName());
+
+            if (numUsers > 2) {
+                int moreUsers = numUsers - 2;
+                sb.append(" ").append(res.getQuantityString(R.plurals.number_of_other_users, moreUsers, moreUsers));
+            }
         }
+        viewHolder.genreSubtitle.setText(sb.toString());
+        viewHolder.genreTitle.setText(genreBucket.getGenre().getName());
         viewHolder.toggleFollow.setChecked(genreBucket.isFollowed());
     }
 
