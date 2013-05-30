@@ -53,6 +53,8 @@ public class SuggestedUsersFragment extends SherlockListFragment {
 
         mProgressSpinner = (ProgressBar) view.findViewById(android.R.id.progress);
 
+        getListView().setDrawSelectorOnTop(false);
+
         StateHolderFragment savedState = StateHolderFragment.obtain(this);
         Observable<?> observable = savedState.getOrDefault(KEY_OBSERVABLE, Observable.class, mOnboardingOps.getGenreBuckets().cache());
         Log.d(this, "SUBSCRIBING, obs = " + observable.hashCode());

@@ -6,8 +6,10 @@
 
     <TextView android:id="@+id/suggested_users_list_header"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+              android:layout_height="35dp"
               android:layout_gravity="left"
+              android:visibility="gone"
+              android:gravity="left|bottom"
               android:textStyle="bold"
               android:textColor="@color/scOrange"
               android:background="@drawable/orange_list_divider"/>
