@@ -55,7 +55,9 @@ public class UserAssociationStorageTest {
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT + 1);
-        expect(UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, resolver).query(user.id).isMarkedForAddition()).toBeTrue();
+
+        final UserAssociation userAssociation = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, resolver).query(user.id);
+        expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
     }
 
     @Test
@@ -79,7 +81,8 @@ public class UserAssociationStorageTest {
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);// should still exist but marked for removal
         expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT - 1);
-        expect(UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, resolver).query(user.id).isMarkedForRemoval()).toBeTrue();
+        final UserAssociation userAssociation = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, resolver).query(user.id);
+        expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
     }
 
     @Test

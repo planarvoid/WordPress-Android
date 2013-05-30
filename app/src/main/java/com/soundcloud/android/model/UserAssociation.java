@@ -22,11 +22,15 @@ public class UserAssociation extends Association implements UserHolder {
     private @Nullable Date      mAddedAt;
     private @Nullable Date      mRemovedAt;
 
+    public enum LocalState {
+        NONE, PENDING_ADDITION, PENDING_REMOVAL
+    }
+
     public UserAssociation(Cursor cursor) {
         super(cursor);
         mUser = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
-        mAddedAt = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
-        mRemovedAt = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
+        mAddedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
+        mRemovedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
     }
 
     public UserAssociation(Type typeEnum, @NotNull User user) {
@@ -37,8 +41,8 @@ public class UserAssociation extends Association implements UserHolder {
     public UserAssociation(Parcel in) {
         super(in);
         mUser = in.readParcelable(ClassLoader.getSystemClassLoader());
-        mAddedAt = new Date(in.readLong());
-        mRemovedAt = new Date(in.readLong());
+        mAddedAt = convertDirtyDate(in.readLong());
+        mRemovedAt = convertDirtyDate(in.readLong());
     }
 
     @Override
@@ -56,8 +60,8 @@ public class UserAssociation extends Association implements UserHolder {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(mUser, 0);
-        dest.writeSerializable(mAddedAt);
-        dest.writeSerializable(mRemovedAt);
+        dest.writeLong(mAddedAt == null ? -1 : mAddedAt.getTime());
+        dest.writeLong(mRemovedAt == null ? -1 : mRemovedAt.getTime());
     }
 
     public long getItemId() {
@@ -99,32 +103,45 @@ public class UserAssociation extends Association implements UserHolder {
         mUser.putFullContentValues(destination);
     }
 
-    /**
-     * Mark this item for addition. It will be pushed to the server during the sync process
-     */
-    public void markForAddition() {
-        mAddedAt = new Date(System.currentTimeMillis());
-        mRemovedAt = null;
+    public void markForAddition(){
+        setLocalSyncState(LocalState.PENDING_ADDITION);
     }
 
-    /**
-     * Mark this item for deletion. The deletion will be pushed during the sync process.
-     */
     public void markForRemoval() {
-        mRemovedAt = new Date(System.currentTimeMillis());
-        mAddedAt = null;
+        setLocalSyncState(LocalState.PENDING_REMOVAL);
     }
 
-    public void clearSyncFlags() {
-        mRemovedAt = mAddedAt = null;
+    public void clearLocalSyncState() {
+        setLocalSyncState(LocalState.NONE);
     }
 
-    public boolean isMarkedForAddition() {
-        return mAddedAt != null && mAddedAt.getTime() > 0;
+    private void setLocalSyncState(LocalState newState) {
+        switch (newState) {
+            case PENDING_ADDITION:
+                mAddedAt = new Date(System.currentTimeMillis());
+                mRemovedAt = null;
+                break;
+
+            case PENDING_REMOVAL:
+                mRemovedAt = new Date(System.currentTimeMillis());
+                mAddedAt = null;
+                break;
+
+            case NONE:
+                mRemovedAt = null;
+                mAddedAt = null;
+                break;
+        }
     }
 
-    public boolean isMarkedForRemoval() {
-        return mRemovedAt != null && mRemovedAt.getTime() > 0;
+    public LocalState getLocalSyncState(){
+        if (mAddedAt != null){
+            return LocalState.PENDING_ADDITION;
+        } else if (mRemovedAt != null){
+            return LocalState.PENDING_REMOVAL;
+        } else {
+            return LocalState.NONE;
+        }
     }
 
     @Override
@@ -145,5 +162,10 @@ public class UserAssociation extends Association implements UserHolder {
         int result = super.hashCode();
         result = 31 * result + mUser.hashCode();
         return result;
+    }
+
+    @Nullable
+    private Date convertDirtyDate(long timestamp){
+        return (timestamp <= 0) ? null : new Date(timestamp);
     }
 }

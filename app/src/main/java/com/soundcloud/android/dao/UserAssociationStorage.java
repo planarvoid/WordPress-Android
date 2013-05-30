@@ -78,7 +78,7 @@ public class UserAssociationStorage {
      */
     public UserAssociation addFollowing(User user) {
         UserAssociation following = mFollowingsDAO.query(user.id);
-        if (following == null || following.isMarkedForRemoval()){
+        if (following == null || following.getLocalSyncState() != UserAssociation.LocalState.PENDING_ADDITION){
             following = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
             following.markForAddition();
             user.addAFollower();
@@ -161,12 +161,13 @@ public class UserAssociationStorage {
 
     public boolean setFollowingAsSynced(UserAssociation a) {
         UserAssociation following = mFollowingsDAO.query(a.getUser().id);
-        if (following != null){
-            if (following.isMarkedForRemoval()){
-                return mFollowingsDAO.delete(following);
-            } else if (following.isMarkedForAddition()){
-                following.clearSyncFlags();
-                return mUserAssociationDAO.update(following);
+        if (following != null) {
+            switch (following.getLocalSyncState()) {
+                case PENDING_ADDITION:
+                    following.clearLocalSyncState();
+                    return mUserAssociationDAO.update(following);
+                case PENDING_REMOVAL:
+                    return mFollowingsDAO.delete(following);
             }
         }
         return false;

@@ -8,8 +8,6 @@ import org.junit.runner.RunWith;
 
 import android.os.Parcel;
 
-import java.util.Date;
-
 @RunWith(DefaultTestRunner.class)
 public class UserAssociationTest {
 
@@ -54,34 +52,33 @@ public class UserAssociationTest {
     public void testShouldBeMarkedForAddition() {
         UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
         association.markForAddition();
-        expect(association.isMarkedForAddition()).toBeTrue();
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
     }
 
     @Test
     public void testShouldBeMarkedForRemoval() {
         UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
         association.markForRemoval();
-        expect(association.isMarkedForRemoval()).toBeTrue();
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
     }
 
     @Test
     public void testShouldNotBeMarkedForAdditionAfterMarkedForRemoval() {
         UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
         association.markForAddition();
-        expect(association.isMarkedForAddition()).toBeTrue();
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
         association.markForRemoval();
-        expect(association.isMarkedForAddition()).toBeFalse();
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
     }
 
     @Test
-    public void testShouldNotBeMarkedForRemovalAfterMarkedForAddition() {
+    public void testShouldNotBeMarkedForAdditionAfterLocalSyncStateCleared() {
         UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
-        association.markForRemoval();
-        expect(association.isMarkedForRemoval()).toBeTrue();
         association.markForAddition();
-        expect(association.isMarkedForRemoval()).toBeFalse();
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
+        association.clearLocalSyncState();
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.NONE);
     }
-
 
     private void compareUserAssociations(UserAssociation userAssociation, UserAssociation userAssociation2) {
         expect(userAssociation2.id).toEqual(userAssociation.id);
