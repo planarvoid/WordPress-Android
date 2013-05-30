@@ -39,7 +39,7 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
     public void shouldPersistAllActivityTypes() throws Exception {
         // need to create track owner for joins to work
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Users._ID, USER_ID);
+        cv.put(DBHelper.Users._ID, OWNER_ID);
         cv.put(DBHelper.Users.USERNAME, "Foo Bar");
         expect(resolver.insert(Content.USERS.uri, cv)).not.toBeNull();
 
@@ -117,7 +117,7 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
     @Test
     public void shouldRemoveTrackActivitiesOnTrackRemove() throws Exception {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Users._ID, USER_ID);
+        cv.put(DBHelper.Users._ID, OWNER_ID);
         cv.put(DBHelper.Users.USERNAME, "Foo Bar");
         expect(resolver.insert(Content.USERS.uri, cv)).not.toBeNull();
 

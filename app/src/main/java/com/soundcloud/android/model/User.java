@@ -16,6 +16,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
 import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -31,8 +32,9 @@ import android.text.TextUtils;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
-public class User extends ScResource implements Refreshable {
-    public static final String EXTRA = "user";
+public class User extends ScResource implements UserHolder {
+    public static final int     TYPE = 0;
+    public static final String  EXTRA = "user";
 
     @Nullable @JsonView(Views.Mini.class) public String username;
     @Nullable @JsonView(Views.Mini.class) public String uri;
@@ -261,6 +263,12 @@ public class User extends ScResource implements Refreshable {
         return new Intent(Actions.USER_BROWSER).putExtra(UserBrowser.EXTRA_USER, this);
     }
 
+    @NotNull
+    @Override
+    public User getUser() {
+        return this;
+    }
+
     public static interface DataKeys {
         String USERNAME        = "currentUsername";
         String USER_ID         = "currentUserId";
@@ -275,7 +283,7 @@ public class User extends ScResource implements Refreshable {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return this;
     }
 

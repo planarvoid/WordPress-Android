@@ -7,8 +7,7 @@ import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpRespon
 import static com.soundcloud.android.robolectric.TestHelper.assertFirstIdToBe;
 import static com.soundcloud.android.robolectric.TestHelper.assertResolverNotified;
 import static com.soundcloud.android.service.sync.ApiSyncer.Result;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -16,6 +15,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
+import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.SoundAssociation;
@@ -171,6 +171,8 @@ public class ApiSyncerTest {
         syncer.setBulkInsertBatchSize(Integer.MAX_VALUE);
         syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
         verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
+        verify(resolver).query(eq(ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWERS.uri)),
+                isNull(String[].class), isNull(String.class), isNull(String[].class), isNull(String.class));
         verifyNoMoreInteractions(resolver);
     }
 
@@ -185,7 +187,10 @@ public class ApiSyncerTest {
 
         syncer.setBulkInsertBatchSize(2); // for 3 users, this should result in 2 batches being inserted
         syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
+
         verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
+        verify(resolver).query(eq(ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWERS.uri)),
+                isNull(String[].class), isNull(String.class), isNull(String[].class), isNull(String.class));
         verifyNoMoreInteractions(resolver);
     }
 

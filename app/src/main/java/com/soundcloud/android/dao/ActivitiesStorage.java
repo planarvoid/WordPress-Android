@@ -29,6 +29,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         mActivitiesDAO = new ActivityDAO(mResolver);
     }
 
+    @Deprecated
     public Observable<Activities> getCollectionSince(final Uri contentUri, final long since, final int limit)  {
         return schedule(Observable.create(new Func1<Observer<Activities>, Subscription>() {
             @Override
@@ -56,10 +57,12 @@ public class ActivitiesStorage extends ScheduledOperations {
         }));
     }
 
+    @Deprecated
     public Observable<Activities> getCollectionSince(final Uri contentUri, final long since)  {
         return getCollectionSince(contentUri, since, 0);
     }
 
+    @Deprecated
     public Observable<Activity> getLatestActivities(final Uri contentUri, final int limit)  {
         return getCollectionSince(contentUri, 0, limit).mapMany(new Func1<Activities, Observable<Activity>>() {
             @Override
@@ -69,6 +72,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         });
     }
 
+    @Deprecated
     public Observable<Activity> getOldestActivity(final Content content) {
         return schedule(Observable.create(new Func1<Observer<Activity>, Subscription>() {
             @Override
@@ -86,6 +90,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         }));
     }
 
+    @Deprecated
     public Observable<Activity> getLatestActivity(final Content content) {
         return schedule(Observable.create(new Func1<Observer<Activity>, Subscription>() {
             @Override
@@ -103,6 +108,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         }));
     }
 
+    @Deprecated
     public Observable<Activities> getCollectionBefore(final Uri contentUri, final long before)  {
         return schedule(Observable.create(new Func1<Observer<Activities>, Subscription>() {
             @Override
@@ -124,6 +130,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         }));
     }
 
+    @Deprecated
     public Observable<Activity> getActivitiesBefore(final Uri contentUri, final long since)  {
         return getCollectionBefore(contentUri, since).mapMany(new Func1<Activities, Observable<Activity>>() {
             @Override
@@ -133,11 +140,13 @@ public class ActivitiesStorage extends ScheduledOperations {
         });
     }
 
+    @Deprecated
     public int getCountSince(long since, Content content) {
         String selection = DBHelper.ActivityView.CONTENT_ID + " = ? AND " + DBHelper.ActivityView.CREATED_AT + "> ?";
         return mActivitiesDAO.count(selection, String.valueOf(content.id), String.valueOf(since));
     }
 
+    @Deprecated
     public int clear(@Nullable Content content) {
         Content contentToDelete = Content.ME_ALL_ACTIVITIES;
         if (content != null) {
@@ -158,6 +167,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         return mResolver.delete(contentToDelete.uri, null, null);
     }
 
+    @Deprecated
     public int insert(Content content, Activities activities) {
         return mActivitiesDAO.insert(content, activities);
     }
