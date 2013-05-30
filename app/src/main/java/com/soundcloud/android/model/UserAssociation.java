@@ -72,8 +72,8 @@ public class UserAssociation extends Association implements UserHolder {
         cv.put(DBHelper.UserAssociations.ASSOCIATION_TYPE, associationType);
         cv.put(DBHelper.UserAssociations.RESOURCE_TYPE, getResourceType());
         cv.put(DBHelper.UserAssociations.CREATED_AT, created_at.getTime());
-        if (mAddedAt != null && mAddedAt.getTime() > 0) cv.put(DBHelper.UserAssociations.ADDED_AT, mAddedAt.getTime());
-        if (mRemovedAt != null && mRemovedAt.getTime() > 0) cv.put(DBHelper.UserAssociations.REMOVED_AT, mRemovedAt.getTime());
+        cv.put(DBHelper.UserAssociations.ADDED_AT, mAddedAt == null ? null : mAddedAt.getTime());
+        cv.put(DBHelper.UserAssociations.REMOVED_AT, mRemovedAt == null ? null : mRemovedAt.getTime());
         return cv;
     }
 
@@ -113,6 +113,10 @@ public class UserAssociation extends Association implements UserHolder {
     public void markForRemoval() {
         mRemovedAt = new Date(System.currentTimeMillis());
         mAddedAt = null;
+    }
+
+    public void clearSyncFlags() {
+        mRemovedAt = mAddedAt = null;
     }
 
     public boolean isMarkedForAddition() {

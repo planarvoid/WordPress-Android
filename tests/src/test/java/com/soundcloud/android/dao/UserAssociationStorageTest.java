@@ -226,4 +226,42 @@ public class UserAssociationStorageTest {
         expect(storage.getFollowingsNeedingSync().size()).toEqual(2);
     }
 
+    @Test
+    public void shouldNotClearAnySyncFlag() {
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
+
+        UserAssociation association = storage.getFollowings().get(0);
+        expect(storage.setFollowingAsSynced(association)).toBeFalse();
+    }
+
+    @Test
+    public void shouldClearSyncFlagForAddition() {
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
+
+        UserAssociation association = storage.getFollowings().get(0);
+        association.markForAddition();
+        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
+        expect(storage.getFollowingsNeedingSync().size()).toEqual(1);
+
+        expect(storage.setFollowingAsSynced(association)).toBeTrue();
+        expect(storage.getFollowingsNeedingSync().size()).toEqual(0);
+    }
+
+    @Test
+    public void shouldClearSyncFlagForRemoval() {
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
+
+        UserAssociation association = storage.getFollowings().get(0);
+        association.markForRemoval();
+        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
+        expect(storage.getFollowingsNeedingSync().size()).toEqual(1);
+
+        expect(storage.setFollowingAsSynced(association)).toBeTrue();
+        expect(storage.getFollowingsNeedingSync().size()).toEqual(0);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(1);
+        expect(UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, resolver).query(association.getUser().id)).toBeNull();
+    }
 }

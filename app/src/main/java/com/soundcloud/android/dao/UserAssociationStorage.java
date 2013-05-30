@@ -158,4 +158,17 @@ public class UserAssociationStorage {
     public void clear() {
         UserAssociationDAO.forContent(Content.USER_ASSOCIATIONS, mResolver).deleteAll();
     }
+
+    public boolean setFollowingAsSynced(UserAssociation a) {
+        UserAssociation following = mFollowingsDAO.query(a.getUser().id);
+        if (following != null){
+            if (following.isMarkedForRemoval()){
+                return mFollowingsDAO.delete(following);
+            } else if (following.isMarkedForAddition()){
+                following.clearSyncFlags();
+                return mUserAssociationDAO.update(following);
+            }
+        }
+        return false;
+    }
 }
