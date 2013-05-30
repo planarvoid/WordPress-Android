@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -381,5 +382,18 @@ public class TestHelper {
         Playlist playlist = Playlist.newUserPlaylist(user, title, isPrivate, tracks);
         insertWithDependencies(playlist);
         return playlist;
+    }
+
+    public static List<User> createUsers(int count) {
+        if (count < 1) return Collections.EMPTY_LIST;
+
+        List<User> items = new ArrayList<User>();
+        for (long i = 100L; i <= count * 100; i += 100) {
+            User u = new User();
+            u.id = i;
+            u.permalink = "u" + String.valueOf(i);
+            items.add(u);
+        }
+        return items;
     }
 }

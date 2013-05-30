@@ -1,6 +1,7 @@
 package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.createUsers;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -26,7 +27,6 @@ import org.junit.runner.RunWith;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -93,7 +93,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldBulkInsertAssociations() throws Exception {
-        List<User> items = createUsers();
+        List<User> items = createUsers(2);
         expect(storage.insertAssociations(items, Content.ME_FOLLOWERS.uri, USER_ID)).toEqual(4); // 2 users, associations
         expect(Content.ME_FOLLOWERS).toHaveCount(2);
     }
@@ -143,14 +143,14 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldQueryFollowings(){
-        TestHelper.bulkInsertToUserAssociations(createUsers(), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         expect(storage.getFollowings().size()).toEqual(2);
     }
 
     @Test
     public void shouldQueryFollowingsAndExemptFollowingsMarkedForDeletion() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
         final UserAssociation association = storage.getFollowings().get(0);
@@ -161,14 +161,14 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldNotHaveUnsyncedFollowings() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         expect(storage.hasFollowingsNeedingSync()).toBeFalse();
     }
 
     @Test
     public void shouldHaveAnUnsyncedRemoval() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
         final UserAssociation association = storage.getFollowings().get(0);
@@ -179,7 +179,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldHaveAnUnsyncedAddition() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
         final UserAssociation association = storage.getFollowings().get(0);
@@ -190,7 +190,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldQueryUnsyncedFollowingRemoval() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
         final UserAssociation association = storage.getFollowings().get(0);
@@ -201,7 +201,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldQueryUnsyncedFollowingAddition() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
         final UserAssociation association = storage.getFollowings().get(0);
@@ -212,7 +212,7 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldQueryUnsyncedFollowingAdditionAndRemoval() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
         UserAssociation association = storage.getFollowings().get(0);
@@ -224,22 +224,6 @@ public class UserAssociationStorageTest {
         expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
 
         expect(storage.getFollowingsNeedingSync().size()).toEqual(2);
-    }
-
-    private static List<User> createUsers() {
-        List<User> items = new ArrayList<User>();
-
-        User u1 = new User();
-        u1.permalink = "u1";
-        u1.id = 100L;
-
-        User u2 = new User();
-        u2.permalink = "u2";
-        u2.id = 300L;
-
-        items.add(u1);
-        items.add(u2);
-        return items;
     }
 
 }
