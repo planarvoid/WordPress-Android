@@ -116,9 +116,8 @@ public class UserAssociationStorage {
         return itemDeletions;
     }
 
-    @Deprecated
-    public int insertAssociations(@NotNull List<? extends ScResource> resources, @NotNull Uri collectionUri,
-                                  long userId) {
+    @Deprecated//This should operate on List<UserAssociation>, not ScResource
+    public int insertAssociations(@NotNull List<? extends ScResource> resources, @NotNull Uri collectionUri, long userId) {
         BulkInsertMap map = new BulkInsertMap();
         for (int i = 0; i < resources.size(); i++) {
             ScResource r = resources.get(i);
@@ -134,7 +133,7 @@ public class UserAssociationStorage {
         return map.insert(mResolver);
     }
 
-    @Deprecated
+    @Deprecated//TODO: batching logic should be centralized somewhere, e.g. in BaseDAO
     public void insertInBatches(final Content content, final long ownerId, final List<Long> targetIds,
                                 final int startPosition, int batchSize) {
         // insert in batches so as to not hold a write lock in a single transaction for too long

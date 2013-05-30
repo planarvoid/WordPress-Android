@@ -10,7 +10,7 @@ import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.app.Notification;
 import android.app.NotificationManager;

@@ -1,12 +1,12 @@
 package com.soundcloud.android.view.adapter;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.DrawableSpan;
 
@@ -82,7 +82,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
     @Override
     public String getIconRemoteUri() {
         if (mActivity == null || mActivity.getUser() == null || mActivity.getUser().avatar_url == null) return "";
-        return Consts.GraphicSize.formatUriForList(getContext(), mActivity.getUser().avatar_url);
+        return ImageSize.formatUriForList(getContext(), mActivity.getUser().avatar_url);
     }
 
     @Override

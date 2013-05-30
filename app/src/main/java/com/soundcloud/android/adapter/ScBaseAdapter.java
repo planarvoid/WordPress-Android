@@ -218,7 +218,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
                 // prefetch playable artwork
                 for (ScModel model : data.newItems){
                     if (model instanceof PlayableHolder){
-                        final String artworkUrl = Consts.GraphicSize.formatUriForList(mContext, ((PlayableHolder) model).getPlayable().getArtwork());
+                        final String artworkUrl = Consts.ImageSize.formatUriForList(mContext, ((PlayableHolder) model).getPlayable().getArtwork());
                         if (!TextUtils.isEmpty(artworkUrl)) ImageLoader.get(mContext).prefetch(artworkUrl);
                     }
                 }

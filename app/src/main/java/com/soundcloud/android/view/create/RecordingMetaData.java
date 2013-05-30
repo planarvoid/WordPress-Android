@@ -8,7 +8,7 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.task.create.FoursquareVenueTask;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.app.Activity;
 import android.content.Context;

@@ -15,7 +15,8 @@ import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -307,7 +308,7 @@ public class User extends ScResource implements UserHolder {
 
     public void refreshListAvatarUri(Context context) {
         final String iconUrl = avatar_url;
-        _list_avatar_uri = shouldLoadIcon() ? Consts.GraphicSize.formatUriForList(context, iconUrl) : null;
+        _list_avatar_uri = shouldLoadIcon() ? ImageSize.formatUriForList(context, iconUrl) : null;
     }
 
     public String getListAvatarUri(Context context){

@@ -1,7 +1,8 @@
 package com.soundcloud.android.adapter;
 
 import static android.os.Process.THREAD_PRIORITY_DEFAULT;
-import static com.soundcloud.android.Consts.GraphicSize;
+
+import com.soundcloud.android.utils.images.ImageSize;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
@@ -13,7 +14,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -330,7 +331,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             tag.iv_search_type.setVisibility(View.VISIBLE);
 
             boolean isUser = rowType == TYPE_USER;
-            setIcon(tag, GraphicSize.formatUriForList(mContext,
+            setIcon(tag, ImageSize.formatUriForList(mContext,
                     cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))), isUser);
 
             if (isUser) {
@@ -346,7 +347,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private void setIcon(SearchTag tag, String iconUri, boolean isUser) {
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
             ImageLoader.BindResult result = mImageLoader.bind(tag.iv_icon,
-                    GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri),
+                    ImageSize.formatUriForSearchSuggestionsList(mContext, iconUri),
                     null
             );
             if (result == ImageLoader.BindResult.OK) return;

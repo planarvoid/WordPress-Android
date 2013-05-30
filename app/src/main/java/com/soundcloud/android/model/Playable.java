@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.json.Views;
@@ -13,7 +12,8 @@ import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
@@ -180,7 +180,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
 
     public void refreshListArtworkUri(Context context) {
         final String iconUrl = getArtwork();
-        mArtworkUri = TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForList(context, iconUrl);
+        mArtworkUri = TextUtils.isEmpty(iconUrl) ? null : ImageSize.formatUriForList(context, iconUrl);
     }
 
     public String getListArtworkUrl(Context context) {
@@ -190,7 +190,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
 
     public String getPlayerArtworkUri(Context context) {
         final String iconUrl = getArtwork();
-        return TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForPlayer(context, iconUrl);
+        return TextUtils.isEmpty(iconUrl) ? null : ImageSize.formatUriForPlayer(context, iconUrl);
     }
 
     @Override

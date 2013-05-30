@@ -17,7 +17,7 @@ import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 import com.soundcloud.android.view.create.AccessList;
 import com.soundcloud.android.view.create.ConnectionList;

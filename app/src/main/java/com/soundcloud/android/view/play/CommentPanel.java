@@ -1,12 +1,12 @@
 package com.soundcloud.android.view.play;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
@@ -178,7 +178,7 @@ public class CommentPanel extends RelativeLayout {
         }
 
         ImageLoader.get(getContext()).bind(mIcon,
-                Consts.GraphicSize.formatUriForList(getContext(), mComment.user.avatar_url),
+                ImageSize.formatUriForList(getContext(), mComment.user.avatar_url),
                 new ImageLoader.Callback() {
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
