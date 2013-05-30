@@ -27,6 +27,7 @@ import org.junit.runner.RunWith;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 
+import java.util.Date;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -150,12 +151,10 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldQueryFollowingsAndExemptFollowingsMarkedForDeletion() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        final List<User> users = createUsers(2);
+        TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociationsAsRemovals(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-
-        final UserAssociation association = storage.getFollowings().get(0);
-        association.markForRemoval();
-        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
         expect(storage.getFollowings().size()).toEqual(1);
     }
 
@@ -168,45 +167,36 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldHaveAnUnsyncedRemoval() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        final List<User> users = createUsers(2);
+        TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociationsAsRemovals(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-
-        final UserAssociation association = storage.getFollowings().get(0);
-        association.markForRemoval();
-        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
         expect(storage.hasFollowingsNeedingSync()).toBeTrue();
     }
 
     @Test
     public void shouldHaveAnUnsyncedAddition() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        final List<User> users = createUsers(2);
+        TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociationsAsAdditions(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-
-        final UserAssociation association = storage.getFollowings().get(0);
-        association.markForAddition();
-        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
         expect(storage.hasFollowingsNeedingSync()).toBeTrue();
     }
 
     @Test
     public void shouldQueryUnsyncedFollowingRemoval() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-
-        final UserAssociation association = storage.getFollowings().get(0);
-        association.markForRemoval();
-        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
+        final List<User> users = createUsers(2);
+        TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociationsAsRemovals(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(storage.getFollowingsNeedingSync().size()).toEqual(1);
     }
 
     @Test
     public void shouldQueryUnsyncedFollowingAddition() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        final List<User> users = createUsers(2);
+        TestHelper.bulkInsertToUserAssociations(users.subList(0,1), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociationsAsAdditions(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
-
-        final UserAssociation association = storage.getFollowings().get(0);
-        association.markForAddition();
-        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
         expect(storage.getFollowingsNeedingSync().size()).toEqual(1);
     }
 

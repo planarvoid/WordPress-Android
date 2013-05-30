@@ -277,6 +277,19 @@ public class TestHelper {
     }
 
     public static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri) {
+        return bulkInsertToUserAssociations(resources, collectionUri, null, null);
+    }
+
+    public static int bulkInsertToUserAssociationsAsAdditions(List<? extends ScResource> resources, Uri collectionUri) {
+        return bulkInsertToUserAssociations(resources, collectionUri, new Date(), null);
+    }
+
+    public static int bulkInsertToUserAssociationsAsRemovals(List<? extends ScResource> resources, Uri collectionUri) {
+        return bulkInsertToUserAssociations(resources, collectionUri, null, new Date());
+    }
+
+    private static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri,
+                                                    Date addedAt, Date removedAt) {
         SoundCloudApplication application = DefaultTestRunner.application;
         final long userId = SoundCloudApplication.getUserId();
 
@@ -291,6 +304,8 @@ public class TestHelper {
             contentValues.put(DBHelper.UserAssociations.POSITION, i);
             contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.id);
             contentValues.put(DBHelper.UserAssociations.OWNER_ID, userId);
+            contentValues.put(DBHelper.UserAssociations.ADDED_AT, addedAt == null ? null : addedAt.getTime());
+            contentValues.put(DBHelper.UserAssociations.REMOVED_AT, removedAt == null ? null : removedAt.getTime());
             map.add(collectionUri, contentValues);
         }
         ContentResolver resolver = application.getContentResolver();
