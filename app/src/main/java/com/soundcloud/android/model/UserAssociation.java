@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.Date;
 
@@ -167,6 +168,16 @@ public class UserAssociation extends Association implements UserHolder {
         result = 31 * result + (mRemovedAt != null ? mRemovedAt.hashCode() : 0);
         return result;
     }
+
+    public static final Parcelable.Creator<UserAssociation> CREATOR = new Parcelable.Creator<UserAssociation>() {
+        public UserAssociation createFromParcel(Parcel in) {
+            return new UserAssociation(in);
+        }
+
+        public UserAssociation[] newArray(int size) {
+            return new UserAssociation[size];
+        }
+    };
 
     @Nullable
     private Date convertDirtyDate(long timestamp){
