@@ -164,6 +164,12 @@ public class SyncAdapterService extends Service {
 
 
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
+        if (extras.getBoolean(EXTRA_SYNC_PUSH)) {
+            syncIntent.setData(Uri.parse(extras.getString(EXTRA_SYNC_PUSH_URI)));
+            syncIntent.setAction(ApiSyncService.ACTION_PUSH);
+            return syncIntent;
+        }
+
         switch (PushEvent.fromExtras(extras)) {
             case FOLLOWER:
                 if (!handleFollowerEvent(app, extras, userStorage)) {

@@ -24,10 +24,9 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.EventAware;
 import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
-import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.api.Endpoints;
@@ -43,8 +42,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -284,7 +281,7 @@ public class UserBrowser extends ScActivity implements
         }
     }
 
-    public void onFollowChanged(boolean success) {
+    public void onFollowChanged() {
         mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
     }
 
@@ -303,21 +300,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     private void toggleFollowing(User user) {
-        mFollowStatus.toggleFollowing(user, getApp(), new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                if (msg.what != FollowStatus.FOLLOW_STATUS_SUCCESS) {
-                    invalidateOptionsMenu();
-
-                    if (msg.what == FollowStatus.FOLLOW_STATUS_SPAM) {
-                        AndroidUtils.showToast(UserBrowser.this, R.string.following_spam_warning);
-                    } else {
-                        AndroidUtils.showToast(UserBrowser.this, R.string.error_change_following_status);
-                    }
-                }
-            }
-        });
-        mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
+        mFollowStatus.toggleFollowing(user);
     }
 
     @Override

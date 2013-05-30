@@ -16,10 +16,8 @@ import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.net.Uri;
 
-import java.util.Date;
 import java.util.List;
 
 /**

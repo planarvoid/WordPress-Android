@@ -23,12 +23,12 @@ public class UserAssociationAdapter extends ScBaseAdapter<UserAssociation> imple
 
     @Override
     public int handleListItemClick(Context context, int position, long id) {
-        context.startActivity(new Intent(context, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER, getItem(position)));
+        context.startActivity(new Intent(context, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER, getItem(position).getUser()));
         return ItemClickResults.LEAVING;
     }
 
     @Override
-    public void onFollowChanged(boolean success) {
+    public void onFollowChanged() {
         notifyDataSetChanged();
     }
 }

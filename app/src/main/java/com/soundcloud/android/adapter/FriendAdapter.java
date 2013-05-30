@@ -28,7 +28,7 @@ public class FriendAdapter extends ScBaseAdapter<Friend> implements FollowStatus
     }
 
     @Override
-    public void onFollowChanged(boolean success) {
+    public void onFollowChanged() {
         notifyDataSetChanged();
     }
 }
