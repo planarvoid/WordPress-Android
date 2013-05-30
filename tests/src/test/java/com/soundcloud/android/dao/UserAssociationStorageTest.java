@@ -13,6 +13,7 @@ import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
@@ -106,6 +107,17 @@ public class UserAssociationStorageTest {
     public void shouldGetLocalIds() throws Exception {
         TestHelper.bulkInsertDummyIdsToUserAssociations(Content.ME_FOLLOWERS.uri, 107, USER_ID);
         List<Long> localIds = storage.getStoredIds(Content.ME_FOLLOWERS.uri);
+        expect(localIds.size()).toEqual(107);
+    }
+
+    @Test
+    public void shouldGetLocalFollowingIdsWithExemptedRemoval() throws Exception {
+        TestHelper.bulkInsertDummyIdsToUserAssociations(Content.ME_FOLLOWINGS.uri, 107, USER_ID);
+        UserAssociation associationForRemoval = new UserAssociation(Association.Type.FOLLOWING, new User(1000L));
+        associationForRemoval.markForRemoval();
+        TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, associationForRemoval);
+
+        List<Long> localIds = storage.getStoredIds(Content.ME_FOLLOWINGS.uri);
         expect(localIds.size()).toEqual(107);
     }
 
