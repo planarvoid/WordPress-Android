@@ -26,6 +26,17 @@ public class UserAssociationTest {
     }
 
     @Test
+    public void shouldParcelAndUnparcelWithAddition() throws Exception {
+        User u = new User(123L);
+        UserAssociation userAssociation = new UserAssociation(Association.Type.FOLLOWING, u);
+        userAssociation.markForAddition();
+
+        Parcel p = Parcel.obtain();
+        userAssociation.writeToParcel(p, 0);
+        compareUserAssociations(new UserAssociation(p), userAssociation);
+    }
+
+    @Test
     public void shouldProvideUniqueListItemId() throws Exception {
         User u = new User(123L);
         UserAssociation UserAssociation1 = new UserAssociation(Association.Type.FOLLOWING, u);
@@ -84,6 +95,7 @@ public class UserAssociationTest {
         expect(userAssociation2.id).toEqual(userAssociation.id);
         expect(userAssociation2.created_at).toEqual(userAssociation.created_at);
         expect(userAssociation2.associationType).toEqual(userAssociation.associationType);
+        expect(userAssociation2.getLocalSyncState()).toEqual(userAssociation.getLocalSyncState());
         expect(userAssociation2.getUser()).toEqual(userAssociation.getUser());
     }
 }

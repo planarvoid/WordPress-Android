@@ -152,6 +152,8 @@ public class UserAssociation extends Association implements UserHolder {
 
         UserAssociation that = (UserAssociation) o;
 
+        if (mAddedAt != null ? !mAddedAt.equals(that.mAddedAt) : that.mAddedAt != null) return false;
+        if (mRemovedAt != null ? !mRemovedAt.equals(that.mRemovedAt) : that.mRemovedAt != null) return false;
         if (!mUser.equals(that.mUser)) return false;
 
         return true;
@@ -161,6 +163,8 @@ public class UserAssociation extends Association implements UserHolder {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + mUser.hashCode();
+        result = 31 * result + (mAddedAt != null ? mAddedAt.hashCode() : 0);
+        result = 31 * result + (mRemovedAt != null ? mRemovedAt.hashCode() : 0);
         return result;
     }
 
