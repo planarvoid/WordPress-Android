@@ -99,8 +99,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             convertView.setTag(viewHolder);
             viewHolder.genreTitle = (TextView) convertView.findViewById(android.R.id.text1);
             viewHolder.genreSubtitle = (TextView) convertView.findViewById(android.R.id.text2);
-            viewHolder.sectionLabel = (TextView) convertView.findViewById(R.id.suggested_users_list_header_title);
-            viewHolder.sectionHeader = convertView.findViewById(R.id.suggested_users_list_header);
+            viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.suggested_users_list_header);
             viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.btn_user_bucket_select_all);
             viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -147,7 +146,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         Section section = mListPositionsToSections.get(position);
         if (section != null) {
             Context context = convertView.getContext();
-            viewHolder.sectionLabel.setText(context.getString(section.getLabelResId()));
+            viewHolder.sectionHeader.setText(context.getString(section.getLabelResId()));
             viewHolder.sectionHeader.setVisibility(View.VISIBLE);
         } else {
             viewHolder.sectionHeader.setVisibility(View.GONE);
@@ -165,8 +164,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     }
 
     private static class ItemViewHolder {
-        public View sectionHeader;
-        public TextView genreTitle, genreSubtitle, sectionLabel;
+        public TextView genreTitle, genreSubtitle, sectionHeader;
         public ToggleButton toggleFollow;
     }
 }
