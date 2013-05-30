@@ -1,8 +1,8 @@
 package com.soundcloud.android.view.adapter;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
@@ -50,7 +50,7 @@ public class CommentRow extends IconLayout implements ListRow {
     @Override
     public String getIconRemoteUri() {
         if (mComment == null || mComment.getUser() == null || mComment.getUser().avatar_url == null) return "";
-        return Consts.GraphicSize.formatUriForList(getContext(), mComment.getUser().avatar_url);
+        return ImageSize.formatUriForList(getContext(), mComment.getUser().avatar_url);
     }
 
     @Override

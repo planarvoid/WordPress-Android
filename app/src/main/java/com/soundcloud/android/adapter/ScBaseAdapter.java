@@ -218,7 +218,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
                 // prefetch playable artwork
                 for (ScModel model : data.newItems){
                     if (model instanceof PlayableHolder){
-                        final String artworkUrl = Consts.GraphicSize.formatUriForList(mContext, ((PlayableHolder) model).getPlayable().getArtwork());
+                        final String artworkUrl = Consts.ImageSize.formatUriForList(mContext, ((PlayableHolder) model).getPlayable().getArtwork());
                         if (!TextUtils.isEmpty(artworkUrl)) ImageLoader.get(mContext).prefetch(artworkUrl);
                     }
                 }
@@ -248,13 +248,13 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
             if (newItem instanceof Refreshable) {
                 Refreshable refreshable = (Refreshable) newItem;
                 if (refreshable.isIncomplete() || (onWifi && refreshable.isStale())) {
-                    ScResource resource = refreshable.getRefreshableResource();
+                    Refreshable resource = refreshable.getRefreshableResource();
                     if (resource instanceof Track) {
-                        trackUpdates.add(resource.id);
+                        trackUpdates.add(((Track) resource).id);
                     } else if (resource instanceof User) {
-                        userUpdates.add(resource.id);
+                        userUpdates.add(((User) resource).id);
                     } else if (resource instanceof Playlist) {
-                        playlistUpdates.add(resource.id);
+                        playlistUpdates.add(((Playlist) resource).id);
                     }
                 }
             }

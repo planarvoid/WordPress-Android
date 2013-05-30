@@ -83,12 +83,12 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Track track = new Track(1);
         SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_SOUNDS).toHaveCount(1);
         expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, track.getId());
-        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID, USER_ID);
         expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.TRACK);
         expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_TRACK);
     }
@@ -99,12 +99,12 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Playlist playlist = new Playlist(1);
         SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_SOUNDS).toHaveCount(1);
         expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, playlist.getId());
-        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID, USER_ID);
         expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.PLAYLIST);
         expect(Content.ME_SOUNDS).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_PLAYLIST);
     }
@@ -115,12 +115,12 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Track track = new Track(1);
         SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_LIKE);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_LIKES).toHaveCount(1);
         expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, track.getId());
-        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID, USER_ID);
         expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.LIKE);
         expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_TRACK);
     }
@@ -131,12 +131,12 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Track track = new Track(1);
         SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_REPOST);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_REPOSTS).toHaveCount(1);
         expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, track.getId());
-        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID, USER_ID);
         expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.REPOST);
         expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_TRACK);
     }
@@ -147,12 +147,12 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Playlist playlist = new Playlist(1);
         SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_LIKE);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_LIKES).toHaveCount(1);
         expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, playlist.getId());
-        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID, USER_ID);
         expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.LIKE);
         expect(Content.ME_LIKES).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_PLAYLIST);
     }
@@ -163,12 +163,12 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         Playlist playlist = new Playlist(1);
         SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_REPOST);
-        sa.user = new User(USER_ID);
+        sa.owner = new User(USER_ID);
         getDAO().create(sa);
 
         expect(Content.ME_REPOSTS).toHaveCount(1);
         expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView._ID, playlist.getId());
-        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_USER_ID, USER_ID);
+        expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_OWNER_ID, USER_ID);
         expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE, CollectionItemTypes.REPOST);
         expect(Content.ME_REPOSTS).toHaveColumnAt(0, DBHelper.SoundAssociationView._TYPE, Playable.DB_TYPE_PLAYLIST);
     }

@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.record.AmplitudeData;
 import com.soundcloud.android.record.RecordStream;
 import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

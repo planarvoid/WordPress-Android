@@ -8,12 +8,9 @@ import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -24,41 +21,15 @@ import java.util.Date;
 /**
  * Maps to <code>stream_item</code> item on backend.
  */
-public class SoundAssociation extends ScResource implements PlayableHolder, Refreshable, RelatesToUser {
-
-    private CharSequence _elapsedTime;
-    public enum Type {
-        TRACK("track", ScContentProvider.CollectionItemTypes.TRACK),
-        TRACK_REPOST("track_repost", ScContentProvider.CollectionItemTypes.REPOST),
-        TRACK_LIKE("track_like", ScContentProvider.CollectionItemTypes.LIKE),
-        PLAYLIST("playlist", ScContentProvider.CollectionItemTypes.PLAYLIST),
-        PLAYLIST_REPOST("playlist_repost", ScContentProvider.CollectionItemTypes.REPOST),
-        PLAYLIST_LIKE("playlist_like", ScContentProvider.CollectionItemTypes.LIKE);
-
-        Type(String type, int collectionType) {
-            this.type = type;
-            this.collectionType = collectionType;
-        }
-
-        public final String type;
-        public final int collectionType;
-    }
-
-    public int associationType;
-    public String type;
-    public Date created_at;
+public class SoundAssociation extends Association implements PlayableHolder {
 
     public @NotNull Playable playable;
-    public @Nullable User user;
 
     @SuppressWarnings("UnusedDeclaration") //for deserialization
     public SoundAssociation() { }
 
     public SoundAssociation(Cursor cursor) {
-        associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TYPE));
-        created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundAssociationView.SOUND_ASSOCIATION_TIMESTAMP)));
-        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromSoundViewCursor(cursor);
-
+        super(cursor);
         // single instance considerations
         if (Playable.isTrackCursor(cursor)){
             playable = SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.SoundAssociationView._ID);
@@ -73,9 +44,8 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
      * @param typeEnum the kind of association
      */
     public SoundAssociation(@NotNull Playable playable, Date associatedAt, Type typeEnum) {
+        super(associatedAt, typeEnum.collectionType);
         this.playable = playable;
-        this.created_at = associatedAt;
-        this.associationType = typeEnum.collectionType;
     }
 
     /**
@@ -98,37 +68,13 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return playable;
     }
 
-
-    @Override
-    public boolean isStale() {
-        return playable.isStale();
-    }
-
-    @Override
-    public boolean isIncomplete() {
-        return playable.isIncomplete();
-    }
-
     public SoundAssociation(Parcel in) {
-        associationType = in.readInt();
-        created_at = new Date(in.readLong());
+        super(in);
         playable = in.readParcelable(ClassLoader.getSystemClassLoader());
-        user = in.readParcelable(ClassLoader.getSystemClassLoader());
-    }
-
-    @Override
-    public ContentValues buildContentValues() {
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.CollectionItems.ITEM_ID, getPlayable().id);
-        cv.put(DBHelper.CollectionItems.USER_ID, SoundCloudApplication.getUserId());
-        cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, associationType);
-        cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, getResourceType());
-        cv.put(DBHelper.CollectionItems.CREATED_AT, created_at.getTime());
-        return cv;
     }
 
     @JsonProperty("playlist")
@@ -145,10 +91,8 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(associationType);
-        dest.writeLong(created_at.getTime());
+        super.writeToParcel(dest, flags);
         dest.writeParcelable(playable, 0);
-        dest.writeParcelable(user, 0);
     }
 
     @Override
@@ -166,48 +110,33 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
         return playable;
     }
 
+    @Override
     public long getItemId() {
         return playable.getId();
     }
 
+    @Override
     public int getResourceType() {
         return playable.getTypeId();
     }
 
     @Override
     public void putDependencyValues(BulkInsertMap destination) {
+        super.putDependencyValues(destination);
         playable.putFullContentValues(destination);
-        if (user != null)       user.putFullContentValues(destination);
-    }
-
-    // SoundAssociation is different from the other models in that they don't have IDs
-    // when inserted, but are defined over the resource they refer to.
-    @Override
-    public Uri toUri() {
-        throw new UnsupportedOperationException();
-    }
-
-    @JsonProperty("type")
-    public void setType(String type) {
-        for (Type t : Type.values()) {
-            if (t.type.equalsIgnoreCase(type)) {
-                associationType = t.collectionType;
-            }
-        }
-        this.type = type;
     }
 
     @Override
     public CharSequence getTimeSinceCreated(Context context) {
-        if (_elapsedTime == null) {
-            _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
+        if (mElapsedTime == null) {
+            mElapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
         }
-        return _elapsedTime;
+        return mElapsedTime;
     }
 
     @Override
     public void refreshTimeSinceCreated(Context context) {
-        _elapsedTime = null;
+        mElapsedTime = null;
     }
 
     @Override
@@ -233,10 +162,9 @@ public class SoundAssociation extends ScResource implements PlayableHolder, Refr
     public String toString() {
         return "SoundAssociation{" +
                 "associationType=" + associationType +
-                ", type='" + type + '\'' +
                 ", created_at=" + created_at +
                 ", playable=" + playable +
-                ", user=" + user +
+                ", user=" + owner +
                 '}';
     }
 }

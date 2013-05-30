@@ -111,7 +111,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
                 mReposter.setVisibility(View.VISIBLE);
                 User reposter = null;
 
-                if (sa.user == null)  {
+                if (sa.owner == null)  {
                     // currently active user
                     if (getContext() instanceof UserBrowser) {
                         reposter = ((UserBrowser)getContext()).getUser();

@@ -18,6 +18,7 @@ import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
+import com.soundcloud.android.adapter.UserAssociationAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
@@ -290,8 +291,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 case ME_ACTIVITIES:
                     mAdapter = new ActivityAdapter(mContentUri);
                     break;
-                case ME_FOLLOWERS:
-                case ME_FOLLOWINGS:
                 case USER_FOLLOWINGS:
                 case USER_FOLLOWERS:
                 case TRACK_LIKERS:
@@ -301,6 +300,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                 case SUGGESTED_USERS:
                     mAdapter = new UserAdapter(mContentUri);
                     break;
+                case ME_FOLLOWERS:
+                case ME_FOLLOWINGS:
+                    mAdapter = new UserAssociationAdapter(mContentUri);
+                break;
+
                 case ME_FRIENDS:
                     mAdapter = new FriendAdapter(mContentUri);
                     break;

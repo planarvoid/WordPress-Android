@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.DBHelper;
 
 import android.content.ContentValues;
@@ -66,7 +65,7 @@ public class CommentActivity extends Activity {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         // TODO, comment refreshing?
         return comment.user;
     }

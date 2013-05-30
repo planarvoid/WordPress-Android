@@ -1,4 +1,4 @@
-package com.soundcloud.android.utils;
+package com.soundcloud.android.utils.images;
 
 
 import static com.soundcloud.android.imageloader.ImageLoader.Options;
@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
 import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.utils.AndroidUtils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -461,7 +462,7 @@ public final class ImageUtils {
     public static ImageLoader.BindResult loadImageSubstitute(Context c,
                                                              ImageView imageView,
                                                              String uri,
-                                                             Consts.GraphicSize targetSize,
+                                                             ImageSize targetSize,
                                                              ImageLoader.Callback callback,
                                                              Options options) {
 
@@ -472,7 +473,7 @@ public final class ImageUtils {
         if (targetBitmap != null) {
             return imageLoader.bind(imageView, targetUri, callback, options);
         } else {
-            for (Consts.GraphicSize gs : Consts.GraphicSize.values()) {
+            for (ImageSize gs : ImageSize.values()) {
                 final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri),
                         null, null,
                         Options.dontLoadRemote());
@@ -490,7 +491,7 @@ public final class ImageUtils {
 
     @SuppressWarnings("UnusedDeclaration") // useful, keep plz
     public static Bitmap getBitmapSubstitute(Context c, String uri,
-                                             Consts.GraphicSize targetSize,
+                                             ImageSize targetSize,
                                              ImageLoader.BitmapLoadCallback callback,
                                              Options options) {
         final String targetUri = targetSize.formatUri(uri);
@@ -501,7 +502,7 @@ public final class ImageUtils {
         if (targetBitmap != null){
             return imageLoader.getBitmap(targetUri, callback, c, options);
         } else {
-            for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
+            for (ImageSize gs : EnumSet.allOf(ImageSize.class)) {
                 final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri), null, null, Options.dontLoadRemote());
                 if (tempBitmap != null && !tempBitmap.isRecycled()) {
                     if (callback != null) {

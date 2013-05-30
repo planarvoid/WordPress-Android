@@ -19,7 +19,7 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
 
     @Test
     public void shouldUpdateARecording() throws Exception {
-        Recording r = TestHelper.createRecording(USER_ID);
+        Recording r = TestHelper.createRecording(OWNER_ID);
         TestHelper.insertWithDependencies(r);
 
         r.where_text = "changed";
@@ -32,7 +32,7 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
 
     @Test
     public void shouldPersistAndLoadCorrectly() throws Exception {
-        Recording r = TestHelper.createRecording(USER_ID);
+        Recording r = TestHelper.createRecording(OWNER_ID);
         ContentResolver resolver = Robolectric.application.getContentResolver();
 
         getDAO().create(r);

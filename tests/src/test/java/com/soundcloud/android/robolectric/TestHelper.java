@@ -15,6 +15,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
@@ -240,6 +241,12 @@ public class TestHelper {
         return sa;
     }
 
+    public static UserAssociation insertAsUserAssociation(User user, UserAssociation.Type assocType) {
+        UserAssociation ua = new UserAssociation(user, assocType, new Date());
+        TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, ua);
+        return ua;
+    }
+
     public static <T extends Persisted & Identifiable> int bulkInsert(Collection<T> items) {
         BulkInsertMap map = new BulkInsertMap();
         for (T m : items) {
@@ -265,8 +272,7 @@ public class TestHelper {
         return resolver.bulkInsert(uri, items.toArray(new ContentValues[items.size()]));
     }
 
-
-    public static int bulkInsertToCollectionItems(List<? extends ScResource> resources, Uri collectionUri) {
+    public static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri) {
         SoundCloudApplication application = DefaultTestRunner.application;
         final long userId = SoundCloudApplication.getUserId();
 
@@ -278,13 +284,25 @@ public class TestHelper {
             r.putFullContentValues(map);
             ContentValues contentValues = new ContentValues();
 
-            contentValues.put(DBHelper.CollectionItems.POSITION, i);
-            contentValues.put(DBHelper.CollectionItems.ITEM_ID, r.id);
-            contentValues.put(DBHelper.CollectionItems.USER_ID, userId);
+            contentValues.put(DBHelper.UserAssociations.POSITION, i);
+            contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.id);
+            contentValues.put(DBHelper.UserAssociations.OWNER_ID, userId);
             map.add(collectionUri, contentValues);
         }
         ContentResolver resolver = application.getContentResolver();
         return map.insert(resolver);
+    }
+
+    public static int bulkInsertDummyIdsToUserAssociations(Uri collectionUri, int count, long userId) {
+        ContentValues[] cv = new ContentValues[count];
+        for (int i = 0; i < count; i++) {
+            cv[i] = new ContentValues();
+            cv[i].put(DBHelper.UserAssociations.POSITION, i);
+            cv[i].put(DBHelper.UserAssociations.TARGET_ID, i);
+            cv[i].put(DBHelper.UserAssociations.OWNER_ID, userId);
+        }
+        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        return resolver.bulkInsert(collectionUri, cv);
     }
 
     public static <T extends Persisted> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass) throws Exception {

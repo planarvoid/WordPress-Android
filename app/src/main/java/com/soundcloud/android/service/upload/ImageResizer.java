@@ -4,7 +4,7 @@ import static com.soundcloud.android.service.upload.UploadService.TAG;
 
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
 import android.content.Intent;

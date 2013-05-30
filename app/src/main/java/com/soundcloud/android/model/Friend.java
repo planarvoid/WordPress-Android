@@ -43,7 +43,7 @@ public class Friend extends ScResource implements Refreshable, RelatesToUser {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return user;
     }
 
