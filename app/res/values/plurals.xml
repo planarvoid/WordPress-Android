@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- repost notifications -->
+    <plurals name="dashboard_notifications_activity_title_repost">
+        <item quantity="one">A new repost</item>
+        <item quantity="other">%d new reposts</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_repost">
+        <item quantity="one">New repost</item>
+        <item quantity="other">%d new reposts</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_repost">
+        <item quantity="one">on %1$s</item>
+        <item quantity="two">on %1$s and %2$s</item>
+        <item quantity="other">on %1$s, %2$s and other sounds</item>
+    </plurals>
+
+    <!-- accessibility -->
+    <plurals name="accessibility_stats_comments">
+        <item quantity="one">1 Comment</item>
+        <item quantity="other">%d Comments</item>
+    </plurals>
+    <plurals name="accessibility_stats_plays">
+        <item quantity="one">1 Play</item>
+        <item quantity="other">%d Plays</item>
+    </plurals>
+    <plurals name="accessibility_stats_likes">
+        <item quantity="one">1 Like</item>
+        <item quantity="other">%d Likes</item>
+    </plurals>
+    <plurals name="accessibility_stats_reposts">
+        <item quantity="one">1 Repost</item>
+        <item quantity="other">%d Reposts</item>
+    </plurals>
+
+    <!-- SoundCloud resource plurals -->
+    <plurals name="number_of_sounds">
+        <item quantity="one">one sound</item>
+        <item quantity="other">%d sounds</item>
+    </plurals>
+    <plurals name="number_of_other_users">
+        <item quantity="one">and 1 other</item>
+        <item quantity="other">and %d others</item>
+    </plurals>
+
+</resources>
