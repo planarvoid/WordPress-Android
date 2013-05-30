@@ -1,6 +1,7 @@
 package com.soundcloud.android.c2dm;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Consts;
@@ -13,6 +14,7 @@ import com.xtremelabs.robolectric.shadows.ShadowAccountManager;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.message.BasicHeader;
 import org.junit.After;
 import org.junit.Before;
@@ -83,7 +85,7 @@ public class C2DMReceiverTest {
 
         new C2DMReceiver().unregister(DefaultTestRunner.application);
 
-        Robolectric.addHttpResponseRule("DELETE", "http://foo", new TestHttpResponse(200, ""));
+        Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, "http://foo"), new TestHttpResponse(200, ""));
         C2DMReceiver.processDeletionQueue(DefaultTestRunner.application, null);
     }
 

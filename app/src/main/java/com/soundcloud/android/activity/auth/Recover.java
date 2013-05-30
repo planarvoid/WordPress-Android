@@ -3,6 +3,7 @@ package com.soundcloud.android.activity.auth;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.task.auth.RecoverPasswordTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -23,9 +24,12 @@ import android.widget.TextView;
 
 @Tracking(page = Page.Entry_login__recover_password)
 public class Recover extends Activity {
+    private AndroidCloudAPI mAndroidCloudAPI;
+
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+
         build();
     }
 
@@ -37,7 +41,7 @@ public class Recover extends Activity {
 
     protected void build() {
         setContentView(R.layout.recover);
-
+        mAndroidCloudAPI = new OldCloudAPI(this);
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final Button recoverBtn = (Button) findViewById(R.id.btn_ok);
 
@@ -82,7 +86,7 @@ public class Recover extends Activity {
     }
 
     private void recoverPassword(final String email) {
-        new RecoverPasswordTask((AndroidCloudAPI) getApplication()) {
+        new RecoverPasswordTask(mAndroidCloudAPI) {
             private ProgressDialog progressDialog;
             @Override
             protected void onPreExecute() {

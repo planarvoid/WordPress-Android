@@ -1,9 +1,19 @@
 package com.soundcloud.android.accounts;
 
-import android.accounts.*;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import static com.soundcloud.android.Expect.expect;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
@@ -23,17 +33,16 @@ import org.mockito.Mock;
 import rx.Observer;
 import rx.subscriptions.Subscriptions;
 
-import java.io.IOException;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 
-import static com.soundcloud.android.Expect.expect;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
+import java.io.IOException;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AccountRemovalFunctionTest {
@@ -229,13 +238,6 @@ public class AccountRemovalFunctionTest {
         when(future.getResult()).thenReturn(false);
         function.call(observer);
         verifyZeroInteractions(soundCloudApplication);
-    }
-
-    @Test
-    public void shouldInvalidateTokenIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
-        when(future.getResult()).thenReturn(true);
-        function.call(observer);
-        verify(soundCloudApplication).invalidateToken();
     }
 
 }

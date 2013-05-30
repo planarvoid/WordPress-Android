@@ -44,6 +44,7 @@ public class ActionBarController {
     @Nullable private View              mMenuIndicator;
 
     private SuggestionsAdapter mSuggestionsAdapter;
+    private final AndroidCloudAPI mAndroidCloudAPI;
 
     private boolean mInSearchMode;
     private boolean mCloseSearchOnResume;
@@ -58,10 +59,11 @@ public class ActionBarController {
         public void         onHomePressed();
     }
 
-    public ActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView) {
+    public ActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView, AndroidCloudAPI androidCloudAPI) {
         mOwner    = owner;
         mActivity = owner.getActivity();
         mRootView = rootView;
+        mAndroidCloudAPI = androidCloudAPI;
         configureCustomView();
     }
 
@@ -175,7 +177,7 @@ public class ActionBarController {
         final SearchableInfo searchableInfo = searchManager.getSearchableInfo(mActivity.getComponentName());
         searchView.setSearchableInfo(searchableInfo);
 
-        mSuggestionsAdapter = new SuggestionsAdapter(mActivity, (AndroidCloudAPI) mActivity.getApplication());
+        mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mAndroidCloudAPI);
         searchView.setSuggestionsAdapter(mSuggestionsAdapter);
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override

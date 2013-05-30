@@ -1,7 +1,7 @@
 package com.soundcloud.android.model.act;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.Wrapper.CloudDateFormat.fromString;
+import static com.soundcloud.android.api.Wrapper.CloudDateFormat.fromString;
 import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 
 import com.soundcloud.android.SoundCloudApplication;
@@ -198,7 +198,7 @@ public class ActivitiesTest {
         TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class,
                 "activities_empty.json");
 
-        Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 100);
+        Activities a = Activities.fetchRecent(DefaultTestRunner.application.getCloudAPI(), Content.ME_SOUND_STREAM.request(), 100);
         expect(a.size()).toEqual(0);
         expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
         expect(a.isEmpty()).toBeTrue();
@@ -212,7 +212,7 @@ public class ActivitiesTest {
                 "e1_stream_2.json",
                 "activities_empty.json");
 
-        Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 100);
+        Activities a = Activities.fetchRecent(DefaultTestRunner.application.getCloudAPI(), Content.ME_SOUND_STREAM.request(), 100);
         expect(a.size()).toEqual(50);
         expect(a.future_href).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
         expect(a.moreResourcesExist()).toBeFalse();
@@ -223,7 +223,7 @@ public class ActivitiesTest {
         TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class,
                 "e1_stream_1.json");
 
-        Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 20);
+        Activities a = Activities.fetchRecent(DefaultTestRunner.application.getCloudAPI(), Content.ME_SOUND_STREAM.request(), 20);
         expect(a.size()).toEqual(22); // 1 page
         expect(a.future_href).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
         expect(a.moreResourcesExist()).toBeTrue();

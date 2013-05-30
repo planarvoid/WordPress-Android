@@ -90,7 +90,8 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
         });
 
         Runner.checkFreeSpace();
-        env = getActivity().getApp().getEnv();
+        //Do we every not hit live?
+        env = Env.LIVE;
         setRecordingType(null);
 
         super.setUp();

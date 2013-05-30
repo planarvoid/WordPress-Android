@@ -1,6 +1,8 @@
 package com.soundcloud.android.streaming;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.utils.BatteryListener;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -55,11 +57,12 @@ public class StreamLoader {
 
     static final int LOW_PRIO = 0;
     static final int HI_PRIO = 1;
+    private AndroidCloudAPI mOldCloudAPI;
 
     public StreamLoader(SoundCloudApplication context, final StreamStorage storage) {
         mContext = context;
         mStorage = storage;
-
+        mOldCloudAPI = new OldCloudAPI(mContext);
         HandlerThread resultThread = new HandlerThread("streaming-result");
         resultThread.start();
 
@@ -270,7 +273,7 @@ public class StreamLoader {
     }
 
     private PlaycountTask startPlaycountTask(StreamItem item, int prio) {
-        PlaycountTask task = new PlaycountTask(item, mContext, true);
+        PlaycountTask task = new PlaycountTask(item, mOldCloudAPI, true);
         mHeadHandler.sendMessage(mHeadHandler.obtainMessage(prio, task));
         return task;
     }
@@ -281,7 +284,7 @@ public class StreamLoader {
                 synchronized (mHeadTasks) {
                     if (!mHeadTasks.contains(item)) {
                         mHeadTasks.add(item);
-                        HeadTask ht = new HeadTask(item, mContext, true);
+                        HeadTask ht = new HeadTask(item, mOldCloudAPI, true);
                         Message msg = mHeadHandler.obtainMessage(prio, ht);
                         mHeadHandler.sendMessage(msg);
                         return ht;

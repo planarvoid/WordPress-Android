@@ -18,7 +18,7 @@ public class RecoverPasswordTaskTest {
         TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
         Robolectric.addPendingHttpResponse(202, "");
 
-        RecoverPasswordTask task = new RecoverPasswordTask(DefaultTestRunner.application);
+        RecoverPasswordTask task = new RecoverPasswordTask(DefaultTestRunner.application.getCloudAPI());
         Boolean result = task.doInBackground("foo@gmail.com");
         expect(result).toBeTrue();
     }
@@ -28,7 +28,7 @@ public class RecoverPasswordTaskTest {
         TestHelper.addPendingHttpResponse(getClass(), "signup_token.json");
         Robolectric.addPendingHttpResponse(404, "{\"error\":\"Unknown Email Address\"}");
 
-        RecoverPasswordTask task = new RecoverPasswordTask(DefaultTestRunner.application);
+        RecoverPasswordTask task = new RecoverPasswordTask(DefaultTestRunner.application.getCloudAPI());
         Boolean result = task.doInBackground("foo@gmail.com");
         expect(result).toBeFalse();
         expect(task.getErrors()).toEqual(Arrays.asList("Unknown Email Address"));
@@ -37,7 +37,7 @@ public class RecoverPasswordTaskTest {
     @Test
     public void shouldReturnFalseIfTokenNotAvailable() throws Exception {
         Robolectric.addPendingHttpResponse(401, "unauthorized");
-        RecoverPasswordTask task = new RecoverPasswordTask(DefaultTestRunner.application);
+        RecoverPasswordTask task = new RecoverPasswordTask(DefaultTestRunner.application.getCloudAPI());
         Boolean result = task.doInBackground("foo@gmail.com");
         expect(result).toBeFalse();
     }

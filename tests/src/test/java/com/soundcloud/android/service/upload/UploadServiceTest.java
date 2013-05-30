@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
@@ -16,6 +17,8 @@ import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import com.xtremelabs.robolectric.util.Scheduler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -316,22 +319,22 @@ public class UploadServiceTest {
 
     private void mockSuccessfullTrackCreation() throws IOException {
         // track upload
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
+        Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpPost.METHOD_NAME, "/tracks"), new TestHttpResponse(201,
                 TestHelper.resourceAsBytes(getClass(), "track_processing.json")));
 
         // transcoding polling
-        Robolectric.addHttpResponseRule("GET", "/tracks/12345", new TestHttpResponse(200,
+        Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, "/tracks/12345"), new TestHttpResponse(200,
                 TestHelper.resourceAsBytes(getClass(), "track_finished.json")));
     }
 
 
     private void mockFailedTrackCreation() throws IOException {
         // track upload
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
+        Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpPost.METHOD_NAME, "/tracks"), new TestHttpResponse(201,
                 TestHelper.resourceAsBytes(getClass(), "track_processing.json")));
 
         // transcoding polling
-        Robolectric.addHttpResponseRule("GET", "/tracks/12345", new TestHttpResponse(200,
+        Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, "/tracks/12345"), new TestHttpResponse(200,
                 TestHelper.resourceAsBytes(getClass(), "track_failed.json")));
     }
 }

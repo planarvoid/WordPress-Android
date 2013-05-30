@@ -5,12 +5,11 @@ import static com.soundcloud.android.service.sync.CollectionSyncRequestTest.NON_
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.TestApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 
@@ -24,8 +23,9 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
     @Test
     public void shouldNotSyncWhenTokenIsInvalidAndFlagError() throws Exception {
+        AccountOperations accountOperations = setupAccountOperationsForToken(false);
         // will throw if actually syncing
-        SyncResult result = doPerformSync(new TestApplication(new Token(null, null, null)), false, null).result;
+        SyncResult result = doPerformSync(DefaultTestRunner.application, false, null, accountOperations).result;
         expect(result.hasError()).toBeTrue();
         expect(result.hasHardError()).toBeTrue();
         expect(result.hasSoftError()).toBeFalse();
@@ -36,7 +36,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
         addCannedActivities("empty_collection.json");
         addPendingHttpResponse(500, "errors");
 
-        SyncResult result = doPerformSync(DefaultTestRunner.application, false, null).result;
+        SyncResult result = doPerformSyncWithValidToken(DefaultTestRunner.application, false, null).result;
         expect(result.hasHardError()).toBeFalse();
         expect(result.hasSoftError()).toBeTrue();
     }
@@ -47,7 +47,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
                 "empty_collection.json",
                 "e1_activities.json"
         );
-        expect(doPerformSync(DefaultTestRunner.application, true, null).notifications).toBeEmpty();
+        expect(doPerformSyncWithValidToken(DefaultTestRunner.application, true, null).notifications).toBeEmpty();
     }
 
     @Test
@@ -60,7 +60,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
                 "empty_collection.json",
                 "empty_collection.json");
 
-        doPerformSync(DefaultTestRunner.application, false, null);
+        doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
 
         final SyncStateManager syncStateManager = new SyncStateManager();
         LocalCollection lc = syncStateManager.fromContent(Content.ME_SOUNDS);
@@ -76,7 +76,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         syncStateManager.updateLastSyncSuccessTime(Content.ME_SOUNDS, 0);
 
-        doPerformSync(DefaultTestRunner.application, false, null);
+        doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
 
         lc = syncStateManager.fromContent(Content.ME_SOUNDS);
         expect(lc.extra).toEqual(String.valueOf(1)); // incremented sync miss for backoff
@@ -91,7 +91,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
                 .edit()
                 .putBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, true)
                 .commit();
-        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, null);
+        SyncOutcome result = doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
         expect(result.notifications).toBeEmpty();
     }
 }

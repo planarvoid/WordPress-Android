@@ -8,6 +8,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -28,11 +29,13 @@ public class EmailConfirm extends ScActivity {
     public static final String PREF_LAST_REMINDED = "confirmation_last_reminded";
     public static final int REMIND_PERIOD = 86400 * 1000 * 7; // 1 week
     private AccountOperations accountOperations;
+    private AndroidCloudAPI mAndroidCloudAPI;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         accountOperations = new AccountOperations(this);
+        mAndroidCloudAPI = new OldCloudAPI(this);
         final long lastReminded = getLastReminded();
 
         if (lastReminded > 0 && System.currentTimeMillis() - lastReminded < REMIND_PERIOD) {
@@ -44,7 +47,7 @@ public class EmailConfirm extends ScActivity {
                 @Override
                 public void onClick(View v) {
                     setResult(RESULT_OK, new Intent(Actions.RESEND));
-                    new ResendConfirmationTask((AndroidCloudAPI) getApplication()).execute((Void)null);
+                    new ResendConfirmationTask(mAndroidCloudAPI).execute((Void)null);
                     finish();
                 }
             });

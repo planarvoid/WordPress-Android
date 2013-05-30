@@ -8,7 +8,8 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.BaseDAO;
 import com.soundcloud.android.dao.CollectionStorage;
@@ -23,7 +24,6 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
@@ -32,7 +32,6 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -41,7 +40,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -87,7 +85,7 @@ public class ApiSyncer {
     private int mBulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
 
     public ApiSyncer(Context context, ContentResolver resolver) {
-        mApi = (AndroidCloudAPI) context.getApplicationContext();
+        mApi = new OldCloudAPI(context);
         mResolver = resolver;
         mContext = context;
         mSyncStateManager = new SyncStateManager();

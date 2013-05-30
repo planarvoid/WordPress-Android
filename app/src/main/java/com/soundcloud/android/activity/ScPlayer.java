@@ -4,10 +4,12 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlaylistManager;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -63,6 +65,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private @Nullable CloudPlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1, mCommentingPosition = -1;
     private AccountOperations accountOperations;
+    private AndroidCloudAPI mAndroidCloudAPI;
 
     public int getCommentPosition() {
         return mCommentingPosition;
@@ -81,7 +84,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         super.onCreate(bundle);
         setContentView(R.layout.sc_player);
         accountOperations = new AccountOperations(this);
-
+        mAndroidCloudAPI = new OldCloudAPI(this);
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
         mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);
         mTrackPager.setPageMargin((int) (5*getResources().getDisplayMetrics().density));
@@ -221,7 +224,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     @Override
     protected ActionBarController createActionBarController(RootView rootView) {
-        return new ActionBarController(this, rootView);
+        return new ActionBarController(this, rootView, mAndroidCloudAPI);
     }
 
     @Override

@@ -29,14 +29,14 @@ import android.os.Bundle;
 @RunWith(SoundCloudTestRunner.class)
 public class AccountOperationsTest {
     private static final String ACCESSTOKEN = "accesstoken";
-    private static final String TOKENSCOPE = "tokenscope";
-    private static final String REFRESHTOKEN = "refreshtoken";
     private static final String SC_ACCOUNT_TYPE = "com.soundcloud.android.account";
     public static final String KEY = "key";
 
     private AccountOperations accountOperations;
     @Mock
     private AccountManager accountManager;
+    @Mock
+    private SoundCloudTokenOperations tokenOperations;
     @Mock
     private Account scAccount;
     @Mock
@@ -50,9 +50,7 @@ public class AccountOperationsTest {
     public void setUp() {
         initMocks(this);
         token.access = ACCESSTOKEN;
-        token.scope = TOKENSCOPE;
-        token.refresh = REFRESHTOKEN;
-        accountOperations = new AccountOperations(accountManager, Robolectric.application);
+        accountOperations = new AccountOperations(accountManager, Robolectric.application, tokenOperations);
     }
 
     @Test
@@ -125,8 +123,6 @@ public class AccountOperationsTest {
         when(user.permalink()).thenReturn("permalink");
 
         accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API);
-
-        verify(accountManager).setUserData(account, User.DataKeys.SCOPE, TOKENSCOPE);
         verify(accountManager).setUserData(account, User.DataKeys.USER_ID, "2");
         verify(accountManager).setUserData(account, User.DataKeys.USERNAME, "username");
         verify(accountManager).setUserData(account, User.DataKeys.USER_PERMALINK, "permalink");
@@ -142,8 +138,7 @@ public class AccountOperationsTest {
 
         accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API);
 
-        verify(accountManager).setAuthToken(account, User.DataKeys.ACCESS_TOKEN, ACCESSTOKEN);
-        verify(accountManager).setAuthToken(account, User.DataKeys.REFRESH_TOKEN, REFRESHTOKEN);
+        verify(tokenOperations).storeSoundCloudTokenData(account, token);
     }
 
     @Test
@@ -171,19 +166,6 @@ public class AccountOperationsTest {
         when(accountManager.getUserData(scAccount, KEY)).thenReturn("data");
         String data = accountOperations.getAccountDataString(KEY);
         expect(data).toBe("data");
-    }
-
-    @Test
-    public void shouldReturnNegativeOneIfIntAccountDataDoesNotExist(){
-        when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(null);
-        expect(accountOperations.getAccountDataInt(KEY)).toBe(-1);
-    }
-
-    @Test
-    public void shouldReturnExpectedValueIfIntAccountDataDoesExist(){
-        when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
-        when(accountManager.getUserData(scAccount, KEY)).thenReturn("22");
-        expect(accountOperations.getAccountDataInt(KEY)).toBe(22);
     }
 
     @Test
@@ -231,6 +213,36 @@ public class AccountOperationsTest {
         when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
         expect(accountOperations.setAccountData(KEY, "ads")).toBeTrue();
         verify(accountManager).setUserData(scAccount,KEY,"ads");
+    }
+
+    @Test
+    public void shouldReturnNullTokenIfSoundCloudAccountDoesNotExist(){
+        when(accountManager.getAccountsByType(anyString())).thenReturn(null);
+        expect(accountOperations.getSoundCloudToken()).toBeNull();
+
+    }
+
+    @Test
+    public void shouldReturnNullTokenIfSoundCloudAccountDoesExist(){
+        when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
+        when(tokenOperations.getSoundCloudToken(scAccount)).thenReturn(token);
+        expect(accountOperations.getSoundCloudToken()).toBe(token);
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowExceptionIfSoundCloudDoesNotExistWhenStoringAccountData(){
+        when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{});
+        accountOperations.storeSoundCloudTokenData(token);
+
+    }
+
+    @Test
+    public void shouldStoreSoundCloudAccountDataIfAccountExists(){
+        when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
+        accountOperations.storeSoundCloudTokenData(token);
+        verify(tokenOperations).storeSoundCloudTokenData(scAccount,token);
+
     }
 
     @Test

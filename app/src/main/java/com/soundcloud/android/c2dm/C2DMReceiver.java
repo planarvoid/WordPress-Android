@@ -1,9 +1,9 @@
 package com.soundcloud.android.c2dm;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.SyncAdapterService;
@@ -96,7 +96,6 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     public static synchronized void register(Context context) {
         if (!isEnabled()) return;
-        final PowerManager.WakeLock lock = makeLock(context);
         final String regId = getRegistrationData(context, PREF_REG_ID);
 
         if (regId == null) {
@@ -164,7 +163,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sendRegId("+regId+")");
 
         final PowerManager.WakeLock lock = makeLock(context);
-        return new SendRegIdTask((AndroidCloudAPI) context.getApplicationContext()) {
+        return new SendRegIdTask(new OldCloudAPI(context)) {
 
             @Override
             protected void onPreExecute() {
@@ -324,7 +323,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         if (url != null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "deleting " + url);
 
-            new DeleteRegIdTask((AndroidCloudAPI) context.getApplicationContext(), lock) {
+            new DeleteRegIdTask(new OldCloudAPI(context), lock) {
                 @Override protected void onPostExecute(Boolean success) {
                     super.onPostExecute(success);
                     if (success) {

@@ -1,8 +1,10 @@
 package com.soundcloud.android.task.auth;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.Log;
@@ -21,15 +23,18 @@ public class AddUserInfoTask extends AuthTask {
 
     private User mUpdatedUser;
     private File mAvatarFile;
+    private AndroidCloudAPI mOldCloudAPI;
 
-    protected AddUserInfoTask(SoundCloudApplication app, User updatedUser, File avatarFile, UserStorage userStorage) {
+    protected AddUserInfoTask(SoundCloudApplication app, User updatedUser, File avatarFile, UserStorage userStorage,
+                              AndroidCloudAPI oldCloudAPI) {
         super(app, userStorage);
         mUpdatedUser = updatedUser;
         mAvatarFile = avatarFile;
+        mOldCloudAPI = oldCloudAPI;
     }
 
     public AddUserInfoTask(SoundCloudApplication application, User updatedUser, File avatarFile){
-        this(application, updatedUser, avatarFile, new UserStorage());
+        this(application, updatedUser, avatarFile, new UserStorage(), new OldCloudAPI(application));
     }
 
     @Override
@@ -44,11 +49,11 @@ public class AddUserInfoTask extends AuthTask {
                 updateMe.withFile(Params.User.AVATAR, mAvatarFile);
             }
             SoundCloudApplication app = getSoundCloudApplication();
-            HttpResponse resp = app.put(updateMe);
+            HttpResponse resp = mOldCloudAPI.put(updateMe);
             switch (resp.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_OK:
-                    User u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
-                    addAccount(u, getSoundCloudApplication().getToken(), SignupVia.API);
+                    User u = mOldCloudAPI.getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    addAccount(u, mOldCloudAPI.getToken(), SignupVia.API);
                     return AuthTaskResult.success(u, SignupVia.API);
 
                 case HttpStatus.SC_UNPROCESSABLE_ENTITY:

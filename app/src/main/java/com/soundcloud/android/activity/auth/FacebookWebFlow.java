@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +26,7 @@ import android.webkit.WebViewClient;
 
 public class FacebookWebFlow extends AbstractLoginActivity {
     private WebView mWebview;
+    private AndroidCloudAPI mAndroidCloudAPI;
 
     //FIXME: way too long, break this method up
     @Override
@@ -32,6 +34,7 @@ public class FacebookWebFlow extends AbstractLoginActivity {
         super.onCreate(bundle);
 
         setContentView(R.layout.facebook);
+        mAndroidCloudAPI = new OldCloudAPI(this);
 
         mWebview = (WebView) findViewById(R.id.webview);
         mWebview.getSettings().setJavaScriptEnabled(true);
@@ -123,13 +126,12 @@ public class FacebookWebFlow extends AbstractLoginActivity {
         });
 
         if (IOUtils.isConnected(this)) {
-            final AndroidCloudAPI api = (AndroidCloudAPI) getApplication();
             removeAllCookies();
             String[] options = new String[TokenInformationGenerator.DEFAULT_SCOPES.length+1];
             options[0] = Endpoints.FACEBOOK_CONNECT;
             System.arraycopy(TokenInformationGenerator.DEFAULT_SCOPES, 0, options, 1, TokenInformationGenerator.DEFAULT_SCOPES.length);
 
-            mWebview.loadUrl(api.authorizationCodeUrl(options).toString());
+            mWebview.loadUrl(mAndroidCloudAPI.authorizationCodeUrl(options).toString());
         } else {
             showConnectionError(null);
         }

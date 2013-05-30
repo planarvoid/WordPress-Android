@@ -21,7 +21,7 @@ public class NewPlaylistTaskTest {
     @Test
     public void shouldReturnPlaylist() throws Exception {
         addPendingHttpResponse(new TestHttpResponse(201, TestHelper.resourceAsBytes(ApiSyncServiceTest.class, "playlist.json")));
-        NewPlaylistTask task = new NewPlaylistTask(DefaultTestRunner.application);
+        NewPlaylistTask task = new NewPlaylistTask(DefaultTestRunner.application.getCloudAPI());
 
         Request r = Request.to(TempEndpoints.PLAYLISTS).add("playlist[title]", "new playlist");
         final Playlist playlist = task.doInBackground(r);
@@ -32,7 +32,7 @@ public class NewPlaylistTaskTest {
     @Test
     public void shouldReturnNullPlaylistInFailureCase() throws Exception {
         addPendingHttpResponse(400, "Failz");
-        NewPlaylistTask task = new NewPlaylistTask(DefaultTestRunner.application);
+        NewPlaylistTask task = new NewPlaylistTask(DefaultTestRunner.application.getCloudAPI());
         Request r = Request.to(TempEndpoints.PLAYLISTS).add("playlist[title]", "new playlist");
         final Playlist playlist = task.doInBackground(r);
         assertNull(playlist);

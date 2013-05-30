@@ -14,9 +14,11 @@ import static com.soundcloud.android.service.playback.State.PREPARING;
 import static com.soundcloud.android.service.playback.State.STOPPED;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
@@ -179,6 +181,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     // for play duration tracking
     private PlayEventTracker mPlayEventTracker;
+    private AndroidCloudAPI oldCloudAPI;
 
     public PlayEventTracker getPlayEventTracker() {
         return mPlayEventTracker;
@@ -211,7 +214,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
-
+        oldCloudAPI = new OldCloudAPI(this);
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(PLAY_ACTION);
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
@@ -462,7 +465,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 if (track.isStreamable()) {
                     onStreamableTrack(track);
                 } else if (track.load_info_task == null || !AndroidUtils.isTaskFinished(track.load_info_task)) {
-                    track.refreshInfoAsync(getApp(),mInfoListener);
+                    track.refreshInfoAsync(oldCloudAPI,mInfoListener);
                 } else {
                     onUnstreamableTrack(track.id);
                 }
@@ -1053,7 +1056,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 stop();
             } else if (LOAD_TRACK_INFO.equals(action)) {
                 final Track t = Track.fromIntent(intent);
-                t.refreshInfoAsync(getApp(), mInfoListener);
+                t.refreshInfoAsync(oldCloudAPI, mInfoListener);
 
             } else if (PLAYQUEUE_CHANGED.equals(action)) {
                 if (state == EMPTY_PLAYLIST) {

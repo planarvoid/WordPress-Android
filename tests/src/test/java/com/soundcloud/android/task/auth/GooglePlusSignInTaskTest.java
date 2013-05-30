@@ -14,7 +14,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.SignupVia;
@@ -69,7 +68,7 @@ public class GooglePlusSignInTaskTest {
     @Test
     public void shouldInvalidateTokenIfInvalidTokenExceptionIsThrown() throws IOException, GoogleAuthException {
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME),eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
-        when(tokenInformationGenerator.getToken(any(AndroidCloudAPI.class), any(Bundle.class))).thenThrow(CloudAPI.InvalidTokenException.class);
+        when(tokenInformationGenerator.getToken(any(Bundle.class))).thenThrow(CloudAPI.InvalidTokenException.class);
         task.doInBackground(bundle);
         verify(accountOperations, times(2)).invalidateGoogleAccountToken("validtoken");
     }
@@ -82,7 +81,7 @@ public class GooglePlusSignInTaskTest {
 
     @Test
     public void shouldReturnSuccessIfGoogleSignInWasSuccessful() throws IOException, GoogleAuthException {
-        when(tokenInformationGenerator.getToken(eq(app), any(Bundle.class))).thenReturn(token);
+        when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
         when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME),eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
         when(fetchUserTask.resolve(any(Request.class))).thenReturn(user);
         when(app.addUserAccountAndEnableSync(eq(user), any(Token.class), any(SignupVia.class))).thenReturn(true);

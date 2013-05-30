@@ -5,9 +5,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
@@ -56,13 +58,14 @@ public class ScUpload extends ScActivity {
     private boolean mUploading;
 
     private RecordingStorage mStorage;
+    private AndroidCloudAPI mOldCloudAPI;
 
     private static final int REC_ANOTHER = 0, POST = 1;
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-
+        mOldCloudAPI = new OldCloudAPI(this);
         setTitle(R.string.share);
 
         mStorage = new RecordingStorage().subscribeInBackground();
@@ -163,7 +166,7 @@ public class ScUpload extends ScActivity {
             });
 
             mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
-            mConnectionList.setAdapter(new ConnectionList.Adapter(this.getApp()));
+            mConnectionList.setAdapter(new ConnectionList.Adapter(mOldCloudAPI));
 
             mAccessList = (AccessList) findViewById(R.id.accessList);
             mAccessList.registerDataSetObserver(new DataSetObserver() {
@@ -197,7 +200,7 @@ public class ScUpload extends ScActivity {
         if (!mRecording.isPrivateMessage()) {
             mConnectionList.getAdapter().loadIfNecessary(this);
         }
-        track(getClass(), getApp().getLoggedInUser());
+        track(ScUpload.class, getApp().getLoggedInUser());
     }
 
     @Override

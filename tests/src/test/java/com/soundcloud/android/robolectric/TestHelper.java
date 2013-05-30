@@ -5,10 +5,8 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.api.Wrapper;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.model.behavior.Identifiable;
-import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
@@ -17,6 +15,8 @@ import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -28,6 +28,7 @@ import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import com.xtremelabs.robolectric.shadows.ShadowNetworkInfo;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -55,7 +56,8 @@ import java.util.List;
 import java.util.Set;
 
 public class TestHelper {
-    private TestHelper() {}
+    private TestHelper() {
+    }
 
     public static ObjectMapper getObjectMapper() {
         return Wrapper.buildObjectMapper();
@@ -97,7 +99,7 @@ public class TestHelper {
     }
 
     public static void addCannedResponse(Class klazz, String url, String resource) throws IOException {
-        Robolectric.getFakeHttpLayer().addHttpResponseRule(url,
+        Robolectric.getFakeHttpLayer().addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, url),
                 new TestHttpResponse(200, resourceAsBytes(klazz, resource)));
     }
 
@@ -138,7 +140,7 @@ public class TestHelper {
     }
 
     public static void assertResolverNotified(Uri... uris) {
-        ShadowContentResolver res  =
+        ShadowContentResolver res =
                 Robolectric.shadowOf_(Robolectric.application.getContentResolver());
         Set<Uri> _uris = new HashSet<Uri>();
         for (ShadowContentResolver.NotifiedUri u : res.getNotifiedUris()) {
@@ -199,14 +201,18 @@ public class TestHelper {
             if (i < ids.length - 1) sb.append(", ");
         }
         sb.append("] }");
-        Robolectric.addHttpResponseRule(url, new TestHttpResponse(200, sb.toString()));
+        Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, url), new TestHttpResponse(200, sb.toString()));
+    }
+
+    public static FakeHttpLayer.UriRegexMatcher createRegexRequestMatcherForUriWithClientId(String method, String url) {
+        return new FakeHttpLayer.UriRegexMatcher(method, url.replace("?","\\?")  + "(?:[&\\?]client_id=.+)?$");
     }
 
     public static void setSdkVersion(int version) {
         Robolectric.Reflection.setFinalStaticField(Build.VERSION.class, "SDK_INT", version);
     }
 
-    public static void enableSDCard(){
+    public static void enableSDCard() {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
@@ -361,11 +367,11 @@ public class TestHelper {
         return playlist;
     }
 
-    public static void setUserId(long id){
+    public static void setUserId(long id) {
         ShadowAccountManager shadowAccountManager = shadowOf(ShadowAccountManager.get(DefaultTestRunner.application));
         AccountOperations accountOperations = new AccountOperations(DefaultTestRunner.application);
 
-        if(!accountOperations.soundCloudAccountExists()){
+        if (!accountOperations.soundCloudAccountExists()) {
             shadowAccountManager.addAccount(new Account("name", "com.soundcloud.android.account"));
         }
 

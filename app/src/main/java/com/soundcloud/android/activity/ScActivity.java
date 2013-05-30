@@ -4,6 +4,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -16,6 +17,7 @@ import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
@@ -64,7 +66,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
-    private AccountOperations accountOperations;
+    private AccountOperations mAccountOperations;
+    private AndroidCloudAPI mAndroidCloudAPI;
 
     @Nullable
     private ActionBarController mActionBarController;
@@ -72,7 +75,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        accountOperations = new AccountOperations(this);
+        mAccountOperations = new AccountOperations(this);
+        mAndroidCloudAPI = new OldCloudAPI(this);
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
 
@@ -141,7 +145,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     protected ActionBarController createActionBarController(RootView rootView) {
-        return new NowPlayingActionBarController(this, rootView);
+        return new NowPlayingActionBarController(this, rootView, mAndroidCloudAPI);
     }
 
     protected abstract int getSelectedMenuId();
@@ -237,7 +241,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     protected void onResume() {
         super.onResume();
 
-        if (!accountOperations.soundCloudAccountExists()) {
+        if (!mAccountOperations.soundCloudAccountExists()) {
             pausePlayback();
             finish();
             return;

@@ -1,9 +1,11 @@
 package com.soundcloud.android.task.auth;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.activity.auth.TokenInformationGenerator;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.api.CloudAPI;
@@ -23,15 +25,19 @@ public class SignupTask extends AuthTask {
 
     public static final String KEY_USERNAME = "username";
     public static final String KEY_PASSWORD = "password";
-    private TokenInformationGenerator tokenInformationGenerator;
+    private TokenInformationGenerator mTokenInformationGenerator;
+    private AndroidCloudAPI mOldCloudAPI;
 
-    protected SignupTask(SoundCloudApplication app, TokenInformationGenerator tokenInformationGenerator, UserStorage userStorage) {
+    protected SignupTask(SoundCloudApplication app, TokenInformationGenerator tokenInformationGenerator,
+                         UserStorage userStorage, AndroidCloudAPI oldCloudAPI) {
         super(app, userStorage);
-        this.tokenInformationGenerator = tokenInformationGenerator;
+        mTokenInformationGenerator = tokenInformationGenerator;
+        mOldCloudAPI = oldCloudAPI;
     }
 
     public SignupTask(SoundCloudApplication soundCloudApplication){
-        this(soundCloudApplication, new TokenInformationGenerator(), new UserStorage());
+        this(soundCloudApplication, new TokenInformationGenerator(new OldCloudAPI(soundCloudApplication)),
+                new UserStorage(), new OldCloudAPI(soundCloudApplication));
     }
 
     @Override
@@ -43,7 +49,7 @@ public class SignupTask extends AuthTask {
             // do token exchange
             Token token;
             try {
-                token = tokenInformationGenerator.getToken(getSoundCloudApplication(), params[0]);
+                token = mTokenInformationGenerator.getToken(params[0]);
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
                     return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }
@@ -57,9 +63,9 @@ public class SignupTask extends AuthTask {
     protected AuthTaskResult doSignup(SoundCloudApplication app, Bundle params){
         try {
             // explicitly request signup scope
-            final Token signup = app.clientCredentials(Token.SCOPE_SIGNUP);
+            final Token signup = mOldCloudAPI.clientCredentials(Token.SCOPE_SIGNUP);
 
-            HttpResponse resp = app.post(Request.to(Endpoints.USERS).with(
+            HttpResponse resp = mOldCloudAPI.post(Request.to(Endpoints.USERS).with(
                     Params.User.EMAIL, params.getString(KEY_USERNAME),
                     Params.User.PASSWORD, params.getString(KEY_PASSWORD),
                     Params.User.PASSWORD_CONFIRMATION, params.getString(KEY_PASSWORD),
@@ -69,7 +75,7 @@ public class SignupTask extends AuthTask {
             int statusCode = resp.getStatusLine().getStatusCode();
             switch (statusCode) {
                 case HttpStatus.SC_CREATED: // success case
-                    final User user = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
+                    final User user = mOldCloudAPI.getMapper().readValue(resp.getEntity().getContent(), User.class);
                     return AuthTaskResult.success(user,SignupVia.API);
 
                 case HttpStatus.SC_UNPROCESSABLE_ENTITY:

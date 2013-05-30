@@ -116,7 +116,7 @@ public class FacebookSSOTest {
 
         Robolectric.addHttpResponseRule("POST", "/i1/me/facebook_token", new TestHttpResponse(200, "OK"));
         FacebookSSO.FBToken token = new FacebookSSO.FBToken("1234", System.currentTimeMillis() + 86400 * 1000);
-        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application);
+        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application.getCloudAPI());
         expect(task.doInBackground(token)).toBeTrue();
     }
 
@@ -124,7 +124,7 @@ public class FacebookSSOTest {
     public void shouldSendTokenBackToBackendMalformedResponse() throws Exception {
         Robolectric.addHttpResponseRule("https://graph.facebook.com/me", "{ }");
         FacebookSSO.FBToken token = new FacebookSSO.FBToken("1234", System.currentTimeMillis() + 86400 * 1000);
-        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application);
+        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application.getCloudAPI());
         expect(task.doInBackground(token)).toBeFalse();
     }
 
@@ -132,7 +132,7 @@ public class FacebookSSOTest {
     public void shouldSendTokenBackToBackendMalformedResponse2() throws Exception {
         Robolectric.addHttpResponseRule("https://graph.facebook.com/me", "hahaha");
         FacebookSSO.FBToken token = new FacebookSSO.FBToken("1234", System.currentTimeMillis() + 86400 * 1000);
-        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application);
+        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application.getCloudAPI());
         expect(task.doInBackground(token)).toBeFalse();
     }
 
@@ -140,7 +140,7 @@ public class FacebookSSOTest {
     public void shouldSendTokenBackToBackendFBFailure() throws Exception {
         TestHelper.addPendingIOException("/me");
         FacebookSSO.FBToken token = new FacebookSSO.FBToken("1234", System.currentTimeMillis() + 86400 * 1000);
-        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application);
+        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application.getCloudAPI());
         expect(task.doInBackground(token)).toBeFalse();
     }
 
@@ -150,14 +150,14 @@ public class FacebookSSOTest {
         TestHelper.addPendingIOException("/i1/me/facebook_token");
 
         FacebookSSO.FBToken token = new FacebookSSO.FBToken("1234", System.currentTimeMillis() + 86400 * 1000);
-        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application);
+        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application.getCloudAPI());
         expect(task.doInBackground(token)).toBeFalse();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotSendStaleTokenBackToBackend() throws Exception {
         FacebookSSO.FBToken token = new FacebookSSO.FBToken("1234", System.currentTimeMillis() - 86400 * 1000);
-        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application);
+        FacebookSSO.PostTokenTask task = new FacebookSSO.PostTokenTask(DefaultTestRunner.application.getCloudAPI());
         task.doInBackground(token);
     }
 

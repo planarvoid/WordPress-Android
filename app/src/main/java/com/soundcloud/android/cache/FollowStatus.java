@@ -2,7 +2,9 @@ package com.soundcloud.android.cache;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
@@ -47,10 +49,12 @@ public class FollowStatus {
     private HashMap<Long,Long> unFollowedAtStamps = new HashMap<Long, Long>();
 
     private SyncStateManager mSyncStateManager;
+    private AndroidCloudAPI mOldCloudAPI;
 
-    protected FollowStatus(final Context c) {
-        mContext = c;
+    protected FollowStatus(final Context context) {
+        mContext = context;
         mSyncStateManager = new SyncStateManager();
+        mOldCloudAPI = new OldCloudAPI(context);
 
 
         mFollowingCollectionState = mSyncStateManager.fromContent(Content.ME_FOLLOWINGS);
@@ -85,10 +89,6 @@ public class FollowStatus {
         mSyncStateManager.removeChangeListener(mFollowingCollectionState);
     }
 
-    public int getFollowingCount(){
-        return followings.size();
-    }
-
     public boolean isFollowing(long id) {
         return followings.contains(id);
     }
@@ -116,7 +116,7 @@ public class FollowStatus {
                                 final Handler handler) {
         final boolean addFollowing = toggleFollowing(user.id);
 
-        return new AsyncApiTask<User,Void,Boolean>(app) {
+        return new AsyncApiTask<User,Void,Boolean>(mOldCloudAPI) {
 
             int status;
 
@@ -127,7 +127,7 @@ public class FollowStatus {
                 final Request request = Request.to(Endpoints.MY_FOLLOWING, u.id);
                 try {
 
-                    status = (addFollowing ? app.put(request) : app.delete(request)).getStatusLine().getStatusCode();
+                    status = (addFollowing ? mOldCloudAPI.put(request) : mOldCloudAPI.delete(request)).getStatusLine().getStatusCode();
                     final boolean success;
                     if (addFollowing) {
                         // new following or already following

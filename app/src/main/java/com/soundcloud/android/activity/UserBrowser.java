@@ -5,9 +5,11 @@ import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ScListFragment;
@@ -53,7 +55,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -82,6 +83,7 @@ public class UserBrowser extends ScActivity implements
     private boolean mDelayContent;
 
     private UserDetailsFragment mUserDetailsFragment;
+    private AndroidCloudAPI mOldCloudAPI;
 
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
@@ -98,7 +100,7 @@ public class UserBrowser extends ScActivity implements
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.user_browser);
-
+        mOldCloudAPI = new OldCloudAPI(this);
         mFollowStatus = FollowStatus.get();
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
@@ -279,7 +281,7 @@ public class UserBrowser extends ScActivity implements
 
     private void loadDetails() {
         if (mLoadUserTask == null && mUser != null) {
-            mLoadUserTask = new FetchUserTask(getApp());
+            mLoadUserTask = new FetchUserTask(mOldCloudAPI);
             mLoadUserTask.addListener(this);
             mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
         }

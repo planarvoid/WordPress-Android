@@ -2,9 +2,11 @@ package com.soundcloud.android.accounts;
 
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
@@ -26,15 +28,18 @@ import java.io.IOException;
 public class AccountOperations {
 
     private final AccountManager accountManager;
+    private final SoundCloudTokenOperations tokenOperations;
     private final Context context;
 
     public AccountOperations(Context context) {
-        this(AccountManager.get(context), context);
+        this(AccountManager.get(context.getApplicationContext()), context, new SoundCloudTokenOperations(context));
     }
 
-    protected AccountOperations(AccountManager accountManager, Context context) {
+    @VisibleForTesting
+    protected AccountOperations(AccountManager accountManager, Context context, SoundCloudTokenOperations tokenOperations) {
         this.accountManager = accountManager;
         this.context = context;
+        this.tokenOperations = tokenOperations;
     }
 
     public String getGoogleAccountToken(String accountName, String scope, Bundle bundle) throws GoogleAuthException, IOException {
@@ -66,9 +71,7 @@ public class AccountOperations {
         Account account = new Account(user.username(), type);
         boolean created = accountManager.addAccountExplicitly(account, token.access, null);
         if (created) {
-            accountManager.setAuthToken(account, User.DataKeys.ACCESS_TOKEN,  token.access);
-            accountManager.setAuthToken(account, User.DataKeys.REFRESH_TOKEN, token.refresh);
-            accountManager.setUserData(account, User.DataKeys.SCOPE, token.scope);
+            tokenOperations.storeSoundCloudTokenData(account, token);
             accountManager.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.getId()));
             accountManager.setUserData(account, User.DataKeys.USERNAME, user.username());
             accountManager.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink());
@@ -101,13 +104,7 @@ public class AccountOperations {
 
         return null;
     }
-
-    //TODO Create a better interface to deal with these flags
-    public int getAccountDataInt(String key) {
-        String data = getAccountDataString(key);
-        return data == null ? -1 : Integer.parseInt(data);
-    }
-
+    //TODO Create a class which works as a service to store preference data instead of exposing these lowlevel constructs
     public long getAccountDataLong(String key) {
         String data = getAccountDataString(key);
         return data == null ? -1 : Long.parseLong(data);
@@ -137,5 +134,22 @@ public class AccountOperations {
             accountManager.setUserData(getSoundCloudAccount(), key, value);
             return true;
         }
+    }
+
+    public Token getSoundCloudToken(){
+        if(soundCloudAccountExists()){
+            return tokenOperations.getSoundCloudToken(getSoundCloudAccount());
+        }
+
+        return null;
+    }
+
+    public void invalidateSoundCloudToken(Token token){
+        tokenOperations.invalidateToken(token);
+    }
+
+    public void storeSoundCloudTokenData(Token token) {
+        checkState(soundCloudAccountExists(), "SoundCloud Account needs to exist before storing token info");
+        tokenOperations.storeSoundCloudTokenData(getSoundCloudAccount(), token);
     }
 }

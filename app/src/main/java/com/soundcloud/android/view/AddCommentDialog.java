@@ -1,11 +1,13 @@
 
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.AddCommentTask;
@@ -32,10 +34,12 @@ import java.util.ArrayList;
 public class AddCommentDialog extends Dialog {
     private ScActivity mActivity;
     private EditText mInput;
+    private AndroidCloudAPI oldCloudAPI;
 
     public AddCommentDialog(ScActivity context) {
         super(context, R.style.Theme_AddCommentDialog);
         mActivity = context;
+        oldCloudAPI = new OldCloudAPI(context);
 
         setContentView(R.layout.add_comment_dialog);
 
@@ -148,7 +152,7 @@ public class AddCommentDialog extends Dialog {
                 ((ScPlayer) mActivity).onNewComment(comment);
             }
 
-            new AddCommentTask(mActivity.getApp()).execute(comment);
+            new AddCommentTask(mActivity.getApp(), oldCloudAPI).execute(comment);
 
             // cannot simply dismiss, or state will be saved
             mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);

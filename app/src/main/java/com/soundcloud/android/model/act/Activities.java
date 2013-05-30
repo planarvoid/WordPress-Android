@@ -1,6 +1,5 @@
 package com.soundcloud.android.model.act;
 
-import static com.soundcloud.android.SoundCloudApplication.InvalidTokenException;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -226,7 +225,7 @@ public class Activities extends CollectionHolder<Activity> {
                 return EMPTY;
             }
             case HttpStatus.SC_UNAUTHORIZED:
-                throw new InvalidTokenException(status, response.getStatusLine().getReasonPhrase());
+                throw new CloudAPI.InvalidTokenException(status, response.getStatusLine().getReasonPhrase());
 
             // sync will get retried later
             default: throw new IOException(response.getStatusLine().toString());

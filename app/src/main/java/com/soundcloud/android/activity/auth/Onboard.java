@@ -7,8 +7,10 @@ import static com.soundcloud.android.utils.AnimUtils.showView;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.dialog.auth.AddUserInfoTaskFragment;
 import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
@@ -86,9 +88,12 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Nullable private AcceptTerms mAcceptTerms;
     @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle, mAcceptTermsBundle;
 
+    private AndroidCloudAPI mOldCloudAPI;
+
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.start);
+        mOldCloudAPI = new OldCloudAPI(this);
         overridePendingTransition(0, 0);
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
@@ -339,7 +344,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         new AuthTask(getApp(), new UserStorage()){
             @Override
             protected AuthTaskResult doInBackground(Bundle... params) {
-                addAccount(mUser, getSoundCloudApplication().getToken(), SignupVia.API);
+                addAccount(mUser, mOldCloudAPI.getToken(), SignupVia.API);
                 return null;
             }
 

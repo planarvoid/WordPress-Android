@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.SoundAssociationTest;
@@ -25,7 +24,6 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
 import com.soundcloud.android.task.collection.RemoteCollectionLoaderTest;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -130,8 +128,7 @@ public class CollectionStorageTest {
             ids.add(i);
         }
 
-        AndroidCloudAPI api = (AndroidCloudAPI) Robolectric.application;
-        int itemsStored = storage.fetchAndStoreMissingCollectionItems(api, ids, Content.USERS, false);
+        int itemsStored = storage.fetchAndStoreMissingCollectionItems(DefaultTestRunner.application.getCloudAPI(), ids, Content.USERS, false);
         expect(itemsStored).toEqual(5);
     }
 

@@ -18,7 +18,7 @@ public class NewConnectionTaskTest {
     @Test
     public void shouldReturnUri() throws Exception {
         addPendingHttpResponse(202, "{ \"authorize_url\": \"http://example.com\" }");
-        NewConnectionTask task = new NewConnectionTask(DefaultTestRunner.application);
+        NewConnectionTask task = new NewConnectionTask(DefaultTestRunner.application.getCloudAPI());
         Uri uri = task.doInBackground(Connection.Service.Myspace);
         assertNotNull(uri);
         assertEquals("http://example.com", uri.toString());
@@ -27,7 +27,7 @@ public class NewConnectionTaskTest {
     @Test
     public void shouldReturnNullUriInFailureCase() throws Exception {
         addPendingHttpResponse(400, "Failz");
-        NewConnectionTask task = new NewConnectionTask(DefaultTestRunner.application);
+        NewConnectionTask task = new NewConnectionTask(DefaultTestRunner.application.getCloudAPI());
         Uri uri = task.doInBackground(Connection.Service.Myspace);
         assertNull(uri);
     }

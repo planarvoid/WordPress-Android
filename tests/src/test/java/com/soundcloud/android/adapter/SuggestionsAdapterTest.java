@@ -48,7 +48,7 @@ public class SuggestionsAdapterTest {
     @Test
     public void shouldQuerySuggestApi() throws Exception {
         SuggestionsAdapter adapter = new SuggestionsAdapter(DefaultTestRunner.application,
-                DefaultTestRunner.application);
+                DefaultTestRunner.application.getCloudAPI());
 
         TestHelper.addCannedResponse(SearchSuggestions.class,
                 "/search/suggest?q=foo&highlight_mode=offsets&limit=5", "suggest_highlight.json");
@@ -68,7 +68,7 @@ public class SuggestionsAdapterTest {
     @Test
     public void shouldPrefetchResources() throws IOException {
         TestApplication context = DefaultTestRunner.application;
-        SuggestionsAdapter adapter = new SuggestionsAdapter(context, context);
+        SuggestionsAdapter adapter = new SuggestionsAdapter(context, DefaultTestRunner.application.getCloudAPI());
 
         TestHelper.addCannedResponse(SearchSuggestions.class,
                 "/search/suggest?q=foo&highlight_mode=offsets&limit=5", "suggest_mixed.json");

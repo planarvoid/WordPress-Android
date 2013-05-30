@@ -6,6 +6,7 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.TokenInformationGenerator;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
@@ -26,7 +27,7 @@ public class GooglePlusSignInTask extends LoginTask {
     private AccountOperations mAccountOperations;
 
     public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope) {
-        this(application, accountName, scope, new TokenInformationGenerator(), new FetchUserTask(application),
+        this(application, accountName, scope, new TokenInformationGenerator(new OldCloudAPI(application)), new FetchUserTask(new OldCloudAPI(application)),
                 new UserStorage(), new AccountOperations(application));
     }
 

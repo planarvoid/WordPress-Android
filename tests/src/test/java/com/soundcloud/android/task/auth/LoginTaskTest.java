@@ -48,7 +48,7 @@ public class LoginTaskTest {
     public void shouldRequestTokenBasedOnBundleContents() throws Exception {
         when(tokenInformationGenerator.configureDefaultScopeExtra(bundle)).thenReturn(bundle);
         loginTask.doInBackground(bundle);
-        verify(tokenInformationGenerator).getToken(application, bundle);
+        verify(tokenInformationGenerator).getToken(bundle);
     }
 
     @Test
@@ -104,8 +104,7 @@ public class LoginTaskTest {
 
     private void setupMocksToReturnToken() throws IOException {
         when(tokenInformationGenerator.configureDefaultScopeExtra(bundle)).thenReturn(bundle);
-        when(tokenInformationGenerator.getToken(application, bundle)).thenReturn(token);
-        when(application.getToken()).thenReturn(token);
+        when(tokenInformationGenerator.getToken(bundle)).thenReturn(token);
         when(fetchUserTask.resolve(any(Request.class))).thenReturn(user);
     }
 }
