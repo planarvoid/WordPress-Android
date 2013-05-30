@@ -45,6 +45,7 @@ public class UserAssociationStorage {
 
     @Deprecated
     public List<Long> getStoredIds(Uri uri) {
+        // TODO, this should return only things with no ADDED stamp
         return ResolverHelper.idCursorToList(
                 mResolver.query(ResolverHelper.addIdOnlyParameter(uri), null, null, null, null)
         );

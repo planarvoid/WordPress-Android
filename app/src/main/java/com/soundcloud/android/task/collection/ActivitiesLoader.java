@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.service.sync.ApiSyncResult;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.view.EmptyListView;
@@ -33,7 +34,7 @@ public class ActivitiesLoader implements CollectionLoader<Activity> {
             if (newActivities.size() < params.maxToLoad) {
                 try {
                     ApiSyncer syncer = new ApiSyncer(api.getContext(), api.getContext().getContentResolver());
-                    ApiSyncer.Result result = syncer.syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
+                    ApiSyncResult result = syncer.syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
                     if (result.success) {
                         success = true;
                         newActivities = getOlderActivities(storage, params);

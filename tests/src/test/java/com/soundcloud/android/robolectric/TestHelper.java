@@ -20,6 +20,8 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.sync.ApiSyncResult;
+import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
@@ -31,6 +33,7 @@ import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -354,6 +357,10 @@ public class TestHelper {
         r.tip_key = "something";
 
         return r;
+    }
+
+    public static void addResourceResponse(Class<?> klazz, String url, String resource) throws IOException {
+        TestHelper.addCannedResponse(klazz, url, resource);
     }
 
     private static File createRecordingFile(String extension) throws IOException {
