@@ -9,6 +9,7 @@ public class GenreBucket {
 
     private Genre mGenre;
     private List<User> mUsers;
+    private boolean mFollowed;
 
     public GenreBucket(Genre genre) {
         mGenre = genre;
@@ -33,6 +34,14 @@ public class GenreBucket {
 
     public boolean hasUsers() {
         return !mUsers.isEmpty();
+    }
+
+    public boolean isFollowed() {
+        return mFollowed;
+    }
+
+    public void setFollowed(boolean followed) {
+        this.mFollowed = followed;
     }
 
     @Override

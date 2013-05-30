@@ -12,7 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -84,11 +86,11 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         GenreBucket genreBucket = getItem(position);
 
-        ItemViewHolder viewHolder;
+        final ItemViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ItemViewHolder();
             convertView = inflater.inflate(R.layout.suggested_users_list_item, null, false);
@@ -97,9 +99,19 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder.mGenreSubtitle = (TextView) convertView.findViewById(android.R.id.text2);
             viewHolder.mSectionLabel = (TextView) convertView.findViewById(R.id.suggested_users_list_header_title);
             viewHolder.mSectionHeader = convertView.findViewById(R.id.suggested_users_list_header);
+            viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.btn_user_bucket_select_all);
+            viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CompoundButton button = (CompoundButton) v;
+                    final int position = (Integer) button.getTag();
+                    getItem(position).setFollowed(button.isChecked());
+                }
+            });
         } else {
             viewHolder = (ItemViewHolder) convertView.getTag();
         }
+        viewHolder.toggleFollow.setTag(position);
 
         configureSectionHeader(position, convertView, viewHolder);
         configureItemContent(genreBucket, viewHolder);
@@ -113,6 +125,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             // TODO
             viewHolder.mGenreSubtitle.setText(genreBucket.getUsers().size() + " users");
         }
+        viewHolder.toggleFollow.setChecked(genreBucket.isFollowed());
     }
 
     private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {
@@ -139,5 +152,6 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     private static class ItemViewHolder {
         public View mSectionHeader;
         public TextView mGenreTitle, mGenreSubtitle, mSectionLabel;
+        public ToggleButton toggleFollow;
     }
 }
