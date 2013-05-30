@@ -30,7 +30,7 @@ public enum PushEvent {
         if (extras == null) return NONE;
 
         String type = extras.getString(C2DMReceiver.SC_EXTRA_EVENT_TYPE);
-        if (type == null) type = extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT);
+        if (type == null) type = extras.getString(SyncAdapterService.EXTRA_C2DM_EVENT);
         if (!TextUtils.isEmpty(type)) {
             for (PushEvent e : PushEvent.values()) {
                 if (type.equals(e.type)) {
