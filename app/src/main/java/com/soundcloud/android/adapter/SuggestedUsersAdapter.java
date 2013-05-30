@@ -95,10 +95,10 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder = new ItemViewHolder();
             convertView = inflater.inflate(R.layout.suggested_users_list_item, null, false);
             convertView.setTag(viewHolder);
-            viewHolder.mGenreTitle = (TextView) convertView.findViewById(android.R.id.text1);
-            viewHolder.mGenreSubtitle = (TextView) convertView.findViewById(android.R.id.text2);
-            viewHolder.mSectionLabel = (TextView) convertView.findViewById(R.id.suggested_users_list_header_title);
-            viewHolder.mSectionHeader = convertView.findViewById(R.id.suggested_users_list_header);
+            viewHolder.genreTitle = (TextView) convertView.findViewById(android.R.id.text1);
+            viewHolder.genreSubtitle = (TextView) convertView.findViewById(android.R.id.text2);
+            viewHolder.sectionLabel = (TextView) convertView.findViewById(R.id.suggested_users_list_header_title);
+            viewHolder.sectionHeader = convertView.findViewById(R.id.suggested_users_list_header);
             viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.btn_user_bucket_select_all);
             viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -120,10 +120,10 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     }
 
     private void configureItemContent(GenreBucket genreBucket, ItemViewHolder viewHolder) {
-        viewHolder.mGenreTitle.setText(genreBucket.getGenre().getName());
+        viewHolder.genreTitle.setText(genreBucket.getGenre().getName());
         if (genreBucket.hasUsers()) {
             // TODO
-            viewHolder.mGenreSubtitle.setText(genreBucket.getUsers().size() + " users");
+            viewHolder.genreSubtitle.setText(genreBucket.getUsers().size() + " users");
         }
         viewHolder.toggleFollow.setChecked(genreBucket.isFollowed());
     }
@@ -132,10 +132,10 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         Section section = mListPositionsToSections.get(position);
         if (section != null) {
             Context context = convertView.getContext();
-            viewHolder.mSectionLabel.setText(context.getString(section.getLabelResId()));
-            viewHolder.mSectionHeader.setVisibility(View.VISIBLE);
+            viewHolder.sectionLabel.setText(context.getString(section.getLabelResId()));
+            viewHolder.sectionHeader.setVisibility(View.VISIBLE);
         } else {
-            viewHolder.mSectionHeader.setVisibility(View.GONE);
+            viewHolder.sectionHeader.setVisibility(View.GONE);
         }
     }
 
@@ -150,8 +150,8 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     }
 
     private static class ItemViewHolder {
-        public View mSectionHeader;
-        public TextView mGenreTitle, mGenreSubtitle, mSectionLabel;
+        public View sectionHeader;
+        public TextView genreTitle, genreSubtitle, sectionLabel;
         public ToggleButton toggleFollow;
     }
 }
