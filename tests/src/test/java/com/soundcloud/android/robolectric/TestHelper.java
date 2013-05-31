@@ -6,9 +6,8 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
-import com.soundcloud.android.model.Association;
-import com.soundcloud.android.model.behavior.Identifiable;
-import com.soundcloud.android.model.behavior.Persisted;
+import com.soundcloud.android.blueprints.TrackBlueprint;
+import com.soundcloud.android.blueprints.UserBlueprint;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
@@ -18,12 +17,14 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.sync.ApiSyncResult;
-import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.utils.IOUtils;
+import com.tobedevoured.modelcitizen.ModelFactory;
+import com.tobedevoured.modelcitizen.RegisterBlueprintException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
@@ -34,7 +35,6 @@ import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -62,6 +62,17 @@ public class TestHelper {
 
     public static ObjectMapper getObjectMapper() {
         return Wrapper.buildObjectMapper();
+    }
+
+    public static ModelFactory getModelFactory() {
+        ModelFactory modelFactory = new ModelFactory();
+        try {
+            modelFactory.registerBlueprint(UserBlueprint.class);
+            modelFactory.registerBlueprint(TrackBlueprint.class);
+        } catch (RegisterBlueprintException e) {
+            throw new RuntimeException(e);
+        }
+        return modelFactory;
     }
 
     public static Activities getActivities(String path) throws IOException {
