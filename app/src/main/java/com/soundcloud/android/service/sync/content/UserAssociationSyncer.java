@@ -30,6 +30,7 @@ import java.util.Set;
 public class UserAssociationSyncer extends SyncStrategy {
 
     private static final int BULK_INSERT_BATCH_SIZE = 500;
+    private static final String REQUEST_NO_BACKOFF = "0";
 
     private final CollectionStorage mCollectionStorage;
     private final UserAssociationStorage mUserAssociationStorage;
@@ -160,7 +161,7 @@ public class UserAssociationSyncer extends SyncStrategy {
                 Set<Long> remoteSet = new HashSet<Long>(remote);
                 if (!localSet.equals(remoteSet)) {
                     result.change = ApiSyncResult.CHANGED;
-                    result.extra = "0"; // reset sync misses
+                    result.extra = REQUEST_NO_BACKOFF; // reset sync misses
                 } else {
                     result.change = remoteSet.isEmpty() ? ApiSyncResult.UNCHANGED : ApiSyncResult.REORDERED; // always mark users as reordered so we get the first page
                 }
@@ -169,7 +170,7 @@ public class UserAssociationSyncer extends SyncStrategy {
                 if (!local.equals(remote)) {
                     // items have been added or removed (not just ordering) so this is a sync hit
                     result.change = ApiSyncResult.CHANGED;
-                    result.extra = "0"; // reset sync misses
+                    result.extra = REQUEST_NO_BACKOFF; // reset sync misses
                 } else {
                     result.change = ApiSyncResult.UNCHANGED;
                     log("Cloud Api service: no change in URI " + content.uri + ". Skipping sync.");
