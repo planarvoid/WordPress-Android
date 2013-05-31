@@ -39,43 +39,12 @@ public class CollectionStorage {
         mResolver = context.getContentResolver();;
     }
 
-    public int insertCollection(@NotNull List<? extends ScResource> resources,
-                                @NotNull Uri collectionUri,
-                                long ownerId) {
-        if (ownerId < 0) throw new IllegalArgumentException("need valid ownerId for collection");
-
-        BulkInsertMap map = new BulkInsertMap();
-        for (int i = 0; i < resources.size(); i++) {
-            ScResource r = resources.get(i);
-            if (r == null) continue;
-
-            r.putFullContentValues(map);
-            ContentValues contentValues = new ContentValues();
-
-            contentValues.put(DBHelper.CollectionItems.POSITION, i);
-            contentValues.put(DBHelper.CollectionItems.ITEM_ID, r.id);
-            contentValues.put(DBHelper.CollectionItems.USER_ID, ownerId);
-            map.add(collectionUri, contentValues);
-        }
-        return map.insert(mResolver);
-    }
-
-    public List<Long> getLocalIds(Content content, long userId) {
-        return idCursorToList(mResolver.query(
-                Content.COLLECTION_ITEMS.uri,
-                new String[]{ DBHelper.CollectionItems.ITEM_ID },
-                DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
-                new String[]{ String.valueOf(content.collectionType), String.valueOf(userId) },
-                DBHelper.CollectionItems.SORT_ORDER
-            )
-        );
-    }
-
     /**
      * @return a list of all ids for which objects are stored in the db.
      * DO NOT REMOVE BATCHING, SQlite has a variable limit that may vary per device
      * http://www.sqlite.org/limits.html
      */
+    @Deprecated
     public Set<Long> getStoredIds(final Content content, List<Long> ids) {
         BaseDAO<ScResource> dao = getDaoForContent(content);
         Set<Long> storedIds = new HashSet<Long>();
@@ -104,6 +73,7 @@ public class CollectionStorage {
      * @throws java.io.IOException
      */
     // TODO really pass in api as parameter?
+    @Deprecated
     public int fetchAndStoreMissingCollectionItems(AndroidCloudAPI api,
                                                    @NotNull List<Long> modelIds,
                                                    final Content content,
@@ -116,6 +86,7 @@ public class CollectionStorage {
     }
 
     // TODO really pass in api as parameter?
+    @Deprecated
     private List<ScResource> fetchMissingCollectionItems(AndroidCloudAPI api,
                                                         @NotNull List<Long> modelIds,
                                                         final Content content,

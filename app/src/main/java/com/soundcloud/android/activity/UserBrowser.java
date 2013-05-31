@@ -6,7 +6,6 @@ import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 import com.actionbarsherlock.app.ActionBar;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.OldCloudAPI;
@@ -28,8 +27,9 @@ import com.soundcloud.android.tracking.EventAware;
 import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.api.Endpoints;
@@ -117,7 +117,7 @@ public class UserBrowser extends ScActivity implements
             @Override
             public void onClick(View v) {
                 if (ImageUtils.checkIconShouldLoad(mIconURL)) {
-                    new FullImageDialog(UserBrowser.this, Consts.GraphicSize.CROP.formatUri(mIconURL)).show();
+                    new FullImageDialog(UserBrowser.this, ImageSize.CROP.formatUri(mIconURL)).show();
                 }
 
             }
@@ -395,7 +395,7 @@ public class UserBrowser extends ScActivity implements
 
     private void reloadAvatar() {
         if (ImageUtils.checkIconShouldLoad(mIconURL)) {
-            if ((avatarResult = ImageUtils.loadImageSubstitute(this,mIcon,mIconURL, Consts.GraphicSize.LARGE,new ImageLoader.Callback() {
+            if ((avatarResult = ImageUtils.loadImageSubstitute(this,mIcon,mIconURL, ImageSize.LARGE,new ImageLoader.Callback() {
                 @Override
                 public void onImageLoaded(ImageView view, String url) {}
 

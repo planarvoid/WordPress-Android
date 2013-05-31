@@ -1,13 +1,14 @@
 
 package com.soundcloud.android.view.adapter;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserHolder;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.EventAware;
@@ -80,9 +81,8 @@ public class UserlistRow extends IconLayout implements ListRow {
 
     @Override
     public void display(int position, Parcelable p) {
-        if (!(p instanceof User || p instanceof Friend)) throw new IllegalArgumentException("Not a valid user");
-
-        mUser = p instanceof Friend ? ((Friend) p).user : (User) p;
+        checkArgument(p instanceof UserHolder, "Not a valid user holder: " + p);
+        mUser = ((UserHolder) p).getUser();
 
         loadIcon();
         if (mUser != null) {

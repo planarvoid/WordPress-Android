@@ -33,7 +33,7 @@ public class BulkInsertMapTest {
         SoundAssociation sa = new SoundAssociation();
         sa.playable = track;
         sa.created_at = new Date();
-        sa.user = user;
+        sa.owner = user;
 
         BulkInsertMap map = new BulkInsertMap();
         sa.putFullContentValues(map);

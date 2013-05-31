@@ -292,9 +292,8 @@
                                 <inherited>true</inherited>
                                 <configuration>
                                     <archiveDirectory />
-                                    <includes>
-                                        <include>target/*.apk</include>
-                                    </includes>
+                                    <processMainArtifact>true</processMainArtifact>
+                                    <processAttachedArtifacts>false</processAttachedArtifacts>
                                     <keystore>${keystore.location}</keystore>
                                     <storepass>${keystore.password}</storepass>
                                     <keypass>${keystore.keypass}</keypass>

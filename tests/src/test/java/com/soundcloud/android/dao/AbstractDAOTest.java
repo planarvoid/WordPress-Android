@@ -10,7 +10,7 @@ import android.content.ContentResolver;
 
 @RunWith(DefaultTestRunner.class)
 public abstract class AbstractDAOTest<T extends BaseDAO> {
-    protected static final long USER_ID = 133201L;
+    protected static final long OWNER_ID = 133201L;
     protected  ContentResolver resolver;
 
     protected T baseDAO;
@@ -22,7 +22,7 @@ public abstract class AbstractDAOTest<T extends BaseDAO> {
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
-        TestHelper.setUserId(USER_ID);
+        TestHelper.setUserId(OWNER_ID);
     }
 
     protected T getDAO() {

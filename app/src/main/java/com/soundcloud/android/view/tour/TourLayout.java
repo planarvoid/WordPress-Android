@@ -6,7 +6,7 @@ import static java.lang.Math.max;
 import com.soundcloud.android.R;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

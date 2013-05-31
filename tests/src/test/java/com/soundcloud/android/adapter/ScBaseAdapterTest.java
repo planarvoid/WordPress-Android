@@ -4,11 +4,11 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.TrackActivity;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -67,7 +67,7 @@ public class ScBaseAdapterTest {
             }
 
             @Override
-            public ScResource getRefreshableResource() {
+            public Refreshable getRefreshableResource() {
                 return new Track(2);
             }
         });

@@ -1,8 +1,6 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
-import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
-import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
@@ -18,6 +16,7 @@ import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.dao.SoundAssociationStorage;
 import com.soundcloud.android.dao.Storage;
 import com.soundcloud.android.dao.TrackStorage;
+import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
@@ -136,7 +135,7 @@ public class ApiSyncer {
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
                 case ME_FRIENDS:
-                    result = syncIdBasedContent(c, userId);
+                    result = syncUserAssociations(c, userId);
                     result.success = true;
                     break;
 
@@ -345,18 +344,23 @@ public class ApiSyncer {
         return result;
     }
 
-    private Result syncIdBasedContent(Content content, final long userId) throws IOException {
+    private Result syncUserAssociations(Content content, final long userId) throws IOException {
         Result result = new Result(content.uri);
         if (!Content.ID_BASED.contains(content)) return result;
 
-        List<Long> local  = mCollectionStorage.getLocalIds(content, userId);
+        final UserAssociationStorage userAssociationStorage = new UserAssociationStorage(mResolver);
+        List<Long> local  = userAssociationStorage.getStoredIds(content.uri);
         List<Long> remote = mApi.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
 
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(), remote.size(), null);
 
         if (checkUnchanged(content, result, local, remote)) return result;
-        handleDeletions(content, local, remote);
+
+        // deletions can happen here, has no impact
+        List<Long> itemDeletions = new ArrayList<Long>(local);
+        itemDeletions.removeAll(remote);
+        userAssociationStorage.deleteAssociations(content.uri, itemDeletions);
 
         int startPosition = 1;
         int added = 0;
@@ -369,7 +373,7 @@ public class ApiSyncer {
                         .add(Wrapper.LINKED_PARTITIONING, "1")
                         .add("limit", Consts.COLLECTION_PAGE_SIZE));
 
-                added = mCollectionStorage.insertCollection(resources, content.uri, userId);
+                added = userAssociationStorage.insertAssociations(resources, content.uri, userId);
 
                 // remove items from master remote list and adjust start index
                 for (ScResource u : resources) {
@@ -389,43 +393,8 @@ public class ApiSyncer {
         }
 
         log("Added " + added + " new items for this endpoint");
-
-        insertInBatches(content, userId, remote, startPosition);
-
+        userAssociationStorage.insertInBatches(content, userId, remote, startPosition, mBulkInsertBatchSize);
         return result;
-    }
-
-    private void insertInBatches(final Content content, final long userId, final List<Long> ids, final int startPosition) {
-        int numBatches = 1;
-        int batchSize = ids.size();
-        if (ids.size() > mBulkInsertBatchSize) {
-            // split up the transaction into batches, so as to not block readers too long
-            numBatches = (int) Math.ceil((float) ids.size() / mBulkInsertBatchSize);
-            batchSize = mBulkInsertBatchSize;
-        }
-        log("numBatches: " + numBatches);
-        log("batchSize: " + batchSize);
-
-        // insert in batches so as to not hold a write lock in a single transaction for too long
-        int positionOffset = startPosition;
-        for (int i = 0; i < numBatches; i++) {
-            int batchStart = i * batchSize;
-            int batchEnd = Math.min(batchStart + batchSize, ids.size());
-            log("batch " + i + ": start / end = " + batchStart + " / " + batchEnd);
-
-            List<Long> idBatch = ids.subList(batchStart, batchEnd);
-            ContentValues[] cv = new ContentValues[idBatch.size()];
-
-            for (int j = 0; j < idBatch.size(); j++) {
-                long id = idBatch.get(j);
-                cv[j] = new ContentValues();
-                cv[j].put(DBHelper.CollectionItems.POSITION, positionOffset + j);
-                cv[j].put(DBHelper.CollectionItems.ITEM_ID, id);
-                cv[j].put(DBHelper.CollectionItems.USER_ID, userId);
-            }
-            positionOffset += idBatch.size();
-            mResolver.bulkInsert(content.uri, cv);
-        }
     }
 
     private boolean checkUnchanged(Content content, Result result, List<Long> local, List<Long> remote) {
@@ -452,22 +421,6 @@ public class ApiSyncer {
                 }
         }
         return result.change == Result.UNCHANGED;
-    }
-
-    private List<Long> handleDeletions(Content content, List<Long> local, List<Long> remote) {
-        // deletions can happen here, has no impact
-        List<Long> itemDeletions = new ArrayList<Long>(local);
-        itemDeletions.removeAll(remote);
-        if (!itemDeletions.isEmpty()) {
-            log("Need to remove " + itemDeletions.size() + " items");
-            int i = 0;
-            while (i < itemDeletions.size()) {
-                List<Long> batch = itemDeletions.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(content.uri, getWhereInClause(DBHelper.CollectionItems.ITEM_ID, batch.size()), longListToStringArr(batch));
-                i += BaseDAO.RESOLVER_BATCH_SIZE;
-            }
-        }
-        return itemDeletions;
     }
 
     private Result syncMe(Content c, long userId) throws IOException {

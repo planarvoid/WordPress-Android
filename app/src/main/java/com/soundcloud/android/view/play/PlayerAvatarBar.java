@@ -1,11 +1,11 @@
 package com.soundcloud.android.view.play;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.ImageLoader.BitmapLoadCallback;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -49,7 +49,7 @@ public class PlayerAvatarBar extends View {
     private Paint mActiveImagePaint;
     private Paint mActiveLinePaint;
 
-    private Consts.GraphicSize mTargetSize;
+    private ImageSize mTargetSize;
 
     private Thread mAvatarRefreshThread;
 
@@ -59,7 +59,7 @@ public class PlayerAvatarBar extends View {
     private Bitmap mDefaultAvatar;
 
     private ImageLoader mBitmapLoader;
-    private Consts.GraphicSize mAvatarGraphicsSize;
+    private ImageSize mAvatarGraphicsSize;
 
     private boolean mLandscape;
 
@@ -69,11 +69,11 @@ public class PlayerAvatarBar extends View {
         mBitmapLoader = ImageLoader.get(context.getApplicationContext());
 
         if (ImageUtils.isScreenXL(context)) {
-            mAvatarGraphicsSize= Consts.GraphicSize.LARGE;
+            mAvatarGraphicsSize= ImageSize.LARGE;
         } else {
             mAvatarGraphicsSize = context.getResources().getDisplayMetrics().density > 1 ?
-                    Consts.GraphicSize.BADGE :
-                    Consts.GraphicSize.SMALL;
+                    ImageSize.BADGE :
+                    ImageSize.SMALL;
         }
 
         mImagePaint = new Paint();
@@ -96,10 +96,10 @@ public class PlayerAvatarBar extends View {
         mActiveMatrix = new Matrix();
 
         if (ImageUtils.isScreenXL(context)) {
-            mTargetSize = Consts.GraphicSize.LARGE;
+            mTargetSize = ImageSize.LARGE;
             mAvatarWidth = (int) (AVATAR_WIDTH_LARGE * mDensity);
         } else {
-            mTargetSize = Consts.GraphicSize.BADGE;
+            mTargetSize = ImageSize.BADGE;
             mAvatarWidth = (int) (AVATAR_WIDTH * mDensity);
         }
     }

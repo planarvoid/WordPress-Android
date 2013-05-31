@@ -15,7 +15,9 @@ import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -31,8 +33,9 @@ import android.text.TextUtils;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
-public class User extends ScResource implements Refreshable {
-    public static final String EXTRA = "user";
+public class User extends ScResource implements UserHolder {
+    public static final int     TYPE = 0;
+    public static final String  EXTRA = "user";
 
     @Nullable @JsonView(Views.Mini.class) public String username;
     @Nullable @JsonView(Views.Mini.class) public String uri;
@@ -268,6 +271,12 @@ public class User extends ScResource implements Refreshable {
         return new Intent(Actions.USER_BROWSER).putExtra(UserBrowser.EXTRA_USER, this);
     }
 
+    @NotNull
+    @Override
+    public User getUser() {
+        return this;
+    }
+
     public static interface DataKeys {
         String USERNAME        = "currentUsername";
         String USER_ID         = "currentUserId";
@@ -282,13 +291,13 @@ public class User extends ScResource implements Refreshable {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return this;
     }
 
     public void refreshListAvatarUri(Context context) {
         final String iconUrl = avatar_url;
-        _list_avatar_uri = shouldLoadIcon() ? Consts.GraphicSize.formatUriForList(context, iconUrl) : null;
+        _list_avatar_uri = shouldLoadIcon() ? ImageSize.formatUriForList(context, iconUrl) : null;
     }
 
     public String getListAvatarUri(Context context){

@@ -36,11 +36,11 @@ public class SoundAssociationTest {
 
         SoundAssociation soundAssociation1 = new SoundAssociation();
         soundAssociation1.playable = new Track(123l);
-        soundAssociation1.setType(SoundAssociation.Type.TRACK.type);
+        soundAssociation1.setType(SoundAssociation.Type.TRACK);
 
         SoundAssociation soundAssociation2 = new SoundAssociation();
         soundAssociation2.playable = soundAssociation1.playable;
-        soundAssociation2.setType(SoundAssociation.Type.TRACK_REPOST.type);
+        soundAssociation2.setType(SoundAssociation.Type.TRACK_REPOST);
 
         expect(soundAssociation1.getListItemId()).not.toEqual(soundAssociation2.getListItemId());
     }

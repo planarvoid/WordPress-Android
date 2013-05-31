@@ -5,11 +5,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Endpoints;
@@ -107,7 +107,8 @@ public class FollowStatus {
 
     private void doQuery(){
         asyncQueryHandler = new FollowingQueryHandler(mContext);
-        asyncQueryHandler.startQuery(0, null, Content.ME_FOLLOWINGS.uri, new String[]{DBHelper.CollectionItems.ITEM_ID}, null, null, null);
+        asyncQueryHandler.startQuery(0, null, ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWINGS.uri),
+                null, null, null, null);
     }
 
 

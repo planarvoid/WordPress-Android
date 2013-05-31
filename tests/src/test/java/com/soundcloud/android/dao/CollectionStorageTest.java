@@ -54,25 +54,6 @@ public class CollectionStorageTest {
     }
 
     @Test
-    public void shouldGetLocalIds() throws Exception {
-        final int SIZE = 107;
-        final long USER_ID = 1L;
-        ContentValues[] cv = new ContentValues[SIZE];
-        for (int i = 0; i < SIZE; i++) {
-            cv[i] = new ContentValues();
-            cv[i].put(DBHelper.CollectionItems.POSITION, i);
-            cv[i].put(DBHelper.CollectionItems.ITEM_ID, i);
-            cv[i].put(DBHelper.CollectionItems.USER_ID, USER_ID);
-        }
-
-        resolver.bulkInsert(Content.ME_LIKES.uri, cv);
-
-        List<Long> localIds = storage.getLocalIds(Content.ME_LIKES, USER_ID);
-
-        expect(localIds.size()).toEqual(107);
-    }
-
-    @Test
     public void shouldGetIdsOfPersistedResources() {
         // regression test for exceptions we got due to http://www.sqlite.org/limits.html
         final int SQLITE_VARIABLE_LIMIT = 999;
@@ -133,13 +114,6 @@ public class CollectionStorageTest {
     }
 
     @Test
-    public void shouldBulkInsertWithCollections() throws Exception {
-        List<Track> items = createTracks();
-        expect(storage.insertCollection(items, Content.ME_LIKES.uri, USER_ID)).toEqual(6);
-        expect(Content.ME_LIKES).toHaveCount(2);
-    }
-
-    @Test
     public void shouldRemoveSyncedContentForLoggedInUser() throws Exception {
         SoundAssociationHolder sounds = TestHelper.readJson(SoundAssociationHolder.class, SoundAssociationTest.class, "sounds.json");
         TestHelper.bulkInsert(Content.ME_SOUNDS.uri,sounds.collection);
@@ -147,22 +121,12 @@ public class CollectionStorageTest {
         SoundAssociationHolder likes = TestHelper.readJson(SoundAssociationHolder.class, ApiSyncerTest.class, "e1_likes.json");
         TestHelper.bulkInsert(Content.ME_LIKES.uri, likes.collection);
 
-        ScResource.ScResourceHolder<User> followedUsers = TestHelper.readJson(ScResource.ScResourceHolder.class, RemoteCollectionLoaderTest.class, "me_followings.json");
-        TestHelper.bulkInsertToCollectionItems(followedUsers.collection, Content.ME_FOLLOWINGS.uri);
-
-        ScResource.ScResourceHolder<User> followers = TestHelper.readJson(ScResource.ScResourceHolder.class, RemoteCollectionLoaderTest.class, "me_followers.json");
-        TestHelper.bulkInsertToCollectionItems(followers.collection, Content.ME_FOLLOWERS.uri);
-
         expect(Content.ME_SOUNDS).toHaveCount(38);
         expect(Content.ME_LIKES).toHaveCount(3);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(50);
-        expect(Content.ME_FOLLOWERS).toHaveCount(50);
 
         storage.clear();
         expect(Content.ME_SOUNDS).toHaveCount(0);
         expect(Content.ME_LIKES).toHaveCount(0);
-        expect(Content.ME_FOLLOWINGS).toHaveCount(0);
-        expect(Content.ME_FOLLOWERS).toHaveCount(0);
     }
 
     public static List<Track> createTracks() {
