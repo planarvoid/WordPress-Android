@@ -129,7 +129,7 @@ public class UserAssociationSyncer extends SyncStrategy {
         try {
             final boolean success;
 
-            switch (a.getLocalSyncState()){
+            switch (a.getLocalSyncState()) {
                 case PENDING_ADDITION:
                     int status = mApi.put(request).getStatusLine().getStatusCode();
                     success = status == HttpStatus.SC_OK || status == HttpStatus.SC_CREATED;

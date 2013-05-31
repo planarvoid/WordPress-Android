@@ -52,9 +52,9 @@ import java.util.Set;
 
 /**
  * Performs the actual sync with the API. Used by {@link CollectionSyncRequest}.
- *
+ * <p/>
  * As a client, do not use this class directly, but use {@link SyncOperations} instead.
- * 
+ * <p/>
  * TODO: make package level visible again after removing {@link com.soundcloud.android.task.collection.ActivitiesLoader}
  * TODO: Split this up into different syncers
  */
@@ -75,13 +75,13 @@ public class ApiSyncer extends SyncStrategy {
         mUserStorage = new UserStorage();
     }
 
-    public @NotNull
-    ApiSyncResult syncContent(Uri uri, String action) throws IOException {
+    @NotNull
+    public ApiSyncResult syncContent(Uri uri, String action) throws IOException {
         final long userId = SoundCloudApplication.getUserIdFromContext(mContext);
         Content c = Content.match(uri);
         ApiSyncResult result = new ApiSyncResult(uri);
 
-        if (userId <= 0){
+        if (userId <= 0) {
             Log.w(TAG, "Invalid user id, skipping sync ");
         } else if (c.remoteUri != null) {
             switch (c) {
@@ -134,7 +134,7 @@ public class ApiSyncer extends SyncStrategy {
 
                 case ME_CONNECTIONS:
                     result = syncMyConnections();
-                    if (result.change == ApiSyncResult.CHANGED){
+                    if (result.change == ApiSyncResult.CHANGED) {
                         // connections changed so make sure friends gets auto synced next opportunity
                         mSyncStateManager.forceToStale(Content.ME_FRIENDS.uri);
                     }
@@ -151,7 +151,7 @@ public class ApiSyncer extends SyncStrategy {
                     if (mResolver.update(uri, null, null, null) > 0) {
                         result.change = ApiSyncResult.CHANGED;
                     }
-                    result.setSyncData(System.currentTimeMillis(),-1,null);
+                    result.setSyncData(System.currentTimeMillis(), -1, null);
                     break;
                 default:
                     Log.w(TAG, "no remote URI defined for " + c);
@@ -165,7 +165,7 @@ public class ApiSyncer extends SyncStrategy {
     /**
      * Pushes any locally created playlists to the server, fetches the user's playlists from the server,
      * and fetches tracks for these playlists that are missing locally.
-     *
+     * <p/>
      * This is specific because the Api does not return these as sound associations, otherwise
      * we could use that path
      */
@@ -184,21 +184,21 @@ public class ApiSyncer extends SyncStrategy {
             Playlist playlist = (Playlist) resource;
             associations.add(new SoundAssociation(playlist));
             boolean onWifi = IOUtils.isWifiConnected(mContext);
-                // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
-                final LocalCollection localCollection = mSyncStateManager.fromContent(playlist.toUri());
+            // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
+            final LocalCollection localCollection = mSyncStateManager.fromContent(playlist.toUri());
 
-                final boolean playlistStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
+            final boolean playlistStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
 
-                if (playlistStale && playlist.getTrackCount() < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC) {
-                    try {
-                        playlist.tracks = mApi.readList(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
-                    } catch (IOException e) {
-                        // don't let the track fetch fail the sync, it is just an optimization
-                        Log.e(TAG,"Failed to fetch playlist tracks for playlist " + playlist, e);
-                    }
+            if (playlistStale && playlist.getTrackCount() < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC) {
+                try {
+                    playlist.tracks = mApi.readList(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
+                } catch (IOException e) {
+                    // don't let the track fetch fail the sync, it is just an optimization
+                    Log.e(TAG, "Failed to fetch playlist tracks for playlist " + playlist, e);
                 }
-                associations.add(new SoundAssociation(playlist));
             }
+            associations.add(new SoundAssociation(playlist));
+        }
         return syncLocalSoundAssocations(Content.ME_PLAYLISTS.uri, associations);
     }
 
@@ -214,7 +214,7 @@ public class ApiSyncer extends SyncStrategy {
 
                 Playlist.ApiCreateObject createObject = new Playlist.ApiCreateObject(p);
 
-                if (createObject.tracks == null){
+                if (createObject.tracks == null) {
                     // add the tracks
                     createObject.tracks = new ArrayList<ScModel>();
                     Cursor itemsCursor = mResolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(p.id)),
@@ -263,7 +263,7 @@ public class ApiSyncer extends SyncStrategy {
         boolean changed = mSoundAssociationStorage.syncToLocal(associations, uri);
 
         ApiSyncResult result = new ApiSyncResult(uri);
-        result.change =  changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
+        result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
         result.setSyncData(System.currentTimeMillis(), associations.size(), null);
         result.success = true;
         return result;
@@ -293,7 +293,7 @@ public class ApiSyncer extends SyncStrategy {
             Request request = future_href == null ? c.request() : Request.to(future_href);
             activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 
-                if (activities.moreResourcesExist()) {
+            if (activities.moreResourcesExist()) {
                 // delete all activities to avoid gaps in the data
                 mResolver.delete(c.uri, null, null);
             }
@@ -328,6 +328,7 @@ public class ApiSyncer extends SyncStrategy {
     /**
      * Good for syncing any generic item that doesn't require special ordering or cache handling
      * e.g. Shortcuts, Connections
+     *
      * @param c the content to be synced
      * @return the syncresult
      * @throws IOException
@@ -357,8 +358,8 @@ public class ApiSyncer extends SyncStrategy {
 
             result.setSyncData(System.currentTimeMillis(), inserted, null);
             result.success = true;
-        } else if (Log.isLoggable(TAG, Log.WARN)){
-            Log.w(TAG, "request "+ request +" returned "+resp.getStatusLine());
+        } else if (Log.isLoggable(TAG, Log.WARN)) {
+            Log.w(TAG, "request " + request + " returned " + resp.getStatusLine());
         }
         return result;
     }
@@ -440,6 +441,7 @@ public class ApiSyncer extends SyncStrategy {
 
     /**
      * Fetch a single resource from the api and create it into the content provider.
+     *
      * @param contentUri the content point to get the request and content provider destination from.
      *                   see {@link Content}
      * @return the result of the operation
@@ -453,7 +455,7 @@ public class ApiSyncer extends SyncStrategy {
 
         final Uri insertedUri = resource.toUri();
 
-        if (insertedUri != null){
+        if (insertedUri != null) {
             log("inserted " + insertedUri.toString());
             result.setSyncData(true, System.currentTimeMillis(), 1, ApiSyncResult.CHANGED);
         } else {
@@ -466,6 +468,7 @@ public class ApiSyncer extends SyncStrategy {
     /**
      * Fetch Api Resources and create them into the content provider. Plain resource inserts, no extra
      * content values will be inserted
+     *
      * @throws IOException
      */
     private ApiSyncResult fetchAndInsertCollection(final Content content, Uri contentUri) throws IOException {
@@ -481,7 +484,8 @@ public class ApiSyncer extends SyncStrategy {
         List<ScResource> resources = mApi.readFullCollection(request, ScResource.ScResourceHolder.class);
 
         new BaseDAO<ScResource>(mResolver) {
-            @Override public Content getContent() {
+            @Override
+            public Content getContent() {
                 return content;
             }
         }.createCollection(resources);
