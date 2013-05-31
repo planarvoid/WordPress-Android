@@ -1,5 +1,7 @@
 package com.soundcloud.android.fragment;
 
+import org.jetbrains.annotations.NotNull;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
@@ -7,13 +9,13 @@ import java.util.HashMap;
 
 public final class StateHolderFragment extends Fragment {
 
-    public static StateHolderFragment obtain(Fragment hostFragment) {
-        final FragmentManager fragmentManager = hostFragment.getFragmentManager();
-        final String tag = hostFragment.getClass().getCanonicalName() + "State";
-        StateHolderFragment fragment = (StateHolderFragment) fragmentManager.findFragmentByTag(tag);
+    public static StateHolderFragment obtain(@NotNull final FragmentManager fragmentManager,
+                                             @NotNull final String hostFragmentTag) {
+        final String stateTag = hostFragmentTag + "_state";
+        StateHolderFragment fragment = (StateHolderFragment) fragmentManager.findFragmentByTag(stateTag);
         if (fragment == null) {
             fragment = new StateHolderFragment();
-            fragmentManager.beginTransaction().add(fragment, tag).commit();
+            fragmentManager.beginTransaction().add(fragment, stateTag).commit();
         }
         return fragment;
     }

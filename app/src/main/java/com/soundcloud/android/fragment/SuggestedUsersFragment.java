@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 public class SuggestedUsersFragment extends SherlockListFragment {
 
     private static final String KEY_OBSERVABLE = "buckets_observable";
+    private static final String TAG = "suggested_users_fragment";
 
     private SuggestedUsersAdapter mAdapter;
     private OnboardingOperations mOnboardingOps;
@@ -55,7 +56,7 @@ public class SuggestedUsersFragment extends SherlockListFragment {
 
         getListView().setDrawSelectorOnTop(false);
 
-        StateHolderFragment savedState = StateHolderFragment.obtain(this);
+        StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), TAG);
         Observable<?> observable = savedState.getOrDefault(KEY_OBSERVABLE, Observable.class, mOnboardingOps.getGenreBuckets().cache());
         Log.d(this, "SUBSCRIBING, obs = " + observable.hashCode());
         mGetBucketsSubscription = observable.subscribe(
