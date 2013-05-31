@@ -18,7 +18,7 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.service.sync.SyncOperations;
+import com.soundcloud.android.service.sync.SyncInitiator;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
@@ -302,7 +302,7 @@ public class UserBrowser extends ScActivity implements
 
     private void toggleFollowing(User user) {
         mFollowStatus.toggleFollowing(user);
-        SyncOperations.pushFollowingsToApi(this);
+        SyncInitiator.pushFollowingsToApi(this);
     }
 
     @Override
