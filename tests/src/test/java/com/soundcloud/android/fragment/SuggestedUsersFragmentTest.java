@@ -2,6 +2,7 @@ package com.soundcloud.android.fragment;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -17,6 +18,7 @@ import org.junit.runner.RunWith;
 import rx.Observable;
 
 import android.view.View;
+import android.widget.ListView;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SuggestedUsersFragmentTest {
@@ -27,16 +29,29 @@ public class SuggestedUsersFragmentTest {
     @Before
     public void setup() {
         OnboardingOperations operations = mock(OnboardingOperations.class);
-        when(operations.getGenreBuckets()).thenReturn(
-                Observable.from(new GenreBucket(new Genre()), new GenreBucket(new Genre())).cache());
+        when(operations.getGenreBuckets()).thenReturn(Observable.from(audio(), music()).cache());
         adapter = new SuggestedUsersAdapter();
-        fragment = new SuggestedUsersFragment(operations, adapter);
+        fragment = spy(new SuggestedUsersFragment(operations, adapter));
         Robolectric.shadowOf(fragment).setActivity(new SherlockFragmentActivity());
     }
 
     @Test
     public void shouldFetchGenreBucketsIntoListAdapterInOnCreate() {
+        when(fragment.getListView()).thenReturn(new ListView(Robolectric.application));
         fragment.onViewCreated(new View(Robolectric.application), null);
         expect(adapter.getCount()).toBe(2);
     }
+
+    private GenreBucket audio() {
+        Genre audioGenre = new Genre();
+        audioGenre.setGrouping(Genre.Grouping.AUDIO);
+        return new GenreBucket(audioGenre);
+    }
+
+    private GenreBucket music() {
+        Genre musicGenre = new Genre();
+        musicGenre.setGrouping(Genre.Grouping.MUSIC);
+        return new GenreBucket(musicGenre);
+    }
+
 }
