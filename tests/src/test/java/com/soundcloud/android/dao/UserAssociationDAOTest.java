@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes;
 
 import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
@@ -15,10 +14,6 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.content.ContentValues;
-
-import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
 public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> {
