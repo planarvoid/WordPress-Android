@@ -172,6 +172,13 @@ namespace :debug do
     end
 end
 
+namespace :test do
+    desc "Build Debug APK"
+    task :unit do
+        sh "mvn clean install -Dandroid.proguard.skip=true --projects app && mvn clean test --projects tests"
+    end
+end
+
 namespace :release do
   desc "tag the current release"
   task :tag do

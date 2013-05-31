@@ -332,7 +332,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     public void onHomePressed() {
     }
 
-    private static class  LogoutClickListener implements DialogInterface.OnClickListener {
+    private static class LogoutClickListener implements DialogInterface.OnClickListener {
 
         private final SoundCloudApplication mSoundCloudApplication;
         private final AccountOperations mAccountOperations;

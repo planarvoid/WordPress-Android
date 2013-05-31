@@ -52,11 +52,11 @@ public class C2DMReceiver extends BroadcastReceiver {
     public static final String SC_URI                  = "uri";
 
     private PowerManager.WakeLock mWakeLock;
-    private AccountOperations accountOperations;
+    private AccountOperations mAccountOperations;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        accountOperations = new AccountOperations(context);
+        mAccountOperations = new AccountOperations(context);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceive(" + intent + ")");
 
@@ -230,8 +230,8 @@ public class C2DMReceiver extends BroadcastReceiver {
     private void onReceiveMessage(Context context, Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceiveMessage(" + intent + ")");
 
-        if (accountOperations.soundCloudAccountExists()) {
-            Account account = accountOperations.getSoundCloudAccount();
+        if (mAccountOperations.soundCloudAccountExists()) {
+            Account account = mAccountOperations.getSoundCloudAccount();
             final PushEvent event = PushEvent.fromIntent(intent);
             switch (event) {
                 case LIKE:

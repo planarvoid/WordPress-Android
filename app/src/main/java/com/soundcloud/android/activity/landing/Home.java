@@ -27,17 +27,17 @@ import android.util.Log;
 
 public class Home extends ScActivity implements ScLandingPage {
     private FetchUserTask mFetchUserTask;
-    private AccountOperations accountOperations;
+    private AccountOperations mAccountOperations;
     private AndroidCloudAPI oldCloudAPI;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         oldCloudAPI = new OldCloudAPI(this);
-        accountOperations = new AccountOperations(this);
+        mAccountOperations = new AccountOperations(this);
         setTitle(getString(R.string.side_menu_stream));
         final SoundCloudApplication app = getApp();
-        if (accountOperations.soundCloudAccountExists()) {
+        if (mAccountOperations.soundCloudAccountExists()) {
             if (state == null) {
                 getSupportFragmentManager().beginTransaction()
                         .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
@@ -52,8 +52,8 @@ public class Home extends ScActivity implements ScLandingPage {
             }
 
             if (IOUtils.isConnected(this) &&
-                    accountOperations.soundCloudAccountExists() &&
-                    accountOperations.getSoundCloudToken().valid() &&
+                    mAccountOperations.soundCloudAccountExists() &&
+                    mAccountOperations.getSoundCloudToken().valid() &&
                     !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
                     !justAuthenticated(getIntent())) {
                 checkEmailConfirmed();
@@ -69,8 +69,8 @@ public class Home extends ScActivity implements ScLandingPage {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!accountOperations.soundCloudAccountExists()) {
-            accountOperations.addSoundCloudAccountManually(this);
+        if (!mAccountOperations.soundCloudAccountExists()) {
+            mAccountOperations.addSoundCloudAccountManually(this);
             finish();
         }
     }

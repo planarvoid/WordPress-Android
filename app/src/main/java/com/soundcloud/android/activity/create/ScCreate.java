@@ -78,7 +78,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
     private ButtonBar mButtonBar;
     private boolean mActive, mHasEditControlGroup, mSeenSavedMessage;
     private List<Recording> mUnsavedRecordings;
-    private AccountOperations accountOperations;
+    private AccountOperations mAccountOperations;
 
     private ProgressBar mGeneratingWaveformProgressBar;
 
@@ -104,7 +104,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.sc_create);
-        accountOperations = new AccountOperations(this);
+        mAccountOperations = new AccountOperations(this);
         mRecorder = SoundRecorder.getInstance(this);
         mTxtInstructions = (TextView) findViewById(R.id.txt_instructions);
         mTxtRecordMessage = (RecordMessageView) findViewById(R.id.txt_record_message);
@@ -347,9 +347,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
                         track(Click.Record_Main_Record_Pause, mTxtRecordMessage.getCurrentSuggestionKey());
                         mRecorder.stopRecording();
                         // XXX use prefs
-                        if (accountOperations.getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {
+                        if (mAccountOperations.getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {
                             showToast(R.string.create_autosave_message);
-                            accountOperations.setAccountData(User.DataKeys.SEEN_CREATE_AUTOSAVE, Boolean.TRUE.toString());
+                            mAccountOperations.setAccountData(User.DataKeys.SEEN_CREATE_AUTOSAVE, Boolean.TRUE.toString());
                         }
                         break;
                 }

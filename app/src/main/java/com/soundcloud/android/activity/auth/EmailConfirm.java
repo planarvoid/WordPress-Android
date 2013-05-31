@@ -28,13 +28,13 @@ import java.io.IOException;
 public class EmailConfirm extends ScActivity {
     public static final String PREF_LAST_REMINDED = "confirmation_last_reminded";
     public static final int REMIND_PERIOD = 86400 * 1000 * 7; // 1 week
-    private AccountOperations accountOperations;
+    private AccountOperations mAccountOperations;
     private AndroidCloudAPI mAndroidCloudAPI;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        accountOperations = new AccountOperations(this);
+        mAccountOperations = new AccountOperations(this);
         mAndroidCloudAPI = new OldCloudAPI(this);
         final long lastReminded = getLastReminded();
 
@@ -79,12 +79,12 @@ public class EmailConfirm extends ScActivity {
     }
 
     private void updateLastReminded() {
-        accountOperations.setAccountData(PREF_LAST_REMINDED, System.currentTimeMillis() + "");
+        mAccountOperations.setAccountData(PREF_LAST_REMINDED, System.currentTimeMillis() + "");
     }
 
     // XXX this check should happen earlier
     private long getLastReminded() {
-        return accountOperations.getAccountDataLong(PREF_LAST_REMINDED);
+        return mAccountOperations.getAccountDataLong(PREF_LAST_REMINDED);
     }
 
     static class ResendConfirmationTask extends AsyncApiTask<Void, Void, Boolean> {

@@ -10,13 +10,13 @@ import android.os.Bundle;
 import android.os.Handler;
 
 public class Launch extends Activity {
-    private AccountOperations accountOperations;
+    private AccountOperations mAccountOperations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launch);
-        accountOperations = new AccountOperations(this);
+        mAccountOperations = new AccountOperations(this);
     }
 
     @Override
@@ -25,10 +25,10 @@ public class Launch extends Activity {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                if (accountOperations.soundCloudAccountExists()) {
+                if (mAccountOperations.soundCloudAccountExists()) {
                     startActivity(new Intent(Launch.this, Home.class));
                 } else {
-                    accountOperations.addSoundCloudAccountManually(Launch.this);
+                    mAccountOperations.addSoundCloudAccountManually(Launch.this);
                 }
             }
         });

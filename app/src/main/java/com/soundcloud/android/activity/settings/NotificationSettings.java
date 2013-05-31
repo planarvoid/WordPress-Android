@@ -22,12 +22,12 @@ import java.util.List;
 @Tracking(page = Page.Settings_notifications)
 public class NotificationSettings extends PreferenceActivity {
     final List<CheckBoxPreference> syncPreferences = new ArrayList<CheckBoxPreference>();
-    private AccountOperations accountOperations;
+    private AccountOperations mAccountOperations;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        accountOperations = new AccountOperations(this);
+        mAccountOperations = new AccountOperations(this);
         addPreferencesFromResource(R.xml.notifications_settings);
 
         for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
@@ -66,8 +66,8 @@ public class NotificationSettings extends PreferenceActivity {
                 break;
             }
         }
-        if (accountOperations.soundCloudAccountExists()) {
-            final Account account = accountOperations.getSoundCloudAccount();
+        if (mAccountOperations.soundCloudAccountExists()) {
+            final Account account = mAccountOperations.getSoundCloudAccount();
             final boolean autoSyncing = ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY);
             if (sync && !autoSyncing) {
                 ScContentProvider.enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);

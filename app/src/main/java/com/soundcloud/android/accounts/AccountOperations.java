@@ -18,7 +18,6 @@ import rx.Observer;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -54,8 +53,8 @@ public class AccountOperations {
         return getSoundCloudAccount() != null;
     }
 
-    public AccountManagerFuture<Bundle> addSoundCloudAccountManually(Activity currentActivityContext) {
-        return accountManager.addAccount(
+    public void addSoundCloudAccountManually(Activity currentActivityContext) {
+         accountManager.addAccount(
                 context.getString(R.string.account_type),
                 User.DataKeys.ACCESS_TOKEN, null, null, currentActivityContext, null, null);
     }
