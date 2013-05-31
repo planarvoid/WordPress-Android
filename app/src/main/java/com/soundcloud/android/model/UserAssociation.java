@@ -42,8 +42,8 @@ public class UserAssociation extends Association implements UserHolder {
     public UserAssociation(Parcel in) {
         super(in);
         mUser = in.readParcelable(ClassLoader.getSystemClassLoader());
-        mAddedAt = convertDirtyDate(in.readLong());
-        mRemovedAt = convertDirtyDate(in.readLong());
+        mAddedAt = (Date) in.readSerializable();
+        mRemovedAt = (Date) in.readSerializable();
     }
 
     @Override
@@ -61,8 +61,8 @@ public class UserAssociation extends Association implements UserHolder {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(mUser, 0);
-        dest.writeLong(mAddedAt == null ? -1 : mAddedAt.getTime());
-        dest.writeLong(mRemovedAt == null ? -1 : mRemovedAt.getTime());
+        dest.writeSerializable(mAddedAt);
+        dest.writeSerializable(mRemovedAt);
     }
 
     public long getItemId() {
