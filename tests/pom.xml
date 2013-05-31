@@ -135,5 +135,19 @@
             <version>2.9.1</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.tobedevoured</groupId>
+            <artifactId>modelcitizen</artifactId>
+            <version>0.3.2</version>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>oss.sonatype.org</id>
+            <name>Sonatype Repository</name>
+            <url>https://oss.sonatype.org/content/groups/public</url>
+        </repository>
+    </repositories>
 </project>
