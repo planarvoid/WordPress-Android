@@ -146,7 +146,8 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         Section section = mListPositionsToSections.get(position);
         if (section != null) {
             Context context = convertView.getContext();
-            viewHolder.sectionHeader.setText(context.getString(section.getLabelResId()));
+            final String headerText = context.getString(section.getLabelResId()).toUpperCase();
+            viewHolder.sectionHeader.setText(headerText);
             viewHolder.sectionHeader.setVisibility(View.VISIBLE);
         } else {
             viewHolder.sectionHeader.setVisibility(View.GONE);
