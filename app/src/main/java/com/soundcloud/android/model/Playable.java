@@ -133,6 +133,14 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
 
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     @Override
     public boolean isStale() {
         return false;
@@ -143,9 +151,13 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         return user == null || user.isIncomplete();
     }
 
-    @Override @JsonIgnore
+    @Override @Nullable @JsonIgnore
     public User getUser() {
         return user;
+    }
+
+    public void setUser(@Nullable User user) {
+        this.user = user;
     }
 
     @Override @JsonIgnore
