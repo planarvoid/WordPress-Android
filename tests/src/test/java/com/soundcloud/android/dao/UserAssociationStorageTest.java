@@ -28,7 +28,6 @@ import org.junit.runner.RunWith;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 
-import java.util.Date;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -50,14 +49,14 @@ public class UserAssociationStorageTest {
     }
 
     @Test
-    public void shouldMarkFollowingForAdditionAndUpdateFollowersCount() {
+    public void shouldMarkFollowingForAdditionAndUpdateFollowersCount() throws Exception {
         user.followers_count = INITIAL_FOLLOWERS_COUNT;
         storage.addFollowing(user);
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
         expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT + 1);
 
-        final UserAssociation userAssociation = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, resolver).query(user.id);
+        UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.id);
         expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
     }
 
@@ -73,7 +72,7 @@ public class UserAssociationStorageTest {
     }
 
     @Test
-    public void shouldMarkFollowingForRemovalAndUpdateFollowingCount() {
+    public void shouldMarkFollowingForRemovalAndUpdateFollowingCount() throws Exception {
         user.followers_count = INITIAL_FOLLOWERS_COUNT;
         TestHelper.insertAsUserAssociation(user, UserAssociation.Type.FOLLOWING);
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
@@ -82,7 +81,7 @@ public class UserAssociationStorageTest {
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);// should still exist but marked for removal
         expect(TestHelper.reload(user).followers_count).toBe(INITIAL_FOLLOWERS_COUNT - 1);
-        final UserAssociation userAssociation = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, resolver).query(user.id);
+        UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.id);
         expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
     }
 
@@ -267,6 +266,5 @@ public class UserAssociationStorageTest {
         expect(storage.setFollowingAsSynced(association)).toBeTrue();
         expect(storage.getFollowingsNeedingSync().size()).toEqual(0);
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
-        expect(UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, resolver).query(association.getUser().id)).toBeNull();
     }
 }

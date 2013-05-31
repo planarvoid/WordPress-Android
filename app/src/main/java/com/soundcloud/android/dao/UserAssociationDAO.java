@@ -1,6 +1,5 @@
 package com.soundcloud.android.dao;
 
-import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -8,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.database.Cursor;
 
 import java.util.ArrayList;
@@ -19,7 +17,7 @@ class UserAssociationDAO extends BaseDAO<UserAssociation> {
         super(contentResolver);
     }
 
-    public static UserAssociationDAO forContent(final Content content, final ContentResolver contentResolver) {
+    protected static UserAssociationDAO forContent(final Content content, final ContentResolver contentResolver) {
         return new UserAssociationDAO(contentResolver) {
             @Override
             public Content getContent() {
@@ -45,25 +43,6 @@ class UserAssociationDAO extends BaseDAO<UserAssociation> {
                 where,
                 String.valueOf(resource.getItemId()),
                 String.valueOf(resource.associationType));
-    }
-
-    @Nullable
-    public UserAssociation query(long targetId) {
-        String where = DBHelper.UserAssociationView._ID + " = ? AND " +
-                DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
-
-        Cursor cursor = mResolver.query(getContent().uri, null, where,
-                new String[]{String.valueOf(targetId), String.valueOf(getContent().collectionType)}, null);
-        if (cursor == null) return null;
-
-        try {
-            if (cursor.moveToFirst()) {
-                return objFromCursor(cursor);
-            }
-            return null;
-        } finally {
-            cursor.close();
-        }
     }
 
     public boolean update(UserAssociation userAssociation) {

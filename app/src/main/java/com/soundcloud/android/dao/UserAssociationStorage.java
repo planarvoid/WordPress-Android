@@ -13,6 +13,7 @@ import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -76,7 +77,7 @@ public class UserAssociationStorage {
      * @return the new association created
      */
     public UserAssociation addFollowing(User user) {
-        UserAssociation following = mFollowingsDAO.query(user.id);
+        UserAssociation following = queryFollowingByTargetUserId(user.id);
         if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL){
             following = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
             following.markForAddition();
@@ -158,7 +159,7 @@ public class UserAssociationStorage {
     }
 
     public boolean setFollowingAsSynced(UserAssociation a) {
-        UserAssociation following = mFollowingsDAO.query(a.getUser().id);
+        UserAssociation following = queryFollowingByTargetUserId(a.getUser().id);
         if (following != null) {
             switch (following.getLocalSyncState()) {
                 case PENDING_ADDITION:
@@ -170,4 +171,16 @@ public class UserAssociationStorage {
         }
         return false;
     }
+
+    @Nullable
+    private UserAssociation queryFollowingByTargetUserId(long targetUserId) {
+        String where = DBHelper.UserAssociationView._ID + " = ? AND " +
+                DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
+
+        return mFollowingsDAO.buildQuery()
+                .where(where, String.valueOf(targetUserId), String.valueOf(Association.Type.FOLLOWING.collectionType))
+                .first();
+    }
+
+
 }

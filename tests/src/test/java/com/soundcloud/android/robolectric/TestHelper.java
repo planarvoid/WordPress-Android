@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.behavior.Identifiable;
 import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.Playable;
@@ -325,7 +326,12 @@ public class TestHelper {
     }
 
     public static <T extends Persisted> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass) throws Exception {
-        Cursor itemsCursor = DefaultTestRunner.application.getContentResolver().query(contentUri, null, null, null, null);
+        return loadLocalContent(contentUri, modelClass, null);
+    }
+
+    public static <T extends Persisted> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass,
+                                                                 String selection) throws Exception {
+        Cursor itemsCursor = DefaultTestRunner.application.getContentResolver().query(contentUri, null, selection, null, null);
         List<T> items = new ArrayList<T>();
         if (itemsCursor != null) {
             Constructor<T> constructor = modelClass.getConstructor(Cursor.class);
@@ -337,6 +343,16 @@ public class TestHelper {
         //noinspection unchecked
         return items;
 
+    }
+
+    public static <T extends Persisted> T loadLocalContentItem(final Uri contentUri, Class<T> modelClass, String where) throws Exception {
+        return loadLocalContent(contentUri, modelClass, where).get(0);
+    }
+
+    public static UserAssociation loadUserAssociation(final Content content, long targetId) throws Exception {
+        String where = DBHelper.UserAssociationView._ID + " = " + targetId + " AND " +
+                DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
+        return loadLocalContentItem(content.uri, UserAssociation.class, where);
     }
 
     @SuppressWarnings("unchecked")
