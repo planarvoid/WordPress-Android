@@ -56,9 +56,13 @@ public abstract class Association extends ScResource implements PlayableHolder, 
         associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_TYPE));
     }
 
-    public Association(Date associatedAt, int associationType) {
-        this.created_at = associatedAt;
+    public Association(int associationType) {
+        this(associationType, new Date());
+    }
+
+    public Association(int associationType, Date associatedAt) {
         this.associationType = associationType;
+        this.created_at = associatedAt;
     }
 
     public Association(Parcel in) {

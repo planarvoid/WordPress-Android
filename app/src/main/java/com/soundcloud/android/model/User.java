@@ -264,6 +264,24 @@ public class User extends ScResource implements UserHolder {
         return new Intent(Actions.USER_BROWSER).putExtra(UserBrowser.EXTRA_USER, this);
     }
 
+    public boolean addAFollower() {
+        if (isFollowersCountSet()) {
+            followers_count++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean removeAFollower() {
+        if (isFollowersCountSet()){
+            followers_count--;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @NotNull
     @Override
     public User getUser() {
@@ -340,6 +358,10 @@ public class User extends ScResource implements UserHolder {
 
     public boolean shouldLoadIcon() {
         return ImageUtils.checkIconShouldLoad(avatar_url);
+    }
+
+    public boolean isFollowersCountSet() {
+        return followers_count > NOT_SET;
     }
 
     public Plan getPlan() {

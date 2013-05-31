@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.behavior.Identifiable;
 import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.Playable;
@@ -20,6 +21,8 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.sync.ApiSyncResult;
+import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
@@ -31,6 +34,7 @@ import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -47,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -242,7 +247,7 @@ public class TestHelper {
     }
 
     public static UserAssociation insertAsUserAssociation(User user, UserAssociation.Type assocType) {
-        UserAssociation ua = new UserAssociation(user, assocType, new Date());
+        UserAssociation ua = new UserAssociation(assocType, user);
         TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, ua);
         return ua;
     }
@@ -273,6 +278,19 @@ public class TestHelper {
     }
 
     public static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri) {
+        return bulkInsertToUserAssociations(resources, collectionUri, null, null);
+    }
+
+    public static int bulkInsertToUserAssociationsAsAdditions(List<? extends ScResource> resources, Uri collectionUri) {
+        return bulkInsertToUserAssociations(resources, collectionUri, new Date(), null);
+    }
+
+    public static int bulkInsertToUserAssociationsAsRemovals(List<? extends ScResource> resources, Uri collectionUri) {
+        return bulkInsertToUserAssociations(resources, collectionUri, null, new Date());
+    }
+
+    private static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri,
+                                                    Date addedAt, Date removedAt) {
         SoundCloudApplication application = DefaultTestRunner.application;
         final long userId = SoundCloudApplication.getUserId();
 
@@ -287,6 +305,8 @@ public class TestHelper {
             contentValues.put(DBHelper.UserAssociations.POSITION, i);
             contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.id);
             contentValues.put(DBHelper.UserAssociations.OWNER_ID, userId);
+            contentValues.put(DBHelper.UserAssociations.ADDED_AT, addedAt == null ? null : addedAt.getTime());
+            contentValues.put(DBHelper.UserAssociations.REMOVED_AT, removedAt == null ? null : removedAt.getTime());
             map.add(collectionUri, contentValues);
         }
         ContentResolver resolver = application.getContentResolver();
@@ -306,7 +326,12 @@ public class TestHelper {
     }
 
     public static <T extends Persisted> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass) throws Exception {
-        Cursor itemsCursor = DefaultTestRunner.application.getContentResolver().query(contentUri, null, null, null, null);
+        return loadLocalContent(contentUri, modelClass, null);
+    }
+
+    public static <T extends Persisted> List<T> loadLocalContent(final Uri contentUri, Class<T> modelClass,
+                                                                 String selection) throws Exception {
+        Cursor itemsCursor = DefaultTestRunner.application.getContentResolver().query(contentUri, null, selection, null, null);
         List<T> items = new ArrayList<T>();
         if (itemsCursor != null) {
             Constructor<T> constructor = modelClass.getConstructor(Cursor.class);
@@ -318,6 +343,16 @@ public class TestHelper {
         //noinspection unchecked
         return items;
 
+    }
+
+    public static <T extends Persisted> T loadLocalContentItem(final Uri contentUri, Class<T> modelClass, String where) throws Exception {
+        return loadLocalContent(contentUri, modelClass, where).get(0);
+    }
+
+    public static UserAssociation loadUserAssociation(final Content content, long targetId) throws Exception {
+        String where = DBHelper.UserAssociationView._ID + " = " + targetId + " AND " +
+                DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
+        return loadLocalContentItem(content.uri, UserAssociation.class, where);
     }
 
     @SuppressWarnings("unchecked")
@@ -356,6 +391,10 @@ public class TestHelper {
         return r;
     }
 
+    public static void addResourceResponse(Class<?> klazz, String url, String resource) throws IOException {
+        TestHelper.addCannedResponse(klazz, url, resource);
+    }
+
     private static File createRecordingFile(String extension) throws IOException {
         File tmp = File.createTempFile("recording-test", extension);
         tmp.createNewFile();
@@ -374,5 +413,18 @@ public class TestHelper {
         Playlist playlist = Playlist.newUserPlaylist(user, title, isPrivate, tracks);
         insertWithDependencies(playlist);
         return playlist;
+    }
+
+    public static List<User> createUsers(int count) {
+        if (count < 1) return Collections.EMPTY_LIST;
+
+        List<User> items = new ArrayList<User>();
+        for (long i = 100L; i <= count * 100; i += 100) {
+            User u = new User();
+            u.id = i;
+            u.permalink = "u" + String.valueOf(i);
+            items.add(u);
+        }
+        return items;
     }
 }

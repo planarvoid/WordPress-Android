@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.Date;
 
@@ -18,21 +19,31 @@ import java.util.Date;
  */
 public class UserAssociation extends Association implements UserHolder {
 
-    private @NotNull User mUser;
+    private @NotNull User       mUser;
+    private @Nullable Date      mAddedAt;
+    private @Nullable Date      mRemovedAt;
+
+    public enum LocalState {
+        NONE, PENDING_ADDITION, PENDING_REMOVAL
+    }
 
     public UserAssociation(Cursor cursor) {
         super(cursor);
         mUser = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
+        mAddedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
+        mRemovedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
     }
 
-    public UserAssociation(@NotNull User user, Type typeEnum, Date associatedAt) {
-        super(associatedAt, typeEnum.collectionType);
-        this.mUser = user;
+    public UserAssociation(Type typeEnum, @NotNull User user) {
+        super(typeEnum.collectionType);
+        mUser = user;
     }
 
     public UserAssociation(Parcel in) {
         super(in);
         mUser = in.readParcelable(ClassLoader.getSystemClassLoader());
+        mAddedAt = (Date) in.readSerializable();
+        mRemovedAt = (Date) in.readSerializable();
     }
 
     @Override
@@ -50,6 +61,8 @@ public class UserAssociation extends Association implements UserHolder {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(mUser, 0);
+        dest.writeSerializable(mAddedAt);
+        dest.writeSerializable(mRemovedAt);
     }
 
     public long getItemId() {
@@ -64,6 +77,8 @@ public class UserAssociation extends Association implements UserHolder {
         cv.put(DBHelper.UserAssociations.ASSOCIATION_TYPE, associationType);
         cv.put(DBHelper.UserAssociations.RESOURCE_TYPE, getResourceType());
         cv.put(DBHelper.UserAssociations.CREATED_AT, created_at.getTime());
+        cv.put(DBHelper.UserAssociations.ADDED_AT, mAddedAt == null ? null : mAddedAt.getTime());
+        cv.put(DBHelper.UserAssociations.REMOVED_AT, mRemovedAt == null ? null : mRemovedAt.getTime());
         return cv;
     }
 
@@ -89,6 +104,47 @@ public class UserAssociation extends Association implements UserHolder {
         mUser.putFullContentValues(destination);
     }
 
+    public void markForAddition(){
+        setLocalSyncState(LocalState.PENDING_ADDITION);
+    }
+
+    public void markForRemoval() {
+        setLocalSyncState(LocalState.PENDING_REMOVAL);
+    }
+
+    public void clearLocalSyncState() {
+        setLocalSyncState(LocalState.NONE);
+    }
+
+    private void setLocalSyncState(LocalState newState) {
+        switch (newState) {
+            case PENDING_ADDITION:
+                mAddedAt = new Date(System.currentTimeMillis());
+                mRemovedAt = null;
+                break;
+
+            case PENDING_REMOVAL:
+                mRemovedAt = new Date(System.currentTimeMillis());
+                mAddedAt = null;
+                break;
+
+            case NONE:
+                mRemovedAt = null;
+                mAddedAt = null;
+                break;
+        }
+    }
+
+    public LocalState getLocalSyncState(){
+        if (mAddedAt != null){
+            return LocalState.PENDING_ADDITION;
+        } else if (mRemovedAt != null){
+            return LocalState.PENDING_REMOVAL;
+        } else {
+            return LocalState.NONE;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -97,6 +153,8 @@ public class UserAssociation extends Association implements UserHolder {
 
         UserAssociation that = (UserAssociation) o;
 
+        if (mAddedAt != null ? !mAddedAt.equals(that.mAddedAt) : that.mAddedAt != null) return false;
+        if (mRemovedAt != null ? !mRemovedAt.equals(that.mRemovedAt) : that.mRemovedAt != null) return false;
         if (!mUser.equals(that.mUser)) return false;
 
         return true;
@@ -106,6 +164,23 @@ public class UserAssociation extends Association implements UserHolder {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + mUser.hashCode();
+        result = 31 * result + (mAddedAt != null ? mAddedAt.hashCode() : 0);
+        result = 31 * result + (mRemovedAt != null ? mRemovedAt.hashCode() : 0);
         return result;
+    }
+
+    public static final Parcelable.Creator<UserAssociation> CREATOR = new Parcelable.Creator<UserAssociation>() {
+        public UserAssociation createFromParcel(Parcel in) {
+            return new UserAssociation(in);
+        }
+
+        public UserAssociation[] newArray(int size) {
+            return new UserAssociation[size];
+        }
+    };
+
+    @Nullable
+    private Date convertDirtyDate(long timestamp){
+        return (timestamp <= 0) ? null : new Date(timestamp);
     }
 }

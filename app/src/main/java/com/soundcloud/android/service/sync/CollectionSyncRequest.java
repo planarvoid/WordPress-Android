@@ -3,6 +3,7 @@ package com.soundcloud.android.service.sync;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.service.sync.content.SyncStrategy;
 import com.soundcloud.api.CloudAPI;
 
 import android.content.Context;
@@ -28,13 +29,13 @@ import java.io.IOException;
     private final SyncStateManager mSyncStateManager;
 
     private LocalCollection localCollection;
-    public ApiSyncer.Result result;
+    public ApiSyncResult result;
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI) {
         this.context = context;
         this.contentUri = contentUri;
         this.action = action;
-        this.result = new ApiSyncer.Result(contentUri);
+        this.result = new ApiSyncResult(contentUri);
         this.isUI = isUI;
         mSyncStateManager = new SyncStateManager();
     }
@@ -61,7 +62,7 @@ import java.io.IOException;
         // make sure all requests going out on this thread have the background parameter set
         Wrapper.setBackgroundMode(!isUI);
 
-        ApiSyncer syncer = new ApiSyncer(context, context.getContentResolver());
+        SyncStrategy syncer = new ApiSyncerFactory().forContentUri(context, contentUri);
 
         if (!mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.SYNCING)) {
             return this;
@@ -75,12 +76,12 @@ import java.io.IOException;
         } catch (CloudAPI.InvalidTokenException e) {
             Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
             mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            result = ApiSyncer.Result.fromAuthException(contentUri);
+            result = ApiSyncResult.fromAuthException(contentUri);
             context.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
         } catch (IOException e) {
             Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
             mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-            result = ApiSyncer.Result.fromIOException(contentUri);
+            result = ApiSyncResult.fromIOException(contentUri);
         } finally {
             // should be taken care of when thread dies, but needed for tests
             Wrapper.setBackgroundMode(false);
