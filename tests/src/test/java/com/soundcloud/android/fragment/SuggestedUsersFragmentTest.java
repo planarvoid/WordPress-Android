@@ -30,9 +30,13 @@ public class SuggestedUsersFragmentTest {
     public void setup() {
         OnboardingOperations operations = mock(OnboardingOperations.class);
         when(operations.getGenreBuckets()).thenReturn(Observable.from(audio(), music()).cache());
+
         adapter = new SuggestedUsersAdapter();
         fragment = spy(new SuggestedUsersFragment(operations, adapter));
-        Robolectric.shadowOf(fragment).setActivity(new SherlockFragmentActivity());
+
+        SherlockFragmentActivity fragmentActivity = new SherlockFragmentActivity();
+        when(fragment.getLayoutInflater(null)).thenReturn(fragmentActivity.getLayoutInflater());
+        Robolectric.shadowOf(fragment).setActivity(fragmentActivity);
     }
 
     @Test

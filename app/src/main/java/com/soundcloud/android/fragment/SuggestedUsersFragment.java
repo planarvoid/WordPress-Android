@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 
 public class SuggestedUsersFragment extends SherlockListFragment {
@@ -39,8 +40,6 @@ public class SuggestedUsersFragment extends SherlockListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setListAdapter(mAdapter);
     }
 
     @Override
@@ -54,7 +53,11 @@ public class SuggestedUsersFragment extends SherlockListFragment {
 
         mProgressSpinner = (ProgressBar) view.findViewById(android.R.id.progress);
 
-        getListView().setDrawSelectorOnTop(false);
+        final ListView listView = getListView();
+        listView.setDrawSelectorOnTop(false);
+        listView.setHeaderDividersEnabled(false);
+        listView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_list_header, null));
+        setListAdapter(mAdapter);
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), TAG);
         Observable<?> observable = savedState.getOrDefault(KEY_OBSERVABLE, Observable.class, mOnboardingOps.getGenreBuckets().cache());
