@@ -154,10 +154,8 @@ public class FollowStatus {
             if (cursor != null) {
 
                 followings.clear();
-                if (cursor.moveToFirst()) {
-                    do {
-                        followings.add(cursor.getLong(0));
-                    } while (cursor.moveToNext());
+                while (cursor.moveToNext()) {
+                    followings.add(cursor.getLong(0));
                 }
                 cursor.close();
 
