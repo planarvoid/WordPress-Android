@@ -8,16 +8,11 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.sync.SyncStateManager;
 
 import android.content.AsyncQueryHandler;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Bundle;
-import android.util.Log;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -134,11 +129,6 @@ public class FollowStatus {
         for (Listener l : listeners.keySet()) {
             l.onFollowChanged();
         }
-
-        final Bundle extras = new Bundle();
-        extras.putBoolean(SyncAdapterService.EXTRA_SYNC_PUSH, true);
-        extras.putString(SyncAdapterService.EXTRA_SYNC_PUSH_URI, Content.ME_FOLLOWINGS.uri.toString());
-        ContentResolver.requestSync(SoundCloudApplication.fromContext(mContext).getAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
   /* package */ void updateFollowing(long userId, boolean follow) {
