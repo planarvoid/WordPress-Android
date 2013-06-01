@@ -142,12 +142,4 @@
             <version>0.3.2</version>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>oss.sonatype.org</id>
-            <name>Sonatype Repository</name>
-            <url>https://oss.sonatype.org/content/groups/public</url>
-        </repository>
-    </repositories>
 </project>
