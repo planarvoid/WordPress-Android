@@ -218,6 +218,14 @@ public class User extends ScResource implements UserHolder {
         return Content.USERS.forId(id);
     }
 
+    @Nullable
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(@Nullable String username) {
+        this.username = username;
+    }
 
     public String getLocation() {
         if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
