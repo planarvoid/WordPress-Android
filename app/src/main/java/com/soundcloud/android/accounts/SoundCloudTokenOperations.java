@@ -1,67 +1,77 @@
 package com.soundcloud.android.accounts;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.R;
-import com.soundcloud.android.model.User;
 import com.soundcloud.api.Token;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
-import android.content.res.Resources;
-import android.os.SystemClock;
 
 class SoundCloudTokenOperations {
 
+    private enum TokenDataKeys{
+        ACCESS_TOKEN("access_token"),
+        REFRESH_TOKEN("refresh_token"),
+        SCOPE("scope"),
+        EXPIRES_IN("expires_in");
+
+        private String mKey;
+
+        private TokenDataKeys(String mKey) {
+            this.mKey = mKey;
+        }
+
+        public String key(){
+            return mKey;
+        }
+    }
+
     private final AccountManager mAccountManager;
-    private final Resources mResources;
 
     public SoundCloudTokenOperations(Context context){
-        this(AccountManager.get(context.getApplicationContext()), context.getResources());
+        this(AccountManager.get(context));
     }
 
     @VisibleForTesting
-    protected SoundCloudTokenOperations(AccountManager mAccountManager, Resources mResources) {
+    protected SoundCloudTokenOperations(AccountManager mAccountManager) {
         this.mAccountManager = mAccountManager;
-        this.mResources = mResources;
     }
 
     public void storeSoundCloudTokenData(Account account, Token token){
+        mAccountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), "" + token.expiresIn);
+        mAccountManager.setUserData(account, TokenDataKeys.SCOPE.key(), token.scope);
+        mAccountManager.setAuthToken(account, TokenDataKeys.ACCESS_TOKEN.key(), token.access);
+        mAccountManager.setAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key(), token.refresh);
 
-        //TODO shouldnt we be implement the necessary methods in Authenticator Service?
-        mAccountManager.setAuthToken(account, User.DataKeys.ACCESS_TOKEN, token.access);
-        mAccountManager.setAuthToken(account, User.DataKeys.REFRESH_TOKEN, token.refresh);
-        mAccountManager.setUserData(account, User.DataKeys.SCOPE, token.scope);
 
-        //TODO Jon/Matthias do we need to store these? Where are they used?
-        mAccountManager.setPassword(account, token.access);
-        mAccountManager.setUserData(account, User.DataKeys.EXPIRES_IN, "" + token.expiresIn);
     }
 
     public Token getSoundCloudToken(Account account) {
         return new Token(getSoundCloudAccessToken(account), getSoundCloudRefreshToken(account), getSoundCloudTokenScope(account));
     }
 
-    public void invalidateToken(Token expired) {
-        String accountType = mResources.getString(R.string.account_type);
+    public void invalidateToken(Token expired, Account account) {
         mAccountManager.invalidateAuthToken(
-                accountType,
+                account.type,
                 expired.access);
 
         mAccountManager.invalidateAuthToken(
-                accountType,
+                account.type,
                 expired.refresh);
+
+        mAccountManager.setUserData(account, TokenDataKeys.EXPIRES_IN.key(), null);
+        mAccountManager.setUserData(account, TokenDataKeys.SCOPE.key(), null);
     }
 
     private String getSoundCloudTokenScope(Account account) {
-        return mAccountManager.getUserData(account, User.DataKeys.SCOPE);
+        return mAccountManager.getUserData(account, TokenDataKeys.SCOPE.key());
     }
 
     private String getSoundCloudAccessToken(Account account) {
-        return mAccountManager.peekAuthToken(account, User.DataKeys.ACCESS_TOKEN);
+        return mAccountManager.peekAuthToken(account, TokenDataKeys.ACCESS_TOKEN.key());
     }
 
     private String getSoundCloudRefreshToken(Account account) {
-        return mAccountManager.peekAuthToken(account, User.DataKeys.REFRESH_TOKEN);
+        return mAccountManager.peekAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key());
     }
 }

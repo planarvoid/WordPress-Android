@@ -28,7 +28,6 @@ import android.os.Bundle;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AccountOperationsTest {
-    private static final String ACCESSTOKEN = "accesstoken";
     private static final String SC_ACCOUNT_TYPE = "com.soundcloud.android.account";
     public static final String KEY = "key";
 
@@ -49,7 +48,6 @@ public class AccountOperationsTest {
     @Before
     public void setUp() {
         initMocks(this);
-        token.access = ACCESSTOKEN;
         accountOperations = new AccountOperations(accountManager, Robolectric.application, tokenOperations);
     }
 
@@ -102,7 +100,7 @@ public class AccountOperationsTest {
     public void shouldAddAccountUsingAccountManager(){
         Activity activity = mock(Activity.class);
         accountOperations.addSoundCloudAccountManually(activity);
-        verify(accountManager).addAccount(SC_ACCOUNT_TYPE, User.DataKeys.ACCESS_TOKEN,null,null,activity,null,null);
+        verify(accountManager).addAccount(SC_ACCOUNT_TYPE, "access_token",null,null,activity,null,null);
     }
 
     @Test
@@ -117,7 +115,7 @@ public class AccountOperationsTest {
     public void shouldSetUserDataIfAccountAdditionSucceeds(){
         Account account = new Account("username", SC_ACCOUNT_TYPE);
 
-        when(accountManager.addAccountExplicitly(account,ACCESSTOKEN,null)).thenReturn(true);
+        when(accountManager.addAccountExplicitly(account,null,null)).thenReturn(true);
         when(user.getId()).thenReturn(2L);
         when(user.username()).thenReturn("username");
         when(user.permalink()).thenReturn("permalink");
@@ -134,7 +132,7 @@ public class AccountOperationsTest {
         Account account = new Account("username", SC_ACCOUNT_TYPE);
 
         when(user.username()).thenReturn("username");
-        when(accountManager.addAccountExplicitly(account, ACCESSTOKEN, null)).thenReturn(true);
+        when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
         accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API);
 
@@ -146,7 +144,7 @@ public class AccountOperationsTest {
         Account account = new Account("username", SC_ACCOUNT_TYPE);
 
         when(user.username()).thenReturn("username");
-        when(accountManager.addAccountExplicitly(account,ACCESSTOKEN,null)).thenReturn(true);
+        when(accountManager.addAccountExplicitly(account,null,null)).thenReturn(true);
 
         expect(accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API)).toEqual(account);
 

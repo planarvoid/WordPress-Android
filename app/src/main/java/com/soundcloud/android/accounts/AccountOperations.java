@@ -26,12 +26,14 @@ import java.io.IOException;
 
 public class AccountOperations {
 
+    private static final String TOKEN_TYPE = "access_token";
+
     private final AccountManager accountManager;
     private final SoundCloudTokenOperations tokenOperations;
     private final Context context;
 
     public AccountOperations(Context context) {
-        this(AccountManager.get(context.getApplicationContext()), context, new SoundCloudTokenOperations(context));
+        this(AccountManager.get(context), context, new SoundCloudTokenOperations(context));
     }
 
     @VisibleForTesting
@@ -56,7 +58,7 @@ public class AccountOperations {
     public void addSoundCloudAccountManually(Activity currentActivityContext) {
          accountManager.addAccount(
                 context.getString(R.string.account_type),
-                User.DataKeys.ACCESS_TOKEN, null, null, currentActivityContext, null, null);
+                 TOKEN_TYPE,null, null, currentActivityContext, null, null);
     }
 
     /**
@@ -68,7 +70,7 @@ public class AccountOperations {
     public Account addSoundCloudAccountExplicitly(User user, Token token, SignupVia via) {
         String type = context.getString(R.string.account_type);
         Account account = new Account(user.username(), type);
-        boolean created = accountManager.addAccountExplicitly(account, token.access, null);
+        boolean created = accountManager.addAccountExplicitly(account, null, null);
         if (created) {
             tokenOperations.storeSoundCloudTokenData(account, token);
             accountManager.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.getId()));
@@ -144,7 +146,7 @@ public class AccountOperations {
     }
 
     public void invalidateSoundCloudToken(Token token){
-        tokenOperations.invalidateToken(token);
+        tokenOperations.invalidateToken(token, getSoundCloudAccount());
     }
 
     public void storeSoundCloudTokenData(Token token) {

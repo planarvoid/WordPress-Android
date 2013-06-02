@@ -22,8 +22,7 @@ public class WebServices {
     private final AndroidCloudAPI androidCloudAPI;
 
     protected WebServices(Context context){
-        this(new OldCloudAPI(context));
-
+        this(Wrapper.getInstance(context));
     }
 
     @VisibleForTesting

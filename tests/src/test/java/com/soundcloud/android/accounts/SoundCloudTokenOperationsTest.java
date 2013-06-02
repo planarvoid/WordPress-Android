@@ -5,17 +5,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.api.Token;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.content.res.Resources;
 
+@RunWith(SoundCloudTestRunner.class)
 public class SoundCloudTokenOperationsTest {
 
 
@@ -23,12 +23,12 @@ public class SoundCloudTokenOperationsTest {
     private static final String REFRESHTOKEN = "refresh";
     private static final String SCOPE = "scope";
     private static final long EXPIRES = 2222333L;
+    private static final String ACCOUNTTYPE = "accounttype";
+    private static final String ACCOUNTNAME = "accountname";
 
     private SoundCloudTokenOperations tokenOperations;
     @Mock
     private AccountManager accountManager;
-    @Mock
-    private Resources resources;
     @Mock
     private Token token;
     @Mock
@@ -37,28 +37,29 @@ public class SoundCloudTokenOperationsTest {
     @Before
     public void setUp(){
         initMocks(this);
-        tokenOperations = new SoundCloudTokenOperations(accountManager, resources);
+        tokenOperations = new SoundCloudTokenOperations(accountManager);
         token.access = ACCESSTOKEN;
         token.refresh = REFRESHTOKEN;
         token.scope = SCOPE;
         token.expiresIn = EXPIRES;
+        account = new Account(ACCOUNTNAME, ACCOUNTTYPE);
     }
 
     @Test
     public void shouldStoreTokenInformationIfSoundCloudAccountExists(){
         tokenOperations.storeSoundCloudTokenData(account, token);
-        verify(accountManager).setAuthToken(account, User.DataKeys.ACCESS_TOKEN, ACCESSTOKEN);
-        verify(accountManager).setAuthToken(account, User.DataKeys.REFRESH_TOKEN, REFRESHTOKEN);
-        verify(accountManager).setUserData(account, User.DataKeys.SCOPE, SCOPE);
-        verify(accountManager).setPassword(account, token.access);
-        verify(accountManager).setUserData(account, User.DataKeys.EXPIRES_IN, Long.toString(EXPIRES));
+
+        verify(accountManager).setAuthToken(account, "access_token", ACCESSTOKEN);
+        verify(accountManager).setAuthToken(account, "refresh_token", REFRESHTOKEN);
+        verify(accountManager).setUserData(account, "scope", SCOPE);
+        verify(accountManager).setUserData(account, "expires_in", Long.toString(EXPIRES));
     }
 
     @Test
     public void shouldReturnTokenIfAccountExists(){
-        when(accountManager.getUserData(account, User.DataKeys.SCOPE)).thenReturn(SCOPE);
-        when(accountManager.peekAuthToken(account, User.DataKeys.ACCESS_TOKEN)).thenReturn(ACCESSTOKEN);
-        when(accountManager.peekAuthToken(account, User.DataKeys.REFRESH_TOKEN)).thenReturn(REFRESHTOKEN);
+        when(accountManager.getUserData(account, "scope")).thenReturn(SCOPE);
+        when(accountManager.peekAuthToken(account, "access_token")).thenReturn(ACCESSTOKEN);
+        when(accountManager.peekAuthToken(account, "refresh_token")).thenReturn(REFRESHTOKEN);
 
         Token token = tokenOperations.getSoundCloudToken(account);
         expect(token.access).toEqual(ACCESSTOKEN);
@@ -67,10 +68,13 @@ public class SoundCloudTokenOperationsTest {
     }
 
     @Test
-    public void shouldInvalidateAccessAndRefreshTokenWhenRequested(){
-        when(resources.getString(R.string.account_type)).thenReturn("accounttype");
-        tokenOperations.invalidateToken(token);
-        verify(accountManager).invalidateAuthToken("accounttype", ACCESSTOKEN);
-        verify(accountManager).invalidateAuthToken("accounttype", REFRESHTOKEN);
+    public void shouldInvalidateTokensAndData(){
+
+        tokenOperations.invalidateToken(token, account);
+        verify(accountManager).invalidateAuthToken(ACCOUNTTYPE, ACCESSTOKEN);
+        verify(accountManager).invalidateAuthToken(ACCOUNTTYPE, REFRESHTOKEN);
+
+        verify(accountManager).setUserData(account, "scope", null);
+        verify(accountManager).setUserData(account, "expires_in", null);
     }
 }
