@@ -218,6 +218,14 @@ public class User extends ScResource implements UserHolder {
         return Content.USERS.forId(id);
     }
 
+    @Nullable
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(@Nullable String username) {
+        this.username = username;
+    }
 
     public String getLocation() {
         if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
@@ -269,6 +277,24 @@ public class User extends ScResource implements UserHolder {
 
     public Intent getViewIntent() {
         return new Intent(Actions.USER_BROWSER).putExtra(UserBrowser.EXTRA_USER, this);
+    }
+
+    public boolean addAFollower() {
+        if (isFollowersCountSet()) {
+            followers_count++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean removeAFollower() {
+        if (isFollowersCountSet()){
+            followers_count--;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @NotNull
@@ -344,6 +370,10 @@ public class User extends ScResource implements UserHolder {
 
     public boolean shouldLoadIcon() {
         return ImageUtils.checkIconShouldLoad(avatar_url);
+    }
+
+    public boolean isFollowersCountSet() {
+        return followers_count > NOT_SET;
     }
 
     public Plan getPlan() {

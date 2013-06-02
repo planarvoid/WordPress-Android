@@ -4,11 +4,16 @@ import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
 import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -24,20 +29,80 @@ import java.util.List;
  */
 public class UserAssociationStorage {
     private final ContentResolver mResolver;
+    private final UserAssociationDAO mUserAssociationDAO;
+    private final UserAssociationDAO mFollowingsDAO;
 
     public UserAssociationStorage() {
-        mResolver = SoundCloudApplication.instance.getContentResolver();
+        this(SoundCloudApplication.instance.getContentResolver());
     }
 
     public UserAssociationStorage(ContentResolver resolver) {
         mResolver = resolver;
+        mUserAssociationDAO = new UserAssociationDAO(mResolver);
+        mFollowingsDAO = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, mResolver);
     }
 
     @Deprecated
     public List<Long> getStoredIds(Uri uri) {
+        final String selection = Content.ME_FOLLOWINGS.uri.equals(uri) ?
+                DBHelper.UserAssociations.REMOVED_AT + " IS NULL" : null;
         return ResolverHelper.idCursorToList(
-                mResolver.query(ResolverHelper.addIdOnlyParameter(uri), null, null, null, null)
+                mResolver.query(ResolverHelper.addIdOnlyParameter(uri), null, selection, null, null)
         );
+    }
+
+    public List<UserAssociation> getFollowings() {
+        return mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll();
+    }
+
+    public List<UserAssociation> getFollowingsNeedingSync() {
+        return mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT + " IS NOT NULL OR " +
+                DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NOT NULL"
+        ).queryAll();
+    }
+
+    public boolean hasFollowingsNeedingSync() {
+        return mUserAssociationDAO.count(
+                DBHelper.UserAssociations.ASSOCIATION_TYPE + " = ? AND (" +
+                        DBHelper.UserAssociations.ADDED_AT + " IS NOT NULL OR " +
+                        DBHelper.UserAssociations.REMOVED_AT + " IS NOT NULL )"
+                , String.valueOf(Association.Type.FOLLOWING.collectionType)) > 0;
+    }
+
+    /**
+     * Persists user-followings information to the database. Will create a user association,
+     * update the followers count of the target user, and commit to the database.
+     *
+     * @param user the user that is being followed
+     * @return the new association created
+     */
+    public UserAssociation addFollowing(User user) {
+        UserAssociation following = queryFollowingByTargetUserId(user.id);
+        if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL){
+            following = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
+            following.markForAddition();
+            user.addAFollower();
+            mFollowingsDAO.create(following);
+
+        }
+        return following;
+    }
+
+    /**
+     * Remove a following for the logged in user. This will create an association, remove
+     * it from the database, and update the corresponding user with the new count in local storage
+     *
+     * @param user the user whose following should be removed
+     * @return
+     */
+    public UserAssociation removeFollowing(User user) {
+        final UserAssociation following = new UserAssociation(SoundAssociation.Type.FOLLOWING, user);
+        following.markForRemoval();
+        if (mUserAssociationDAO.update(following) && user.removeAFollower()) {
+            new UserDAO(mResolver).update(user);
+            return following;
+        }
+        return null;
     }
 
     @Deprecated
@@ -92,4 +157,30 @@ public class UserAssociationStorage {
     public void clear() {
         UserAssociationDAO.forContent(Content.USER_ASSOCIATIONS, mResolver).deleteAll();
     }
+
+    public boolean setFollowingAsSynced(UserAssociation a) {
+        UserAssociation following = queryFollowingByTargetUserId(a.getUser().id);
+        if (following != null) {
+            switch (following.getLocalSyncState()) {
+                case PENDING_ADDITION:
+                    following.clearLocalSyncState();
+                    return mUserAssociationDAO.update(following);
+                case PENDING_REMOVAL:
+                    return mFollowingsDAO.delete(following);
+            }
+        }
+        return false;
+    }
+
+    @Nullable
+    private UserAssociation queryFollowingByTargetUserId(long targetUserId) {
+        String where = DBHelper.UserAssociationView._ID + " = ? AND " +
+                DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
+
+        return mFollowingsDAO.buildQuery()
+                .where(where, String.valueOf(targetUserId), String.valueOf(Association.Type.FOLLOWING.collectionType))
+                .first();
+    }
+
+
 }

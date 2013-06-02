@@ -126,7 +126,7 @@ public class ApiSyncServiceTest {
         svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));
         svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FOLLOWINGS.uri, null, false));
 
-        ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_LIKES.uri);
+        ApiSyncResult result = new ApiSyncResult(Content.ME_LIKES.uri);
         result.success = true;
 
         svc.onUriSyncResult(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));

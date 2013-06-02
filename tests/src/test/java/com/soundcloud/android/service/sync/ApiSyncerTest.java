@@ -1,26 +1,15 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.addCannedResponse;
-import static com.soundcloud.android.robolectric.TestHelper.addIdResponse;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
-import static com.soundcloud.android.robolectric.TestHelper.assertFirstIdToBe;
 import static com.soundcloud.android.robolectric.TestHelper.assertResolverNotified;
-import static com.soundcloud.android.service.sync.ApiSyncer.Result;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
-import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.model.act.PlaylistActivity;
@@ -33,16 +22,13 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
 import java.io.IOException;
-import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerTest {
@@ -67,19 +53,19 @@ public class ApiSyncerTest {
     public void shouldSyncMe() throws Exception {
         addPendingHttpResponse(getClass(), "me.json");
         expect(Content.ME).toBeEmpty();
-        Result result = sync(Content.ME.uri);
+        ApiSyncResult result = sync(Content.ME.uri);
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
         expect(Content.ME).toHaveCount(1);
         expect(Content.USERS).toHaveCount(1);
         expect(result.success).toBe(true);
-        expect(result.change).toEqual(Result.CHANGED);
+        expect(result.change).toEqual(ApiSyncResult.CHANGED);
     }
 
     @Test
     public void shouldSyncStream() throws Exception {
-        Result result = sync(Content.ME_SOUND_STREAM.uri,
+        ApiSyncResult result = sync(Content.ME_SOUND_STREAM.uri,
                 "e1_stream.json",
                 "e1_stream_oldest.json");
         expect(result.success).toBeTrue();
@@ -102,7 +88,7 @@ public class ApiSyncerTest {
         // special case: track in stream doesn't contain some of the stats (per track basis):
         // playback_count, download_count, favoritings_count, comment_count, likes_count, reposts_count
         // we need to make sure we preserve this information and not write 0 to the local storage
-        Result result = sync(Content.ME_SOUND_STREAM.uri,
+        ApiSyncResult result = sync(Content.ME_SOUND_STREAM.uri,
                 "e1_stream_track_without_stats.json",
                 "e1_stream_oldest.json");
         expect(result.success).toBeTrue();
@@ -121,7 +107,7 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncActivities() throws Exception {
-        Result result = sync(Content.ME_ACTIVITIES.uri,
+        ApiSyncResult result = sync(Content.ME_ACTIVITIES.uri,
                 "e1_activities_1.json",
                 "e1_activities_2.json");
         expect(result.success).toBeTrue();
@@ -142,61 +128,8 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldSyncFollowers() throws Exception {
-        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
-
-        Result result = sync(Content.ME_FOLLOWERS.uri);
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
-        expect(Content.USERS).toHaveCount(3);
-
-
-        List<User> followers = TestHelper.loadLocalContent(Content.ME_FOLLOWERS.uri, User.class);
-        expect(followers.get(0).id).toEqual(308291l);
-        for (User u : followers){
-            expect(u.isStale()).toBeFalse();
-        }
-    }
-
-    @Test
-    public void shouldSyncFollowersInSingleBatchIfCollectionIsSmallEnough() throws Exception {
-        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
-
-        ContentResolver resolver = Mockito.mock(ContentResolver.class);
-
-        ApiSyncer syncer = new ApiSyncer(Robolectric.application, resolver);
-
-        syncer.setBulkInsertBatchSize(Integer.MAX_VALUE);
-        syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
-        verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
-        verify(resolver).query(eq(ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWERS.uri)),
-                isNull(String[].class), isNull(String.class), isNull(String[].class), isNull(String.class));
-        verifyNoMoreInteractions(resolver);
-    }
-
-    @Test
-    public void shouldSyncFollowersInBatchesIfCollectionTooLarge() throws Exception {
-        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
-
-        ContentResolver resolver = Mockito.mock(ContentResolver.class);
-
-        ApiSyncer syncer = new ApiSyncer(Robolectric.application, resolver);
-
-        syncer.setBulkInsertBatchSize(2); // for 3 users, this should result in 2 batches being inserted
-        syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
-
-        verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
-        verify(resolver).query(eq(ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWERS.uri)),
-                isNull(String[].class), isNull(String.class), isNull(String[].class), isNull(String.class));
-        verifyNoMoreInteractions(resolver);
-    }
-
-    @Test
     public void shouldSyncSounds() throws Exception {
-        Result result = syncMeSounds();
+        ApiSyncResult result = syncMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -206,10 +139,10 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncLikes() throws Exception {
-        addResourceResponse("/e1/users/" + String.valueOf(USER_ID)
+        TestHelper.addResourceResponse(getClass(), "/e1/users/" + String.valueOf(USER_ID)
                 + "/likes?limit=200&representation=mini&linked_partitioning=1", "e1_likes_mini.json");
 
-        Result result = sync(Content.ME_LIKES.uri);
+        ApiSyncResult result = sync(Content.ME_LIKES.uri);
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -220,11 +153,11 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncPlaylists() throws Exception {
-        addResourceResponse("/me/playlists?representation=compact&limit=200&linked_partitioning=1", "me_playlists_compact.json");
-        addResourceResponse("/playlists/3250812/tracks", "playlist_3250812_tracks.json");
-        addResourceResponse("/playlists/3250804/tracks", "playlist_3250804_tracks.json");
+        TestHelper.addResourceResponse(getClass(), "/me/playlists?representation=compact&limit=200&linked_partitioning=1", "me_playlists_compact.json");
+        TestHelper.addResourceResponse(getClass(), "/playlists/3250812/tracks", "playlist_3250812_tracks.json");
+        TestHelper.addResourceResponse(getClass(), "/playlists/3250804/tracks", "playlist_3250804_tracks.json");
 
-        Result result = sync(Content.ME_PLAYLISTS.uri);
+        ApiSyncResult result = sync(Content.ME_PLAYLISTS.uri);
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
@@ -239,11 +172,11 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncSoundsAndLikes() throws Exception {
-        Result result = syncMeSounds();
+        ApiSyncResult result = syncMeSounds();
         expect(result.success).toBeTrue();
         expect(result.synced_at).toBeGreaterThan(0l);
 
-        addResourceResponse("/e1/users/" + String.valueOf(USER_ID)
+        TestHelper.addResourceResponse(getClass(), "/e1/users/" + String.valueOf(USER_ID)
                 + "/likes?limit=200&representation=mini&linked_partitioning=1", "e1_likes_mini.json");
 
         result = sync(Content.ME_LIKES.uri);
@@ -253,19 +186,6 @@ public class ApiSyncerTest {
         expect(Content.TRACKS).toHaveCount(49); // 48 tracks + from /me/sounds + 1 track from /me/likes
         expect(Content.ME_SOUNDS).toHaveCount(50); // 48 tracks + 2 playlists from /me/sounds
         expect(Content.ME_LIKES).toHaveCount(2); // 1 track + 1 playlist like
-    }
-
-    @Test
-    public void shouldSyncFriends() throws Exception {
-        addIdResponse("/me/connections/friends/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addResourceResponse("/users?linked_partitioning=1&limit=200&ids=792584%2C1255758%2C308291", "users.json");
-
-        sync(Content.ME_FRIENDS.uri);
-
-        // make sure tracks+users got written
-        expect(Content.USERS).toHaveCount(3);
-        expect(Content.ME_FRIENDS).toHaveCount(3);
-        assertFirstIdToBe(Content.ME_FRIENDS, 308291);
     }
 
     @Test
@@ -283,19 +203,19 @@ public class ApiSyncerTest {
     @Test
     public void shouldSyncConnections() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "connections.json");
-        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(4);
 
         TestHelper.addPendingHttpResponse(getClass(), "connections.json");
-        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.UNCHANGED);
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(ApiSyncResult.UNCHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(4);
 
         TestHelper.addPendingHttpResponse(getClass(), "connections_add.json");
-        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(6);
 
         TestHelper.addPendingHttpResponse(getClass(), "connections_delete.json");
-        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(Result.CHANGED);
+        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(3);
     }
 
@@ -318,18 +238,18 @@ public class ApiSyncerTest {
         expect(syncStateManager.fromContent(playlist.toUri()).shouldAutoRefresh()).toBeFalse();
     }
 
-    private Result syncMeSounds() throws IOException {
-        addResourceResponse("/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
+    private ApiSyncResult syncMeSounds() throws IOException {
+        TestHelper.addResourceResponse(getClass(), "/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
         return sync(Content.ME_SOUNDS.uri);
     }
 
     @Test
     public void shouldSyncAPlaylist() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
-        Result result = sync(Content.PLAYLIST.forId(2524386l));
+        ApiSyncResult result = sync(Content.PLAYLIST.forId(2524386l));
         expect(result.success).toBe(true);
         expect(result.synced_at).toBeGreaterThan(0l);
-        expect(result.change).toEqual(Result.CHANGED);
+        expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.PLAYLISTS).toHaveCount(1);
 
         Playlist p = playlistStorage.loadPlaylistWithTracks(2524386l).toBlockingObservable().lastOrDefault(null);
@@ -349,7 +269,7 @@ public class ApiSyncerTest {
     public void shouldSyncPlaylistWithAdditions() throws Exception {
 
         TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
-        Result result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
+        ApiSyncResult result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
         expect(result.success).toBe(true);
 
         final Playlist playlist = new Playlist(2524386);
@@ -362,7 +282,7 @@ public class ApiSyncerTest {
         result = sync(Content.PLAYLIST.forId(10696200));
         expect(result.success).toBe(true);
         expect(result.synced_at).toBeGreaterThan(0L);
-        expect(result.change).toEqual(Result.CHANGED);
+        expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.TRACKS).toHaveCount(44);
 
         Playlist p = playlistStorage.loadPlaylistWithTracks(playlist.id).toBlockingObservable().lastOrDefault(null);
@@ -373,20 +293,20 @@ public class ApiSyncerTest {
     @Test
     public void shouldDoTrackLookup() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
-        Result result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
+        ApiSyncResult result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
         expect(result.success).toBe(true);
         expect(result.synced_at).toBeGreaterThan(0l);
-        expect(result.change).toEqual(Result.CHANGED);
+        expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.TRACKS).toHaveCount(3);
     }
 
     @Test
     public void shouldDoUserLookup() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "users.json");
-        Result result = sync(Content.USER_LOOKUP.forQuery("308291,792584,1255758"));
+        ApiSyncResult result = sync(Content.USER_LOOKUP.forQuery("308291,792584,1255758"));
         expect(result.success).toBe(true);
         expect(result.synced_at).toBeGreaterThan(0l);
-        expect(result.change).toEqual(Result.CHANGED);
+        expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.USERS).toHaveCount(3);
     }
 
@@ -394,44 +314,20 @@ public class ApiSyncerTest {
     public void shouldDoPlaylistLookup() throws Exception {
         TestHelper.addCannedResponse(getClass(), "/playlists?ids=3761799%2C1&representation=compact&linked_partitioning=1",
                 "playlists_compact.json");
-        Result result = sync(Content.PLAYLIST_LOOKUP.forQuery("3761799,1"));
+        ApiSyncResult result = sync(Content.PLAYLIST_LOOKUP.forQuery("3761799,1"));
         expect(result.success).toBe(true);
         expect(result.synced_at).toBeGreaterThan(0l);
-        expect(result.change).toEqual(Result.CHANGED);
+        expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.PLAYLISTS).toHaveCount(2);
     }
 
     @Test
     public void shouldSetSyncResultData() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "e1_activities_1_oldest.json");
-        Result result = sync(Content.ME_ACTIVITIES.uri);
-        expect(result.change).toEqual(Result.CHANGED);
+        ApiSyncResult result = sync(Content.ME_ACTIVITIES.uri);
+        expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(result.new_size).toEqual(7);
         expect(result.synced_at).toBeGreaterThan(0l);
-    }
-
-    @Test
-    public void shouldReturnReorderedForUsersIfLocalStateEqualsRemote() throws Exception {
-        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
-
-        Result result = sync(Content.ME_FOLLOWERS.uri);
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
-
-        // make sure tracks+users got written
-        expect(Content.USERS).toHaveCount(3);
-        expect(Content.ME_FOLLOWERS).toHaveCount(3);
-        assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
-
-
-        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(getClass(), "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
-        result = sync(Content.ME_FOLLOWERS.uri);
-        expect(result.success).toBe(true);
-        expect(result.change).toEqual(Result.REORDERED);
-        expect(result.synced_at).toBeGreaterThan(0l);
-        expect(result.extra).toBeNull();
     }
 
     @Test
@@ -501,16 +397,12 @@ public class ApiSyncerTest {
     @Test(expected = IOException.class)
     public void shouldThrowIOException() throws Exception {
         Robolectric.setDefaultHttpResponse(500, "error");
-        sync(Content.ME_FOLLOWERS.uri);
+        sync(Content.ME_LIKES.uri);
     }
 
-    private Result sync(Uri uri,  String... fixtures) throws IOException {
+    private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(getClass(), fixtures);
         ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver());
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
-    }
-
-    private void addResourceResponse(String url, String resource) throws IOException {
-        TestHelper.addCannedResponse(getClass(), url, resource);
     }
 }

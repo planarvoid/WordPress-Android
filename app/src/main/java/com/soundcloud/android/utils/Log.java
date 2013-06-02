@@ -39,6 +39,12 @@ public class Log {
         }
     }
 
+    public static void w(@NotNull final String tag, @NotNull final String message, Throwable exception) {
+        if (android.util.Log.isLoggable(tag, android.util.Log.WARN)) {
+            android.util.Log.w(tag, message, exception);
+        }
+    }
+
     public static void w(@NotNull final Object obj, @NotNull final String message) {
         w(obj.getClass().getSimpleName(), message);
     }

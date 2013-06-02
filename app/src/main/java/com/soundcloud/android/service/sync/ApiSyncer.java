@@ -2,23 +2,18 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.api.Wrapper;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.BaseDAO;
-import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.ConnectionDAO;
 import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.dao.SoundAssociationStorage;
 import com.soundcloud.android.dao.Storage;
 import com.soundcloud.android.dao.TrackStorage;
-import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.dao.UserStorage;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
@@ -31,6 +26,7 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.sync.content.SyncStrategy;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -38,12 +34,10 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -59,53 +53,36 @@ import java.util.Set;
 
 /**
  * Performs the actual sync with the API. Used by {@link CollectionSyncRequest}.
- *
+ * <p/>
  * As a client, do not use this class directly, but use {@link SyncOperations} instead.
- * 
+ * <p/>
  * TODO: make package level visible again after removing {@link com.soundcloud.android.task.collection.ActivitiesLoader}
+ * TODO: Split this up into different syncers
  */
-public class ApiSyncer {
-    public static final String TAG = ApiSyncService.LOG_TAG;
+public class ApiSyncer extends SyncStrategy {
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
     private static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 100;
-    private static final int BULK_INSERT_BATCH_SIZE = 500;
 
-    private final AndroidCloudAPI mApi;
-    private final ContentResolver mResolver;
-    private final Context mContext;
-    private final SyncStateManager mSyncStateManager;
     private final ActivitiesStorage mActivitiesStorage;
     private final PlaylistStorage mPlaylistStorage;
     private final SoundAssociationStorage mSoundAssociationStorage;
-    private final CollectionStorage mCollectionStorage;
     private final UserStorage mUserStorage;
 
-
-    private int mBulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
-
     public ApiSyncer(Context context, ContentResolver resolver) {
-        mApi = new OldCloudAPI(context);
-        mResolver = resolver;
-        mContext = context;
-        mSyncStateManager = new SyncStateManager();
+        super(context, resolver);
         mActivitiesStorage = new ActivitiesStorage();
         mPlaylistStorage = new PlaylistStorage();
         mSoundAssociationStorage = new SoundAssociationStorage();
-        mCollectionStorage = new CollectionStorage();
         mUserStorage = new UserStorage();
     }
 
-    // Tests want to override this value
-    /* package */ void setBulkInsertBatchSize(int batchSize) {
-        mBulkInsertBatchSize = batchSize;
-    }
-
-    public @NotNull Result syncContent(Uri uri, String action) throws IOException {
+    @NotNull
+    public ApiSyncResult syncContent(Uri uri, String action) throws IOException {
         final long userId = SoundCloudApplication.getUserIdFromContext(mContext);
         Content c = Content.match(uri);
-        Result result = new Result(uri);
+        ApiSyncResult result = new ApiSyncResult(uri);
 
-        if (userId <= 0){
+        if (userId <= 0) {
             Log.w(TAG, "Invalid user id, skipping sync ");
         } else if (c.remoteUri != null) {
             switch (c) {
@@ -130,13 +107,6 @@ public class ApiSyncer {
                 case ME_LIKES:
                 case ME_SOUNDS:
                     result = syncSoundAssociations(c, uri, userId);
-                    break;
-
-                case ME_FOLLOWINGS:
-                case ME_FOLLOWERS:
-                case ME_FRIENDS:
-                    result = syncUserAssociations(c, userId);
-                    result.success = true;
                     break;
 
                 case PLAYLIST_LOOKUP:
@@ -165,7 +135,7 @@ public class ApiSyncer {
 
                 case ME_CONNECTIONS:
                     result = syncMyConnections();
-                    if (result.change == Result.CHANGED){
+                    if (result.change == ApiSyncResult.CHANGED) {
                         // connections changed so make sure friends gets auto synced next opportunity
                         mSyncStateManager.forceToStale(Content.ME_FRIENDS.uri);
                     }
@@ -177,12 +147,12 @@ public class ApiSyncer {
                 case USERS_CLEANUP:
                 case SOUND_STREAM_CLEANUP:
                 case ACTIVITIES_CLEANUP:
-                    result = new Result(c.uri);
+                    result = new ApiSyncResult(c.uri);
                     result.success = true;
                     if (mResolver.update(uri, null, null, null) > 0) {
-                        result.change = Result.CHANGED;
+                        result.change = ApiSyncResult.CHANGED;
                     }
-                    result.setSyncData(System.currentTimeMillis(),-1,null);
+                    result.setSyncData(System.currentTimeMillis(), -1, null);
                     break;
                 default:
                     Log.w(TAG, "no remote URI defined for " + c);
@@ -196,11 +166,11 @@ public class ApiSyncer {
     /**
      * Pushes any locally created playlists to the server, fetches the user's playlists from the server,
      * and fetches tracks for these playlists that are missing locally.
-     *
+     * <p/>
      * This is specific because the Api does not return these as sound associations, otherwise
      * we could use that path
      */
-    private Result syncMyPlaylists() throws IOException {
+    private ApiSyncResult syncMyPlaylists() throws IOException {
         pushLocalPlaylists();
 
         final Request request = Request.to(Content.ME_PLAYLISTS.remoteUri)
@@ -215,21 +185,21 @@ public class ApiSyncer {
             Playlist playlist = (Playlist) resource;
             associations.add(new SoundAssociation(playlist));
             boolean onWifi = IOUtils.isWifiConnected(mContext);
-                // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
-                final LocalCollection localCollection = mSyncStateManager.fromContent(playlist.toUri());
+            // if we have never synced the playlist or are on wifi and past the stale time, fetch the tracks
+            final LocalCollection localCollection = mSyncStateManager.fromContent(playlist.toUri());
 
-                final boolean playlistStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
+            final boolean playlistStale = (localCollection.shouldAutoRefresh() && onWifi) || localCollection.last_sync_success <= 0;
 
-                if (playlistStale && playlist.getTrackCount() < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC) {
-                    try {
-                        playlist.tracks = mApi.readList(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
-                    } catch (IOException e) {
-                        // don't let the track fetch fail the sync, it is just an optimization
-                        Log.e(TAG,"Failed to fetch playlist tracks for playlist " + playlist, e);
-                    }
+            if (playlistStale && playlist.getTrackCount() < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC) {
+                try {
+                    playlist.tracks = mApi.readList(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
+                } catch (IOException e) {
+                    // don't let the track fetch fail the sync, it is just an optimization
+                    Log.e(TAG, "Failed to fetch playlist tracks for playlist " + playlist, e);
                 }
-                associations.add(new SoundAssociation(playlist));
             }
+            associations.add(new SoundAssociation(playlist));
+        }
         return syncLocalSoundAssocations(Content.ME_PLAYLISTS.uri, associations);
     }
 
@@ -245,7 +215,7 @@ public class ApiSyncer {
 
                 Playlist.ApiCreateObject createObject = new Playlist.ApiCreateObject(p);
 
-                if (createObject.tracks == null){
+                if (createObject.tracks == null) {
                     // add the tracks
                     createObject.tracks = new ArrayList<ScModel>();
                     Cursor itemsCursor = mResolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(p.id)),
@@ -279,7 +249,7 @@ public class ApiSyncer {
         return playlistsToUpload.size();
     }
 
-    private Result syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
+    private ApiSyncResult syncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
         log("syncSoundAssociations(" + uri + ")");
 
         final Request request = Request.to(content.remoteUri, userId)
@@ -290,18 +260,18 @@ public class ApiSyncer {
         return syncLocalSoundAssocations(uri, associations);
     }
 
-    private Result syncLocalSoundAssocations(Uri uri, List<SoundAssociation> associations) {
+    private ApiSyncResult syncLocalSoundAssocations(Uri uri, List<SoundAssociation> associations) {
         boolean changed = mSoundAssociationStorage.syncToLocal(associations, uri);
 
-        Result result = new Result(uri);
-        result.change =  changed ? Result.CHANGED : Result.UNCHANGED;
+        ApiSyncResult result = new ApiSyncResult(uri);
+        result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
         result.setSyncData(System.currentTimeMillis(), associations.size(), null);
         result.success = true;
         return result;
     }
 
-    private Result syncActivities(Uri uri, String action) throws IOException {
-        Result result = new Result(uri);
+    private ApiSyncResult syncActivities(Uri uri, String action) throws IOException {
+        ApiSyncResult result = new ApiSyncResult(uri);
         log("syncActivities(" + uri + ")");
 
         final Content c = Content.match(uri);
@@ -324,7 +294,7 @@ public class ApiSyncer {
             Request request = future_href == null ? c.request() : Request.to(future_href);
             activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 
-                if (activities.moreResourcesExist()) {
+            if (activities.moreResourcesExist()) {
                 // delete all activities to avoid gaps in the data
                 mResolver.delete(c.uri, null, null);
             }
@@ -339,97 +309,18 @@ public class ApiSyncer {
             result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);
         }
 
-        result.change = inserted > 0 ? Result.CHANGED : Result.UNCHANGED;
+        result.change = inserted > 0 ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
         log("activities: inserted " + inserted + " objects");
         return result;
     }
 
-    private Result syncUserAssociations(Content content, final long userId) throws IOException {
-        Result result = new Result(content.uri);
-        if (!Content.ID_BASED.contains(content)) return result;
-
-        final UserAssociationStorage userAssociationStorage = new UserAssociationStorage(mResolver);
-        List<Long> local  = userAssociationStorage.getStoredIds(content.uri);
-        List<Long> remote = mApi.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
-
-        log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
-        result.setSyncData(System.currentTimeMillis(), remote.size(), null);
-
-        if (checkUnchanged(content, result, local, remote)) return result;
-
-        // deletions can happen here, has no impact
-        List<Long> itemDeletions = new ArrayList<Long>(local);
-        itemDeletions.removeAll(remote);
-        userAssociationStorage.deleteAssociations(content.uri, itemDeletions);
-
-        int startPosition = 1;
-        int added = 0;
-        switch (content) {
-            case ME_FOLLOWERS:
-            case ME_FOLLOWINGS:
-                // load the first page of items to get proper last_seen ordering
-                // parse and add first items
-                List<ScResource> resources = mApi.readList(Request.to(content.remoteUri)
-                        .add(Wrapper.LINKED_PARTITIONING, "1")
-                        .add("limit", Consts.COLLECTION_PAGE_SIZE));
-
-                added = userAssociationStorage.insertAssociations(resources, content.uri, userId);
-
-                // remove items from master remote list and adjust start index
-                for (ScResource u : resources) {
-                    remote.remove(u.id);
-                }
-                startPosition = resources.size();
-                break;
-            case ME_FRIENDS:
-                // sync all friends. It is the only way ordering works properly
-                added = mCollectionStorage.fetchAndStoreMissingCollectionItems(
-                        mApi,
-                        remote,
-                        Content.USERS,
-                        false
-                );
-                break;
-        }
-
-        log("Added " + added + " new items for this endpoint");
-        userAssociationStorage.insertInBatches(content, userId, remote, startPosition, mBulkInsertBatchSize);
-        return result;
-    }
-
-    private boolean checkUnchanged(Content content, Result result, List<Long> local, List<Long> remote) {
-        switch (content) {
-            case ME_FOLLOWERS:
-            case ME_FOLLOWINGS:
-                Set<Long> localSet = new HashSet<Long>(local);
-                Set<Long> remoteSet = new HashSet<Long>(remote);
-                if (!localSet.equals(remoteSet)) {
-                    result.change = Result.CHANGED;
-                    result.extra = "0"; // reset sync misses
-                } else {
-                    result.change = remoteSet.isEmpty() ? Result.UNCHANGED : Result.REORDERED; // always mark users as reordered so we get the first page
-                }
-                break;
-            default:
-                if (!local.equals(remote)) {
-                    // items have been added or removed (not just ordering) so this is a sync hit
-                    result.change = Result.CHANGED;
-                    result.extra = "0"; // reset sync misses
-                } else {
-                    result.change = Result.UNCHANGED;
-                    log("Cloud Api service: no change in URI " + content.uri + ". Skipping sync.");
-                }
-        }
-        return result.change == Result.UNCHANGED;
-    }
-
-    private Result syncMe(Content c, long userId) throws IOException {
-        Result result = new Result(c.uri);
+    private ApiSyncResult syncMe(Content c, long userId) throws IOException {
+        ApiSyncResult result = new ApiSyncResult(c.uri);
         User user = new FetchUserTask(mApi).resolve(c.request());
         result.synced_at = System.currentTimeMillis();
         if (user != null) {
             mUserStorage.createOrUpdate(user);
-            result.change = Result.CHANGED;
+            result.change = ApiSyncResult.CHANGED;
             result.success = true;
         }
         return result;
@@ -438,14 +329,15 @@ public class ApiSyncer {
     /**
      * Good for syncing any generic item that doesn't require special ordering or cache handling
      * e.g. Shortcuts, Connections
+     *
      * @param c the content to be synced
      * @return the syncresult
      * @throws IOException
      */
-    private Result syncMyGenericResource(Content c) throws IOException {
+    private ApiSyncResult syncMyGenericResource(Content c) throws IOException {
         log("Syncing generic resource " + c.uri);
 
-        Result result = new Result(c.uri);
+        ApiSyncResult result = new ApiSyncResult(c.uri);
         final Request request = c.request();
         HttpResponse resp = mApi.get(request);
 
@@ -467,16 +359,16 @@ public class ApiSyncer {
 
             result.setSyncData(System.currentTimeMillis(), inserted, null);
             result.success = true;
-        } else if (Log.isLoggable(TAG, Log.WARN)){
-            Log.w(TAG, "request "+ request +" returned "+resp.getStatusLine());
+        } else if (Log.isLoggable(TAG, Log.WARN)) {
+            Log.w(TAG, "request " + request + " returned " + resp.getStatusLine());
         }
         return result;
     }
 
-    private Result syncMyConnections() throws IOException {
+    private ApiSyncResult syncMyConnections() throws IOException {
         log("Syncing my connections");
 
-        Result result = new Result(Content.ME_CONNECTIONS.uri);
+        ApiSyncResult result = new ApiSyncResult(Content.ME_CONNECTIONS.uri);
         // compare local vs remote connections
         List<Connection> list = mApi.readList(Content.ME_CONNECTIONS.request());
         Set<Connection> remoteConnections = new HashSet<Connection>(list);
@@ -484,9 +376,9 @@ public class ApiSyncer {
         Set<Connection> storedConnections = new HashSet<Connection>(connectionDAO.queryAll());
 
         if (storedConnections.equals(remoteConnections)) {
-            result.change = Result.UNCHANGED;
+            result.change = ApiSyncResult.UNCHANGED;
         } else {
-            result.change = Result.CHANGED;
+            result.change = ApiSyncResult.CHANGED;
             // remove unneeded connections
             storedConnections.removeAll(remoteConnections);
             connectionDAO.deleteAll(storedConnections);
@@ -497,10 +389,10 @@ public class ApiSyncer {
         return result;
     }
 
-    private Result syncPlaylist(Uri contentUri) throws IOException {
+    private ApiSyncResult syncPlaylist(Uri contentUri) throws IOException {
         log("Syncing playlist " + contentUri);
 
-        Result result = new Result(contentUri);
+        ApiSyncResult result = new ApiSyncResult(contentUri);
 
         try {
             Playlist p = mApi.read(Content.match(contentUri).request(contentUri));
@@ -533,7 +425,7 @@ public class ApiSyncer {
             final Uri insertedUri = p.toUri();
             if (insertedUri != null) {
                 log("inserted " + insertedUri.toString());
-                result.setSyncData(true, System.currentTimeMillis(), 1, Result.CHANGED);
+                result.setSyncData(true, System.currentTimeMillis(), 1, ApiSyncResult.CHANGED);
             } else {
                 log("failed to create to " + contentUri);
                 result.success = false;
@@ -543,29 +435,30 @@ public class ApiSyncer {
         } catch (NotFoundException e) {
             log("Received a 404 on playlist, deleting " + contentUri.toString());
             mPlaylistStorage.removePlaylist(contentUri);
-            result.setSyncData(true, System.currentTimeMillis(), 0, Result.CHANGED);
+            result.setSyncData(true, System.currentTimeMillis(), 0, ApiSyncResult.CHANGED);
             return result;
         }
     }
 
     /**
      * Fetch a single resource from the api and create it into the content provider.
+     *
      * @param contentUri the content point to get the request and content provider destination from.
      *                   see {@link Content}
      * @return the result of the operation
      * @throws IOException
      */
-    private <T extends ScResource> Result doResourceFetchAndInsert(Uri contentUri, Storage<T> storage) throws IOException {
-        Result result = new Result(contentUri);
+    private <T extends ScResource> ApiSyncResult doResourceFetchAndInsert(Uri contentUri, Storage<T> storage) throws IOException {
+        ApiSyncResult result = new ApiSyncResult(contentUri);
         T resource = mApi.read(Content.match(contentUri).request(contentUri));
 
         storage.create(resource);
 
         final Uri insertedUri = resource.toUri();
 
-        if (insertedUri != null){
+        if (insertedUri != null) {
             log("inserted " + insertedUri.toString());
-            result.setSyncData(true, System.currentTimeMillis(), 1, Result.CHANGED);
+            result.setSyncData(true, System.currentTimeMillis(), 1, ApiSyncResult.CHANGED);
         } else {
             log("failed to create to " + contentUri);
             result.success = false;
@@ -576,10 +469,11 @@ public class ApiSyncer {
     /**
      * Fetch Api Resources and create them into the content provider. Plain resource inserts, no extra
      * content values will be inserted
+     *
      * @throws IOException
      */
-    private Result fetchAndInsertCollection(final Content content, Uri contentUri) throws IOException {
-        Result result = new Result(contentUri);
+    private ApiSyncResult fetchAndInsertCollection(final Content content, Uri contentUri) throws IOException {
+        ApiSyncResult result = new ApiSyncResult(contentUri);
         log("fetchAndInsertCollection(" + contentUri + ")");
 
         Request request = Request.to(content.remoteUri).add("ids", contentUri.getLastPathSegment());
@@ -591,80 +485,12 @@ public class ApiSyncer {
         List<ScResource> resources = mApi.readFullCollection(request, ScResource.ScResourceHolder.class);
 
         new BaseDAO<ScResource>(mResolver) {
-            @Override public Content getContent() {
+            @Override
+            public Content getContent() {
                 return content;
             }
         }.createCollection(resources);
-        result.setSyncData(true, System.currentTimeMillis(), resources.size(), Result.CHANGED);
+        result.setSyncData(true, System.currentTimeMillis(), resources.size(), ApiSyncResult.CHANGED);
         return result;
-    }
-
-    public static class Result {
-        public static final int UNCHANGED = 0;
-        public static final int REORDERED = 1;
-        public static final int CHANGED   = 2;
-
-        public final Uri uri;
-        public final SyncResult syncResult = new SyncResult();
-
-        /** One of {@link #UNCHANGED}, {@link #REORDERED}, {@link #CHANGED}. */
-        public int change;
-
-        public boolean success;
-
-        public long synced_at;
-        public int new_size;
-        public String extra;
-
-        public Result(Uri uri) {
-            this.uri = uri;
-        }
-
-        public void setSyncData(boolean success, long synced_at, int new_size, int change){
-            this.success = success;
-            this.synced_at = synced_at;
-            this.new_size = new_size;
-            this.change = change;
-        }
-
-        public void setSyncData(long synced_at, int new_size, @Nullable String extra){
-            this.synced_at = synced_at;
-            this.new_size = new_size;
-            this.extra = extra;
-        }
-
-        public static Result fromAuthException(Uri uri) {
-            Result r = new Result(uri);
-            r.syncResult.stats.numAuthExceptions++;
-            return r;
-        }
-
-        public static Result fromIOException(Uri uri) {
-            Result r = new Result(uri);
-            r.syncResult.stats.numIoExceptions++;
-            return r;
-        }
-
-        @Override
-        public String toString() {
-            return "Result{" +
-                    "uri=" + uri +
-                    ", syncResult=" + syncResult +
-                    ", change=" + change +
-                    ", success=" + success +
-                    ", synced_at=" + synced_at +
-                    ", new_size=" + new_size +
-                    ", extra='" + extra + '\'' +
-                    '}';
-        }
-    }
-
-    private static void log(String message) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, message);
-        }
-    }
-
-    public static class IdHolder extends CollectionHolder<Long> {
     }
 }

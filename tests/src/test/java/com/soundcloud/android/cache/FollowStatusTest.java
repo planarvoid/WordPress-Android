@@ -45,10 +45,8 @@ public class FollowStatusTest  {
         final boolean[] called = new boolean[1];
         status.requestUserFollowings(new FollowStatus.Listener() {
                     @Override
-                    public void onFollowChanged(boolean success) {
+                    public void onFollowChanged() {
                         called[0] = true;
-
-                        expect(success).toBeTrue();
                         expect(status.isFollowing(1)).toBeTrue();
                         expect(status.isFollowing(2)).toBeTrue();
                         expect(status.isFollowing(6)).toBeFalse();
@@ -62,49 +60,11 @@ public class FollowStatusTest  {
     public void testToggleFollowing() throws Exception {
         FollowStatus status = new FollowStatus(Robolectric.application);
         expect(status.isFollowing(10)).toBeFalse();
-        status.toggleFollowing(10);
-        expect(status.isFollowing(10)).toBeTrue();
-        status.toggleFollowing(10);
-        expect(status.isFollowing(10)).toBeFalse();
-    }
-
-    @Test
-    public void testToggleFollowingWithApiCall() throws Exception {
-        FollowStatus status = new FollowStatus(Robolectric.application);
-        Robolectric.addPendingHttpResponse(201, "CREATED");
-
-        User u = new User();
-        u.id = 10;
-
-        status.toggleFollowing(u, DefaultTestRunner.application, new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                expect(msg.what).toEqual(1);
-            }
-        });
-        expect(status.isFollowing(u)).toBeTrue();
-    }
-
-    @Test
-    public void testToggleFollowingWithFailedApiCall() throws Exception {
-        FollowStatus status = new FollowStatus(Robolectric.application);
-        Robolectric.addPendingHttpResponse(500, "ERROR");
-        User u = new User();
-        u.id = 23;
-
-        status.toggleFollowing(u, DefaultTestRunner.application, null);
-        expect(status.isFollowing(u)).toBeFalse();
-    }
-
-    @Test
-    public void testToggleFollowingWithSpammedApiCall() throws Exception {
-        FollowStatus status = new FollowStatus(Robolectric.application);
-        User u = new User();
-        u.id = 23;
-
-        Robolectric.addPendingHttpResponse(429, "TOO MANY REQUESTS");
-        status.toggleFollowing(u, DefaultTestRunner.application, null);
-        expect(status.isFollowing(u)).toBeFalse();
+        final User user = new User(10);
+        status.toggleFollowing(user);
+        expect(status.isFollowing(user)).toBeTrue();
+        status.toggleFollowing(user);
+        expect(status.isFollowing(user)).toBeFalse();
     }
 
     @Test

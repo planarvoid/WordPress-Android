@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes;
 
 import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
@@ -15,10 +14,6 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.content.ContentValues;
-
-import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
 public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> {
@@ -49,7 +44,7 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         expect(Content.ME_FOLLOWINGS).toHaveCount(0);
 
         User user = new User(1);
-        UserAssociation ua = new UserAssociation(user, UserAssociation.Type.FOLLOWING, new Date());
+        UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
         ua.owner = new User(AbstractDAOTest.OWNER_ID);
         getDAO().create(ua);
 
@@ -65,7 +60,7 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         expect(Content.ME_FOLLOWERS).toHaveCount(0);
 
         User user = new User(1);
-        UserAssociation ua = new UserAssociation(user, UserAssociation.Type.FOLLOWER, new Date());
+        UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWER, user);
         ua.owner = new User(AbstractDAOTest.OWNER_ID);
         getDAO().create(ua);
 

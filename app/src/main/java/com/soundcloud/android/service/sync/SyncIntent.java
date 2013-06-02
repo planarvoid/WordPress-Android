@@ -69,7 +69,7 @@ import java.util.Set;
             requestsRemaining.remove(request);
 
             resultData.putBoolean(request.contentUri.toString(), isUIRequest ?
-                    request.result.change != ApiSyncer.Result.UNCHANGED : request.result.change == ApiSyncer.Result.CHANGED);
+                    request.result.change != ApiSyncResult.UNCHANGED : request.result.change == ApiSyncResult.CHANGED);
 
             if (!request.result.success) {
                 ApiSyncService.appendSyncStats(request.result.syncResult, syncAdapterResult);
