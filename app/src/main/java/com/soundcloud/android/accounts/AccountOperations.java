@@ -10,11 +10,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.Observer;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -69,13 +67,13 @@ public class AccountOperations {
      */
     public Account addSoundCloudAccountExplicitly(User user, Token token, SignupVia via) {
         String type = context.getString(R.string.account_type);
-        Account account = new Account(user.username(), type);
+        Account account = new Account(user.getUsername(), type);
         boolean created = accountManager.addAccountExplicitly(account, null, null);
         if (created) {
             tokenOperations.storeSoundCloudTokenData(account, token);
             accountManager.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.getId()));
-            accountManager.setUserData(account, User.DataKeys.USERNAME, user.username());
-            accountManager.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink());
+            accountManager.setUserData(account, User.DataKeys.USERNAME, user.getUsername());
+            accountManager.setUserData(account, User.DataKeys.USER_PERMALINK, user.getPermalink());
             accountManager.setUserData(account, User.DataKeys.SIGNUP, via.signupIdentifier());
             return account;
         } else {
@@ -89,12 +87,12 @@ public class AccountOperations {
         return accounts != null && accounts.length == 1 ? accounts[0] : null;
     }
 
-    public void removeSoundCloudAccount(Observer<Void> observer) {
+    public Observable<Void> removeSoundCloudAccount() {
         Account soundCloudAccount = getSoundCloudAccount();
         checkNotNull(soundCloudAccount, "One does not simply remove something that does not exist");
 
-        Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager, context))
-                .subscribe(observer, ScSchedulers.BACKGROUND_SCHEDULER);
+        return Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager, context));
+
     }
 
     @Nullable

@@ -239,11 +239,7 @@ public class User extends ScResource implements UserHolder {
         }
     }
 
-    public String username(){
-        return username;
-    }
-
-    public String permalink(){
+    public String getPermalink(){
         return permalink;
     }
     public String getDisplayName() {

@@ -2,9 +2,9 @@ package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.Wrapper;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.api.Wrapper;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
@@ -18,6 +18,7 @@ import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -78,7 +79,7 @@ public class SyncAdapterService extends Service {
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
                 Looper.prepare();
                 looper = Looper.myLooper();
-                if (performSync((SoundCloudApplication) getApplication(), extras, syncResult,accountOperations, new Runnable() {
+                if (performSync((SoundCloudApplication) getApplication(), extras, syncResult,accountOperations.getSoundCloudToken(), new Runnable() {
                     @Override
                     public void run() {
                         Log.d(TAG, "sync finished");
@@ -125,9 +126,9 @@ public class SyncAdapterService extends Service {
     static boolean performSync(final SoundCloudApplication app,
                                Bundle extras,
                                final SyncResult syncResult,
-                               AccountOperations accountOperations,
+                               Token token,
                                final @Nullable Runnable onResult) {
-        if (!accountOperations.getSoundCloudToken().valid()) {
+        if (!token.valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
             return false;

@@ -93,7 +93,7 @@ public class AccountOperationsTest {
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionWhenRemovingAccountIfAccountDoesNotExist(){
         when(accountManager.getAccountsByType(anyString())).thenReturn(null);
-        accountOperations.removeSoundCloudAccount(observer);
+        accountOperations.removeSoundCloudAccount();
     }
 
     @Test
@@ -105,7 +105,7 @@ public class AccountOperationsTest {
 
     @Test
     public void shouldReturnNullIfAccountAdditionFails(){
-        when(user.username()).thenReturn("username");
+        when(user.getUsername()).thenReturn("username");
         when(accountManager.addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class))).thenReturn(false);
         expect(accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API)).toBeNull();
 
@@ -117,8 +117,8 @@ public class AccountOperationsTest {
 
         when(accountManager.addAccountExplicitly(account,null,null)).thenReturn(true);
         when(user.getId()).thenReturn(2L);
-        when(user.username()).thenReturn("username");
-        when(user.permalink()).thenReturn("permalink");
+        when(user.getUsername()).thenReturn("username");
+        when(user.getPermalink()).thenReturn("permalink");
 
         accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API);
         verify(accountManager).setUserData(account, User.DataKeys.USER_ID, "2");
@@ -131,7 +131,7 @@ public class AccountOperationsTest {
     public void shouldSetAuthTokenInformationIfAccountAdditionSucceeds(){
         Account account = new Account("username", SC_ACCOUNT_TYPE);
 
-        when(user.username()).thenReturn("username");
+        when(user.getUsername()).thenReturn("username");
         when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
         accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API);
@@ -143,7 +143,7 @@ public class AccountOperationsTest {
     public void shouldReturnAddedAccountIfAccountAdditionSucceeds(){
         Account account = new Account("username", SC_ACCOUNT_TYPE);
 
-        when(user.username()).thenReturn("username");
+        when(user.getUsername()).thenReturn("username");
         when(accountManager.addAccountExplicitly(account,null,null)).thenReturn(true);
 
         expect(accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API)).toEqual(account);
@@ -247,7 +247,7 @@ public class AccountOperationsTest {
     @Ignore("SCApplication needs more refactoring")
     public void shouldReturnObservableWithAccountRemovalFunction(){
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
-        accountOperations.removeSoundCloudAccount(observer);
+        accountOperations.removeSoundCloudAccount().subscribe(observer);
         verify(observer).onCompleted();
     }
 }

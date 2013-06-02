@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -107,12 +106,13 @@ public abstract class SyncAdapterServiceTestBase {
     }
 
     protected static SyncOutcome doPerformSyncWithValidToken(SoundCloudApplication app, boolean firstTime, @Nullable Bundle extras) throws Exception {
-        AccountOperations accountOperations = setupAccountOperationsForToken(true);
-        return doPerformSync(app, firstTime, extras, accountOperations);
+        Token token = mock(Token.class);
+        when(token.valid()).thenReturn(true);
+        return doPerformSync(app, firstTime, extras, token);
     }
 
     protected static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, @Nullable Bundle extras,
-                                               AccountOperations accountOperations)
+                                               Token token)
             throws Exception {
         if (!firstTime) ContentStats.setLastSeen(app, Content.ME_SOUND_STREAM, 1);
         if (extras == null) extras = new Bundle();
@@ -123,7 +123,7 @@ public abstract class SyncAdapterServiceTestBase {
         SyncResult result = new SyncResult();
         SyncAdapterService.performSync(
                 app,
-                extras, result, accountOperations, null);
+                extras, result, token, null);
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 
@@ -147,14 +147,6 @@ public abstract class SyncAdapterServiceTestBase {
         outcome.result = result;
         outcome.intent = intent;
         return outcome;
-    }
-
-    protected static AccountOperations setupAccountOperationsForToken(boolean isTokenValid) {
-        AccountOperations accountOperations = mock(AccountOperations.class);
-        Token token = mock(Token.class);
-        when(accountOperations.getSoundCloudToken()).thenReturn(token);
-        when(token.valid()).thenReturn(isTokenValid);
-        return accountOperations;
     }
 
     protected void addCannedActivities(String... resources) throws IOException {

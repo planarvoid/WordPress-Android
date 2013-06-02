@@ -3,13 +3,14 @@ package com.soundcloud.android.service.sync;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.service.sync.CollectionSyncRequestTest.NON_INTERACTIVE;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 
@@ -23,9 +24,8 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
     @Test
     public void shouldNotSyncWhenTokenIsInvalidAndFlagError() throws Exception {
-        AccountOperations accountOperations = setupAccountOperationsForToken(false);
         // will throw if actually syncing
-        SyncResult result = doPerformSync(DefaultTestRunner.application, false, null, accountOperations).result;
+        SyncResult result = doPerformSync(DefaultTestRunner.application, false, null, mock(Token.class)).result;
         expect(result.hasError()).toBeTrue();
         expect(result.hasHardError()).toBeTrue();
         expect(result.hasSoftError()).toBeFalse();

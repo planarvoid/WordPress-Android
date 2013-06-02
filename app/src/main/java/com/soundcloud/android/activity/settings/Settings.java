@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Click;
@@ -349,7 +350,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
             final ProgressDialog progressDialog = AndroidUtils.showProgress(mActivityContext, R.string.settings_logging_out);
 
             mSoundCloudApplication.track(Click.Log_out_box_ok);
-            mAccountOperations.removeSoundCloudAccount(new ScObserver<Void>() {
+            mAccountOperations.removeSoundCloudAccount().subscribe(new ScObserver<Void>() {
                 @Override
                 public void onCompleted() {
                     mAccountOperations.addSoundCloudAccountManually(mActivityContext);
@@ -368,7 +369,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                             .show();
                 }
 
-            });
+            }, ScSchedulers.BACKGROUND_SCHEDULER);
         }
     };
 }
