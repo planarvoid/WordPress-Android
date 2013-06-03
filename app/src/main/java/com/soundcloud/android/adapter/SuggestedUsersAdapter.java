@@ -8,7 +8,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.Log;
 import rx.util.functions.Action1;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,11 +46,15 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             mLabelResId = labelResId;
         }
 
-        public int getLabelResId() {
-            return mLabelResId;
+        String getLabel(Resources resources) {
+            if (mLabel == null) {
+                mLabel = resources.getString(mLabelResId);
+            }
+            return mLabel;
         }
 
-        private int mLabelResId;
+        private String mLabel;
+        private final int mLabelResId;
     }
 
     private final List<GenreBucket> mGenreBuckets;
@@ -148,9 +151,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {
         Section section = mListPositionsToSections.get(position);
         if (section != null) {
-            Context context = convertView.getContext();
-            final String headerText = context.getString(section.getLabelResId()).toUpperCase();
-            viewHolder.sectionHeader.setText(headerText);
+            viewHolder.sectionHeader.setText(section.getLabel(convertView.getResources()));
             viewHolder.sectionHeader.setVisibility(View.VISIBLE);
         } else {
             viewHolder.sectionHeader.setVisibility(View.GONE);
