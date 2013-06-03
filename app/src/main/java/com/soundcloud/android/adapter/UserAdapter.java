@@ -28,7 +28,7 @@ public class UserAdapter extends ScBaseAdapter<User> implements FollowStatus.Lis
     }
 
     @Override
-    public void onFollowChanged(boolean success) {
+    public void onFollowChanged() {
         notifyDataSetChanged();
     }
 }

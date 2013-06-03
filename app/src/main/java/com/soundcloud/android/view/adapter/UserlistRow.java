@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserHolder;
+import com.soundcloud.android.service.sync.SyncInitiator;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.EventAware;
@@ -18,8 +19,6 @@ import com.soundcloud.android.tracking.Tracking;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Handler;
-import android.os.Message;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -131,15 +130,9 @@ public class UserlistRow extends IconLayout implements ListRow {
     private void toggleFollowing(final User user) {
         SoundCloudApplication app = SoundCloudApplication.fromContext(getContext());
         if (app != null) {
-            FollowStatus.get().toggleFollowing(user, app, new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    if (msg.what == 1) {
-                        setFollowingStatus(true);
-                    }
-                }
-            });
-            setFollowingStatus(false);
+            FollowStatus.get().toggleFollowing(user);
+            SyncInitiator.pushFollowingsToApi(getContext());
+            setFollowingStatus(true);
         }
     }
 

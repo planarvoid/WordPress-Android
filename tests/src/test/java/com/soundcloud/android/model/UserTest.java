@@ -150,4 +150,36 @@ public class UserTest {
         expect(u.public_likes_count).not.toBeNull();
         expect(u.private_tracks_count).not.toBeNull();
     }
+
+    @Test
+    public void shouldNotIncreaseFollowerCountIfNotSet() throws Exception {
+        User u = new User();
+        u.followers_count = User.NOT_SET;
+        expect(u.addAFollower()).toBeFalse();
+        expect(u.followers_count).toEqual(User.NOT_SET);
+    }
+
+    @Test
+    public void shouldIncreaseFollowerCountIfSet() throws Exception {
+        User u = new User();
+        u.followers_count = 1;
+        expect(u.addAFollower()).toBeTrue();
+        expect(u.followers_count).toEqual(2);
+    }
+
+    @Test
+    public void shouldNotDecreaseFollowerCountIfNotSet() throws Exception {
+        User u = new User();
+        u.followers_count = User.NOT_SET;
+        expect(u.removeAFollower()).toBeFalse();
+        expect(u.followers_count).toEqual(User.NOT_SET);
+    }
+
+    @Test
+    public void shouldDecreaseFollowerCountIfSet() throws Exception {
+        User u = new User();
+        u.followers_count = 1;
+        expect(u.removeAFollower()).toBeTrue();
+        expect(u.followers_count).toEqual(0);
+    }
 }

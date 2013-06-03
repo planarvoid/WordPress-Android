@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
-import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -44,7 +43,7 @@ public class SoundAssociation extends Association implements PlayableHolder {
      * @param typeEnum the kind of association
      */
     public SoundAssociation(@NotNull Playable playable, Date associatedAt, Type typeEnum) {
-        super(associatedAt, typeEnum.collectionType);
+        super(typeEnum.collectionType, associatedAt);
         this.playable = playable;
     }
 

@@ -6,12 +6,14 @@ import com.soundcloud.android.Wrapper;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
+import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.DebugUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +30,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,15 +46,18 @@ public class SyncAdapterService extends Service {
     public static final String SYNC_FINISHED = SyncAdapterService.class.getName() + ".syncFinished";
     public static final int MAX_ARTWORK_PREFETCH = 40; // only prefetch N amount of artwork links
 
-    public static final String EXTRA_PUSH_EVENT     = "pushEvent";
-    public static final String EXTRA_PUSH_EVENT_URI = "pushEventUri";
+    public static final String EXTRA_SYNC_PUSH = "syncPush";
+    public static final String EXTRA_SYNC_PUSH_URI = "syncPushUri";
+    public static final String EXTRA_C2DM_EVENT = "c2dmEvent";
+    public static final String EXTRA_C2DM_EVENT_URI = "c2dmEventUri";
 
-    public static final int CLEAR_ALL       = 1;
+    public static final int CLEAR_ALL = 1;
     public static final int REWIND_LAST_DAY = 2;
 
     private AbstractThreadedSyncAdapter mSyncAdapter;
 
-    @Override public void onCreate() {
+    @Override
+    public void onCreate() {
         super.onCreate();
         mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
             private Looper looper;
@@ -71,8 +75,9 @@ public class SyncAdapterService extends Service {
                 Looper.prepare();
                 looper = Looper.myLooper();
                 if (performSync((SoundCloudApplication) getApplication(), account, extras, syncResult, new Runnable() {
-                    @Override public void run() {
-                        if(Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sync finished");
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "sync finished");
                         sendBroadcast(new Intent(SYNC_FINISHED));
 
                         looper.quit();
@@ -89,7 +94,8 @@ public class SyncAdapterService extends Service {
                     Log.d(TAG, "sync canceled, dumping stack");
                     DebugUtils.dumpStack(getContext());
                     new Thread() {
-                        @Override public void run() {
+                        @Override
+                        public void run() {
                             DebugUtils.dumpLog(getContext());
                         }
                     }.start();
@@ -101,7 +107,8 @@ public class SyncAdapterService extends Service {
         };
     }
 
-    @Override public IBinder onBind(Intent intent) {
+    @Override
+    public IBinder onBind(Intent intent) {
         return mSyncAdapter.getSyncAdapterBinder();
     }
 
@@ -110,11 +117,12 @@ public class SyncAdapterService extends Service {
      *
      * @return true if a sync has been started.
      */
-    /* package */ static boolean performSync(final SoundCloudApplication app,
-                                            Account account,
-                                            Bundle extras,
-                                            final SyncResult syncResult,
-                                            final @Nullable Runnable onResult) {
+    /* package */
+    static boolean performSync(final SoundCloudApplication app,
+                               Account account,
+                               Bundle extras,
+                               final SyncResult syncResult,
+                               final @Nullable Runnable onResult) {
         if (!app.useAccount(account).valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
@@ -161,6 +169,12 @@ public class SyncAdapterService extends Service {
 
 
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
+        if (extras.getBoolean(EXTRA_SYNC_PUSH)) {
+            syncIntent.setData(Uri.parse(extras.getString(EXTRA_SYNC_PUSH_URI)));
+            syncIntent.setAction(ApiSyncService.ACTION_PUSH);
+            return syncIntent;
+        }
+
         switch (PushEvent.fromExtras(extras)) {
             case FOLLOWER:
                 if (!handleFollowerEvent(app, extras, userStorage)) {
@@ -195,17 +209,21 @@ public class SyncAdapterService extends Service {
 
                 if (manual || SyncConfig.shouldSyncCollections(app)) {
                     final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(app, manual);
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "collection due for sync:" +dueForSync);
-                    }
+                    Log.d(TAG, "collection due for sync:" + dueForSync);
+
                     urisToSync.addAll(dueForSync);
-                } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+                } else {
                     Log.d(TAG, "skipping collection sync, no wifi");
                 }
 
                 // see if there are any local playlists that need to be pushed
-                if (new PlaylistStorage().hasLocalPlaylists()){
+                if (new PlaylistStorage().hasLocalPlaylists()) {
                     urisToSync.add(Content.ME_PLAYLISTS.uri);
+                }
+
+                // see if there are any local playlists that need to be pushed
+                if (new UserAssociationStorage().hasFollowingsNeedingSync()) {
+                    urisToSync.add(Content.ME_FOLLOWINGS.uri);
                 }
 
                 // see if there are any playlists with un-pushed track changes
@@ -213,9 +231,8 @@ public class SyncAdapterService extends Service {
                 if (playlistsDueForSync != null) urisToSync.addAll(playlistsDueForSync);
 
                 final List<Uri> dueForSync = SyncCleanups.getCleanupsDueForSync(manual);
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "cleanups due for sync:" + dueForSync);
-                }
+                Log.d(TAG, "cleanups due for sync:" + dueForSync);
+
                 urisToSync.addAll(dueForSync);
 
                 if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || manual) {
@@ -226,7 +243,7 @@ public class SyncAdapterService extends Service {
                 }
                 break;
 
-              default: /* unknown push event, just don't do anything */
+            default: /* unknown push event, just don't do anything */
         }
         return syncIntent;
     }
@@ -236,9 +253,9 @@ public class SyncAdapterService extends Service {
                                                Bundle extras,
                                                UserStorage userStorage) {
         if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean(Consts.PrefKeys.NOTIFICATIONS_FOLLOWERS, true)
-                && extras.containsKey(SyncAdapterService.EXTRA_PUSH_EVENT_URI)) {
+                && extras.containsKey(SyncAdapterService.EXTRA_C2DM_EVENT_URI)) {
 
-            final long id = PushEvent.getIdFromUri(extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT_URI));
+            final long id = PushEvent.getIdFromUri(extras.getString(SyncAdapterService.EXTRA_C2DM_EVENT_URI));
             if (id != -1) {
                 User u = userStorage.getUser(id);
 
@@ -282,9 +299,7 @@ public class SyncAdapterService extends Service {
 
     private static void clearActivities() {
         // drop all activities before re-sync
-        int deleted =  new ActivitiesStorage().clear(null);
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "deleted "+deleted+ " activities");
-        }
+        int deleted = new ActivitiesStorage().clear(null);
+        Log.d(TAG, "deleted " + deleted + " activities");
     }
 }

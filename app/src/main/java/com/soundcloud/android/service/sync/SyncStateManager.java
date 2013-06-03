@@ -111,7 +111,7 @@ public class SyncStateManager extends ScheduledOperations {
         }));
     }
 
-    public boolean onSyncComplete(ApiSyncer.Result result, LocalCollection collection) {
+    public boolean onSyncComplete(ApiSyncResult result, LocalCollection collection) {
         if (result == null) return false;
         if (result.synced_at > 0) collection.last_sync_success = result.synced_at;
         collection.size = result.new_size;

@@ -100,8 +100,8 @@ public class C2DMReceiverTest {
         C2DMReceiver receiver = new C2DMReceiver();
 
         Intent intent = new Intent(C2DMReceiver.ACTION_RECEIVE)
-                .putExtra(SyncAdapterService.EXTRA_PUSH_EVENT, "follower")
-                .putExtra(SyncAdapterService.EXTRA_PUSH_EVENT_URI, "soundcloud:people:1234");
+                .putExtra(SyncAdapterService.EXTRA_C2DM_EVENT, "follower")
+                .putExtra(SyncAdapterService.EXTRA_C2DM_EVENT_URI, "soundcloud:people:1234");
 
         receiver.onReceive(DefaultTestRunner.application, intent);
 

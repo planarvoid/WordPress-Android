@@ -40,8 +40,8 @@ public class SyncAdapterServicePushTest extends SyncAdapterServiceTestBase {
                 new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("user.json"))));
 
         Bundle extras = new Bundle();
-        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, PushEvent.FOLLOWER.type);
-        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT_URI, "soundcloud:users:12345");
+        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, PushEvent.FOLLOWER.type);
+        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT_URI, "soundcloud:users:12345");
 
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
         expect(result.notifications.size()).toEqual(1);
@@ -56,7 +56,7 @@ public class SyncAdapterServicePushTest extends SyncAdapterServiceTestBase {
         addCannedActivities("e1_activities_1_oldest.json");
 
         Bundle extras = new Bundle();
-        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, PushEvent.LIKE.type);
+        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, PushEvent.LIKE.type);
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
 
         expect(result.notifications.size()).toEqual(1);
@@ -67,7 +67,7 @@ public class SyncAdapterServicePushTest extends SyncAdapterServiceTestBase {
         addCannedActivities("e1_activities_2.json");
 
         Bundle extras = new Bundle();
-        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, PushEvent.COMMENT.type);
+        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, PushEvent.COMMENT.type);
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
 
         expect(result.notifications.size()).toEqual(1);
@@ -77,7 +77,7 @@ public class SyncAdapterServicePushTest extends SyncAdapterServiceTestBase {
     @Test
     public void shouldCheckPushEventExtraParameterUnknown() throws Exception {
         Bundle extras = new Bundle();
-        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, "alien-sync");
+        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, "alien-sync");
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
         expect(result.notifications.size()).toEqual(0);
     }
@@ -92,7 +92,7 @@ public class SyncAdapterServicePushTest extends SyncAdapterServiceTestBase {
         TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
 
         Bundle extras = new Bundle();
-        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, pushType);
+        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, pushType);
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
         expect(result.notifications.size()).toEqual(1);
     }
