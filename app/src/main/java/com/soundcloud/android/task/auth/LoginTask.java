@@ -61,7 +61,6 @@ public class LoginTask extends AuthTask {
                 return AuthTaskResult.failure(app.getString(R.string.authentication_login_error_message));
             }
 
-
             return AuthTaskResult.success(user, signupVia);
 
         } catch (IOException e) {

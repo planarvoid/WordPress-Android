@@ -269,8 +269,7 @@ public class SyncAdapterService extends Service {
                     return true;
                 } else {
                     try {
-                        OldCloudAPI oldCloudAPI = new OldCloudAPI(app);
-                        u = oldCloudAPI.read(Request.to(Endpoints.USERS + "/" + id));
+                        u = new OldCloudAPI(app).read(Request.to(Endpoints.USERS + "/" + id));
                         userStorage.createOrUpdate(u);
                         NotificationMessage.showNewFollower(app, u);
                         return true;

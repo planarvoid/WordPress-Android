@@ -18,7 +18,7 @@ public enum SignupVia {
         this.name = name;
     }
 
-    public String signupIdentifier(){
+    public String getSignupIdentifier(){
         return name;
     }
 

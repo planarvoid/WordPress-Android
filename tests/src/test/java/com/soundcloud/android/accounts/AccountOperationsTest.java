@@ -124,7 +124,7 @@ public class AccountOperationsTest {
         verify(accountManager).setUserData(account, User.DataKeys.USER_ID, "2");
         verify(accountManager).setUserData(account, User.DataKeys.USERNAME, "username");
         verify(accountManager).setUserData(account, User.DataKeys.USER_PERMALINK, "permalink");
-        verify(accountManager).setUserData(account, User.DataKeys.SIGNUP, SignupVia.API.signupIdentifier());
+        verify(accountManager).setUserData(account, User.DataKeys.SIGNUP, SignupVia.API.getSignupIdentifier());
     }
 
     @Test

@@ -21,8 +21,8 @@ public class NowPlayingActionBarController extends ActionBarController {
 
     private boolean mListening;
 
-    public NowPlayingActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView, AndroidCloudAPI mAndroidCloudAPI) {
-        super(owner, rootView, mAndroidCloudAPI);
+    public NowPlayingActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView, AndroidCloudAPI androidCloudAPI) {
+        super(owner, rootView, androidCloudAPI);
         mNowPlaying = (NowPlayingIndicator) getActionBarCustomView().findViewById(R.id.waveform_progress);
         mNowPlayingHolder = getActionBarCustomView().findViewById(R.id.waveform_holder);
     }

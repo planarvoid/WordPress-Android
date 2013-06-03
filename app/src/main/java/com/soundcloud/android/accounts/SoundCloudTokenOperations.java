@@ -42,8 +42,6 @@ class SoundCloudTokenOperations {
         mAccountManager.setUserData(account, TokenDataKeys.SCOPE.key(), token.scope);
         mAccountManager.setAuthToken(account, TokenDataKeys.ACCESS_TOKEN.key(), token.access);
         mAccountManager.setAuthToken(account, TokenDataKeys.REFRESH_TOKEN.key(), token.refresh);
-
-
     }
 
     public Token getSoundCloudToken(Account account) {

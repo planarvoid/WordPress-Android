@@ -74,7 +74,7 @@ public class AccountOperations {
             accountManager.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.getId()));
             accountManager.setUserData(account, User.DataKeys.USERNAME, user.getUsername());
             accountManager.setUserData(account, User.DataKeys.USER_PERMALINK, user.getPermalink());
-            accountManager.setUserData(account, User.DataKeys.SIGNUP, via.signupIdentifier());
+            accountManager.setUserData(account, User.DataKeys.SIGNUP, via.getSignupIdentifier());
             return account;
         } else {
             return null;
