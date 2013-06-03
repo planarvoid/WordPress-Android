@@ -1,6 +1,7 @@
 package com.soundcloud.android.robolectric;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.*;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -455,7 +456,7 @@ public class TestHelper {
             shadowAccountManager.addAccount(new Account("name", "com.soundcloud.android.account"));
         }
 
-        accountOperations.setAccountData(User.DataKeys.USER_ID, Long.toString(id));
+        accountOperations.setAccountData(USER_ID.getKey(), Long.toString(id));
     }
 
     public static List<User> createUsers(int count) {

@@ -121,10 +121,10 @@ public class AccountOperationsTest {
         when(user.getPermalink()).thenReturn("permalink");
 
         accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API);
-        verify(accountManager).setUserData(account, User.DataKeys.USER_ID, "2");
-        verify(accountManager).setUserData(account, User.DataKeys.USERNAME, "username");
-        verify(accountManager).setUserData(account, User.DataKeys.USER_PERMALINK, "permalink");
-        verify(accountManager).setUserData(account, User.DataKeys.SIGNUP, SignupVia.API.getSignupIdentifier());
+        verify(accountManager).setUserData(account, "currentUserId", "2");
+        verify(accountManager).setUserData(account, "currentUsername", "username");
+        verify(accountManager).setUserData(account, "currentUserPermalink", "permalink");
+        verify(accountManager).setUserData(account, "signup", SignupVia.API.getSignupIdentifier());
     }
 
     @Test

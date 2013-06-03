@@ -23,7 +23,22 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public class AccountOperations {
+    public enum AccountInfoKeys{
+        USERNAME("currentUsername"),
+        USER_ID("currentUserId"),
+        USER_PERMALINK("currentUserPermalink"),
+        SIGNUP("signup");
 
+        private final String mKey;
+
+        AccountInfoKeys(String key) {
+            mKey = key;
+        }
+
+        public String getKey(){
+            return mKey;
+        }
+    }
     private static final String TOKEN_TYPE = "access_token";
 
     private final AccountManager accountManager;
@@ -71,10 +86,10 @@ public class AccountOperations {
         boolean created = accountManager.addAccountExplicitly(account, null, null);
         if (created) {
             tokenOperations.storeSoundCloudTokenData(account, token);
-            accountManager.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.getId()));
-            accountManager.setUserData(account, User.DataKeys.USERNAME, user.getUsername());
-            accountManager.setUserData(account, User.DataKeys.USER_PERMALINK, user.getPermalink());
-            accountManager.setUserData(account, User.DataKeys.SIGNUP, via.getSignupIdentifier());
+            accountManager.setUserData(account, AccountInfoKeys.USER_ID.getKey(), Long.toString(user.getId()));
+            accountManager.setUserData(account, AccountInfoKeys.USERNAME.getKey(), user.getUsername());
+            accountManager.setUserData(account, AccountInfoKeys.USER_PERMALINK.getKey(), user.getPermalink());
+            accountManager.setUserData(account, AccountInfoKeys.SIGNUP.getKey(), via.getSignupIdentifier());
             return account;
         } else {
             return null;

@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
@@ -139,19 +140,19 @@ public class SoundCloudApplication extends Application implements Tracker {
 
     public synchronized User getLoggedInUser() {
         if (mLoggedInUser == null) {
-            final long id = accountOperations.getAccountDataLong(User.DataKeys.USER_ID);
+            final long id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
             if (id != -1) {
                 mLoggedInUser = MODEL_MANAGER.getUser(id);
             }
             // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
                 User user = new User();
-                user.id = accountOperations.getAccountDataLong(User.DataKeys.USER_ID);
-                user.username = accountOperations.getAccountDataString(User.DataKeys.USERNAME);
-                user.permalink = accountOperations.getAccountDataString(User.DataKeys.USER_PERMALINK);
+                user.id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
+                user.username = accountOperations.getAccountDataString(AccountInfoKeys.USERNAME.getKey());
+                user.permalink = accountOperations.getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
                 return user;
             }
-            mLoggedInUser.via = SignupVia.fromString(accountOperations.getAccountDataString(User.DataKeys.SIGNUP));
+            mLoggedInUser.via = SignupVia.fromString(accountOperations.getAccountDataString(AccountInfoKeys.SIGNUP.getKey()));
         }
         return mLoggedInUser;
     }
@@ -213,7 +214,7 @@ public class SoundCloudApplication extends Application implements Tracker {
     }
 
     private long getCurrentUserId()  {
-        return mLoggedInUser == null ? accountOperations.getAccountDataLong(User.DataKeys.USER_ID) : mLoggedInUser.id;
+        return mLoggedInUser == null ? accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : mLoggedInUser.id;
     }
 
     public static long getUserId() {
