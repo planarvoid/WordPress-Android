@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView android:id="@+id/suggested_users_titletext"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="@string/onboarding_genres_large_title"
+              android:textStyle="bold"/>
+    <TextView android:id="@+id/suggested_users_subtitletext"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="@string/onboarding_genres_sub_title"/>
+
+</LinearLayout>

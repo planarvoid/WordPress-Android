@@ -83,4 +83,50 @@
         <item>People</item>
     </string-array>
 
+    <string-array name="audio_genre_keys">
+        <item>learning</item>
+        <item>business+technology</item>
+        <item>comedy</item>
+        <item>arts+entertainment</item>
+        <item>sports</item>
+        <item>storytelling</item>
+        <item>books</item>
+        <item>news</item>
+    </string-array>
+
+    <string-array name="audio_genre_names">
+        <item>Learning</item>
+        <item>Business &amp; Technology</item>
+        <item>Comedy</item>
+        <item>Arts &amp; Entertainment</item>
+        <item>Sports</item>
+        <item>Storytelling</item>
+        <item>Books</item>
+        <item>News</item>
+    </string-array>
+
+    <string-array name="music_genre_keys">
+        <item>pop</item>
+        <item>jazz+blues</item>
+        <item>reggae</item>
+        <item>classical</item>
+        <item>electronic</item>
+        <item>metal</item>
+        <item>world</item>
+        <item>urban</item>
+        <item>rock</item>
+    </string-array>
+
+    <string-array name="music_genre_names">
+        <item>Pop</item>
+        <item>Jazz &amp; Blues</item>
+        <item>Reggae</item>
+        <item>Classical</item>
+        <item>Electronic</item>
+        <item>Metal</item>
+        <item>World</item>
+        <item>Urban</item>
+        <item>Rock</item>
+    </string-array>
+
 </resources>
