@@ -71,7 +71,6 @@ public class UserAssociationSyncerTest {
         expect(result.synced_at).toBeGreaterThan(0l);
         expect(Content.USERS).toHaveCount(3);
 
-
         List<User> followers = TestHelper.loadLocalContent(Content.ME_FOLLOWERS.uri, User.class);
         expect(followers.get(0).id).toEqual(308291l);
         for (User u : followers){
@@ -128,6 +127,45 @@ public class UserAssociationSyncerTest {
     }
 
     @Test
+    public void shouldNotRemoveDirtyAdditionsWhenSyncingLocalToRemote() throws Exception {
+        final long user_id = 1L;
+        UserAssociation userAssociation = new UserAssociation(Association.Type.FOLLOWING,new User(user_id));
+        userAssociation.markForAddition();
+        TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, userAssociation);
+
+        expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user_id).getLocalSyncState())
+                .toEqual(UserAssociation.LocalState.PENDING_ADDITION);
+
+        addIdResponse("/me/followings/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followings?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+
+        expect(sync(Content.ME_FOLLOWINGS.uri).success).toBeTrue();
+
+        expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user_id).getLocalSyncState())
+                .toEqual(UserAssociation.LocalState.PENDING_ADDITION);
+    }
+
+    @Test
+    public void shouldNotRemoveDirtyRemovalsWhenSyncingLocalToRemote() throws Exception {
+        final long user_id = 1L;
+        UserAssociation userAssociation = new UserAssociation(Association.Type.FOLLOWING,new User(user_id));
+        userAssociation.markForRemoval();
+        TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, userAssociation);
+
+        expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user_id).getLocalSyncState())
+                .toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
+
+        addIdResponse("/me/followings/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followings?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+
+        expect(sync(Content.ME_FOLLOWINGS.uri).success).toBeTrue();
+
+        expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user_id).getLocalSyncState())
+                .toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
+    }
+
+
+    @Test
     public void shouldReturnReorderedForUsersIfLocalStateEqualsRemote() throws Exception {
         addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
         addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
@@ -140,7 +178,6 @@ public class UserAssociationSyncerTest {
         expect(Content.USERS).toHaveCount(3);
         expect(Content.ME_FOLLOWERS).toHaveCount(3);
         assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
-
 
         addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
         addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");

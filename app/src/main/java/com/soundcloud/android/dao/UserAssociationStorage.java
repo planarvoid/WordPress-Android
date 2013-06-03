@@ -44,8 +44,9 @@ public class UserAssociationStorage {
 
     @Deprecated
     public List<Long> getStoredIds(Uri uri) {
-        final String selection = Content.ME_FOLLOWINGS.uri.equals(uri) ?
-                DBHelper.UserAssociations.REMOVED_AT + " IS NULL" : null;
+        final String selection = Content.ME_FOLLOWINGS.uri.equals(uri)
+                ? DBHelper.UserAssociations.REMOVED_AT + " IS NULL AND " + DBHelper.UserAssociations.ADDED_AT + " IS NULL"
+                : null;
         return ResolverHelper.idCursorToList(
                 mResolver.query(ResolverHelper.addIdOnlyParameter(uri), null, selection, null, null)
         );
