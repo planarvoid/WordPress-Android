@@ -3,9 +3,9 @@ package com.soundcloud.android.tests;
 import static junit.framework.Assert.assertNotNull;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.Wrapper;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.api.Wrapper;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.observers.ScObserver;
@@ -77,7 +77,7 @@ public final class IntegrationTestHelper {
     public static boolean logOut(Context context) throws Exception {
         Account account = getAccount(context);
         if (account != null) {
-            new AccountOperations(context).removeSoundCloudAccount(new ScObserver<Void>() {});
+            new AccountOperations(context).removeSoundCloudAccount().subscribe(new ScObserver<Void>() {});
             return true;
         } else {
             return false;
