@@ -76,26 +76,7 @@
     <string name="list_empty_friend_finder_no_connections">Connect with Facebook to discover which of your friends are already on SoundCloud.</string>
     <string name="list_empty_friend_finder">None of your friends are currently on SoundCloud.</string>
 
-    <!-- repost notifications -->
-    <!-- title -->
-    <plurals name="dashboard_notifications_activity_title_repost">
-        <item quantity="one">A new repost</item>
-        <item quantity="other">%d new reposts</item>
-    </plurals>
-
-    <!-- ticker -->
-    <plurals name="dashboard_notifications_activity_ticker_repost">
-        <item quantity="one">New repost</item>
-        <item quantity="other">%d new reposts</item>
-    </plurals>
-
-    <!-- message -->
     <string name="dashboard_notifications_activity_message_repost">%1$s reposted %2$s</string>
-    <plurals name="dashboard_notifications_activity_message_repost">
-        <item quantity="one">on %1$s</item>
-        <item quantity="two">on %1$s and %2$s</item>
-        <item quantity="other">on %1$s, %2$s and other sounds</item>
-    </plurals>
 
     <string name="pref_notifications_reposts">Reposts</string>
     <string name="pref_notifications_reposts_description">Receive updates on new reposts on your sounds</string>
@@ -117,26 +98,6 @@
     <string name="accessibility_infix_commented">commented on</string>
     <string name="accessibility_infix_reposted_by">reposted by</string>
 
-    <plurals name="accessibility_stats_comments">
-        <item quantity="one">1 Comment</item>
-        <item quantity="other">%d Comments</item>
-    </plurals>
-
-    <plurals name="accessibility_stats_plays">
-        <item quantity="one">1 Play</item>
-        <item quantity="other">%d Plays</item>
-    </plurals>
-
-    <plurals name="accessibility_stats_likes">
-        <item quantity="one">1 Like</item>
-        <item quantity="other">%d Likes</item>
-    </plurals>
-
-    <plurals name="accessibility_stats_reposts">
-        <item quantity="one">1 Repost</item>
-        <item quantity="other">%d Reposts</item>
-    </plurals>
-
     <string name="accessibility_search">Search SoundCloud</string>
     <string name="accessibility_stats_user_liked">Liked by you</string>
     <string name="accessibility_stats_user_reposted">Reposted by you</string>
@@ -151,11 +112,6 @@
 
     <string name="playlist_info_header_text">This set contains %1$s, total time: %2$s</string>
     <string name="imprint">Imprint</string>
-
-    <plurals name="number_of_sounds">
-        <item quantity="one">one sound</item>
-        <item quantity="other">%d sounds</item>
-    </plurals>
 
     <string name="add_track_to_set">Add to set...</string>
     <string name="create_new_set">Create new set</string>
@@ -190,4 +146,12 @@
 
     <string name="version">Version</string>
     <string name="unavailable">Unavailable</string>
+
+    <!-- onboarding -->
+    <string name="onboarding_genres_large_title">Choose your favorite categories</string>
+    <string name="onboarding_genres_sub_title">Follow people trending in the SoundCloud community.\nTap each category to see full list.</string>
+    <string name="onboarding_section_facebook">Facebook</string>
+    <string name="onboarding_section_music">Music</string>
+    <string name="onboarding_section_audio">Audio</string>
+    <string name="error_get_genre_buckets">Failed to load categories at this time. Try again later.</string>
 </resources>

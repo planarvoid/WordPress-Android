@@ -6,6 +6,7 @@ import static com.soundcloud.android.api.WebServices.APIRequestException.APIErro
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.model.CategoryGroup;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -17,7 +18,7 @@ import android.content.Context;
 import java.util.Collection;
 
 
-public class SuggestedUsersOperations {
+public class SuggestedUsersOperations extends ScheduledOperations {
 
     private WebServices webServices;
 

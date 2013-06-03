@@ -272,6 +272,18 @@ public class TestHelper {
         return ua;
     }
 
+    public static UserAssociation getUserAssociationByTargetId(Uri contentUri, long targetUserId){
+        String where = DBHelper.UserAssociationView._ID + " = ? AND " +
+                DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = ?";
+
+        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        Cursor cursor = resolver.query(contentUri, null, where,
+                new String[]{String.valueOf(targetUserId), String.valueOf(Content.match(contentUri).collectionType)},
+                null);
+
+        return cursor.moveToFirst() ? new UserAssociation(cursor) : null;
+    }
+
     public static <T extends Persisted & Identifiable> int bulkInsert(Collection<T> items) {
         BulkInsertMap map = new BulkInsertMap();
         for (T m : items) {
