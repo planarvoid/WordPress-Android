@@ -24,6 +24,8 @@ import java.util.Map;
 
 public class SuggestedUsersAdapter extends BaseAdapter {
 
+    private StringBuilder mUserNamesBuilder;
+
     protected enum Section {
         FACEBOOK(R.string.onboarding_section_facebook),
         MUSIC(R.string.onboarding_section_music),
@@ -58,6 +60,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     public SuggestedUsersAdapter() {
         mGenreBuckets = new LinkedList<GenreBucket>();
         mListPositionsToSections = Maps.newHashMap();
+        mUserNamesBuilder = new StringBuilder();
     }
 
     public void addItem(GenreBucket bucket) {
@@ -125,19 +128,19 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         final List<User> users = genreBucket.getUsers();
         final int numUsers = users.size();
 
-        StringBuilder sb = new StringBuilder();
+        mUserNamesBuilder.setLength(0);
         if (numUsers == 1) {
-            sb.append(users.get(0).getDisplayName());
+            mUserNamesBuilder.append(users.get(0).getDisplayName());
         } else if (numUsers > 1) {
-            sb.append(users.get(0).getDisplayName()).append(", ");
-            sb.append(users.get(1).getDisplayName());
+            mUserNamesBuilder.append(users.get(0).getDisplayName()).append(", ");
+            mUserNamesBuilder.append(users.get(1).getDisplayName());
 
             if (numUsers > 2) {
                 int moreUsers = numUsers - 2;
-                sb.append(" ").append(res.getQuantityString(R.plurals.number_of_other_users, moreUsers, moreUsers));
+                mUserNamesBuilder.append(" ").append(res.getQuantityString(R.plurals.number_of_other_users, moreUsers, moreUsers));
             }
         }
-        viewHolder.genreSubtitle.setText(sb.toString());
+        viewHolder.genreSubtitle.setText(mUserNamesBuilder.toString());
         viewHolder.genreTitle.setText(genreBucket.getGenre().getName());
         viewHolder.toggleFollow.setChecked(genreBucket.isFollowed());
     }
