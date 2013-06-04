@@ -28,7 +28,7 @@ public class ClientUri {
         this(Uri.parse(uri));
     }
 
-    public ClientUri(Uri uri) {
+    public ClientUri(@NotNull Uri uri) {
         if (!SCHEME.equalsIgnoreCase(uri.getScheme())) {
             throw new IllegalArgumentException("not a soundcloud uri");
         }

@@ -2,8 +2,6 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.behavior.Identifiable;
 
 import android.content.ContentValues;
@@ -16,14 +14,18 @@ public class ScModel implements Parcelable, Identifiable {
 
     public static final String EXTRA_ID = "id";
     public static final int NOT_SET = -1;
-    @JsonView(Views.Mini.class)
-    @JsonProperty("id")
+
     protected long mID = NOT_SET;
+    protected ClientUri mURN;
 
     public ScModel() { }
 
     public ScModel(long id) {
         this.mID = id;
+    }
+
+    public ScModel(String urn) {
+        this.mURN = ClientUri.fromUri(urn);
     }
 
     public ContentValues buildContentValues() {
@@ -52,12 +54,32 @@ public class ScModel implements Parcelable, Identifiable {
     }
 
     @Override
+    @JsonProperty("id")
     public long getId() {
-        return mID;
+        return mID != NOT_SET ? mID : idFromUrn();
     }
 
     @Override
     public void setId(long id) {
         this.mID = id;
+    }
+
+    public ClientUri getUrn() {
+        return mURN;
+    }
+
+    public void setUrn(ClientUri urn) {
+        this.mURN = urn;
+    }
+
+    public void setUrn(String urn) {
+        this.mURN = ClientUri.fromUri(urn);
+    }
+
+    private long idFromUrn() {
+        if (mURN != null) {
+            return mURN.numericId;
+        }
+        return NOT_SET;
     }
 }
