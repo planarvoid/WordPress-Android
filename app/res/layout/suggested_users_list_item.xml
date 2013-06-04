@@ -2,13 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:paddingLeft="15dp"
-              android:paddingRight="15dp"
               android:orientation="vertical">
 
     <TextView android:id="@+id/suggested_users_list_header"
               style="?android:attr/listSeparatorTextViewStyle"
               android:layout_marginTop="15dp"
+              android:paddingLeft="15dp"
+              android:paddingRight="15dp"
               android:visibility="gone"
               android:textColor="@color/scOrange"
               android:background="@drawable/orange_list_divider"/>
@@ -17,8 +17,8 @@
                     android:layout_height="wrap_content"
                     android:paddingTop="15dp"
                     android:paddingBottom="15dp"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
                     android:gravity="center_vertical"
                     android:background="@drawable/list_selector_background">
 
