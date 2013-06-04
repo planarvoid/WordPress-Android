@@ -18,7 +18,8 @@ public class ScModel implements Parcelable, Identifiable {
     protected long mID = NOT_SET;
     protected ClientUri mURN;
 
-    public ScModel() { }
+    public ScModel() {
+    }
 
     public ScModel(long id) {
         this.mID = id;
@@ -26,6 +27,16 @@ public class ScModel implements Parcelable, Identifiable {
 
     public ScModel(String urn) {
         this.mURN = ClientUri.fromUri(urn);
+        if (mURN != null) {
+            this.mID = mURN.numericId;
+        }
+    }
+
+    public ScModel(Parcel parcel) {
+        String urn = parcel.readString();
+        if (urn != null) {
+            mURN = ClientUri.fromUri(urn);
+        }
     }
 
     public ContentValues buildContentValues() {
@@ -41,6 +52,9 @@ public class ScModel implements Parcelable, Identifiable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        if (mURN != null) {
+            dest.writeString(mURN.toString());
+        }
     }
 
     protected static int getIntOrNotSet(Cursor c, String column) {
@@ -68,10 +82,7 @@ public class ScModel implements Parcelable, Identifiable {
         return mURN;
     }
 
-    public void setUrn(ClientUri urn) {
-        this.mURN = urn;
-    }
-
+    @JsonProperty
     public void setUrn(String urn) {
         this.mURN = ClientUri.fromUri(urn);
     }
@@ -81,5 +92,19 @@ public class ScModel implements Parcelable, Identifiable {
             return mURN.numericId;
         }
         return NOT_SET;
+    }
+
+    @Override
+    public int hashCode() {
+        return new Long(mID).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ScModel)) {
+            return false;
+        }
+        ScModel that = (ScModel) o;
+        return this.mID == that.mID;
     }
 }
