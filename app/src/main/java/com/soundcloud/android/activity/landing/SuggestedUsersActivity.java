@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.landing;
 
+import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -23,15 +24,6 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage 
         if (getIntent().getBooleanExtra(Consts.Keys.WAS_SIGNUP,false)){
             setContentView(R.layout.suggested_users_onboard);
             listHolderId = R.id.list_holder;
-            findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    new SyncStateManager().forceToStale(Content.ME_SOUND_STREAM);
-                    startActivity(new Intent(Actions.STREAM));
-                    finish();
-                }
-            });
-
         } else {
             listHolderId = mRootView.getContentHolderId();
         }
@@ -41,6 +33,18 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage 
                     .beginTransaction()
                     .add(listHolderId, new SuggestedUsersFragment())
                     .commit();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.done){
+            new SyncStateManager().forceToStale(Content.ME_SOUND_STREAM);
+            startActivity(new Intent(Actions.STREAM));
+            finish();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 
