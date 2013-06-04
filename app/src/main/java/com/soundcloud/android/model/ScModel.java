@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.behavior.Identifiable;
@@ -16,6 +17,7 @@ public class ScModel implements Parcelable, Identifiable {
     public static final String EXTRA_ID = "id";
     public static final int NOT_SET = -1;
     @JsonView(Views.Mini.class)
+    @JsonProperty("id")
     protected long mID = NOT_SET;
 
     public ScModel() { }
