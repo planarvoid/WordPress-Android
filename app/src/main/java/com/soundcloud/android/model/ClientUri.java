@@ -77,7 +77,7 @@ public class ClientUri {
                 .build();
     }
 
-    public static @Nullable ClientUri fromUri(String uri) {
+    public static @Nullable ClientUri fromUri(@NotNull String uri) {
         return fromUri(Uri.parse(uri));
     }
 
