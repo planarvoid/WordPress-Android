@@ -78,6 +78,7 @@ public class ScModel implements Parcelable, Identifiable {
         this.mID = id;
     }
 
+    @JsonIgnore
     public ClientUri getUrn() {
         return mURN;
     }
