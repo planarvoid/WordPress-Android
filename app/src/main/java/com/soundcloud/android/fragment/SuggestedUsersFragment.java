@@ -25,7 +25,7 @@ public class SuggestedUsersFragment extends SherlockListFragment {
 
     private SuggestedUsersAdapter mAdapter;
     private OnboardingOperations mOnboardingOps;
-    private Subscription mGetBucketsSubscription;
+    private Subscription mSubscription;
     private ProgressBar mProgressSpinner;
 
     public SuggestedUsersFragment() {
@@ -60,10 +60,10 @@ public class SuggestedUsersFragment extends SherlockListFragment {
         setListAdapter(mAdapter);
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), TAG);
-        Observable<?> observable = savedState.getOrDefault(KEY_OBSERVABLE, Observable.class, mOnboardingOps.getGenreBuckets().cache());
+        Observable<?> observable = savedState.getOrDefault(KEY_OBSERVABLE, Observable.class, mOnboardingOps.getCategoryGroups().cache());
         Log.d(this, "SUBSCRIBING, obs = " + observable.hashCode());
-        mGetBucketsSubscription = observable.subscribe(
-                mAdapter.onNextGenreBucket(), new OnGenreBucketsError(this), new OnGenreBucketsCompleted(this));
+        mSubscription = observable.subscribe(
+                mAdapter.onNextCategoryGroup(), new OnGenreBucketsError(this), new OnGenreBucketsCompleted(this));
     }
 
     @Override
@@ -71,7 +71,7 @@ public class SuggestedUsersFragment extends SherlockListFragment {
         super.onDestroy();
 
         Log.d(this, "UNSUBSCRIBING");
-        mGetBucketsSubscription.unsubscribe();
+        mSubscription.unsubscribe();
     }
 
     private static final class OnGenreBucketsCompleted extends RxFragmentCompletionHandler<SuggestedUsersFragment> {

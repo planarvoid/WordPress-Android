@@ -7,10 +7,11 @@ import static org.mockito.Mockito.when;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
-import com.soundcloud.android.model.Genre;
-import com.soundcloud.android.model.GenreBucket;
+import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,9 +28,9 @@ public class SuggestedUsersFragmentTest {
     private SuggestedUsersAdapter adapter;
 
     @Before
-    public void setup() {
+    public void setup() throws CreateModelException {
         OnboardingOperations operations = mock(OnboardingOperations.class);
-        when(operations.getGenreBuckets()).thenReturn(Observable.from(audio(), music()).cache());
+        when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
 
         adapter = new SuggestedUsersAdapter();
         fragment = spy(new SuggestedUsersFragment(operations, adapter));
@@ -43,19 +44,15 @@ public class SuggestedUsersFragmentTest {
     public void shouldFetchGenreBucketsIntoListAdapterInOnCreate() {
         when(fragment.getListView()).thenReturn(new ListView(Robolectric.application));
         fragment.onViewCreated(new View(Robolectric.application), null);
-        expect(adapter.getCount()).toBe(2);
+        expect(adapter.getCount()).toBe(7);
     }
 
-    private GenreBucket audio() {
-        Genre audioGenre = new Genre();
-        audioGenre.setGrouping(Genre.Grouping.AUDIO);
-        return new GenreBucket(audioGenre);
+    private CategoryGroup music() throws CreateModelException {
+        return TestHelper.buildCategoryGroup(CategoryGroup.URN_MUSIC, 3);
     }
 
-    private GenreBucket music() {
-        Genre musicGenre = new Genre();
-        musicGenre.setGrouping(Genre.Grouping.MUSIC);
-        return new GenreBucket(musicGenre);
+    private CategoryGroup audio() throws CreateModelException {
+        return TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 4);
     }
 
 }

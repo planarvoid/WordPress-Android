@@ -1,15 +1,18 @@
 package com.soundcloud.android.robolectric;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.*;
+import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.USER_ID;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.Wrapper;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.blueprints.CategoryBlueprint;
 import com.soundcloud.android.blueprints.TrackBlueprint;
 import com.soundcloud.android.blueprints.UserBlueprint;
+import com.soundcloud.android.model.Category;
+import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
@@ -25,6 +28,7 @@ import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -75,6 +79,7 @@ public class TestHelper {
         try {
             modelFactory.registerBlueprint(UserBlueprint.class);
             modelFactory.registerBlueprint(TrackBlueprint.class);
+            modelFactory.registerBlueprint(CategoryBlueprint.class);
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
         }
@@ -320,6 +325,13 @@ public class TestHelper {
 
     public static int bulkInsertToUserAssociationsAsRemovals(List<? extends ScResource> resources, Uri collectionUri) {
         return bulkInsertToUserAssociations(resources, collectionUri, null, new Date());
+    }
+
+    public static CategoryGroup buildCategoryGroup(String uri, int categoryCount) throws CreateModelException {
+        CategoryGroup categoryGroup = new CategoryGroup();
+        categoryGroup.setUrn(uri);
+        categoryGroup.setCategories(Collections.nCopies(categoryCount, getModelFactory().createModel(Category.class)));
+        return categoryGroup;
     }
 
     private static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri,

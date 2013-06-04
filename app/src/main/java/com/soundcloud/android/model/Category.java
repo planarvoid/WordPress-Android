@@ -7,8 +7,17 @@ import java.util.List;
 public class Category extends ScModel {
 
     private String mName;
-    private List<User> mCreators;
+    private String mPermalink;
+    private List<User> mUsers;
+    private boolean mFollowed;
 
+    public String getPermalink() {
+        return mPermalink;
+    }
+
+    public void setPermalink(String permalink) {
+        this.mPermalink = permalink;
+    }
 
     public String getName() {
         return mName;
@@ -19,11 +28,19 @@ public class Category extends ScModel {
         this.mName = name;
     }
 
-    public List<User> getCreators() {
-        return mCreators;
+    public List<User> getUsers() {
+        return mUsers;
     }
 
-    public void setCreators(List<User> mCreators) {
-        this.mCreators = mCreators;
+    public void setUsers(List<User> users) {
+        this.mUsers = users;
+    }
+
+    public void setFollowed(boolean followed) {
+        mFollowed = followed;
+    }
+
+    public boolean isFollowed() {
+        return mFollowed;
     }
 }

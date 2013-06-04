@@ -7,9 +7,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.Genre;
-import com.soundcloud.android.model.GenreBucket;
+import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.Observable;
@@ -21,18 +22,20 @@ public class OnboardingOperationsTest {
     private OnboardingOperations ops;
 
     @Test
-    public void shouldRetrieveAllGenreBuckets() {
+    public void shouldRetrieveAllGenreBuckets() throws CreateModelException {
         //TODO: mock against the real SC API interface
         OnboardingOperations.FakeApi api = mock(OnboardingOperations.FakeApi.class);
-        when(api.getGenreBuckets()).thenReturn(Lists.newArrayList(new GenreBucket(new Genre()), new GenreBucket(new Genre())));
-        Observer<GenreBucket> observer = mock(Observer.class);
+        when(api.getCategoryGroups()).thenReturn(Lists.newArrayList(
+                TestHelper.buildCategoryGroup(CategoryGroup.URN_MUSIC, 1),
+                TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 1)));
+        Observer<CategoryGroup> observer = mock(Observer.class);
 
         ops = new OnboardingOperations(api);
 
-        Observable<GenreBucket> genreBuckets = ops.getGenreBuckets();
+        Observable<CategoryGroup> genreBuckets = ops.getCategoryGroups();
         genreBuckets.subscribe(observer);
 
-        verify(observer, times(2)).onNext(any(GenreBucket.class));
+        verify(observer, times(2)).onNext(any(CategoryGroup.class));
         verify(observer, times(1)).onCompleted();
     }
 

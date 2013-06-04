@@ -4,10 +4,12 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Genre;
-import com.soundcloud.android.model.GenreBucket;
+import com.soundcloud.android.model.Category;
+import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,39 +27,19 @@ public class SuggestedUsersAdapterTest {
     private SuggestedUsersAdapter adapter;
 
     @Before
-    public void setup() {
+    public void setup() throws CreateModelException {
         adapter = new SuggestedUsersAdapter();
-
-        adapter.addItem(facebookLikes());
-        adapter.addItem(facebookFriends());
-        adapter.addItem(music());
         adapter.addItem(audio());
+        adapter.addItem(music());
+        adapter.addItem(facebook());
     }
 
     @Test
-    public void shouldMapCorrectlyFromGenreGroupingsToListSections() {
-        Genre.Grouping fbLikes = facebookLikes().getGenre().getGrouping();
-        expect(SuggestedUsersAdapter.Section.fromGenreGrouping(fbLikes)).toEqual(SuggestedUsersAdapter.Section.FACEBOOK);
-
-        Genre.Grouping fbFriends = facebookFriends().getGenre().getGrouping();
-        expect(SuggestedUsersAdapter.Section.fromGenreGrouping(fbFriends)).toEqual(SuggestedUsersAdapter.Section.FACEBOOK);
-
-        Genre.Grouping music = music().getGenre().getGrouping();
-        expect(SuggestedUsersAdapter.Section.fromGenreGrouping(music)).toEqual(SuggestedUsersAdapter.Section.MUSIC);
-
-        Genre.Grouping audio = audio().getGenre().getGrouping();
-        expect(SuggestedUsersAdapter.Section.fromGenreGrouping(audio)).toEqual(SuggestedUsersAdapter.Section.AUDIO);
-    }
-
-    @Test
-    public void shouldBuildListPositionsToSectionsMapWhileAddingNewItems() {
+    public void shouldBuildListPositionsToSectionsMapWhileAddingNewItems() throws CreateModelException {
         Map<Integer, SuggestedUsersAdapter.Section> sectionMap = adapter.getListPositionsToSectionsMap();
-
         expect(sectionMap).not.toBeNull();
-        expect(sectionMap.size()).toBe(3);
-        expect(sectionMap.get(0)).toEqual(SuggestedUsersAdapter.Section.FACEBOOK); // 2 items under Facebook
-        expect(sectionMap.get(2)).toEqual(SuggestedUsersAdapter.Section.MUSIC); // 1 item under Music
-        expect(sectionMap.get(3)).toEqual(SuggestedUsersAdapter.Section.AUDIO); // 1 item under Audio
+        expect(sectionMap.values()).toContainExactly(SuggestedUsersAdapter.Section.FACEBOOK, SuggestedUsersAdapter.Section.MUSIC, SuggestedUsersAdapter.Section.SPEECH_AND_SOUNDS);
+
     }
 
     @Test
@@ -84,7 +66,7 @@ public class SuggestedUsersAdapterTest {
 
     @Test
     public void shouldSetCorrectBucketTextForSingleUser() {
-        GenreBucket bucket = adapter.getItem(0);
+        Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(buildUser("Skrillex")));
 
         View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
@@ -95,7 +77,7 @@ public class SuggestedUsersAdapterTest {
 
     @Test
     public void shouldSetCorrectBucketTextForTwoUsers() {
-        GenreBucket bucket = adapter.getItem(0);
+        Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(buildUser("Skrillex"), buildUser("Forss")));
 
         View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
@@ -106,7 +88,7 @@ public class SuggestedUsersAdapterTest {
 
     @Test
     public void shouldSetCorrectBucketTextForMultipleUsers() {
-        GenreBucket bucket = adapter.getItem(0);
+        Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(
                 buildUser("Skrillex"), buildUser("Forss"), buildUser("Rick Astley")));
 
@@ -116,28 +98,16 @@ public class SuggestedUsersAdapterTest {
         expect(textView.getText()).toEqual("Skrillex, Forss and 1 other");
     }
 
-    private GenreBucket audio() {
-        Genre audioGenre = new Genre();
-        audioGenre.setGrouping(Genre.Grouping.AUDIO);
-        return new GenreBucket(audioGenre);
+    private CategoryGroup facebook() throws CreateModelException {
+        return TestHelper.buildCategoryGroup(CategoryGroup.URN_FACEBOOK, 2);
     }
 
-    private GenreBucket music() {
-        Genre musicGenre = new Genre();
-        musicGenre.setGrouping(Genre.Grouping.MUSIC);
-        return new GenreBucket(musicGenre);
+    private CategoryGroup music() throws CreateModelException {
+        return TestHelper.buildCategoryGroup(CategoryGroup.URN_MUSIC, 3);
     }
 
-    private GenreBucket facebookFriends() {
-        Genre fbFriendsGenre = new Genre();
-        fbFriendsGenre.setGrouping(Genre.Grouping.FACEBOOK_FRIENDS);
-        return new GenreBucket(fbFriendsGenre);
-    }
-
-    private GenreBucket facebookLikes() {
-        Genre fbLikesGenre = new Genre();
-        fbLikesGenre.setGrouping(Genre.Grouping.FACEBOOK_LIKES);
-        return new GenreBucket(fbLikesGenre);
+    private CategoryGroup audio() throws CreateModelException {
+        return TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 4);
     }
 
     private User buildUser(String name) {

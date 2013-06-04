@@ -2,8 +2,9 @@ package com.soundcloud.android.adapter;
 
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Genre;
-import com.soundcloud.android.model.GenreBucket;
+import com.soundcloud.android.model.Category;
+import com.soundcloud.android.model.CategoryGroup;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.Log;
 import rx.util.functions.Action1;
@@ -17,33 +18,32 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class SuggestedUsersAdapter extends BaseAdapter {
 
-    private StringBuilder mUserNamesBuilder;
+    private final StringBuilder mUserNamesBuilder;
+    private final List<Category> mCategories;
+    private final List<CategoryGroup> mCategoryGroups;
+    private final Map<Integer, Section> mListPositionsToSections;
 
-    protected enum Section {
-        FACEBOOK(R.string.onboarding_section_facebook),
-        MUSIC(R.string.onboarding_section_music),
-        AUDIO(R.string.onboarding_section_audio);
+    enum Section {
+        FACEBOOK(CategoryGroup.URN_FACEBOOK, R.string.onboarding_section_facebook),
+        MUSIC(CategoryGroup.URN_MUSIC, R.string.onboarding_section_music),
+        SPEECH_AND_SOUNDS(CategoryGroup.URN_SPEECH_AND_SOUNDS, R.string.onboarding_section_audio);
 
-        public static Section fromGenreGrouping(Genre.Grouping grouping) {
-            switch (grouping) {
-                case FACEBOOK_FRIENDS:
-                case FACEBOOK_LIKES:
-                    return Section.FACEBOOK;
-                case MUSIC:
-                    return Section.MUSIC;
-                default: // let's be forwards compatible, can't hurt to place unknown things in the most generic bucket
-                    return Section.AUDIO;
-            }
-        }
+        private final ClientUri mUrn;
+        private final int mLabelResId;
+        private String mLabel;
 
-        Section(int labelResId) {
-            mLabelResId = labelResId;
+        Section(String sectionUrn, int labelId) {
+            mUrn = ClientUri.fromUri(sectionUrn);
+            mLabelResId = labelId;
         }
 
         String getLabel(Resources resources) {
@@ -53,35 +53,44 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             return mLabel;
         }
 
-        private String mLabel;
-        private final int mLabelResId;
+        static Section fromUrn(ClientUri urn){
+            for (Section section : values()){
+                if (section.mUrn.equals(urn)){
+                    return section;
+                }
+            }
+            return SPEECH_AND_SOUNDS;
+        }
     }
 
-    private final List<GenreBucket> mGenreBuckets;
-    private Map<Integer, Section> mListPositionsToSections;
-
     public SuggestedUsersAdapter() {
-        mGenreBuckets = new LinkedList<GenreBucket>();
-        mListPositionsToSections = Maps.newHashMap();
+        mCategories = new LinkedList<Category>();
+        mCategoryGroups = new LinkedList<CategoryGroup>();
+        mListPositionsToSections = new HashMap<Integer, Section>();
         mUserNamesBuilder = new StringBuilder();
     }
 
-    public void addItem(GenreBucket bucket) {
-        Section sectionForBucket = Section.fromGenreGrouping(bucket.getGenre().getGrouping());
-        if (!mListPositionsToSections.containsValue(sectionForBucket)) {
-            mListPositionsToSections.put(mGenreBuckets.size(), sectionForBucket);
+    public void addItem(CategoryGroup categoryGroup) {
+        mCategoryGroups.add(categoryGroup);
+        Collections.sort(mCategoryGroups, new CategoryGroupComparator());
+
+        mCategories.clear();
+        mListPositionsToSections.clear();
+
+        for (CategoryGroup group : mCategoryGroups) {
+            mListPositionsToSections.put(mCategories.size(), Section.fromUrn(group.getUrn()));
+            mCategories.addAll(group.getCategories());
         }
-        mGenreBuckets.add(bucket);
     }
 
     @Override
     public int getCount() {
-        return mGenreBuckets.size();
+        return mCategories.size();
     }
 
     @Override
-    public GenreBucket getItem(int position) {
-        return mGenreBuckets.get(position);
+    public Category getItem(int position) {
+        return mCategories.get(position);
     }
 
     @Override
@@ -96,7 +105,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        GenreBucket genreBucket = getItem(position);
+        Category category = getItem(position);
 
         final ItemViewHolder viewHolder;
         if (convertView == null) {
@@ -121,14 +130,14 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         viewHolder.toggleFollow.setTag(position);
 
         configureSectionHeader(position, convertView, viewHolder);
-        configureItemContent(genreBucket, viewHolder);
+        configureItemContent(category, viewHolder);
 
         return convertView;
     }
 
-    private void configureItemContent(GenreBucket genreBucket, ItemViewHolder viewHolder) {
+    private void configureItemContent(Category category, ItemViewHolder viewHolder) {
         final Resources res = viewHolder.genreTitle.getContext().getResources();
-        final List<User> users = genreBucket.getUsers();
+        final List<User> users = category.getUsers();
         final int numUsers = users.size();
 
         mUserNamesBuilder.setLength(0);
@@ -144,8 +153,8 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             }
         }
         viewHolder.genreSubtitle.setText(mUserNamesBuilder.toString());
-        viewHolder.genreTitle.setText(genreBucket.getGenre().getName());
-        viewHolder.toggleFollow.setChecked(genreBucket.isFollowed());
+        viewHolder.genreTitle.setText(category.getName());
+        viewHolder.toggleFollow.setChecked(category.isFollowed());
     }
 
     private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {
@@ -158,12 +167,12 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         }
     }
 
-    public Action1<GenreBucket> onNextGenreBucket() {
-        return new Action1<GenreBucket>() {
+    public Action1<CategoryGroup> onNextCategoryGroup() {
+        return new Action1<CategoryGroup>() {
             @Override
-            public void call(GenreBucket bucket) {
-                Log.d(SuggestedUsersAdapter.this, "adapter: got " + bucket);
-                addItem(bucket);
+            public void call(CategoryGroup categoryGroup) {
+                Log.d(SuggestedUsersAdapter.this, "adapter: got " + categoryGroup);
+                addItem(categoryGroup);
             }
         };
     }
@@ -171,5 +180,18 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     private static class ItemViewHolder {
         public TextView genreTitle, genreSubtitle, sectionHeader;
         public ToggleButton toggleFollow;
+    }
+
+    private static class CategoryGroupComparator implements Comparator<CategoryGroup>{
+
+        @Override
+        public int compare(CategoryGroup lhs, CategoryGroup rhs) {
+            return Section.fromUrn(lhs.getUrn()).compareTo(Section.fromUrn(rhs.getUrn()));
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            return false;
+        }
     }
 }
