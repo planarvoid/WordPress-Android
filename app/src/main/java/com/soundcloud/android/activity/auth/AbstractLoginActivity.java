@@ -68,7 +68,7 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
         mResultBundle = result;
 
         sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
-                .putExtra(User.EXTRA_ID, user.id)
+                .putExtra(User.EXTRA_ID, user.getId())
                 .putExtra(SignupVia.EXTRA, via.name));
 
         if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {

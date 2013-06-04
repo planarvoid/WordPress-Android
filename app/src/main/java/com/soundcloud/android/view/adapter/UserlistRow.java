@@ -102,7 +102,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     private void setFollowingStatus(boolean enabled) {
         final boolean following = FollowStatus.get().isFollowing(mUser);
         mFollowBtn.setEnabled(enabled);
-        if (mUser.id == getCurrentUserId()) {
+        if (mUser.getId() == getCurrentUserId()) {
             mFollowBtn.setVisibility(View.INVISIBLE);
         } else {
             mFollowBtn.setVisibility(View.VISIBLE);

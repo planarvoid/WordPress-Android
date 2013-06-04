@@ -150,7 +150,7 @@ public class Playlist extends Playable {
     @Override
     public String toString() {
         return "Playlist{" +
-                "id=" + id +
+                "id=" + mID +
                 ", title='" + title + "'" +
                 ", permalink_url='" + permalink_url + "'" +
                 ", duration=" + duration +
@@ -186,16 +186,16 @@ public class Playlist extends Playable {
 
             // add to relationship table
             ContentValues cv = new ContentValues();
-            cv.put(DBHelper.PlaylistTracks.TRACK_ID, t.id);
+            cv.put(DBHelper.PlaylistTracks.TRACK_ID, t.mID);
             cv.put(DBHelper.PlaylistTracks.POSITION, i);
-            destMap.add(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(id)), cv);
+            destMap.add(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(mID)), cv);
             i++;
         }
     }
 
     @Override
     public Uri toUri() {
-        return Content.PLAYLISTS.forQuery(String.valueOf(id));
+        return Content.PLAYLISTS.forQuery(String.valueOf(mID));
     }
 
 
@@ -222,7 +222,7 @@ public class Playlist extends Playable {
     };
 
     public boolean isLocal() {
-        return id < 0;
+        return mID < 0;
     }
 
     @JsonRootName("playlist")
@@ -239,7 +239,7 @@ public class Playlist extends Playable {
             // convert to ScModel as we only want to serialize the id
             this.tracks = new ArrayList<ScModel>();
             for (Track t : p.tracks) {
-                tracks.add(new ScModel(t.id));
+                tracks.add(new ScModel(t.mID));
             }
         }
 

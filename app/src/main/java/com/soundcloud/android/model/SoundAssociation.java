@@ -63,7 +63,7 @@ public class SoundAssociation extends Association implements PlayableHolder {
 
     @Override
     public long getListItemId() {
-        return getPlayable().id << 32 + associationType;
+        return getPlayable().mID << 32 + associationType;
     }
 
     @Override

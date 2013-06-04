@@ -59,6 +59,6 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
                 content = Content.TRACK_COMMENTS;
                 break;
         }
-        return content.forId(mPlayable.id);
+        return content.forId(mPlayable.getId());
     }
 }

@@ -79,7 +79,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     // static convenience accessors
     public static @Nullable Track getCurrentTrack()  { return currentTrack; }
-    public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.id; }
+    public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.getId(); }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
     public static @Nullable PlayQueueManager getPlaylistManager() { return instance == null ? null : instance.getPlayQueueManager(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
@@ -325,7 +325,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             if (state.isSupposedToBePlaying()) pause();
             currentTrack = mPlayQueueManager.getCurrentTrack();
             if (currentTrack != null) {
-                mResumeTrackId = currentTrack.id;
+                mResumeTrackId = currentTrack.getId();
                 return true;
             }
         }
@@ -467,7 +467,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 } else if (track.load_info_task == null || !AndroidUtils.isTaskFinished(track.load_info_task)) {
                     track.refreshInfoAsync(oldCloudAPI,mInfoListener);
                 } else {
-                    onUnstreamableTrack(track.id);
+                    onUnstreamableTrack(track.getId());
                 }
             }
         } else {
@@ -497,14 +497,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             // this used to write the track back to storage - this should happen as
             // part of the sync/task
             sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_UPDATED)
-                                        .putExtra(CloudPlaybackService.BroadcastExtras.id, track.id));
+                                        .putExtra(CloudPlaybackService.BroadcastExtras.id, track.getId()));
 
             if (track.equals(currentTrack) && (!isPlaying() && state.isSupposedToBePlaying())){
                 // we were waiting on this track
                 if (track.isStreamable()) {
                     onStreamableTrack(track);
                 } else {
-                    onUnstreamableTrack(track.id);
+                    onUnstreamableTrack(track.getId());
                 }
             }
         }
@@ -526,7 +526,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     private void onStreamableTrack(Track track){
-        if (getCurrentTrackId() != track.id) return;
+        if (getCurrentTrackId() != track.getId()) return;
 
         new Thread() {
             @Override
@@ -828,7 +828,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     /* package */
     public long getProgress() {
 
-        if (currentTrack != null && mResumeTrackId == currentTrack.id) {
+        if (currentTrack != null && mResumeTrackId == currentTrack.getId()) {
             return mResumeTime; // either -1 or a valid resume time
         } else if (mWaitingForSeek && mSeekPos > 0) {
             return mSeekPos;
@@ -938,7 +938,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     private long getTrackId() {
-        return currentTrack == null ? -1 : currentTrack.id;
+        return currentTrack == null ? -1 : currentTrack.getId();
     }
 
     private String getTrackName() {

@@ -43,7 +43,7 @@ public class PlayQueueUri {
     }
 
     public Uri toUri(Track track, int mPlayPos, long seekPos) {
-        return toUri(track == null ? -1l : track.id, mPlayPos, seekPos);
+        return toUri(track == null ? -1l : track.getId(), mPlayPos, seekPos);
     }
 
     public Uri toUri(long trackId, int mPlayPos, long seekPos) {

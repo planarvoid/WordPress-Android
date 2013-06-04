@@ -189,7 +189,7 @@ public class Activities extends CollectionHolder<Activity> {
         Set<Long> ids = new HashSet<Long>(10);
         for (Activities a : activities) {
             for (Activity e : a) {
-                if (e.getPlayable() != null) ids.add(e.getPlayable().id);
+                if (e.getPlayable() != null) ids.add(e.getPlayable().getId());
             }
         }
         return ids.size();

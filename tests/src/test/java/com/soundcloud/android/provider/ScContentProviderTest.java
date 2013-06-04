@@ -450,7 +450,7 @@ public class ScContentProviderTest {
     public void shouldStoreAndFetchShortcut() throws Exception {
         Shortcut c = new Shortcut();
         c.kind = "like";
-        c.id = 12;
+        c.setId(12);
         c.title = "Something";
         c.permalink_url = "http://soundcloud.com/foo";
         c.artwork_url   = "http://soundcloud.com/foo/artwork";

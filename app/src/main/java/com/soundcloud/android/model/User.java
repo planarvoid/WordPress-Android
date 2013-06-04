@@ -100,7 +100,7 @@ public class User extends ScResource implements UserHolder {
         model.followings_count = bundle.getInt("followings_count");
         model.public_likes_count = bundle.getInt("public_likes_count");
         model.private_tracks_count = bundle.getInt("private_tracks_count");
-        model.id = bundle.getLong("id");
+        model.mID = bundle.getLong("id");
     }
 
     public User(Cursor cursor) {
@@ -108,7 +108,7 @@ public class User extends ScResource implements UserHolder {
     }
 
     public User updateFromCursor(Cursor cursor) {
-        id = cursor.getLong(cursor.getColumnIndex(Users._ID));
+        mID = cursor.getLong(cursor.getColumnIndex(Users._ID));
         permalink = cursor.getString(cursor.getColumnIndex(Users.PERMALINK));
         permalink_url = cursor.getString(cursor.getColumnIndex(Users.PERMALINK_URL));
         username = cursor.getString(cursor.getColumnIndex(Users.USERNAME));
@@ -139,7 +139,7 @@ public class User extends ScResource implements UserHolder {
 
     public static User fromActivityView(Cursor c) {
         User u = new User();
-        u.id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
+        u.mID = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
         u.username = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_USERNAME));
         u.permalink = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_PERMALINK));
         u.avatar_url = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_AVATAR_URL));
@@ -179,7 +179,7 @@ public class User extends ScResource implements UserHolder {
         if (private_tracks_count != NOT_SET) cv.put(Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
         if (primary_email_confirmed != null) cv.put(Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
 
-        if (id != -1 && id == SoundCloudApplication.getUserId()) {
+        if (mID != -1 && mID == SoundCloudApplication.getUserId()) {
             if (description != null) cv.put(Users.DESCRIPTION, description);
         }
         cv.put(Users.LAST_UPDATED, System.currentTimeMillis());
@@ -189,7 +189,7 @@ public class User extends ScResource implements UserHolder {
     @Override
     public String toString() {
         return "User[" +
-                "id=" + id +
+                "id=" + mID +
                 ", username='" + username + '\'' +
                 ", track_count='" + track_count + '\'' +
                 ", discogs_name='" + discogs_name + '\'' +
@@ -215,7 +215,7 @@ public class User extends ScResource implements UserHolder {
 
     @Override
     public Uri toUri() {
-        return Content.USERS.forId(id);
+        return Content.USERS.forId(mID);
     }
 
     @Nullable
@@ -254,7 +254,7 @@ public class User extends ScResource implements UserHolder {
 
     public static User fromSoundView(Cursor cursor) {
         User u = new User();
-        u.id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
+        u.mID = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
         u.username = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USERNAME));
         u.permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USER_PERMALINK));
         u.avatar_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USER_AVATAR_URL));
@@ -327,11 +327,11 @@ public class User extends ScResource implements UserHolder {
 
     @Override
     public boolean isIncomplete() {
-        return id <= 0;
+        return mID <= 0;
     }
 
     public User updateFrom(User user, CacheUpdateMode cacheUpdateMode) {
-        this.id = user.id;
+        this.mID = user.mID;
         this.username = user.username;
 
         if (user.avatar_url != null) this.avatar_url = user.avatar_url;
@@ -418,7 +418,7 @@ public class User extends ScResource implements UserHolder {
         bundle.putInt("followings_count", model.followings_count);
         bundle.putInt("public_likes_count", model.public_likes_count);
         bundle.putInt("private_tracks_count", model.private_tracks_count);
-        bundle.putLong("id", model.id);
+        bundle.putLong("id", model.mID);
         out.writeBundle(bundle);
     }
 }

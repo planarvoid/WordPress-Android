@@ -192,9 +192,9 @@ public class PlayQueueManagerTest {
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962);
 
         expect(pm.length()).toEqual(2);
-        expect(pm.getCurrentTrack().id).toEqual(56142962l);
+        expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
-        expect(pm.getCurrentTrack().id).toEqual(56143158l);
+        expect(pm.getCurrentTrack().getId()).toEqual(56143158l);
     }
 
     @Test
@@ -202,7 +202,7 @@ public class PlayQueueManagerTest {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 0, 56143158L);
         expect(pm.length()).toEqual(2);
-        expect(pm.getCurrentTrack().id).toEqual(56143158L);
+        expect(pm.getCurrentTrack().getId()).toEqual(56143158L);
         expect(pm.getPosition()).toEqual(1);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
@@ -215,7 +215,7 @@ public class PlayQueueManagerTest {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
         expect(pm.length()).toEqual(2);
-        expect(pm.getCurrentTrack().id).toEqual(56142962l);
+        expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56142962l);
@@ -234,7 +234,7 @@ public class PlayQueueManagerTest {
     public void shouldSaveAndRestoreLikesAsPlaylistWithMovedTrack() throws Exception {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
-        expect(pm.getCurrentTrack().id).toEqual(56142962l);
+        expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
 
         pm.saveQueue(1000l);
@@ -248,7 +248,7 @@ public class PlayQueueManagerTest {
     public void shouldSavePlaylistStateInUri() throws Exception {
         insertLikes();
         pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
-        expect(pm.getCurrentTrack().id).toEqual(56142962l);
+        expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlayQueueState(123L)).toEqual(
           Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=1&seekPos=123"
@@ -258,7 +258,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSavePlaylistStateInUriWithSetPlaylist() throws Exception {
         pm.setPlayQueue(createTracks(10, true, 0), 5);
-        expect(pm.getCurrentTrack().id).toEqual(5L);
+        expect(pm.getCurrentTrack().getId()).toEqual(5L);
         expect(pm.getPlayQueueState(123L)).toEqual(
                 Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123"
         );
@@ -271,14 +271,14 @@ public class PlayQueueManagerTest {
         playables.addAll(createTracks(1, false, 1));
 
         pm.setPlayQueue(playables, 0);
-        expect(pm.getCurrentTrack().id).toEqual(0L);
+        expect(pm.getCurrentTrack().getId()).toEqual(0L);
         expect(pm.next()).toEqual(false);
 
         playables.addAll(createTracks(1, true, 2));
         pm.setPlayQueue(playables, 0);
-        expect(pm.getCurrentTrack().id).toEqual(0L);
+        expect(pm.getCurrentTrack().getId()).toEqual(0L);
         expect(pm.next()).toEqual(true);
-        expect(pm.getCurrentTrack().id).toEqual(2L);
+        expect(pm.getCurrentTrack().getId()).toEqual(2L);
     }
 
     @Test
@@ -288,14 +288,14 @@ public class PlayQueueManagerTest {
         playables.addAll(createTracks(1, true, 1));
 
         pm.setPlayQueue(playables, 1);
-        expect(pm.getCurrentTrack().id).toEqual(1L);
+        expect(pm.getCurrentTrack().getId()).toEqual(1L);
         expect(pm.prev()).toEqual(false);
 
         playables.addAll(0, createTracks(1, true, 2));
         pm.setPlayQueue(playables, 2);
-        expect(pm.getCurrentTrack().id).toEqual(1L);
+        expect(pm.getCurrentTrack().getId()).toEqual(1L);
         expect(pm.prev()).toEqual(true);
-        expect(pm.getCurrentTrack().id).toEqual(2L);
+        expect(pm.getCurrentTrack().getId()).toEqual(2L);
     }
 
     @Test
@@ -349,11 +349,11 @@ public class PlayQueueManagerTest {
         List<Track> list = new ArrayList<Track>();
 
         User user = new User();
-        user.id = 0L;
+        user.setId(0L);
 
         for (int i=0; i<n; i++) {
             Track t = new Track();
-            t.id = (startPos +i);
+            t.setId((startPos +i));
             t.title = "track #"+(startPos+i);
             t.user = user;
             t.stream_url = streamable ? "http://www.soundcloud.com/sometrackurl" : null;

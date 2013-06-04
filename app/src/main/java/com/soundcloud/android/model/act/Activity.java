@@ -83,7 +83,7 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public Activity(Cursor c) {
-        id = c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID));
+        mID = c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID));
         uuid = c.getString(c.getColumnIndex(DBHelper.ActivityView.UUID));
         tags = c.getString(c.getColumnIndex(DBHelper.ActivityView.TAGS));
         created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));
@@ -155,10 +155,10 @@ public abstract class Activity extends ScModel implements Parcelable,
             cv.put(DBHelper.Activities.CREATED_AT, created_at.getTime());
         }
 
-        if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().id);
+        if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().getId());
 
         if (getPlayable() != null){
-            cv.put(DBHelper.Activities.SOUND_ID, getPlayable().id);
+            cv.put(DBHelper.Activities.SOUND_ID, getPlayable().getId());
             cv.put(DBHelper.Activities.SOUND_TYPE, getType().isPlaylistActivity() ? Playable.DB_TYPE_PLAYLIST : Playable.DB_TYPE_TRACK);
         }
         return cv;

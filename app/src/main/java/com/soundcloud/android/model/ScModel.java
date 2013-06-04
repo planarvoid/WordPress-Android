@@ -15,17 +15,18 @@ public class ScModel implements Parcelable, Identifiable {
 
     public static final String EXTRA_ID = "id";
     public static final int NOT_SET = -1;
-    @JsonView(Views.Mini.class) public long id = NOT_SET;
+    @JsonView(Views.Mini.class)
+    protected long mID = NOT_SET;
 
     public ScModel() { }
 
     public ScModel(long id) {
-        this.id = id;
+        this.mID = id;
     }
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        if (id != ScResource.NOT_SET) cv.put(BaseColumns._ID, id);
+        if (mID != ScResource.NOT_SET) cv.put(BaseColumns._ID, mID);
         return cv;
     }
 
@@ -45,16 +46,16 @@ public class ScModel implements Parcelable, Identifiable {
 
     @JsonIgnore
     public long getListItemId() {
-        return id;
+        return mID;
     }
 
     @Override
     public long getId() {
-        return id;
+        return mID;
     }
 
     @Override
     public void setId(long id) {
-        this.id = id;
+        this.mID = id;
     }
 }

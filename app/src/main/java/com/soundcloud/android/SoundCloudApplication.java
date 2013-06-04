@@ -147,7 +147,7 @@ public class SoundCloudApplication extends Application implements Tracker {
             // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
                 User user = new User();
-                user.id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
+                user.setId(accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()));
                 user.username = accountOperations.getAccountDataString(AccountInfoKeys.USERNAME.getKey());
                 user.permalink = accountOperations.getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
                 return user;
@@ -214,7 +214,7 @@ public class SoundCloudApplication extends Application implements Tracker {
     }
 
     private long getCurrentUserId()  {
-        return mLoggedInUser == null ? accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : mLoggedInUser.id;
+        return mLoggedInUser == null ? accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : mLoggedInUser.getId();
     }
 
     public static long getUserId() {

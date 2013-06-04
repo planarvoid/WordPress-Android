@@ -396,7 +396,7 @@ public class WaveformController extends TouchLayout {
     public void updateTrack(@Nullable Track track, int queuePosition, boolean visibleNow) {
         mQueuePosition = queuePosition;
         if (track == null || (mTrack != null
-                && mTrack.id == track.id
+                && mTrack.getId() == track.getId()
                 && mWaveformState != WaveformState.ERROR
                 && mDuration == mTrack.duration)) {
             return;

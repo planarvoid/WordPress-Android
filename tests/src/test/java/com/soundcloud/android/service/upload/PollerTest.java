@@ -100,8 +100,8 @@ public class PollerTest {
     private void addProcessingTrackAndRunPoll(long id) {
         Track t = new Track();
         t.user = new User();
-        t.user.id = USER_ID;
-        t.id = id;
+        t.user.setId(USER_ID);
+        t.setId(id);
         t.state = Track.State.PROCESSING;
         t.setUpdated();
         TestHelper.insertWithDependencies(t);

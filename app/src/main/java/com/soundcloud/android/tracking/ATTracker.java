@@ -107,9 +107,9 @@ public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeList
 
     private ATParams addUserExtras(ATParams event) {
         final User user = app.getLoggedInUser();
-        if (user.id > 0) {
+        if (user.getId() > 0) {
             // identified visitor
-            event.put(USER_ID, String.valueOf(user.id));
+            event.put(USER_ID, String.valueOf(user.getId()));
             Plan plan = user.getPlan();
             if (plan != Plan.UNKNOWN) {
                 event.put(PLAN, String.valueOf(plan.id));

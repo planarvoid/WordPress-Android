@@ -40,7 +40,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         int likesCount = t.likes_count;
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setLike(t, true);
 
         expect(TestHelper.reload(t).user_like).toBeTrue();
@@ -52,7 +52,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         t.likes_count = Track.NOT_SET;
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setLike(t, true);
         expect(TestHelper.reload(t).user_like).toBeTrue();
     }
@@ -64,7 +64,7 @@ public class AssociationManagerTest {
         expect(TestHelper.reload(t).user_like).toBeTrue();
         expect(TestHelper.reload(t).likes_count).toEqual(5);
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, true);
 
         expect(TestHelper.reload(t).user_like).toBeTrue();
@@ -77,7 +77,7 @@ public class AssociationManagerTest {
         t.user_like = false;
         int likesCount = t.likes_count;
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(404, "FAIL"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(404, "FAIL"));
         associationManager.setLike(t, true);
 
         expect(TestHelper.reload(t).user_like).toBeFalse();
@@ -89,7 +89,7 @@ public class AssociationManagerTest {
         Track track = createTrack();
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
 
-        String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, track.id).toUrl();
+        String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, track.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
         associationManager.setLike(track, false);
 
@@ -102,11 +102,11 @@ public class AssociationManagerTest {
         Track t = createTrack();
         TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE);
 
-        Playlist p = new Playlist(t.id);
+        Playlist p = new Playlist(t.getId());
         p.likes_count = 1;
         TestHelper.insertAsSoundAssociation(p, SoundAssociation.Type.PLAYLIST_LIKE);
 
-        String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl();
+        String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, false);
 
@@ -120,7 +120,7 @@ public class AssociationManagerTest {
         expect(t.user_repost).toBeFalse();
         int repostsCount = t.reposts_count;
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setRepost(t, true);
 
         expect(t.user_repost).toBeTrue();
@@ -133,7 +133,7 @@ public class AssociationManagerTest {
         Track t = createTrack();
         t.reposts_count = Track.NOT_SET;
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.id).toUrl(), new TestHttpResponse(201, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setRepost(t, true);
 
         expect(t.user_repost).toBeTrue();
@@ -147,7 +147,7 @@ public class AssociationManagerTest {
         expect(p.user_repost).toBeFalse();
         int repostsCount = p.reposts_count;
 
-        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, p.id).toUrl(), new TestHttpResponse(201, "OK"));
+        addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, p.getId()).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setRepost(p, true);
 
         expect(p.user_repost).toBeTrue();
@@ -158,7 +158,7 @@ public class AssociationManagerTest {
     @Test
     public void shouldRemoveRepostActivity() throws Exception {
         Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/service/sync/e1_playlist_repost.json");
-        a.get(0).getUser().id = USER_ID; // needs to be the logged in user
+        a.get(0).getUser().setId(USER_ID); // needs to be the logged in user
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();
 
@@ -166,7 +166,7 @@ public class AssociationManagerTest {
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 
-        String playlistRepostUrl = Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl();
+        String playlistRepostUrl = Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, playlistRepostUrl), new TestHttpResponse(200, "OK"));
         associationManager.setRepost(playlist, false);
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
@@ -175,7 +175,7 @@ public class AssociationManagerTest {
     @Test
     public void shouldRemovePostActivityIfNoRepostCountAvailable() throws Exception {
         Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/service/sync/e1_playlist_repost.json");
-        a.get(0).getUser().id = USER_ID; // needs to be the logged in user
+        a.get(0).getUser().setId(USER_ID); // needs to be the logged in user
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();
         playlist.reposts_count = Playlist.NOT_SET;
@@ -184,7 +184,7 @@ public class AssociationManagerTest {
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 
-        String playlistRepostUrl = Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl();
+        String playlistRepostUrl = Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.getId()).toUrl();
         addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, playlistRepostUrl), new TestHttpResponse(200, "OK"));
         associationManager.setRepost(playlist, false);
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
@@ -193,10 +193,10 @@ public class AssociationManagerTest {
     private Track createTrack() {
         User u1 = new User();
         u1.permalink = "u1";
-        u1.id = 100L;
+        u1.setId(100L);
 
         Track t = new Track();
-        t.id = 200L;
+        t.setId(200L);
         t.user = u1;
         t.likes_count = t.reposts_count = 5;
 

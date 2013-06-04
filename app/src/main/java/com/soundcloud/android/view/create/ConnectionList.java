@@ -87,7 +87,7 @@ public class ConnectionList extends LinearLayout {
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             if (v instanceof ConnectionItem && v.isEnabled()) {
-                ids.add(((ConnectionItem) v).connection.id);
+                ids.add(((ConnectionItem) v).connection.getId());
             }
         }
         return ids;
@@ -138,7 +138,7 @@ public class ConnectionList extends LinearLayout {
 
         @Override
         public long getItemId(int position) {
-            return getItem(position).id;
+            return getItem(position).getId();
         }
 
         @Override

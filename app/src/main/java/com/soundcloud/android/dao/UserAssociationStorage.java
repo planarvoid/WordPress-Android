@@ -78,7 +78,7 @@ public class UserAssociationStorage {
      * @return the new association created
      */
     public UserAssociation addFollowing(User user) {
-        UserAssociation following = queryFollowingByTargetUserId(user.id);
+        UserAssociation following = queryFollowingByTargetUserId(user.getId());
         if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL){
             following = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
             following.markForAddition();
@@ -127,7 +127,7 @@ public class UserAssociationStorage {
             r.putFullContentValues(map);
             ContentValues contentValues = new ContentValues();
             contentValues.put(DBHelper.UserAssociations.POSITION, i);
-            contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.id);
+            contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.getId());
             contentValues.put(DBHelper.UserAssociations.OWNER_ID, userId);
             map.add(collectionUri, contentValues);
         }
@@ -160,7 +160,7 @@ public class UserAssociationStorage {
     }
 
     public boolean setFollowingAsSynced(UserAssociation a) {
-        UserAssociation following = queryFollowingByTargetUserId(a.getUser().id);
+        UserAssociation following = queryFollowingByTargetUserId(a.getUser().getId());
         if (following != null) {
             switch (following.getLocalSyncState()) {
                 case PENDING_ADDITION:

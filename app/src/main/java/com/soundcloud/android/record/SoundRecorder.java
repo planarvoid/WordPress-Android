@@ -215,7 +215,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     public void setRecording(Recording recording) {
-        if (mRecording == null || recording.id != mRecording.id) {
+        if (mRecording == null || recording.getId() != mRecording.getId()) {
 
             if (isActive()) reset();
             mRecording = recording;
@@ -491,7 +491,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
             final Uri uri = mRecording.toUri();
             if (uri != null) {
-                mRecording.id = Long.parseLong(uri.getLastPathSegment());
+                mRecording.setId(Long.parseLong(uri.getLastPathSegment()));
                 return mRecording;
             }
         }

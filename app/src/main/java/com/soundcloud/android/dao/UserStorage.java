@@ -34,7 +34,7 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
     }
 
     public void createOrUpdate(User u) {
-        mUserDAO.createOrUpdate(u.id, u.buildContentValues());
+        mUserDAO.createOrUpdate(u.getId(), u.buildContentValues());
     }
 
     public User getUser(long id) {

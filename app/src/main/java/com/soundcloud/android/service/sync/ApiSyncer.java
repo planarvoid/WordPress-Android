@@ -5,7 +5,6 @@ import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
-import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.BaseDAO;
 import com.soundcloud.android.dao.ConnectionDAO;
@@ -192,7 +191,7 @@ public class ApiSyncer extends SyncStrategy {
 
             if (playlistStale && playlist.getTrackCount() < MAX_MY_PLAYLIST_TRACK_COUNT_SYNC) {
                 try {
-                    playlist.tracks = mApi.readList(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.id));
+                    playlist.tracks = mApi.readList(Request.to(TempEndpoints.PLAYLIST_TRACKS, playlist.getId()));
                 } catch (IOException e) {
                     // don't let the track fetch fail the sync, it is just an optimization
                     Log.e(TAG, "Failed to fetch playlist tracks for playlist " + playlist, e);
@@ -218,7 +217,7 @@ public class ApiSyncer extends SyncStrategy {
                 if (createObject.tracks == null) {
                     // add the tracks
                     createObject.tracks = new ArrayList<ScModel>();
-                    Cursor itemsCursor = mResolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(p.id)),
+                    Cursor itemsCursor = mResolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(p.getId())),
                             new String[]{DBHelper.PlaylistTracksView._ID}, null, null, null);
 
                     if (itemsCursor != null) {
@@ -398,7 +397,7 @@ public class ApiSyncer extends SyncStrategy {
             Playlist p = mApi.read(Content.match(contentUri).request(contentUri));
 
             Cursor c = mResolver.query(
-                    Content.PLAYLIST_TRACKS.forId(p.id), new String[]{DBHelper.PlaylistTracksView._ID},
+                    Content.PLAYLIST_TRACKS.forId(p.getId()), new String[]{DBHelper.PlaylistTracksView._ID},
                     DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " IS NOT NULL", null,
                     DBHelper.PlaylistTracksView.PLAYLIST_ADDED_AT + " ASC");
 
@@ -406,7 +405,7 @@ public class ApiSyncer extends SyncStrategy {
             if (c != null && c.getCount() > 0) {
                 Set<Long> toAdd = new LinkedHashSet<Long>(c.getCount());
                 for (Track t : p.tracks) {
-                    toAdd.add(t.id);
+                    toAdd.add(t.getId());
                 }
                 while (c.moveToNext()) {
                     toAdd.add(c.getLong(0));

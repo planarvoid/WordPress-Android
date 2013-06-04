@@ -33,7 +33,7 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
         final Comment comment = comments[0];
 
         if (comment.track_id <= 0 && comment.track != null) {
-            comment.track_id = comment.track.id;
+            comment.track_id = comment.track.getId();
         }
 
         if (comment.track_id > 0) {
@@ -83,7 +83,7 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
                     context.sendBroadcast(new Intent(Actions.CONNECTION_ERROR));
                 }
             }
-            context.sendBroadcast(new Intent(Playable.COMMENTS_UPDATED).putExtra("id", t.id));
+            context.sendBroadcast(new Intent(Playable.COMMENTS_UPDATED).putExtra("id", t.getId()));
         }
     }
 }

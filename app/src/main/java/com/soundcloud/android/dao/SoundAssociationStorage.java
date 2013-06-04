@@ -15,7 +15,6 @@ import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -164,7 +163,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
                 final int associationType = c.getInt(2);
 
                 for (SoundAssociation a : soundAssociations) {
-                    if (a.getPlayable().id == id && a.getResourceType() == resourceType
+                    if (a.getPlayable().getId() == id && a.getResourceType() == resourceType
                             && a.associationType == associationType) {
                         found = true;
                         break;

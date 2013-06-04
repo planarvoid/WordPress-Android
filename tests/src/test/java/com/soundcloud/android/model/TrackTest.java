@@ -96,7 +96,7 @@ public class TrackTest {
     @Test
     public void shouldBuildContentValuesWithContent() throws Exception{
         Track t = new Track();
-        t.id = 1000;
+        t.mID = 1000;
         ContentValues v = t.buildContentValues();
         expect(v).not.toBeNull();
         expect(v.getAsLong(DBHelper.Sounds._ID)).toEqual(1000L);
@@ -105,7 +105,7 @@ public class TrackTest {
     @Test
     public void shouldBuildContentValuesWithNoLastUpdated() throws Exception{
         Track t = new Track();
-        t.id = 1000;
+        t.mID = 1000;
         ContentValues v = t.buildContentValues();
         expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.created_at = new Date(System.currentTimeMillis());
@@ -133,7 +133,7 @@ public class TrackTest {
     @Test
     public void shouldGetTrackFromIntentParcelable() throws Exception {
         Track t  = new Track();
-        t.id = 0;
+        t.mID = 0;
         t.permalink = "permalink";
         Intent i = new Intent();
         i.putExtra("track", t);
@@ -143,10 +143,10 @@ public class TrackTest {
     @Test
     public void shouldGetTrackFromIntentTrackCache() throws Exception {
         Track t  = new Track();
-        t.id = 0;
+        t.mID = 0;
         t.permalink = "permalink";
         Intent i = new Intent();
-        i.putExtra("track_id", t.id);
+        i.putExtra("track_id", t.mID);
         SoundCloudApplication.MODEL_MANAGER.cache(t);
         expect(Track.fromIntent(i)).toEqual(t);
     }
@@ -257,7 +257,7 @@ public class TrackTest {
     }
 
     private void compareTracks(Track t, Track t2) {
-        expect(t2.id).toEqual(t.id);
+        expect(t2.mID).toEqual(t.mID);
         expect(t2.title).toEqual(t.title);
         expect(t2.permalink).toEqual(t.permalink);
         expect(t2.duration).toBeGreaterThan(0);

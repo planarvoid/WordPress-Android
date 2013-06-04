@@ -257,7 +257,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
             likes.add(like);
         }
         expect(resolver.delete(Content.ME_LIKES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
-                new String[]{String.valueOf(likes.get(0).getPlayable().id)})).toEqual(1);
+                new String[]{String.valueOf(likes.get(0).getPlayable().getId())})).toEqual(1);
 
         c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
         expect(c.getCount()).toEqual(2);

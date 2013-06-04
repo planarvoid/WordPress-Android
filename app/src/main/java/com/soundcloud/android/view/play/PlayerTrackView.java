@@ -6,7 +6,6 @@ import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
@@ -216,13 +215,13 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             }
             mTrack.load_comments_task.addListener(this);
             if (AndroidUtils.isTaskPending(mTrack.load_comments_task)) {
-                mTrack.load_comments_task.execute(mTrack.id);
+                mTrack.load_comments_task.execute(mTrack.getId());
             }
         }
     }
 
     public void onCommentsLoaded(long track_id, List<Comment> comments){
-        if (mTrack != null && mTrack.id == track_id){
+        if (mTrack != null && mTrack.getId() == track_id){
             mTrack.comments = comments;
             mWaveformController.setComments(mTrack.comments, true);
         }
@@ -347,7 +346,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                     @Override
                     public void run() {
                         if (!mPlayer.isFinishing()) {
-                            mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.id));
+                            mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.getId()));
                         }
                     }
                 }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
@@ -481,7 +480,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     public void handleIdBasedIntent(Intent intent) {
-        if (mTrack != null && mTrack.id == intent.getLongExtra("id", -1)) handleStatusIntent(intent);
+        if (mTrack != null && mTrack.getId() == intent.getLongExtra("id", -1)) handleStatusIntent(intent);
     }
 
     public void handleStatusIntent(Intent intent) {
@@ -497,14 +496,14 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             }
 
         } else if (Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED.equals(action)) {
-            if (mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
+            if (mTrack.getId() == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
                 mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
                 mActionButtons.update(mTrack);
             }
 
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
-            if (mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
+            if (mTrack.getId() == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 onCommentsChanged();
             }
 
@@ -556,7 +555,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     public void onNewComment(Comment comment) {
-        if (mTrack != null && comment.track_id == mTrack.id) {
+        if (mTrack != null && comment.track_id == mTrack.getId()) {
             onCommentsChanged();
             mWaveformController.showNewComment(comment);
         }
@@ -597,7 +596,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     public long getTrackId() {
-        return mTrack == null ? -1 : mTrack.id;
+        return mTrack == null ? -1 : mTrack.getId();
     }
 
     public void clear() {

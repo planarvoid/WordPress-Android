@@ -15,7 +15,6 @@ import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -35,7 +34,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
 
     public boolean markTrackAsPlayed(Track track) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBHelper.TrackMetadata._ID, track.id);
+        contentValues.put(DBHelper.TrackMetadata._ID, track.getId());
         return mResolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 

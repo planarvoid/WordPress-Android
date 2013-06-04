@@ -35,9 +35,9 @@ public class PlayEventTrackerIntegrationTest {
     @BeforeClass
     public static void setupFixtures() throws IOException {
         currentTrack = TestHelper.readJson(Track.class, TrackTest.class, "track.json");
-        currentTrack.id = 1;
+        currentTrack.setId(1);
         nextTrack = TestHelper.readJson(Track.class, TrackTest.class, "track.json");
-        nextTrack.id = 2;
+        nextTrack.setId(2);
     }
 
     @Before
@@ -195,7 +195,7 @@ public class PlayEventTrackerIntegrationTest {
         expect(action).toEqual(expectedAction);
 
         String soundUrn = cursor.getString(cursor.getColumnIndex(PlayEventTracker.TrackingEvents.SOUND_URN));
-        expect(soundUrn).toEqual("soundcloud:sounds:" + track.id);
+        expect(soundUrn).toEqual("soundcloud:sounds:" + track.getId());
 
         long duration = cursor.getLong(cursor.getColumnIndex(PlayEventTracker.TrackingEvents.SOUND_DURATION));
         expect(duration).toEqual(Long.valueOf(track.duration));

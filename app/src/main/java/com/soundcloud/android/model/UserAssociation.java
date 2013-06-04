@@ -84,7 +84,7 @@ public class UserAssociation extends Association implements UserHolder {
 
     @Override
     public long getListItemId() {
-        return getUser().id << 32 + associationType;
+        return getUser().mID << 32 + associationType;
     }
 
     @Override

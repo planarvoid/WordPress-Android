@@ -60,11 +60,11 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
     }
 
     public boolean updateStatus(Recording recording) {
-        if (recording.id > 0) {
+        if (recording.getId() > 0) {
             ContentValues cv = new ContentValues();
             cv.put(DBHelper.Recordings.UPLOAD_STATUS, recording.upload_status);
             cv.put(DBHelper.Recordings.AUDIO_PATH, recording.audio_path.getAbsolutePath());
-            return mRecordingDAO.update(recording.id, cv);
+            return mRecordingDAO.update(recording.getId(), cv);
         } else {
             return false;
         }
@@ -132,7 +132,7 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
                 }
                 IOUtils.deleteFile(recording.getEncodedFile());
                 IOUtils.deleteFile(recording.getAmplitudeFile());
-                if (recording.id > 0) {
+                if (recording.getId() > 0) {
                     mRecordingDAO.delete(recording);
                 }
 

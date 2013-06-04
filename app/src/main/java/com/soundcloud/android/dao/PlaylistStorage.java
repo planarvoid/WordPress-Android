@@ -8,7 +8,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
@@ -21,13 +20,11 @@ import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -124,11 +121,11 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         playlist.setTrackCount(playlist.getTrackCount() + 1);
 
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlist.id);
+        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlist.getId());
         cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);
         cv.put(DBHelper.PlaylistTracks.ADDED_AT, time);
         cv.put(DBHelper.PlaylistTracks.POSITION, playlist.getTrackCount());
-        return mResolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.id)), cv);
+        return mResolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.getId())), cv);
     }
 
 

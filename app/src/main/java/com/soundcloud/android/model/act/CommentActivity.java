@@ -53,7 +53,7 @@ public class CommentActivity extends Activity {
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = super.buildContentValues();
-        cv.put(DBHelper.Activities.COMMENT_ID, comment.id);
+        cv.put(DBHelper.Activities.COMMENT_ID, comment.getId());
         return cv;
     }
 

@@ -72,7 +72,7 @@ public class UserAssociationSyncerTest {
         expect(Content.USERS).toHaveCount(3);
 
         List<User> followers = TestHelper.loadLocalContent(Content.ME_FOLLOWERS.uri, User.class);
-        expect(followers.get(0).id).toEqual(308291l);
+        expect(followers.get(0).getId()).toEqual(308291l);
         for (User u : followers){
             expect(u.isStale()).toBeFalse();
         }

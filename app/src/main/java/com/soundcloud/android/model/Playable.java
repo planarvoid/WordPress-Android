@@ -93,9 +93,9 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
 
         final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID);
         if (trackIdIdx == -1) {
-            id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView._ID));
+            mID = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView._ID));
         } else {
-            id = cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
+            mID = cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
         }
         permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.PERMALINK));
         duration = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DURATION));
@@ -214,7 +214,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
 
     public Bundle getBundle() {
         Bundle b = new Bundle();
-        b.putLong("id", id);
+        b.putLong("id", mID);
         b.putString("title", title);
         b.putParcelable("user", user);
         b.putString("uri", uri);
@@ -252,7 +252,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     public void readFromBundle(Bundle b) {
-        id = b.getLong("id");
+        mID = b.getLong("id");
         title = b.getString("title");
         user = b.getParcelable("user");
         uri = b.getString("uri");
@@ -300,7 +300,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         if (user_id != 0) {
             cv.put(DBHelper.Sounds.USER_ID, user_id);
         } else if (user != null && user.isSaved()) {
-            cv.put(DBHelper.Sounds.USER_ID, user.id);
+            cv.put(DBHelper.Sounds.USER_ID, user.mID);
         }
         if (created_at != null) cv.put(DBHelper.Sounds.CREATED_AT, created_at.getTime());
         if (tag_list != null) cv.put(DBHelper.Sounds.TAG_LIST, tag_list);
@@ -317,7 +317,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     public Playable updateFrom(Playable updatedItem, CacheUpdateMode cacheUpdateMode) {
-        id = updatedItem.id;
+        mID = updatedItem.mID;
         title = updatedItem.title;
         permalink = updatedItem.permalink;
 
@@ -365,7 +365,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     public long getUserId() {
-        return user != null ? user.id : user_id;
+        return user != null ? user.mID : user_id;
     }
 
     public abstract int getTypeId();

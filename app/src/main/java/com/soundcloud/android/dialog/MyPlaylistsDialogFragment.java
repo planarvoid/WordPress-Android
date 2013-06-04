@@ -47,7 +47,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
 
     public static MyPlaylistsDialogFragment from(Track track) {
         Bundle b = new Bundle();
-        b.putLong(KEY_TRACK_ID, track.id);
+        b.putLong(KEY_TRACK_ID, track.getId());
         b.putString(KEY_TRACK_TITLE, track.title);
 
         MyPlaylistsDialogFragment fragment = new MyPlaylistsDialogFragment();

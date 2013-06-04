@@ -77,7 +77,7 @@ public class AddCommentTaskTest {
     public void shouldUseIdFromTrackIfAvailable() throws Exception {
         Comment c = new Comment();
         c.track = new Track();
-        c.track.id = 100;
+        c.track.setId(100);
         mockSuccessfulCommentCreation();
         expect(task.execute(c).get()).not.toBeNull();
     }
@@ -92,7 +92,7 @@ public class AddCommentTaskTest {
     public void shouldAddCommentToCache() throws Exception {
         Comment c = new Comment();
         c.track = new Track();
-        c.track.id = 100;
+        c.track.setId(100);
         SoundCloudApplication.MODEL_MANAGER.cache(c.track);
 
         mockSuccessfulCommentCreation();

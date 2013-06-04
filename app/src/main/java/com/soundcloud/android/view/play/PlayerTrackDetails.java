@@ -94,7 +94,7 @@ public class PlayerTrackDetails extends RelativeLayout {
     }
 
     public void fillTrackDetails(Track track, boolean showLoading) {
-        mTrackId = track.id;
+        mTrackId = track.getId();
 
         setViewVisibility(track.likes_count > 0, mLikersRow, mLikersDivider);
         mLikersText.setText(getResources().getQuantityString(R.plurals.track_info_likers,

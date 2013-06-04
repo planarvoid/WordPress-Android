@@ -43,7 +43,7 @@ public class CommentTest {
     @Test
     public void shouldBuildContentValues() throws Exception {
         Comment c1 = new Comment();
-        c1.id = 100L;
+        c1.mID = 100L;
         c1.created_at = new Date();
         c1.user_id = 100L;
         c1.timestamp = 200L;
@@ -53,7 +53,7 @@ public class CommentTest {
         ContentValues cv = c1.buildContentValues();
 
         expect(cv).not.toBeNull();
-        expect(cv.getAsLong("_id")).toEqual(c1.id);
+        expect(cv.getAsLong("_id")).toEqual(c1.mID);
         expect(cv.getAsLong("created_at")).toEqual(c1.created_at.getTime());
         expect(cv.getAsLong("user_id")).toEqual(c1.user_id);
         expect(cv.getAsLong("track_id")).toEqual(c1.track_id);

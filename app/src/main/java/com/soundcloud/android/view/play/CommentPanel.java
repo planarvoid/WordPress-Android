@@ -100,7 +100,7 @@ public class CommentPanel extends RelativeLayout {
                                     mPlayer.getApp().getLoggedInUser(),
                                     mComment.timestamp,
                                     "",
-                                    mComment.id,
+                                    mComment.getId(),
                                     mComment.user.username));
                 }
                 return true;

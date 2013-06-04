@@ -285,7 +285,7 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.TRACKS).toHaveCount(44);
 
-        Playlist p = playlistStorage.loadPlaylistWithTracks(playlist.id).toBlockingObservable().lastOrDefault(null);
+        Playlist p = playlistStorage.loadPlaylistWithTracks(playlist.getId()).toBlockingObservable().lastOrDefault(null);
         expect(p.tracks.size()).toBe(43);
         expect(p.tracks.get(1).title).toEqual("recording on thursday afternoon");
     }

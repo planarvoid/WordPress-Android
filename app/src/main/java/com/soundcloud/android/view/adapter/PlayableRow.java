@@ -117,7 +117,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
                         reposter = ((UserBrowser)getContext()).getUser();
                     }
                 }
-                if (reposter !=  null && reposter.id != SoundCloudApplication.getUserId()) {
+                if (reposter !=  null && reposter.getId() != SoundCloudApplication.getUserId()) {
                     mReposter.setText(reposter.username);
                 }
             }
@@ -136,7 +136,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
     }
 
     protected void setTitle(boolean pressed) {
-        if (mPlayableHolder.getPlayable().id == CloudPlaybackService.getCurrentTrackId()) {
+        if (mPlayableHolder.getPlayable().getId() == CloudPlaybackService.getCurrentTrackId()) {
             if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
 
             mSpanBuilder.clear();

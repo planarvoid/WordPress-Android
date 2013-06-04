@@ -13,23 +13,19 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.SoundAssociationTest;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
-import com.soundcloud.android.task.collection.RemoteCollectionLoaderTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.provider.BaseColumns;
 
@@ -134,18 +130,18 @@ public class CollectionStorageTest {
 
         User u1 = new User();
         u1.permalink = "u1";
-        u1.id = 100L;
+        u1.setId(100L);
 
         Track t = new Track();
-        t.id = 200L;
+        t.setId(200L);
         t.user = u1;
 
         User u2 = new User();
         u2.permalink = "u2";
-        u2.id = 300L;
+        u2.setId(300L);
 
         Track t2 = new Track();
-        t2.id = 400;
+        t2.setId(400);
         t2.user = u2;
 
         items.add(t);
@@ -155,7 +151,7 @@ public class CollectionStorageTest {
 
     private User createUserWithId(long id){
         User u = new User();
-        u.id = id;
+        u.setId(id);
         return u;
     }
 

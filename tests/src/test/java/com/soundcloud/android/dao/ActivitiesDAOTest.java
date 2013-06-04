@@ -58,9 +58,9 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
         expect(trackActivity.uuid).toEqual("8e3bf200-0744-11e2-9817-590114067ab0");
         expect(trackActivity.tags).toEqual("affiliated");
         expect(trackActivity.getType()).toEqual(Activity.Type.TRACK);
-        expect(trackActivity.getUser().id).toEqual(1948213l);
+        expect(trackActivity.getUser().getId()).toEqual(1948213l);
         expect(trackActivity.getUser().username).toEqual("Playback Media");
-        expect(trackActivity.getPlayable().id).toEqual(61145768l);
+        expect(trackActivity.getPlayable().getId()).toEqual(61145768l);
         expect(trackActivity.getPlayable().title).toEqual("Total Waxer");
         expect(trackActivity.getPlayable().genre).toEqual("Podcast");
         expect(trackActivity.sharing_note.text).toEqual("this is a sharing note");
@@ -71,9 +71,9 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
         expect(trackSharingActivity.uuid).toEqual("11a31680-0738-11e2-8cce-6fced32aa777");
         expect(trackSharingActivity.tags).toEqual("affiliated");
         expect(trackSharingActivity.getType()).toEqual(Activity.Type.TRACK_SHARING);
-        expect(trackSharingActivity.getUser().id).toEqual(5833426l);
+        expect(trackSharingActivity.getUser().getId()).toEqual(5833426l);
         expect(trackSharingActivity.getUser().username).toEqual("Stop Out Records");
-        expect(trackSharingActivity.getPlayable().id).toEqual(61132541l);
+        expect(trackSharingActivity.getPlayable().getId()).toEqual(61132541l);
         expect(trackSharingActivity.getPlayable().title).toEqual("Wendyhouse - Hold Me Down (Feat. FRANKi)");
         expect(trackSharingActivity.getPlayable().artwork_url).toEqual("https://i1.sndcdn.com/artworks-000030981203-eerjjh-large.jpg?04ad178");
         expect(trackSharingActivity.sharing_note.text).toEqual("this is a sharing note");
@@ -83,7 +83,7 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
         expect(affiliationActivity.uuid).toEqual("3d22f400-0699-11e2-919a-b494be7979e7");
         expect(affiliationActivity.tags).toEqual("own");
         expect(affiliationActivity.getType()).toEqual(Activity.Type.AFFILIATION);
-        expect(affiliationActivity.getUser().id).toEqual(2746040l);
+        expect(affiliationActivity.getUser().getId()).toEqual(2746040l);
         expect(affiliationActivity.getUser().username).toEqual("Vicious Lobo");
 
         TrackLikeActivity trackLikeActivity = (TrackLikeActivity) activities.get(3);
@@ -97,7 +97,7 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
         expect(trackLikeActivity.getPlayable().label_name).toBeNull();
         expect(trackLikeActivity.getPlayable().license).toEqual("all-rights-reserved");
         expect(trackLikeActivity.getPlayable().permalink).toEqual("android-to-the-big-screen");
-        expect(trackLikeActivity.getPlayable().getUser().id).toEqual(5687414l);
+        expect(trackLikeActivity.getPlayable().getUser().getId()).toEqual(5687414l);
         expect(trackLikeActivity.getPlayable().getUser().permalink).toEqual("soundcloud-android");
 
         CommentActivity commentActivity = (CommentActivity) activities.get(4);
@@ -107,7 +107,7 @@ public class ActivitiesDAOTest extends AbstractDAOTest<ActivityDAO> {
         expect(commentActivity.getType()).toEqual(Activity.Type.COMMENT);
         expect(commentActivity.comment.body).toEqual("Even more interesting");
         expect(commentActivity.comment.timestamp).toEqual(1136845l);
-        expect(commentActivity.comment.user.id).toEqual(5696093l);
+        expect(commentActivity.comment.user.getId()).toEqual(5696093l);
         expect(commentActivity.comment.user.username).toEqual("Liraz Axelrad");
         expect(commentActivity.comment.track_id).toEqual(39722328l);
         expect(commentActivity.comment.track.title).toEqual("Transaction and Services: Nfc by Hauke Meyn at droidcon");

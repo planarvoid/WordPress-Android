@@ -9,7 +9,6 @@ import com.soundcloud.android.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
-import android.net.Uri;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -57,19 +56,19 @@ public abstract class ScResource
         if (!(o instanceof ScResource)) return false;
 
         ScResource resourceBase = (ScResource) o;
-        return id == resourceBase.id;
+        return mID == resourceBase.mID;
     }
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        return (int) (mID ^ (mID >>> 32));
     }
 
     /**
      * @return whether this object has been saved to the database.
      */
     public boolean isSaved() {
-        return id > NOT_SET;
+        return mID > NOT_SET;
     }
 
     /**

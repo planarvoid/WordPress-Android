@@ -92,7 +92,7 @@ public class UserAssociationSyncer extends SyncStrategy {
 
                 // remove items from master remote list and adjust start index
                 for (ScResource u : resources) {
-                    remote.remove(u.id);
+                    remote.remove(u.getId());
                 }
                 startPosition = resources.size();
                 break;
@@ -125,7 +125,7 @@ public class UserAssociationSyncer extends SyncStrategy {
     }
 
     /* package */ boolean pushUserAssociation(UserAssociation a) {
-        final Request request = Request.to(Endpoints.MY_FOLLOWING, a.getUser().id);
+        final Request request = Request.to(Endpoints.MY_FOLLOWING, a.getUser().getId());
         try {
             final boolean success;
 

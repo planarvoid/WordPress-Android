@@ -67,9 +67,9 @@ public class ActivitiesTest {
     public void testGetUniqueUsers() throws Exception {
         Activities activities = new Activities();
         expect(activities.getUniqueUsers().size()).toEqual(0);
-        Activity e1 = new TrackActivity() { public User getUser() { return new User() { { id = 1; } }; } };
-        Activity e2 = new TrackActivity() { public User getUser() { return new User() { { id = 1; } }; } };
-        Activity e3 = new TrackActivity() { public User getUser() { return new User() { { id = 3; } }; } };
+        Activity e1 = new TrackActivity() { public User getUser() { return new User() { { mID = 1; } }; } };
+        Activity e2 = new TrackActivity() { public User getUser() { return new User() { { mID = 1; } }; } };
+        Activity e3 = new TrackActivity() { public User getUser() { return new User() { { mID = 3; } }; } };
         activities = new Activities(e1, e2, e3);
         expect(activities.getUniqueUsers().size()).toEqual(2);
     }
@@ -78,9 +78,9 @@ public class ActivitiesTest {
     public void testGetUniqueTracks() throws Exception {
         Activities activities = new Activities();
         expect(activities.getUniquePlayables().size()).toEqual(0);
-        Activity e1 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 1; } }; } };
-        Activity e2 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 1; } }; } };
-        Activity e3 = new TrackActivity() { public Track getPlayable() { return new Track() { { id = 3; } }; } };
+        Activity e1 = new TrackActivity() { public Track getPlayable() { return new Track() { { mID = 1; } }; } };
+        Activity e2 = new TrackActivity() { public Track getPlayable() { return new Track() { { mID = 1; } }; } };
+        Activity e3 = new TrackActivity() { public Track getPlayable() { return new Track() { { mID = 3; } }; } };
         activities = new Activities(e1, e2, e3);
         expect(activities.getUniquePlayables().size()).toEqual(2);
     }

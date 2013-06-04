@@ -42,7 +42,7 @@ public class PlayEventTrackerTest {
 
         Track track = new Track();
         track.duration = 123;
-        track.id = 10;
+        track.setId(10);
 
         tracker.trackEvent(track, Action.PLAY, 1l, "originUrl", "level");
         tracker.trackEvent(new Track(), Action.STOP, 2l, "originUrl", "level");

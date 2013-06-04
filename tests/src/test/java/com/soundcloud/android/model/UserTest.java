@@ -29,7 +29,7 @@ public class UserTest {
     @Test
     public void testBuildContentValues() throws Exception {
         User u = new User();
-        u.id = 1000L;
+        u.mID = 1000L;
         ContentValues cv = u.buildContentValues();
         expect(cv.getAsLong(DBHelper.Users._ID)).toEqual(1000L);
     }
@@ -79,7 +79,7 @@ public class UserTest {
     @Test
     public void shouldBeParcelable() throws Exception {
         User user = new User();
-        user.id = 1;
+        user.mID = 1;
         user.username = "peter";
         user.uri = "http://peter.com";
         user.avatar_url = "http://avatar.com";
@@ -106,7 +106,7 @@ public class UserTest {
 
         User u = new User(p);
 
-        expect(u.id).toEqual(user.id);
+        expect(u.mID).toEqual(user.mID);
         expect(u.username).toEqual(user.username);
         expect(u.uri).toEqual(user.uri);
         expect(u.avatar_url).toEqual(user.avatar_url);
@@ -132,7 +132,7 @@ public class UserTest {
     public void shouldDeserializeUser() throws Exception {
         User u = TestHelper.readJson(User.class, "/com/soundcloud/android/model/user.json");
 
-        expect(u.id).not.toBeNull();
+        expect(u.mID).not.toBeNull();
         expect(u.username).not.toBeNull();
         expect(u.uri).not.toBeNull();
         expect(u.avatar_url).not.toBeNull();

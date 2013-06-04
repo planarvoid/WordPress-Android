@@ -26,7 +26,7 @@ public class NewPlaylistTaskTest {
         Request r = Request.to(TempEndpoints.PLAYLISTS).add("playlist[title]", "new playlist");
         final Playlist playlist = task.doInBackground(r);
         assertNotNull(playlist);
-        expect(playlist.id).toBeGreaterThan(0l);
+        expect(playlist.getId()).toBeGreaterThan(0l);
     }
 
     @Test

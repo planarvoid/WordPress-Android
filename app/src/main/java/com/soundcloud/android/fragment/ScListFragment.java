@@ -352,7 +352,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
                     for (int i = 0; i < mAdapter.getCount(); i++) {
                         Playable playable = (Playable) mAdapter.getItem(i);
-                        if (playable instanceof Playlist && playable.id == playlistId) {
+                        if (playable instanceof Playlist && playable.getId() == playlistId) {
                             Playlist playlist = (Playlist) playable;
                             // TODO: this should be updated by the model manager
 

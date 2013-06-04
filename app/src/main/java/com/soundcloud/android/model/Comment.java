@@ -89,7 +89,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     @Override
     public Uri toUri() {
-       return Content.COMMENTS.forId(id);
+       return Content.COMMENTS.forId(mID);
     }
 
 
@@ -100,7 +100,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     public Comment(Cursor c, boolean view) {
         if (view) {
-            id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID));
+            mID = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID));
             track_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
             user_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
             user = User.fromActivityView(c);
@@ -108,7 +108,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
             timestamp = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_TIMESTAMP));
             created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_CREATED_AT)));
         } else {
-            id = c.getLong(c.getColumnIndex(DBHelper.Comments._ID));
+            mID = c.getLong(c.getColumnIndex(DBHelper.Comments._ID));
             track_id = c.getLong(c.getColumnIndex(DBHelper.Comments.TRACK_ID));
             user_id = c.getLong(c.getColumnIndex(DBHelper.Comments.USER_ID));
             body = c.getString(c.getColumnIndex(DBHelper.Comments.BODY));
@@ -176,10 +176,10 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
                                 long replyToId,
                                 String replyToUsername){
         Comment comment = new Comment();
-        comment.track_id = track.id;
+        comment.track_id = track.mID;
         comment.track = track;
         comment.user = user;
-        comment.user_id = user.id;
+        comment.user_id = user.mID;
         comment.timestamp = timestamp;
         comment.created_at = new Date(); // not actually used?
         comment.body = body;

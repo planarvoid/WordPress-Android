@@ -73,7 +73,7 @@ public class PlayQueueManager {
 
     public long getCurrentTrackId() {
         final Track currentTrack = getCurrentTrack();
-        return currentTrack == null ? -1 : currentTrack.id;
+        return currentTrack == null ? -1 : currentTrack.getId();
     }
 
     public Track getTrackAt(int pos) {
@@ -86,7 +86,7 @@ public class PlayQueueManager {
 
     public long getTrackIdAt(int pos) {
         Track t = getTrackAt(pos);
-        return t== null ? -1 : t.id;
+        return t== null ? -1 : t.getId();
     }
 
     public boolean prev() {
@@ -216,7 +216,7 @@ public class PlayQueueManager {
 
                     // adjust if the track has moved positions
                     int adjustedPosition = -1;
-                    if (t != null && t.id != playingId) {
+                    if (t != null && t.getId() != playingId) {
                         if (Content.match(uri).isCollectionItem()){
                             adjustedPosition = mPlayQueueDAO.getPlayQueuePositionFromUri(uri, playingId);
                         } else {
@@ -341,7 +341,7 @@ public class PlayQueueManager {
                 Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(trackId);
                 loadUri(playQueueUri.uri, playQueueUri.getPos(), t);
                 // adjust play position if it has changed
-                if (getCurrentTrack() != null && getCurrentTrack().id != trackId && playQueueUri.isCollectionUri()) {
+                if (getCurrentTrack() != null && getCurrentTrack().getId() != trackId && playQueueUri.isCollectionUri()) {
                     final int newPos = mPlayQueueDAO.getPlayQueuePositionFromUri(playQueueUri.uri, trackId);
                     if (newPos == -1) seekPos = 0;
                     setPosition(Math.max(newPos, 0));

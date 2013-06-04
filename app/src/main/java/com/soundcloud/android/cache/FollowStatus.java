@@ -1,8 +1,6 @@
 package com.soundcloud.android.cache;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.LocalCollection;
@@ -83,7 +81,7 @@ public class FollowStatus {
     }
 
     public boolean isFollowing(User user) {
-        return user != null && isFollowing(user.id);
+        return user != null && isFollowing(user.getId());
     }
 
     public synchronized void requestUserFollowings(final Listener listener) {
@@ -104,11 +102,11 @@ public class FollowStatus {
     public void toggleFollowing(final User user) {
         boolean isFollowing;
         synchronized (followings) {
-            if (followings.contains(user.id)) {
-                followings.remove(user.id);
+            if (followings.contains(user.getId())) {
+                followings.remove(user.getId());
                 isFollowing = false;
             } else {
-                followings.add(user.id);
+                followings.add(user.getId());
                 isFollowing = true;
             }
         }

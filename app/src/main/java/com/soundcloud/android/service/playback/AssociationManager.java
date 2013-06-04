@@ -78,7 +78,7 @@ public class AssociationManager {
 
     private void onAssociationChanged(Playable playable) {
         Intent intent = new Intent(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
-                .putExtra(CloudPlaybackService.BroadcastExtras.id, playable.id)
+                .putExtra(CloudPlaybackService.BroadcastExtras.id, playable.getId())
                 .putExtra(CloudPlaybackService.BroadcastExtras.isRepost, playable.user_repost)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isLike, playable.user_like)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, CloudPlaybackService.getState().isSupposedToBePlaying());
@@ -130,7 +130,7 @@ public class AssociationManager {
                             DBHelper.Activities.USER_ID + " = ? AND " + DBHelper.Activities.SOUND_ID + " = ? AND " +
                                     DBHelper.ActivityView.TYPE + " = ?",
                             new String[]{String.valueOf(SoundCloudApplication.getUserId()),
-                                    String.valueOf(playable.id), String.valueOf(activityType)});
+                                    String.valueOf(playable.getId()), String.valueOf(activityType)});
                 }
             }
             onRepostStatusSet(playable, isAssociated);

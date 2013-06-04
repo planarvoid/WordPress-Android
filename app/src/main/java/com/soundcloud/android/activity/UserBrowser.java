@@ -146,7 +146,7 @@ public class UserBrowser extends ScActivity implements
         }
 
         if (mUser != null) {
-            mUserDetailsFragment = UserDetailsFragment.newInstance(mUser.id);
+            mUserDetailsFragment = UserDetailsFragment.newInstance(mUser.getId());
 
             if (isYou()){
                 mToggleFollow.setVisibility(View.GONE);
@@ -256,7 +256,7 @@ public class UserBrowser extends ScActivity implements
         }
         if (mUser == null) {
             mUser = new User();
-            mUser.id = userId;
+            mUser.setId(userId);
         }
     }
 
@@ -271,11 +271,11 @@ public class UserBrowser extends ScActivity implements
     }
 
     private void loadUserByObject(User user) {
-        if (user == null || user.id == -1) return;
+        if (user == null || user.getId() == -1) return;
 
         // show a user out of db if possible because he will be a complete user unlike
         // a parceled user that came from a track, list or comment
-        final User dbUser = SoundCloudApplication.MODEL_MANAGER.getUser(user.id);
+        final User dbUser = SoundCloudApplication.MODEL_MANAGER.getUser(user.getId());
         setUser(dbUser != null ? dbUser : user);
     }
 
@@ -283,7 +283,7 @@ public class UserBrowser extends ScActivity implements
         if (mLoadUserTask == null && mUser != null) {
             mLoadUserTask = new FetchUserTask(mOldCloudAPI);
             mLoadUserTask.addListener(this);
-            mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
+            mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.getId()));
         }
     }
 
@@ -302,7 +302,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     protected boolean isYou() {
-       return mUser != null && mUser.id == getCurrentUserId();
+       return mUser != null && mUser.getId() == getCurrentUserId();
     }
 
     private void toggleFollowing(User user) {
@@ -333,7 +333,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     private void setUser(final User user) {
-        if (user == null || user.id < 0) return;
+        if (user == null || user.getId() < 0) return;
         mUser = user;
 
         if (!isEmpty(user.username)) mUsername.setText(user.username);
@@ -492,7 +492,7 @@ public class UserBrowser extends ScActivity implements
                     contentUri = content.uri;
                 } else {
                     content = currentTab.userContent;
-                    contentUri = content.forId(mUser.id);
+                    contentUri = content.forId(mUser.getId());
                 }
                 ScListFragment listFragment = ScListFragment.newInstance(contentUri);
                 listFragment.setEmptyViewFactory(new EmptyListViewFactory().forContent(UserBrowser.this, content, mUser));

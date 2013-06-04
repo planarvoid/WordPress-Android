@@ -38,7 +38,7 @@ public class TrackDAOTest extends AbstractDAOTest<TrackDAO> {
     }
 
     private void compareTracks(Track t, Track t2) {
-        expect(t2.id).toEqual(t.id);
+        expect(t2.getId()).toEqual(t.getId());
         expect(t2.title).toEqual(t.title);
         expect(t2.permalink).toEqual(t.permalink);
         expect(t2.duration).toBeGreaterThan(0);

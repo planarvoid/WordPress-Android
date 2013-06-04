@@ -31,7 +31,7 @@ public class Shortcut extends ScModel {
 
         ContentValues cv = new ContentValues();
 
-        cv.put(DBHelper.Suggestions.ID,   id);
+        cv.put(DBHelper.Suggestions.ID, mID);
         cv.put(DBHelper.Suggestions.KIND, kind);
 
         if (!TextUtils.isEmpty(avatar_url)) {
@@ -58,9 +58,9 @@ public class Shortcut extends ScModel {
 
     public @Nullable Uri getDataUri() {
         if ("following".equals(kind)) {
-            return Content.USER.forId(id);
+            return Content.USER.forId(mID);
         } else if ("like".equals(kind)) {
-            return Content.TRACK.forId(id);
+            return Content.TRACK.forId(mID);
         } else {
             return null;
         }

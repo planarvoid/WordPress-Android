@@ -24,7 +24,7 @@ public class FetchTrackTaskTest {
                 new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("../track.json"))));
 
         Track t = new Track();
-        t.id = 12345;
+        t.setId(12345);
         t.title = "Old Title";
         SoundCloudApplication.MODEL_MANAGER.cache(t);
 

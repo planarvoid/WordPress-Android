@@ -9,7 +9,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +38,7 @@ public class PlaylistStorageTest {
         expect(playlist.tracks.size()).toEqual(41);
 
         playlist = storage.create(playlist).toBlockingObservable().last();
-        expect(playlist.id).toEqual(2524386L);
+        expect(playlist.getId()).toEqual(2524386L);
         expect(Content.TRACKS).toHaveCount(41);
         expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41);
     }
@@ -48,7 +47,7 @@ public class PlaylistStorageTest {
     public void shouldGetPlaylistWithTracks() {
         TestHelper.insertWithDependencies(playlist);
 
-        Playlist p = storage.loadPlaylistWithTracks(playlist.id).toBlockingObservable().lastOrDefault(null);
+        Playlist p = storage.loadPlaylistWithTracks(playlist.getId()).toBlockingObservable().lastOrDefault(null);
 
         expect(p).not.toBeNull();
         expect(p).toEqual(playlist);
@@ -95,16 +94,16 @@ public class PlaylistStorageTest {
         TestHelper.bulkInsert(tracks);
 
         for (Track track : tracks){
-            final Uri insert = storage.addTrackToPlaylist(playlist, track.id, System.currentTimeMillis());
+            final Uri insert = storage.addTrackToPlaylist(playlist, track.getId(), System.currentTimeMillis());
             expect(insert).not.toBeNull();
         }
 
-        Playlist p2 = storage.loadPlaylistWithTracks(playlist.id).toBlockingObservable().lastOrDefault(null);
+        Playlist p2 = storage.loadPlaylistWithTracks(playlist.getId()).toBlockingObservable().lastOrDefault(null);
 
         expect(p2).not.toBeNull();
         expect(p2.tracks.size()).toEqual(43);
-        expect(p2.tracks.get(41).id).toEqual(tracks.get(0).id); // check ordering
-        expect(p2.tracks.get(42).id).toEqual(tracks.get(1).id); // check ordering
+        expect(p2.tracks.get(41).getId()).toEqual(tracks.get(0).getId()); // check ordering
+        expect(p2.tracks.get(42).getId()).toEqual(tracks.get(1).getId()); // check ordering
     }
 
     @Test
@@ -116,7 +115,7 @@ public class PlaylistStorageTest {
 
         Set<Uri> urisToSync = storage.getPlaylistsDueForSync();
         expect(urisToSync.size()).toEqual(1);
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist.id))).toBeTrue();
+        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist.getId()))).toBeTrue();
     }
 
     @Test
@@ -129,8 +128,8 @@ public class PlaylistStorageTest {
 
         Set<Uri> urisToSync = storage.getPlaylistsDueForSync();
         expect(urisToSync.size()).toEqual(2);
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist1.id))).toBeTrue();
-        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist2.id))).toBeTrue();
+        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist1.getId()))).toBeTrue();
+        expect(urisToSync.contains(Content.PLAYLIST.forId(playlist2.getId()))).toBeTrue();
     }
 
     //TODO: this does not yet test purging of playlist activity records
@@ -164,10 +163,10 @@ public class PlaylistStorageTest {
         for (int i=0; i<n; i++) {
             User user = new User();
             user.permalink = "u"+i;
-            user.id = i;
+            user.setId(i);
 
             Track track = new Track();
-            track.id = i;
+            track.setId(i);
             track.user = user;
             items.add(track);
         }

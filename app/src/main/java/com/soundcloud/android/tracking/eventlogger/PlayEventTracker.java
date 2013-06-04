@@ -176,7 +176,7 @@ public class PlayEventTracker {
             ContentValues values = new ContentValues();
             values.put(TrackingEvents.TIMESTAMP, timestamp);
             values.put(TrackingEvents.ACTION, action.toApiName());
-            values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(track.id).toString());
+            values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(track.getId()).toString());
             values.put(TrackingEvents.SOUND_DURATION, track.duration);
             values.put(TrackingEvents.USER_URN, buildUserUrn(userId));
             values.put(TrackingEvents.ORIGIN_URL, originUrl);
@@ -196,7 +196,7 @@ public class PlayEventTracker {
         @Override
         public String toString() {
             return "TrackingParams{" +
-                    "track_id=" + track.id +
+                    "track_id=" + track.getId() +
                     ", action=" + action.name() +
                     ", timestamp=" + timestamp +
                     ", userId=" + userId +

@@ -67,12 +67,12 @@ public class SoundAssociationTest {
         expect(a1).not.toEqual(a2);
 
         a2 = new SoundAssociation();
-        a2.id = 5;
+        a2.mID = 5;
         expect(a1).not.toEqual(a2);
     }
 
     private void compareSoundItems(SoundAssociation soundItem, SoundAssociation soundItem2) {
-        expect(soundItem2.id).toEqual(soundItem.id);
+        expect(soundItem2.mID).toEqual(soundItem.mID);
         expect(soundItem2.created_at).toEqual(soundItem.created_at);
         expect(soundItem2.associationType).toEqual(soundItem.associationType);
         expect(soundItem2.playable).toEqual(soundItem.playable);

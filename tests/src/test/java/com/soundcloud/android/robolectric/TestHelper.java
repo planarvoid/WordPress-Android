@@ -336,7 +336,7 @@ public class TestHelper {
             ContentValues contentValues = new ContentValues();
 
             contentValues.put(DBHelper.UserAssociations.POSITION, i);
-            contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.id);
+            contentValues.put(DBHelper.UserAssociations.TARGET_ID, r.getId());
             contentValues.put(DBHelper.UserAssociations.OWNER_ID, userId);
             contentValues.put(DBHelper.UserAssociations.ADDED_AT, addedAt == null ? null : addedAt.getTime());
             contentValues.put(DBHelper.UserAssociations.REMOVED_AT, removedAt == null ? null : removedAt.getTime());
@@ -402,7 +402,7 @@ public class TestHelper {
         File tmp = createRecordingFile("wav");
 
         Recording r = new Recording(tmp);
-        r.id = 1;
+        r.setId(1);
         r.latitude = 32.3;
         r.longitude = 23.1;
         r.what_text = "somewhat";
@@ -465,7 +465,7 @@ public class TestHelper {
         List<User> items = new ArrayList<User>();
         for (long i = 100L; i <= count * 100; i += 100) {
             User u = new User();
-            u.id = i;
+            u.setId(i);
             u.permalink = "u" + String.valueOf(i);
             items.add(u);
         }

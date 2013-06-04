@@ -30,7 +30,7 @@ public class ShortcutTest {
     public void testFollowing() throws Exception {
         expect(following.getDataUri()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/users/2");
         expect(following.getText()).toEqual("Eric");
-        expect(following.id).toEqual(2l);
+        expect(following.mID).toEqual(2l);
         expect(following.kind).toEqual("following");
         expect(following.permalink_url).toEqual("http://soundcloud.com/eric");
         expect(following.avatar_url).toEqual("https://i1.sndcdn.com/avatars-000006111783-xqaxy3-tiny.jpg?2479809");
@@ -41,7 +41,7 @@ public class ShortcutTest {
     public void testLike() throws Exception {
         expect(like.getDataUri()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/tracks/64629168");
         expect(like.getText()).toEqual("Halls - Roses For The Dead (Max Cooper remix)");
-        expect(like.id).toEqual(64629168l);
+        expect(like.mID).toEqual(64629168l);
         expect(like.kind).toEqual("like");
         expect(like.permalink_url).toEqual("http://soundcloud.com/no-pain-in-pop/halls-roses-for-the-dead-max");
         expect(like.artwork_url).toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");
@@ -53,7 +53,7 @@ public class ShortcutTest {
     public void testGroup() throws Exception {
         expect(group.getDataUri()).toBeNull();
         expect(group.getText()).toEqual("Field Recordings");
-        expect(group.id).toEqual(8l);
+        expect(group.mID).toEqual(8l);
         expect(group.kind).toEqual("group");
         expect(group.permalink_url).toEqual("http://soundcloud.com/groups/field-recordings");
         expect(group.artwork_url).toEqual("https://i1.sndcdn.com/artworks-000000481489-cw4cwt-tiny.jpg?2479809");

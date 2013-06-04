@@ -283,13 +283,13 @@ public class UploadService extends Service {
                 );
 
             } else if (TRANSFER_SUCCESS.equals(action)) {
-                Upload upload = mUploads.get(recording.id);
+                Upload upload = mUploads.get(recording.getId());
                 if (upload == null) return;
                 upload.track = intent.getParcelableExtra(Track.EXTRA);
 
-                new Poller(createLooper("poller_" + upload.track.id, Process.THREAD_PRIORITY_BACKGROUND),
+                new Poller(createLooper("poller_" + upload.track.getId(), Process.THREAD_PRIORITY_BACKGROUND),
                             mAndroidCloudAPI,
-                            upload.track.id,
+                        upload.track.getId(),
                             Content.ME_SOUNDS.uri).start();
 
                 mBroadcastManager.sendBroadcast(new Intent(UPLOAD_SUCCESS)
@@ -315,7 +315,7 @@ public class UploadService extends Service {
                         .updateStatus(recording.setUploadFailed(PROCESSING_CANCELED.equals(action) || TRANSFER_CANCELLED.equals(action))); // for list state
 
                 releaseLocks();
-                mUploads.remove(recording.id);
+                mUploads.remove(recording.getId());
                 onUploadDone(recording);
             }
         }
@@ -378,7 +378,7 @@ public class UploadService extends Service {
     }
 
     private int getNotificationId(ScResource r){
-        return (int) (9990000 + r.id);
+        return (int) (9990000 + r.getId());
     }
 
     private Notification updateProcessingProgress(Recording r, int stringId, int progress) {
@@ -436,7 +436,7 @@ public class UploadService extends Service {
 
     /* package */  void cancel(Recording r) {
 
-        Upload u = mUploads.get(r.id);
+        Upload u = mUploads.get(r.getId());
         if (u != null) mUploadHandler.removeMessages(0, u);
         if (mUploads.isEmpty()) {
             Log.d(TAG, "onCancel() called without any active uploads");
@@ -454,10 +454,10 @@ public class UploadService extends Service {
     }
 
     private Upload getUpload(Recording r){
-        if (!mUploads.containsKey(r.id)){
-            mUploads.put(r.id, new Upload(r));
+        if (!mUploads.containsKey(r.getId())){
+            mUploads.put(r.getId(), new Upload(r));
         }
-        return mUploads.get(r.id);
+        return mUploads.get(r.getId());
     }
 
     private Notification getOngoingNotification(Recording recording){

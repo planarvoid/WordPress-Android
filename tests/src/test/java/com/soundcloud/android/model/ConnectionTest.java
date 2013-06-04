@@ -32,13 +32,13 @@ public class ConnectionTest {
         }
         expect(DefaultTestRunner.application.getContentResolver().bulkInsert(Content.ME_CONNECTIONS.uri, values)).toEqual(connections.length);
 
-        final Cursor cursor = DefaultTestRunner.application.getContentResolver().query(Content.ME_CONNECTIONS.forId(c.id), null, null, null, null);
+        final Cursor cursor = DefaultTestRunner.application.getContentResolver().query(Content.ME_CONNECTIONS.forId(c.mID), null, null, null, null);
         expect(cursor.moveToFirst()).toBeTrue();
         compareConnection(new Connection(cursor), c);
     }
 
     private void compareConnection(Connection connection1, Connection connection2) {
-        expect(connection2.id).toEqual(connection1.id);
+        expect(connection2.mID).toEqual(connection1.mID);
         expect(connection2.service).toEqual(connection1.service);
         expect(connection2.type).toEqual(connection1.type);
         expect(connection2.created_at).toEqual(connection1.created_at);

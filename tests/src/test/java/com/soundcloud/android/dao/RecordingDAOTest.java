@@ -45,7 +45,7 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
 
         Recording r2 = new Recording(cursor);
 
-        expect(r2.id).toEqual(r.id);
+        expect(r2.getId()).toEqual(r.getId());
         expect(r2.latitude).toEqual(r.latitude);
         expect(r2.longitude).toEqual(r.longitude);
         expect(r2.what_text).toEqual(r.what_text);
@@ -65,7 +65,7 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
         expect(cursor.moveToFirst()).toBeTrue();
 
         Recording r3 = new Recording(cursor);
-        expect(r3.id).toEqual(r.id);
+        expect(r3.getId()).toEqual(r.getId());
         expect(r3.latitude).toEqual(r.latitude);
         expect(r3.longitude).toEqual(r.longitude);
         expect(r3.what_text).toEqual(r.what_text);

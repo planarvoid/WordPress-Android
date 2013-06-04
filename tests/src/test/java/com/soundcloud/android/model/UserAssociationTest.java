@@ -92,7 +92,7 @@ public class UserAssociationTest {
     }
 
     private void compareUserAssociations(UserAssociation userAssociation, UserAssociation userAssociation2) {
-        expect(userAssociation2.id).toEqual(userAssociation.id);
+        expect(userAssociation2.mID).toEqual(userAssociation.mID);
         expect(userAssociation2.created_at).toEqual(userAssociation.created_at);
         expect(userAssociation2.associationType).toEqual(userAssociation.associationType);
         expect(userAssociation2.getLocalSyncState()).toEqual(userAssociation.getLocalSyncState());

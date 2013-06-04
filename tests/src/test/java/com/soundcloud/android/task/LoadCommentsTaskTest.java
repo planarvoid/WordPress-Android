@@ -27,7 +27,7 @@ public class LoadCommentsTaskTest {
 
         Comment comment = comments.get(0);
         expect(comment.user_id).toEqual(476254l);
-        expect(comment.id).toEqual(24100348l);
+        expect(comment.getId()).toEqual(24100348l);
         expect(comment.track_id).toEqual(21607568l);
         expect(comment.timestamp).toEqual(138751l);
         expect(comment.body).toEqual("wow, great voice!");
@@ -35,19 +35,19 @@ public class LoadCommentsTaskTest {
         expect(comment.uri).toEqual("https://api.soundcloud.com/comments/24100348");
 
         expect(comment.user).not.toBeNull();
-        expect(comment.user.id).toEqual(476254l);
+        expect(comment.user.getId()).toEqual(476254l);
     }
 
     @Test
     public void shouldSetTrackObjectOnCommentIfCached() throws Exception {
         Track t = new Track();
-        t.id = 100;
+        t.setId(100);
         SoundCloudApplication.MODEL_MANAGER.cache(t);
 
         TestHelper.addCannedResponse(getClass(), "/tracks/100/comments?limit=50", "comments.json");
         LoadCommentsTask task = new LoadCommentsTask(DefaultTestRunner.application.getCloudAPI());
 
-        List<Comment> comments = task.execute(t.id).get();
+        List<Comment> comments = task.execute(t.getId()).get();
         expect(comments).not.toBeNull();
 
         for (Comment c : comments) {

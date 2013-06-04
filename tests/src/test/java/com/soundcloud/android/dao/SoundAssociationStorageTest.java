@@ -244,10 +244,10 @@ public class SoundAssociationStorageTest {
         for (int i=0; i<n; i++) {
             User user = new User();
             user.permalink = "u"+i;
-            user.id = i;
+            user.setId(i);
 
             Track track = new Track();
-            track.id = i;
+            track.setId(i);
             track.user = user;
             items.add(track);
         }

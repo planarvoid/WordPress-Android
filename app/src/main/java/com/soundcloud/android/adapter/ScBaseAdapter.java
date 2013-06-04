@@ -8,7 +8,6 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.behavior.Creation;
@@ -250,11 +249,11 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
                 if (refreshable.isIncomplete() || (onWifi && refreshable.isStale())) {
                     Refreshable resource = refreshable.getRefreshableResource();
                     if (resource instanceof Track) {
-                        trackUpdates.add(((Track) resource).id);
+                        trackUpdates.add(((Track) resource).getId());
                     } else if (resource instanceof User) {
-                        userUpdates.add(((User) resource).id);
+                        userUpdates.add(((User) resource).getId());
                     } else if (resource instanceof Playlist) {
-                        playlistUpdates.add(((Playlist) resource).id);
+                        playlistUpdates.add(((Playlist) resource).getId());
                     }
                 }
             }
