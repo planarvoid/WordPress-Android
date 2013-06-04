@@ -18,7 +18,7 @@ import org.junit.runner.RunWith;
 public class FetchTrackTaskTest {
     @Test
     public void testFetchTrack() throws Exception {
-        FetchTrackTask task = new FetchTrackTask(DefaultTestRunner.application);
+        FetchTrackTask task = new FetchTrackTask(DefaultTestRunner.application.getCloudAPI());
 
         addHttpResponseRule("GET", "/tracks/12345",
                 new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("../track.json"))));

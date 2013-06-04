@@ -1,8 +1,10 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.FacebookSSO;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.ResolveFetchTask;
@@ -19,11 +21,13 @@ import android.view.View;
 public class ResolveActivity extends Activity implements FetchModelTask.Listener<ScResource> {
     @Nullable
     private ResolveFetchTask mResolveTask;
+    private AndroidCloudAPI mOldCloudAPI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.resolve);
+        mOldCloudAPI = new OldCloudAPI(this);
     }
 
     @Override
@@ -38,7 +42,7 @@ public class ResolveActivity extends Activity implements FetchModelTask.Listener
 
         if (shouldResolve) {
             findViewById(R.id.progress).setVisibility(View.VISIBLE);
-            mResolveTask = new ResolveFetchTask(getApp());
+            mResolveTask = new ResolveFetchTask(mOldCloudAPI);
             mResolveTask.setListener(this);
             mResolveTask.execute(data);
         } else {

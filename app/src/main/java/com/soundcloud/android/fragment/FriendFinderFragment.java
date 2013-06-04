@@ -129,7 +129,7 @@ public class FriendFinderFragment extends ScListFragment implements ConnectionsC
     private AsyncTask<Connection.Service, Void, Uri> loadFacebookConnections() {
         final ScActivity scActivity = getScActivity();
         if (scActivity != null) {
-            return new NewConnectionTask(scActivity.getApp()) {
+            return new NewConnectionTask(oldCloudApi) {
                 @Override
                 protected void onPostExecute(Uri uri) {
                     if (uri != null) {

@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,17 +21,19 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class TokenInformationGeneratorTest {
     private static final String[] SCOPE_EXTRAS = {"a", "b"};
     private TokenInformationGenerator tokenInformationGenerator;
-    @Mock private Bundle bundle;
-    @Mock private AndroidCloudAPI cloudApi;
+    @Mock
+    private Bundle bundle;
+    @Mock
+    private AndroidCloudAPI cloudApi;
 
     @Before
     public void setUp(){
         initMocks(this);
-        tokenInformationGenerator = new TokenInformationGenerator();
+        tokenInformationGenerator = new TokenInformationGenerator(cloudApi);
     }
 
     @Test
@@ -61,7 +63,7 @@ public class TokenInformationGeneratorTest {
         when(bundle.getStringArray("scopes")).thenReturn(SCOPE_EXTRAS);
         when(bundle.containsKey("code")).thenReturn(true);
         when(bundle.getString("code")).thenReturn("codeExtra");
-        tokenInformationGenerator.getToken(cloudApi, bundle);
+        tokenInformationGenerator.getToken(bundle);
         verify(cloudApi).authorizationCode("codeExtra", SCOPE_EXTRAS);
     }
 
@@ -74,7 +76,7 @@ public class TokenInformationGeneratorTest {
         String pass = "pass";
         when(bundle.getString("username")).thenReturn(user);
         when(bundle.getString("password")).thenReturn(pass);
-        tokenInformationGenerator.getToken(cloudApi, bundle);
+        tokenInformationGenerator.getToken(bundle);
         verify(cloudApi).login(user,pass,SCOPE_EXTRAS);
     }
 
@@ -84,7 +86,7 @@ public class TokenInformationGeneratorTest {
         when(bundle.containsKey("extensionGrantType")).thenReturn(true);
         String grant = "grant";
         when(bundle.getString("extensionGrantType")).thenReturn(grant);
-        tokenInformationGenerator.getToken(cloudApi, bundle);
+        tokenInformationGenerator.getToken(bundle);
         verify(cloudApi).extensionGrantType(grant, SCOPE_EXTRAS);
 
     }

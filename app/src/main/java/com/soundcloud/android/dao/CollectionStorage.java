@@ -2,6 +2,7 @@ package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.dao.ResolverHelper.idCursorToList;
 
+import android.content.Context;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.AndroidCloudAPI;
@@ -31,11 +32,11 @@ public class CollectionStorage {
     private final ContentResolver mResolver;
 
     public CollectionStorage() {
-        mResolver = SoundCloudApplication.instance.getContentResolver();
+        this(SoundCloudApplication.instance);
     }
 
-    public CollectionStorage(ContentResolver resolver) {
-        mResolver = resolver;
+    public CollectionStorage(@NotNull Context context) {
+        mResolver = context.getContentResolver();;
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.soundcloud.android.cache;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.LocalCollection;
@@ -40,10 +42,9 @@ public class FollowStatus {
 
     private SyncStateManager mSyncStateManager;
 
-    protected FollowStatus(final Context c) {
-        mContext = c;
+    protected FollowStatus(final Context context) {
+        mContext = context;
         mSyncStateManager = new SyncStateManager();
-
 
         mFollowingCollectionState = mSyncStateManager.fromContent(Content.ME_FOLLOWINGS);
         mSyncStateManager.addChangeListener(mFollowingCollectionState, new LocalCollection.OnChangeListener() {

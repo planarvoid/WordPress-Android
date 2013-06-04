@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.SoundCloudApplication;
@@ -17,6 +18,7 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +32,7 @@ public class AssociationManagerTest {
     @Before
     public void before() {
         associationManager = new AssociationManager(Robolectric.application,  SoundCloudApplication.MODEL_MANAGER);
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
     }
 
     @Test
@@ -87,7 +89,8 @@ public class AssociationManagerTest {
         Track track = createTrack();
         TestHelper.insertAsSoundAssociation(track, SoundAssociation.Type.TRACK_LIKE);
 
-        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, track.id).toUrl(), new TestHttpResponse(200, "OK"));
+        String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, track.id).toUrl();
+        addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
         associationManager.setLike(track, false);
 
         expect(TestHelper.reload(track).user_like).toBeFalse();
@@ -103,7 +106,8 @@ public class AssociationManagerTest {
         p.likes_count = 1;
         TestHelper.insertAsSoundAssociation(p, SoundAssociation.Type.PLAYLIST_LIKE);
 
-        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl(), new TestHttpResponse(200, "OK"));
+        String trackLikeUrl = Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.id).toUrl();
+        addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, trackLikeUrl), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, false);
 
         expect(TestHelper.reload(p).user_like).toBeTrue();
@@ -162,7 +166,8 @@ public class AssociationManagerTest {
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 
-        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl(), new TestHttpResponse(200, "OK"));
+        String playlistRepostUrl = Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl();
+        addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, playlistRepostUrl), new TestHttpResponse(200, "OK"));
         associationManager.setRepost(playlist, false);
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
     }
@@ -179,7 +184,8 @@ public class AssociationManagerTest {
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_REPOST);
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
 
-        addHttpResponseRule("DELETE", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl(), new TestHttpResponse(200, "OK"));
+        String playlistRepostUrl = Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, playlist.id).toUrl();
+        addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpDelete.METHOD_NAME, playlistRepostUrl), new TestHttpResponse(200, "OK"));
         associationManager.setRepost(playlist, false);
         expect(Content.ME_SOUND_STREAM).toHaveCount(0);
     }

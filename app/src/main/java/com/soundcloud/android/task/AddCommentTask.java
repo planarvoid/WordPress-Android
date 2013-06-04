@@ -1,6 +1,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -10,6 +11,7 @@ import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 
@@ -17,11 +19,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
-    private SoundCloudApplication app;
+    private Context context;
     private IOException exception;
+    private AndroidCloudAPI oldCloudAPI;
 
-    public AddCommentTask(SoundCloudApplication app) {
-        this.app = app;
+    public AddCommentTask(Context context, AndroidCloudAPI oldCloudAPI) {
+        this.context = context;
+        this.oldCloudAPI = oldCloudAPI;
     }
 
     @Override
@@ -40,7 +44,7 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
             if (comment.reply_to_id > 0) request.add(Params.Comment.REPLY_TO, comment.reply_to_id);
 
             try {
-                Comment created = app.create(request);
+                Comment created = oldCloudAPI.create(request);
                 publishProgress(comment, created);
                 return created;
             } catch (IOException e) {
@@ -76,10 +80,10 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
             } else {
                 t.comment_count--;
                 if (exception != null) {
-                    app.sendBroadcast(new Intent(Actions.CONNECTION_ERROR));
+                    context.sendBroadcast(new Intent(Actions.CONNECTION_ERROR));
                 }
             }
-            app.sendBroadcast(new Intent(Playable.COMMENTS_UPDATED).putExtra("id", t.id));
+            context.sendBroadcast(new Intent(Playable.COMMENTS_UPDATED).putExtra("id", t.id));
         }
     }
 }

@@ -2,10 +2,13 @@ package com.soundcloud.android.activity.landing;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.auth.EmailConfirm;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.User;
@@ -24,16 +27,19 @@ import android.util.Log;
 
 public class Home extends ScActivity implements ScLandingPage {
     private FetchUserTask mFetchUserTask;
+    private AccountOperations mAccountOperations;
+    private AndroidCloudAPI oldCloudAPI;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        oldCloudAPI = new OldCloudAPI(this);
+        mAccountOperations = new AccountOperations(this);
         setTitle(getString(R.string.side_menu_stream));
         final SoundCloudApplication app = getApp();
-        if (app.getAccount() != null) {
+        if (mAccountOperations.soundCloudAccountExists()) {
             if (state == null) {
                 getSupportFragmentManager().beginTransaction()
-//                        .add(mRootView.getContentHolderId(), ActivitiesFragment.create(Content.ME_SOUND_STREAM))
                         .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
                         .commit();
 
@@ -46,11 +52,11 @@ public class Home extends ScActivity implements ScLandingPage {
             }
 
             if (IOUtils.isConnected(this) &&
-                    app.getAccount() != null &&
-                    app.getToken().valid() &&
+                    mAccountOperations.soundCloudAccountExists() &&
+                    mAccountOperations.getSoundCloudToken().valid() &&
                     !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
                     !justAuthenticated(getIntent())) {
-                checkEmailConfirmed(app);
+                checkEmailConfirmed();
             }
 
             if (SoundCloudApplication.BETA_MODE) {
@@ -63,8 +69,8 @@ public class Home extends ScActivity implements ScLandingPage {
     @Override
     protected void onResume() {
         super.onResume();
-        if (getApp().getAccount() == null) {
-            getApp().addAccount(this);
+        if (!mAccountOperations.soundCloudAccountExists()) {
+            mAccountOperations.addSoundCloudAccountManually(this);
             finish();
         }
     }
@@ -80,8 +86,8 @@ public class Home extends ScActivity implements ScLandingPage {
         return R.id.nav_stream;
     }
 
-    private void checkEmailConfirmed(final SoundCloudApplication app) {
-        mFetchUserTask = new FetchUserTask(app) {
+    private void checkEmailConfirmed() {
+        mFetchUserTask = new FetchUserTask(oldCloudAPI) {
             @Override
             protected void onPostExecute(User user) {
                 if (user == null || user.isPrimaryEmailConfirmed()) {

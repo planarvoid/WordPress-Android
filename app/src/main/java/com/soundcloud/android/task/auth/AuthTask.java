@@ -2,6 +2,7 @@ package com.soundcloud.android.task.auth;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.Wrapper;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.dialog.auth.AuthTaskFragment;
@@ -69,7 +70,7 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
     }
 
     protected AuthTaskException extractErrors(HttpResponse resp) throws IOException {
-        final ObjectReader reader = getSoundCloudApplication().getMapper().reader();
+        final ObjectReader reader = Wrapper.buildObjectMapper().reader();
         final List<String> errors = IOUtils.parseError(reader, resp.getEntity().getContent());
         return new AuthTaskException(errors);
     }

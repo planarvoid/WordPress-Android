@@ -18,7 +18,7 @@ import android.net.Uri;
 public class ResolveTaskTest {
     @Test
     public void testResolve() throws Exception {
-        ResolveTask task = new ResolveTask(DefaultTestRunner.application);
+        ResolveTask task = new ResolveTask(DefaultTestRunner.application.getCloudAPI());
 
         addHttpResponseRule("GET", "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ffoo%2Fbar",
                 new TestHttpResponse(302, "", new BasicHeader("Location", "http://foo.com")));
@@ -28,7 +28,7 @@ public class ResolveTaskTest {
 
     @Test
     public void testResolvingWithListener() throws Exception {
-        ResolveTask task = new ResolveTask(DefaultTestRunner.application);
+        ResolveTask task = new ResolveTask(DefaultTestRunner.application.getCloudAPI());
 
         addHttpResponseRule("GET", "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ffoo%2Fbar",
                 new TestHttpResponse(302, "", new BasicHeader("Location", "http://foo.com")));

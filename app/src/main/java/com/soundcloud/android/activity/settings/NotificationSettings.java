@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.settings;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.Page;
@@ -21,10 +22,12 @@ import java.util.List;
 @Tracking(page = Page.Settings_notifications)
 public class NotificationSettings extends PreferenceActivity {
     final List<CheckBoxPreference> syncPreferences = new ArrayList<CheckBoxPreference>();
+    private AccountOperations mAccountOperations;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAccountOperations = new AccountOperations(this);
         addPreferencesFromResource(R.xml.notifications_settings);
 
         for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
@@ -52,7 +55,7 @@ public class NotificationSettings extends PreferenceActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ((SoundCloudApplication)getApplication()).track(getClass());
+        ((SoundCloudApplication) getApplication()).track(getClass());
     }
 
     private boolean checkSyncNecessary() {
@@ -63,12 +66,12 @@ public class NotificationSettings extends PreferenceActivity {
                 break;
             }
         }
-        final Account account = ((SoundCloudApplication) getApplication()).getAccount();
-        if (account != null) {
+        if (mAccountOperations.soundCloudAccountExists()) {
+            final Account account = mAccountOperations.getSoundCloudAccount();
             final boolean autoSyncing = ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY);
             if (sync && !autoSyncing) {
                 ScContentProvider.enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
-            } else if (!sync && autoSyncing){
+            } else if (!sync && autoSyncing) {
                 ScContentProvider.disableSyncing(account);
             }
         }

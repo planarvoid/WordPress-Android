@@ -6,6 +6,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
@@ -138,16 +139,17 @@ public class UploadService extends Service {
     private LocalBroadcastManager mBroadcastManager;
 
     private RecordingStorage mRecordingStorage;
+    private AndroidCloudAPI mAndroidCloudAPI;
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "upload service started");
-
+        mAndroidCloudAPI = new OldCloudAPI(this);
         mRecordingStorage = new RecordingStorage();
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
         mIntentHandler = new IntentHandler(this, createLooper("UploadService", Process.THREAD_PRIORITY_DEFAULT));
-        mUploadHandler = new UploadHandler(this, createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT));
+        mUploadHandler = new UploadHandler(this, createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT), mAndroidCloudAPI);
         mProcessingHandler = new Handler(createLooper("Processing", Process.THREAD_PRIORITY_BACKGROUND));
 
         mBroadcastManager.registerReceiver(mReceiver, getIntentFilter());
@@ -199,9 +201,11 @@ public class UploadService extends Service {
      */
     private static final class UploadHandler extends Handler {
         private WeakReference<UploadService> mServiceRef;
+        private AndroidCloudAPI mAndroidCloudAPI;
 
-        private UploadHandler(UploadService service, Looper looper) {
+        private UploadHandler(UploadService service, Looper looper, AndroidCloudAPI androidCloudAPI) {
             super(looper);
+            mAndroidCloudAPI = androidCloudAPI;
             mServiceRef = new WeakReference<UploadService>(service);
         }
 
@@ -223,7 +227,7 @@ public class UploadService extends Service {
                 service.mProcessingHandler.post(new Encoder(service, upload.recording));
             } else {
                 // perform the actual upload
-                post(new Uploader((AndroidCloudAPI) service.getApplication(), upload.recording));
+                post(new Uploader(mAndroidCloudAPI, upload.recording));
             }
         }
     }
@@ -284,7 +288,7 @@ public class UploadService extends Service {
                 upload.track = intent.getParcelableExtra(Track.EXTRA);
 
                 new Poller(createLooper("poller_" + upload.track.id, Process.THREAD_PRIORITY_BACKGROUND),
-                            (AndroidCloudAPI) getApplication(),
+                            mAndroidCloudAPI,
                             upload.track.id,
                             Content.ME_SOUNDS.uri).start();
 

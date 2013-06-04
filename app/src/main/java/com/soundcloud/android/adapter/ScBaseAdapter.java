@@ -4,15 +4,15 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.model.behavior.Creation;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.behavior.Creation;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.ReturnData;
@@ -259,7 +259,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
                 }
             }
         }
-        final AndroidCloudAPI api = SoundCloudApplication.fromContext(context);
+        final AndroidCloudAPI api = new OldCloudAPI(context);
         if (!trackUpdates.isEmpty()) {
             UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS, trackUpdates);
             task.setAdapter(this);

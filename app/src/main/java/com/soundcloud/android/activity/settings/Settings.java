@@ -7,8 +7,11 @@ import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -16,6 +19,7 @@ import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,8 +39,6 @@ import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
-import com.soundcloud.android.utils.Log;
-import android.widget.Toast;
 
 import java.io.File;
 
@@ -62,11 +64,12 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     private int mClicksToDebug = CLICKS_TO_DEBUG_MODE;
 
     private ProgressDialog mDeleteDialog;
+    private AccountOperations mAccountOperations;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-
+        mAccountOperations = new AccountOperations(this);
         addPreferencesFromResource(R.xml.settings);
 
         PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
@@ -253,7 +256,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
 
     @Override
     protected void onResume() {
-        getApp().track(getClass());
+        getApp().track(Settings.class);
         updateClearCacheTitles();
         super.onResume();
     }
@@ -297,41 +300,15 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     }
 
     @TargetApi(11)
-    public static AlertDialog createLogoutDialog(final Activity a) {
-        final SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
+    public static AlertDialog createLogoutDialog(Activity activity) {
+        final SoundCloudApplication app = (SoundCloudApplication) activity.getApplication();
+        final AccountOperations accountOperations = new AccountOperations(app);
         app.track(Click.Log_out_log_out);
-        return new AlertDialog.Builder(a).setTitle(R.string.menu_clear_user_title)
+
+        return new AlertDialog.Builder(activity).setTitle(R.string.menu_clear_user_title)
                 .setMessage(R.string.menu_clear_user_desc)
                 .setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(final DialogInterface dialog, int whichButton) {
-                                final ProgressDialog progress = AndroidUtils.showProgress(a, R.string.settings_logging_out);
-
-                                app.track(Click.Log_out_box_ok);
-                                app.clearSoundCloudAccount(
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                app.addAccount(a);
-                                                progress.dismiss();
-                                                a.finish();
-                                            }
-                                        },
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                progress.dismiss();
-                                                new AlertDialog.Builder(a)
-                                                        .setIcon(android.R.drawable.ic_dialog_alert)
-                                                        .setMessage(R.string.settings_error_revoking_account_message)
-                                                        .setPositiveButton(android.R.string.ok, null)
-                                                        .create()
-                                                        .show();
-                                            }
-                                        }
-                                );
-                            }
-                        })
+                        new LogoutClickListener(activity))
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -355,4 +332,44 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     @Override
     public void onHomePressed() {
     }
+
+    private static class LogoutClickListener implements DialogInterface.OnClickListener {
+
+        private final SoundCloudApplication mSoundCloudApplication;
+        private final AccountOperations mAccountOperations;
+        private final Activity mActivityContext;
+
+        private LogoutClickListener(Activity activityContext) {
+            mActivityContext = activityContext;
+            mSoundCloudApplication = (SoundCloudApplication)activityContext.getApplicationContext();
+            this.mAccountOperations = new AccountOperations(mSoundCloudApplication);
+        }
+
+        @Override
+        public void onClick(final DialogInterface dialog, int whichButton) {
+            final ProgressDialog progressDialog = AndroidUtils.showProgress(mActivityContext, R.string.settings_logging_out);
+
+            mSoundCloudApplication.track(Click.Log_out_box_ok);
+            mAccountOperations.removeSoundCloudAccount().subscribe(new ScObserver<Void>() {
+                @Override
+                public void onCompleted() {
+                    mAccountOperations.addSoundCloudAccountManually(mActivityContext);
+                    progressDialog.dismiss();
+                    mActivityContext.finish();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    progressDialog.dismiss();
+                    new AlertDialog.Builder(mActivityContext)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setMessage(R.string.settings_error_revoking_account_message)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .create()
+                            .show();
+                }
+
+            }, ScSchedulers.BACKGROUND_SCHEDULER);
+        }
+    };
 }

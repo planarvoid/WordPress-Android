@@ -11,6 +11,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -19,13 +20,19 @@ import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class AddCommentTaskTest {
+
+    private AddCommentTask task;
+
+    @Before
+    public void setUp(){
+        task = new AddCommentTask(DefaultTestRunner.application, DefaultTestRunner.application.getCloudAPI());
+    }
     @Test
     public void shouldPostComment() throws Exception {
         Comment c = new Comment();
         c.track_id = 100;
         mockSuccessfulCommentCreation();
 
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
         expect(task.execute(c).get()).not.toBeNull();
     }
 
@@ -41,7 +48,6 @@ public class AddCommentTaskTest {
         SoundCloudApplication.MODEL_MANAGER.cache(new Track(100l));
 
         mockSuccessfulCommentCreation();
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
         expect(task.execute(c).get()).not.toBeNull();
 
         expect(DefaultTestRunner.application.broadcasts.size()).toEqual(1);
@@ -53,7 +59,6 @@ public class AddCommentTaskTest {
         Comment c = new Comment();
         c.track_id = 100;
         Robolectric.addHttpResponseRule("/tracks/100/comments", new TestHttpResponse(400, "FAILZ"));
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
         expect(task.execute(c).get()).toBeNull();
     }
 
@@ -63,7 +68,6 @@ public class AddCommentTaskTest {
         c.track_id = 100;
         SoundCloudApplication.MODEL_MANAGER.cache(new Track(100l));
         TestHelper.addPendingIOException("/tracks/100/comments");
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
         expect(task.execute(c).get()).toBeNull();
         expect(DefaultTestRunner.application.broadcasts.get(0).getAction()).toEqual(Actions.CONNECTION_ERROR);
         expect(DefaultTestRunner.application.broadcasts.get(1).getAction()).toEqual(Playable.COMMENTS_UPDATED);
@@ -75,14 +79,12 @@ public class AddCommentTaskTest {
         c.track = new Track();
         c.track.id = 100;
         mockSuccessfulCommentCreation();
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
         expect(task.execute(c).get()).not.toBeNull();
     }
 
     @Test
     public void shouldFailWithoutTrackId() throws Exception {
         Comment c = new Comment();
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
         expect(task.execute(c).get()).toBeNull();
     }
 
@@ -94,7 +96,6 @@ public class AddCommentTaskTest {
         SoundCloudApplication.MODEL_MANAGER.cache(c.track);
 
         mockSuccessfulCommentCreation();
-        AddCommentTask task = new AddCommentTask(DefaultTestRunner.application);
         expect(task.execute(c).get()).not.toBeNull();
         expect(c.track.comments.size()).toBe(1);
     }

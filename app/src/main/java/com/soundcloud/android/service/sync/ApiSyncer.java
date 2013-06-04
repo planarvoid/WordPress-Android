@@ -5,6 +5,7 @@ import static com.soundcloud.android.AndroidCloudAPI.NotFoundException;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.BaseDAO;
 import com.soundcloud.android.dao.ConnectionDAO;

@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class SyncIntentTest {
 
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
     }
 
     @Test

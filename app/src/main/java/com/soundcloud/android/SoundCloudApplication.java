@@ -1,33 +1,23 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.CollectionStorage;
-import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.imageloader.PrefetchHandler;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
-import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
@@ -36,49 +26,30 @@ import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Env;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.Stream;
 import com.soundcloud.api.Token;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.List;
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=fc54b4c2",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
-public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener, Tracker {
+public class SoundCloudApplication extends Application implements Tracker {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
                                            "full_x86".equals(Build.PRODUCT)   || "sdk_x86".equals(Build.PRODUCT);
@@ -92,7 +63,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private ATTracker mTracker;
 
     private User mLoggedInUser;
-    protected Wrapper mCloudApi; /* protected for testing */
+    private AccountOperations accountOperations;
 
     public static SoundCloudApplication instance;
 
@@ -113,11 +84,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
         instance = this;
         IOUtils.checkState(this);
+        accountOperations = new AccountOperations(this);
         mImageLoader = createImageLoader();
-        final Account account = getAccount();
+        final Account account = accountOperations.getSoundCloudAccount();
 
-        mCloudApi = new Wrapper(this, account == null ? null : getToken(account));
-        mCloudApi.setTokenListener(this);
 
         MODEL_MANAGER = new ScModelManager(this);
 
@@ -164,72 +134,31 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         FacebookSSO.extendAccessTokenIfNeeded(this);
     }
 
+    public Long getLoggedInUsersId(){
+        return getLoggedInUser().getId();
+    }
+
     public synchronized User getLoggedInUser() {
         if (mLoggedInUser == null) {
-            final long id = getAccountDataLong(User.DataKeys.USER_ID);
+            final long id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
             if (id != -1) {
                 mLoggedInUser = MODEL_MANAGER.getUser(id);
             }
             // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
                 User user = new User();
-                user.id = getAccountDataLong(User.DataKeys.USER_ID);
-                user.username = getAccountData(User.DataKeys.USERNAME);
-                user.permalink = getAccountData(User.DataKeys.USER_PERMALINK);
+                user.id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
+                user.username = accountOperations.getAccountDataString(AccountInfoKeys.USERNAME.getKey());
+                user.permalink = accountOperations.getAccountDataString(AccountInfoKeys.USER_PERMALINK.getKey());
                 return user;
             }
-            mLoggedInUser.via = SignupVia.fromString(getAccountData(User.DataKeys.SIGNUP));
+            mLoggedInUser.via = SignupVia.fromString(accountOperations.getAccountDataString(AccountInfoKeys.SIGNUP.getKey()));
         }
         return mLoggedInUser;
     }
 
-    public void clearSoundCloudAccount(@Nullable final Runnable onSuccess, @Nullable final Runnable onError) {
-        final Account account = getAccount();
-        if (account != null) {
-            getAccountManager().removeAccount(account, new AccountManagerCallback<Boolean>() {
-                @Override public void run(AccountManagerFuture<Boolean> future) {
-                    try {
-                        if (future.getResult()) {
-                            onAccountRemoved(account);
-                            if (onSuccess != null) onSuccess.run();
-                        } else if (onError != null) onError.run();
-                    } catch (OperationCanceledException e) {
-                        if (onError != null) onError.run();
-                    } catch (IOException e) {
-                        if (onError != null) onError.run();
-                    } catch (AuthenticatorException e) {
-                        if (onError != null) onError.run();
-                    }
-                }
-            }, /*handler, null == main*/ null);
-        } else if (onError != null) {
-            onError.run();
-        }
-    }
-
-    //TODO: This should be on a different class, e.g. a LoginManager
-    public void onAccountRemoved(Account account) {
-        new Thread() {
-            @Override
-            public void run() {
-                new SyncStateManager().clear();
-                new CollectionStorage().clear();
-                new ActivitiesStorage().clear(null);
-                SoundRecorder.getInstance(SoundCloudApplication.this).reset();
-
-                PlayQueueManager.clearState(SoundCloudApplication.this);
-                FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
-            }
-        }.run();
-
-        sendBroadcast(new Intent(Actions.LOGGING_OUT));
-        sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
-
-        FollowStatus.clearState();
-        C2DMReceiver.unregister(this);
-        ConnectionsCache.set(null);
+    public void clearLoggedInUser() {
         mLoggedInUser = null;
-        mCloudApi.invalidateToken();
     }
 
     protected ImageLoader createImageLoader() {
@@ -247,37 +176,18 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             return super.getSystemService(name);
         }
     }
-
-    public @Nullable Account getAccount() {
-        Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
-        if (account.length == 0) {
-            return null;
-        } else {
-            return account[0];
-        }
-    }
-
-    public AccountManagerFuture<Bundle> addAccount(Activity activity) {
-        return getAccountManager().addAccount(
-                getString(R.string.account_type),
-                User.DataKeys.ACCESS_TOKEN, null, null, activity, null, null);
-    }
-
-    /**
-     * @see #addAccount(android.content.Context, com.soundcloud.android.model.User, com.soundcloud.api.Token,
-     * com.soundcloud.android.activity.auth.SignupVia)
-     */
+    //TODO Move this into AccountOperations once we refactor User info out of here
     public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
-        Account account = addAccount(this, user, token, via);
+        Account account = accountOperations.addSoundCloudAccountExplicitly(user, token, via);
         if (account != null) {
             mLoggedInUser = user;
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
 
-            // sync shortcuts so suggest works properly
-            Intent intent = new Intent(this, ApiSyncService.class)
-                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                    .setData(Content.ME_SHORTCUT.uri);
+                // sync shortcuts so suggest works properly
+                Intent intent = new Intent(this, ApiSyncService.class)
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                        .setData(Content.ME_SHORTCUT.uri);
 
             startService(intent);
 
@@ -303,243 +213,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         startService(intent);
     }
 
-    /**
-     * Adds the given user as a SoundCloud account to the device's list of accounts. Idempotent, will be a no op if
-     * already called.
-     *
-     * @return the new account, or null if account already existed or adding it failed
-     */
-    public static Account addAccount(Context context, User user, Token token, SignupVia via) {
-        final String type = context.getString(R.string.account_type);
-        final Account account = new Account(user.username, type);
-        final AccountManager am = AccountManager.get(context);
-        final boolean created = am.addAccountExplicitly(account, token.access, null);
-        if (created) {
-            am.setAuthToken(account, User.DataKeys.ACCESS_TOKEN,  token.access);
-            am.setAuthToken(account, User.DataKeys.REFRESH_TOKEN, token.refresh);
-            am.setUserData(account, User.DataKeys.SCOPE, token.scope);
-            am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
-            am.setUserData(account, User.DataKeys.USERNAME, user.username);
-            am.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink);
-            am.setUserData(account, User.DataKeys.SIGNUP, via.name);
-            return account;
-        } else {
-            return null;
-        }
-    }
-
-    public Token useAccount(Account account) {
-        Token token = getToken(account);
-        mCloudApi.setToken(token);
-        return token;
-    }
-
-    public @Nullable String getAccountData(String key) {
-        Account account = getAccount();
-        return account == null ? null : getAccountManager().getUserData(account, key);
-    }
-
-    public int getAccountDataInt(String key) {
-        String data = getAccountData(key);
-        return data == null ? -1 : Integer.parseInt(data);
-    }
-
-    public long getAccountDataLong(String key) {
-        String data = getAccountData(key);
-        return data == null ? -1 : Long.parseLong(data);
-    }
-
-    public boolean getAccountDataBoolean(String key) {
-        String data = getAccountData(key);
-        return data != null && Boolean.parseBoolean(data);
-    }
-
     private long getCurrentUserId()  {
-        return mLoggedInUser == null ? getAccountDataLong(User.DataKeys.USER_ID) : mLoggedInUser.id;
+        return mLoggedInUser == null ? accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey()) : mLoggedInUser.id;
     }
 
     public static long getUserId() {
         return instance.getCurrentUserId();
-    }
-
-    public boolean setAccountData(String key, boolean value) {
-        return setAccountData(key, Boolean.toString(value));
-    }
-
-    public boolean setAccountData(String key, long value) {
-        return setAccountData(key, Long.toString(value));
-    }
-
-    public boolean setAccountData(String key, String value) {
-        Account account = getAccount();
-        if (account == null) {
-            return false;
-        } else {
-            /*
-            TODO: not sure : setUserData off the ui thread??
-                StrictMode policy violation; ~duration=161 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=279 violation=1
-
-                D/StrictMode(15333): 	at android.os.StrictMode.readAndHandleBinderCallViolations(StrictMode.java:1617)
-                D/StrictMode(15333): 	at android.os.Parcel.readExceptionCode(Parcel.java:1309)
-                D/StrictMode(15333): 	at android.os.Parcel.readException(Parcel.java:1278)
-                D/StrictMode(15333): 	at android.accounts.IAccountManager$Stub$Proxy.setUserData(IAccountManager.java:701)
-                D/StrictMode(15333): 	at android.accounts.AccountManager.setUserData(AccountManager.java:684)
-                D/StrictMode(15333): 	at com.soundcloud.android.SoundCloudApplication.setAccountData(SoundCloudApplication.java:314)
-             */
-            getAccountManager().setUserData(account, key, value);
-            return true;
-        }
-    }
-
-    private Token getToken(Account account) {
-        return new Token(getAccessToken(account), getRefreshToken(account), getAccountData(User.DataKeys.SCOPE));
-    }
-
-    private String getAccessToken(Account account) {
-        return getAccountManager().peekAuthToken(account, User.DataKeys.ACCESS_TOKEN);
-    }
-
-    private String getRefreshToken(Account account) {
-        return getAccountManager().peekAuthToken(account, User.DataKeys.REFRESH_TOKEN);
-    }
-
-    private AccountManager getAccountManager() {
-        return AccountManager.get(this);
-    }
-
-    public HttpResponse head(Request resource) throws IOException {
-        return mCloudApi.head(resource);
-    }
-
-    public HttpResponse get(Request resource) throws IOException {
-        return mCloudApi.get(resource);
-    }
-
-    public Token clientCredentials(String... scopes) throws IOException {
-        return mCloudApi.clientCredentials(scopes);
-    }
-
-    public Token extensionGrantType(String grantType, String... scopes) throws IOException {
-        return mCloudApi.extensionGrantType(grantType, scopes);
-    }
-
-    public Token login(String username, String password, String... scopes) throws IOException {
-        return mCloudApi.login(username, password, scopes);
-    }
-
-    public URI authorizationCodeUrl(String... options) {
-        return mCloudApi.authorizationCodeUrl(options);
-    }
-
-    public HttpResponse put(Request request) throws IOException {
-        return mCloudApi.put(request);
-    }
-
-    public HttpResponse post(Request request) throws IOException {
-        return mCloudApi.post(request);
-    }
-
-    public HttpResponse delete(Request request) throws IOException {
-        return mCloudApi.delete(request);
-    }
-
-    public Token refreshToken() throws IOException {
-        return mCloudApi.refreshToken();
-    }
-
-    public Token getToken() {
-        return mCloudApi.getToken();
-    }
-
-    public long resolve(String uri) throws IOException {
-        return mCloudApi.resolve(uri);
-    }
-
-    public void setToken(Token token) {
-        mCloudApi.setToken(token);
-    }
-
-    public void setTokenListener(TokenListener listener) {
-        mCloudApi.setTokenListener(listener);
-    }
-
-    public Token exchangeOAuth1Token(String oauth1AccessToken) throws IOException {
-        return mCloudApi.exchangeOAuth1Token(oauth1AccessToken);
-    }
-
-    public Token invalidateToken() {
-        return mCloudApi.invalidateToken();
-    }
-
-    public ObjectMapper getMapper() {
-        return mCloudApi.getMapper();
-    }
-
-    public Context getContext() {
-        return this;
-    }
-
-    public <T extends ScResource> T read(Request req) throws IOException {
-        return mCloudApi.read(req);
-    }
-
-    public <T extends ScResource> T update(Request request) throws NotFoundException, IOException {
-        return mCloudApi.update(request);
-    }
-
-    public <T extends ScResource> T create(Request request) throws IOException {
-        return mCloudApi.create(request);
-    }
-
-    public <T extends ScResource> List<T> readList(Request req) throws IOException {
-        return mCloudApi.readList(req);
-    }
-
-    public <T extends ScResource> ScResource.ScResourceHolder<T> readCollection(Request req) throws IOException {
-        return mCloudApi.readCollection(req);
-    }
-
-    @NotNull public <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request, Class<C> ch) throws IOException {
-        return mCloudApi.readFullCollection(request, ch);
-    }
-
-
-    public <T extends ScResource> List<T> readListFromIds(Request request, List<Long> ids) throws IOException {
-        return mCloudApi.readListFromIds(request, ids);
-    }
-
-    public Token authorizationCode(String code, String... scopes) throws IOException {
-        return mCloudApi.authorizationCode(code, scopes);
-    }
-
-    public void setDefaultContentType(String contentType) {
-        mCloudApi.setDefaultContentType(contentType);
-    }
-
-    public void setDefaultAcceptEncoding(String encoding) {
-        mCloudApi.setDefaultAcceptEncoding(encoding);
-    }
-
-    public HttpClient getHttpClient() {
-        return mCloudApi.getHttpClient();
-    }
-
-    public HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException {
-        return mCloudApi.safeExecute(target, request);
-    }
-
-    public Stream resolveStreamUrl(String uri, boolean skipLogging) throws IOException {
-        return mCloudApi.resolveStreamUrl(uri, skipLogging);
-    }
-
-    @Override
-    public String getUserAgent() {
-        return mCloudApi.getUserAgent();
-    }
-
-    @Override
-    public Env getEnv() {
-        return mCloudApi.getEnv();
     }
 
     public void track(Event event, Object... args) {
@@ -551,41 +230,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (mTracker != null && tracking != null) {
             if (tracking.page() != Page.UNKNOWN) track(tracking.page(), args);
             if (tracking.click() != Click.UNKNOWN) track(tracking.click(), args);
-        }
-    }
-
-    @Override
-    public Token onTokenInvalid(final Token expired) {
-        try {
-            final Account acc = getAccount();
-            if (acc != null) {
-               Token newToken = getToken(acc);
-                if (!newToken.equals(expired)) {
-                    return newToken;
-                }
-            }
-            return null;
-        } finally {
-            getAccountManager().invalidateAuthToken(
-                getString(R.string.account_type),
-                expired.access);
-
-            getAccountManager().invalidateAuthToken(
-                getString(R.string.account_type),
-                expired.refresh);
-        }
-    }
-
-    @Override
-    public void onTokenRefreshed(Token token) {
-        Account account = getAccount();
-        AccountManager am = getAccountManager();
-        if (account != null && token.valid() && token.defaultScoped()) {
-            am.setPassword(account, token.access);
-            am.setAuthToken(account, User.DataKeys.ACCESS_TOKEN, token.access);
-            am.setAuthToken(account, User.DataKeys.REFRESH_TOKEN, token.refresh);
-            am.setUserData(account, User.DataKeys.EXPIRES_IN, "" + token.expiresIn);
-            am.setUserData(account, User.DataKeys.SCOPE, token.scope);
         }
     }
 

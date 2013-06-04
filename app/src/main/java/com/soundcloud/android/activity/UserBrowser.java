@@ -5,8 +5,11 @@ import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ScListFragment;
@@ -79,6 +82,8 @@ public class UserBrowser extends ScActivity implements
     private boolean mDelayContent;
 
     private UserDetailsFragment mUserDetailsFragment;
+    private AndroidCloudAPI mOldCloudAPI;
+    private AccountOperations mAccountOperations;
 
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
@@ -95,9 +100,9 @@ public class UserBrowser extends ScActivity implements
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.user_browser);
-
+        mOldCloudAPI = new OldCloudAPI(this);
         mFollowStatus = FollowStatus.get();
-
+        mAccountOperations = new AccountOperations(this);
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
         mFullName = (TextView) findViewById(R.id.fullname);
@@ -276,7 +281,7 @@ public class UserBrowser extends ScActivity implements
 
     private void loadDetails() {
         if (mLoadUserTask == null && mUser != null) {
-            mLoadUserTask = new FetchUserTask(getApp());
+            mLoadUserTask = new FetchUserTask(mOldCloudAPI);
             mLoadUserTask.addListener(this);
             mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
         }
@@ -302,7 +307,7 @@ public class UserBrowser extends ScActivity implements
 
     private void toggleFollowing(User user) {
         mFollowStatus.toggleFollowing(user);
-        SyncInitiator.pushFollowingsToApi(this);
+        SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
     }
 
     @Override

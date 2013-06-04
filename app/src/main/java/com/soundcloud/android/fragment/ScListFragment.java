@@ -6,8 +6,8 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.CommentAdapter;
@@ -18,6 +18,7 @@ import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.adapter.UserAssociationAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.imageloader.ImageLoader;
@@ -101,6 +102,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private SyncStateManager mSyncStateManager;
 
     private int mRetainedListPosition;
+    private AccountOperations accountOperations;
+    protected OldCloudAPI oldCloudApi;
 
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
@@ -135,9 +138,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        oldCloudApi = new OldCloudAPI(getActivity());
         mEmptyListViewFactory = new EmptyListViewFactory().forContent(getActivity(), mContent, null);
         mKeepGoing = true;
         setupListAdapter();
+        accountOperations = new AccountOperations(getActivity());
     }
 
     @Override
@@ -620,7 +625,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private void onDataConnectionUpdated(boolean isConnected) {
         final ScBaseAdapter adapter = getListAdapter();
         if (isConnected && adapter != null) {
-            if (adapter.needsItems() && getScActivity() != null && getScActivity().getApp().getAccount() != null) {
+            if (adapter.needsItems() && getScActivity() != null && accountOperations.soundCloudAccountExists()) {
                 refresh(false);
             }
         }
@@ -688,7 +693,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
 
     private CollectionTask buildTask(Context context) {
-        return new CollectionTask(SoundCloudApplication.fromContext(context), this);
+        return new CollectionTask(oldCloudApi, this);
     }
 
     private CollectionParams getTaskParams(@NotNull ScBaseAdapter adapter, final boolean refresh) {

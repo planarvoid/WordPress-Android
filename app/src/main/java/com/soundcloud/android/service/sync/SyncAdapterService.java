@@ -2,7 +2,9 @@ package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.Wrapper;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.api.Wrapper;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
@@ -16,6 +18,7 @@ import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -55,10 +58,12 @@ public class SyncAdapterService extends Service {
     public static final int REWIND_LAST_DAY = 2;
 
     private AbstractThreadedSyncAdapter mSyncAdapter;
+    private AccountOperations accountOperations;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        accountOperations = new AccountOperations(this);
         mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
             private Looper looper;
 
@@ -74,7 +79,7 @@ public class SyncAdapterService extends Service {
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
                 Looper.prepare();
                 looper = Looper.myLooper();
-                if (performSync((SoundCloudApplication) getApplication(), account, extras, syncResult, new Runnable() {
+                if (performSync((SoundCloudApplication) getApplication(), extras, syncResult,accountOperations.getSoundCloudToken(), new Runnable() {
                     @Override
                     public void run() {
                         Log.d(TAG, "sync finished");
@@ -119,11 +124,11 @@ public class SyncAdapterService extends Service {
      */
     /* package */
     static boolean performSync(final SoundCloudApplication app,
-                               Account account,
                                Bundle extras,
                                final SyncResult syncResult,
+                               Token token,
                                final @Nullable Runnable onResult) {
-        if (!app.useAccount(account).valid()) {
+        if (!token.valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
             return false;
@@ -264,7 +269,7 @@ public class SyncAdapterService extends Service {
                     return true;
                 } else {
                     try {
-                        u = app.read(Request.to(Endpoints.USERS + "/" + id));
+                        u = new OldCloudAPI(app).read(Request.to(Endpoints.USERS + "/" + id));
                         userStorage.createOrUpdate(u);
                         NotificationMessage.showNewFollower(app, u);
                         return true;
@@ -294,7 +299,7 @@ public class SyncAdapterService extends Service {
 
         final Bundle extras = new Bundle();
         extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
+        ContentResolver.requestSync(new AccountOperations(app).getSoundCloudAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
     private static void clearActivities() {

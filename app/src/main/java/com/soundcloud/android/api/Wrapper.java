@@ -1,4 +1,4 @@
-package com.soundcloud.android;
+package com.soundcloud.android.api;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -8,6 +8,12 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -15,14 +21,12 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -67,31 +71,35 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     private static final int API_LOOKUP_BATCH_SIZE = 200;
 
+    private static Wrapper instance;
+
     private ObjectMapper mObjectMapper;
     private Context mContext;
     private String userAgent;
 
-    public Wrapper(Context context, @Nullable Token initialToken) {
-        this(context, buildObjectMapper(), context.getString(R.string.client_id), getClientSecret(true), ANDROID_REDIRECT_URI, initialToken);
+    public synchronized static Wrapper getInstance(Context context){
+        if(instance == null){
+            instance = new Wrapper(context.getApplicationContext());
+        }
+        return instance;
     }
 
-    public static ObjectMapper buildObjectMapper() {
-        return new ObjectMapper().
-                configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).
-                configure(SerializationFeature.WRAP_ROOT_VALUE, true).
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).
-                setDateFormat(new CloudDateFormat());
+    @Deprecated
+    public Wrapper(Context context) {
+        this(context, buildObjectMapper(), context.getString(R.string.client_id), getClientSecret(true),
+                ANDROID_REDIRECT_URI, new AccountOperations(context));
     }
 
-
-    private Wrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri, Token token) {
-        super(clientId, clientSecret, redirectUri, token);
+    private Wrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri,
+                    AccountOperations accountOperations) {
+        super(clientId, clientSecret, redirectUri, null);
         // context can be null in tests
         if (context == null) return;
 
         mContext = context;
         mObjectMapper = mapper;
-
+        setTokenListener(new SoundCloudTokenListener(context));
+        setToken(accountOperations.getSoundCloudToken());
         userAgent = "SoundCloud Android ("+ AndroidUtils.getAppVersion(context, "unknown")+")";
         final IntentFilter filter = new IntentFilter();
         filter.addAction(Actions.CHANGE_PROXY_ACTION);
@@ -111,6 +119,16 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
         setDefaultAcceptEncoding("gzip");
     }
+
+
+    public static ObjectMapper buildObjectMapper() {
+        return new ObjectMapper().
+                configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).
+                configure(SerializationFeature.WRAP_ROOT_VALUE, true).
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).
+                setDateFormat(new CloudDateFormat());
+    }
+
 
 
     @Override

@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.activity.auth.TokenInformationGenerator;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.fetch.FetchUserTask;
@@ -30,7 +31,9 @@ public class LoginTask extends AuthTask {
     }
 
     public LoginTask(@NotNull SoundCloudApplication application){
-        this(application, new TokenInformationGenerator(), new FetchUserTask(application), new UserStorage());
+        this(application, new TokenInformationGenerator(new OldCloudAPI(application)),
+                new FetchUserTask(new OldCloudAPI(application)),
+                new UserStorage());
     }
 
     @Override
@@ -42,7 +45,7 @@ public class LoginTask extends AuthTask {
         SoundCloudApplication app = getSoundCloudApplication();
 
         try {
-            Token token = tokenUtils.getToken(app, tokenUtils.configureDefaultScopeExtra(data));
+            Token token = tokenUtils.getToken(tokenUtils.configureDefaultScopeExtra(data));
             Log.d("LoginTask[Token](" + token + ")");
 
             final User user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));

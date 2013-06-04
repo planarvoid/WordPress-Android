@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.sync.content;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.service.sync.ApiSyncResult;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -24,7 +25,7 @@ public abstract class SyncStrategy {
     protected final SyncStateManager mSyncStateManager;
 
     protected SyncStrategy(Context context, ContentResolver resolver) {
-        mApi = (AndroidCloudAPI) context.getApplicationContext();
+        mApi = new OldCloudAPI(context);
         mResolver = resolver;
         mContext = context;
         mSyncStateManager = new SyncStateManager();

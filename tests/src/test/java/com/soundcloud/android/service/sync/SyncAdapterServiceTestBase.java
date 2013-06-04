@@ -2,6 +2,8 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -10,6 +12,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
@@ -18,7 +21,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
-import android.accounts.Account;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -53,6 +55,7 @@ public abstract class SyncAdapterServiceTestBase {
         cv.put(DBHelper.Users._ID, 133201L);
         cv.put(DBHelper.Users.USERNAME, "Foo Bar");
         Robolectric.application.getContentResolver().insert(Content.USERS.uri, cv);
+        TestHelper.setUserId(133201L);
 
         // always notify
         PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
@@ -60,7 +63,6 @@ public abstract class SyncAdapterServiceTestBase {
                 .putString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY, 0+"")
                 .commit();
 
-        DefaultTestRunner.application.setCurrentUserId(100l);
     }
 
     @After
@@ -103,7 +105,14 @@ public abstract class SyncAdapterServiceTestBase {
         }
     }
 
-    protected static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, @Nullable Bundle extras)
+    protected static SyncOutcome doPerformSyncWithValidToken(SoundCloudApplication app, boolean firstTime, @Nullable Bundle extras) throws Exception {
+        Token token = mock(Token.class);
+        when(token.valid()).thenReturn(true);
+        return doPerformSync(app, firstTime, extras, token);
+    }
+
+    protected static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, @Nullable Bundle extras,
+                                               Token token)
             throws Exception {
         if (!firstTime) ContentStats.setLastSeen(app, Content.ME_SOUND_STREAM, 1);
         if (extras == null) extras = new Bundle();
@@ -111,12 +120,10 @@ public abstract class SyncAdapterServiceTestBase {
         ShadowNotificationManager m = shadowOf((NotificationManager)
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
         m.cancelAll();
-
         SyncResult result = new SyncResult();
         SyncAdapterService.performSync(
                 app,
-                new Account("foo", "bar"),
-                extras, result, null);
+                extras, result, token, null);
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 

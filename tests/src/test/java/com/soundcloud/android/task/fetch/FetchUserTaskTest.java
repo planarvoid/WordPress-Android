@@ -19,7 +19,7 @@ public class FetchUserTaskTest {
 
     @Test
     public void fetchLoadUserInfo() throws Exception {
-        FetchUserTask task = new FetchUserTask(DefaultTestRunner.application);
+        FetchUserTask task = new FetchUserTask(DefaultTestRunner.application.getCloudAPI());
 
         addHttpResponseRule("GET", "/users/12345",
                 new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("../user.json"))));

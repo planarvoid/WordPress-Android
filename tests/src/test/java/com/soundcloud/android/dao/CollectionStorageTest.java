@@ -10,9 +10,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociationHolder;
 import com.soundcloud.android.model.SoundAssociationTest;
@@ -24,13 +24,13 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
 import com.soundcloud.android.task.collection.RemoteCollectionLoaderTest;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.provider.BaseColumns;
 
 import java.util.ArrayList;
@@ -48,9 +48,9 @@ public class CollectionStorageTest {
 
     @Before
     public void before() {
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        storage = new CollectionStorage();
+        storage = new CollectionStorage(DefaultTestRunner.application);
     }
 
     @Test
@@ -73,7 +73,10 @@ public class CollectionStorageTest {
     @Test
     public void shouldGetIdsOfPersistedResourcesInBatches() {
         ContentResolver resolverMock = mock(ContentResolver.class);
-        storage = new CollectionStorage(resolverMock);
+        Context mockContext = mock(Context.class);
+        when(mockContext.getContentResolver()).thenReturn(resolverMock);
+        storage = new CollectionStorage(mockContext);
+
         Long[] requestedIds = new Long[1300];
         Arrays.fill(requestedIds, 1L);
 
@@ -106,8 +109,7 @@ public class CollectionStorageTest {
             ids.add(i);
         }
 
-        AndroidCloudAPI api = (AndroidCloudAPI) Robolectric.application;
-        int itemsStored = storage.fetchAndStoreMissingCollectionItems(api, ids, Content.USERS, false);
+        int itemsStored = storage.fetchAndStoreMissingCollectionItems(DefaultTestRunner.application.getCloudAPI(), ids, Content.USERS, false);
         expect(itemsStored).toEqual(5);
     }
 

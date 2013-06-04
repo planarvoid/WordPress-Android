@@ -6,10 +6,11 @@ import com.soundcloud.api.Token;
 import android.os.Bundle;
 
 import java.io.IOException;
-
+//TODO Move into TokenOperations
 public class TokenInformationGenerator {
 
     public static final String[] DEFAULT_SCOPES = {Token.SCOPE_NON_EXPIRING};
+    private AndroidCloudAPI mOldCloudAPI;
 
     public interface TokenKeys {
         String SCOPES_EXTRA = "scopes";
@@ -17,6 +18,10 @@ public class TokenInformationGenerator {
         String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
         String USERNAME_EXTRA = "username";
         String PASSWORD_EXTRA = "password";
+    }
+
+    public TokenInformationGenerator(AndroidCloudAPI oldCloudAPI){
+        mOldCloudAPI = oldCloudAPI;
     }
 
     public Bundle getGrantBundle(String grantType, String token) {
@@ -32,19 +37,19 @@ public class TokenInformationGenerator {
         return data;
     }
 
-    public Token getToken(AndroidCloudAPI app, Bundle param) throws IOException {
+    public Token getToken(Bundle param) throws IOException {
         final String[] scopes = param.getStringArray(TokenKeys.SCOPES_EXTRA);
 
         if (param.containsKey(TokenKeys.CODE_EXTRA)) {
-            return app.authorizationCode(param.getString(TokenKeys.CODE_EXTRA), scopes);
+            return mOldCloudAPI.authorizationCode(param.getString(TokenKeys.CODE_EXTRA), scopes);
 
         } else if (param.containsKey(TokenKeys.USERNAME_EXTRA)
                 && param.containsKey(TokenKeys.PASSWORD_EXTRA)) {
-            return app.login(param.getString(TokenKeys.USERNAME_EXTRA),
+            return mOldCloudAPI.login(param.getString(TokenKeys.USERNAME_EXTRA),
                     param.getString(TokenKeys.PASSWORD_EXTRA), scopes);
 
         } else if (param.containsKey(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA)) {
-            return app.extensionGrantType(param.getString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA), scopes);
+            return mOldCloudAPI.extensionGrantType(param.getString(TokenKeys.EXTENSION_GRANT_TYPE_EXTRA), scopes);
 
         } else {
             throw new IllegalArgumentException("invalid param " + param);

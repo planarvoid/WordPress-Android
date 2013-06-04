@@ -4,6 +4,7 @@ package com.soundcloud.android.activity.create;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.audio.PlaybackStream;
@@ -77,6 +78,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
     private ButtonBar mButtonBar;
     private boolean mActive, mHasEditControlGroup, mSeenSavedMessage;
     private List<Recording> mUnsavedRecordings;
+    private AccountOperations mAccountOperations;
 
     private ProgressBar mGeneratingWaveformProgressBar;
 
@@ -102,7 +104,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.sc_create);
-
+        mAccountOperations = new AccountOperations(this);
         mRecorder = SoundRecorder.getInstance(this);
         mTxtInstructions = (TextView) findViewById(R.id.txt_instructions);
         mTxtRecordMessage = (RecordMessageView) findViewById(R.id.txt_record_message);
@@ -345,9 +347,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
                         track(Click.Record_Main_Record_Pause, mTxtRecordMessage.getCurrentSuggestionKey());
                         mRecorder.stopRecording();
                         // XXX use prefs
-                        if (getApp().getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {
+                        if (mAccountOperations.getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {
                             showToast(R.string.create_autosave_message);
-                            getApp().setAccountData(User.DataKeys.SEEN_CREATE_AUTOSAVE, true);
+                            mAccountOperations.setAccountData(User.DataKeys.SEEN_CREATE_AUTOSAVE, Boolean.TRUE.toString());
                         }
                         break;
                 }

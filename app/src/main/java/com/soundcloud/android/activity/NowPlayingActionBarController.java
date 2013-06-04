@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.NowPlayingIndicator;
@@ -20,8 +21,8 @@ public class NowPlayingActionBarController extends ActionBarController {
 
     private boolean mListening;
 
-    public NowPlayingActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView) {
-        super(owner, rootView);
+    public NowPlayingActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView, AndroidCloudAPI androidCloudAPI) {
+        super(owner, rootView, androidCloudAPI);
         mNowPlaying = (NowPlayingIndicator) getActionBarCustomView().findViewById(R.id.waveform_progress);
         mNowPlayingHolder = getActionBarCustomView().findViewById(R.id.waveform_holder);
     }

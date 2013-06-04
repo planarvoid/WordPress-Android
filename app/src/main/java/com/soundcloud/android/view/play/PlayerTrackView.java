@@ -5,10 +5,13 @@ import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
@@ -80,12 +83,13 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private SoftReference<Drawable> mArtworkBgDrawable;
 
     private View mArtworkOverlay;
+    private AndroidCloudAPI oldCloudApi;
 
     public PlayerTrackView(ScPlayer player) {
         super(player);
         View.inflate(player, R.layout.player_track, this);
         setOrientation(LinearLayout.VERTICAL);
-
+        oldCloudApi = new OldCloudAPI(player.getApplicationContext());
         mPlayer = player;
 
         mTrackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
@@ -208,7 +212,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private void refreshComments() {
         if (mTrack != null){
             if (AndroidUtils.isTaskFinished(mTrack.load_comments_task)) {
-                mTrack.load_comments_task = new LoadCommentsTask(mPlayer.getApp());
+                mTrack.load_comments_task = new LoadCommentsTask(oldCloudApi);
             }
             mTrack.load_comments_task.addListener(this);
             if (AndroidUtils.isTaskPending(mTrack.load_comments_task)) {

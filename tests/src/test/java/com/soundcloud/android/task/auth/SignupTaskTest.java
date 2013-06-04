@@ -28,7 +28,8 @@ public class SignupTaskTest {
 
     @Before
     public void setUp() throws Exception {
-        signupTask = new SignupTask(DefaultTestRunner.application, tokenInformationGenerator, userStorage);
+        signupTask = new SignupTask(DefaultTestRunner.application, tokenInformationGenerator, userStorage,
+                DefaultTestRunner.application.getCloudAPI());
     }
 
     @Test

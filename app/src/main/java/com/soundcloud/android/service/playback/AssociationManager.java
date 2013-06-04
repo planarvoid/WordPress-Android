@@ -1,10 +1,11 @@
 package com.soundcloud.android.service.playback;
 
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.SoundAssociationStorage;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -24,6 +25,7 @@ public class AssociationManager {
     private Context mContext;
     private ScModelManager mModelManager;
     private SoundAssociationStorage mSoundAssocStorage;
+    private AndroidCloudAPI mOldCloudAPI;
 
     public AssociationManager(Context context) {
         this(context, SoundCloudApplication.MODEL_MANAGER);
@@ -33,6 +35,7 @@ public class AssociationManager {
         mContext = context;
         mModelManager = modelManager;
         mSoundAssocStorage = new SoundAssociationStorage();
+        mOldCloudAPI = new OldCloudAPI(context);
     }
 
     void setLike(@Nullable Playable playable, boolean likeAdded) {
@@ -56,7 +59,7 @@ public class AssociationManager {
      * @param listener the callback for the API call
      */
     private void pushToRemote(Playable playable, Content content, boolean added, AssociatedSoundTask.AssociatedListener listener) {
-        AssociatedSoundTask task = added ? new AddAssociationTask(getApp(), playable) : new RemoveAssociationTask(getApp(), playable);
+        AssociatedSoundTask task = added ? new AddAssociationTask(mOldCloudAPI, playable) : new RemoveAssociationTask(mOldCloudAPI, playable);
         task.setOnAssociatedListener(listener);
         // resolve the playable content URI to its API endpoint
         String contentPath = playable.toUri().getPath();

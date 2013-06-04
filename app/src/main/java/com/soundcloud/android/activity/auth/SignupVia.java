@@ -18,6 +18,10 @@ public enum SignupVia {
         this.name = name;
     }
 
+    public String getSignupIdentifier(){
+        return name;
+    }
+
     public static SignupVia fromIntent(Intent intent) {
         return fromBundle(intent.getExtras());
     }

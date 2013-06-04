@@ -54,7 +54,7 @@ public class UserAssociationSyncerTest {
 
     @Before
     public void before() {
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
 
         userAssociationSyncerMockStorage = new UserAssociationSyncer(Robolectric.application,

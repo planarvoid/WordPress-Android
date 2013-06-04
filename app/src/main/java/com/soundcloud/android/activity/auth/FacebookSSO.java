@@ -1,9 +1,12 @@
 package com.soundcloud.android.activity.auth;
 
+import static android.content.SharedPreferences.Editor;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
@@ -74,7 +77,7 @@ public class FacebookSSO extends AbstractLoginActivity {
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        tokenInformationGenerator = new TokenInformationGenerator();
+        tokenInformationGenerator = new TokenInformationGenerator(new OldCloudAPI(this));
         Intent auth = getAuthIntent(this, DEFAULT_PERMISSIONS);
         if (validateAppSignatureForIntent(auth)) {
             startActivityForResult(auth, 0);
@@ -133,7 +136,7 @@ public class FacebookSSO extends AbstractLoginActivity {
                 !intent.getAction().startsWith(COM_FACEBOOK_APPLICATION)) {
             return false;
         } else {
-            if (intent.getAction().equals(COM_FACEBOOK_APPLICATION + getFacebookAppId(SoundCloudApplication.instance))) {
+            if (intent.getAction().equals(COM_FACEBOOK_APPLICATION + getFacebookAppId(context))) {
                 // fb deeplink intent, contains short-lived token which can be extended ?
                 FBToken token = FBToken.fromIntent(intent);
                 if (token != null) {
@@ -172,7 +175,7 @@ public class FacebookSSO extends AbstractLoginActivity {
     }
 
     /* package */ static Intent getAuthIntent(Context context, String... permissions) {
-        final String applicationId = getFacebookAppId(SoundCloudApplication.instance);
+        final String applicationId = getFacebookAppId(context);
         Intent intent = new Intent();
         intent.setClassName(FB_PACKAGE, "com.facebook.katana.ProxyAuth");
         intent.putExtra(FB_CLIENT_ID_EXTRA, applicationId);
@@ -255,8 +258,8 @@ public class FacebookSSO extends AbstractLoginActivity {
         }
     }
 
-    private static String getFacebookAppId(AndroidCloudAPI api) {
-        return api.getContext().getString(R.string.production_facebook_app_id);
+    private static String getFacebookAppId(Context context) {
+        return context.getString(R.string.production_facebook_app_id);
     }
 
     private static boolean validateAppSignatureForPackage(Context context, String packageName) {
@@ -356,10 +359,12 @@ public class FacebookSSO extends AbstractLoginActivity {
 
         public boolean store(Context context) {
             // also store in account manager
-            Account acc = SoundCloudApplication.fromContext(context).getAccount();
-            if (acc !=  null) {
+            AccountOperations accountOperations = new AccountOperations(context);
+
+            if (accountOperations.soundCloudAccountExists()) {
+                Account account = accountOperations.getSoundCloudAccount();
                 AccountManager accountManager = AccountManager.get(context);
-                accountManager.setAuthToken(acc, TOKEN_TYPE, accessToken);
+                accountManager.setAuthToken(account, TOKEN_TYPE, accessToken);
             }
 
             SharedPreferences prefs = context.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE);
@@ -371,7 +376,7 @@ public class FacebookSSO extends AbstractLoginActivity {
         }
 
         public AsyncTask<?, ?, Boolean> sendToBackend(Context context) {
-            return new PostTokenTask((AndroidCloudAPI) context.getApplicationContext()).execute(this);
+            return new PostTokenTask(new OldCloudAPI(context)).execute(this);
         }
 
         public static @NotNull FBToken load(Context context) {
@@ -396,7 +401,9 @@ public class FacebookSSO extends AbstractLoginActivity {
 
         public static void clear(Context context) {
             SharedPreferences prefs = context.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE);
-            prefs.edit().clear().commit();
+            Editor editor = prefs.edit();
+            editor.clear();
+            editor.commit();
         }
 
         public @Nullable static FBToken fromIntent(@NotNull Intent intent) {
