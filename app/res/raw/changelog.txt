@@ -1,8 +1,9 @@
 $ 63
   % v current
-  _ 2013-05-27
+  _ 2013-06-05
     ! Maintenance
-    * Fixed device default notification styling
+    * Fixed activity loading on samsung galaxy s4
+    - Fixed device default notification styling
     - Restored lockscreen
     - Fixed occasional false empty screens after logout/login
     - Made playback debugging available in non-dialer devices
