@@ -44,6 +44,8 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         FACEBOOK(CategoryGroup.URN_FACEBOOK, R.string.onboarding_section_facebook),
         MUSIC(CategoryGroup.URN_MUSIC, R.string.onboarding_section_music),
         SPEECH_AND_SOUNDS(CategoryGroup.URN_SPEECH_AND_SOUNDS, R.string.onboarding_section_audio);
+        public static final EnumSet<Section> ALL_EXCEPT_FACEBOOK = EnumSet.of(MUSIC, SPEECH_AND_SOUNDS);
+        public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
 
         private final ClientUri mUrn;
         private final int mLabelResId;
@@ -70,18 +72,18 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             return SPEECH_AND_SOUNDS;
         }
     }
-    final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
-    final EnumSet<Section> NO_FACEBOOK = EnumSet.of(Section.MUSIC, Section.SPEECH_AND_SOUNDS);
-
 
     public SuggestedUsersAdapter() {
+        this(Section.ALL_SECTIONS);
+    }
+
+    public SuggestedUsersAdapter(EnumSet<Section> activeSections) {
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new HashMap<Integer, Section>();
         mUserNamesBuilder = new StringBuilder();
 
-        EnumSet<Section> mActiveSections = ALL_SECTIONS;
-        for (Section section : mActiveSections) {
+        for (Section section : activeSections) {
             CategoryGroup categoryGroup = new CategoryGroup(section.mUrn.toString());
             categoryGroup.setCategories(Lists.newArrayList(Category.PROGRESS));
             addItem(categoryGroup);

@@ -32,6 +32,23 @@ public class SuggestedUsersAdapterTest {
     }
 
     @Test
+    public void shouldNotHaveFacebookLoadingSection() {
+        expect(new SuggestedUsersAdapter(SuggestedUsersAdapter.Section.ALL_EXCEPT_FACEBOOK).getCount()).toBe(2);
+    }
+
+    @Test
+    public void shouldHaveFacebookLoadingSection() {
+        expect(new SuggestedUsersAdapter().getCount()).toBe(3);
+    }
+
+    @Test
+    public void shouldHandleUnexpectedSection() throws CreateModelException {
+        SuggestedUsersAdapter adapter1 = new SuggestedUsersAdapter(SuggestedUsersAdapter.Section.ALL_EXCEPT_FACEBOOK);
+        adapter1.addItem(facebook());
+        expect(adapter1.getCount()).toBe(4);
+    }
+
+    @Test
     public void addItemShouldReplaceProgressItems() throws CreateModelException {
         adapter.addItem(audio());
         adapter.addItem(music());
