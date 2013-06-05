@@ -4,6 +4,11 @@ import com.soundcloud.android.model.act.Activities;
 
 import android.os.Build;
 import android.os.Environment;
+<<<<<<< HEAD
+=======
+import android.text.TextUtils;
+import android.util.DisplayMetrics;
+>>>>>>> Added unit tests for GraphicSize
 
 import java.io.File;
 
