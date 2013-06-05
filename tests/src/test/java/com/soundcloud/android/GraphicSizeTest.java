@@ -161,11 +161,6 @@ public class GraphicSizeTest {
     }
 
     @Test
-    public void shouldReturnLargeIconSizeForLoResScreens() {
-
-    }
-
-    @Test
     public void shouldFormatUriForSuggestionList() throws Exception {
         expect(ImageSize.getSearchSuggestionsListItemGraphicSize(Robolectric.application)
                 .formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809"))
