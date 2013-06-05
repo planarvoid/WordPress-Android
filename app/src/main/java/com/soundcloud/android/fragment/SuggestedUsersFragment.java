@@ -1,6 +1,6 @@
 package com.soundcloud.android.fragment;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.onboarding.OnboardingOperations;
@@ -16,9 +16,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
-public class SuggestedUsersFragment extends SherlockListFragment {
+public class SuggestedUsersFragment extends SherlockFragment {
 
     private static final String KEY_OBSERVABLE = "buckets_observable";
     private static final String TAG = "suggested_users_fragment";
@@ -26,7 +25,6 @@ public class SuggestedUsersFragment extends SherlockListFragment {
     private SuggestedUsersAdapter mAdapter;
     private OnboardingOperations mOnboardingOps;
     private Subscription mSubscription;
-    private ProgressBar mProgressSpinner;
 
     public SuggestedUsersFragment() {
         this(new OnboardingOperations().<OnboardingOperations>scheduleFromActivity(), new SuggestedUsersAdapter());
@@ -51,13 +49,11 @@ public class SuggestedUsersFragment extends SherlockListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mProgressSpinner = (ProgressBar) view.findViewById(android.R.id.progress);
-
-        final ListView listView = getListView();
+        final ListView listView = (ListView) view.findViewById(android.R.id.list);
         listView.setDrawSelectorOnTop(false);
         listView.setHeaderDividersEnabled(false);
         listView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_list_header, null));
-        setListAdapter(mAdapter);
+        listView.setAdapter(mAdapter);
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), TAG);
         Observable<?> observable = savedState.getOrDefault(KEY_OBSERVABLE, Observable.class, mOnboardingOps.getCategoryGroups().cache());
@@ -84,7 +80,6 @@ public class SuggestedUsersFragment extends SherlockListFragment {
         protected void onCompleted(SuggestedUsersFragment fragment) {
             Log.d(fragment, "fragment: onCompleted");
             fragment.mAdapter.notifyDataSetChanged();
-            fragment.mProgressSpinner.setVisibility(View.GONE);
         }
     }
 
