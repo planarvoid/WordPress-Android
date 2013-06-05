@@ -97,7 +97,8 @@ public class SuggestedUsersAdapterTest {
     }
 
     @Test
-    public void shouldGetViewWithoutHeader() {
+    public void shouldGetViewWithoutHeader() throws CreateModelException {
+        addAllSections();
         final int positionWithoutHeader = 1;
         View itemLayout = adapter.getView(positionWithoutHeader, null, new FrameLayout(Robolectric.application));
 
@@ -108,7 +109,8 @@ public class SuggestedUsersAdapterTest {
     }
 
     @Test
-    public void shouldSetCorrectBucketTextForSingleUser() {
+    public void shouldSetCorrectBucketTextForSingleUser() throws CreateModelException {
+        addAllSections();
         Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(buildUser("Skrillex")));
 
@@ -119,7 +121,8 @@ public class SuggestedUsersAdapterTest {
     }
 
     @Test
-    public void shouldSetCorrectBucketTextForTwoUsers() {
+    public void shouldSetCorrectBucketTextForTwoUsers() throws CreateModelException {
+        addAllSections();
         Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(buildUser("Skrillex"), buildUser("Forss")));
 
@@ -130,7 +133,8 @@ public class SuggestedUsersAdapterTest {
     }
 
     @Test
-    public void shouldSetCorrectBucketTextForMultipleUsers() {
+    public void shouldSetCorrectBucketTextForMultipleUsers() throws CreateModelException {
+        addAllSections();
         Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(
                 buildUser("Skrillex"), buildUser("Forss"), buildUser("Rick Astley")));
@@ -161,5 +165,11 @@ public class SuggestedUsersAdapterTest {
         User user = new User();
         user.username = name;
         return user;
+    }
+
+    private void addAllSections() throws CreateModelException {
+        adapter.addItem(audio());
+        adapter.addItem(music());
+        adapter.addItem(facebook());
     }
 }
