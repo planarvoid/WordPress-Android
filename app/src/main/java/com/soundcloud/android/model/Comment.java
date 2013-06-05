@@ -70,7 +70,9 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     public String reply_to_username;
     public int xPos = -1;
     public boolean topLevelComment = false;
-    public @Nullable Bitmap avatar;
+
+    // keep the ignore or jackson will try to write this value on Samsung S4 (or perhaps more devices)
+    @JsonIgnore @Nullable public Bitmap avatar;
 
     public Comment nextComment; //pointer to the next comment at this timestamp
 
