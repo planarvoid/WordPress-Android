@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 
 import java.io.File;
 
@@ -133,11 +134,11 @@ public final class Consts {
         }
 
         public static String formatUriForNotificationLargeIcon(Context c, String uri) {
-            return getNotificationLargeIconGraphicSize(c).formatUri(uri);
+            return getNotificationLargeIconGraphicSize(c.getResources().getDisplayMetrics()).formatUri(uri);
         }
 
-        public static GraphicSize getNotificationLargeIconGraphicSize(Context c) {
-            if (c.getResources().getDisplayMetrics().density > 2) {
+        private static GraphicSize getNotificationLargeIconGraphicSize(DisplayMetrics metrics) {
+            if (metrics.density > 2) {
                 return GraphicSize.T300;
             } else {
                 return GraphicSize.LARGE;
