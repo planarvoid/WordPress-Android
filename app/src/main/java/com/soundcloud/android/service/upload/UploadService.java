@@ -36,6 +36,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.Process;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -322,17 +323,17 @@ public class UploadService extends Service {
     };
 
     private Notification transcodingFailedNotification(Track track) {
-        String title = getString(R.string.cloud_uploader_notification_transcoding_error_title);
-        String message = getString(R.string.cloud_uploader_notification_transcoding_error_message, track.title);
-        String tickerText = getString(R.string.cloud_uploader_notification_transcoding_error_ticker);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(Actions.YOUR_SOUNDS),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                new Intent(Actions.YOUR_SOUNDS), PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification notification = new Notification(R.drawable.ic_notification_cloud, tickerText, System.currentTimeMillis());
-        notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
-        notification.setLatestEventInfo(this, title, message , contentIntent);
-        return notification;
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setAutoCancel(true);
+        builder.setSmallIcon(R.drawable.ic_notification_cloud);
+        builder.setTicker(getString(R.string.cloud_uploader_notification_transcoding_error_ticker));
+        builder.setContentTitle(getString(R.string.cloud_uploader_notification_transcoding_error_title));
+        builder.setContentText(getString(R.string.cloud_uploader_notification_transcoding_error_message, track.title));
+        builder.setContentIntent(contentIntent);
+        return builder.build();
     }
 
     private void onUploadDone(Recording recording) {
@@ -463,7 +464,7 @@ public class UploadService extends Service {
     private Notification getOngoingNotification(Recording recording){
         final Upload u = getUpload(recording);
         if (u.notification == null) {
-            u.notification = SoundRecorderService.createOngoingNotification(PendingIntent.getActivity(this, 0,
+            u.notification = SoundRecorderService.createOngoingNotification(this, PendingIntent.getActivity(this, 0,
                     recording.getMonitorIntent(),
                     PendingIntent.FLAG_UPDATE_CURRENT));
             u.notification.contentView = new RemoteViews(getPackageName(), R.layout.upload_status);
@@ -528,10 +529,14 @@ public class UploadService extends Service {
             return null;
         }
 
-        Notification notification = new Notification(R.drawable.ic_notification_cloud, tickerText, System.currentTimeMillis());
-        notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
-        notification.setLatestEventInfo(this,title ,message , contentIntent);
-        return notification;
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.ic_notification_cloud);
+        builder.setTicker(tickerText);
+        builder.setAutoCancel(true);
+        builder.setContentTitle(title);
+        builder.setContentText(message);
+        builder.setContentIntent(contentIntent);
+        return builder.build();
     }
 
     private void acquireLocks() {

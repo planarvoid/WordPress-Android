@@ -241,7 +241,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                     getContext(),
                     mArtwork,
                     mTrack.getArtwork(),
-                    ImageSize.getPlayerGraphicSize(getContext()),
+                    ImageSize.getPlayerImageSize(getContext()),
                     new ImageLoader.Callback() {
                         @Override
                         public void onImageError(ImageView view, String url, Throwable error) {

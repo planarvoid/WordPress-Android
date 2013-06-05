@@ -1,6 +1,5 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.utils.images.ImageSize;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.LIKE;
@@ -12,6 +11,7 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.images.ImageSize;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -832,7 +832,7 @@ public class ScContentProvider extends ContentProvider {
                     if (c != null && c.moveToFirst()) {
                         String url = c.getString(c.getColumnIndex(DBHelper.Suggestions.ICON_URL));
                         if (url != null) {
-                            final String listUrl = ImageSize.getSearchSuggestionsListItemGraphicSize(getContext()).formatUri(url);
+                            final String listUrl = ImageSize.getSearchSuggestionsListItemImageSize(getContext()).formatUri(url);
                             final File iconFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(listUrl));
                             if (!iconFile.exists()) {
                                 HttpUtils.fetchUriToFile(listUrl, iconFile, false);
