@@ -18,25 +18,9 @@
         <TextView android:id="@android:id/text1"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:layout_alignWithParentIfMissing="true"
-                  android:textStyle="bold"
-                  android:textColor="@drawable/txt_list_main_states"/>
-
-        <TextView android:id="@android:id/text2"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_below="@android:id/text1"
+                  android:gravity="center"
+                  android:text="@string/no_categories_returned"
                   android:textColor="@drawable/txt_list_secondary_states"/>
-
-        <ToggleButton android:id="@+id/btn_user_bucket_select_all"
-                      android:layout_width="32dp"
-                      android:layout_height="32dp"
-                      android:layout_alignParentRight="true"
-                      android:layout_centerVertical="true"
-                      android:focusable="false"
-                      android:textOff="@null"
-                      android:textOn="@null"
-                      android:background="@drawable/btn_check_round"/>
 
     </RelativeLayout>
 

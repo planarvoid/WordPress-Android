@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/suggested_users_list_header"
+          style="?android:attr/listSeparatorTextViewStyle"
+          android:layout_marginTop="15dp"
+          android:paddingLeft="15dp"
+          android:paddingRight="15dp"
+          android:visibility="gone"
+          android:textColor="@color/scOrange"
+          android:background="@drawable/orange_list_divider"/>
+
+    

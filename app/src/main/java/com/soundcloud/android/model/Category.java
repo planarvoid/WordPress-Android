@@ -6,6 +6,9 @@ import java.util.List;
 
 public class Category extends ScModel {
 
+    public static final Category EMPTY = new EmptyCategory();
+    public static final Category PROGRESS = new ProgressCategory();
+
     private String mName;
     private String mPermalink;
     private List<User> mUsers;
@@ -43,4 +46,7 @@ public class Category extends ScModel {
     public boolean isFollowed() {
         return mFollowed;
     }
+
+    private static final class EmptyCategory extends Category {}
+    private static final class ProgressCategory extends Category {}
 }

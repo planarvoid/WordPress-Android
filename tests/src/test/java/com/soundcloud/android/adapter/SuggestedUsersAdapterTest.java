@@ -29,9 +29,53 @@ public class SuggestedUsersAdapterTest {
     @Before
     public void setup() throws CreateModelException {
         adapter = new SuggestedUsersAdapter();
+    }
+
+    @Test
+    public void addItemShouldReplaceProgressItems() throws CreateModelException {
         adapter.addItem(audio());
         adapter.addItem(music());
         adapter.addItem(facebook());
+
+        for (Category category : adapter.getItems()) {
+            expect(category).not.toBe(Category.PROGRESS);
+        }
+    }
+
+    @Test
+    public void addItemShouldReplaceDummySections() throws CreateModelException {
+        adapter.addItem(emptyAudio());
+        adapter.addItem(music());
+
+        expect(adapter.getItem(0)).toBe(Category.PROGRESS);
+        expect(adapter.getItem(1)).not.toBe(Category.PROGRESS);
+        expect(adapter.getItem(1)).not.toBe(Category.EMPTY);
+        expect(adapter.getItem(music().getCategoryCount() + 1)).toBe(Category.EMPTY);
+    }
+
+    @Test
+    public void emptyCategoryItemsShouldNotBeEnabled() {
+        expect(adapter.isEnabled(0)).toBeFalse();
+        expect(adapter.isEnabled(1)).toBeFalse();
+        expect(adapter.isEnabled(2)).toBeFalse();
+    }
+
+    @Test
+    public void shouldCountItems() throws CreateModelException {
+        // initially, we only have 3 dummy items
+        expect(adapter.getCount()).toBe(3);
+
+        // 1 completed section, 2 more dummy sections waiting for data
+        adapter.addItem(facebook());
+        expect(adapter.getCount()).toBe(2 + facebook().getCategoryCount());
+
+        adapter.addItem(audio());
+        adapter.addItem(music());
+        expect(adapter.getCount()).toBe(
+                facebook().getCategoryCount() +
+                music().getCategoryCount() +
+                audio().getCategoryCount()
+        );
     }
 
     @Test
@@ -39,7 +83,6 @@ public class SuggestedUsersAdapterTest {
         Map<Integer, SuggestedUsersAdapter.Section> sectionMap = adapter.getListPositionsToSectionsMap();
         expect(sectionMap).not.toBeNull();
         expect(sectionMap.values()).toContainExactly(SuggestedUsersAdapter.Section.FACEBOOK, SuggestedUsersAdapter.Section.MUSIC, SuggestedUsersAdapter.Section.SPEECH_AND_SOUNDS);
-
     }
 
     @Test
@@ -108,6 +151,10 @@ public class SuggestedUsersAdapterTest {
 
     private CategoryGroup audio() throws CreateModelException {
         return TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 4);
+    }
+
+    private CategoryGroup emptyAudio() throws CreateModelException {
+        return TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 0);
     }
 
     private User buildUser(String name) {

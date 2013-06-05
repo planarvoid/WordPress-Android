@@ -33,6 +33,9 @@ public class OnboardingOperations extends ScheduledOperations {
             User dummyUser3 = new User();
             dummyUser3.username = "Forss";
 
+            CategoryGroup facebook = new CategoryGroup(CategoryGroup.URN_FACEBOOK);
+            buckets.add(facebook);
+
             CategoryGroup music = new CategoryGroup();
             music.setCategories(new ArrayList<Category>());
             music.setUrn(CategoryGroup.URN_MUSIC);
@@ -93,7 +96,7 @@ public class OnboardingOperations extends ScheduledOperations {
 
                 for (CategoryGroup bucket : buckets) {
                     Log.d(OnboardingOperations.this, "observable: onNext " + bucket);
-                    SystemClock.sleep(500);
+                    SystemClock.sleep(1000);
                     observer.onNext(bucket);
                 }
 
