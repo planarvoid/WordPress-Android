@@ -44,7 +44,7 @@ public class SuggestedUsersFragmentTest {
     public void shouldFetchGenreBucketsIntoListAdapterInOnCreate() {
         when(fragment.getListView()).thenReturn(new ListView(Robolectric.application));
         fragment.onViewCreated(new View(Robolectric.application), null);
-        expect(adapter.getCount()).toBe(7);
+        expect(adapter.getCount()).toBe(8);
     }
 
     private CategoryGroup music() throws CreateModelException {
