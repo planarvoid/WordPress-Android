@@ -27,13 +27,6 @@ public class GraphicSizeTest {
     }
 
     @Test
-<<<<<<< HEAD
-    public void shouldFormatUri() throws Exception {
-        expect(ImageSize.LARGE.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809"))
-                .toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg?2479809");
-
-        expect(ImageSize.LARGE.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg?2479809"))
-=======
     public void shouldFormatUriFromAnyKnownSizeToAnyOtherSize() throws Exception {
         expect(GraphicSize.LARGE.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809"))
                 .toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg?2479809");
@@ -64,7 +57,6 @@ public class GraphicSizeTest {
     @Test
     public void shouldFormatUriForLargeSize() throws Exception {
         expect(GraphicSize.LARGE.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809"))
->>>>>>> Added unit tests for GraphicSize
                 .toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg?2479809");
     }
 
@@ -80,9 +72,6 @@ public class GraphicSizeTest {
                 .toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-badge.jpg?2479809");
     }
 
-<<<<<<< HEAD
-        expect(ImageSize.TINY_ARTWORK.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-large.jpg?2479809"))
-=======
     @Test
     public void shouldFormatUriForSmallSize() throws Exception {
         expect(GraphicSize.SMALL.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-t300x300.jpg?2479809"))
@@ -92,7 +81,6 @@ public class GraphicSizeTest {
     @Test
     public void shouldFormatUriForTinyArtSize() throws Exception {
         expect(GraphicSize.TINY_ARTWORK.formatUri("https://i1.sndcdn.com/artworks-000032795722-aaqx24-small.jpg?2479809"))
->>>>>>> Added unit tests for GraphicSize
                 .toEqual("https://i1.sndcdn.com/artworks-000032795722-aaqx24-tiny.jpg?2479809");
     }
 

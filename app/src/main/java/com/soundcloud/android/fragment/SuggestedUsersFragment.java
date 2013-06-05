@@ -97,8 +97,10 @@ public class SuggestedUsersFragment extends SherlockFragment implements AdapterV
         }
     }
 
-    public ListView getListView() {
-        return (ListView) getView().findViewById(android.R.id.list);
+    @VisibleForTesting
+    ListView getListView() {
+        final View view = getView();
+        return view != null ? (ListView) view.findViewById(android.R.id.list) : null;
     }
 
     private static final class OnGenreBucketsCompleted extends RxFragmentCompletionHandler<SuggestedUsersFragment> {
