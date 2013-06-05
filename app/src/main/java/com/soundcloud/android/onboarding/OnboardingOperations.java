@@ -96,7 +96,7 @@ public class OnboardingOperations extends ScheduledOperations {
 
                 for (CategoryGroup bucket : buckets) {
                     Log.d(OnboardingOperations.this, "observable: onNext " + bucket);
-                    SystemClock.sleep(1000);
+                    SystemClock.sleep(100);
                     observer.onNext(bucket);
                 }
 

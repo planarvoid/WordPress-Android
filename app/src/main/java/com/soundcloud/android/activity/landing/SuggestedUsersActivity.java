@@ -2,10 +2,12 @@ package com.soundcloud.android.activity.landing;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.fragment.SuggestedUsersCategoryFragment;
 import com.soundcloud.android.fragment.SuggestedUsersFragment;
+import com.soundcloud.android.fragment.listeners.SuggestedUsersFragmentListener;
+import com.soundcloud.android.model.Category;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.SyncStateManager;
 
@@ -14,24 +16,19 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
-public class SuggestedUsersActivity extends ScActivity implements ScLandingPage {
+public class SuggestedUsersActivity extends ScActivity implements ScLandingPage, SuggestedUsersFragmentListener {
+
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(getString(R.string.side_menu_suggested_users));
+        setContentView(R.layout.suggested_users_onboard);
 
-        int listHolderId;
-        if (getIntent().getBooleanExtra(Consts.Keys.WAS_SIGNUP,false)){
-            setContentView(R.layout.suggested_users_onboard);
-            listHolderId = R.id.list_holder;
-        } else {
-            listHolderId = mRootView.getContentHolderId();
-        }
 
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(listHolderId, new SuggestedUsersFragment())
+                    .add(R.id.list_holder, new SuggestedUsersFragment())
                     .commit();
         }
     }
@@ -52,6 +49,16 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage 
     public void setContentView(View layout) {
         super.setContentView(layout);
         layout.setBackgroundColor(Color.WHITE);
+    }
+
+    @Override
+    public void onCategorySelected(Category category) {
+        SuggestedUsersCategoryFragment fragment = new SuggestedUsersCategoryFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.list_holder, fragment)
+                .addToBackStack("category")
+                .commit();
     }
 
     @Override
