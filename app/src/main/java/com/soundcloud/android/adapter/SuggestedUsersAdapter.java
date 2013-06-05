@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.ClientUri;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.utils.Log;
 import rx.util.functions.Action1;
 
@@ -198,15 +198,15 @@ public class SuggestedUsersAdapter extends BaseAdapter {
 
     private void configureItemContent(Category category, ItemViewHolder viewHolder) {
         final Resources res = viewHolder.genreTitle.getContext().getResources();
-        final List<User> users = category.getUsers();
+        final List<SuggestedUser> users = category.getUsers();
         final int numUsers = users.size();
 
         mUserNamesBuilder.setLength(0);
         if (numUsers == 1) {
-            mUserNamesBuilder.append(users.get(0).getDisplayName());
+            mUserNamesBuilder.append(users.get(0).getUsername());
         } else if (numUsers > 1) {
-            mUserNamesBuilder.append(users.get(0).getDisplayName()).append(", ");
-            mUserNamesBuilder.append(users.get(1).getDisplayName());
+            mUserNamesBuilder.append(users.get(0).getUsername()).append(", ");
+            mUserNamesBuilder.append(users.get(1).getUsername());
 
             if (numUsers > 2) {
                 int moreUsers = numUsers - 2;

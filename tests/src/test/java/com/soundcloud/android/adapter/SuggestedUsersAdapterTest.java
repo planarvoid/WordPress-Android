@@ -6,7 +6,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -178,9 +178,9 @@ public class SuggestedUsersAdapterTest {
         return TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 0);
     }
 
-    private User buildUser(String name) {
-        User user = new User();
-        user.username = name;
+    private SuggestedUser buildUser(String name) {
+        SuggestedUser user = new SuggestedUser();
+        user.setUsername(name);
         return user;
     }
 

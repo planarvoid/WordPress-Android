@@ -11,7 +11,7 @@ public class Category extends ScModel {
 
     private String mName;
     private String mPermalink;
-    private List<User> mUsers;
+    private List<SuggestedUser> mUsers;
     private boolean mFollowed;
 
     public String getPermalink() {
@@ -31,11 +31,11 @@ public class Category extends ScModel {
         this.mName = name;
     }
 
-    public List<User> getUsers() {
+    public List<SuggestedUser> getUsers() {
         return mUsers;
     }
 
-    public void setUsers(List<User> users) {
+    public void setUsers(List<SuggestedUser> users) {
         this.mUsers = users;
     }
 

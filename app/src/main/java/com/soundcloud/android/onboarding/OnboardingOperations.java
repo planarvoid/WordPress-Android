@@ -5,7 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -26,12 +26,12 @@ public class OnboardingOperations extends ScheduledOperations {
         public List<CategoryGroup> getCategoryGroups() {
             List<CategoryGroup> buckets = Lists.newArrayList();
             // bunch of dummy objects for now, will do the API call later
-            User dummyUser1 = new User();
-            dummyUser1.username = "Skrillex";
-            User dummyUser2 = new User();
-            dummyUser2.username = "Justin Bieber";
-            User dummyUser3 = new User();
-            dummyUser3.username = "Forss";
+            SuggestedUser dummyUser1 = new SuggestedUser();
+            dummyUser1.setUsername("Skrillex");
+            SuggestedUser dummyUser2 = new SuggestedUser();
+            dummyUser2.setUsername("Justin Bieber");
+            SuggestedUser dummyUser3 = new SuggestedUser();
+            dummyUser3.setUsername("Forss");
 
             CategoryGroup facebook = new CategoryGroup(CategoryGroup.URN_FACEBOOK);
             buckets.add(facebook);
@@ -40,7 +40,7 @@ public class OnboardingOperations extends ScheduledOperations {
             music.setCategories(new ArrayList<Category>());
             music.setUrn(CategoryGroup.URN_MUSIC);
 
-            List<User> users = Lists.newArrayList(dummyUser1, dummyUser2, dummyUser3);
+            List<SuggestedUser> users = Lists.newArrayList(dummyUser1, dummyUser2, dummyUser3);
             Resources resources = SoundCloudApplication.instance.getResources();
             final String[] musicGenreKeys = resources.getStringArray(R.array.music_genre_keys);
             final String[] musicGenreNames = resources.getStringArray(R.array.music_genre_names);

@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import android.os.Parcel;
 
+@Model
 public class SuggestedUser extends ScModel {
 
     private String mUsername, mCity, mCountry;
