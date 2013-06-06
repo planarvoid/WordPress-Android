@@ -1,6 +1,7 @@
 package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.onboarding.OnboardingOperations;
@@ -30,7 +31,8 @@ public class SuggestedUsersFragment extends SherlockFragment {
         this(new OnboardingOperations().<OnboardingOperations>scheduleFromActivity(), new SuggestedUsersAdapter());
     }
 
-    public SuggestedUsersFragment(OnboardingOperations onboardingOps, SuggestedUsersAdapter adapter) {
+    @VisibleForTesting
+    protected SuggestedUsersFragment(OnboardingOperations onboardingOps, SuggestedUsersAdapter adapter) {
         mOnboardingOps = onboardingOps;
         mAdapter = adapter;
     }
