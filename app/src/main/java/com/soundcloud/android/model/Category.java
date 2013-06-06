@@ -47,12 +47,21 @@ public class Category extends ScModel {
         return false;
     }
 
-    public List<SuggestedUser> getFollowedUsers(Set<Long> userFollowings) {
-        List<SuggestedUser> following = Lists.newArrayList();
+    public List<SuggestedUser> getNotFollowedUsers(Set<Long> userFollowings){
+        return getUsersByFollowStatus(userFollowings, false);
+    }
+
+    public List<SuggestedUser> getFollowedUsers(Set<Long> userFollowings){
+        return getUsersByFollowStatus(userFollowings, true);
+    }
+
+    private List<SuggestedUser> getUsersByFollowStatus(Set<Long> userFollowings, boolean isFollowing) {
+        List<SuggestedUser> resultSuggestedUsers = Lists.newArrayList();
         for (SuggestedUser user : mUsers) {
-            if (userFollowings.contains(user.getId())) following.add(user);
+            final boolean contains = userFollowings.contains(user.getId());
+            if ((isFollowing && contains) || (!isFollowing && !contains)) resultSuggestedUsers.add(user);
         }
-        return following;
+        return resultSuggestedUsers;
     }
 
     private static final class EmptyCategory extends Category {}

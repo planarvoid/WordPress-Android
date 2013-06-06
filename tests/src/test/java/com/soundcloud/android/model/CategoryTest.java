@@ -48,6 +48,24 @@ public class CategoryTest {
     }
 
     @Test
+    public void shouldReturnAllUsersAsNotFollowed() throws Exception {
+        Set<Long> followedSet = Sets.newSet();
+        Expect.expect(mCategory.getNotFollowedUsers(followedSet)).toContainExactly(mAllSuggestedUsers);
+    }
+
+    @Test
+    public void shouldReturnPartialUsersAsNotFollowed() throws Exception {
+        Set<Long> followedSet = Sets.newSet(2L, 3L);
+        Expect.expect(mCategory.getNotFollowedUsers(followedSet)).toContainExactly(Arrays.copyOfRange(mAllSuggestedUsers,0,1));
+    }
+
+    @Test
+    public void shouldReturnNoUsersAsNotFollowed() throws Exception {
+        Set<Long> followedSet = Sets.newSet(1L, 2L, 3L);
+        Expect.expect(mCategory.getNotFollowedUsers(followedSet)).toBeEmpty();
+    }
+
+    @Test
     public void isFollowedShouldReturnFalseIfNoUserIsBeingFollowed() {
         expect(mCategory.isFollowed(Collections.<Long>emptySet())).toBeFalse();
         expect(mCategory.isFollowed(Sets.newSet(100L))).toBeFalse();
