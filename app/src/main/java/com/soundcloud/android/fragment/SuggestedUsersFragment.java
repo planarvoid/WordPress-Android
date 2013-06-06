@@ -93,7 +93,7 @@ public class SuggestedUsersFragment extends SherlockFragment implements AdapterV
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final SuggestedUsersFragmentListener listener = mListenerRef.get();
         if (listener != null){
-            listener.onCategorySelected(mAdapter.getItem(position));
+            listener.onCategorySelected(mAdapter.getItem(position - getListView().getHeaderViewsCount()));
         }
     }
 
