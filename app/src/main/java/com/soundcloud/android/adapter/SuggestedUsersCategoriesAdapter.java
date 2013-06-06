@@ -36,6 +36,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private static final int EMPTY_VIEW_TYPE = 1;
     private static final int DEFAULT_VIEW_TYPE = 2;
     private static final int INITIAL_LIST_CAPACITY = 30;
+    private static final String TAG = "Sugg_User_Cat_Adp";
 
     private final StringBuilder mUserNamesBuilder;
     private final List<Category> mCategories;
@@ -247,7 +248,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         return new Action1<CategoryGroup>() {
             @Override
             public void call(CategoryGroup categoryGroup) {
-                Log.d(SuggestedUsersCategoriesAdapter.this, "adapter: got " + categoryGroup);
+                Log.d(TAG, "adapter: got " + categoryGroup);
                 addItem(categoryGroup);
             }
         };

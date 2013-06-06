@@ -26,7 +26,8 @@ import java.lang.ref.WeakReference;
 public class SuggestedUsersCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
     private static final String KEY_OBSERVABLE = "buckets_observable";
-    private static final String TAG = "suggested_users_fragment";
+    private static final String FRAGMENT_TAG = "suggested_users_fragment";
+    private static final String LOG_TAG = "suggested_users_frag";
 
     private SuggestedUsersCategoriesAdapter mAdapter;
     private OnboardingOperations mOnboardingOps;
@@ -74,9 +75,9 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         listView.setOnItemClickListener(this);
         listView.setAdapter(mAdapter);
 
-        StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), TAG);
+        StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
         Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mOnboardingOps.getCategoryGroups().cache());
-        Log.d(this, "SUBSCRIBING, obs = " + observable.hashCode());
+        Log.d(LOG_TAG, "SUBSCRIBING, obs = " + observable.hashCode());
         mSubscription = observable.subscribe(
                 mAdapter.onNextCategoryGroup(), new OnGenreBucketsError(this), new OnGenreBucketsCompleted(this));
     }
@@ -85,7 +86,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     public void onDestroy() {
         super.onDestroy();
 
-        Log.d(this, "UNSUBSCRIBING");
+        Log.d(LOG_TAG, "UNSUBSCRIBING");
         mSubscription.unsubscribe();
     }
 
@@ -111,7 +112,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
         @Override
         protected void onCompleted(SuggestedUsersCategoriesFragment fragment) {
-            Log.d(fragment, "fragment: onCompleted");
+            Log.d(LOG_TAG, "fragment: onCompleted");
             fragment.mAdapter.notifyDataSetChanged();
         }
     }
@@ -124,6 +125,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
         @Override
         protected void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
+            error.printStackTrace();
             //TODO proper error message
             AndroidUtils.showToast(fragment.getActivity(), R.string.error_get_genre_buckets);
         }
