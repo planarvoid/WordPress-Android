@@ -3,7 +3,7 @@ package com.soundcloud.android.fragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.SuggestedUsersAdapter;
+import com.soundcloud.android.adapter.SuggestedUsersCategoryAdapter;
 import com.soundcloud.android.fragment.listeners.SuggestedUsersFragmentListener;
 import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.rx.android.RxFragmentCompletionHandler;
@@ -28,17 +28,17 @@ public class SuggestedUsersFragment extends SherlockFragment implements AdapterV
     private static final String KEY_OBSERVABLE = "buckets_observable";
     private static final String TAG = "suggested_users_fragment";
 
-    private SuggestedUsersAdapter mAdapter;
+    private SuggestedUsersCategoryAdapter mAdapter;
     private OnboardingOperations mOnboardingOps;
     private Subscription mSubscription;
     private WeakReference<SuggestedUsersFragmentListener> mListenerRef;
 
     public SuggestedUsersFragment() {
-        this(new OnboardingOperations().<OnboardingOperations>scheduleFromActivity(), new SuggestedUsersAdapter(SuggestedUsersAdapter.Section.ALL_SECTIONS));
+        this(new OnboardingOperations().<OnboardingOperations>scheduleFromActivity(), new SuggestedUsersCategoryAdapter(SuggestedUsersCategoryAdapter.Section.ALL_SECTIONS));
     }
 
     @VisibleForTesting
-    protected SuggestedUsersFragment(OnboardingOperations onboardingOps, SuggestedUsersAdapter adapter) {
+    protected SuggestedUsersFragment(OnboardingOperations onboardingOps, SuggestedUsersCategoryAdapter adapter) {
         mOnboardingOps = onboardingOps;
         mAdapter = adapter;
     }
