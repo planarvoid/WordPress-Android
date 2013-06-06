@@ -44,8 +44,8 @@ public class User extends ScResource implements UserHolder {
     @Nullable @JsonView(Views.Mini.class) public String permalink_url;
     @Nullable public String full_name;
     @Nullable public String description;
-    @Nullable public String city;
-    @Nullable public String country;
+    @Nullable private String city;
+    @Nullable private String country;
 
     @Nullable public String plan;      // free|lite|solo|pro|pro plus
 
@@ -75,6 +75,10 @@ public class User extends ScResource implements UserHolder {
 
     public User(long id) {
         super(id);
+    }
+
+    public User(String urn) {
+        super(urn);
     }
 
     public User(Parcel in) {
@@ -297,6 +301,24 @@ public class User extends ScResource implements UserHolder {
     @Override
     public User getUser() {
         return this;
+    }
+
+    @Nullable
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(@Nullable String city) {
+        this.city = city;
+    }
+
+    @Nullable
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(@Nullable String country) {
+        this.country = country;
     }
 
     public static interface DataKeys {
