@@ -1,7 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 import java.util.Set;
@@ -49,12 +49,12 @@ public class Category extends ScModel {
         return mFollowed;
     }
 
-    public Set<SuggestedUser> getFollowedUsers(Set<Long> followings) {
-        Set<SuggestedUser> set = Sets.newHashSet();
+    public List<SuggestedUser> getFollowedUsers(Set<Long> userFollowings) {
+        List<SuggestedUser> following = Lists.newArrayList();
         for (SuggestedUser user : mUsers) {
-            if (followings.contains(user.getId())) set.add(user);
+            if (userFollowings.contains(user.getId())) following.add(user);
         }
-        return set;
+        return following;
     }
 
     private static final class EmptyCategory extends Category {}
