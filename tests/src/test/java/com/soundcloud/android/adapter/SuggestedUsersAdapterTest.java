@@ -1,9 +1,13 @@
 package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.soundcloud.android.R;
+import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
@@ -14,6 +18,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import android.view.View;
 import android.widget.FrameLayout;
@@ -25,25 +30,28 @@ import java.util.Map;
 public class SuggestedUsersAdapterTest {
 
     private SuggestedUsersAdapter adapter;
+    @Mock
+    private FollowStatus followStatus;
 
     @Before
     public void setup() throws CreateModelException {
-        adapter = new SuggestedUsersAdapter();
+        initMocks(this);
+        adapter = new SuggestedUsersAdapter(SuggestedUsersAdapter.Section.ALL_SECTIONS, followStatus);
     }
 
     @Test
     public void shouldNotHaveFacebookLoadingSection() {
-        expect(new SuggestedUsersAdapter(SuggestedUsersAdapter.Section.ALL_EXCEPT_FACEBOOK).getCount()).toBe(2);
+        expect(new SuggestedUsersAdapter(SuggestedUsersAdapter.Section.ALL_EXCEPT_FACEBOOK, followStatus).getCount() ).toBe(2);
     }
 
     @Test
     public void shouldHaveFacebookLoadingSection() {
-        expect(new SuggestedUsersAdapter().getCount()).toBe(3);
+        expect(adapter.getCount()).toBe(3);
     }
 
     @Test
     public void shouldHandleUnexpectedSection() throws CreateModelException {
-        SuggestedUsersAdapter adapter1 = new SuggestedUsersAdapter(SuggestedUsersAdapter.Section.ALL_EXCEPT_FACEBOOK);
+        SuggestedUsersAdapter adapter1 = new SuggestedUsersAdapter(SuggestedUsersAdapter.Section.ALL_EXCEPT_FACEBOOK, followStatus);
         adapter1.addItem(facebook());
         expect(adapter1.getCount()).toBe(4);
     }
@@ -160,6 +168,21 @@ public class SuggestedUsersAdapterTest {
 
         TextView textView = (TextView) itemLayout.findViewById(android.R.id.text2);
         expect(textView.getText()).toEqual("Skrillex, Forss and 1 other");
+    }
+
+    @Test
+    public void shouldSetCorrectBucketTextForMultipleCategoryUsersWithOneFollowing() throws CreateModelException {
+        addAllSections();
+        SuggestedUser followedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
+        when(followStatus.getFollowings()).thenReturn(Sets.newHashSet(followedUser.getId()));
+
+        Category category = adapter.getItem(0);
+        category.getUsers().add(followedUser);
+
+        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
+
+        TextView textView = (TextView) itemLayout.findViewById(android.R.id.text2);
+        expect(textView.getText()).toEqual(followedUser.getUsername());
     }
 
     private CategoryGroup facebook() throws CreateModelException {

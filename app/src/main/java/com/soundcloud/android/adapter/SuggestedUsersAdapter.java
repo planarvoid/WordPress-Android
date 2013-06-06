@@ -3,6 +3,7 @@ package com.soundcloud.android.adapter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
+import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.ClientUri;
@@ -39,8 +40,9 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     private final List<Category> mCategories;
     private final Set<CategoryGroup> mCategoryGroups;
     private final Map<Integer, Section> mListPositionsToSections;
+    private FollowStatus mFollowStatus;
 
-    enum Section {
+    public enum Section {
         FACEBOOK(CategoryGroup.URN_FACEBOOK, R.string.onboarding_section_facebook),
         MUSIC(CategoryGroup.URN_MUSIC, R.string.onboarding_section_music),
         SPEECH_AND_SOUNDS(CategoryGroup.URN_SPEECH_AND_SOUNDS, R.string.onboarding_section_audio);
@@ -73,15 +75,16 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         }
     }
 
-    public SuggestedUsersAdapter() {
-        this(Section.ALL_SECTIONS);
+    public SuggestedUsersAdapter(EnumSet<Section> activeSections) {
+        this(activeSections, FollowStatus.get());
     }
 
-    public SuggestedUsersAdapter(EnumSet<Section> activeSections) {
+    public SuggestedUsersAdapter(EnumSet<Section> activeSections, FollowStatus followStatus) {
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new HashMap<Integer, Section>();
         mUserNamesBuilder = new StringBuilder();
+        mFollowStatus = followStatus;
 
         for (Section section : activeSections) {
             CategoryGroup categoryGroup = new CategoryGroup(section.mUrn.toString());
@@ -198,15 +201,17 @@ public class SuggestedUsersAdapter extends BaseAdapter {
 
     private void configureItemContent(Category category, ItemViewHolder viewHolder) {
         final Resources res = viewHolder.genreTitle.getContext().getResources();
-        final List<SuggestedUser> users = category.getUsers();
-        final int numUsers = users.size();
+
+        final List<SuggestedUser> followedUsers = category.getFollowedUsers(mFollowStatus.getFollowings());
+        final List<SuggestedUser> subTextUsers = followedUsers.isEmpty() ? category.getUsers() : followedUsers;
+        final int numUsers = subTextUsers.size();
 
         mUserNamesBuilder.setLength(0);
         if (numUsers == 1) {
-            mUserNamesBuilder.append(users.get(0).getUsername());
+            mUserNamesBuilder.append(subTextUsers.get(0).getUsername());
         } else if (numUsers > 1) {
-            mUserNamesBuilder.append(users.get(0).getUsername()).append(", ");
-            mUserNamesBuilder.append(users.get(1).getUsername());
+            mUserNamesBuilder.append(subTextUsers.get(0).getUsername()).append(", ");
+            mUserNamesBuilder.append(subTextUsers.get(1).getUsername());
 
             if (numUsers > 2) {
                 int moreUsers = numUsers - 2;

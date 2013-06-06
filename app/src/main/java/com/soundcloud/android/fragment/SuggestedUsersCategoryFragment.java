@@ -2,8 +2,10 @@ package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
+import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.model.User;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -56,5 +58,6 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        FollowStatus.get().toggleFollowing(new User(mAdapter.getItem(position)));
     }
 }

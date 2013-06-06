@@ -34,7 +34,7 @@ public class SuggestedUsersFragment extends SherlockFragment implements AdapterV
     private WeakReference<SuggestedUsersFragmentListener> mListenerRef;
 
     public SuggestedUsersFragment() {
-        this(new OnboardingOperations().<OnboardingOperations>scheduleFromActivity(), new SuggestedUsersAdapter());
+        this(new OnboardingOperations().<OnboardingOperations>scheduleFromActivity(), new SuggestedUsersAdapter(SuggestedUsersAdapter.Section.ALL_SECTIONS));
     }
 
     @VisibleForTesting

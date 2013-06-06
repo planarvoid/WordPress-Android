@@ -1,5 +1,6 @@
 package com.soundcloud.android.cache;
 
+import com.google.common.collect.ImmutableSet;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.dao.UserAssociationStorage;
@@ -92,12 +93,15 @@ public class FollowStatus {
         }
     }
 
+    public Set<Long> getFollowings() {
+        return ImmutableSet.copyOf(followings);
+    }
+
     private void doQuery(){
         asyncQueryHandler = new FollowingQueryHandler(mContext);
         asyncQueryHandler.startQuery(0, null, ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWINGS.uri),
                 null, DBHelper.UserAssociations.REMOVED_AT + " IS NULL", null, null);
     }
-
 
     public void toggleFollowing(final User user) {
         boolean isFollowing;

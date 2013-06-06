@@ -26,11 +26,11 @@ public class OnboardingOperations extends ScheduledOperations {
         public List<CategoryGroup> getCategoryGroups() {
             List<CategoryGroup> buckets = Lists.newArrayList();
             // bunch of dummy objects for now, will do the API call later
-            SuggestedUser dummyUser1 = new SuggestedUser();
+            SuggestedUser dummyUser1 = new SuggestedUser("soundcloud:users:1");
             dummyUser1.setUsername("Skrillex");
-            SuggestedUser dummyUser2 = new SuggestedUser();
+            SuggestedUser dummyUser2 = new SuggestedUser("soundcloud:users:2");
             dummyUser2.setUsername("Justin Bieber");
-            SuggestedUser dummyUser3 = new SuggestedUser();
+            SuggestedUser dummyUser3 = new SuggestedUser("soundcloud:users:3");
             dummyUser3.setUsername("Forss");
 
             CategoryGroup facebook = new CategoryGroup(CategoryGroup.URN_FACEBOOK);

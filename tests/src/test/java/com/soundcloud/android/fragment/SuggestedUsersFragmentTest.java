@@ -32,7 +32,7 @@ public class SuggestedUsersFragmentTest {
         OnboardingOperations operations = mock(OnboardingOperations.class);
         when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
 
-        adapter = new SuggestedUsersAdapter();
+        adapter = new SuggestedUsersAdapter(SuggestedUsersAdapter.Section.ALL_SECTIONS);
         fragment = spy(new SuggestedUsersFragment(operations, adapter));
 
         SherlockFragmentActivity fragmentActivity = new SherlockFragmentActivity();
