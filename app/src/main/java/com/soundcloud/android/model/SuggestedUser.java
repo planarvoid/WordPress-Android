@@ -52,4 +52,13 @@ public class SuggestedUser extends ScModel {
         dest.writeString(mCity);
         dest.writeString(mCountry);
     }
+
+    @Override
+    public String toString() {
+        return "SuggestedUser{" +
+                "mUsername='" + mUsername + '\'' +
+                ", mCity='" + mCity + '\'' +
+                ", mCountry='" + mCountry + '\'' +
+                '}';
+    }
 }

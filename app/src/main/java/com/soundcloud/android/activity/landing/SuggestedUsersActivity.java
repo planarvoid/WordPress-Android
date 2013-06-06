@@ -53,7 +53,11 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
 
     @Override
     public void onCategorySelected(Category category) {
+        Bundle args = new Bundle();
+        args.putParcelable(SuggestedUsersCategoryFragment.KEY_CATEGORY, category);
+
         SuggestedUsersCategoryFragment fragment = new SuggestedUsersCategoryFragment();
+        fragment.setArguments(args);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.list_holder, fragment)
