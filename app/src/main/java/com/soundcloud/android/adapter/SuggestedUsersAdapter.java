@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.Log;
 import rx.util.functions.Action1;
 
@@ -185,8 +186,16 @@ public class SuggestedUsersAdapter extends BaseAdapter {
                     @Override
                     public void onClick(View v) {
                         CompoundButton button = (CompoundButton) v;
-                        final int position = (Integer) button.getTag();
-                        //getItem(position).setFollowed(button.isChecked());
+                        final FollowStatus followStatus = FollowStatus.get();
+
+                        final List<SuggestedUser> suggestedUserList = (button.isChecked())
+                                ? getItem(position).getNotFollowedUsers(followStatus.getFollowedUserIds())
+                                : getItem(position).getFollowedUsers(followStatus.getFollowedUserIds());
+
+                        for (SuggestedUser suggestedUser : suggestedUserList){
+                            followStatus.toggleFollowing(new User(suggestedUser));
+                        }
+                        notifyDataSetChanged();
                     }
                 });
             } else {
