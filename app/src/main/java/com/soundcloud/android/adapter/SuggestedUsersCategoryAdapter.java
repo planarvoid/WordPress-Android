@@ -164,7 +164,7 @@ public class SuggestedUsersCategoryAdapter extends BaseAdapter {
             if (convertView == null){
                 viewHolder = new ItemViewHolder();
                 final int layout = itemViewType == PROGRESS_VIEW_TYPE ?
-                        R.layout.suggested_users_loading_item : R.layout.suggested_users_empty_item;
+                        R.layout.suggested_users_category_list_loading_item : R.layout.suggested_users_category_list_empty_item;
 
                 convertView = inflater.inflate(layout, parent, false);
                 convertView.setTag(viewHolder);
@@ -176,7 +176,7 @@ public class SuggestedUsersCategoryAdapter extends BaseAdapter {
             Category category = getItem(position);
             if (convertView == null) {
                 viewHolder = new ItemViewHolder();
-                convertView = inflater.inflate(R.layout.suggested_users_list_item, null, false);
+                convertView = inflater.inflate(R.layout.suggested_users_category_list_item, null, false);
                 convertView.setTag(viewHolder);
                 viewHolder.genreTitle = (TextView) convertView.findViewById(android.R.id.text1);
                 viewHolder.genreSubtitle = (TextView) convertView.findViewById(android.R.id.text2);
