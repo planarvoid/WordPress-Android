@@ -34,7 +34,7 @@ public final class StateHolderFragment extends Fragment {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getOrDefault(String key, T defaultValue) {
+    public <T> T getOrPut(String key, T defaultValue) {
         Class<?> clazz = defaultValue.getClass();
         Object value = mData.get(key);
         if (value == null) {

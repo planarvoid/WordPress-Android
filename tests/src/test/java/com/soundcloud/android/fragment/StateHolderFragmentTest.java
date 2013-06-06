@@ -57,19 +57,19 @@ public class StateHolderFragmentTest {
     public void shouldReturnStoredValue() {
         StateHolderFragment state = new StateHolderFragment();
         state.put("data", 1);
-        expect(state.getOrDefault("data", 0)).toBe(1);
+        expect(state.getOrPut("data", 0)).toBe(1);
     }
 
     @Test
     public void shouldReturnDefaultValue() {
         StateHolderFragment state = new StateHolderFragment();
-        expect(state.getOrDefault("data", 1)).toBe(1);
+        expect(state.getOrPut("data", 1)).toBe(1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseIllegalArgumentExceptionIfValueAtKeyNotOfRequiredType() {
         StateHolderFragment state = new StateHolderFragment();
         state.put("data", "string");
-        state.getOrDefault("data", 1);
+        state.getOrPut("data", 1);
     }
 }
