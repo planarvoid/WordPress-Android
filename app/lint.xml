@@ -158,4 +158,9 @@
 
     <!-- can't resolve mvn dependencies at this point -->
     <issue id="MissingRegistered" severity="ignore"/>
+
+    <!-- we use custom Fragment constructors in unit tests to pass in dependencies -->
+    <issue id="ValidFragment">
+        <ignore path="src/main/java/com/soundcloud/android/fragment/SuggestedUsersFragment.java"/>
+    </issue>
 </lint>
