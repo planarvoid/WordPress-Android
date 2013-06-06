@@ -186,7 +186,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
                     public void onClick(View v) {
                         CompoundButton button = (CompoundButton) v;
                         final int position = (Integer) button.getTag();
-                        getItem(position).setFollowed(button.isChecked());
+                        //getItem(position).setFollowed(button.isChecked());
                     }
                 });
             } else {
@@ -202,7 +202,8 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     private void configureItemContent(Category category, ItemViewHolder viewHolder) {
         final Resources res = viewHolder.genreTitle.getContext().getResources();
 
-        final List<SuggestedUser> followedUsers = category.getFollowedUsers(mFollowStatus.getFollowings());
+        final Set<Long> followedUserIds = mFollowStatus.getFollowedUserIds();
+        final List<SuggestedUser> followedUsers = category.getFollowedUsers(followedUserIds);
         final List<SuggestedUser> subTextUsers = followedUsers.isEmpty() ? category.getUsers() : followedUsers;
         final int numUsers = subTextUsers.size();
 
@@ -220,7 +221,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         }
         viewHolder.genreSubtitle.setText(mUserNamesBuilder.toString());
         viewHolder.genreTitle.setText(category.getName());
-        viewHolder.toggleFollow.setChecked(category.isFollowed());
+        viewHolder.toggleFollow.setChecked(category.isFollowed(followedUserIds));
     }
 
     private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {

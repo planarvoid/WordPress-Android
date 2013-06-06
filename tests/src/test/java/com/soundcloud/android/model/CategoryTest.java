@@ -1,5 +1,7 @@
 package com.soundcloud.android.model;
 
+import static com.soundcloud.android.Expect.expect;
+
 import com.google.common.collect.Lists;
 import com.pivotallabs.greatexpectations.Expect;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -9,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.internal.util.collections.Sets;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -41,7 +44,17 @@ public class CategoryTest {
     @Test
     public void shouldReturnNoUsersAsFollowed() throws Exception {
         Set<Long> followedSet = Sets.newSet();
-        Expect.expect(mCategory.getFollowedUsers(followedSet)).toContainExactly();
+        Expect.expect(mCategory.getFollowedUsers(followedSet)).toBeEmpty();
     }
 
+    @Test
+    public void isFollowedShouldReturnFalseIfNoUserIsBeingFollowed() {
+        expect(mCategory.isFollowed(Collections.<Long>emptySet())).toBeFalse();
+        expect(mCategory.isFollowed(Sets.newSet(100L))).toBeFalse();
+    }
+
+    @Test
+    public void isFollowedShouldReturnTrueIfAtLeastOneUserIsBeingFollowed() {
+        expect(mCategory.isFollowed(Sets.newSet(1L, 100L))).toBeTrue();
+    }
 }

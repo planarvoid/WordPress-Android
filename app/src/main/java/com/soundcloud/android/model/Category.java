@@ -14,7 +14,6 @@ public class Category extends ScModel {
     private String mName;
     private String mPermalink;
     private List<SuggestedUser> mUsers;
-    private boolean mFollowed;
 
     public String getPermalink() {
         return mPermalink;
@@ -41,12 +40,11 @@ public class Category extends ScModel {
         this.mUsers = users;
     }
 
-    public void setFollowed(boolean followed) {
-        mFollowed = followed;
-    }
-
-    public boolean isFollowed() {
-        return mFollowed;
+    public boolean isFollowed(Set<Long> userFollowings) {
+        for (SuggestedUser user : mUsers) {
+            if (userFollowings.contains(user.getId())) return true;
+        }
+        return false;
     }
 
     public List<SuggestedUser> getFollowedUsers(Set<Long> userFollowings) {

@@ -93,7 +93,7 @@ public class FollowStatus {
         }
     }
 
-    public Set<Long> getFollowings() {
+    public Set<Long> getFollowedUserIds() {
         return ImmutableSet.copyOf(followings);
     }
 

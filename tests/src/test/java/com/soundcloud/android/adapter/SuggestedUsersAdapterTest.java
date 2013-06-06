@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -174,7 +175,7 @@ public class SuggestedUsersAdapterTest {
     public void shouldSetCorrectBucketTextForMultipleCategoryUsersWithOneFollowing() throws CreateModelException {
         addAllSections();
         SuggestedUser followedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
-        when(followStatus.getFollowings()).thenReturn(Sets.newHashSet(followedUser.getId()));
+        when(followStatus.getFollowedUserIds()).thenReturn(Sets.newHashSet(followedUser.getId()));
 
         Category category = adapter.getItem(0);
         category.getUsers().add(followedUser);
@@ -183,6 +184,31 @@ public class SuggestedUsersAdapterTest {
 
         TextView textView = (TextView) itemLayout.findViewById(android.R.id.text2);
         expect(textView.getText()).toEqual(followedUser.getUsername());
+    }
+
+    @Test
+    public void shouldCheckFollowButtonIfAtLeastOneUserIsFollowed() throws CreateModelException {
+        addAllSections();
+        SuggestedUser followedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
+        when(followStatus.getFollowedUserIds()).thenReturn(Sets.newHashSet(followedUser.getId()));
+
+        Category category = adapter.getItem(0);
+        category.getUsers().add(followedUser);
+
+        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
+        final CompoundButton followButton = (CompoundButton) itemLayout.findViewById(R.id.btn_user_bucket_select_all);
+
+        expect(followButton.isChecked()).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotCheckFollowButtonIfNoUserIsFollowed() throws CreateModelException {
+        addAllSections();
+
+        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
+        final CompoundButton followButton = (CompoundButton) itemLayout.findViewById(R.id.btn_user_bucket_select_all);
+
+        expect(followButton.isChecked()).toBeFalse();
     }
 
     private CategoryGroup facebook() throws CreateModelException {
