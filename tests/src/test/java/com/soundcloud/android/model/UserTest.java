@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -181,5 +182,16 @@ public class UserTest {
         u.followers_count = 1;
         expect(u.removeAFollower()).toBeTrue();
         expect(u.followers_count).toEqual(0);
+    }
+
+    @Test
+    public void shouldCreateUserFromSuggestedUser() throws CreateModelException {
+        SuggestedUser suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
+        User user = new User(suggestedUser);
+        expect(user.getId()).toEqual(suggestedUser.getId());
+        expect(user.getUrn()).toEqual(suggestedUser.getUrn());
+        expect(user.getUsername()).toEqual(suggestedUser.getUsername());
+        expect(user.getCity()).toEqual(suggestedUser.getCity());
+        expect(user.getCountry()).toEqual(suggestedUser.getCountry());
     }
 }

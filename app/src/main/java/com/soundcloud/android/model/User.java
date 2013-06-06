@@ -81,6 +81,13 @@ public class User extends ScResource implements UserHolder {
         super(urn);
     }
 
+    public User(SuggestedUser suggestedUser){
+        setUrn(suggestedUser.getUrn());
+        setUsername(suggestedUser.getUsername());
+        setCity(suggestedUser.getCity());
+        setCountry(suggestedUser.getCountry());
+    }
+
     public User(Parcel in) {
         // TODO replace with generated file
         User model = this;
