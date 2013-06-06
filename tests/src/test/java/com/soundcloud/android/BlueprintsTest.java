@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -22,8 +23,9 @@ public class BlueprintsTest {
 
         Track track = modelFactory.createModel(Track.class);
 
-        expect(track.getId()).toBe(1L);
-        expect(track.getUser().getId()).toBe(1L);
+        // don't test against specific values, since we auto-increment these fields across tests
+        expect((int) track.getId()).not.toBe(ScModel.NOT_SET);
+        expect((int) track.getUser().getId()).not.toBe(ScModel.NOT_SET);
     }
 
 }
