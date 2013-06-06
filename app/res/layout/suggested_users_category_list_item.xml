@@ -33,15 +33,8 @@
                   android:textColor="@drawable/txt_list_secondary_states"/>
 
         <ToggleButton android:id="@id/btn_user_bucket_select_all"
-                      android:layout_width="32dp"
-                      android:layout_height="32dp"
-                      android:layout_alignParentRight="true"
                       android:layout_centerVertical="true"
-                      android:layout_marginLeft="5dp"
-                      android:focusable="false"
-                      android:textOff="@null"
-                      android:textOn="@null"
-                      android:background="@drawable/btn_check_round"/>
+                      style="@style/SuggestedUserToggleButton"/>
 
     </RelativeLayout>
 

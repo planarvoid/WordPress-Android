@@ -108,6 +108,35 @@
         <item name="android:textOff">@string/btn_follow</item>
     </style>
 
+    <style name="BlackOverlayText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+
+        <item name="android:paddingLeft">5sp</item>
+        <item name="android:paddingRight">9sp</item>
+        <item name="android:paddingTop">0sp</item>
+        <item name="android:paddingBottom">1sp</item>
+
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:antialias">true</item>
+
+        <item name="jagged_background">#CC000000</item>
+        <item name="custom_font">fonts/Interstate-Light.ttf</item>
+    </style>
+
+    <style name="OnboardSuggestedUserText" parent="BlackOverlayText">
+        <item name="android:layout_marginLeft">10dp</item>
+    </style>
+    <style name="OnboardSuggestedUserUsernameText" parent="OnboardSuggestedUserText" />
+    <style name="OnboardSuggestedUserLocationText" parent="OnboardSuggestedUserText">
+        <item name="android:textColor">#CCCCCC</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
+
+
     <style name="Tour"/>
     <style name="Tour.Button">
         <item name="android:layout_width">wrap_content</item>
@@ -159,21 +188,8 @@
         <item name="android:background">@drawable/btn_google_plus</item>
     </style>
 
-    <style name="Tour.CallToAction.Base">
-        <item name="android:layout_width">fill_parent</item>
+    <style name="Tour.CallToAction.Base" parent="BlackOverlayText">
         <item name="android:layout_height">wrap_content</item>
-
-        <item name="android:paddingLeft">5sp</item>
-        <item name="android:paddingRight">9sp</item>
-        <item name="android:paddingTop">0sp</item>
-        <item name="android:paddingBottom">1sp</item>
-
-        <item name="android:textColor">#FFFFFF</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:antialias">true</item>
-
-        <item name="jagged_background">#CC000000</item>
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
     <style name="Tour.CallToAction" parent="Tour.CallToAction.Base">
@@ -1290,6 +1306,16 @@
     <style name="Animations.PopUpMenu.Reflect">
         <item name="@android:windowEnterAnimation">@anim/pump_bottom</item>
         <item name="@android:windowExitAnimation">@anim/disappear</item>
+    </style>
+    <style name="SuggestedUserToggleButton">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:focusable">false</item>
+        <item name="android:textOff">@null</item>
+        <item name="android:textOn">@null</item>
+        <item name="android:background">@drawable/btn_check_round</item>
     </style>
 
 </resources>

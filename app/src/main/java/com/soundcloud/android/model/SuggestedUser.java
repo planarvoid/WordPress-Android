@@ -61,4 +61,8 @@ public class SuggestedUser extends ScModel {
                 ", mCountry='" + mCountry + '\'' +
                 '}';
     }
+
+    public String getAvatarUrl() {
+        return ClientUri.fromUri("soundcloud:users:30511050").imageUri().toString();
+    }
 }
