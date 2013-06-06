@@ -1,5 +1,7 @@
 package com.soundcloud.android.fragment;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import org.jetbrains.annotations.NotNull;
 
 import android.support.v4.app.Fragment;
@@ -31,13 +33,19 @@ public final class StateHolderFragment extends Fragment {
         mData.put(key, value);
     }
 
-    public <T> T getOrDefault(String key, Class<T> type, T defaultValue) {
-        T value = type.cast(mData.get(key));
+    @SuppressWarnings("unchecked")
+    public <T> T getOrDefault(String key, T defaultValue) {
+        Class<?> clazz = defaultValue.getClass();
+        Object value = mData.get(key);
         if (value == null) {
             value = defaultValue;
             put(key, value);
+        } else {
+            checkArgument(value.getClass().isAssignableFrom(clazz),
+                    "Cannot convert value found at key '" + key + "'; expected " + clazz.getCanonicalName() +
+                            ", found " + value.getClass().getCanonicalName());
         }
-        return value;
+        return (T) value;
     }
 
     public boolean has(String key) {

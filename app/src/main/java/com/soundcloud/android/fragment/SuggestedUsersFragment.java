@@ -56,7 +56,7 @@ public class SuggestedUsersFragment extends SherlockFragment {
         listView.setAdapter(mAdapter);
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), TAG);
-        Observable<?> observable = savedState.getOrDefault(KEY_OBSERVABLE, Observable.class, mOnboardingOps.getCategoryGroups().cache());
+        Observable<?> observable = savedState.getOrDefault(KEY_OBSERVABLE, mOnboardingOps.getCategoryGroups().cache());
         Log.d(this, "SUBSCRIBING, obs = " + observable.hashCode());
         mSubscription = observable.subscribe(
                 mAdapter.onNextCategoryGroup(), new OnGenreBucketsError(this), new OnGenreBucketsCompleted(this));
