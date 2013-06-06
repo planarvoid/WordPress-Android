@@ -3,7 +3,7 @@ package com.soundcloud.android.fragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.SuggestedUsersCategoryAdapter;
+import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.fragment.listeners.SuggestedUsersFragmentListener;
 import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.rx.android.RxFragmentCompletionHandler;
@@ -23,22 +23,22 @@ import android.widget.ListView;
 
 import java.lang.ref.WeakReference;
 
-public class SuggestedUsersFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
+public class SuggestedUsersCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
     private static final String KEY_OBSERVABLE = "buckets_observable";
     private static final String TAG = "suggested_users_fragment";
 
-    private SuggestedUsersCategoryAdapter mAdapter;
+    private SuggestedUsersCategoriesAdapter mAdapter;
     private OnboardingOperations mOnboardingOps;
     private Subscription mSubscription;
     private WeakReference<SuggestedUsersFragmentListener> mListenerRef;
 
-    public SuggestedUsersFragment() {
-        this(new OnboardingOperations().<OnboardingOperations>scheduleFromActivity(), new SuggestedUsersCategoryAdapter(SuggestedUsersCategoryAdapter.Section.ALL_SECTIONS));
+    public SuggestedUsersCategoriesFragment() {
+        this(new OnboardingOperations().<OnboardingOperations>scheduleFromActivity(), new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
     }
 
     @VisibleForTesting
-    protected SuggestedUsersFragment(OnboardingOperations onboardingOps, SuggestedUsersCategoryAdapter adapter) {
+    protected SuggestedUsersCategoriesFragment(OnboardingOperations onboardingOps, SuggestedUsersCategoriesAdapter adapter) {
         mOnboardingOps = onboardingOps;
         mAdapter = adapter;
     }
@@ -103,27 +103,27 @@ public class SuggestedUsersFragment extends SherlockFragment implements AdapterV
         return view != null ? (ListView) view.findViewById(android.R.id.list) : null;
     }
 
-    private static final class OnGenreBucketsCompleted extends RxFragmentCompletionHandler<SuggestedUsersFragment> {
+    private static final class OnGenreBucketsCompleted extends RxFragmentCompletionHandler<SuggestedUsersCategoriesFragment> {
 
-        public OnGenreBucketsCompleted(SuggestedUsersFragment fragment) {
+        public OnGenreBucketsCompleted(SuggestedUsersCategoriesFragment fragment) {
             super(fragment);
         }
 
         @Override
-        protected void onCompleted(SuggestedUsersFragment fragment) {
+        protected void onCompleted(SuggestedUsersCategoriesFragment fragment) {
             Log.d(fragment, "fragment: onCompleted");
             fragment.mAdapter.notifyDataSetChanged();
         }
     }
 
-    private static final class OnGenreBucketsError extends RxFragmentErrorHandler<SuggestedUsersFragment> {
+    private static final class OnGenreBucketsError extends RxFragmentErrorHandler<SuggestedUsersCategoriesFragment> {
 
-        public OnGenreBucketsError(SuggestedUsersFragment fragment) {
+        public OnGenreBucketsError(SuggestedUsersCategoriesFragment fragment) {
             super(fragment);
         }
 
         @Override
-        protected void onError(SuggestedUsersFragment fragment, Exception error) {
+        protected void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
             //TODO proper error message
             AndroidUtils.showToast(fragment.getActivity(), R.string.error_get_genre_buckets);
         }

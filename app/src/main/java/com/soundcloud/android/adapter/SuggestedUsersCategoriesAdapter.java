@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class SuggestedUsersCategoryAdapter extends BaseAdapter {
+public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private static final int PROGRESS_VIEW_TYPE = 0;
     private static final int EMPTY_VIEW_TYPE = 1;
@@ -76,11 +76,11 @@ public class SuggestedUsersCategoryAdapter extends BaseAdapter {
         }
     }
 
-    public SuggestedUsersCategoryAdapter(EnumSet<Section> activeSections) {
+    public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections) {
         this(activeSections, FollowStatus.get());
     }
 
-    public SuggestedUsersCategoryAdapter(EnumSet<Section> activeSections, FollowStatus followStatus) {
+    public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowStatus followStatus) {
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new HashMap<Integer, Section>();
@@ -247,7 +247,7 @@ public class SuggestedUsersCategoryAdapter extends BaseAdapter {
         return new Action1<CategoryGroup>() {
             @Override
             public void call(CategoryGroup categoryGroup) {
-                Log.d(SuggestedUsersCategoryAdapter.this, "adapter: got " + categoryGroup);
+                Log.d(SuggestedUsersCategoriesAdapter.this, "adapter: got " + categoryGroup);
                 addItem(categoryGroup);
             }
         };

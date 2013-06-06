@@ -4,8 +4,8 @@ import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.fragment.SuggestedUsersCategoriesFragment;
 import com.soundcloud.android.fragment.SuggestedUsersCategoryFragment;
-import com.soundcloud.android.fragment.SuggestedUsersFragment;
 import com.soundcloud.android.fragment.listeners.SuggestedUsersFragmentListener;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.provider.Content;
@@ -28,7 +28,7 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.list_holder, new SuggestedUsersFragment())
+                    .add(R.id.list_holder, new SuggestedUsersCategoriesFragment())
                     .commit();
         }
     }

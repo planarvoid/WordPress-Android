@@ -6,7 +6,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.soundcloud.android.adapter.SuggestedUsersCategoryAdapter;
+import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -22,18 +22,18 @@ import android.view.View;
 import android.widget.ListView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SuggestedUsersFragmentTest {
+public class SuggestedUsersCategoriesFragmentTest {
 
-    private SuggestedUsersFragment fragment;
-    private SuggestedUsersCategoryAdapter adapter;
+    private SuggestedUsersCategoriesFragment fragment;
+    private SuggestedUsersCategoriesAdapter adapter;
 
     @Before
     public void setup() throws CreateModelException {
         OnboardingOperations operations = mock(OnboardingOperations.class);
         when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
 
-        adapter = new SuggestedUsersCategoryAdapter(SuggestedUsersCategoryAdapter.Section.ALL_SECTIONS);
-        fragment = spy(new SuggestedUsersFragment(operations, adapter));
+        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS);
+        fragment = spy(new SuggestedUsersCategoriesFragment(operations, adapter));
 
         SherlockFragmentActivity fragmentActivity = new SherlockFragmentActivity();
         when(fragment.getLayoutInflater(null)).thenReturn(fragmentActivity.getLayoutInflater());
