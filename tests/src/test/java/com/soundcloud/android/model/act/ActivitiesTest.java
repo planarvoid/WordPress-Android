@@ -1,7 +1,7 @@
 package com.soundcloud.android.model.act;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.api.Wrapper.CloudDateFormat.fromString;
+import static com.soundcloud.android.api.http.Wrapper.CloudDateFormat.fromString;
 import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 
 import com.soundcloud.android.SoundCloudApplication;

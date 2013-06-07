@@ -2,7 +2,7 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.json.Views;
 
 import android.os.Parcel;

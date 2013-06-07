@@ -3,6 +3,7 @@ package com.soundcloud.android.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.api.Env;

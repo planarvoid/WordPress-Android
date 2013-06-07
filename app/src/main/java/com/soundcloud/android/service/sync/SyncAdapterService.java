@@ -4,7 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.OldCloudAPI;
-import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
