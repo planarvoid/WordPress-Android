@@ -1318,4 +1318,8 @@
         <item name="android:background">@drawable/btn_check_round</item>
     </style>
 
+    <style name="OnboardSuggestedUserGridView">
+        <item name="android:numColumns">1</item>
+    </style>
+
 </resources>

@@ -37,7 +37,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.grid, container, false);
+        return inflater.inflate(R.layout.suggested_user_grid, container, false);
     }
 
     @Override
