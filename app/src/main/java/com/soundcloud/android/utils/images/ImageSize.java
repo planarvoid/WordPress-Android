@@ -3,6 +3,7 @@ package com.soundcloud.android.utils.images;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 
 public enum ImageSize {
     T500("t500x500", 500, 500),
@@ -35,10 +36,10 @@ public enum ImageSize {
     }
 
     public static String formatUriForList(Context c, String uri){
-        return getListItemGraphicSize(c).formatUri(uri);
+        return getListItemImageSize(c).formatUri(uri);
     }
 
-    public static ImageSize getListItemGraphicSize(Context c) {
+    public static ImageSize getListItemImageSize(Context c) {
         if (ImageUtils.isScreenXL(c)) {
             return ImageSize.LARGE;
         } else {
@@ -50,11 +51,23 @@ public enum ImageSize {
         }
     }
 
-    public static String formatUriForSearchSuggestionsList(Context c, String uri) {
-        return getSearchSuggestionsListItemGraphicSize(c).formatUri(uri);
+    public static String formatUriForNotificationLargeIcon(Context c, String uri) {
+        return getNotificationLargeIconImageSize(c.getResources().getDisplayMetrics()).formatUri(uri);
     }
 
-    public static ImageSize getSearchSuggestionsListItemGraphicSize(Context c) {
+    private static ImageSize getNotificationLargeIconImageSize(DisplayMetrics metrics) {
+        if (metrics.density > 2) {
+            return ImageSize.T300;
+        } else {
+            return ImageSize.LARGE;
+        }
+    }
+
+    public static String formatUriForSearchSuggestionsList(Context c, String uri) {
+        return getSearchSuggestionsListItemImageSize(c).formatUri(uri);
+    }
+
+    public static ImageSize getSearchSuggestionsListItemImageSize(Context c) {
         if (ImageUtils.isScreenXL(c)) {
             return ImageSize.T67;
         } else {
@@ -67,10 +80,10 @@ public enum ImageSize {
     }
 
     public static String formatUriForPlayer(Context c, String uri) {
-        return getPlayerGraphicSize(c).formatUri(uri);
+        return getPlayerImageSize(c).formatUri(uri);
     }
 
-    public static ImageSize getPlayerGraphicSize(Context c) {
+    public static ImageSize getPlayerImageSize(Context c) {
         // for now, just return T500. logic will come with more screen support
         return ImageSize.T500;
     }
