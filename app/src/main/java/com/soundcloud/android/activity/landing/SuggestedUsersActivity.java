@@ -19,14 +19,18 @@ import android.view.View;
 
 public class SuggestedUsersActivity extends ScActivity implements ScLandingPage, SuggestedUsersFragmentListener {
 
+    private SuggestedUsersCategoryFragment mCategoryFragment;
+    private boolean mDualScreen;
+
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(getString(R.string.side_menu_suggested_users));
         setContentView(R.layout.suggested_users_onboard);
 
+        mDualScreen = findViewById(R.id.categories_fragment) != null;
 
-        if (state == null) {
+        if (state == null && !mDualScreen) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.list_holder, new SuggestedUsersCategoriesFragment())
@@ -54,19 +58,22 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
 
     @Override
     public void onCategorySelected(Category category) {
+        SuggestedUsersCategoryFragment fragment = new SuggestedUsersCategoryFragment();
+
         Bundle args = new Bundle();
         args.putParcelable(SuggestedUsersCategoryFragment.KEY_CATEGORY, category);
-
-        SuggestedUsersCategoryFragment fragment = new SuggestedUsersCategoryFragment();
         fragment.setArguments(args);
-        final FragmentTransaction fragmentTransaction = getSupportFragmentManager()
-                .beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left,
-                R.anim.slide_in_from_left, R.anim.slide_out_to_right);
-        fragmentTransaction
-                .replace(R.id.list_holder, fragment)
-                .addToBackStack("category")
-                .commit();
+
+        final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.list_holder, fragment);
+
+        if (!mDualScreen){
+            fragmentTransaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left,
+                    R.anim.slide_in_from_left, R.anim.slide_out_to_right);
+                    fragmentTransaction.addToBackStack("category");
+        }
+
+        fragmentTransaction.commit();
     }
 
     @Override

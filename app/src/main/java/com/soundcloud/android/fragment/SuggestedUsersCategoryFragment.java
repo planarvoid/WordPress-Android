@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Category;
-import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 
 import android.os.Bundle;
@@ -14,9 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.GridView;
-
-import java.util.List;
 
 public class SuggestedUsersCategoryFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
@@ -27,8 +25,11 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final List<SuggestedUser> suggestedUsers = ((Category) getArguments().getParcelable(KEY_CATEGORY)).getUsers();
-        setAdapter(new SuggestedUsersAdapter(suggestedUsers));
+
+        if (getArguments() != null && getArguments().containsKey(KEY_CATEGORY)){
+            final Category category = ((Category) getArguments().getParcelable(KEY_CATEGORY));
+            setAdapter(new SuggestedUsersAdapter(category.getUsers()));
+        }
     }
 
     public void setAdapter(SuggestedUsersAdapter adapter){
@@ -56,4 +57,9 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         FollowStatus.get().toggleFollowing(new User(mAdapter.getItem(position)));
     }
+
+    public BaseAdapter getAdapter() {
+        return mAdapter;
+    }
+
 }

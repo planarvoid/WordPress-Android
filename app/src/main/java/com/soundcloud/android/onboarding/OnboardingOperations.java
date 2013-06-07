@@ -40,7 +40,7 @@ public class OnboardingOperations extends ScheduledOperations {
                 Category genre = new Category();
                 genre.setName(musicGenreNames[i]);
                 genre.setPermalink(musicGenreKeys[i]);
-                genre.setUsers(getUsers(musicGenreKeys[i], 3));
+                genre.setUsers(getUsers(musicGenreKeys[i], 12));
                 music.getCategories().add(genre);
                 SystemClock.sleep(50);
             }
@@ -58,7 +58,7 @@ public class OnboardingOperations extends ScheduledOperations {
                 Category genre = new Category();
                 genre.setName(audioGenreNames[i]);
                 genre.setPermalink(audioGenreKeys[i]);
-                genre.setUsers(getUsers(audioGenreKeys[i], 4));
+                genre.setUsers(getUsers(audioGenreKeys[i], 9));
                 audio.getCategories().add(genre);
                 SystemClock.sleep(50);
             }
