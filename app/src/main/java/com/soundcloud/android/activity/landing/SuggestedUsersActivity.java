@@ -14,6 +14,7 @@ import com.soundcloud.android.service.sync.SyncStateManager;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
 public class SuggestedUsersActivity extends ScActivity implements ScLandingPage, SuggestedUsersFragmentListener {
@@ -58,8 +59,11 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
 
         SuggestedUsersCategoryFragment fragment = new SuggestedUsersCategoryFragment();
         fragment.setArguments(args);
-        getSupportFragmentManager()
-                .beginTransaction()
+        final FragmentTransaction fragmentTransaction = getSupportFragmentManager()
+                .beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left,
+                R.anim.slide_in_from_left, R.anim.slide_out_to_right);
+        fragmentTransaction
                 .replace(R.id.list_holder, fragment)
                 .addToBackStack("category")
                 .commit();
