@@ -3,6 +3,9 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +17,28 @@ public class Category extends ScModel {
     private String mName;
     private String mPermalink;
     private List<SuggestedUser> mUsers;
+
+
+    public Category() { /* for deserialization */ }
+
+    public Category(Parcel parcel) {
+        super(parcel);
+        setName(parcel.readString());
+        setPermalink(parcel.readString());
+        mUsers = parcel.readArrayList(SuggestedUser.class.getClassLoader());
+    }
+
+    public Category(String urn) {
+        super(urn);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeString(mName);
+        dest.writeString(mPermalink);
+        dest.writeTypedList(mUsers);
+    }
 
     public String getPermalink() {
         return mPermalink;
@@ -63,6 +88,15 @@ public class Category extends ScModel {
         }
         return resultSuggestedUsers;
     }
+
+    public static final Parcelable.Creator<Category> CREATOR = new Parcelable.Creator<Category>() {
+        public Category createFromParcel(Parcel in) {
+            return new Category(in);
+        }
+        public Category[] newArray(int size) {
+            return new Category[size];
+        }
+    };
 
     private static final class EmptyCategory extends Category {}
     private static final class ProgressCategory extends Category {}

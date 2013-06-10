@@ -10,6 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.util.collections.Sets;
 
+import android.os.Parcel;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
@@ -22,11 +24,28 @@ public class CategoryTest {
 
     @Before
     public void before() {
-        mCategory = new Category();
+        mCategory = new Category("soundcloud:categories:123");
         mAllSuggestedUsers = new SuggestedUser[]{new SuggestedUser("soundcloud:users:1"),
                 new SuggestedUser("soundcloud:users:2"),
                 new SuggestedUser("soundcloud:users:3")};
         mCategory.setUsers(Lists.newArrayList(mAllSuggestedUsers));
+    }
+
+    @Test
+    public void shouldBeParcelable(){
+        mCategory.setName("TrapStep");
+        mCategory.setPermalink("trapstep");
+
+        Parcel parcel = Parcel.obtain();
+        mCategory.writeToParcel(parcel, 0);
+
+        Category category = new Category(parcel);
+        expect(category.getName()).toEqual(mCategory.getName());
+        expect(category.getPermalink()).toEqual(mCategory.getPermalink());
+        /*
+        Not implemented by Robolectric
+        expect(category.getUsers()).toEqual(mCategory.getUsers());
+         */
     }
 
     @Test
