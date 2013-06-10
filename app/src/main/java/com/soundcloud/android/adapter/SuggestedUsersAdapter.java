@@ -3,6 +3,7 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.R;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.utils.Log;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,10 +50,10 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder = (ItemViewHolder) convertView.getTag();
         }
         final SuggestedUser suggestedUser = getItem(position);
-        ImageLoader.get(parent.getContext()).bind(this, viewHolder.imageView, suggestedUser.getAvatarUrl());
         viewHolder.username.setText(suggestedUser.getUsername());
-        final String location = suggestedUser.getLocation();
-        viewHolder.location.setText(location);
+        viewHolder.location.setText(suggestedUser.getLocation());
+        ImageLoader.get(parent.getContext()).bind(this, viewHolder.imageView, suggestedUser.getAvatarUrl());
+
         return convertView;
     }
 
