@@ -53,9 +53,7 @@ public class ScModel implements Parcelable, Identifiable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        if (mURN != null) {
-            dest.writeString(mURN.toString());
-        }
+        dest.writeString(mURN != null ? mURN.toString() : null);
     }
 
     protected static int getIntOrNotSet(Cursor c, String column) {
