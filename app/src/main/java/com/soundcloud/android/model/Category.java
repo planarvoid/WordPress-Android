@@ -13,6 +13,7 @@ public class Category extends ScModel {
 
     public static final Category EMPTY = new EmptyCategory();
     public static final Category PROGRESS = new ProgressCategory();
+    public static String EXTRA = "category";
 
     private String mName;
     private String mPermalink;

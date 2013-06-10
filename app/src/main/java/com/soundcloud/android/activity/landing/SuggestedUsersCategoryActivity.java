@@ -3,6 +3,7 @@ package com.soundcloud.android.activity.landing;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.SuggestedUsersCategoryFragment;
+import com.soundcloud.android.model.Category;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,10 +15,11 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
 
-        if (getResources().getBoolean(R.bool.has_two_panels)) {
+        if (getResources().getBoolean(R.bool.has_two_panels) || !getIntent().hasExtra(Category.EXTRA)) {
             finish();
         } else {
-            setTitle(getString(R.string.side_menu_suggested_users));
+            Category category = getIntent().getParcelableExtra(Category.EXTRA);
+            setTitle(category.getName());
             setContentView(R.layout.suggested_users_category_activity);
 
             if (state == null) {

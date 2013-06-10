@@ -33,7 +33,7 @@ public class SuggestedUsersCategoryFragmentTest {
         Category category = TestHelper. getModelFactory().createModel(Category.class);
 
         Bundle args = new Bundle();
-        args.putParcelable(SuggestedUsersCategoryFragment.KEY_CATEGORY, category);
+        args.putParcelable(Category.EXTRA, category);
 
         fragment.setArguments(args);
         fragment.onCreate(null);

@@ -59,7 +59,7 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
     public void onCategorySelected(Category category) {
         if (mDualScreen) {
             Bundle args = new Bundle();
-            args.putParcelable(SuggestedUsersCategoryFragment.KEY_CATEGORY, category);
+            args.putParcelable(Category.EXTRA, category);
 
             final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             SuggestedUsersCategoryFragment fragment = new SuggestedUsersCategoryFragment();
@@ -69,7 +69,7 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
 
         } else {
             final Intent intent = new Intent(this, SuggestedUsersCategoryActivity.class);
-            intent.putExtra(SuggestedUsersCategoryFragment.KEY_CATEGORY, category);
+            intent.putExtra(Category.EXTRA, category);
             startActivity(intent);
         }
     }

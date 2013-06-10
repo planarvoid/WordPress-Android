@@ -18,16 +18,14 @@ import android.widget.GridView;
 
 public class SuggestedUsersCategoryFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
-    public static String KEY_CATEGORY = "category";
-
     private SuggestedUsersAdapter mAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null && getArguments().containsKey(KEY_CATEGORY)){
-            final Category category = ((Category) getArguments().getParcelable(KEY_CATEGORY));
+        if (getArguments() != null && getArguments().containsKey(Category.EXTRA)){
+            final Category category = ((Category) getArguments().getParcelable(Category.EXTRA));
             setAdapter(new SuggestedUsersAdapter(category.getUsers()));
         }
     }
