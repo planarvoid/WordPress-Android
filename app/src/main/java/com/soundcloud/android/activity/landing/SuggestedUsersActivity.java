@@ -26,21 +26,20 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(getString(R.string.side_menu_suggested_users));
-        setContentView(R.layout.suggested_users_onboard);
+        setContentView(R.layout.suggested_users_activity);
 
-        mDualScreen = findViewById(R.id.categories_fragment) != null;
-
-        if (state == null && !mDualScreen) {
+        mDualScreen = getResources().getBoolean(R.bool.has_two_panels);
+        if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.list_holder, new SuggestedUsersCategoriesFragment())
+                    .add(R.id.categories_fragment_holder, new SuggestedUsersCategoriesFragment())
                     .commit();
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.done){
+        if (item.getItemId() == R.id.done) {
             new SyncStateManager().forceToStale(Content.ME_SOUND_STREAM);
             startActivity(new Intent(Actions.STREAM));
             finish();
@@ -58,22 +57,21 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
 
     @Override
     public void onCategorySelected(Category category) {
-        SuggestedUsersCategoryFragment fragment = new SuggestedUsersCategoryFragment();
+        if (mDualScreen) {
+            Bundle args = new Bundle();
+            args.putParcelable(SuggestedUsersCategoryFragment.KEY_CATEGORY, category);
 
-        Bundle args = new Bundle();
-        args.putParcelable(SuggestedUsersCategoryFragment.KEY_CATEGORY, category);
-        fragment.setArguments(args);
+            final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            SuggestedUsersCategoryFragment fragment = new SuggestedUsersCategoryFragment();
+            fragment.setArguments(args);
+            fragmentTransaction.replace(R.id.users_fragment_holder, fragment);
+            fragmentTransaction.commit();
 
-        final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.list_holder, fragment);
-
-        if (!mDualScreen){
-            fragmentTransaction.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_left,
-                    R.anim.slide_in_from_left, R.anim.slide_out_to_right);
-                    fragmentTransaction.addToBackStack("category");
+        } else {
+            final Intent intent = new Intent(this, SuggestedUsersCategoryActivity.class);
+            intent.putExtra(SuggestedUsersCategoryFragment.KEY_CATEGORY, category);
+            startActivity(intent);
         }
-
-        fragmentTransaction.commit();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 @Model
 public class SuggestedUser extends ScModel {
@@ -52,6 +53,16 @@ public class SuggestedUser extends ScModel {
         dest.writeString(mCity);
         dest.writeString(mCountry);
     }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public SuggestedUser createFromParcel(Parcel in) {
+            return new SuggestedUser(in);
+        }
+
+        public SuggestedUser[] newArray(int size) {
+            return new SuggestedUser[size];
+        }
+    };
 
     @Override
     public String toString() {

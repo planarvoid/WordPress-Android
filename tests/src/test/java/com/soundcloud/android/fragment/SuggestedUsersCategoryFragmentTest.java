@@ -39,24 +39,4 @@ public class SuggestedUsersCategoryFragmentTest {
         fragment.onCreate(null);
         expect(fragment.getAdapter().getItem(0)).toBe(category.getUsers().get(0));
     }
-
-    @Test
-    public void shouldCreateAdapterAfterSetCategoryCalled() throws CreateModelException {
-        fragment.onCreate(null);
-
-        Category category = TestHelper. getModelFactory().createModel(Category.class);
-        fragment.setCategory(category);
-
-        expect(fragment.getAdapter().getItem(0)).toBe(category.getUsers().get(0));
-    }
-
-    @Test
-    public void shouldSetArgsAfterSetCategoryCalled() throws CreateModelException {
-        fragment.onCreate(null);
-
-        Category category = TestHelper. getModelFactory().createModel(Category.class);
-        fragment.setCategory(category);
-
-        expect(fragment.getArguments().getParcelable(SuggestedUsersCategoryFragment.KEY_CATEGORY)).toBe(category);
-    }
 }
