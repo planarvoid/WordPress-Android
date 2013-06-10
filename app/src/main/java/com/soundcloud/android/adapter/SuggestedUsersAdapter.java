@@ -42,17 +42,22 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             convertView = View.inflate(parent.getContext(), R.layout.suggested_user_grid_item,null);
             viewHolder = new ItemViewHolder();
             viewHolder.imageView = (ImageView) convertView.findViewById(R.id.suggested_user_image);
+            viewHolder.username = (TextView) convertView.findViewById(R.id.username);
+            viewHolder.location = (TextView) convertView.findViewById(R.id.location);
             convertView.setTag(viewHolder);
         }else {
             viewHolder = (ItemViewHolder) convertView.getTag();
         }
         final SuggestedUser suggestedUser = getItem(position);
         ImageLoader.get(parent.getContext()).bind(this, viewHolder.imageView, suggestedUser.getAvatarUrl());
+        viewHolder.username.setText(suggestedUser.getUsername());
+        final String location = suggestedUser.getLocation();
+        viewHolder.location.setText(location);
         return convertView;
     }
 
     private static class ItemViewHolder {
-        public TextView username, city, country;
         public ImageView imageView;
+        public TextView username, location;
     }
 }

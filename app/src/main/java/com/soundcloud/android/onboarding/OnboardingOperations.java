@@ -72,6 +72,8 @@ public class OnboardingOperations extends ScheduledOperations {
                 final long l = System.currentTimeMillis() + i;
                 SuggestedUser user = new SuggestedUser("soundcloud:users:" + l);
                 user.setUsername("u_" + prefix + "_" + i);
+                user.setCity("Tokyo");
+                user.setCountry("Japan");
                 users.add(user);
             }
             return users;

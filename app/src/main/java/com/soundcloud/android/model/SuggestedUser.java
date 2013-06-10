@@ -1,5 +1,7 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.utils.ScTextUtils;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -75,5 +77,9 @@ public class SuggestedUser extends ScModel {
 
     public String getAvatarUrl() {
         return ClientUri.fromUri("soundcloud:users:30511050").imageUri().toString();
+    }
+
+    public String getLocation() {
+        return ScTextUtils.getLocation(mCity, mCountry);
     }
 }

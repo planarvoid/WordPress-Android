@@ -15,6 +15,7 @@ import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.NotNull;
@@ -238,18 +239,6 @@ public class User extends ScResource implements UserHolder {
         this.username = username;
     }
 
-    public String getLocation() {
-        if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
-            return city + ", " + country;
-        } else if (!TextUtils.isEmpty(city)) {
-            return city;
-        } else if (!TextUtils.isEmpty(country)) {
-            return country;
-        } else {
-            return "";
-        }
-    }
-
     public String getPermalink(){
         return permalink;
     }
@@ -326,6 +315,10 @@ public class User extends ScResource implements UserHolder {
 
     public void setCountry(@Nullable String country) {
         this.country = country;
+    }
+
+    public String getLocation() {
+        return ScTextUtils.getLocation(city, country);
     }
 
     public static interface DataKeys {
