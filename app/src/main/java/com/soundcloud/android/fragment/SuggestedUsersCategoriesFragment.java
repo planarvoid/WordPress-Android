@@ -55,13 +55,14 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.suggested_users_fragment, container, false);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.suggested_users_fragment, container, false);
+    public void onResume() {
+        super.onResume();
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -85,7 +86,6 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         Log.d(LOG_TAG, "UNSUBSCRIBING");
         mSubscription.unsubscribe();
     }

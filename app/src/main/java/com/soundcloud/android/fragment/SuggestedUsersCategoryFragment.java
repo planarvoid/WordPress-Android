@@ -16,6 +16,8 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 
+import java.util.Set;
+
 public class SuggestedUsersCategoryFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
     private SuggestedUsersAdapter mAdapter;
@@ -25,7 +27,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null && getArguments().containsKey(Category.EXTRA)){
-            final Category category = ((Category) getArguments().getParcelable(Category.EXTRA));
+            final Category category = getArguments().getParcelable(Category.EXTRA);
             setAdapter(new SuggestedUsersAdapter(category.getUsers()));
         }
     }
@@ -49,6 +51,12 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         gridView.setDrawSelectorOnTop(false);
         gridView.setOnItemClickListener(this);
         gridView.setAdapter(mAdapter);
+
+        Set<Long> followingIds = FollowStatus.get().getFollowedUserIds();
+        for (int i = 0; i < mAdapter.getCount(); i++){
+            gridView.setItemChecked(i, followingIds.contains(mAdapter.getItemId(i)));
+        }
+
     }
 
     @Override

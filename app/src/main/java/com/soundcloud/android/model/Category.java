@@ -99,6 +99,13 @@ public class Category extends ScModel {
         }
     };
 
+    @Override
+    public String toString() {
+        return "Category{" +
+                "mPermalink='" + mPermalink + '\'' +
+                '}';
+    }
+
     private static final class EmptyCategory extends Category {}
     private static final class ProgressCategory extends Category {}
 }

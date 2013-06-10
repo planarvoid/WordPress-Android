@@ -27,7 +27,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
 
     @Override
     public SuggestedUser getItem(int position) {
-        return mSuggestedUsers.get(0);
+        return mSuggestedUsers.get(position);
     }
 
     @Override
