@@ -3,7 +3,6 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.R;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.utils.Log;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +14,7 @@ import java.util.List;
 
 public class SuggestedUsersAdapter extends BaseAdapter {
 
+    private static final ImageLoader.Options IMAGE_OPTIONS = ImageLoader.Options.listFadeIn();
     private final List<SuggestedUser> mSuggestedUsers;
 
     public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers) {
@@ -52,7 +52,12 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         final SuggestedUser suggestedUser = getItem(position);
         viewHolder.username.setText(suggestedUser.getUsername());
         viewHolder.location.setText(suggestedUser.getLocation());
-        ImageLoader.get(parent.getContext()).bind(this, viewHolder.imageView, suggestedUser.getAvatarUrl());
+
+        final ImageLoader.BindResult result = ImageLoader.get(parent.getContext()).bind(this, viewHolder.imageView,
+                suggestedUser.getAvatarUrl(), IMAGE_OPTIONS);
+        if (result != ImageLoader.BindResult.OK){
+            viewHolder.imageView.setImageResource(R.drawable.artwork_player);
+        }
 
         return convertView;
     }
