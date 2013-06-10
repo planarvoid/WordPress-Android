@@ -37,7 +37,7 @@ public class Category extends ScModel {
         super.writeToParcel(dest, flags);
         dest.writeString(mName);
         dest.writeString(mPermalink);
-        dest.writeTypedList(mUsers);
+        dest.writeList(mUsers);
     }
 
     public String getPermalink() {
