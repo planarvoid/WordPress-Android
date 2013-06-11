@@ -193,9 +193,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                                 ? getItem(position).getNotFollowedUsers(followStatus.getFollowedUserIds())
                                 : getItem(position).getFollowedUsers(followStatus.getFollowedUserIds());
 
-                        for (SuggestedUser suggestedUser : suggestedUserList){
-                            followStatus.toggleFollowing(new User(suggestedUser));
-                        }
+                        FollowStatus.get().toggleFollowing(suggestedUserList);
                         notifyDataSetChanged();
                     }
                 });
