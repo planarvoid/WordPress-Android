@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
+import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -16,6 +17,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import rx.Observable;
 
 import android.view.View;
@@ -26,13 +28,15 @@ public class SuggestedUsersCategoriesFragmentTest {
 
     private SuggestedUsersCategoriesFragment fragment;
     private SuggestedUsersCategoriesAdapter adapter;
+    @Mock
+    private FollowStatus followStatus;
 
     @Before
     public void setup() throws CreateModelException {
         OnboardingOperations operations = mock(OnboardingOperations.class);
         when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
 
-        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS);
+        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followStatus);
         fragment = spy(new SuggestedUsersCategoriesFragment(operations, adapter));
 
         SherlockFragmentActivity fragmentActivity = new SherlockFragmentActivity();
