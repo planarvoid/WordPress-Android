@@ -38,7 +38,7 @@ public class SuggestedUserItemLayout extends FrameLayout implements Checkable {
         if (checked){
             mImageView.setBackgroundResource(R.drawable.orange_outline);
         } else {
-            mImageView.setBackground(null);
+            mImageView.setBackgroundDrawable(null);
         }
         mImageView.setPadding(mPadding, mPadding, mPadding, mPadding);
     }
