@@ -1,4 +1,4 @@
-package com.soundcloud.android.cache;
+package com.soundcloud.android.operations.following;
 
 import com.google.common.collect.ImmutableSet;
 import com.soundcloud.android.SoundCloudApplication;

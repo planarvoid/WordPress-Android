@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
-import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;

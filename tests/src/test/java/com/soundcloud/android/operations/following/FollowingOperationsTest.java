@@ -7,7 +7,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;

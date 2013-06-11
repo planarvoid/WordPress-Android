@@ -1,9 +1,10 @@
-package com.soundcloud.android.cache;
+package com.soundcloud.android.operations.following;
 
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
