@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.Log;
 import rx.util.functions.Action1;
 
@@ -193,7 +192,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                                 ? getItem(position).getNotFollowedUsers(followStatus.getFollowedUserIds())
                                 : getItem(position).getFollowedUsers(followStatus.getFollowedUserIds());
 
-                        FollowStatus.get().toggleFollowing(suggestedUserList);
+                        //FollowStatus.get().toggleFollowing(suggestedUserList);
                         notifyDataSetChanged();
                     }
                 });

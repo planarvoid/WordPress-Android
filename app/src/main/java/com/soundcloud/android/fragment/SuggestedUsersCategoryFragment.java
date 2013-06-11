@@ -75,7 +75,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
                 ? mCategory.getNotFollowedUsers(FollowStatus.get().getFollowedUserIds())
                 : mCategory.getFollowedUsers(FollowStatus.get().getFollowedUserIds());
 
-        FollowStatus.get().toggleFollowing(followings);
+        //FollowStatus.get().toggleFollowing(followings);
         for (int i = 0; i < mAdapter.getCount(); i++){
             mAdapterView.setItemChecked(i, shouldFollow);
         }
