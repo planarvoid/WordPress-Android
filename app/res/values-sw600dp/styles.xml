@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <resources>
-
     <style name="OnboardSuggestedUserGridView">
         <item name="android:numColumns">2</item>
     </style>
-
 </resources>
