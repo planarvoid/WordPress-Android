@@ -69,7 +69,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final ListView listView = (ListView) view.findViewById(android.R.id.list);
+        final ListView listView = getListView();
         listView.setDrawSelectorOnTop(false);
         listView.setHeaderDividersEnabled(false);
         listView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null));

@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public class Category extends ScModel {
 
     private String mName;
     private String mPermalink;
-    private List<SuggestedUser> mUsers;
+    private List<SuggestedUser> mUsers = Collections.EMPTY_LIST;
 
 
     public Category() { /* for deserialization */ }
