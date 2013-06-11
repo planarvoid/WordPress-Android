@@ -9,6 +9,8 @@ import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.view.GridViewCompat;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +47,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         return inflater.inflate(R.layout.suggested_user_grid, container, false);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridvicew setChoiceMode and setItemChecked
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -71,6 +74,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         return mAdapter;
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridview setItemChecked
     public void toggleFollowings(boolean shouldFollow){
         final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
         if (shouldFollow){
