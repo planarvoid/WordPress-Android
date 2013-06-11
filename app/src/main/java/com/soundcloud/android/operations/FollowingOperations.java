@@ -9,6 +9,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
+import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -36,10 +37,27 @@ public class FollowingOperations extends ScheduledOperations {
         mModelManager = modelManager;
     }
 
+    public Observable<Void> addFollowing(@NotNull final User user){
+        final boolean hadNoFollowings = mFollowStatus.isEmpty();
+        updateLocalStatus(true, user);
+
+        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Void> observer) {
+                // first follower, set the stream to stale so next time the users goes there it will sync
+                if (hadNoFollowings) mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM);
+
+                mUserAssociationStorage.addFollowing(user);
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
     public Observable<Void> addFollowings(final List<User> users) {
 
         final boolean hadNoFollowings = mFollowStatus.isEmpty();
-        updateLocalStatus(users, true);
+        updateLocalStatus(true, users.toArray(new User[users.size()]));
 
         return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
             @Override
@@ -54,8 +72,21 @@ public class FollowingOperations extends ScheduledOperations {
         }));
     }
 
+    public Observable<Void> removeFollowing(final User user) {
+        updateLocalStatus(false, user);
+
+        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Void> observer) {
+                mUserAssociationStorage.removeFollowing(user);
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
     public Observable<Void> removeFollowings(final List<User> users) {
-        updateLocalStatus(users, false);
+        updateLocalStatus(false, users.toArray(new User[users.size()]));
 
         return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
             @Override
@@ -67,9 +98,9 @@ public class FollowingOperations extends ScheduledOperations {
         }));
     }
 
-    private void updateLocalStatus(List<User> users, boolean newStatus) {
+    private void updateLocalStatus(boolean newStatus, User... users) {
         // update followings ID cache
-        mFollowStatus.toggleFollowing(users.toArray(new User[users.size()]));
+        mFollowStatus.toggleFollowing(users);
         // make sure the cache reflects the new state of each following
         for (User user : users) {
             mModelManager.cache(user, ScResource.CacheUpdateMode.NONE).user_following = newStatus;

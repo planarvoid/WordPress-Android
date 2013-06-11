@@ -33,24 +33,40 @@ public class FollowingOperationsTest {
     private FollowStatus followStatus;
     private SyncStateManager syncStateManager;
     private ScModelManager scModelManager;
+
+    private User user;
     private List<User> users;
 
     @Before
-    public void before(){
+    public void before() throws CreateModelException {
         userAssociationStorage = mock(UserAssociationStorage.class);
         followStatus = mock(FollowStatus.class);
         syncStateManager = mock(SyncStateManager.class);
         scModelManager = mock(ScModelManager.class);
-        when(scModelManager.cache(any(User.class),any(ScResource.CacheUpdateMode.class))).thenReturn(mock(User.class));
+        when(scModelManager.cache(any(User.class), any(ScResource.CacheUpdateMode.class))).thenReturn(mock(User.class));
 
         ops = new FollowingOperations(userAssociationStorage, followStatus, syncStateManager, scModelManager);
+
+        user = TestHelper.getModelFactory().createModel(User.class);
         users = TestHelper.createUsers(5);
+    }
+
+    @Test
+    public void shouldToggleFollowingOnAddition() throws CreateModelException {
+        ops.addFollowing(user);
+        verify(followStatus).toggleFollowing(user);
     }
 
     @Test
     public void shouldToggleFollowingsListOnAddition() throws CreateModelException {
         ops.addFollowings(users);
         verify(followStatus).toggleFollowing(users.toArray(new User[users.size()]));
+    }
+
+    @Test
+    public void shouldToggleFollowingOnRemoval() throws CreateModelException {
+        ops.removeFollowing(user);
+        verify(followStatus).toggleFollowing(user);
     }
 
     @Test
@@ -61,32 +77,58 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldUpdateCacheForEachUserOnAddition() throws CreateModelException {
+        ops.addFollowing(user);
+        verify(scModelManager, times(1)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
+    }
+
+    @Test
+    public void shouldUpdateCacheForEachUserOnListAddition() throws CreateModelException {
         ops.addFollowings(users);
-        verify(scModelManager, times(5)).cache(any(User.class),any(ScResource.CacheUpdateMode.class));
+        verify(scModelManager, times(5)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnRemoval() throws CreateModelException {
-        ops.removeFollowings(users);
-        verify(scModelManager, times(5)).cache(any(User.class),any(ScResource.CacheUpdateMode.class));
+        ops.removeFollowing(user);
+        verify(scModelManager, times(1)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
     }
 
     @Test
-    public void shouldForceStreamToStaleIfFirstFollowing(){
+    public void shouldUpdateCacheForEachUserOnListRemoval() throws CreateModelException {
+        ops.removeFollowings(users);
+        verify(scModelManager, times(5)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
+    }
+
+    @Test
+    public void shouldForceStreamToStaleIfFirstFollowingFromAddition() {
+        when(followStatus.isEmpty()).thenReturn(true);
+        ops.addFollowing(user).toBlockingObservable().last();
+        verify(syncStateManager).forceToStale(Content.ME_SOUND_STREAM);
+    }
+
+    @Test
+    public void shouldForceStreamToStaleIfFirstFollowingFromListAddition() {
         when(followStatus.isEmpty()).thenReturn(true);
         ops.addFollowings(users).toBlockingObservable().last();
         verify(syncStateManager).forceToStale(Content.ME_SOUND_STREAM);
     }
 
     @Test
-    public void shouldNotForceStreamToStaleIfFollowingsNotEmpty(){
+    public void shouldNotForceStreamToStaleIfFollowingsNotEmpty() {
+        when(followStatus.isEmpty()).thenReturn(false);
+        ops.addFollowing(user).toBlockingObservable().last();
+        verify(syncStateManager, never()).forceToStale(Content.ME_SOUND_STREAM);
+    }
+
+    @Test
+    public void shouldNotForceStreamToStaleFromListIfFollowingsNotEmpty() {
         when(followStatus.isEmpty()).thenReturn(false);
         ops.addFollowings(users).toBlockingObservable().last();
         verify(syncStateManager, never()).forceToStale(Content.ME_SOUND_STREAM);
     }
 
     @Test
-    public void shouldNotForceStreamToStaleIfUsersListIsEmpty(){
+    public void shouldNotForceStreamToStaleFromListIfUsersListIsEmpty() {
         when(followStatus.isEmpty()).thenReturn(true);
         ops.addFollowings(Collections.<User>emptyList()).toBlockingObservable().last();
         verify(syncStateManager, never()).forceToStale(Content.ME_SOUND_STREAM);
@@ -94,12 +136,24 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldCommitFollowingsListToLocalStorageOnAddition() throws CreateModelException {
+        ops.addFollowing(user).toBlockingObservable().last();
+        verify(userAssociationStorage).addFollowing(user);
+    }
+
+    @Test
+    public void shouldCommitFollowingsListToLocalStorageOnRemoval() throws CreateModelException {
+        ops.removeFollowing(user).toBlockingObservable().last();
+        verify(userAssociationStorage).removeFollowing(user);
+    }
+
+    @Test
+    public void shouldCommitFollowingsListToLocalStorageOnListAddition() throws CreateModelException {
         ops.addFollowings(users).toBlockingObservable().last();
         verify(userAssociationStorage).addFollowings(users);
     }
 
     @Test
-    public void shouldCommitFollowingsListToLocalStorageOnRemoval() throws CreateModelException {
+    public void shouldCommitFollowingsListToLocalStorageOnListRemoval() throws CreateModelException {
         ops.removeFollowings(users).toBlockingObservable().last();
         verify(userAssociationStorage).removeFollowings(users);
     }
