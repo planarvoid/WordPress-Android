@@ -26,9 +26,9 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(getString(R.string.side_menu_suggested_users));
-        setContentView(R.layout.suggested_users_activity);
-
         mDualScreen = getResources().getBoolean(R.bool.has_two_panels);
+        setContentView(mDualScreen ? R.layout.suggested_users_dual_activity : R.layout.suggested_users_activity);
+
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
