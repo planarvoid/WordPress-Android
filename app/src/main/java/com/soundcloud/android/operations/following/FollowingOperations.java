@@ -101,9 +101,9 @@ public class FollowingOperations extends ScheduledOperations {
 
     public void toggleFollowing(User user) {
         if (mFollowStatus.isFollowing(user)){
-            addFollowing(user);
-        } else {
             removeFollowing(user);
+        } else {
+            addFollowing(user);
         }
     }
 
