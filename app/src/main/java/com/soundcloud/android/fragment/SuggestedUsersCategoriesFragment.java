@@ -72,7 +72,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         final ListView listView = getListView();
         listView.setDrawSelectorOnTop(false);
         listView.setHeaderDividersEnabled(false);
-        listView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null));
+        listView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null), null, false);
         listView.setOnItemClickListener(this);
         listView.setAdapter(mAdapter);
 
