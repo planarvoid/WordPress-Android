@@ -3,12 +3,14 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -99,17 +101,26 @@ public class UserAssociation extends Association implements UserHolder {
     }
 
     @Override
+    public Uri getBulkInsertUri() {
+        return Content.USER_ASSOCIATIONS.uri;
+    }
+
+    @Override
     public void putDependencyValues(BulkInsertMap destination) {
         super.putDependencyValues(destination);
         mUser.putFullContentValues(destination);
     }
 
-    public void markForAddition(){
+    public UserAssociation markForAddition(){
         setLocalSyncState(LocalState.PENDING_ADDITION);
+        mUser.addAFollower();
+        return this;
     }
 
-    public void markForRemoval() {
+    public UserAssociation markForRemoval() {
         setLocalSyncState(LocalState.PENDING_REMOVAL);
+        mUser.removeAFollower();
+        return this;
     }
 
     public void clearLocalSyncState() {
