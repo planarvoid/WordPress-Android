@@ -3,7 +3,10 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.R;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.view.GridViewCompat;
+import com.soundcloud.android.view.SuggestedUserItemLayout;
 
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -49,6 +52,12 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         }else {
             viewHolder = (ItemViewHolder) convertView.getTag();
         }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            final boolean checked = ((GridViewCompat) parent).getCheckedItemPositions().get(position);
+            ((SuggestedUserItemLayout) convertView).setChecked(checked);
+        }
+
         final SuggestedUser suggestedUser = getItem(position);
         viewHolder.username.setText(suggestedUser.getUsername());
         viewHolder.location.setText(suggestedUser.getLocation());
