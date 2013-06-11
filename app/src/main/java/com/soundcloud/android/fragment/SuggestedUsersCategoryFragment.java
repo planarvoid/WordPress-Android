@@ -3,10 +3,10 @@ package com.soundcloud.android.fragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.Category;
-import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.operations.following.FollowStatus;
+import com.soundcloud.android.operations.following.FollowingOperations;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 
-import java.util.List;
 import java.util.Set;
 
 public class SuggestedUsersCategoryFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
@@ -25,6 +24,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
     private SuggestedUsersAdapter mAdapter;
     private Category mCategory = Category.EMPTY;
     private GridView mAdapterView;
+    private FollowingOperations mFollowingOperations;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,6 +33,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
             mCategory = getArguments().getParcelable(Category.EXTRA);
         }
         setAdapter(new SuggestedUsersAdapter(mCategory.getUsers()));
+        mFollowingOperations = new FollowingOperations();
     }
 
     public void setAdapter(SuggestedUsersAdapter adapter){
@@ -63,7 +64,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        FollowStatus.get().toggleFollowing(new User(mAdapter.getItem(position)));
+        mFollowingOperations.toggleFollowing(new User(mAdapter.getItem(position)));
     }
 
     public BaseAdapter getAdapter() {
@@ -71,11 +72,12 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
     }
 
     public void toggleFollowings(boolean shouldFollow){
-        List<SuggestedUser> followings = shouldFollow
-                ? mCategory.getNotFollowedUsers(FollowStatus.get().getFollowedUserIds())
-                : mCategory.getFollowedUsers(FollowStatus.get().getFollowedUserIds());
-
-        //FollowStatus.get().toggleFollowing(followings);
+        final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
+        if (shouldFollow){
+            mFollowingOperations.addFollowingsBySuggestedUsers(mCategory.getNotFollowedUsers(followedUserIds));
+        } else {
+            mFollowingOperations.removeFollowingsBySuggestedUsers(mCategory.getFollowedUsers(followedUserIds));
+        }
         for (int i = 0; i < mAdapter.getCount(); i++){
             mAdapterView.setItemChecked(i, shouldFollow);
         }

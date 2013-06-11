@@ -19,6 +19,7 @@ import com.soundcloud.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.sync.SyncInitiator;
@@ -84,6 +85,7 @@ public class UserBrowser extends ScActivity implements
     private UserDetailsFragment mUserDetailsFragment;
     private AndroidCloudAPI mOldCloudAPI;
     private AccountOperations mAccountOperations;
+    private FollowingOperations mFollowingOperations;
 
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
@@ -102,6 +104,7 @@ public class UserBrowser extends ScActivity implements
         setContentView(R.layout.user_browser);
         mOldCloudAPI = new OldCloudAPI(this);
         mFollowStatus = FollowStatus.get();
+        mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(this);
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
@@ -306,7 +309,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     private void toggleFollowing(User user) {
-        mFollowStatus.toggleFollowing(user);
+        mFollowingOperations.toggleFollowing(user);
         SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
     }
 

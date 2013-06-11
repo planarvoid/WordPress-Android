@@ -107,7 +107,7 @@ public class FollowStatus {
                 null, DBHelper.UserAssociations.REMOVED_AT + " IS NULL", null, null);
     }
 
-    public void toggleFollowing(User... users){
+    /* package */ void toggleFollowing(User... users){
 
         final List<User> toAdd = new ArrayList<User>();
         final List<User> toRemove = new ArrayList<User>();

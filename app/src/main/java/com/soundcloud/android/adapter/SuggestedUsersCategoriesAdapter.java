@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.utils.Log;
 import rx.util.functions.Action1;
 
@@ -41,6 +42,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private final List<Category> mCategories;
     private final Set<CategoryGroup> mCategoryGroups;
     private final Map<Integer, Section> mListPositionsToSections;
+    private final FollowingOperations mFollowingOperations;
     private FollowStatus mFollowStatus;
 
     public enum Section {
@@ -81,6 +83,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowStatus followStatus) {
+        mFollowingOperations = new FollowingOperations();
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new HashMap<Integer, Section>();
@@ -185,14 +188,14 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        CompoundButton button = (CompoundButton) v;
-                        final FollowStatus followStatus = FollowStatus.get();
-
-                        final List<SuggestedUser> suggestedUserList = (button.isChecked())
-                                ? getItem(position).getNotFollowedUsers(followStatus.getFollowedUserIds())
-                                : getItem(position).getFollowedUsers(followStatus.getFollowedUserIds());
-
-                        //FollowStatus.get().toggleFollowing(suggestedUserList);
+                        final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
+                        if (((CompoundButton) v).isChecked()){
+                            final List<SuggestedUser> notFollowedUsers = getItem(position).getNotFollowedUsers(followedUserIds);
+                            mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers);
+                        } else {
+                            final List<SuggestedUser> followedUsers = getItem(position).getFollowedUsers(followedUserIds);
+                            mFollowingOperations.removeFollowingsBySuggestedUsers(followedUsers);
+                        }
                         notifyDataSetChanged();
                     }
                 });

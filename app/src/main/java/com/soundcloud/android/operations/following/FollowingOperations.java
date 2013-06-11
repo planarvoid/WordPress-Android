@@ -4,6 +4,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
@@ -15,6 +16,7 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FollowingOperations extends ScheduledOperations {
@@ -95,6 +97,30 @@ public class FollowingOperations extends ScheduledOperations {
                 return Subscriptions.empty();
             }
         }));
+    }
+
+    public void toggleFollowing(User user) {
+        if (mFollowStatus.isFollowing(user)){
+            addFollowing(user);
+        } else {
+            removeFollowing(user);
+        }
+    }
+
+    public Observable<Void> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
+        return removeFollowings(getUsersFromSuggestedUsers(suggestedUsers));
+    }
+
+    public Observable<Void> addFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
+        return addFollowings(getUsersFromSuggestedUsers(suggestedUsers));
+    }
+
+    private List<User> getUsersFromSuggestedUsers(List<SuggestedUser> suggestedUsers) {
+        List<User> users = new ArrayList<User>(suggestedUsers.size());
+        for (SuggestedUser suggestedUser : suggestedUsers){
+            users.add(new User(suggestedUser));
+        }
+        return users;
     }
 
     private void updateLocalStatus(boolean newStatus, User... users) {
