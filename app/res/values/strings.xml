@@ -156,4 +156,7 @@
     <string name="error_get_genre_buckets">Failed to load categories at this time. Try again later.</string>
 
     <string name="no_categories_returned">No categories returned</string>
+
+    <string name="btn_select_all">Select All</string>
+    <string name="btn_deselect_all">Deselect All</string>
 </resources>

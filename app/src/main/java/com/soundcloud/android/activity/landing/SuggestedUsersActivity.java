@@ -76,7 +76,7 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
 
     @Override
     public int getMenuResourceId() {
-        return R.menu.who_to_follow;
+        return R.menu.suggested_users;
     }
 
     @Override

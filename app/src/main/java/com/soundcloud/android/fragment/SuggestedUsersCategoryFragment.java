@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Category;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 
 import android.os.Bundle;
@@ -16,20 +17,22 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 
+import java.util.List;
 import java.util.Set;
 
 public class SuggestedUsersCategoryFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
     private SuggestedUsersAdapter mAdapter;
+    private Category mCategory = Category.EMPTY;
+    private GridView mAdapterView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (getArguments() != null && getArguments().containsKey(Category.EXTRA)){
-            final Category category = getArguments().getParcelable(Category.EXTRA);
-            setAdapter(new SuggestedUsersAdapter(category.getUsers()));
+            mCategory = getArguments().getParcelable(Category.EXTRA);
         }
+        setAdapter(new SuggestedUsersAdapter(mCategory.getUsers()));
     }
 
     public void setAdapter(SuggestedUsersAdapter adapter){
@@ -45,18 +48,17 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final GridView gridView = (GridView) view.findViewById(R.id.gridview);
-        gridView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-        gridView.setSelector(R.drawable.list_selector_background);
-        gridView.setDrawSelectorOnTop(false);
-        gridView.setOnItemClickListener(this);
-        gridView.setAdapter(mAdapter);
+        mAdapterView = (GridView) view.findViewById(R.id.gridview);
+        mAdapterView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+        mAdapterView.setSelector(R.drawable.list_selector_background);
+        mAdapterView.setDrawSelectorOnTop(false);
+        mAdapterView.setOnItemClickListener(this);
+        mAdapterView.setAdapter(mAdapter);
 
         Set<Long> followingIds = FollowStatus.get().getFollowedUserIds();
         for (int i = 0; i < mAdapter.getCount(); i++){
-            gridView.setItemChecked(i, followingIds.contains(mAdapter.getItemId(i)));
+            mAdapterView.setItemChecked(i, followingIds.contains(mAdapter.getItemId(i)));
         }
-
     }
 
     @Override
@@ -68,4 +70,18 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         return mAdapter;
     }
 
+    public void toggleFollowings(boolean shouldFollow){
+        List<SuggestedUser> followings = shouldFollow
+                ? mCategory.getNotFollowedUsers(FollowStatus.get().getFollowedUserIds())
+                : mCategory.getFollowedUsers(FollowStatus.get().getFollowedUserIds());
+
+        final FollowStatus followStatus = FollowStatus.get();
+        for (SuggestedUser suggestedUser : followings) {
+            followStatus.toggleFollowing(new User(suggestedUser));
+        }
+
+        for (int i = 0; i < mAdapter.getCount(); i++){
+            mAdapterView.setItemChecked(i, shouldFollow);
+        }
+    }
 }
