@@ -1,4 +1,4 @@
-package com.soundcloud.android.onboarding;
+package com.soundcloud.android.operations.following;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -12,7 +12,6 @@ import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.operations.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;

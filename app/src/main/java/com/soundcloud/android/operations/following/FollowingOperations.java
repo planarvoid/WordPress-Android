@@ -1,4 +1,4 @@
-package com.soundcloud.android.operations;
+package com.soundcloud.android.operations.following;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.FollowStatus;
