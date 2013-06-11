@@ -3,8 +3,6 @@ package com.soundcloud.android.operations.following;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -67,47 +65,25 @@ public class FollowStatusTest {
 
     @Test
     public void testToggleFollowing() throws Exception {
-        expect(status.isFollowing(ID)).toBeFalse();
         final User user = new User(ID);
+        expect(status.isFollowing(user)).toBeFalse();
         status.toggleFollowing(user);
-        checkFollowStatus(user, true);
+        expect(status.isFollowing(user)).toBeTrue();
         status.toggleFollowing(user);
-        checkFollowStatus(user, false);
+        expect(status.isFollowing(user)).toBeFalse();
     }
 
     @Test
     public void testToggleMultipleFollowings() throws Exception {
         List<User> users = TestHelper.createUsers(3);
-        checkFollowStatus(users.get(0), false);
+        expect(status.isFollowing(users.get(0))).toBeFalse();
 
         status.toggleFollowing(users.get(0));
-        checkFollowStatus(users.get(0), true);
+        expect(status.isFollowing(users.get(0))).toBeTrue();
 
         status.toggleFollowing(users.toArray(new User[users.size()]));
-        checkFollowStatus(users.get(0), false);
-        checkFollowStatus(users.get(1), true);
-        checkFollowStatus(users.get(2), true);
-    }
-
-    private void checkFollowStatus(User user, boolean shouldBeFollowing) {
-        checkFollowStatus(user.getId(), shouldBeFollowing);
-    }
-
-    /**
-     * Checks both the cache and the local storage
-     */
-    private void checkFollowStatus(long id, boolean shouldBeFollowing) {
-        final UserAssociation userAssociation = TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, id);
-        if (shouldBeFollowing) {
-            expect(status.isFollowing(id)).toBeTrue();
-            expect(userAssociation.getLocalSyncState()).not.toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
-        } else {
-            expect(status.isFollowing(id)).toBeFalse();
-            if (userAssociation != null) {
-                expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
-            }
-        }
-
-
+        expect(status.isFollowing(users.get(0))).toBeFalse();
+        expect(status.isFollowing(users.get(1))).toBeTrue();
+        expect(status.isFollowing(users.get(2))).toBeTrue();
     }
 }
