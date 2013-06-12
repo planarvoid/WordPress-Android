@@ -23,10 +23,11 @@ public class UserAssociation extends Association implements UserHolder {
     private @Nullable Date      mAddedAt;
     private @Nullable Date      mRemovedAt;
 
+    private @Nullable String    mToken;
+
     public enum LocalState {
         NONE, PENDING_ADDITION, PENDING_REMOVAL
     }
-
     public UserAssociation(Cursor cursor) {
         super(cursor);
         mUser = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
@@ -44,6 +45,7 @@ public class UserAssociation extends Association implements UserHolder {
         mUser = in.readParcelable(ClassLoader.getSystemClassLoader());
         mAddedAt = (Date) in.readSerializable();
         mRemovedAt = (Date) in.readSerializable();
+        mToken = in.readString();
     }
 
     @Override
@@ -57,12 +59,18 @@ public class UserAssociation extends Association implements UserHolder {
         return null;
     }
 
+    @Nullable
+    public String getToken() {
+        return mToken;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(mUser, 0);
         dest.writeSerializable(mAddedAt);
         dest.writeSerializable(mRemovedAt);
+        dest.writeString(mToken);
     }
 
     public long getItemId() {
@@ -105,7 +113,12 @@ public class UserAssociation extends Association implements UserHolder {
     }
 
     public void markForAddition(){
+        markForAddition(null);
+    }
+
+    public void markForAddition(@Nullable String token){
         setLocalSyncState(LocalState.PENDING_ADDITION);
+        mToken = token;
     }
 
     public void markForRemoval() {
