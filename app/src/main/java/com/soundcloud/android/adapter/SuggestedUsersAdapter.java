@@ -6,6 +6,7 @@ import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.view.GridViewCompat;
 import com.soundcloud.android.view.SuggestedUserItemLayout;
 
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         return mSuggestedUsers.get(position).getId();
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridviewcompat getCheckedItemPositions
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ItemViewHolder viewHolder;

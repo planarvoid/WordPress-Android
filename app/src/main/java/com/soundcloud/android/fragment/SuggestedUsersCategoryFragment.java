@@ -47,7 +47,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         return inflater.inflate(R.layout.suggested_user_grid, container, false);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridvicew setChoiceMode and setItemChecked
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridviewcompat setChoiceMode and setItemChecked
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
