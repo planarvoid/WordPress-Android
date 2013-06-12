@@ -141,11 +141,13 @@ public class UserAssociation extends Association implements UserHolder {
             case PENDING_REMOVAL:
                 mRemovedAt = new Date(System.currentTimeMillis());
                 mAddedAt = null;
+                mToken = null;
                 break;
 
             case NONE:
                 mRemovedAt = null;
                 mAddedAt = null;
+                mToken = null;
                 break;
         }
     }

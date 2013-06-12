@@ -78,10 +78,14 @@ public class UserAssociationStorage {
      * @return the new association created
      */
     public UserAssociation addFollowing(User user) {
+        return addFollowing(user, null);
+    }
+
+    public UserAssociation addFollowing(User user, @Nullable String token) {
         UserAssociation following = queryFollowingByTargetUserId(user.getId());
         if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL){
             following = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
-            following.markForAddition();
+            following.markForAddition(token);
             user.addAFollower();
             mFollowingsDAO.create(following);
 
