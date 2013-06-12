@@ -4,10 +4,8 @@ import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
-import android.database.Cursor;
 
 import java.util.ArrayList;
 import java.util.List;

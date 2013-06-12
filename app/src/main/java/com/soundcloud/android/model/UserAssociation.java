@@ -33,6 +33,7 @@ public class UserAssociation extends Association implements UserHolder {
         mUser = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
         mAddedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
         mRemovedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
+        mToken = cursor.getString(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_TOKEN));
     }
 
     public UserAssociation(Type typeEnum, @NotNull User user) {
@@ -87,6 +88,7 @@ public class UserAssociation extends Association implements UserHolder {
         cv.put(DBHelper.UserAssociations.CREATED_AT, created_at.getTime());
         cv.put(DBHelper.UserAssociations.ADDED_AT, mAddedAt == null ? null : mAddedAt.getTime());
         cv.put(DBHelper.UserAssociations.REMOVED_AT, mRemovedAt == null ? null : mRemovedAt.getTime());
+        cv.put(DBHelper.UserAssociations.TOKEN, mToken);
         return cv;
     }
 

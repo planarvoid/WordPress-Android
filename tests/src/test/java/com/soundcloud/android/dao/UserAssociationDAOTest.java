@@ -15,11 +15,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.database.Cursor;
+
 @RunWith(DefaultTestRunner.class)
 public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> {
 
-    private static final long OWNER_ID = 100L;
     private static final long TARGET_USER_ID = 1L;
+    public static final String TOKEN = "12345";
 
     public UserAssociationDAOTest() {
         super(new UserAssociationDAO(Robolectric.application.getContentResolver()));
@@ -53,6 +55,39 @@ public class UserAssociationDAOTest extends AbstractDAOTest<UserAssociationDAO> 
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_OWNER_ID, AbstractDAOTest.OWNER_ID);
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE, CollectionItemTypes.FOLLOWING);
         expect(Content.ME_FOLLOWINGS).toHaveColumnAt(0, DBHelper.UserAssociationView._TYPE, User.TYPE);
+    }
+
+    @Test
+    public void shouldInsertFollowingWithAdditionTimestamp() {
+        expect(Content.ME_FOLLOWINGS).toHaveCount(0);
+
+        User user = new User(1);
+        UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
+        ua.owner = new User(AbstractDAOTest.OWNER_ID);
+        ua.markForAddition(TOKEN);
+        getDAO().create(ua);
+
+        Cursor c = Robolectric.application.getContentResolver().query(Content.ME_FOLLOWINGS.uri, null, null, null, null);
+        expect(c).not.toBeNull();
+        expect(c.moveToPosition(0)).toBeTrue();
+        expect(c.getLong(c.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT))).toBeGreaterThan(0L);
+        expect(c.getString(c.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_TOKEN))).toEqual(TOKEN);
+    }
+
+    @Test
+    public void shouldInsertFollowingWithRemovalTimestamp() {
+        expect(Content.ME_FOLLOWINGS).toHaveCount(0);
+
+        User user = new User(1);
+        UserAssociation ua = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
+        ua.owner = new User(AbstractDAOTest.OWNER_ID);
+        ua.markForRemoval();
+        getDAO().create(ua);
+
+        Cursor c = Robolectric.application.getContentResolver().query(Content.ME_FOLLOWINGS.uri, null, null, null, null);
+        expect(c).not.toBeNull();
+        expect(c.moveToPosition(0)).toBeTrue();
+        expect(c.getLong(c.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT))).toBeGreaterThan(0L);
     }
 
     @Test
