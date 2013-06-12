@@ -97,4 +97,7 @@
 
     <color name="dialog_list_txt_disabled">#777</color>
 
+    <color name="listSelectorOnTopSelected">#99ff6600</color>
+    <color name="listSelectorOnTopPressed">#CCff6600</color>
+
 </resources>

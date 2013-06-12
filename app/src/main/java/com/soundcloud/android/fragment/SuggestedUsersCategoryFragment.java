@@ -54,8 +54,8 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
 
         mAdapterView = (GridViewCompat) view.findViewById(R.id.gridview);
         mAdapterView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-        mAdapterView.setSelector(R.drawable.list_selector_background);
-        mAdapterView.setDrawSelectorOnTop(false);
+        mAdapterView.setSelector(R.drawable.list_selector_suggested_users);
+        mAdapterView.setDrawSelectorOnTop(true);
         mAdapterView.setOnItemClickListener(this);
         mAdapterView.setAdapter(mAdapter);
 
