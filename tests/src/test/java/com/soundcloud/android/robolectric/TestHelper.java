@@ -318,15 +318,19 @@ public class TestHelper {
     }
 
     public static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri) {
-        return bulkInsertToUserAssociations(resources, collectionUri, null, null);
+        return bulkInsertToUserAssociations(resources, collectionUri, null, null, null);
     }
 
     public static int bulkInsertToUserAssociationsAsAdditions(List<? extends ScResource> resources, Uri collectionUri) {
-        return bulkInsertToUserAssociations(resources, collectionUri, new Date(), null);
+        return bulkInsertToUserAssociations(resources, collectionUri, new Date(), null, null);
+    }
+
+    public static int bulkInsertToUserAssociationsAsAdditionsWithToken(List<? extends ScResource> resources, Uri collectionUri, String token) {
+        return bulkInsertToUserAssociations(resources, collectionUri, new Date(), null, token);
     }
 
     public static int bulkInsertToUserAssociationsAsRemovals(List<? extends ScResource> resources, Uri collectionUri) {
-        return bulkInsertToUserAssociations(resources, collectionUri, null, new Date());
+        return bulkInsertToUserAssociations(resources, collectionUri, null, new Date(), null);
     }
 
     public static CategoryGroup buildCategoryGroup(String uri, int categoryCount) throws CreateModelException {
@@ -337,7 +341,7 @@ public class TestHelper {
     }
 
     private static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri,
-                                                    Date addedAt, Date removedAt) {
+                                                    Date addedAt, Date removedAt, String token) {
         SoundCloudApplication application = DefaultTestRunner.application;
         final long userId = SoundCloudApplication.getUserId();
 
@@ -354,6 +358,7 @@ public class TestHelper {
             contentValues.put(DBHelper.UserAssociations.OWNER_ID, userId);
             contentValues.put(DBHelper.UserAssociations.ADDED_AT, addedAt == null ? null : addedAt.getTime());
             contentValues.put(DBHelper.UserAssociations.REMOVED_AT, removedAt == null ? null : removedAt.getTime());
+            contentValues.put(DBHelper.UserAssociations.TOKEN, token);
             map.add(collectionUri, contentValues);
         }
         ContentResolver resolver = application.getContentResolver();
