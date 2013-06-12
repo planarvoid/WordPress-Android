@@ -114,6 +114,6 @@
     <dimen name="user_page_icon_size">67dp</dimen>
     <dimen name="playlist_page_icon_size">80dp</dimen>
 
-    <dimen name="onboarding_suggested_user_avatar_padding">2dp</dimen>
-    <dimen name="onboarding_suggested_user_avatar_height">200dp</dimen>
+    <dimen name="onboarding_suggested_user_item_padding">1dp</dimen>
+    <dimen name="onboarding_suggested_user_item_height">200dp</dimen>
 </resources>

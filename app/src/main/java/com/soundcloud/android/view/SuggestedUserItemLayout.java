@@ -7,12 +7,10 @@ import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 public class SuggestedUserItemLayout extends FrameLayout implements Checkable {
     private boolean mChecked;
     private int mPadding;
-    private ImageView mImageView;
     private CompoundButton mFollowButton;
 
     public SuggestedUserItemLayout(Context context) {
@@ -26,21 +24,18 @@ public class SuggestedUserItemLayout extends FrameLayout implements Checkable {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mPadding = (int) getResources().getDimension(R.dimen.onboarding_suggested_user_avatar_padding);
-        mImageView = (ImageView) findViewById(R.id.suggested_user_image);
+        mPadding = (int) getResources().getDimension(R.dimen.onboarding_suggested_user_item_padding);
         mFollowButton = ((CompoundButton) findViewById(R.id.toggle_btn_follow));
-        mImageView.setPadding(mPadding, mPadding, mPadding, mPadding);
     }
 
     @Override
     public void setChecked(boolean checked) {
         mFollowButton.setChecked(checked);
         if (checked){
-            mImageView.setBackgroundResource(R.drawable.orange_outline);
+            setBackgroundResource(R.drawable.suggested_user_grid_item_checked_selector);
         } else {
-            mImageView.setBackgroundDrawable(null);
+            setBackgroundResource(R.drawable.suggested_user_grid_item_selector);
         }
-        mImageView.setPadding(mPadding, mPadding, mPadding, mPadding);
     }
 
     @Override

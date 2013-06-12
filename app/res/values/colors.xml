@@ -97,7 +97,11 @@
 
     <color name="dialog_list_txt_disabled">#777</color>
 
-    <color name="listSelectorOnTopSelected">#99ff6600</color>
-    <color name="listSelectorOnTopPressed">#CCff6600</color>
+    <color name="suggestedUserSelectorSelected">#999</color>
+    <color name="suggestedUserSelectorPressed">@color/scOrange</color>
+
+    <color name="suggestedUserSelectorCheckedSelected">#000</color>
+    <color name="suggestedUserSelectorCheckedPressed">@color/scDarkOrange</color>
+    <color name="suggestedUserSelectorChecked">@color/scOrange</color>
 
 </resources>
