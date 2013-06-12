@@ -184,7 +184,7 @@
             </intent-filter>
 
         </activity>
-        <activity android:name=".activity.landing.SuggestedUsersCategoryActivity" android:label="@string/side_menu_suggested_users" />
+        <activity android:name=".activity.landing.SuggestedUsersCategoryActivity" />
         <activity android:name=".activity.landing.FriendFinder" android:label="@string/side_menu_friend_finder"
                   android:configChanges="orientation">
             <intent-filter>
