@@ -28,9 +28,8 @@ public class OnboardingOperations extends ScheduledOperations {
             CategoryGroup facebook = new CategoryGroup(CategoryGroup.KEY_FACEBOOK);
             buckets.add(facebook);
 
-            CategoryGroup music = new CategoryGroup();
+            CategoryGroup music = new CategoryGroup(CategoryGroup.KEY_MUSIC);
             music.setCategories(new ArrayList<Category>());
-            music.setUrn(CategoryGroup.KEY_MUSIC);
 
             Resources resources = SoundCloudApplication.instance.getResources();
             final String[] musicGenreKeys = resources.getStringArray(R.array.music_genre_keys);
@@ -47,9 +46,8 @@ public class OnboardingOperations extends ScheduledOperations {
             buckets.add(music);
 
 
-            CategoryGroup audio = new CategoryGroup();
+            CategoryGroup audio = new CategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS);
             audio.setCategories(new ArrayList<Category>());
-            audio.setUrn(CategoryGroup.KEY_SPEECH_AND_SOUNDS);
 
             final String[] audioGenreKeys = resources.getStringArray(R.array.audio_genre_keys);
             final String[] audioGenreNames = resources.getStringArray(R.array.audio_genre_names);
