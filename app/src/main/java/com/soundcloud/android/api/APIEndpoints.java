@@ -1,8 +1,8 @@
 package com.soundcloud.android.api;
 
 enum APIEndpoints {
-    SUGGESTED_GENRE_AUDIO_CATEGORIES("/suggestions/users"),
-    SUGGESTED_FACEBOOK_CATEGORIES("/suggestions/users/social/facebook");
+    SUGGESTED_GENRE_AUDIO_CATEGORIES("/app/mobileapps/suggestions/users/categories"),
+    SUGGESTED_FACEBOOK_CATEGORIES("/app/mobileapps/suggestions/users/social/facebook");
 
     private String path;
 
