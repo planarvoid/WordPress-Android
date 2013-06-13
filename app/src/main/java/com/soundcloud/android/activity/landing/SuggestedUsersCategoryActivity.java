@@ -35,6 +35,8 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
                         .beginTransaction()
                         .add(R.id.users_fragment_holder, mCategoryFragment)
                         .commit();
+            } else {
+                mCategoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.users_fragment_holder);
             }
         }
     }
