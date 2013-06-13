@@ -13,6 +13,7 @@ import com.soundcloud.android.view.GridViewCompat;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,6 +67,14 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         mFollowingOperations.toggleFollowing(new User(mAdapter.getItem(position))).subscribe(new ScObserver<Void>() {
+            @Override
+            public void onCompleted() {
+                final FragmentActivity activity = getActivity();
+                if (activity != null){
+                    activity.supportInvalidateOptionsMenu();
+                }
+            }
+
             @Override
             public void onError(Exception e) {
                 mAdapter.notifyDataSetChanged();
