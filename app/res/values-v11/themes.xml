@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.ScDialog" parent="android:Theme.Holo.Dialog"/>
+
+    <style name="OrangeCheckBox" parent="android:Widget.Holo.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/btn_check_holo_light</item>
+    </style>
 </resources>

@@ -26,6 +26,8 @@ public class SuggestedUserItemLayout extends FrameLayout implements Checkable {
         super.onFinishInflate();
         mPadding = (int) getResources().getDimension(R.dimen.onboarding_suggested_user_item_padding);
         mFollowButton = ((CompoundButton) findViewById(R.id.toggle_btn_follow));
+        mFollowButton.setClickable(false);
+        mFollowButton.setDuplicateParentStateEnabled(false);
     }
 
     @Override
@@ -46,5 +48,10 @@ public class SuggestedUserItemLayout extends FrameLayout implements Checkable {
     @Override
     public void toggle() {
         mChecked = !mChecked;
+    }
+
+    @Override
+    protected void dispatchSetPressed(boolean pressed) {
+        // nop
     }
 }

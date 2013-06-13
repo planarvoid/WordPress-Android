@@ -1305,15 +1305,16 @@
         <item name="@android:windowEnterAnimation">@anim/pump_bottom</item>
         <item name="@android:windowExitAnimation">@anim/disappear</item>
     </style>
-    <style name="SuggestedUserToggleButton">
-        <item name="android:layout_width">32dp</item>
-        <item name="android:layout_height">32dp</item>
+
+    <style name="SuggestedUserToggleButton" parent="OrangeCheckBox">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:layout_marginLeft">5dp</item>
         <item name="android:focusable">false</item>
         <item name="android:textOff">@null</item>
         <item name="android:textOn">@null</item>
-        <item name="android:background">@drawable/btn_check_round</item>
+        <item name="android:background">@null</item>
     </style>
 
     <style name="OnboardSuggestedUserGridView">
