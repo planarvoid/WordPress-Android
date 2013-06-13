@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.CollectionHolder;
@@ -20,6 +19,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
+import com.soundcloud.api.Token;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -85,21 +85,23 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Deprecated
     public Wrapper(Context context) {
-        this(context, buildObjectMapper(), context.getString(R.string.client_id),
-                new HttpProperties(context.getResources()).getClientSecret(),
-                ANDROID_REDIRECT_URI, new AccountOperations(context));
+        this(context,  new HttpProperties(context.getResources()), new AccountOperations(context));
+    }
+
+    protected Wrapper(Context context, HttpProperties properties, AccountOperations accountOperations){
+        this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
+                ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken());
     }
 
     private Wrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri,
-                    AccountOperations accountOperations) {
-        super(clientId, clientSecret, redirectUri, null);
+                    Token token) {
+        super(clientId, clientSecret, redirectUri, token);
         // context can be null in tests
         if (context == null) return;
 
         mContext = context;
         mObjectMapper = mapper;
         setTokenListener(new SoundCloudTokenListener(context));
-        setToken(accountOperations.getSoundCloudToken());
         userAgent = "SoundCloud Android ("+ AndroidUtils.getAppVersion(context, "unknown")+")";
         final IntentFilter filter = new IntentFilter();
         filter.addAction(Actions.CHANGE_PROXY_ACTION);
