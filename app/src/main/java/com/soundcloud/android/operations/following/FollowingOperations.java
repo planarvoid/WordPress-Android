@@ -39,12 +39,12 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     public Observable<Void> addFollowing(@NotNull final User user){
-        final boolean hadNoFollowings = mFollowStatus.isEmpty();
-        updateLocalStatus(true, user);
-
         return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
             @Override
             public Subscription call(Observer<Void> observer) {
+                final boolean hadNoFollowings = mFollowStatus.isEmpty();
+                updateLocalStatus(true, user);
+
                 // first follower, set the stream to stale so next time the users goes there it will sync
                 if (hadNoFollowings) mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM);
 
@@ -56,13 +56,12 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     public Observable<Void> addFollowings(final List<User> users) {
-
-        final boolean hadNoFollowings = mFollowStatus.isEmpty();
-        updateLocalStatus(true, users.toArray(new User[users.size()]));
-
         return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
             @Override
             public Subscription call(Observer<Void> observer) {
+                final boolean hadNoFollowings = mFollowStatus.isEmpty();
+                updateLocalStatus(true, users.toArray(new User[users.size()]));
+
                 // first follower, set the stream to stale so next time the users goes there it will sync
                 if (hadNoFollowings && !users.isEmpty()) mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM);
 
@@ -74,11 +73,10 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     public Observable<Void> removeFollowing(final User user) {
-        updateLocalStatus(false, user);
-
         return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
             @Override
             public Subscription call(Observer<Void> observer) {
+                updateLocalStatus(false, user);
                 mUserAssociationStorage.removeFollowing(user);
                 observer.onCompleted();
                 return Subscriptions.empty();
@@ -87,11 +85,10 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     public Observable<Void> removeFollowings(final List<User> users) {
-        updateLocalStatus(false, users.toArray(new User[users.size()]));
-
         return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
             @Override
             public Subscription call(Observer<Void> observer) {
+                updateLocalStatus(false, users.toArray(new User[users.size()]));
                 mUserAssociationStorage.removeFollowings(users);
                 observer.onCompleted();
                 return Subscriptions.empty();
@@ -99,11 +96,11 @@ public class FollowingOperations extends ScheduledOperations {
         }));
     }
 
-    public void toggleFollowing(User user) {
+    public Observable<Void> toggleFollowing(User user) {
         if (mFollowStatus.isFollowing(user)){
-            removeFollowing(user);
+            return removeFollowing(user);
         } else {
-            addFollowing(user);
+            return addFollowing(user);
         }
     }
 

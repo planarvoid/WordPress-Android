@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
+import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.view.GridViewCompat;
 
 import android.annotation.TargetApi;
@@ -17,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 
 import java.util.Set;
 
@@ -65,23 +65,29 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mFollowingOperations.toggleFollowing(new User(mAdapter.getItem(position)));
-    }
-
-    public BaseAdapter getAdapter() {
-        return mAdapter;
+        mFollowingOperations.toggleFollowing(new User(mAdapter.getItem(position))).subscribe(new ScObserver<Void>() {
+            @Override
+            public void onError(Exception e) {
+                mAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridview setItemChecked
-    public void toggleFollowings(boolean shouldFollow){
+    public void toggleFollowings(final boolean shouldFollow){
+        for (int i = 0; i < mAdapter.getCount(); i++) {
+            mAdapterView.setItemChecked(i, shouldFollow);
+        }
+
+        final ScObserver<Void> observer = new ScObserver<Void>() {
+            @Override public void onError(Exception e) { mAdapter.notifyDataSetChanged(); }
+        };
+
         final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
         if (shouldFollow){
-            mFollowingOperations.addFollowingsBySuggestedUsers(mCategory.getNotFollowedUsers(followedUserIds));
+            mFollowingOperations.addFollowingsBySuggestedUsers(mCategory.getNotFollowedUsers(followedUserIds)).subscribe(observer);
         } else {
-            mFollowingOperations.removeFollowingsBySuggestedUsers(mCategory.getFollowedUsers(followedUserIds));
-        }
-        for (int i = 0; i < mAdapter.getCount(); i++){
-            mAdapterView.setItemChecked(i, shouldFollow);
+            mFollowingOperations.removeFollowingsBySuggestedUsers(mCategory.getFollowedUsers(followedUserIds)).subscribe(observer);
         }
     }
 }

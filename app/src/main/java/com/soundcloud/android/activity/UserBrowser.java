@@ -10,7 +10,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.OldCloudAPI;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.fragment.UserDetailsFragment;
@@ -19,9 +18,11 @@ import com.soundcloud.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.service.sync.SyncInitiator;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
@@ -309,8 +310,18 @@ public class UserBrowser extends ScActivity implements
     }
 
     private void toggleFollowing(User user) {
-        mFollowingOperations.toggleFollowing(user);
-        SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
+        mFollowingOperations.toggleFollowing(user).subscribe(new ScObserver<Void>() {
+            @Override
+            public void onCompleted() {
+                SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
+            }
+        });
+
     }
 
     @Override

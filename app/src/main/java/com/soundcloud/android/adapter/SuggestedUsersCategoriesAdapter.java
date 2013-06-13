@@ -3,12 +3,13 @@ package com.soundcloud.android.adapter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
+import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.utils.Log;
 import rx.util.functions.Action1;
 
@@ -188,16 +189,16 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        final boolean shouldFollow = ((CompoundButton) v).isChecked();
                         final Category toggleCategory = getItem((Integer) v.getTag());
                         final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
-                        if (((CompoundButton) v).isChecked()){
+                        if (shouldFollow){
                             final List<SuggestedUser> notFollowedUsers = toggleCategory.getNotFollowedUsers(followedUserIds);
-                            mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers);
+                            mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers).subscribe(mNotifyWhenDoneObserver);
                         } else {
                             final List<SuggestedUser> followedUsers = toggleCategory.getFollowedUsers(followedUserIds);
-                            mFollowingOperations.removeFollowingsBySuggestedUsers(followedUsers);
+                             mFollowingOperations.removeFollowingsBySuggestedUsers(followedUsers).subscribe(mNotifyWhenDoneObserver);
                         }
-                        notifyDataSetChanged();
                     }
                 });
             } else {
@@ -255,6 +256,11 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
             }
         };
     }
+
+    private final ScObserver mNotifyWhenDoneObserver = new ScObserver() {
+        @Override public void onCompleted() {           notifyDataSetChanged(); }
+        @Override public void onError(Exception e) {    notifyDataSetChanged(); }
+    };
 
     private static class ItemViewHolder {
         public TextView genreTitle, genreSubtitle, sectionHeader;
