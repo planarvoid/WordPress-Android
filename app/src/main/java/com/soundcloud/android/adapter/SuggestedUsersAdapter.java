@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.util.List;
 
@@ -50,6 +51,9 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder.imageView = (ImageView) convertView.findViewById(R.id.suggested_user_image);
             viewHolder.username = (TextView) convertView.findViewById(R.id.username);
             viewHolder.location = (TextView) convertView.findViewById(R.id.location);
+            viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.toggle_btn_follow);
+            viewHolder.toggleFollow.setFocusable(false);
+            viewHolder.toggleFollow.setClickable(false);
             convertView.setTag(viewHolder);
         }else {
             viewHolder = (ItemViewHolder) convertView.getTag();
@@ -75,6 +79,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
 
     private static class ItemViewHolder {
         public ImageView imageView;
+        public ToggleButton toggleFollow;
         public TextView username, location;
     }
 }
