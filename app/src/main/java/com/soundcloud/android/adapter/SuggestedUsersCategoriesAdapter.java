@@ -176,7 +176,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 viewHolder = (ItemViewHolder) convertView.getTag();
             }
         } else{
-            Category category = getItem(position);
+            final Category category = getItem(position);
             if (convertView == null) {
                 viewHolder = new ItemViewHolder();
                 convertView = inflater.inflate(R.layout.suggested_users_category_list_item, null, false);
@@ -188,12 +188,13 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        final Category toggleCategory = getItem((Integer) v.getTag());
                         final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
                         if (((CompoundButton) v).isChecked()){
-                            final List<SuggestedUser> notFollowedUsers = getItem(position).getNotFollowedUsers(followedUserIds);
+                            final List<SuggestedUser> notFollowedUsers = toggleCategory.getNotFollowedUsers(followedUserIds);
                             mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers);
                         } else {
-                            final List<SuggestedUser> followedUsers = getItem(position).getFollowedUsers(followedUserIds);
+                            final List<SuggestedUser> followedUsers = toggleCategory.getFollowedUsers(followedUserIds);
                             mFollowingOperations.removeFollowingsBySuggestedUsers(followedUsers);
                         }
                         notifyDataSetChanged();
@@ -231,7 +232,8 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         }
         viewHolder.genreSubtitle.setText(mUserNamesBuilder.toString());
         viewHolder.genreTitle.setText(category.getName());
-        viewHolder.toggleFollow.setChecked(category.isFollowed(followedUserIds));
+        final boolean followed = category.isFollowed(followedUserIds);
+        viewHolder.toggleFollow.setChecked(followed);
     }
 
     private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {
