@@ -51,49 +51,49 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldToggleFollowingOnAddition() throws CreateModelException {
-        ops.addFollowing(user);
+        ops.addFollowing(user).toBlockingObservable().last();
         verify(followStatus).toggleFollowing(user);
     }
 
     @Test
     public void shouldToggleFollowingsListOnAddition() throws CreateModelException {
-        ops.addFollowings(users);
+        ops.addFollowings(users).toBlockingObservable().last();
         verify(followStatus).toggleFollowing(users.toArray(new User[users.size()]));
     }
 
     @Test
     public void shouldToggleFollowingOnRemoval() throws CreateModelException {
-        ops.removeFollowing(user);
+        ops.removeFollowing(user).toBlockingObservable().last();
         verify(followStatus).toggleFollowing(user);
     }
 
     @Test
     public void shouldToggleFollowingsListOnRemoval() throws CreateModelException {
-        ops.removeFollowings(users);
+        ops.removeFollowings(users).toBlockingObservable().last();
         verify(followStatus).toggleFollowing(users.toArray(new User[users.size()]));
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnAddition() throws CreateModelException {
-        ops.addFollowing(user);
+        ops.addFollowing(user).toBlockingObservable().last();
         verify(scModelManager, times(1)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnListAddition() throws CreateModelException {
-        ops.addFollowings(users);
+        ops.addFollowings(users).toBlockingObservable().last();
         verify(scModelManager, times(5)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnRemoval() throws CreateModelException {
-        ops.removeFollowing(user);
+        ops.removeFollowing(user).toBlockingObservable().last();
         verify(scModelManager, times(1)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnListRemoval() throws CreateModelException {
-        ops.removeFollowings(users);
+        ops.removeFollowings(users).toBlockingObservable().last();
         verify(scModelManager, times(5)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
     }
 
