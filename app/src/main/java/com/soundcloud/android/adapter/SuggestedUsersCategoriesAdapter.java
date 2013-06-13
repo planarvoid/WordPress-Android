@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
-import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
@@ -47,18 +46,18 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private FollowStatus mFollowStatus;
 
     public enum Section {
-        FACEBOOK(CategoryGroup.URN_FACEBOOK, R.string.onboarding_section_facebook),
-        MUSIC(CategoryGroup.URN_MUSIC, R.string.onboarding_section_music),
-        SPEECH_AND_SOUNDS(CategoryGroup.URN_SPEECH_AND_SOUNDS, R.string.onboarding_section_audio);
+        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.onboarding_section_facebook),
+        MUSIC(CategoryGroup.KEY_MUSIC, R.string.onboarding_section_music),
+        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.onboarding_section_audio);
         public static final EnumSet<Section> ALL_EXCEPT_FACEBOOK = EnumSet.of(MUSIC, SPEECH_AND_SOUNDS);
         public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
 
-        private final ClientUri mUrn;
+        private final String mKey;
         private final int mLabelResId;
         private String mLabel;
 
-        Section(String sectionUrn, int labelId) {
-            mUrn = ClientUri.fromUri(sectionUrn);
+        Section(String key, int labelId) {
+            mKey = key;
             mLabelResId = labelId;
         }
 
@@ -69,9 +68,9 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
             return mLabel;
         }
 
-        static Section fromUrn(ClientUri urn){
+        static Section fromKey(String key){
             for (Section section : values()){
-                if (section.mUrn.equals(urn)){
+                if (section.mKey.equals(key)){
                     return section;
                 }
             }
@@ -92,7 +91,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         mFollowStatus = followStatus;
 
         for (Section section : activeSections) {
-            CategoryGroup categoryGroup = new CategoryGroup(section.mUrn.toString());
+            CategoryGroup categoryGroup = new CategoryGroup(section.mKey.toString());
             categoryGroup.setCategories(Lists.newArrayList(Category.PROGRESS));
             addItem(categoryGroup);
         }
@@ -109,7 +108,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         mListPositionsToSections.clear();
 
         for (CategoryGroup group : mCategoryGroups) {
-            mListPositionsToSections.put(mCategories.size(), Section.fromUrn(group.getUrn()));
+            mListPositionsToSections.put(mCategories.size(), Section.fromKey(group.getKey()));
             mCategories.addAll(group.getCategories());
         }
     }
@@ -271,7 +270,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
         @Override
         public int compare(CategoryGroup lhs, CategoryGroup rhs) {
-            return Section.fromUrn(lhs.getUrn()).compareTo(Section.fromUrn(rhs.getUrn()));
+            return Section.fromKey(lhs.getKey()).compareTo(Section.fromKey(rhs.getKey()));
         }
 
         @Override

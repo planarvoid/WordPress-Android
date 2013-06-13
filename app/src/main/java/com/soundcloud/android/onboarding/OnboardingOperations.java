@@ -25,12 +25,12 @@ public class OnboardingOperations extends ScheduledOperations {
     static class FakeApi {
         public List<CategoryGroup> getCategoryGroups() {
             List<CategoryGroup> buckets = Lists.newArrayList();
-            CategoryGroup facebook = new CategoryGroup(CategoryGroup.URN_FACEBOOK);
+            CategoryGroup facebook = new CategoryGroup(CategoryGroup.KEY_FACEBOOK);
             buckets.add(facebook);
 
             CategoryGroup music = new CategoryGroup();
             music.setCategories(new ArrayList<Category>());
-            music.setUrn(CategoryGroup.URN_MUSIC);
+            music.setUrn(CategoryGroup.KEY_MUSIC);
 
             Resources resources = SoundCloudApplication.instance.getResources();
             final String[] musicGenreKeys = resources.getStringArray(R.array.music_genre_keys);
@@ -49,7 +49,7 @@ public class OnboardingOperations extends ScheduledOperations {
 
             CategoryGroup audio = new CategoryGroup();
             audio.setCategories(new ArrayList<Category>());
-            audio.setUrn(CategoryGroup.URN_SPEECH_AND_SOUNDS);
+            audio.setUrn(CategoryGroup.KEY_SPEECH_AND_SOUNDS);
 
             final String[] audioGenreKeys = resources.getStringArray(R.array.audio_genre_keys);
             final String[] audioGenreNames = resources.getStringArray(R.array.audio_genre_names);

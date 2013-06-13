@@ -52,11 +52,11 @@ public class SuggestedUsersCategoriesFragmentTest {
     }
 
     private CategoryGroup music() throws CreateModelException {
-        return TestHelper.buildCategoryGroup(CategoryGroup.URN_MUSIC, 3);
+        return TestHelper.buildCategoryGroup(CategoryGroup.KEY_MUSIC, 3);
     }
 
     private CategoryGroup audio() throws CreateModelException {
-        return TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 4);
+        return TestHelper.buildCategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS, 4);
     }
 
 }
