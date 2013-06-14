@@ -18,6 +18,7 @@
                                                                 android:text="@string/email"/>
                 <AutoCompleteTextView android:id="@+id/auto_txt_email_address"
                                       style="@style/SignUp.EmailEntry"
+                                      android:requiresFadingEdge="horizontal"
                                       android:hint="@string/authentication_your_email_address"
                                       android:drawablePadding="@dimen/signup_done_drawable_padding" />
             </TableRow>
@@ -33,6 +34,7 @@
                 <EditText style="@style/SignUp.PasswordEntry"
                           android:id="@+id/txt_choose_a_password"
                           android:hint="@string/authentication_choose_a_password"
+                          android:requiresFadingEdge="horizontal"
                           android:drawablePadding="@dimen/signup_done_drawable_padding"
                           android:imeOptions="actionNext"/>
             </TableRow>
