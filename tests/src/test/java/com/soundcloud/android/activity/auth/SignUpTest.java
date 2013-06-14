@@ -12,8 +12,8 @@ public class SignUpTest {
 
     @Test
     public void shouldCheckpasswordLength() throws Exception {
-        expect(SignUp.checkPassword("1234")).toBeTrue();
-        expect(SignUp.checkPassword("123")).toBeFalse();
+        expect(SignUp.checkPassword("123456")).toBeTrue();
+        expect(SignUp.checkPassword("12345")).toBeFalse();
         expect(SignUp.checkPassword(null)).toBeFalse();
     }
 }
