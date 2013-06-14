@@ -68,9 +68,9 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
             return mLabel;
         }
 
-        static Section fromKey(String key){
-            for (Section section : values()){
-                if (section.mKey.equals(key)){
+        static Section fromKey(String key) {
+            for (Section section : values()) {
+                if (section.mKey.equals(key)) {
                     return section;
                 }
             }
@@ -83,7 +83,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowStatus followStatus) {
-        mFollowingOperations = new FollowingOperations();
+        mFollowingOperations = new FollowingOperations().scheduleFromActivity();
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new HashMap<Integer, Section>();
@@ -164,7 +164,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
         final int itemViewType = getItemViewType(position);
         if (itemViewType != DEFAULT_VIEW_TYPE) {
-            if (convertView == null){
+            if (convertView == null) {
                 viewHolder = new ItemViewHolder();
                 final int layout = itemViewType == PROGRESS_VIEW_TYPE ?
                         R.layout.suggested_users_category_list_loading_item : R.layout.suggested_users_category_list_empty_item;
@@ -175,39 +175,48 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
             } else {
                 viewHolder = (ItemViewHolder) convertView.getTag();
             }
-        } else{
+
+        } else {
             final Category category = getItem(position);
             if (convertView == null) {
-                viewHolder = new ItemViewHolder();
                 convertView = inflater.inflate(R.layout.suggested_users_category_list_item, null, false);
+                viewHolder = getItemViewHolder(convertView);
                 convertView.setTag(viewHolder);
-                viewHolder.genreTitle = (TextView) convertView.findViewById(android.R.id.text1);
-                viewHolder.genreSubtitle = (TextView) convertView.findViewById(android.R.id.text2);
-                viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.suggested_users_list_header);
-                viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.btn_user_bucket_select_all);
-                viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final boolean shouldFollow = ((CompoundButton) v).isChecked();
-                        final Category toggleCategory = getItem((Integer) v.getTag());
-                        final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
-                        if (shouldFollow){
-                            final List<SuggestedUser> notFollowedUsers = toggleCategory.getNotFollowedUsers(followedUserIds);
-                            mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers).subscribe(mNotifyWhenDoneObserver);
-                        } else {
-                            final List<SuggestedUser> followedUsers = toggleCategory.getFollowedUsers(followedUserIds);
-                             mFollowingOperations.removeFollowingsBySuggestedUsers(followedUsers).subscribe(mNotifyWhenDoneObserver);
-                        }
-                    }
-                });
             } else {
                 viewHolder = (ItemViewHolder) convertView.getTag();
             }
             viewHolder.toggleFollow.setTag(position);
             configureItemContent(category, viewHolder);
         }
+
         configureSectionHeader(position, convertView, viewHolder);
         return convertView;
+    }
+
+    private ItemViewHolder getItemViewHolder(View convertView) {
+        ItemViewHolder viewHolder;
+        viewHolder = new ItemViewHolder();
+
+        viewHolder.genreTitle = (TextView) convertView.findViewById(android.R.id.text1);
+        viewHolder.genreSubtitle = (TextView) convertView.findViewById(android.R.id.text2);
+        viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.suggested_users_list_header);
+        viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.btn_user_bucket_select_all);
+        viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final boolean shouldFollow = ((CompoundButton) v).isChecked();
+                final Category toggleCategory = getItem((Integer) v.getTag());
+                final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
+                if (shouldFollow) {
+                    final List<SuggestedUser> notFollowedUsers = toggleCategory.getNotFollowedUsers(followedUserIds);
+                    mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers).subscribe(mNotifyWhenDoneObserver);
+                } else {
+                    final List<SuggestedUser> followedUsers = toggleCategory.getFollowedUsers(followedUserIds);
+                    mFollowingOperations.removeFollowingsBySuggestedUsers(followedUsers).subscribe(mNotifyWhenDoneObserver);
+                }
+            }
+        });
+        return viewHolder;
     }
 
     private void configureItemContent(Category category, ItemViewHolder viewHolder) {
@@ -257,8 +266,15 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     private final ScObserver mNotifyWhenDoneObserver = new ScObserver() {
-        @Override public void onCompleted() {           notifyDataSetChanged(); }
-        @Override public void onError(Exception e) {    notifyDataSetChanged(); }
+        @Override
+        public void onCompleted() {
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void onError(Exception e) {
+            notifyDataSetChanged();
+        }
     };
 
     private static class ItemViewHolder {
@@ -266,7 +282,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         public ToggleButton toggleFollow;
     }
 
-    private static class CategoryGroupComparator implements Comparator<CategoryGroup>{
+    private static class CategoryGroupComparator implements Comparator<CategoryGroup> {
 
         @Override
         public int compare(CategoryGroup lhs, CategoryGroup rhs) {
