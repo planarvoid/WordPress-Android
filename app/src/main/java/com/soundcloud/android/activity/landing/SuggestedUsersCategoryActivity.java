@@ -60,8 +60,9 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_select_all || item.getItemId() == R.id.menu_deselect_all) {
-            mCategoryFragment.toggleFollowings(item.getItemId() == R.id.menu_select_all);
+        final long itemId = item.getItemId();
+        if (itemId == R.id.menu_select_all || itemId == R.id.menu_deselect_all) {
+            mCategoryFragment.toggleFollowings(itemId == R.id.menu_select_all);
             invalidateOptionsMenu();
             return true;
         } else {
