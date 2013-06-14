@@ -107,18 +107,13 @@ public class FollowStatus {
                 null, DBHelper.UserAssociations.REMOVED_AT + " IS NULL", null, null);
     }
 
-    /* package */ void toggleFollowing(User... users){
+    /* package */ void toggleFollowing(User... users) {
 
-        final List<User> toAdd = new ArrayList<User>();
-        final List<User> toRemove = new ArrayList<User>();
         synchronized (followings) {
-            for (User user : users){
-                final boolean isNowFollowing = followings.contains(user.getId());
-                if (isNowFollowing) {
-                    toRemove.add(user);
+            for (User user : users) {
+                if (followings.contains(user.getId())) {
                     followings.remove(user.getId());
                 } else {
-                    toAdd.add(user);
                     followings.add(user.getId());
                 }
             }
