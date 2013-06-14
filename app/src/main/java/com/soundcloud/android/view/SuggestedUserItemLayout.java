@@ -10,7 +10,6 @@ import android.widget.FrameLayout;
 
 public class SuggestedUserItemLayout extends FrameLayout implements Checkable {
     private boolean mChecked;
-    private int mPadding;
     private CompoundButton mFollowButton;
 
     public SuggestedUserItemLayout(Context context) {
@@ -24,7 +23,6 @@ public class SuggestedUserItemLayout extends FrameLayout implements Checkable {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mPadding = (int) getResources().getDimension(R.dimen.onboarding_suggested_user_item_padding);
         mFollowButton = ((CompoundButton) findViewById(R.id.toggle_btn_follow));
         mFollowButton.setClickable(false);
         mFollowButton.setDuplicateParentStateEnabled(false);

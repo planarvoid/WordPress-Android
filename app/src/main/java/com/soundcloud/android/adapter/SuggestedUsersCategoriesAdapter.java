@@ -46,9 +46,9 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private FollowStatus mFollowStatus;
 
     public enum Section {
-        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.onboarding_section_facebook),
-        MUSIC(CategoryGroup.KEY_MUSIC, R.string.onboarding_section_music),
-        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.onboarding_section_audio);
+        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook),
+        MUSIC(CategoryGroup.KEY_MUSIC, R.string.suggested_users_section_music),
+        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.suggested_users_section_audio);
         public static final EnumSet<Section> ALL_EXCEPT_FACEBOOK = EnumSet.of(MUSIC, SPEECH_AND_SOUNDS);
         public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
 

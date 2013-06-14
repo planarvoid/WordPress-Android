@@ -51,17 +51,17 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         if (mCategory.isFollowed(FollowStatus.get().getFollowedUserIds())){
-            menu.findItem(R.id.select_all).setVisible(false);
+            menu.findItem(R.id.menu_select_all).setVisible(false);
         } else {
-            menu.findItem(R.id.deselect_all).setVisible(false);
+            menu.findItem(R.id.menu_deselect_all).setVisible(false);
         }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.select_all || item.getItemId() == R.id.deselect_all) {
-            mCategoryFragment.toggleFollowings(item.getItemId() == R.id.select_all);
+        if (item.getItemId() == R.id.menu_select_all || item.getItemId() == R.id.menu_deselect_all) {
+            mCategoryFragment.toggleFollowings(item.getItemId() == R.id.menu_select_all);
             invalidateOptionsMenu();
             return true;
         } else {

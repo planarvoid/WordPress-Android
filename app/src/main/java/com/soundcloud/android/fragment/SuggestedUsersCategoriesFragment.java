@@ -127,7 +127,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         protected void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
             error.printStackTrace();
             //TODO proper error message
-            AndroidUtils.showToast(fragment.getActivity(), R.string.error_get_genre_buckets);
+            AndroidUtils.showToast(fragment.getActivity(), R.string.suggested_users_error_get_genre_buckets);
         }
     }
 }

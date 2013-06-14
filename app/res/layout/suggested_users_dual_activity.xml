@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
               android:divider="?android:attr/listDivider"
               android:baselineAligned="false">
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                 android:id="@+id/categories_fragment_holder"
+    <FrameLayout android:id="@+id/categories_fragment_holder"
                  android:layout_weight="1"
                  android:layout_width="0dp"
-                 android:layout_height="fill_parent">
+                 android:layout_height="match_parent">
     </FrameLayout>
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                 android:id="@+id/users_fragment_holder"
+    <FrameLayout android:id="@+id/users_fragment_holder"
                  android:layout_weight="1"
                  android:layout_width="0dp"
-                 android:layout_height="fill_parent">
+                 android:layout_height="match_parent">
     </FrameLayout>
 </LinearLayout>
