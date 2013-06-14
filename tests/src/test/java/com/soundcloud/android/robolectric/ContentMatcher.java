@@ -11,12 +11,14 @@ import android.database.Cursor;
 public class ContentMatcher<T extends Content, M extends ContentMatcher<T, M>> extends BaseMatcher<T,M> {
 
     public boolean toHaveCount(int expected) {
-        Cursor c = Robolectric.application.getContentResolver().query(actual.uri, null, null, null, null);
-        expect(c).not.toBeNull();
-        if (c.getCount() != expected) {
-            failureMessage = actual + " to have count <" + expected + "> (is " +c.getCount()+")";
+        Cursor cursor = Robolectric.application.getContentResolver().query(actual.uri, null, null, null, null);
+        expect(cursor).not.toBeNull();
+        if (cursor.getCount() != expected) {
+            failureMessage = actual + " to have count <" + expected + "> (is " +cursor.getCount()+")";
+            cursor.close();
             return false;
         } else {
+            cursor.close();
             return true;
         }
     }
@@ -30,18 +32,20 @@ public class ContentMatcher<T extends Content, M extends ContentMatcher<T, M>> e
     }
 
     public boolean toHaveColumnAt(int position, String columnName, int columnValue) {
-        Cursor c = Robolectric.application.getContentResolver().query(actual.uri, null, null, null, null);
-        expect(c).not.toBeNull();
-        expect(c.moveToPosition(position)).toBeTrue();
-        expect(c).toHaveColumn(columnName, columnValue);
+        Cursor cursor = Robolectric.application.getContentResolver().query(actual.uri, null, null, null, null);
+        expect(cursor).not.toBeNull();
+        expect(cursor.moveToPosition(position)).toBeTrue();
+        expect(cursor).toHaveColumn(columnName, columnValue);
+        cursor.close();
         return true;
     }
 
     public boolean toHaveColumnAt(int position, String columnName, long columnValue) {
-        Cursor c = Robolectric.application.getContentResolver().query(actual.uri, null, null, null, null);
-        expect(c).not.toBeNull();
-        expect(c.moveToPosition(position)).toBeTrue();
-        expect(c).toHaveColumn(columnName, columnValue);
+        Cursor cursor = Robolectric.application.getContentResolver().query(actual.uri, null, null, null, null);
+        expect(cursor).not.toBeNull();
+        expect(cursor.moveToPosition(position)).toBeTrue();
+        expect(cursor).toHaveColumn(columnName, columnValue);
+        cursor.close();
         return true;
     }
 }
