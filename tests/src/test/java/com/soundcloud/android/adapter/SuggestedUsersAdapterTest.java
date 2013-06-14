@@ -163,19 +163,19 @@ public class SuggestedUsersAdapterTest {
     }
 
     private CategoryGroup facebook() throws CreateModelException {
-        return TestHelper.buildCategoryGroup(CategoryGroup.URN_FACEBOOK, 2);
+        return TestHelper.buildCategoryGroup(CategoryGroup.KEY_FACEBOOK, 2);
     }
 
     private CategoryGroup music() throws CreateModelException {
-        return TestHelper.buildCategoryGroup(CategoryGroup.URN_MUSIC, 3);
+        return TestHelper.buildCategoryGroup(CategoryGroup.KEY_MUSIC, 3);
     }
 
     private CategoryGroup audio() throws CreateModelException {
-        return TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 4);
+        return TestHelper.buildCategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS, 4);
     }
 
     private CategoryGroup emptyAudio() throws CreateModelException {
-        return TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 0);
+        return TestHelper.buildCategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS, 0);
     }
 
     private SuggestedUser buildUser(String name) {

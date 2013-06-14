@@ -26,8 +26,8 @@ public class OnboardingOperationsTest {
         //TODO: mock against the real SC API interface
         OnboardingOperations.FakeApi api = mock(OnboardingOperations.FakeApi.class);
         when(api.getCategoryGroups()).thenReturn(Lists.newArrayList(
-                TestHelper.buildCategoryGroup(CategoryGroup.URN_MUSIC, 1),
-                TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 1)));
+                TestHelper.buildCategoryGroup(CategoryGroup.KEY_MUSIC, 1),
+                TestHelper.buildCategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS, 1)));
         Observer<CategoryGroup> observer = mock(Observer.class);
 
         ops = new OnboardingOperations(api);

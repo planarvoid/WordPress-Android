@@ -33,12 +33,12 @@ public class OnboardingOperations extends ScheduledOperations {
             SuggestedUser dummyUser3 = new SuggestedUser();
             dummyUser3.setUsername("Forss");
 
-            CategoryGroup facebook = new CategoryGroup(CategoryGroup.URN_FACEBOOK);
+            CategoryGroup facebook = new CategoryGroup(CategoryGroup.KEY_FACEBOOK);
             buckets.add(facebook);
 
             CategoryGroup music = new CategoryGroup();
             music.setCategories(new ArrayList<Category>());
-            music.setUrn(CategoryGroup.URN_MUSIC);
+            music.setUrn(CategoryGroup.KEY_MUSIC);
 
             List<SuggestedUser> users = Lists.newArrayList(dummyUser1, dummyUser2, dummyUser3);
             Resources resources = SoundCloudApplication.instance.getResources();
@@ -57,7 +57,7 @@ public class OnboardingOperations extends ScheduledOperations {
 
             CategoryGroup audio = new CategoryGroup();
             audio.setCategories(new ArrayList<Category>());
-            audio.setUrn(CategoryGroup.URN_SPEECH_AND_SOUNDS);
+            audio.setUrn(CategoryGroup.KEY_SPEECH_AND_SOUNDS);
 
             final String[] audioGenreKeys = resources.getStringArray(R.array.audio_genre_keys);
             final String[] audioGenreNames = resources.getStringArray(R.array.audio_genre_names);
