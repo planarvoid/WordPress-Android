@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -11,6 +12,7 @@ import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
@@ -239,5 +241,26 @@ public class ScTextUtils {
         // string was not a multiple of eight bytes long.
         final int i = decoded.indexOf(0);
         return -1 == i ? decoded : decoded.substring(0, i);
+    }
+
+    public static abstract class TextValidator implements TextWatcher {
+        private TextView textView;
+
+        public TextValidator(TextView textView) {
+            this.textView = textView;
+        }
+
+        public abstract void validate(TextView textView, String text);
+
+        @Override
+        final public void afterTextChanged(Editable s) {
+            validate(textView, textView.getText().toString());
+        }
+
+        @Override
+        final public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* Don't care */ }
+
+        @Override
+        final public void onTextChanged(CharSequence s, int start, int before, int count) { /* Don't care */ }
     }
 }

@@ -113,4 +113,10 @@
 
     <dimen name="user_page_icon_size">67dp</dimen>
     <dimen name="playlist_page_icon_size">80dp</dimen>
+
+    <dimen name="signup_label_height">32dp</dimen><!-- ic_done_dark_sm drawable + padding -->
+    <dimen name="signup_label_padding">4dp</dimen>
+    <dimen name="signup_done_drawable_padding">7dp</dimen>
+    <dimen name="signup_done_drawable_width">24dp</dimen>
+
 </resources>

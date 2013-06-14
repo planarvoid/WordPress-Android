@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,10 +21,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.Set;
+
 public class SignUp extends AuthLayout {
     private static final String BUNDLE_EMAIL    = "BUNDLE_EMAIL";
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
-    private static final String BUNDLE_CONFIRM  = "BUNDLE_CONFIRM";
+    private Button mSignUpButton;
+
+    private int mSignupLabelPadding, mSignupLabelDrawablePadding, mSignupLabelDrawableWidth;
+    private boolean mEmailValid, mPasswordValid;
 
     public interface SignUpHandler extends AuthHandler {
         void onSignUp(String email, String password);
@@ -43,7 +49,7 @@ public class SignUp extends AuthLayout {
         super(context, attrs, defStyle);
     }
 
-    private static final int MIN_PASSWORD_LENGTH = 4;
+    private static final int MIN_PASSWORD_LENGTH = 6;
 
     @Nullable private SignUpHandler mSignUpHandler;
 
@@ -59,11 +65,30 @@ public class SignUp extends AuthLayout {
         final Context context = getContext();
         final SoundCloudApplication app = SoundCloudApplication.fromContext(context);
 
-        final AutoCompleteTextView emailField     = (AutoCompleteTextView)  findViewById(R.id.auto_txt_email_address);
-        final EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
-        final EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
-        final Button   signUpButton       = (Button)   findViewById(R.id.btn_signup);
+        final AutoCompleteTextView emailField = (AutoCompleteTextView)  findViewById(R.id.auto_txt_email_address);
+        final EditText passwordField = (EditText) findViewById(R.id.txt_choose_a_password);
         final Button   cancelButton       = (Button)   findViewById(R.id.btn_cancel);
+        mSignUpButton = (Button)   findViewById(R.id.btn_signup);
+        mSignupLabelPadding = (int) getResources().getDimension(R.dimen.signup_label_padding);
+        mSignupLabelDrawableWidth = (int) getResources().getDimension(R.dimen.signup_done_drawable_width);
+        mSignupLabelDrawablePadding = (int) getResources().getDimension(R.dimen.signup_done_drawable_padding);
+
+
+        emailField.addTextChangedListener(new InputValidator(emailField) {
+            @Override
+            boolean validate(String text) {
+                mEmailValid = ScTextUtils.isEmail(text);
+                return mEmailValid;
+            }
+        });
+
+        passwordField.addTextChangedListener(new InputValidator(passwordField) {
+            @Override
+            boolean validate(String text) {
+                mPasswordValid = text.length() >= 6;
+                return mPasswordValid;
+            }
+        });
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 getContext(), android.R.layout.simple_dropdown_item_1line, AndroidUtils.listEmails(getContext()));
@@ -83,7 +108,7 @@ public class SignUp extends AuthLayout {
             }
         });
 
-        repeatPasswordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean done = actionId == EditorInfo.IME_ACTION_DONE;
@@ -91,31 +116,27 @@ public class SignUp extends AuthLayout {
                 boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
 
                 if (done || pressedEnter && downAction) {
-                    return signUpButton.performClick();
+                    return mSignUpButton.performClick();
                 } else {
                     return false;
                 }
             }
         });
 
-        signUpButton.setOnClickListener(new View.OnClickListener() {
+        mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 app.track(Click.Signup_Signup_done);
 
-                if (emailField.getText().length() == 0 ||
-                        choosePasswordField.getText().length() == 0 ||
-                        repeatPasswordField.getText().length() == 0) {
+                if (emailField.getText().length() == 0 || passwordField.getText().length() == 0) {
                     AndroidUtils.showToast(context, R.string.authentication_error_incomplete_fields);
                 } else if (!ScTextUtils.isEmail(emailField.getText())) {
                     AndroidUtils.showToast(context, R.string.authentication_error_invalid_email);
-                } else if (!choosePasswordField.getText().toString().equals(repeatPasswordField.getText().toString())) {
-                    AndroidUtils.showToast(context, R.string.authentication_error_password_mismatch);
-                } else if (!checkPassword(choosePasswordField.getText())) {
+                } else if (!checkPassword(passwordField.getText())) {
                     AndroidUtils.showToast(context, R.string.authentication_error_password_too_short);
                 } else {
                     final String email = emailField.getText().toString();
-                    final String password = choosePasswordField.getText().toString();
+                    final String password = passwordField.getText().toString();
 
                     if (mSignUpHandler != null) {
                         mSignUpHandler.onSignUp(email, password);
@@ -133,8 +154,7 @@ public class SignUp extends AuthLayout {
 
                 InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(emailField.getWindowToken(), 0);
-                imm.hideSoftInputFromWindow(choosePasswordField.getWindowToken(), 0);
-                imm.hideSoftInputFromWindow(repeatPasswordField.getWindowToken(), 0);
+                imm.hideSoftInputFromWindow(passwordField.getWindowToken(), 0);
             }
         });
 
@@ -161,6 +181,12 @@ public class SignUp extends AuthLayout {
                         ;
                     }
                 }, false, false);
+
+        validateForm();
+    }
+
+    private void validateForm() {
+        mSignUpButton.setEnabled(mEmailValid && mPasswordValid);
     }
 
     static boolean checkPassword(CharSequence password) {
@@ -179,12 +205,10 @@ public class SignUp extends AuthLayout {
     public Bundle getStateBundle() {
         EditText emailField          = (EditText) findViewById(R.id.auto_txt_email_address);
         EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
-        EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
 
         Bundle bundle = new Bundle();
         bundle.putCharSequence(BUNDLE_EMAIL,    emailField.getText());
         bundle.putCharSequence(BUNDLE_PASSWORD, choosePasswordField.getText());
-        bundle.putCharSequence(BUNDLE_CONFIRM,  repeatPasswordField.getText());
         return bundle;
     }
 
@@ -193,10 +217,35 @@ public class SignUp extends AuthLayout {
 
         EditText emailField          = (EditText) findViewById(R.id.auto_txt_email_address);
         EditText choosePasswordField = (EditText) findViewById(R.id.txt_choose_a_password);
-        EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
 
         emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));
         choosePasswordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
-        repeatPasswordField.setText(bundle.getCharSequence(BUNDLE_CONFIRM));
+        validateForm();
+    }
+
+    private abstract class InputValidator extends ScTextUtils.TextValidator {
+        public InputValidator(TextView textView) {
+            super(textView);
+        }
+
+        abstract boolean validate(String text);
+
+        @Override
+        public void validate(TextView textView, String text) {
+            boolean valid = validate(text);
+            if (valid) {
+                textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_done_dark_sm, 0);
+                textView.setPadding(mSignupLabelPadding, mSignupLabelPadding, mSignupLabelPadding, mSignupLabelPadding);
+            } else {
+                textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+                // we want to fake the checkmark bounds so the textview doesn't change size when it appears
+                textView.setPadding(
+                        mSignupLabelPadding,
+                        mSignupLabelPadding,
+                        mSignupLabelPadding + mSignupLabelDrawablePadding + mSignupLabelDrawableWidth,
+                        mSignupLabelPadding);
+            }
+            validateForm();
+        }
     }
 }
