@@ -359,7 +359,9 @@
         <item name="android:inputType">textNoSuggestions|textEmailAddress</item>
     </style>
 
-    <style name="SignUp.PasswordEntry" parent="SignUp.TextEntry" />
+    <style name="SignUp.PasswordEntry" parent="SignUp.TextEntry">
+        <item name="android:inputType">textPassword</item>
+    </style>
 
     <style name="Player"/>
     <style name="Player.TrackInfo"/>
