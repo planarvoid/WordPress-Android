@@ -36,7 +36,7 @@
                           android:hint="@string/authentication_choose_a_password"
                           android:requiresFadingEdge="horizontal"
                           android:drawablePadding="@dimen/signup_done_drawable_padding"
-                          android:imeOptions="actionNext"/>
+                          android:imeOptions="actionDone"/>
             </TableRow>
         </TableLayout>
 
