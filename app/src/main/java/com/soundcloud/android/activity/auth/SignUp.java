@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,8 +19,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import java.util.Set;
 
 public class SignUp extends AuthLayout {
     private static final String BUNDLE_EMAIL    = "BUNDLE_EMAIL";
@@ -85,7 +82,7 @@ public class SignUp extends AuthLayout {
         passwordField.addTextChangedListener(new InputValidator(passwordField) {
             @Override
             boolean validate(String text) {
-                mPasswordValid = text.length() >= 6;
+                mPasswordValid = checkPassword(text);
                 return mPasswordValid;
             }
         });

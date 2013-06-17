@@ -63,11 +63,82 @@ public class ScTextUtilsTest {
     }
 
     @Test
-    public void testIsEmail() throws Exception {
-        expect(ScTextUtils.isEmail(null)).toBeFalse();
-        expect(ScTextUtils.isEmail("foo@bar.com")).toBeTrue();
-        expect(ScTextUtils.isEmail("Foo+special@bar.com")).toBeTrue();
+    public void shouldValidateEmailWithDot() {
+        expect(ScTextUtils.isEmail("test.domain@gmail.com")).toBeTrue();
+    }
+
+    @Test
+    public void shouldValidateEmailWithOneWord() {
+        expect(ScTextUtils.isEmail("test@gmail.com")).toBeTrue();
+    }
+
+    @Test
+    public void shouldValidateEmailWithOneLetterDomain() {
+        expect(ScTextUtils.isEmail("test@g.com")).toBeTrue();
+    }
+
+    @Test
+    public void shouldValidateEmailWithUppercaseLetters() {
+        expect(ScTextUtils.isEmail("TEST@GMAIL.COM")).toBeTrue();
+    }
+
+    @Test
+    public void shouldValidateEmailWithPlusSign() {
+        expect(ScTextUtils.isEmail("test+test@gmail.com")).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotBeValidForDotChar() {
+        expect(ScTextUtils.isEmail("test@gmail.c")).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeValidWithoutDomain() {
         expect(ScTextUtils.isEmail("foo@barcom")).toBeFalse();
-        expect(ScTextUtils.isEmail("foobar.com")).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeValidIfEmptyEmail() {
+        expect(ScTextUtils.isEmail("")).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeValidIfNull() {
+        expect(ScTextUtils.isEmail(null)).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeValidIfBlankEmail() {
+        expect(ScTextUtils.isEmail("     ")).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeValidWithSpecialCharacters() {
+        expect(ScTextUtils.isEmail("test*w@gmail.com")).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeValidWithTrailingDot() {
+        expect(ScTextUtils.isEmail(".@gmail.com")).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeValidWithMissplacedDot() {
+        expect(ScTextUtils.isEmail("test.@gmail.com")).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeValidWithMoreAtSymbols() {
+        expect(ScTextUtils.isEmail("email@address@example.com")).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeValidWithoutAtSymbol(){
+        expect(ScTextUtils.isEmail("emailaddressexample.com")).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeValidIfStartsWithDot() {
+        expect(ScTextUtils.isEmail(".email.address@example.com")).toBeFalse();
     }
 }
