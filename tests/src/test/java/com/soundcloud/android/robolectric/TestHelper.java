@@ -333,9 +333,9 @@ public class TestHelper {
         return bulkInsertToUserAssociations(resources, collectionUri, null, new Date(), null);
     }
 
-    public static CategoryGroup buildCategoryGroup(String uri, int categoryCount) throws CreateModelException {
+    public static CategoryGroup buildCategoryGroup(String key, int categoryCount) throws CreateModelException {
         CategoryGroup categoryGroup = new CategoryGroup();
-        categoryGroup.setUrn(uri);
+        categoryGroup.setKey(key);
         categoryGroup.setCategories(Collections.nCopies(categoryCount, getModelFactory().createModel(Category.class)));
         return categoryGroup;
     }

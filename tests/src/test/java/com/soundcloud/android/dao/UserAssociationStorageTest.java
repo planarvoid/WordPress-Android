@@ -124,6 +124,28 @@ public class UserAssociationStorageTest {
     }
 
     @Test
+    public void shouldBulkInsertFollowings() throws Exception {
+        final List<User> users = createUsers(3);
+        expect(storage.addFollowings(users)).toEqual(6); // 2 users, associations
+        expect(Content.ME_FOLLOWINGS).toHaveCount(3);
+        for (User user : users){
+            expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user.getId()).getLocalSyncState())
+                    .toBe(UserAssociation.LocalState.PENDING_ADDITION);
+        }
+    }
+
+    @Test
+    public void shouldBulkMarkFollowingsForRemoval() throws Exception {
+        final List<User> users = createUsers(3);
+        expect(storage.removeFollowings(users)).toEqual(6); // 2 users, associations
+        expect(Content.ME_FOLLOWINGS).toHaveCount(3);
+        for (User user : users){
+            expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user.getId()).getLocalSyncState())
+                    .toBe(UserAssociation.LocalState.PENDING_REMOVAL);
+        }
+    }
+
+    @Test
     public void shouldGetLocalIds() throws Exception {
         TestHelper.bulkInsertDummyIdsToUserAssociations(Content.ME_FOLLOWERS.uri, 107, USER_ID);
         List<Long> localIds = storage.getStoredIds(Content.ME_FOLLOWERS.uri);

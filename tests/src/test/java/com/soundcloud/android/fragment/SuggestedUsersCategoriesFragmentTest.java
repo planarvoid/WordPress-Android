@@ -6,7 +6,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.soundcloud.android.adapter.SuggestedUsersAdapter;
+import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
+import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -16,24 +17,27 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import rx.Observable;
 
 import android.view.View;
 import android.widget.ListView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SuggestedUsersFragmentTest {
+public class SuggestedUsersCategoriesFragmentTest {
 
-    private SuggestedUsersFragment fragment;
-    private SuggestedUsersAdapter adapter;
+    private SuggestedUsersCategoriesFragment fragment;
+    private SuggestedUsersCategoriesAdapter adapter;
+    @Mock
+    private FollowStatus followStatus;
 
     @Before
     public void setup() throws CreateModelException {
         OnboardingOperations operations = mock(OnboardingOperations.class);
         when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
 
-        adapter = new SuggestedUsersAdapter();
-        fragment = spy(new SuggestedUsersFragment(operations, adapter));
+        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followStatus);
+        fragment = spy(new SuggestedUsersCategoriesFragment(operations, adapter));
 
         SherlockFragmentActivity fragmentActivity = new SherlockFragmentActivity();
         when(fragment.getLayoutInflater(null)).thenReturn(fragmentActivity.getLayoutInflater());
@@ -48,11 +52,11 @@ public class SuggestedUsersFragmentTest {
     }
 
     private CategoryGroup music() throws CreateModelException {
-        return TestHelper.buildCategoryGroup(CategoryGroup.URN_MUSIC, 3);
+        return TestHelper.buildCategoryGroup(CategoryGroup.KEY_MUSIC, 3);
     }
 
     private CategoryGroup audio() throws CreateModelException {
-        return TestHelper.buildCategoryGroup(CategoryGroup.URN_SPEECH_AND_SOUNDS, 4);
+        return TestHelper.buildCategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS, 4);
     }
 
 }

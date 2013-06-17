@@ -19,6 +19,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -84,13 +85,25 @@ public class UserAssociationStorage {
     public UserAssociation addFollowing(User user, @Nullable String token) {
         UserAssociation following = queryFollowingByTargetUserId(user.getId());
         if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL){
-            following = new UserAssociation(UserAssociation.Type.FOLLOWING, user);
-            following.markForAddition(token);
-            user.addAFollower();
+            following = new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition(token);
             mFollowingsDAO.create(following);
 
         }
         return following;
+    }
+
+    /**
+     * Add the users passed in as followings. This will not take into account the current status of the logged in
+     * user's association, but will just create or update the current status
+     * @param users The users to be followed
+     * @return the number of insertions/updates performed
+     */
+    public int addFollowings(List<User> users) {
+        List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
+        for (User user : users) {
+            userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
+        }
+        return mFollowingsDAO.createCollection(userAssociations);
     }
 
     /**
@@ -101,13 +114,26 @@ public class UserAssociationStorage {
      * @return
      */
     public UserAssociation removeFollowing(User user) {
-        final UserAssociation following = new UserAssociation(SoundAssociation.Type.FOLLOWING, user);
-        following.markForRemoval();
-        if (mUserAssociationDAO.update(following) && user.removeAFollower()) {
+        final UserAssociation following = new UserAssociation(SoundAssociation.Type.FOLLOWING, user).markForRemoval();
+        if (mUserAssociationDAO.update(following)) {
             new UserDAO(mResolver).update(user);
             return following;
         }
         return null;
+    }
+
+    /**
+     * Create or update user associations of type FOLLOWING as marked for removal. This will ignore any current user
+     * associations and do a bulk insert.
+     * @param users the users to mark for removal
+     * @return the number of insertions/updates performed
+     */
+    public int removeFollowings(List<User> users) {
+        List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
+        for (User user : users) {
+            userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForRemoval());
+        }
+        return mFollowingsDAO.createCollection(userAssociations);
     }
 
     @Deprecated

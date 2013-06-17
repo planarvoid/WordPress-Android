@@ -1,7 +1,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.UserlistRow;

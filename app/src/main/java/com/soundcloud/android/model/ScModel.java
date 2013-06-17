@@ -26,10 +26,11 @@ public class ScModel implements Parcelable, Identifiable {
     }
 
     public ScModel(String urn) {
-        this.mURN = ClientUri.fromUri(urn);
-        if (mURN != null) {
-            this.mID = mURN.numericId;
-        }
+        this(ClientUri.fromUri(urn));
+    }
+
+    public ScModel(ClientUri urn) {
+        setUrn(urn);
     }
 
     public ScModel(Parcel parcel) {
@@ -52,9 +53,7 @@ public class ScModel implements Parcelable, Identifiable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        if (mURN != null) {
-            dest.writeString(mURN.toString());
-        }
+        dest.writeString(mURN != null ? mURN.toString() : null);
     }
 
     protected static int getIntOrNotSet(Cursor c, String column) {
@@ -85,7 +84,15 @@ public class ScModel implements Parcelable, Identifiable {
 
     @JsonProperty
     public void setUrn(String urn) {
-        this.mURN = ClientUri.fromUri(urn);
+        setUrn(ClientUri.fromUri(urn));
+    }
+
+    @JsonIgnore
+    public void setUrn(ClientUri urn) {
+        this.mURN = urn;
+        if (mURN != null) {
+            this.mID = mURN.numericId;
+        }
     }
 
     private long idFromUrn() {

@@ -1,10 +1,9 @@
-package com.soundcloud.android.cache;
+package com.soundcloud.android.operations.following;
 
+import com.google.common.collect.ImmutableSet;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ResolverHelper;
-import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -14,9 +13,11 @@ import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.database.Cursor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -92,52 +93,36 @@ public class FollowStatus {
         }
     }
 
+    public Set<Long> getFollowedUserIds() {
+        return ImmutableSet.copyOf(followings);
+    }
+
+    public boolean isEmpty() {
+        return followings.isEmpty();
+    }
+
     private void doQuery(){
         asyncQueryHandler = new FollowingQueryHandler(mContext);
         asyncQueryHandler.startQuery(0, null, ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWINGS.uri),
                 null, DBHelper.UserAssociations.REMOVED_AT + " IS NULL", null, null);
     }
 
+    /* package */ void toggleFollowing(User... users) {
 
-    public void toggleFollowing(final User user) {
-        boolean isFollowing;
         synchronized (followings) {
-            if (followings.contains(user.getId())) {
-                followings.remove(user.getId());
-                isFollowing = false;
-            } else {
-                followings.add(user.getId());
-                isFollowing = true;
+            for (User user : users) {
+                if (followings.contains(user.getId())) {
+                    followings.remove(user.getId());
+                } else {
+                    followings.add(user.getId());
+                }
             }
-        }
-
-        if (isFollowing) {
-            new UserAssociationStorage().addFollowing(user);
-        } else {
-            new UserAssociationStorage().removeFollowing(user);
-        }
-
-        // make sure the cache reflects the new state
-        SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.NONE).user_following = isFollowing;
-
-        // first follower, set the stream to stale so next time the users goes there it will sync
-        if (followings.isEmpty() && isFollowing) {
-            mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM);
         }
 
         for (Listener l : listeners.keySet()) {
             l.onFollowChanged();
         }
     }
-
-  /* package */ void updateFollowing(long userId, boolean follow) {
-        if (follow) {
-            followings.add(userId);
-        } else {
-            followings.remove(userId);
-        }
-    }
-
 
     public interface Listener {
         void onFollowChanged();
