@@ -2,7 +2,7 @@ package com.soundcloud.android.task.auth;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.dialog.auth.AuthTaskFragment;

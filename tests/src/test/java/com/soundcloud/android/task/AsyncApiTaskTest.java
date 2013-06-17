@@ -3,7 +3,7 @@ package com.soundcloud.android.task;
 import static com.soundcloud.android.Expect.expect;
 
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.IOUtils;
 import org.junit.Test;

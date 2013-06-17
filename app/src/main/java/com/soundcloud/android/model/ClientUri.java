@@ -1,6 +1,6 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.api.http.HttpProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.images.ImageSize;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +25,7 @@ public class ClientUri {
     public @NotNull final String type;
     public @NotNull final String id;
     public final long numericId;
+    private HttpProperties httpProperties;
 
     public ClientUri(String uri) {
         this(Uri.parse(uri));
@@ -49,6 +50,7 @@ public class ClientUri {
             throw new IllegalArgumentException("invalid uri: "+uri);
         }
         this.uri = uri;
+        httpProperties = new HttpProperties();
     }
 
     private static String fixType(String type){
@@ -81,7 +83,7 @@ public class ClientUri {
 
     private Uri.Builder getResolveBuilder() {
         return Uri.parse("https://api.soundcloud.com/resolve/image").buildUpon().appendQueryParameter("url", toString())
-                .appendQueryParameter("client_id", Wrapper.CLIENT_ID);
+                .appendQueryParameter("client_id", httpProperties.getClientId());
     }
 
     public static @Nullable ClientUri fromUri(@NotNull String uri) {

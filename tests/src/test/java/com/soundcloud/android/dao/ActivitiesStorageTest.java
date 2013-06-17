@@ -1,7 +1,7 @@
 package com.soundcloud.android.dao;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.api.Wrapper.CloudDateFormat.toTime;
+import static com.soundcloud.android.api.http.Wrapper.CloudDateFormat.toTime;
 
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.act.Activities;

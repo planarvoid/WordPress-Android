@@ -1,4 +1,4 @@
-package com.soundcloud.android.api;
+package com.soundcloud.android.api.http;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.never;

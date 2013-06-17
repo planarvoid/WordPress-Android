@@ -1,54 +1,49 @@
 package com.soundcloud.android.api;
 
 
-import static com.soundcloud.android.api.WebServices.APIRequestException;
-import static com.soundcloud.android.api.WebServices.APIRequestException.APIErrorReason;
+import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilder;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.http.RxHttpClient;
+import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.content.Context;
 
-import java.util.Collection;
+import java.util.List;
 
 
 public class SuggestedUsersOperations extends ScheduledOperations {
 
-    private WebServices webServices;
+    private RxHttpClient mRxHttpClient;
 
     public SuggestedUsersOperations(Context context){
-        this(new WebServices(context));
+        this(new SoundCloudRxHttpClient(context));
     }
 
     @VisibleForTesting
-    protected SuggestedUsersOperations(WebServices webServices) {
-        this.webServices = webServices;
+    protected SuggestedUsersOperations(RxHttpClient rxHttpClient) {
+        this.mRxHttpClient = rxHttpClient;
     }
 
-    public Observable<CategoryGroup> getCategories(){
-        return Observable.create(new Func1<Observer<CategoryGroup>, Subscription>() {
-            @Override
-            public Subscription call(Observer<CategoryGroup> categoriesObserver) {
-                APIResponse response = webServices.get(WebServiceEndPoint.SUGGESTED_CATEGORIES);
-                Collection<CategoryGroup> categories = response.getCollection();
+    public Observable<CategoryGroup> getAudioSuggestions(){
+        APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_GENRE_AUDIO_CATEGORIES.path())
+                .forVersion(1)
+                .forPrivateAPI()
+                .forResource(new TypeToken<List<CategoryGroup>>() {}).build();
+        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request));
+    }
 
-                if(categories.isEmpty()){
-                    categoriesObserver.onError(new APIRequestException(APIErrorReason.BAD_RESPONSE));
-                } else {
-                    for(CategoryGroup categoryGroup : categories){
-                        categoriesObserver.onNext(categoryGroup);
-                    }
-                    categoriesObserver.onCompleted();
-                }
-                return Subscriptions.empty();
-            }
-        });
+    public Observable<CategoryGroup> getFacebookSuggestions(){
+        APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_FACEBOOK_CATEGORIES.path())
+                .forVersion(1)
+                .forPrivateAPI()
+                .forResource(new TypeToken<List<CategoryGroup>>() {}).build();
+        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request));
     }
 
 }
