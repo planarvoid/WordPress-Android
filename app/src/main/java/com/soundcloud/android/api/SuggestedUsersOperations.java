@@ -31,7 +31,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     }
 
     public Observable<CategoryGroup> getAudioSuggestions(){
-        APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_GENRE_AUDIO_CATEGORIES.path())
+        APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_CATEGORIES.path())
                 .forVersion(1)
                 .forPrivateAPI()
                 .forResource(new TypeToken<List<CategoryGroup>>() {}).build();
@@ -39,7 +39,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions(){
-        APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_FACEBOOK_CATEGORIES.path())
+        APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
                 .forVersion(1)
                 .forPrivateAPI()
                 .forResource(new TypeToken<List<CategoryGroup>>() {}).build();
