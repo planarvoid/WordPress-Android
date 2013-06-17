@@ -25,22 +25,12 @@ public class OnboardingOperations extends ScheduledOperations {
     static class FakeApi {
         public List<CategoryGroup> getCategoryGroups() {
             List<CategoryGroup> buckets = Lists.newArrayList();
-            // bunch of dummy objects for now, will do the API call later
-            SuggestedUser dummyUser1 = new SuggestedUser();
-            dummyUser1.setUsername("Skrillex");
-            SuggestedUser dummyUser2 = new SuggestedUser();
-            dummyUser2.setUsername("Justin Bieber");
-            SuggestedUser dummyUser3 = new SuggestedUser();
-            dummyUser3.setUsername("Forss");
-
             CategoryGroup facebook = new CategoryGroup(CategoryGroup.KEY_FACEBOOK);
             buckets.add(facebook);
 
-            CategoryGroup music = new CategoryGroup();
+            CategoryGroup music = new CategoryGroup(CategoryGroup.KEY_MUSIC);
             music.setCategories(new ArrayList<Category>());
-            music.setUrn(CategoryGroup.KEY_MUSIC);
 
-            List<SuggestedUser> users = Lists.newArrayList(dummyUser1, dummyUser2, dummyUser3);
             Resources resources = SoundCloudApplication.instance.getResources();
             final String[] musicGenreKeys = resources.getStringArray(R.array.music_genre_keys);
             final String[] musicGenreNames = resources.getStringArray(R.array.music_genre_names);
@@ -49,15 +39,15 @@ public class OnboardingOperations extends ScheduledOperations {
                 Category genre = new Category();
                 genre.setName(musicGenreNames[i]);
                 genre.setPermalink(musicGenreKeys[i]);
-                genre.setUsers(users);
+                genre.setUsers(getUsers(musicGenreKeys[i], 12));
                 music.getCategories().add(genre);
+                SystemClock.sleep(50);
             }
             buckets.add(music);
 
 
-            CategoryGroup audio = new CategoryGroup();
+            CategoryGroup audio = new CategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS);
             audio.setCategories(new ArrayList<Category>());
-            audio.setUrn(CategoryGroup.KEY_SPEECH_AND_SOUNDS);
 
             final String[] audioGenreKeys = resources.getStringArray(R.array.audio_genre_keys);
             final String[] audioGenreNames = resources.getStringArray(R.array.audio_genre_names);
@@ -66,11 +56,25 @@ public class OnboardingOperations extends ScheduledOperations {
                 Category genre = new Category();
                 genre.setName(audioGenreNames[i]);
                 genre.setPermalink(audioGenreKeys[i]);
-                genre.setUsers(users);
+                genre.setUsers(getUsers(audioGenreKeys[i], 9));
                 audio.getCategories().add(genre);
+                SystemClock.sleep(50);
             }
             buckets.add(audio);
             return buckets;
+        }
+
+        private List<SuggestedUser> getUsers(String prefix, int count) {
+            List<SuggestedUser> users = new ArrayList<SuggestedUser>(count);
+            for (int i = 0; i < count; i++) {
+                final long l = System.currentTimeMillis() + i;
+                SuggestedUser user = new SuggestedUser("soundcloud:users:" + l);
+                user.setUsername("u_" + prefix + "_" + i);
+                user.setCity("Tokyo");
+                user.setCountry("Japan");
+                users.add(user);
+            }
+            return users;
         }
     }
 
@@ -96,7 +100,7 @@ public class OnboardingOperations extends ScheduledOperations {
 
                 for (CategoryGroup bucket : buckets) {
                     Log.d(OnboardingOperations.this, "observable: onNext " + bucket);
-                    SystemClock.sleep(1000);
+                    SystemClock.sleep(100);
                     observer.onNext(bucket);
                 }
 

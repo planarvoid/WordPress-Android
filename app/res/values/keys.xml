@@ -2,9 +2,6 @@
     <string name="hockey_app_id">31bb3a437ee0cd325e994283fb8e7da3</string>
     <!-- api keys -->
 
-    <!-- new credential for 2.2.10 -->
-    <string name='client_id'>40ccfee680a844780a41fbe23ea89934</string>
-
     <!-- http://soundcloud.com/apps/android -->
     <string name='app_id'>3152</string>
 

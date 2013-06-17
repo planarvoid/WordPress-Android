@@ -15,6 +15,7 @@ import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.NotNull;
@@ -44,8 +45,8 @@ public class User extends ScResource implements UserHolder {
     @Nullable @JsonView(Views.Mini.class) public String permalink_url;
     @Nullable public String full_name;
     @Nullable public String description;
-    @Nullable public String city;
-    @Nullable public String country;
+    @Nullable private String city;
+    @Nullable private String country;
 
     @Nullable public String plan;      // free|lite|solo|pro|pro plus
 
@@ -75,6 +76,17 @@ public class User extends ScResource implements UserHolder {
 
     public User(long id) {
         super(id);
+    }
+
+    public User(String urn) {
+        super(urn);
+    }
+
+    public User(SuggestedUser suggestedUser){
+        setUrn(suggestedUser.getUrn());
+        setUsername(suggestedUser.getUsername());
+        setCity(suggestedUser.getCity());
+        setCountry(suggestedUser.getCountry());
     }
 
     public User(Parcel in) {
@@ -227,18 +239,6 @@ public class User extends ScResource implements UserHolder {
         this.username = username;
     }
 
-    public String getLocation() {
-        if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
-            return city + ", " + country;
-        } else if (!TextUtils.isEmpty(city)) {
-            return city;
-        } else if (!TextUtils.isEmpty(country)) {
-            return country;
-        } else {
-            return "";
-        }
-    }
-
     public String getPermalink(){
         return permalink;
     }
@@ -297,6 +297,28 @@ public class User extends ScResource implements UserHolder {
     @Override
     public User getUser() {
         return this;
+    }
+
+    @Nullable
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(@Nullable String city) {
+        this.city = city;
+    }
+
+    @Nullable
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(@Nullable String country) {
+        this.country = country;
+    }
+
+    public String getLocation() {
+        return ScTextUtils.getLocation(city, country);
     }
 
     public static interface DataKeys {

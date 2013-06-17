@@ -7,7 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
-import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.record.SoundRecorder;

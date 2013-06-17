@@ -16,7 +16,7 @@ public class UserBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new User(runningId++);
+            return new User("soundcloud:users:" + runningId++);
         }
     };
 

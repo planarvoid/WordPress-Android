@@ -1,6 +1,10 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+
 import android.os.Parcel;
+import android.os.Parcelable;
 
 @Model
 public class SuggestedUser extends ScModel {
@@ -51,5 +55,32 @@ public class SuggestedUser extends ScModel {
         dest.writeString(mUsername);
         dest.writeString(mCity);
         dest.writeString(mCountry);
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public SuggestedUser createFromParcel(Parcel in) {
+            return new SuggestedUser(in);
+        }
+
+        public SuggestedUser[] newArray(int size) {
+            return new SuggestedUser[size];
+        }
+    };
+
+    @Override
+    public String toString() {
+        return "SuggestedUser{" +
+                "mUsername='" + mUsername + '\'' +
+                ", mCity='" + mCity + '\'' +
+                ", mCountry='" + mCountry + '\'' +
+                '}';
+    }
+
+    public String getAvatarUrl() {
+        return ClientUri.fromUri("soundcloud:users:30511050").imageUri(ImageSize.T500).toString();
+    }
+
+    public String getLocation() {
+        return ScTextUtils.getLocation(mCity, mCountry);
     }
 }

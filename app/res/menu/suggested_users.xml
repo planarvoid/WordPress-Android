@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_backToSet"
+          android:icon="@drawable/ic_action_current_set"
+          android:showAsAction="always"
+          android:title="@string/accessibility_action_bar_set"/>
+    <item android:id="@+id/done"
+          android:icon="@drawable/ic_action_finish_white"
+          android:showAsAction="always|withText"
+          android:title="@string/btn_done"/>
+</menu>
