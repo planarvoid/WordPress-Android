@@ -5,7 +5,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     <RelativeLayout android:layout_width="match_parent"
-                    android:padding="1dp"
+                    android:id="@+id/suggested_user_layout"
+                    android:layout_margin="7dp"
+                    android:padding="@dimen/onboarding_suggested_user_item_padding"
                     android:layout_height="@dimen/onboarding_suggested_user_item_height">
 
         <ImageView android:id="@+id/suggested_user_image"

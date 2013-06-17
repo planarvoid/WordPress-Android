@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -11,6 +12,8 @@ import android.widget.FrameLayout;
 public class SuggestedUserItemLayout extends FrameLayout implements Checkable {
     private boolean mChecked;
     private CompoundButton mFollowButton;
+    private View mSuggestedUserLayout;
+    private int mLayoutPadding;
 
     public SuggestedUserItemLayout(Context context) {
         super(context);
@@ -26,16 +29,19 @@ public class SuggestedUserItemLayout extends FrameLayout implements Checkable {
         mFollowButton = ((CompoundButton) findViewById(R.id.toggle_btn_follow));
         mFollowButton.setClickable(false);
         mFollowButton.setDuplicateParentStateEnabled(false);
+        mSuggestedUserLayout = findViewById(R.id.suggested_user_layout);
+        mLayoutPadding = (int) getResources().getDimension(R.dimen.onboarding_suggested_user_item_padding);
     }
 
     @Override
     public void setChecked(boolean checked) {
         mFollowButton.setChecked(checked);
         if (checked){
-            setBackgroundResource(R.drawable.suggested_user_grid_item_checked_selector);
+            mSuggestedUserLayout.setBackgroundResource(R.drawable.suggested_user_grid_item_checked_selector);
         } else {
-            setBackgroundResource(R.drawable.suggested_user_grid_item_selector);
+            mSuggestedUserLayout.setBackgroundResource(R.drawable.suggested_user_grid_item_selector);
         }
+        mSuggestedUserLayout.setPadding(mLayoutPadding, mLayoutPadding, mLayoutPadding, mLayoutPadding);
     }
 
     @Override
