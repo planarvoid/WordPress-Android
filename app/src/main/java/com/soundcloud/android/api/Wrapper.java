@@ -62,6 +62,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
+
+    public static final String CLIENT_ID = "40ccfee680a844780a41fbe23ea89934";
     /**
      * the parameter which we use to tell the API that this is a non-interactive request (e.g. background syncing.
      */
@@ -86,7 +88,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Deprecated
     public Wrapper(Context context) {
-        this(context, buildObjectMapper(), context.getString(R.string.client_id), getClientSecret(true),
+        this(context, buildObjectMapper(), CLIENT_ID, getClientSecret(true),
                 ANDROID_REDIRECT_URI, new AccountOperations(context));
     }
 
