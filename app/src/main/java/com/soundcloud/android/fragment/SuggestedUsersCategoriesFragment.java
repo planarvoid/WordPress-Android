@@ -3,8 +3,9 @@ package com.soundcloud.android.fragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
-import com.soundcloud.android.fragment.listeners.SuggestedUsersFragmentListener;
+import com.soundcloud.android.model.Category;
 import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.rx.android.RxFragmentCompletionHandler;
 import com.soundcloud.android.rx.android.RxFragmentErrorHandler;
@@ -13,15 +14,13 @@ import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Subscription;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
-import java.lang.ref.WeakReference;
 
 public class SuggestedUsersCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
@@ -32,7 +31,6 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private SuggestedUsersCategoriesAdapter mAdapter;
     private OnboardingOperations mOnboardingOps;
     private Subscription mSubscription;
-    private WeakReference<SuggestedUsersFragmentListener> mListenerRef;
 
     public SuggestedUsersCategoriesFragment() {
         this(new OnboardingOperations().<OnboardingOperations>scheduleFromActivity(), new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
@@ -42,16 +40,6 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     protected SuggestedUsersCategoriesFragment(OnboardingOperations onboardingOps, SuggestedUsersCategoriesAdapter adapter) {
         mOnboardingOps = onboardingOps;
         mAdapter = adapter;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListenerRef = new WeakReference<SuggestedUsersFragmentListener>((SuggestedUsersFragmentListener) activity);
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement SuggestedUsersFragmentListener");
-        }
     }
 
     @Override
@@ -92,10 +80,9 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final SuggestedUsersFragmentListener listener = mListenerRef.get();
-        if (listener != null){
-            listener.onCategorySelected(mAdapter.getItem(position - getListView().getHeaderViewsCount()));
-        }
+        final Intent intent = new Intent(getActivity(), SuggestedUsersCategoryActivity.class);
+        intent.putExtra(Category.EXTRA, mAdapter.getItem(position - getListView().getHeaderViewsCount()));
+        startActivity(intent);
     }
 
     @VisibleForTesting

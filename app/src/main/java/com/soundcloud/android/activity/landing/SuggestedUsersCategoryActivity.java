@@ -21,7 +21,7 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
 
-        if (getResources().getBoolean(R.bool.has_two_panels) || !getIntent().hasExtra(Category.EXTRA)) {
+        if (!getIntent().hasExtra(Category.EXTRA)) {
             finish();
         } else {
             mCategory = getIntent().getParcelableExtra(Category.EXTRA);
