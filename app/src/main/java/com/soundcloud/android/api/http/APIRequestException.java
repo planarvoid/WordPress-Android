@@ -12,8 +12,8 @@ import java.io.IOException;
 
 public class APIRequestException extends RuntimeException {
 
-    private APIResponse response;
-    private APIRequest request;
+    private APIResponse mResponse;
+    private APIRequest mRequest;
 
     private APIErrorReason errorReason;
 
@@ -54,15 +54,15 @@ public class APIRequestException extends RuntimeException {
     private APIRequestException(APIErrorReason errorReason, APIRequest request, APIResponse response, Exception e) {
         super(e);
         this.errorReason = errorReason;
-        this.request = request;
-        this.response = response;
+        this.mRequest = request;
+        this.mResponse = response;
     }
 
     private APIRequestException(APIErrorReason errorReason, APIRequest request, APIResponse response, String msg) {
         super(msg);
         this.errorReason = errorReason;
-        this.request = request;
-        this.response = response;
+        this.mRequest = request;
+        this.mResponse = response;
     }
 
     public APIErrorReason reason() {
@@ -74,7 +74,7 @@ public class APIRequestException extends RuntimeException {
         return Objects.toStringHelper(this).omitNullValues()
                 .add("errorReason", errorReason)
                 .add("exceptionMessage", getMessage())
-                .add("request", request)
-                .add("response", response).toString();
+                .add("mRequest", mRequest)
+                .add("mResponse", mResponse).toString();
     }
 }

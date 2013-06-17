@@ -14,11 +14,11 @@ import android.net.Uri;
 
 public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceType>{
 
-    private Uri mUri;
-    private String mHttpMethod;
-    private int mEndpointVersion;
-    private TypeToken<ResourceType> resourceType;
-    private Boolean mIsPrivate;
+    private final Uri mUri;
+    private final String mHttpMethod;
+    private final int mEndpointVersion;
+    private final TypeToken<ResourceType> resourceType;
+    private final Boolean mIsPrivate;
 
     private SoundCloudAPIRequest(Uri uri, String method, int endpointVersion, TypeToken<ResourceType> typeToken,
                                  Boolean isPrivate) {
@@ -56,8 +56,8 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
 
 
     public static class RequestBuilder<ResourceType> {
-        private String uriPath;
-        private String mHttpMethod;
+        private final String uriPath;
+        private final String mHttpMethod;
         private int mEndpointVersion;
         private TypeToken<ResourceType> mResourceType;
         private Boolean mIsPrivate;

@@ -34,8 +34,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_GENRE_AUDIO_CATEGORIES.path())
                 .forVersion(1)
                 .forPrivateAPI()
-                .forResource(new TypeToken<List<CategoryGroup>>() {
-                }).build();
+                .forResource(new TypeToken<List<CategoryGroup>>() {}).build();
         return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request));
     }
 
