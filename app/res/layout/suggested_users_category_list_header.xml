@@ -10,12 +10,12 @@
     <TextView android:id="@+id/suggested_users_titletext"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:text="@string/onboarding_genres_large_title"
+              android:text="@string/suggested_users_genres_large_title"
               android:textStyle="bold"/>
     <TextView android:id="@+id/suggested_users_subtitletext"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:textColor="@drawable/txt_list_secondary_states"
-              android:text="@string/onboarding_genres_sub_title"/>
+              android:text="@string/suggested_users_genres_sub_title"/>
 
 </LinearLayout>

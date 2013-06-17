@@ -268,7 +268,7 @@ public class ActionBarController {
             if (menuResourceId > 0) mOwner.getSupportMenuInflater().inflate(menuResourceId, menu);
         }
 
-        final MenuItem backToSetItem = menu.findItem(R.id.backToSet);
+        final MenuItem backToSetItem = menu.findItem(R.id.menu_backToSet);
         if (backToSetItem != null) {
             boolean visible = false;
             if ((mOwner.getActivity() instanceof ScPlayer)) {
@@ -283,11 +283,11 @@ public class ActionBarController {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.enter_search:
+            case R.id.menu_enter_search:
                 toggleSearch();
                 return true;
 
-            case R.id.close_search:
+            case R.id.menu_close_search:
                 if (TextUtils.isEmpty(getSearchView().getQuery())) {
                     toggleSearch();
                 } else {
@@ -295,7 +295,7 @@ public class ActionBarController {
                 }
                 return true;
 
-            case R.id.backToSet:
+            case R.id.menu_backToSet:
                 final Intent intent = new Intent(mOwner.getActivity(), PlaylistActivity.class);
                 intent.putExtra(PlaylistActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
                 final Uri uri = CloudPlaybackService.getUri();

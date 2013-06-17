@@ -1,6 +1,8 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.api.Wrapper;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.images.ImageSize;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,11 +72,16 @@ public class ClientUri {
     }
 
     public Uri imageUri() {
-        return Uri.parse("https://api.soundcloud.com/resolve/image")
-                .buildUpon()
-                .appendQueryParameter("url", toString())
-                .appendQueryParameter("client_id", "40ccfee680a844780a41fbe23ea89934")
-                .build();
+        return getResolveBuilder().build();
+    }
+
+    public Uri imageUri(@NotNull ImageSize size) {
+        return getResolveBuilder().appendQueryParameter("size", size.key).build();
+    }
+
+    private Uri.Builder getResolveBuilder() {
+        return Uri.parse("https://api.soundcloud.com/resolve/image").buildUpon().appendQueryParameter("url", toString())
+                .appendQueryParameter("client_id", Wrapper.CLIENT_ID);
     }
 
     public static @Nullable ClientUri fromUri(@NotNull String uri) {

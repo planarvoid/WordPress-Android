@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.utils.images.ImageSize;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -68,6 +69,20 @@ public class ClientUriTest {
     @Test
     public void shouldBuildCorrectUriForUsers() {
         expect(ClientUri.forUser(1).toString()).toEqual("soundcloud:users:1");
+    }
+
+    @Test
+    public void shouldBuildCorrectImageResolveUri() {
+        expect(new ClientUri("soundcloud:sounds:123").imageUri())
+                .toEqual("https://api.soundcloud.com/resolve/image?url=soundcloud%3Asounds%3A123&client_id=40ccfee680a844780a41fbe23ea89934");
+
+    }
+
+    @Test
+    public void shouldBuildCorrectImageResolveUriWithImageSizeT500() {
+        expect(new ClientUri("soundcloud:sounds:123").imageUri(ImageSize.T500))
+                .toEqual("https://api.soundcloud.com/resolve/image?url=soundcloud%3Asounds%3A123&client_id=40ccfee680a844780a41fbe23ea89934&size=t500x500");
+
     }
 
 }

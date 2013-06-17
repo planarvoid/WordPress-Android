@@ -119,4 +119,5 @@
     <dimen name="signup_done_drawable_padding">7dp</dimen>
     <dimen name="signup_done_drawable_width">24dp</dimen>
 
+    <dimen name="onboarding_suggested_user_item_height">200dp</dimen>
 </resources>

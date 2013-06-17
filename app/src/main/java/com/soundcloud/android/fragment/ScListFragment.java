@@ -20,7 +20,7 @@ import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.adapter.UserAssociationAdapter;
-import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
