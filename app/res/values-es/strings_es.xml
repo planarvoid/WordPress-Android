@@ -19,7 +19,7 @@
   <string name="authentication_error_no_connection_message">Por favor, verifique la configuración de red.</string>
   <string name="authentication_error_no_connection_title">¿Está seguro de que está conectado a Internet?</string>
   <string name="authentication_error_password_mismatch">Por favor, compruebe que ambas contraseñas coinciden.</string>
-  <string name="authentication_error_password_too_short">Su contraseña debe tener 4 o más caracteres.</string>
+  <string name="authentication_error_password_too_short">Su contraseña debe tener 6 o más caracteres.</string>
   <string name="authentication_error_title">¡Lo sentimos!</string>
   <string name="authentication_log_in">Iniciar sesión</string>
   <string name="authentication_log_in_with_facebook_two_lines">&lt;small&gt;Iniciar sesión con&lt;/small&gt; &lt;br&gt;Facebook</string>
