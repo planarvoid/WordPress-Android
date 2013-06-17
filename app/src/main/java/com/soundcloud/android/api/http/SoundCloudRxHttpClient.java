@@ -129,7 +129,7 @@ public class SoundCloudRxHttpClient implements RxHttpClient  {
         private final AccountOperations mAccountOperations;
 
         public WrapperFactory(Context context){
-            this(new HttpProperties(context.getResources()), new AccountOperations(context));
+            this(new HttpProperties(), new AccountOperations(context));
         }
         @VisibleForTesting
         public WrapperFactory(HttpProperties httpProperties, AccountOperations accountOperations) {

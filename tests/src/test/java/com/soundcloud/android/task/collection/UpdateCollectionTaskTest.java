@@ -13,7 +13,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Request;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,7 +29,7 @@ public class UpdateCollectionTaskTest {
     public void shouldUpdateListAdapterWithNewItemsAfterStaleCheck() throws IOException {
         List<ScResource> staleItems = new LinkedList<ScResource>();
         User updatedUser = new User(1);
-        updatedUser.city = "refreshed";
+        updatedUser.setCity("refreshed");
         staleItems.add(updatedUser);
 
         AndroidCloudAPI api = mock(AndroidCloudAPI.class);
@@ -47,7 +46,7 @@ public class UpdateCollectionTaskTest {
 
         task.doInBackground();
 
-        expect(adapter.getItem(0).city).toEqual("refreshed");
+        expect(adapter.getItem(0).getCity()).toEqual("refreshed");
     }
 
 }

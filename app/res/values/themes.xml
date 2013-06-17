@@ -202,8 +202,6 @@
         <item name="android:textAppearance">?android:attr/textAppearanceInverse</item>
     </style>
 
-
-
     <!-- ****** ViewPagerIndicator ****** -->
 
     <style name="Widget.ScTabPageIndicator" parent="Widget.TabPageIndicator">

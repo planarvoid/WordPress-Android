@@ -2,43 +2,44 @@ package com.soundcloud.android.activity.landing;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.fragment.SuggestedUsersFragment;
+import com.soundcloud.android.fragment.SuggestedUsersCategoriesFragment;
+import com.soundcloud.android.fragment.SuggestedUsersCategoryFragment;
+import com.soundcloud.android.fragment.listeners.SuggestedUsersFragmentListener;
+import com.soundcloud.android.model.Category;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.SyncStateManager;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
-public class SuggestedUsersActivity extends ScActivity implements ScLandingPage {
+public class SuggestedUsersActivity extends ScActivity implements ScLandingPage, SuggestedUsersFragmentListener {
+
+    private SuggestedUsersCategoryFragment mCategoryFragment;
+    private boolean mDualScreen;
+
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(getString(R.string.side_menu_suggested_users));
-
-        int listHolderId;
-        if (getIntent().getBooleanExtra(Consts.Keys.WAS_SIGNUP,false)){
-            setContentView(R.layout.suggested_users_onboard);
-            listHolderId = R.id.list_holder;
-        } else {
-            listHolderId = mRootView.getContentHolderId();
-        }
+        mDualScreen = getResources().getBoolean(R.bool.has_two_panels);
+        setContentView(mDualScreen ? R.layout.suggested_users_dual_activity : R.layout.suggested_users_activity);
 
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(listHolderId, new SuggestedUsersFragment())
+                    .add(R.id.categories_fragment_holder, new SuggestedUsersCategoriesFragment())
                     .commit();
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.done){
+        if (item.getItemId() == R.id.done) {
             new SyncStateManager().forceToStale(Content.ME_SOUND_STREAM);
             startActivity(new Intent(Actions.STREAM));
             finish();
@@ -55,8 +56,27 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage 
     }
 
     @Override
+    public void onCategorySelected(Category category) {
+        if (mDualScreen) {
+            Bundle args = new Bundle();
+            args.putParcelable(Category.EXTRA, category);
+
+            final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            SuggestedUsersCategoryFragment fragment = new SuggestedUsersCategoryFragment();
+            fragment.setArguments(args);
+            fragmentTransaction.replace(R.id.users_fragment_holder, fragment);
+            fragmentTransaction.commit();
+
+        } else {
+            final Intent intent = new Intent(this, SuggestedUsersCategoryActivity.class);
+            intent.putExtra(Category.EXTRA, category);
+            startActivity(intent);
+        }
+    }
+
+    @Override
     public int getMenuResourceId() {
-        return R.menu.who_to_follow;
+        return R.menu.suggested_users;
     }
 
     @Override

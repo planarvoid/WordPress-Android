@@ -61,6 +61,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
+
     /**
      * the parameter which we use to tell the API that this is a non-interactive request (e.g. background syncing.
      */
@@ -85,7 +86,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Deprecated
     public Wrapper(Context context) {
-        this(context,  new HttpProperties(context.getResources()), new AccountOperations(context));
+        this(context,  new HttpProperties(), new AccountOperations(context));
     }
 
     protected Wrapper(Context context, HttpProperties properties, AccountOperations accountOperations){

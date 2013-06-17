@@ -38,6 +38,10 @@ public abstract class ScResource
         super(id);
     }
 
+    public ScResource(String urn) {
+        super(urn);
+    }
+
     public void setUpdated() {
         last_updated = System.currentTimeMillis();
     }

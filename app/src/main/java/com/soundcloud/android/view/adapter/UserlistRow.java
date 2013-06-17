@@ -6,9 +6,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserHolder;
+import com.soundcloud.android.operations.following.FollowingOperations;
+import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.service.sync.SyncInitiator;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
@@ -37,10 +39,12 @@ public class UserlistRow extends IconLayout implements ListRow {
     private RelativeLayout mFollowBtnHolder;
     private ToggleButton mFollowBtn;
     private AccountOperations mAccountOperations;
+    private FollowingOperations mFollowingOperations;
 
 
     public UserlistRow(Context context) {
         super(context);
+        mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(context);
         mUsername = (TextView) findViewById(R.id.username);
         mTracks = (TextView) findViewById(R.id.tracks);
@@ -129,9 +133,17 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     private void toggleFollowing(final User user) {
-            FollowStatus.get().toggleFollowing(user);
-            SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
-            setFollowingStatus(true);
+        mFollowingOperations.toggleFollowing(user).subscribe(new ScObserver<Void>() {
+            @Override
+            public void onCompleted() {
+                SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                setFollowingStatus(true);
+            }
+        });
     }
 
     @Override

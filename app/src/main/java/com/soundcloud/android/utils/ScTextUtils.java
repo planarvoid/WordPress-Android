@@ -168,6 +168,18 @@ public class ScTextUtils {
         return !TextUtils.isEmpty(string) && EMAIL_ADDRESS_PATTERN.matcher(string).matches();
     }
 
+    public static String getLocation(String city, String country) {
+        if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
+            return city + ", " + country;
+        } else if (!TextUtils.isEmpty(city)) {
+            return city;
+        } else if (!TextUtils.isEmpty(country)) {
+            return country;
+        } else {
+            return "";
+        }
+    }
+
     public static class ClickSpan extends ClickableSpan {
         private OnClickListener mListener;
         private boolean mUnderline;

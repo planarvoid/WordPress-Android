@@ -1,10 +1,6 @@
 package com.soundcloud.android.api.http;
 
 
-import com.soundcloud.android.R;
-
-import android.content.res.Resources;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
@@ -14,11 +10,7 @@ public class HttpProperties {
             new long[]{0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
                     0x300C455E649B39A7L, 0x20A6BAC9576286CBL};
 
-    private String clientId;
-
-    public HttpProperties(Resources context) {
-        clientId = context.getString(R.string.client_id);
-    }
+    private static final String CLIENT_ID = "40ccfee680a844780a41fbe23ea89934";
 
     public String getClientSecret() {
         return deobfuscate(PRODUCTION);
@@ -26,7 +18,7 @@ public class HttpProperties {
 
 
     public String getClientId(){
-        return clientId;
+        return CLIENT_ID;
     }
     /**
      * Based on

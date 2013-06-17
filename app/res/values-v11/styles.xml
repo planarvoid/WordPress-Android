@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SuggestedUserToggleButton.Base">
+        <item name="android:background">@null</item>
+        <item name="android:button">@drawable/btn_check_holo_light</item>
+        <item name="android:layout_marginRight">-10dp</item>
+    </style>
+</resources>

@@ -16,6 +16,14 @@ public class ScTextUtilsTest {
     }
 
     @Test
+    public void shouldFormatLocation() throws Exception {
+        expect(ScTextUtils.getLocation(null, null)).toEqual("");
+        expect(ScTextUtils.getLocation("Berlin", null)).toEqual("Berlin");
+        expect(ScTextUtils.getLocation("Berlin", "Germany")).toEqual("Berlin, Germany");
+        expect(ScTextUtils.getLocation(null, "Germany")).toEqual("Germany");
+    }
+
+    @Test
     public void shouldFormatTimeString() throws Exception {
         expect(ScTextUtils.formatTimestamp(5 * 1000)).toEqual("0.05");
         expect(ScTextUtils.formatTimestamp(60 * 1000 * 5)).toEqual("5.00");
