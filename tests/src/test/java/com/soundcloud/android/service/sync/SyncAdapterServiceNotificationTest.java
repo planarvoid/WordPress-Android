@@ -5,7 +5,7 @@ import static com.soundcloud.android.robolectric.TestHelper.getActivities;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;

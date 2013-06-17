@@ -2,7 +2,7 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;

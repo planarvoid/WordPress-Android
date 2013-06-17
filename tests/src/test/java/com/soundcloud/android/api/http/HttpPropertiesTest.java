@@ -1,20 +1,16 @@
-package com.soundcloud.android.api;
+package com.soundcloud.android.api.http;
 
 import static com.soundcloud.android.Expect.expect;
 
 import org.junit.Test;
 
-public class WrapperTest {
-
+public class HttpPropertiesTest {
 
     @Test
     public void shouldDeobfuscateClientSecret() throws Exception {
         // live
-        expect(Wrapper.getClientSecret(true))
+        expect(new HttpProperties().getClientSecret())
                 .toEqual("26a5240f7ee0ee2d4fa9956ed80616c2");
 
-        // sandbox
-        expect(Wrapper.getClientSecret(false))
-                .toEqual("0000000pGDzQNAPHzBH6hBTHphl4Q1e9");
     }
 }

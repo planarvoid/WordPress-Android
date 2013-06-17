@@ -1,29 +1,29 @@
 package com.soundcloud.android.api;
 
-import static com.soundcloud.android.api.WebServices.APIRequestException;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.never;
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observer;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
 
+@RunWith(SoundCloudTestRunner.class)
 public class SuggestedUsersOperationsTest {
 
     private SuggestedUsersOperations suggestedUsersOperations;
     @Mock
-    private WebServices webServices;
-    @Mock
-    private APIResponse apiResponse;
+    private SoundCloudRxHttpClient soundCloudRxHttpClient;
     @Mock
     private CategoryGroup categoryGroupOne;
     @Mock
@@ -34,27 +34,71 @@ public class SuggestedUsersOperationsTest {
     @Before
     public void setUp(){
         initMocks(this);
-        suggestedUsersOperations = new SuggestedUsersOperations(webServices);
+        suggestedUsersOperations = new SuggestedUsersOperations(soundCloudRxHttpClient);
     }
 
     @Test
-    public void shouldPassEachCategoryReturnedToTheObserver(){
-        when(webServices.get(WebServiceEndPoint.SUGGESTED_CATEGORIES)).thenReturn(apiResponse);
-        ArrayList<CategoryGroup> categories = Lists.newArrayList(categoryGroupOne, categoryGroupTwo);
-        when(apiResponse.<CategoryGroup>getCollection()).thenReturn(categories);
-        suggestedUsersOperations.getCategories().subscribe(observer);
-        verify(observer).onNext(categoryGroupOne);
-        verify(observer).onNext(categoryGroupTwo);
-        verify(observer).onCompleted();
+    public void shouldMakeRequestToFacebookSuggestionsEndpoint(){
+        suggestedUsersOperations.getFacebookSuggestions();
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getUriPath()).toEqual("/app/mobileapps/suggestions/users/social/facebook");
     }
 
     @Test
-    public void shouldCallOnErrorIfNoCategoriesHaveBeenReturned(){
-        when(webServices.get(WebServiceEndPoint.SUGGESTED_CATEGORIES)).thenReturn(apiResponse);
-        when(apiResponse.<CategoryGroup>getCollection()).thenReturn(Collections.<CategoryGroup>emptyList());
-        suggestedUsersOperations.getCategories().subscribe(observer);
-        verify(observer).onError(isA(APIRequestException.class));
-        verify(observer, never()).onCompleted();
+    public void shouldMakeRequestToFacebookSuggestionsEndpointVersion1(){
+        suggestedUsersOperations.getFacebookSuggestions();
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getVersion()).toEqual(1);
+    }
+
+    @Test
+    public void shouldMakeGetRequestToFacebookSuggestionsEndpoint(){
+        suggestedUsersOperations.getFacebookSuggestions();
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
+    }
+
+    @Test
+    public void shouldRequestCollectionOfCategoriesFromFacebookSuggestionsEndpoint(){
+        suggestedUsersOperations.getFacebookSuggestions();
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getResourceType()).toEqual(new TypeToken<List<CategoryGroup>>(){});
+    }
+
+    @Test
+    public void shouldMakeRequestToSoundSuggestionsEndpoint(){
+        suggestedUsersOperations.getAudioSuggestions();
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getUriPath()).toEqual("/app/mobileapps/suggestions/users/categories");
+    }
+
+    @Test
+    public void shouldMakeRequestToSoundSuggestionsEndpointVersion1(){
+        suggestedUsersOperations.getAudioSuggestions();
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getVersion()).toEqual(1);
+    }
+
+    @Test
+    public void shouldMakeGetRequestToSoundSuggestionsEndpoint(){
+        suggestedUsersOperations.getAudioSuggestions();
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
+    }
+
+    @Test
+    public void shouldRequestCollectionOfCategoriesFromSoundSuggestionsEndpoint(){
+        suggestedUsersOperations.getAudioSuggestions();
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getResourceType()).toEqual(new TypeToken<List<CategoryGroup>>(){});
     }
 
 }

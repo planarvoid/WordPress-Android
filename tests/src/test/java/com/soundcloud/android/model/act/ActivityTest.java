@@ -2,7 +2,7 @@ package com.soundcloud.android.model.act;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.DBHelper;
