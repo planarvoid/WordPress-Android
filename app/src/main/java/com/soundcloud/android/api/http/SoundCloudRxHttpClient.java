@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.net.MediaType;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.http.json.JsonTransformer;
@@ -32,17 +33,15 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json";
 
     private final JsonTransformer mJsonTransformer;
-    private final Context mContext;
     private final WrapperFactory mWrapperFactory;
 
-    public SoundCloudRxHttpClient(Context context) {
-        this(context, new JacksonJsonTransformer(), new WrapperFactory(context));
+    public SoundCloudRxHttpClient() {
+        this(new JacksonJsonTransformer(), new WrapperFactory(SoundCloudApplication.instance));
     }
 
     @VisibleForTesting
-    protected SoundCloudRxHttpClient(Context context, JsonTransformer jsonTransformer, WrapperFactory wrapperFactory) {
+    protected SoundCloudRxHttpClient(JsonTransformer jsonTransformer, WrapperFactory wrapperFactory) {
         mJsonTransformer = jsonTransformer;
-        mContext = context;
         mWrapperFactory = wrapperFactory;
         subscribeOn(ScSchedulers.API_SCHEDULER);
     }
@@ -107,7 +106,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
 
     private APIResponse executeRequest(APIRequest apiRequest) {
 
-        ApiWrapper apiWrapper = mWrapperFactory.createWrapper(mContext,apiRequest);
+        ApiWrapper apiWrapper = mWrapperFactory.createWrapper(apiRequest);
         try {
             HttpMethod httpMethod = HttpMethod.valueOf(apiRequest.getMethod().toUpperCase());
             HttpResponse response = httpMethod.execute(apiWrapper, createSCRequest(apiRequest));
@@ -127,21 +126,23 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         return Request.to(apiRequest.getUriPath());
     }
 
-    protected static class WrapperFactory{
+    protected static class WrapperFactory {
+        private final Context mContext;
         private final HttpProperties mHttpProperties;
         private final AccountOperations mAccountOperations;
 
         public WrapperFactory(Context context){
-            this(new HttpProperties(), new AccountOperations(context));
+            this(context, new HttpProperties(), new AccountOperations(context));
         }
         @VisibleForTesting
-        public WrapperFactory(HttpProperties httpProperties, AccountOperations accountOperations) {
+        public WrapperFactory(Context context, HttpProperties httpProperties, AccountOperations accountOperations) {
+            mContext = context;
             mHttpProperties = httpProperties;
             mAccountOperations = accountOperations;
         }
 
-        public ApiWrapper createWrapper(Context context, APIRequest apiRequest){
-            Wrapper wrapper = new Wrapper(context, mHttpProperties, mAccountOperations);
+        public ApiWrapper createWrapper(APIRequest apiRequest){
+            Wrapper wrapper = new Wrapper(mContext, mHttpProperties, mAccountOperations);
             String acceptContentType = apiRequest.isPrivate() ? format(PRIVATE_API_ACCEPT_CONTENT_TYPE, apiRequest.getVersion()) : MediaType.JSON_UTF_8.toString();
             wrapper.setDefaultContentType(acceptContentType);
             return wrapper;

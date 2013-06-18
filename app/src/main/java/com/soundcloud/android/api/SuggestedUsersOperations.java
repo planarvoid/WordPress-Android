@@ -9,20 +9,17 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
-import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import rx.Observable;
-
-import android.content.Context;
 
 import java.util.List;
 
 
-public class SuggestedUsersOperations extends ScheduledOperations {
+public class SuggestedUsersOperations {
 
     private RxHttpClient mRxHttpClient;
 
-    public SuggestedUsersOperations(Context context){
-        this(new SoundCloudRxHttpClient(context));
+    public SuggestedUsersOperations() {
+        this(new SoundCloudRxHttpClient());
     }
 
     @VisibleForTesting
@@ -30,20 +27,25 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         this.mRxHttpClient = rxHttpClient;
     }
 
-    public Observable<CategoryGroup> getAudioSuggestions(){
+    public Observable<CategoryGroup> getAudioSuggestions() {
         APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_CATEGORIES.path())
                 .forVersion(1)
                 .forPrivateAPI()
-                .forResource(new TypeToken<List<CategoryGroup>>() {}).build();
-        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request));
+                .forResource(new TypeToken<List<CategoryGroup>>() {})
+                .build();
+        return mRxHttpClient.<CategoryGroup>executeAPIRequest(request);
     }
 
-    public Observable<CategoryGroup> getFacebookSuggestions(){
+    public Observable<CategoryGroup> getFacebookSuggestions() {
         APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
                 .forVersion(1)
                 .forPrivateAPI()
-                .forResource(new TypeToken<List<CategoryGroup>>() {}).build();
-        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request));
+                .forResource(new TypeToken<List<CategoryGroup>>() {})
+                .build();
+        return mRxHttpClient.<CategoryGroup>executeAPIRequest(request);
     }
 
+    public Observable<CategoryGroup> getCategoryGroups() {
+        return Observable.merge(getAudioSuggestions(), getFacebookSuggestions());
+    }
 }

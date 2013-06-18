@@ -32,8 +32,6 @@ import org.mockito.Mock;
 import rx.Observer;
 import rx.concurrency.Schedulers;
 
-import android.content.Context;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -43,8 +41,6 @@ public class SoundCloudRxHttpClientTest {
     private static final String URI = "/uri";
     public static final String STREAM_DATA = "stream";
     private SoundCloudRxHttpClient rxHttpClient;
-    @Mock
-    private Context context;
     @Mock
     private JsonTransformer jsonTransformer;
     @Mock
@@ -67,10 +63,10 @@ public class SoundCloudRxHttpClientTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        rxHttpClient = new SoundCloudRxHttpClient(context, jsonTransformer, wrapperFactory).subscribeOn(Schedulers.immediate());
+        rxHttpClient = new SoundCloudRxHttpClient(jsonTransformer, wrapperFactory).subscribeOn(Schedulers.immediate());
         when(apiRequest.getUriPath()).thenReturn(URI);
         when(apiRequest.getMethod()).thenReturn("get");
-        when(wrapperFactory.createWrapper(context, apiRequest)).thenReturn(wrapper);
+        when(wrapperFactory.createWrapper(apiRequest)).thenReturn(wrapper);
         when(wrapper.get(any(Request.class))).thenReturn(httpResponse);
         when(httpResponse.getEntity()).thenReturn(httpEntity);
         when(httpResponse.getStatusLine()).thenReturn(statusLine);
