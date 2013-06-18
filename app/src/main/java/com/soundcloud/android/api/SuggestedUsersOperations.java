@@ -11,11 +11,19 @@ import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import rx.Observable;
+import rx.util.functions.Func1;
 
 import java.util.List;
 
 
 public class SuggestedUsersOperations extends ScheduledOperations {
+
+    private static final Func1<Exception,CategoryGroup> EMPTY_FACEBOOK_GROUP = new Func1<Exception, CategoryGroup>() {
+        @Override
+        public CategoryGroup call(Exception e) {
+            return new CategoryGroup(CategoryGroup.KEY_FACEBOOK);
+        }
+    };
 
     private RxHttpClient mRxHttpClient;
 
@@ -43,7 +51,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateAPI()
                 .forResource(new TypeToken<List<CategoryGroup>>() {})
                 .build();
-        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request));
+        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request).onErrorReturn(EMPTY_FACEBOOK_GROUP));
     }
 
     public Observable<CategoryGroup> getCategoryGroups() {

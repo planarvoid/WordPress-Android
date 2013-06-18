@@ -1,7 +1,10 @@
 package com.soundcloud.android.api;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.reflect.TypeToken;
@@ -9,11 +12,13 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.TestObservables;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import rx.Observable;
 import rx.Observer;
 
 import java.util.List;
@@ -35,6 +40,7 @@ public class SuggestedUsersOperationsTest {
     public void setUp(){
         initMocks(this);
         suggestedUsersOperations = new SuggestedUsersOperations(soundCloudRxHttpClient);
+        when(soundCloudRxHttpClient.executeAPIRequest(any(APIRequest.class))).thenReturn(Observable.empty());
     }
 
     @Test
@@ -101,4 +107,10 @@ public class SuggestedUsersOperationsTest {
         expect(argumentCaptor.getValue().getResourceType()).toEqual(new TypeToken<List<CategoryGroup>>(){});
     }
 
+    @Test
+    public void shouldReturnEmptyCategoryWhenFacebookFails() {
+        when(soundCloudRxHttpClient.executeAPIRequest(any(APIRequest.class))).thenReturn(TestObservables.errorThrowingObservable(new RuntimeException()));
+        suggestedUsersOperations.getFacebookSuggestions().subscribe(observer);
+        verify(observer, never()).onError(any(Exception.class));
+    }
 }
