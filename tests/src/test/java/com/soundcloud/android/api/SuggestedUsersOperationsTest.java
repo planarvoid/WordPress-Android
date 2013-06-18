@@ -71,7 +71,7 @@ public class SuggestedUsersOperationsTest {
 
     @Test
     public void shouldMakeRequestToSoundSuggestionsEndpoint(){
-        suggestedUsersOperations.getAudioSuggestions();
+        suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getUriPath()).toEqual("/app/mobileapps/suggestions/users/categories");
@@ -79,7 +79,7 @@ public class SuggestedUsersOperationsTest {
 
     @Test
     public void shouldMakeRequestToSoundSuggestionsEndpointVersion1(){
-        suggestedUsersOperations.getAudioSuggestions();
+        suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getVersion()).toEqual(1);
@@ -87,7 +87,7 @@ public class SuggestedUsersOperationsTest {
 
     @Test
     public void shouldMakeGetRequestToSoundSuggestionsEndpoint(){
-        suggestedUsersOperations.getAudioSuggestions();
+        suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
@@ -95,7 +95,7 @@ public class SuggestedUsersOperationsTest {
 
     @Test
     public void shouldRequestCollectionOfCategoriesFromSoundSuggestionsEndpoint(){
-        suggestedUsersOperations.getAudioSuggestions();
+        suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getResourceType()).toEqual(new TypeToken<List<CategoryGroup>>(){});

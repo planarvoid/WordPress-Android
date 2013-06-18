@@ -28,7 +28,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         this.mRxHttpClient = rxHttpClient;
     }
 
-    public Observable<CategoryGroup> getAudioSuggestions() {
+    public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
         APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_CATEGORIES.path())
                 .forVersion(1)
                 .forPrivateAPI()
@@ -47,6 +47,6 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     }
 
     public Observable<CategoryGroup> getCategoryGroups() {
-        return Observable.merge(getAudioSuggestions(), getFacebookSuggestions());
+        return Observable.merge(getMusicAndSoundsSuggestions(), getFacebookSuggestions());
     }
 }
