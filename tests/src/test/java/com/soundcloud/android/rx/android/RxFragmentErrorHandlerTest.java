@@ -1,5 +1,7 @@
 package com.soundcloud.android.rx.android;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -27,7 +29,7 @@ public class RxFragmentErrorHandlerTest {
         }
 
         @Override
-        protected void onError(Fragment fragment, Exception error) {
+        public void onError(Fragment fragment, Exception error) {
         }
     }
 
@@ -51,10 +53,9 @@ public class RxFragmentErrorHandlerTest {
     public void shouldNotCallBackIfFragmentNotAttached() {
         when(mockFragment.isAdded()).thenReturn(false);
 
-        Exception error = new Exception();
-        handler.call(error);
+        handler.call(new Exception());
 
-        verifyZeroInteractions(handler);
+        verify(handler, never()).onError(any(Fragment.class), any(Exception.class));
     }
 
     @Test
@@ -63,6 +64,6 @@ public class RxFragmentErrorHandlerTest {
 
         handler.call(new Exception());
 
-        verifyZeroInteractions(handler);
+        verify(handler, never()).onError(any(Fragment.class), any(Exception.class));
     }
 }

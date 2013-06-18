@@ -15,7 +15,7 @@ import org.apache.http.HttpStatus;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-class APIResponse {
+public class APIResponse {
     private static final int SC_REQUEST_TOO_MANY_REQUESTS = 429;
 
     private static final Function<Header, String> HEADER_KEY_FUNCTION = new Function<Header, String>() {

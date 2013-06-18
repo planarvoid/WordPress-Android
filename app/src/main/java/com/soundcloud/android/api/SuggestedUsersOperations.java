@@ -9,12 +9,21 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import rx.Observable;
+import rx.util.functions.Func1;
 
 import java.util.List;
 
 
-public class SuggestedUsersOperations {
+public class SuggestedUsersOperations extends ScheduledOperations {
+
+    private static final Func1<Exception,CategoryGroup> EMPTY_FACEBOOK_GROUP = new Func1<Exception, CategoryGroup>() {
+        @Override
+        public CategoryGroup call(Exception e) {
+            return new CategoryGroup(CategoryGroup.KEY_FACEBOOK);
+        }
+    };
 
     private RxHttpClient mRxHttpClient;
 
@@ -27,13 +36,13 @@ public class SuggestedUsersOperations {
         this.mRxHttpClient = rxHttpClient;
     }
 
-    public Observable<CategoryGroup> getAudioSuggestions() {
+    public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
         APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_CATEGORIES.path())
                 .forVersion(1)
                 .forPrivateAPI()
                 .forResource(new TypeToken<List<CategoryGroup>>() {})
                 .build();
-        return mRxHttpClient.<CategoryGroup>executeAPIRequest(request);
+        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request));
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions() {
@@ -42,10 +51,10 @@ public class SuggestedUsersOperations {
                 .forPrivateAPI()
                 .forResource(new TypeToken<List<CategoryGroup>>() {})
                 .build();
-        return mRxHttpClient.<CategoryGroup>executeAPIRequest(request);
+        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request).onErrorReturn(EMPTY_FACEBOOK_GROUP));
     }
 
     public Observable<CategoryGroup> getCategoryGroups() {
-        return Observable.merge(getAudioSuggestions(), getFacebookSuggestions());
+        return schedule(Observable.merge(getMusicAndSoundsSuggestions(), getFacebookSuggestions()));
     }
 }

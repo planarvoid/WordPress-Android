@@ -12,10 +12,8 @@ import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.view.SingleLineCollectionTextView;
-import rx.util.functions.Action1;
 
 import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -248,16 +246,6 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         } else {
             viewHolder.sectionHeader.setVisibility(View.GONE);
         }
-    }
-
-    public Action1<CategoryGroup> onNextCategoryGroup() {
-        return new Action1<CategoryGroup>() {
-            @Override
-            public void call(CategoryGroup categoryGroup) {
-                Log.d(TAG, "adapter: got " + categoryGroup);
-                addItem(categoryGroup);
-            }
-        };
     }
 
     private final ScObserver mNotifyWhenDoneObserver = new ScObserver() {

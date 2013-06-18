@@ -5,14 +5,16 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
+import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.Category;
-import com.soundcloud.android.onboarding.OnboardingOperations;
+import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.android.RxFragmentCompletionHandler;
-import com.soundcloud.android.rx.android.RxFragmentErrorHandler;
+import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
 
 import android.content.Intent;
@@ -30,17 +32,21 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private static final String LOG_TAG = "suggested_users_frag";
 
     private SuggestedUsersCategoriesAdapter mAdapter;
-    private OnboardingOperations mOnboardingOps;
+    private SuggestedUsersOperations mSuggestions;
     private Subscription mSubscription;
+    private Observer<CategoryGroup> mObserver;
 
     public SuggestedUsersCategoriesFragment() {
-        this(new OnboardingOperations().<OnboardingOperations>observeOn(ScSchedulers.UI_SCHEDULER),
+        this(new SuggestedUsersOperations(), null,
                 new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
     }
 
     @VisibleForTesting
-    protected SuggestedUsersCategoriesFragment(OnboardingOperations onboardingOps, SuggestedUsersCategoriesAdapter adapter) {
-        mOnboardingOps = onboardingOps;
+    protected SuggestedUsersCategoriesFragment(SuggestedUsersOperations onboardingOps,
+                                               @Nullable Observer<CategoryGroup> observer,
+                                               SuggestedUsersCategoriesAdapter adapter) {
+        mSuggestions = onboardingOps;
+        mObserver = observer;
         mAdapter = adapter;
     }
 
@@ -67,10 +73,11 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         listView.setAdapter(mAdapter);
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
-        Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mOnboardingOps.getCategoryGroups().cache());
+        Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mSuggestions.getCategoryGroups().cache().observeOn(ScSchedulers.UI_SCHEDULER));
         Log.d(LOG_TAG, "SUBSCRIBING, obs = " + observable.hashCode());
-        mSubscription = observable.subscribe(
-                mAdapter.onNextCategoryGroup(), new OnGenreBucketsError(this), new OnGenreBucketsCompleted(this));
+
+        if (mObserver == null) mObserver = new CategoryGroupsObserver(this);
+        mSubscription = observable.subscribe(mObserver);
     }
 
     @Override
@@ -93,27 +100,26 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         return view != null ? (ListView) view.findViewById(android.R.id.list) : null;
     }
 
-    private static final class OnGenreBucketsCompleted extends RxFragmentCompletionHandler<SuggestedUsersCategoriesFragment> {
+    private static final class CategoryGroupsObserver extends RxFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {
 
-        public OnGenreBucketsCompleted(SuggestedUsersCategoriesFragment fragment) {
+        public CategoryGroupsObserver(SuggestedUsersCategoriesFragment fragment) {
             super(fragment);
         }
 
         @Override
-        protected void onCompleted(SuggestedUsersCategoriesFragment fragment) {
+        public void onNext(SuggestedUsersCategoriesFragment fragment, CategoryGroup categoryGroup) {
+            Log.d(LOG_TAG, "got category group: " + categoryGroup);
+            fragment.mAdapter.addItem(categoryGroup);
+        }
+
+        @Override
+        public void onCompleted(SuggestedUsersCategoriesFragment fragment) {
             Log.d(LOG_TAG, "fragment: onCompleted");
             fragment.mAdapter.notifyDataSetChanged();
         }
-    }
-
-    private static final class OnGenreBucketsError extends RxFragmentErrorHandler<SuggestedUsersCategoriesFragment> {
-
-        public OnGenreBucketsError(SuggestedUsersCategoriesFragment fragment) {
-            super(fragment);
-        }
 
         @Override
-        protected void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
+        public void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
             error.printStackTrace();
             //TODO proper error message
             AndroidUtils.showToast(fragment.getActivity(), R.string.suggested_users_error_get_genre_buckets);

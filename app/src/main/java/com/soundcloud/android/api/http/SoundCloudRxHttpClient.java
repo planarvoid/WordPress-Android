@@ -37,13 +37,13 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
 
     public SoundCloudRxHttpClient() {
         this(new JacksonJsonTransformer(), new WrapperFactory(SoundCloudApplication.instance));
+        subscribeOn(ScSchedulers.API_SCHEDULER);
     }
 
     @VisibleForTesting
     protected SoundCloudRxHttpClient(JsonTransformer jsonTransformer, WrapperFactory wrapperFactory) {
         mJsonTransformer = jsonTransformer;
         mWrapperFactory = wrapperFactory;
-        subscribeOn(ScSchedulers.API_SCHEDULER);
     }
 
 
