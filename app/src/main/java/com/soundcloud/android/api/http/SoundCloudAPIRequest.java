@@ -71,17 +71,12 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
             return new RequestBuilder<ResourceType>(uriPath, HttpGet.METHOD_NAME);
         }
 
-        public RequestBuilder<ResourceType> forVersion(int versionCode) {
-            mEndpointVersion = versionCode;
-            return this;
-        }
-
         public APIRequest<ResourceType> build(){
             checkArgument(!isNullOrEmpty(nullToEmpty(uriPath).trim()), "URI needs to be valid value");
+            checkNotNull(mIsPrivate, "Must specify api mode");
             if(mIsPrivate){
-                checkArgument(mEndpointVersion > 0, "Not a valid version code: %s", mEndpointVersion);
+                checkArgument(mEndpointVersion > 0, "Not a valid api version: %s", mEndpointVersion);
             }
-            checkNotNull(mIsPrivate, "Must specify resource type");
             return new SoundCloudAPIRequest<ResourceType>(Uri.parse(uriPath), mHttpMethod, mEndpointVersion,
                     mResourceType, mIsPrivate);
         }
@@ -98,8 +93,9 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
             return this;
         }
 
-        public RequestBuilder<ResourceType> forPrivateAPI() {
+        public RequestBuilder<ResourceType> forPrivateAPI(int version) {
             mIsPrivate = true;
+            mEndpointVersion = version;
             return this;
         }
 

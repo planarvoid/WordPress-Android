@@ -38,8 +38,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
 
     public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
         APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_CATEGORIES.path())
-                .forVersion(1)
-                .forPrivateAPI()
+                .forPrivateAPI(1)
                 .forResource(new TypeToken<List<CategoryGroup>>() {})
                 .build();
         return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request));
@@ -47,8 +46,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
 
     public Observable<CategoryGroup> getFacebookSuggestions() {
         APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
-                .forVersion(1)
-                .forPrivateAPI()
+                .forPrivateAPI(1)
                 .forResource(new TypeToken<List<CategoryGroup>>() {})
                 .build();
         return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request).onErrorReturn(EMPTY_FACEBOOK_GROUP));
