@@ -7,9 +7,11 @@ import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.Category;
+import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.android.RxFragmentCompletionHandler;
 import com.soundcloud.android.rx.android.RxFragmentErrorHandler;
+import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -34,8 +36,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private Subscription mSubscription;
 
     public SuggestedUsersCategoriesFragment() {
-        this(new SuggestedUsersOperations().<SuggestedUsersOperations>observeOn(ScSchedulers.UI_SCHEDULER),
-                new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
+        this(new SuggestedUsersOperations(), new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
     }
 
     @VisibleForTesting
@@ -67,10 +68,9 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         listView.setAdapter(mAdapter);
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
-        Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mSuggestions.getCategoryGroups().cache());
+        Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mSuggestions.getCategoryGroups().cache().observeOn(ScSchedulers.UI_SCHEDULER));
         Log.d(LOG_TAG, "SUBSCRIBING, obs = " + observable.hashCode());
-        mSubscription = observable.subscribe(
-                mAdapter.onNextCategoryGroup(), new OnGenreBucketsError(this), new OnGenreBucketsCompleted(this));
+        mSubscription = observable.subscribe(new CategoryGroupsObserver(this));
     }
 
     @Override
@@ -93,23 +93,22 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         return view != null ? (ListView) view.findViewById(android.R.id.list) : null;
     }
 
-    private static final class OnGenreBucketsCompleted extends RxFragmentCompletionHandler<SuggestedUsersCategoriesFragment> {
+    private static final class CategoryGroupsObserver extends RxFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {
 
-        public OnGenreBucketsCompleted(SuggestedUsersCategoriesFragment fragment) {
+        public CategoryGroupsObserver(SuggestedUsersCategoriesFragment fragment) {
             super(fragment);
+        }
+
+        @Override
+        public void onNext(SuggestedUsersCategoriesFragment fragment, CategoryGroup categoryGroup) {
+            Log.d(LOG_TAG, "got category group: " + categoryGroup);
+            fragment.mAdapter.addItem(categoryGroup);
         }
 
         @Override
         public void onCompleted(SuggestedUsersCategoriesFragment fragment) {
             Log.d(LOG_TAG, "fragment: onCompleted");
             fragment.mAdapter.notifyDataSetChanged();
-        }
-    }
-
-    private static final class OnGenreBucketsError extends RxFragmentErrorHandler<SuggestedUsersCategoriesFragment> {
-
-        public OnGenreBucketsError(SuggestedUsersCategoriesFragment fragment) {
-            super(fragment);
         }
 
         @Override
