@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.view.GridViewCompat;
 
@@ -36,7 +37,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
             mCategory = getArguments().getParcelable(Category.EXTRA);
         }
         setAdapter(new SuggestedUsersAdapter(mCategory.getUsers()));
-        mFollowingOperations = new FollowingOperations().scheduleFromActivity();
+        mFollowingOperations = new FollowingOperations().observeOn(ScSchedulers.UI_SCHEDULER);
     }
 
     public void setAdapter(SuggestedUsersAdapter adapter) {

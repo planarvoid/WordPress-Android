@@ -1,12 +1,12 @@
 package com.soundcloud.android.dao;
 
-import android.content.Context;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +17,7 @@ import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
 
 public class ActivitiesStorage extends ScheduledOperations {
@@ -32,6 +33,7 @@ public class ActivitiesStorage extends ScheduledOperations {
         mResolver = context.getContentResolver();
         mSyncStateManager = new SyncStateManager(context);
         mActivitiesDAO = new ActivityDAO(mResolver);
+        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 
     @Deprecated

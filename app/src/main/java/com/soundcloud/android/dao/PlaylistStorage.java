@@ -8,6 +8,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     public PlaylistStorage() {
         mResolver = SoundCloudApplication.instance.getContentResolver();
         mPlaylistDAO = new PlaylistDAO(mResolver);
+        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 
     /**

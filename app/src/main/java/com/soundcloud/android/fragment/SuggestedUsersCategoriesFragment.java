@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.fragment.listeners.SuggestedUsersFragmentListener;
 import com.soundcloud.android.onboarding.OnboardingOperations;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.android.RxFragmentCompletionHandler;
 import com.soundcloud.android.rx.android.RxFragmentErrorHandler;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -35,7 +36,8 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private WeakReference<SuggestedUsersFragmentListener> mListenerRef;
 
     public SuggestedUsersCategoriesFragment() {
-        this(new OnboardingOperations().<OnboardingOperations>scheduleFromActivity(), new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
+        this(new OnboardingOperations().<OnboardingOperations>observeOn(ScSchedulers.UI_SCHEDULER),
+                new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
     }
 
     @VisibleForTesting

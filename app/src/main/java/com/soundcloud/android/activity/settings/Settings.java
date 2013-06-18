@@ -369,7 +369,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                             .show();
                 }
 
-            }, ScSchedulers.BACKGROUND_SCHEDULER);
+            }, ScSchedulers.STORAGE_SCHEDULER);
         }
     };
 }

@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -109,7 +110,7 @@ public class OnboardingOperations extends ScheduledOperations {
 
                 return Subscriptions.empty();
             }
-        }));
+        }).subscribeOn(ScSchedulers.API_SCHEDULER));
     }
 
 }

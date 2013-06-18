@@ -2,6 +2,7 @@ package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -34,6 +35,7 @@ public class SyncOperations<T> extends ScheduledOperations {
         mContext = context.getApplicationContext();
         mLoadFromLocalStorage = loadFromLocalStorage;
         mLocalCollectionsDao = new LocalCollectionDAO(context.getContentResolver());
+        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 
     public Observable<Observable<T>> syncIfNecessary(final Uri contentUri) {
