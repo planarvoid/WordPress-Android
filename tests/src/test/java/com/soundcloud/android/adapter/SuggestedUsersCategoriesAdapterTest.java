@@ -7,10 +7,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.R;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -23,7 +23,6 @@ import org.mockito.Mock;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import java.util.Map;
 
@@ -135,55 +134,39 @@ public class SuggestedUsersCategoriesAdapterTest {
     }
 
     @Test
-    public void shouldSetCorrectBucketTextForSingleUser() throws CreateModelException {
+    public void shouldGetCorrectUserlistForSingleUser() throws CreateModelException {
         addAllSections();
         Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(buildUser("Skrillex")));
-
-        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
-
-        TextView textView = (TextView) itemLayout.findViewById(android.R.id.text2);
-        expect(textView.getText()).toEqual("Skrillex");
+        expect(adapter.getSubtextUsers(bucket)).toContainExactly("Skrillex");
     }
 
     @Test
-    public void shouldSetCorrectBucketTextForTwoUsers() throws CreateModelException {
+    public void shouldGetCorrectUserlistForTwoUsers() throws CreateModelException {
         addAllSections();
         Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(buildUser("Skrillex"), buildUser("Forss")));
-
-        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
-
-        TextView textView = (TextView) itemLayout.findViewById(android.R.id.text2);
-        expect(textView.getText()).toEqual("Skrillex, Forss");
+        expect(adapter.getSubtextUsers(bucket)).toContainExactly("Skrillex","Forss");
     }
 
     @Test
-    public void shouldSetCorrectBucketTextForMultipleUsers() throws CreateModelException {
+    public void shouldGetCorrectUserlistForMultipleUsers() throws CreateModelException {
         addAllSections();
         Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(
                 buildUser("Skrillex"), buildUser("Forss"), buildUser("Rick Astley")));
-
-        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
-
-        TextView textView = (TextView) itemLayout.findViewById(android.R.id.text2);
-        expect(textView.getText()).toEqual("Skrillex, Forss and 1 other");
+        expect(adapter.getSubtextUsers(bucket)).toContainExactly("Skrillex","Forss", "Rick Astley");
     }
 
     @Test
-    public void shouldSetCorrectBucketTextForMultipleCategoryUsersWithOneFollowing() throws CreateModelException {
+    public void shouldGetCorrectUserlistForMultipleCategoryUsersWithOneFollowing() throws CreateModelException {
         addAllSections();
         SuggestedUser followedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
         when(followStatus.getFollowedUserIds()).thenReturn(Sets.newHashSet(followedUser.getId()));
 
         Category category = adapter.getItem(0);
         category.getUsers().add(followedUser);
-
-        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
-
-        TextView textView = (TextView) itemLayout.findViewById(android.R.id.text2);
-        expect(textView.getText()).toEqual(followedUser.getUsername());
+        expect(adapter.getSubtextUsers(category)).toContainExactly(followedUser.getUsername());
     }
 
     @Test
