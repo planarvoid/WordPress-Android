@@ -34,7 +34,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateAPI()
                 .forResource(new TypeToken<List<CategoryGroup>>() {})
                 .build();
-        return mRxHttpClient.<CategoryGroup>executeAPIRequest(request);
+        return mRxHttpClient.executeAPIRequest(request);
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions() {
@@ -43,7 +43,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateAPI()
                 .forResource(new TypeToken<List<CategoryGroup>>() {})
                 .build();
-        return mRxHttpClient.<CategoryGroup>executeAPIRequest(request);
+        return mRxHttpClient.executeAPIRequest(request);
     }
 
     public Observable<CategoryGroup> getCategoryGroups() {
