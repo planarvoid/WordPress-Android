@@ -5,29 +5,21 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.SuggestedUsersCategoriesFragment;
-import com.soundcloud.android.fragment.SuggestedUsersCategoryFragment;
-import com.soundcloud.android.fragment.listeners.SuggestedUsersFragmentListener;
-import com.soundcloud.android.model.Category;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.SyncStateManager;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
-public class SuggestedUsersActivity extends ScActivity implements ScLandingPage, SuggestedUsersFragmentListener {
-
-    private SuggestedUsersCategoryFragment mCategoryFragment;
-    private boolean mDualScreen;
+public class SuggestedUsersActivity extends ScActivity implements ScLandingPage {
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(getString(R.string.side_menu_suggested_users));
-        mDualScreen = getResources().getBoolean(R.bool.has_two_panels);
-        setContentView(mDualScreen ? R.layout.suggested_users_dual_activity : R.layout.suggested_users_activity);
+        setContentView(R.layout.suggested_users_activity);
 
         if (state == null) {
             getSupportFragmentManager()
@@ -53,25 +45,6 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage,
     public void setContentView(View layout) {
         super.setContentView(layout);
         layout.setBackgroundColor(Color.WHITE);
-    }
-
-    @Override
-    public void onCategorySelected(Category category) {
-        if (mDualScreen) {
-            Bundle args = new Bundle();
-            args.putParcelable(Category.EXTRA, category);
-
-            final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            SuggestedUsersCategoryFragment fragment = new SuggestedUsersCategoryFragment();
-            fragment.setArguments(args);
-            fragmentTransaction.replace(R.id.users_fragment_holder, fragment);
-            fragmentTransaction.commit();
-
-        } else {
-            final Intent intent = new Intent(this, SuggestedUsersCategoryActivity.class);
-            intent.putExtra(Category.EXTRA, category);
-            startActivity(intent);
-        }
     }
 
     @Override

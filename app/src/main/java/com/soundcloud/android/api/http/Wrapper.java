@@ -1,4 +1,4 @@
-package com.soundcloud.android.api;
+package com.soundcloud.android.api.http;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -11,16 +11,15 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
+import com.soundcloud.api.Token;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -63,7 +62,6 @@ import java.util.TimeZone;
 
 public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
-    public static final String CLIENT_ID = "40ccfee680a844780a41fbe23ea89934";
     /**
      * the parameter which we use to tell the API that this is a non-interactive request (e.g. background syncing.
      */
@@ -88,20 +86,23 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Deprecated
     public Wrapper(Context context) {
-        this(context, buildObjectMapper(), CLIENT_ID, getClientSecret(true),
-                ANDROID_REDIRECT_URI, new AccountOperations(context));
+        this(context,  new HttpProperties(), new AccountOperations(context));
+    }
+
+    protected Wrapper(Context context, HttpProperties properties, AccountOperations accountOperations){
+        this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
+                ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken());
     }
 
     private Wrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri,
-                    AccountOperations accountOperations) {
-        super(clientId, clientSecret, redirectUri, null);
+                    Token token) {
+        super(clientId, clientSecret, redirectUri, token);
         // context can be null in tests
         if (context == null) return;
 
         mContext = context;
         mObjectMapper = mapper;
         setTokenListener(new SoundCloudTokenListener(context));
-        setToken(accountOperations.getSoundCloudToken());
         userAgent = "SoundCloud Android ("+ AndroidUtils.getAppVersion(context, "unknown")+")";
         final IntentFilter filter = new IntentFilter();
         filter.addAction(Actions.CHANGE_PROXY_ACTION);
@@ -316,24 +317,6 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     public static boolean isStatusCodeServerError(int code) {
         return code >= 500 && code < 600;
-    }
-
-    /* package */ static String getClientSecret(boolean production) {
-        @SuppressWarnings({"UnusedDeclaration", "MismatchedReadAndWriteOfArray"})
-        final long[] prod =
-                new long[]{0x42D31224F5C2C264L, 0x5986B01A2300AFA4L, 0xEDA169985C1BA18DL,
-                        0xA2A0313C7077F81BL, 0xF42A7E5EEB220859L, 0xE593789593AFFA3L,
-                        0xF564A09AA0B465A6L};
-
-        final long[] prod2 =
-                new long[]{0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
-                        0x300C455E649B39A7L, 0x20A6BAC9576286CBL};
-
-        final long[] sandbox =
-                new long[]{0x7FA4855507D9000FL, 0x91C67776A3692339L, 0x24D0C4EF5AF943E8L,
-                        0x7CEC0CF7DDAAE26BL, 0x7EB2854D631380BEL};
-
-        return ScTextUtils.deobfuscate(production ? prod2 : sandbox);
     }
 
     // accepts all certificates - don't use in production

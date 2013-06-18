@@ -1,4 +1,4 @@
-package com.soundcloud.android.api;
+package com.soundcloud.android.api.http;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.api.CloudAPI;

@@ -1,6 +1,6 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.api.Wrapper;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Recording;
