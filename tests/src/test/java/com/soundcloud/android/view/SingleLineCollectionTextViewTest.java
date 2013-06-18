@@ -27,63 +27,63 @@ public class SingleLineCollectionTextViewTest {
     @Test
     public void shouldOutputFirstName() {
         textView.setDisplayItems(Lists.newArrayList(jon));
-        textView.setMultiUserSubtext(20);
+        textView.setTextFromCollection(20);
         expect(textView.getText()).toEqual(jon);
     }
 
     @Test
     public void shouldOutputFirstTwoNames() {
         textView.setDisplayItems(Lists.newArrayList(jon, matthias));
-        textView.setMultiUserSubtext(20);
+        textView.setTextFromCollection(20);
         expect(textView.getText()).toEqual(jon + " and " + matthias);
     }
 
     @Test
     public void shouldOutputFirstNameAnd1Other() {
         textView.setDisplayItems(Lists.newArrayList(jon, matthias));
-        textView.setMultiUserSubtext(10);
+        textView.setTextFromCollection(10);
         expect(textView.getText()).toEqual(jon + " and 1 other");
     }
 
     @Test
     public void shouldOutputFirstTwoNamesAnd1Other() {
         textView.setDisplayItems(Lists.newArrayList(jon, matthias, mustafa));
-        textView.setMultiUserSubtext(30);
+        textView.setTextFromCollection(30);
         expect(textView.getText()).toEqual(jon + ", " + matthias + " and 1 other");
     }
 
     @Test
     public void shouldOutputFirstNameAnd2Others() {
         textView.setDisplayItems(Lists.newArrayList(jon, matthias, mustafa));
-        textView.setMultiUserSubtext(20);
+        textView.setTextFromCollection(20);
         expect(textView.getText()).toEqual(jon + " and 2 others");
     }
 
     @Test
     public void shouldOutputThirdNameAnd2Others() {
         textView.setDisplayItems(Lists.newArrayList(matthias, mustafa, jon));
-        textView.setMultiUserSubtext(18);
+        textView.setTextFromCollection(18);
         expect(textView.getText()).toEqual(jon + " and 2 others");
     }
 
     @Test
     public void shouldOutputThirdAndFourthNamesAnd2Others() {
         textView.setDisplayItems(Lists.newArrayList(matthias, mustafa, jon, jan));
-        textView.setMultiUserSubtext(22);
+        textView.setTextFromCollection(22);
         expect(textView.getText()).toEqual(jon + ", " + jan + " and 2 others");
     }
 
     @Test
     public void shouldOutputThirdNameAnd3Others() {
         textView.setDisplayItems(Lists.newArrayList(matthias, mustafa, jon, jan));
-        textView.setMultiUserSubtext(20);
+        textView.setTextFromCollection(20);
         expect(textView.getText()).toEqual(mustafa + " and 3 others");
     }
 
     @Test
     public void shouldOutputLastTryOnFailure() {
         textView.setDisplayItems(Lists.newArrayList(matthias, mustafa, jon, jan));
-        textView.setMultiUserSubtext(0);
+        textView.setTextFromCollection(0);
         expect(textView.getText()).toEqual(jan + " and 3 others");
     }
 

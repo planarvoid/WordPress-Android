@@ -53,15 +53,15 @@ public class SingleLineCollectionTextView extends TextView {
 
     private void setCollectionText() {
         if (mDisplayItems != null) {
-            setMultiUserSubtext(getMeasuredWidth());
+            setTextFromCollection(getMeasuredWidth());
         }
     }
 
     @VisibleForTesting
-    void setMultiUserSubtext(float maxWidth) {
+    void setTextFromCollection(float maxWidth) {
 
-        final int numUsers = mDisplayItems.size();
-        if (numUsers == 1) {
+        final int numItems = mDisplayItems.size();
+        if (numItems == 1) {
             setText(mDisplayItems.get(0));
         } else {
             if (mDisplayNamesBuilder == null) {
@@ -73,16 +73,16 @@ public class SingleLineCollectionTextView extends TextView {
             final Paint paint = getPaint();
             paint.setSubpixelText(true);
 
-            String subTextCandidate = null;
-            if (numUsers == 2) {
-                subTextCandidate = getResources().getString(R.string.and_conjunction, mDisplayItems.get(0), mDisplayItems.get(1));
-                if (paint.measureText(subTextCandidate) > maxWidth) {
+            String candidate = null;
+            if (numItems == 2) {
+                candidate = getResources().getString(R.string.and_conjunction, mDisplayItems.get(0), mDisplayItems.get(1));
+                if (paint.measureText(candidate) > maxWidth) {
                     // change to "xxx and 1 other"
                     mDisplayNamesBuilder.append(mDisplayItems.get(0));
-                    subTextCandidate = appendSubtitleUsers(1);
+                    candidate = appendRemaining(1);
                 }
 
-            } else if (numUsers > 2) {
+            } else if (numItems > 2) {
 
                 // try to fit the format xxx, yyy and z others
                 boolean fits = false;
@@ -91,8 +91,8 @@ public class SingleLineCollectionTextView extends TextView {
                         mDisplayNamesBuilder.setLength(0);
                         mDisplayNamesBuilder.append(mDisplayItems.get(i)).append(", ")
                                 .append(mDisplayItems.get(j));
-                        subTextCandidate = appendSubtitleUsers(numUsers - 2);
-                        fits = paint.measureText(subTextCandidate) <= maxWidth;
+                        candidate = appendRemaining(numItems - 2);
+                        fits = paint.measureText(candidate) <= maxWidth;
                     }
                 }
 
@@ -101,18 +101,18 @@ public class SingleLineCollectionTextView extends TextView {
                     for (int i = 0; i < mDisplayItems.size() && !fits; i++) {
                         mDisplayNamesBuilder.setLength(0);
                         mDisplayNamesBuilder.append(mDisplayItems.get(i));
-                        subTextCandidate = appendSubtitleUsers(numUsers - 1);
-                        fits = paint.measureText(subTextCandidate) <= maxWidth;
+                        candidate = appendRemaining(numItems - 1);
+                        fits = paint.measureText(candidate) <= maxWidth;
                     }
                 }
 
             }
-            setText(subTextCandidate);
+            setText(candidate);
         }
     }
 
-    private String appendSubtitleUsers(int moreUsers) {
-        mDisplayNamesBuilder.append(" ").append(getResources().getQuantityString(R.plurals.number_of_others, moreUsers, moreUsers));
+    private String appendRemaining(int moreItems) {
+        mDisplayNamesBuilder.append(" ").append(getResources().getQuantityString(R.plurals.number_of_others, moreItems, moreItems));
         return mDisplayNamesBuilder.toString();
     }
 
