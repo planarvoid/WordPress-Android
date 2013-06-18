@@ -9,12 +9,12 @@ import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.android.RxFragmentCompletionHandler;
-import com.soundcloud.android.rx.android.RxFragmentErrorHandler;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
 
 import android.content.Intent;
@@ -34,14 +34,19 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private SuggestedUsersCategoriesAdapter mAdapter;
     private SuggestedUsersOperations mSuggestions;
     private Subscription mSubscription;
+    private Observer<CategoryGroup> mObserver;
 
     public SuggestedUsersCategoriesFragment() {
-        this(new SuggestedUsersOperations(), new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
+        this(new SuggestedUsersOperations(), null,
+                new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
     }
 
     @VisibleForTesting
-    protected SuggestedUsersCategoriesFragment(SuggestedUsersOperations onboardingOps, SuggestedUsersCategoriesAdapter adapter) {
+    protected SuggestedUsersCategoriesFragment(SuggestedUsersOperations onboardingOps,
+                                               @Nullable Observer<CategoryGroup> observer,
+                                               SuggestedUsersCategoriesAdapter adapter) {
         mSuggestions = onboardingOps;
+        mObserver = observer;
         mAdapter = adapter;
     }
 
@@ -70,7 +75,9 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
         Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mSuggestions.getCategoryGroups().cache().observeOn(ScSchedulers.UI_SCHEDULER));
         Log.d(LOG_TAG, "SUBSCRIBING, obs = " + observable.hashCode());
-        mSubscription = observable.subscribe(new CategoryGroupsObserver(this));
+
+        if (mObserver == null) mObserver = new CategoryGroupsObserver(this);
+        mSubscription = observable.subscribe(mObserver);
     }
 
     @Override
