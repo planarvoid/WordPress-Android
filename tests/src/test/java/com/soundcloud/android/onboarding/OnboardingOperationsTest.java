@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.Observable;
 import rx.Observer;
+import rx.concurrency.Schedulers;
 
 @RunWith(SoundCloudTestRunner.class)
 public class OnboardingOperationsTest {
@@ -30,7 +31,7 @@ public class OnboardingOperationsTest {
                 TestHelper.buildCategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS, 1)));
         Observer<CategoryGroup> observer = mock(Observer.class);
 
-        ops = new OnboardingOperations(api);
+        ops = new OnboardingOperations(api).subscribeOn(Schedulers.immediate());
 
         Observable<CategoryGroup> genreBuckets = ops.getCategoryGroups();
         genreBuckets.subscribe(observer);
