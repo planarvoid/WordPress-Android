@@ -5,8 +5,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
+import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.Category;
-import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.android.RxFragmentCompletionHandler;
 import com.soundcloud.android.rx.android.RxFragmentErrorHandler;
@@ -30,17 +30,17 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private static final String LOG_TAG = "suggested_users_frag";
 
     private SuggestedUsersCategoriesAdapter mAdapter;
-    private OnboardingOperations mOnboardingOps;
+    private SuggestedUsersOperations mSuggestions;
     private Subscription mSubscription;
 
     public SuggestedUsersCategoriesFragment() {
-        this(new OnboardingOperations().<OnboardingOperations>observeOn(ScSchedulers.UI_SCHEDULER),
+        this(new SuggestedUsersOperations().<SuggestedUsersOperations>observeOn(ScSchedulers.UI_SCHEDULER),
                 new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
     }
 
     @VisibleForTesting
-    protected SuggestedUsersCategoriesFragment(OnboardingOperations onboardingOps, SuggestedUsersCategoriesAdapter adapter) {
-        mOnboardingOps = onboardingOps;
+    protected SuggestedUsersCategoriesFragment(SuggestedUsersOperations onboardingOps, SuggestedUsersCategoriesAdapter adapter) {
+        mSuggestions = onboardingOps;
         mAdapter = adapter;
     }
 
@@ -67,7 +67,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         listView.setAdapter(mAdapter);
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
-        Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mOnboardingOps.getCategoryGroups().cache());
+        Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mSuggestions.getCategoryGroups().cache());
         Log.d(LOG_TAG, "SUBSCRIBING, obs = " + observable.hashCode());
         mSubscription = observable.subscribe(
                 mAdapter.onNextCategoryGroup(), new OnGenreBucketsError(this), new OnGenreBucketsCompleted(this));

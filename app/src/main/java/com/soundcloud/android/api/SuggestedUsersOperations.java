@@ -9,12 +9,13 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import rx.Observable;
 
 import java.util.List;
 
 
-public class SuggestedUsersOperations {
+public class SuggestedUsersOperations extends ScheduledOperations {
 
     private RxHttpClient mRxHttpClient;
 

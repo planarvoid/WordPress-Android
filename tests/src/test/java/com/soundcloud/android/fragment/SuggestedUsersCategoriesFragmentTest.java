@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
+import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.onboarding.OnboardingOperations;
@@ -33,7 +34,7 @@ public class SuggestedUsersCategoriesFragmentTest {
 
     @Before
     public void setup() throws CreateModelException {
-        OnboardingOperations operations = mock(OnboardingOperations.class);
+        SuggestedUsersOperations operations = mock(SuggestedUsersOperations.class);
         when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
 
         adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followStatus);
