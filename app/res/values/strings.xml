@@ -160,5 +160,5 @@
     <string name="suggested_users_btn_select_all">Select All</string>
     <string name="suggested_users_btn_deselect_all">Deselect All</string>
 
-    <string name="and_conjunction">%1s and %2s</string>
+    <string name="and_conjunction">%1$s and %2$s</string>
 </resources>
