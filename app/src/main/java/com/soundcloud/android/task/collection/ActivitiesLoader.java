@@ -12,6 +12,7 @@ import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpStatus;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class ActivitiesLoader implements CollectionLoader<Activity> {
             newActivities = getOlderActivities(storage, params);
             if (newActivities.size() < params.maxToLoad) {
                 try {
-                    SoundCloudApplication context = SoundCloudApplication.instance;
+                    Context context = SoundCloudApplication.instance;
                     ApiSyncer syncer = new ApiSyncer(context, context.getContentResolver());
                     ApiSyncResult result = syncer.syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
                     if (result.success) {
