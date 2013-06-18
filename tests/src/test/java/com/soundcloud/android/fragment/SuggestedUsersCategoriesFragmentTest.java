@@ -10,7 +10,6 @@ import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.CategoryGroup;
-import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
