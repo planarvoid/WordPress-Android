@@ -88,6 +88,7 @@ public class OnboardingOperations extends ScheduledOperations {
     //TODO replace with actual API facade
     public OnboardingOperations(FakeApi api) {
         this.mApi = api;
+        subscribeOn(ScSchedulers.API_SCHEDULER);
     }
 
     public Observable<CategoryGroup> getCategoryGroups() {
@@ -110,7 +111,7 @@ public class OnboardingOperations extends ScheduledOperations {
 
                 return Subscriptions.empty();
             }
-        }).subscribeOn(ScSchedulers.API_SCHEDULER));
+        }));
     }
 
 }
