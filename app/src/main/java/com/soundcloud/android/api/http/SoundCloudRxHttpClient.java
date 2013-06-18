@@ -9,6 +9,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.http.json.JsonTransformer;
 import com.soundcloud.android.model.UnknownResource;
+import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -26,7 +28,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 
-public class SoundCloudRxHttpClient implements RxHttpClient  {
+public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient  {
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json";
 
     private final JsonTransformer mJsonTransformer;
@@ -42,12 +44,13 @@ public class SoundCloudRxHttpClient implements RxHttpClient  {
         mJsonTransformer = jsonTransformer;
         mContext = context;
         mWrapperFactory = wrapperFactory;
+        subscribeOn(ScSchedulers.API_SCHEDULER);
     }
 
 
     @Override
     public <ModelType> Observable<ModelType> executeAPIRequest(final APIRequest apiRequest) {
-        return Observable.create(new Func1<Observer<ModelType>, Subscription>() {
+        return schedule(Observable.create(new Func1<Observer<ModelType>, Subscription>() {
             /*
             TODO Version headers, gzip acceptance, connectivity check, proxy information
              */
@@ -73,7 +76,7 @@ public class SoundCloudRxHttpClient implements RxHttpClient  {
 
             }
 
-        });
+        }));
     }
 
     private <T> void notifyObserverOfResult(Observer<T> observer, APIRequest apiRequest, Object resource) {

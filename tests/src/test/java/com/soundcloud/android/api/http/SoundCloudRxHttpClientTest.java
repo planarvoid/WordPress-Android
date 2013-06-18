@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observer;
+import rx.concurrency.Schedulers;
 
 import android.content.Context;
 
@@ -66,7 +67,7 @@ public class SoundCloudRxHttpClientTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        rxHttpClient = new SoundCloudRxHttpClient(context, jsonTransformer, wrapperFactory);
+        rxHttpClient = new SoundCloudRxHttpClient(context, jsonTransformer, wrapperFactory).subscribeOn(Schedulers.immediate());
         when(apiRequest.getUriPath()).thenReturn(URI);
         when(apiRequest.getMethod()).thenReturn("get");
         when(wrapperFactory.createWrapper(context, apiRequest)).thenReturn(wrapper);
