@@ -33,7 +33,6 @@ public class UpdateCollectionTaskTest {
         staleItems.add(updatedUser);
 
         AndroidCloudAPI api = mock(AndroidCloudAPI.class);
-        when(api.getContext()).thenReturn(DefaultTestRunner.application);
         when(api.readList(any(Request.class))).thenReturn(staleItems);
 
         UpdateCollectionTask task = new UpdateCollectionTask(api, "/tracks", new HashSet<Long>());

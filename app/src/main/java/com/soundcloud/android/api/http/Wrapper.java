@@ -170,11 +170,6 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         return mObjectMapper;
     }
 
-    @Override
-    public Context getContext() {
-        return  mContext;
-    }
-
     @Override @SuppressWarnings("unchecked")
     public <T extends ScResource> T read(Request request) throws NotFoundException, IOException {
         return (T) getMapper().readValue(getInputStream(get(request)), ScResource.class);

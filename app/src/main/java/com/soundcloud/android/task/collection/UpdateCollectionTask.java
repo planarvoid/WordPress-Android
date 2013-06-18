@@ -63,7 +63,7 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
                 resources.add(SoundCloudApplication.MODEL_MANAGER.cache(r, ScResource.CacheUpdateMode.FULL));
             }
 
-            new BaseDAO<ScResource>(mApi.getContext().getContentResolver()) {
+            new BaseDAO<ScResource>(SoundCloudApplication.instance.getContentResolver()) {
                 @Override public Content getContent() {
                     return Content.COLLECTIONS;
                 }

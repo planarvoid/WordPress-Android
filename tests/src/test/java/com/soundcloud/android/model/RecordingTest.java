@@ -253,7 +253,7 @@ public class RecordingTest {
     @Test
     public void shouldProvideCorrectParams() throws Exception {
         Recording r = createRecording();
-        Map<String, ?> params = r.toParamsMap(Robolectric.application);
+        Map<String, ?> params = r.toParamsMap(Robolectric.application.getResources());
         final String title = r.sharingNote(Robolectric.application.getResources());
         expect(params.get(Params.Track.TITLE)).toEqual(title);
         expect(params.get(Params.Track.TYPE)).toBe(Recording.UPLOAD_TYPE);
@@ -270,7 +270,7 @@ public class RecordingTest {
     public void shouldProvideCorrectPublicParams() throws Exception {
         Recording r = createRecording();
         r.recipient_user_id = -1;
-        expect(r.toParamsMap(Robolectric.application).get(Params.Track.SHARING)).toBe(Params.Track.PUBLIC);
+        expect(r.toParamsMap(Robolectric.application.getResources()).get(Params.Track.SHARING)).toBe(Params.Track.PUBLIC);
     }
 
     @Test
@@ -278,7 +278,7 @@ public class RecordingTest {
         Recording r = createRecording();
         r.recipient_user_id = -1;
         r.is_private = true;
-        expect(r.toParamsMap(Robolectric.application).get(Params.Track.SHARING)).toBe(Params.Track.PRIVATE);
+        expect(r.toParamsMap(Robolectric.application.getResources()).get(Params.Track.SHARING)).toBe(Params.Track.PRIVATE);
     }
 
     @Test

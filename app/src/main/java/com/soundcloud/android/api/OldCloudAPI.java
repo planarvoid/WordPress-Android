@@ -105,11 +105,6 @@ public class OldCloudAPI implements AndroidCloudAPI {
         return mCloudApi.getMapper();
     }
 
-    @Override
-    public Context getContext() {
-        return mContext;
-    }
-
     public <T extends ScResource> T read(Request req) throws IOException {
         return mCloudApi.read(req);
     }

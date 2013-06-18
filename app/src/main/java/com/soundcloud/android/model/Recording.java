@@ -385,9 +385,9 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return new Intent(Actions.RECORD);
     }
 
-    public Map<String, ?> toParamsMap(Context context) {
+    public Map<String, ?> toParamsMap(Resources resources) {
         Map<String, Object> data = new HashMap<String, Object>();
-        title = sharingNote(context.getResources());
+        title = sharingNote(resources);
 
         data.put(Params.Track.TITLE, title);
         data.put(Params.Track.TYPE, UPLOAD_TYPE);
@@ -428,9 +428,9 @@ public class Recording extends ScResource implements Comparable<Recording> {
         return !is_private && recipient_user_id <= 0;
     }
 
-    public Request getRequest(Context context, File file, Request.TransferProgressListener listener) {
+    public Request getRequest(Resources resources, File file, Request.TransferProgressListener listener) {
         final Request request = new Request(Endpoints.TRACKS);
-        final Map<String, ?> map = toParamsMap(context);
+        final Map<String, ?> map = toParamsMap(resources);
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             if (entry.getValue() instanceof Iterable) {
                 for (Object o : (Iterable)entry.getValue()) {

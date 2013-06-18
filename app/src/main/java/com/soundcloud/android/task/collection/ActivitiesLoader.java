@@ -33,7 +33,8 @@ public class ActivitiesLoader implements CollectionLoader<Activity> {
             newActivities = getOlderActivities(storage, params);
             if (newActivities.size() < params.maxToLoad) {
                 try {
-                    ApiSyncer syncer = new ApiSyncer(api.getContext(), api.getContext().getContentResolver());
+                    SoundCloudApplication context = SoundCloudApplication.instance;
+                    ApiSyncer syncer = new ApiSyncer(context, context.getContentResolver());
                     ApiSyncResult result = syncer.syncContent(params.contentUri, ApiSyncService.ACTION_APPEND);
                     if (result.success) {
                         success = true;
