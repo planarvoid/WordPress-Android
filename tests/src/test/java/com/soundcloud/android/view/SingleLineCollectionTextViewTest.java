@@ -1,0 +1,90 @@
+package com.soundcloud.android.view;
+
+import static com.soundcloud.android.Expect.expect;
+
+import com.google.common.collect.Lists;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(SoundCloudTestRunner.class)
+public class SingleLineCollectionTextViewTest {
+
+    private SingleLineCollectionTextView textView;
+
+    final String jon = "Jon";
+    final String matthias = "Matthias";
+    final String mustafa = "Mustafa";
+    final String jan = "Jan";
+
+    @Before
+    public void setup() {
+        textView = new SingleLineCollectionTextView(Robolectric.application);
+    }
+
+    @Test
+    public void shouldOutputFirstName() {
+        textView.setDisplayItems(Lists.newArrayList(jon));
+        textView.setMultiUserSubtext(20);
+        expect(textView.getText()).toEqual(jon);
+    }
+
+    @Test
+    public void shouldOutputFirstTwoNames() {
+        textView.setDisplayItems(Lists.newArrayList(jon, matthias));
+        textView.setMultiUserSubtext(20);
+        expect(textView.getText()).toEqual(jon + " and " + matthias);
+    }
+
+    @Test
+    public void shouldOutputFirstNameAnd1Other() {
+        textView.setDisplayItems(Lists.newArrayList(jon, matthias));
+        textView.setMultiUserSubtext(10);
+        expect(textView.getText()).toEqual(jon + " and 1 other");
+    }
+
+    @Test
+    public void shouldOutputFirstTwoNamesAnd1Other() {
+        textView.setDisplayItems(Lists.newArrayList(jon, matthias, mustafa));
+        textView.setMultiUserSubtext(30);
+        expect(textView.getText()).toEqual(jon + ", " + matthias + " and 1 other");
+    }
+
+    @Test
+    public void shouldOutputFirstNameAnd2Others() {
+        textView.setDisplayItems(Lists.newArrayList(jon, matthias, mustafa));
+        textView.setMultiUserSubtext(20);
+        expect(textView.getText()).toEqual(jon + " and 2 others");
+    }
+
+    @Test
+    public void shouldOutputThirdNameAnd2Others() {
+        textView.setDisplayItems(Lists.newArrayList(matthias, mustafa, jon));
+        textView.setMultiUserSubtext(18);
+        expect(textView.getText()).toEqual(jon + " and 2 others");
+    }
+
+    @Test
+    public void shouldOutputThirdAndFourthNamesAnd2Others() {
+        textView.setDisplayItems(Lists.newArrayList(matthias, mustafa, jon, jan));
+        textView.setMultiUserSubtext(22);
+        expect(textView.getText()).toEqual(jon + ", " + jan + " and 2 others");
+    }
+
+    @Test
+    public void shouldOutputThirdNameAnd3Others() {
+        textView.setDisplayItems(Lists.newArrayList(matthias, mustafa, jon, jan));
+        textView.setMultiUserSubtext(20);
+        expect(textView.getText()).toEqual(mustafa + " and 3 others");
+    }
+
+    @Test
+    public void shouldOutputLastTryOnFailure() {
+        textView.setDisplayItems(Lists.newArrayList(matthias, mustafa, jon, jan));
+        textView.setMultiUserSubtext(0);
+        expect(textView.getText()).toEqual(jan + " and 3 others");
+    }
+
+}

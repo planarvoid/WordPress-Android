@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
@@ -10,10 +11,11 @@ import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
-import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.view.SingleLineCollectionTextView;
 import rx.util.functions.Action1;
 
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -189,7 +191,6 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
             viewHolder.toggleFollow.setTag(position);
             configureItemContent(category, viewHolder);
         }
-
         configureSectionHeader(position, convertView, viewHolder);
         return convertView;
     }
@@ -199,7 +200,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         viewHolder = new ItemViewHolder();
 
         viewHolder.genreTitle = (TextView) convertView.findViewById(android.R.id.text1);
-        viewHolder.genreSubtitle = (TextView) convertView.findViewById(android.R.id.text2);
+        viewHolder.genreSubtitle = (SingleLineCollectionTextView) convertView.findViewById(android.R.id.text2);
         viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.suggested_users_list_header);
         viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.btn_user_bucket_select_all);
         viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
@@ -221,29 +222,22 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     private void configureItemContent(Category category, ItemViewHolder viewHolder) {
-        final Resources res = viewHolder.genreTitle.getContext().getResources();
+        viewHolder.genreTitle.setText(category.getName());
+        viewHolder.toggleFollow.setChecked(category.isFollowed(mFollowStatus.getFollowedUserIds()));
+        viewHolder.genreSubtitle.setDisplayItems(getSubtextUsers(category));
+    }
 
+    /* package */ List<String> getSubtextUsers(Category category) {
         final Set<Long> followedUserIds = mFollowStatus.getFollowedUserIds();
         final List<SuggestedUser> followedUsers = category.getFollowedUsers(followedUserIds);
-        final List<SuggestedUser> subTextUsers = followedUsers.isEmpty() ? category.getUsers() : followedUsers;
-        final int numUsers = subTextUsers.size();
-
-        mUserNamesBuilder.setLength(0);
-        if (numUsers == 1) {
-            mUserNamesBuilder.append(subTextUsers.get(0).getUsername());
-        } else if (numUsers > 1) {
-            mUserNamesBuilder.append(subTextUsers.get(0).getUsername()).append(", ");
-            mUserNamesBuilder.append(subTextUsers.get(1).getUsername());
-
-            if (numUsers > 2) {
-                int moreUsers = numUsers - 2;
-                mUserNamesBuilder.append(" ").append(res.getQuantityString(R.plurals.number_of_other_users, moreUsers, moreUsers));
+        final List<SuggestedUser> subtextUsers =  followedUsers.isEmpty() ? category.getUsers() : followedUsers;
+        return Lists.transform(subtextUsers, new Function<SuggestedUser, String>() {
+            @Override
+            public String apply(SuggestedUser input) {
+                return input.getUsername();
             }
-        }
-        viewHolder.genreSubtitle.setText(mUserNamesBuilder.toString());
-        viewHolder.genreTitle.setText(category.getName());
-        final boolean followed = category.isFollowed(followedUserIds);
-        viewHolder.toggleFollow.setChecked(followed);
+        });
+
     }
 
     private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {
@@ -279,7 +273,8 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     };
 
     private static class ItemViewHolder {
-        public TextView genreTitle, genreSubtitle, sectionHeader;
+        public TextView genreTitle, sectionHeader;
+        public SingleLineCollectionTextView genreSubtitle;
         public ToggleButton toggleFollow;
     }
 

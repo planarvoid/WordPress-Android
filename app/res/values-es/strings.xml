@@ -239,4 +239,6 @@
 
     <string name="version">Versión</string>
     <string name="unavailable">indisponible</string>
+
+    <string name="and_conjunction">%1s y %2s</string>
 </resources>
