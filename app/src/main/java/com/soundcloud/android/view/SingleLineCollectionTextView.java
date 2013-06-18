@@ -24,7 +24,7 @@ import java.util.List;
 public class SingleLineCollectionTextView extends TextView {
 
     List<String> mDisplayItems;
-    StringBuilder mUserNamesBuilder;
+    StringBuilder mDisplayNamesBuilder;
 
     public SingleLineCollectionTextView(Context context) {
         super(context);
@@ -64,10 +64,10 @@ public class SingleLineCollectionTextView extends TextView {
         if (numUsers == 1) {
             setText(mDisplayItems.get(0));
         } else {
-            if (mUserNamesBuilder == null) {
-                mUserNamesBuilder = new StringBuilder(); // lazy init
+            if (mDisplayNamesBuilder == null) {
+                mDisplayNamesBuilder = new StringBuilder(); // lazy init
             } else {
-                mUserNamesBuilder.setLength(0);
+                mDisplayNamesBuilder.setLength(0);
             }
 
             final Paint paint = getPaint();
@@ -78,7 +78,7 @@ public class SingleLineCollectionTextView extends TextView {
                 subTextCandidate = getResources().getString(R.string.and_conjunction, mDisplayItems.get(0), mDisplayItems.get(1));
                 if (paint.measureText(subTextCandidate) > maxWidth) {
                     // change to "xxx and 1 other"
-                    mUserNamesBuilder.append(mDisplayItems.get(0));
+                    mDisplayNamesBuilder.append(mDisplayItems.get(0));
                     subTextCandidate = appendSubtitleUsers(1);
                 }
 
@@ -88,8 +88,8 @@ public class SingleLineCollectionTextView extends TextView {
                 boolean fits = false;
                 for (int i = 0; i < mDisplayItems.size() && !fits; i++) {
                     for (int j = i + 1; j < mDisplayItems.size() && !fits; j++) {
-                        mUserNamesBuilder.setLength(0);
-                        mUserNamesBuilder.append(mDisplayItems.get(i)).append(", ")
+                        mDisplayNamesBuilder.setLength(0);
+                        mDisplayNamesBuilder.append(mDisplayItems.get(i)).append(", ")
                                 .append(mDisplayItems.get(j));
                         subTextCandidate = appendSubtitleUsers(numUsers - 2);
                         fits = paint.measureText(subTextCandidate) <= maxWidth;
@@ -99,8 +99,8 @@ public class SingleLineCollectionTextView extends TextView {
                 // try to fit the format xxx and z others
                 if (!fits) {
                     for (int i = 0; i < mDisplayItems.size() && !fits; i++) {
-                        mUserNamesBuilder.setLength(0);
-                        mUserNamesBuilder.append(mDisplayItems.get(i));
+                        mDisplayNamesBuilder.setLength(0);
+                        mDisplayNamesBuilder.append(mDisplayItems.get(i));
                         subTextCandidate = appendSubtitleUsers(numUsers - 1);
                         fits = paint.measureText(subTextCandidate) <= maxWidth;
                     }
@@ -112,8 +112,8 @@ public class SingleLineCollectionTextView extends TextView {
     }
 
     private String appendSubtitleUsers(int moreUsers) {
-        mUserNamesBuilder.append(" ").append(getResources().getQuantityString(R.plurals.number_of_others, moreUsers, moreUsers));
-        return mUserNamesBuilder.toString();
+        mDisplayNamesBuilder.append(" ").append(getResources().getQuantityString(R.plurals.number_of_others, moreUsers, moreUsers));
+        return mDisplayNamesBuilder.toString();
     }
 
 }
