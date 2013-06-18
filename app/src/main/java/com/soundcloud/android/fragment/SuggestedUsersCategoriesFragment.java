@@ -100,7 +100,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         }
 
         @Override
-        protected void onCompleted(SuggestedUsersCategoriesFragment fragment) {
+        public void onCompleted(SuggestedUsersCategoriesFragment fragment) {
             Log.d(LOG_TAG, "fragment: onCompleted");
             fragment.mAdapter.notifyDataSetChanged();
         }
@@ -113,7 +113,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         }
 
         @Override
-        protected void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
+        public void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
             error.printStackTrace();
             //TODO proper error message
             AndroidUtils.showToast(fragment.getActivity(), R.string.suggested_users_error_get_genre_buckets);

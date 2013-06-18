@@ -4,23 +4,17 @@ import rx.util.functions.Action1;
 
 import android.support.v4.app.Fragment;
 
-import java.lang.ref.WeakReference;
-
-public abstract class RxFragmentErrorHandler<T extends Fragment> implements Action1<Exception> {
-
-    private final WeakReference<T> mFragmentRef;
+public abstract class RxFragmentErrorHandler<T extends Fragment> extends RxFragmentHandler<T> implements Action1<Exception>, RxFragmentOnErrorMethods<T> {
 
     public RxFragmentErrorHandler(T fragment) {
-        mFragmentRef = new WeakReference<T>(fragment);
+        super(fragment);
     }
 
     @Override
     public final void call(Exception error) {
-        T fragment = mFragmentRef.get();
-        if (fragment != null && fragment.isAdded()) {
+        T fragment = getFragmentForCallback();
+        if (fragment != null) {
             onError(fragment, error);
         }
     }
-
-    protected abstract void onError(T fragment, Exception error);
 }

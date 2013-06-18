@@ -1,5 +1,7 @@
 package com.soundcloud.android.rx.android;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -28,7 +30,7 @@ public class RxFragmentCompletionHandlerTest {
         }
 
         @Override
-        protected void onCompleted(Fragment fragment) {
+        public void onCompleted(Fragment fragment) {
         }
     }
 
@@ -64,7 +66,7 @@ public class RxFragmentCompletionHandlerTest {
         handler.setRequireActivity(true);
         handler.call();
 
-        verify(handler, never()).onCompleted(mockFragment);
+        verify(handler, never()).onCompleted(any(Fragment.class));
     }
 
     @Test
@@ -73,6 +75,6 @@ public class RxFragmentCompletionHandlerTest {
 
         handler.call();
 
-        verifyZeroInteractions(handler);
+        verify(handler, never()).onCompleted(any(Fragment.class));
     }
 }
