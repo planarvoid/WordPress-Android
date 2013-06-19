@@ -44,6 +44,7 @@ public class SuggestedUsersCategoriesAdapterTest {
     }
 
     @Test
+    @Ignore
     public void shouldNotHaveFacebookLoadingSection() {
         expect(new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followStatus).getCount() ).toBe(2);
     }
@@ -57,7 +58,7 @@ public class SuggestedUsersCategoriesAdapterTest {
     public void shouldHandleUnexpectedSection() throws CreateModelException {
         SuggestedUsersCategoriesAdapter adapter1 = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followStatus);
         adapter1.addItem(facebook());
-        expect(adapter1.getCount()).toBe(4);
+        expect(adapter1.getCount()).toBe(2);
     }
 
     @Test
