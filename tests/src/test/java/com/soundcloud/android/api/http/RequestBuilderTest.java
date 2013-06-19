@@ -17,7 +17,7 @@ public class RequestBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotBuildRequestIfURIIsNull() throws Exception {
-          RequestBuilder.<Integer>get(null).forVersion(1).forResource(Integer.class).forPrivateAPI().build();
+          RequestBuilder.<Integer>get(null).forResource(Integer.class).forPrivateAPI(1).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -39,17 +39,12 @@ public class RequestBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseIllegalArgumentExceptionOnNegativeVersionValue() {
-        RequestBuilder.<Integer>get(URI_PATH).forVersion(-1).forResource(Integer.class).forPrivateAPI().build();
+        RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPrivateAPI(-1).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseIllegalArgumentExceptionOnZeroVersionValueForPrivateAPI() {
-        RequestBuilder.<Integer>get(URI_PATH).forVersion(0).forResource(Integer.class).forPrivateAPI().build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldRaiseIllegalArgumentExceptionIfNoVersionSetForPrivateAPI() {
-        RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPrivateAPI().build();
+        RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPrivateAPI(0).build();
     }
 
     @Test
@@ -71,14 +66,14 @@ public class RequestBuilderTest {
 
     @Test
     public void shouldReturnSpecifiedResourceTypeTokenForValidRequest(){
-        APIRequest<List<Integer>> request = RequestBuilder.<List<Integer>>get(URI_PATH).forVersion(1).
-                forResource(new TypeToken<List<Integer>>() {}).forPrivateAPI().build();
+        APIRequest<List<Integer>> request = RequestBuilder.<List<Integer>>get(URI_PATH).
+                forResource(new TypeToken<List<Integer>>() {}).forPrivateAPI(1).build();
         expect(request.getResourceType()).toEqual(new TypeToken<List<Integer>>(){});
     }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionIfAPIModeNotSet(){
-        RequestBuilder.<Integer>get(URI_PATH).forVersion(1).
+        RequestBuilder.<Integer>get(URI_PATH).
                 forResource(Integer.class).build();
     }
 
@@ -90,11 +85,11 @@ public class RequestBuilderTest {
 
     @Test
     public void shouldReturnSpecifiedPublicAPITarget(){
-        APIRequest<Integer> request = RequestBuilder.<Integer>get(URI_PATH).forVersion(1).forResource(Integer.class).forPublicAPI().build();
+        APIRequest<Integer> request = RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPublicAPI().build();
         expect(request.isPrivate()).toBeFalse();
     }
 
     private <T> APIRequest<Integer> buildValidRequest() {
-        return RequestBuilder.<Integer>get(URI_PATH).forVersion(1).forResource(Integer.class).forPrivateAPI().build();
+        return RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPrivateAPI(1).build();
     }
 }
