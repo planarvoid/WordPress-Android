@@ -1,6 +1,5 @@
 package com.soundcloud.android.fragment;
 
-import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -9,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.CategoryGroup;
@@ -25,7 +25,6 @@ import rx.Observable;
 import rx.Observer;
 
 import android.view.View;
-import android.widget.ListView;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SuggestedUsersCategoriesFragmentTest {
@@ -52,7 +51,7 @@ public class SuggestedUsersCategoriesFragmentTest {
 
     @Test
     public void shouldFetchGenreBucketsIntoListAdapterInOnCreate() {
-        when(fragment.getListView()).thenReturn(new ListView(Robolectric.application));
+        when(fragment.getView()).thenReturn(View.inflate(Robolectric.application, R.layout.suggested_users_fragment, null));
         fragment.onViewCreated(new View(Robolectric.application), null);
 
         verify(observer, times(2)).onNext(any(CategoryGroup.class));
