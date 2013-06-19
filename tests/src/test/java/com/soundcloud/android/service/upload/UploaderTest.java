@@ -41,7 +41,7 @@ public class UploaderTest {
     }
 
     private Uploader uploader(Recording r) {
-        return new Uploader(DefaultTestRunner.application.getCloudAPI(), r);
+        return new Uploader(DefaultTestRunner.application, DefaultTestRunner.application.getCloudAPI(), r);
     }
 
     public void shouldErrorWhenFileIsMissing() throws Exception {

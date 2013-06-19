@@ -18,10 +18,10 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -34,14 +34,16 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private Recording mUpload;
     private volatile boolean mCanceled;
     private LocalBroadcastManager mBroadcastManager;
+    private final Resources mResources;
 
     private static final int MAX_TRIES = 1;
 
-    public Uploader(AndroidCloudAPI api, Recording recording) {
+    public Uploader(Context context, AndroidCloudAPI api, Recording recording) {
         this.api = api;
         mUpload = recording;
-        mBroadcastManager = LocalBroadcastManager.getInstance(api.getContext());
+        mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
+        mResources = context.getResources();
     }
 
     public boolean isCancelled() {
@@ -83,7 +85,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             Log.v(TAG, "starting upload of " + toUpload);
 
             broadcast(UploadService.TRANSFER_STARTED);
-            HttpResponse response = api.post(mUpload.getRequest(api.getContext(), toUpload, new Request.TransferProgressListener() {
+            HttpResponse response = api.post(mUpload.getRequest(mResources, toUpload, new Request.TransferProgressListener() {
                 long lastPublished;
 
                 @Override

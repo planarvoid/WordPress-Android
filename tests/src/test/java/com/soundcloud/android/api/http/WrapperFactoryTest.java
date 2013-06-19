@@ -29,35 +29,35 @@ public class WrapperFactoryTest {
     @Before
     public void setUp() {
         initMocks(this);
-        wrapperFactory = new WrapperFactory(httpProperties,accountOperations);
+        wrapperFactory = new WrapperFactory(Robolectric.application, httpProperties, accountOperations);
     }
 
     @Test
     public void shouldSetContentTypeIfRequestIsForPrivateAPI() {
         when(apiRequest.isPrivate()).thenReturn(true);
         when(apiRequest.getVersion()).thenReturn(22);
-        ApiWrapper wrapper = wrapperFactory.createWrapper(Robolectric.application, apiRequest);
+        ApiWrapper wrapper = wrapperFactory.createWrapper(apiRequest);
         expect(wrapper.getDefaultContentType()).toEqual("application/vnd.com.soundcloud.mobile.v22+json");
     }
 
     @Test
     public void shouldHaveDefaultContentTypeIfRequestIsForPublicAPI() {
         when(apiRequest.isPrivate()).thenReturn(false);
-        ApiWrapper wrapper = wrapperFactory.createWrapper(Robolectric.application, apiRequest);
+        ApiWrapper wrapper = wrapperFactory.createWrapper(apiRequest);
         expect(wrapper.getDefaultContentType()).toEqual(MediaType.JSON_UTF_8.toString());
     }
 
     @Test
     public void shouldAcceptGZipEncodedTypeForPrivateAPI() {
         when(apiRequest.isPrivate()).thenReturn(true);
-        ApiWrapper wrapper = wrapperFactory.createWrapper(Robolectric.application, apiRequest);
+        ApiWrapper wrapper = wrapperFactory.createWrapper(apiRequest);
         expect(wrapper.getDefaultAcceptEncoding()).toEqual("gzip");
     }
 
     @Test
     public void shouldAcceptGZipEncodedTypeForPublicAPI() {
         when(apiRequest.isPrivate()).thenReturn(true);
-        ApiWrapper wrapper = wrapperFactory.createWrapper(Robolectric.application, apiRequest);
+        ApiWrapper wrapper = wrapperFactory.createWrapper(apiRequest);
         expect(wrapper.getDefaultAcceptEncoding()).toEqual("gzip");
     }
 

@@ -228,7 +228,7 @@ public class UploadService extends Service {
                 service.mProcessingHandler.post(new Encoder(service, upload.recording));
             } else {
                 // perform the actual upload
-                post(new Uploader(mAndroidCloudAPI, upload.recording));
+                post(new Uploader(service, mAndroidCloudAPI, upload.recording));
             }
         }
     }

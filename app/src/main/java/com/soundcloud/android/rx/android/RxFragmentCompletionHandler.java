@@ -4,29 +4,17 @@ import rx.util.functions.Action0;
 
 import android.support.v4.app.Fragment;
 
-import java.lang.ref.WeakReference;
-
-public abstract class RxFragmentCompletionHandler<T extends Fragment> implements Action0 {
-
-    private final WeakReference<T> mFragmentRef;
-    private boolean mRequireActivity = true;
+public abstract class RxFragmentCompletionHandler<T extends Fragment> extends RxFragmentHandler<T> implements Action0, RxFragmentOnCompletedMethods<T> {
 
     public RxFragmentCompletionHandler(T fragment) {
-        mFragmentRef = new WeakReference<T>(fragment);
-    }
-
-    @SuppressWarnings("unused")
-    public void setRequireActivity(boolean requireActivity) {
-        mRequireActivity = requireActivity;
+        super(fragment);
     }
 
     @Override
     public final void call() {
-        T fragment = mFragmentRef.get();
-        if (fragment != null && (!mRequireActivity || fragment.isAdded())) {
+        T fragment = getFragmentForCallback();
+        if (fragment != null) {
             onCompleted(fragment);
         }
     }
-
-    protected abstract void onCompleted(T fragment);
 }

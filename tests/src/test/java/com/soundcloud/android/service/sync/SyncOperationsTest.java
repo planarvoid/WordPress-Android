@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.concurrency.Schedulers;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 import rx.util.functions.Functions;
@@ -43,7 +44,7 @@ public class SyncOperationsTest {
             }
         });
 
-        syncOps = new SyncOperations<String>(Robolectric.application, localStorageOp);
+        syncOps = new SyncOperations<String>(Robolectric.application, localStorageOp).subscribeOn(Schedulers.immediate());
     }
 
     @Test

@@ -39,7 +39,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
 
     @Override
     public ReturnData<T> load(AndroidCloudAPI api, CollectionParams<T> params) {
-        final Context context = api.getContext();
+        final Context context = SoundCloudApplication.instance;
         ContentResolver resolver = context.getContentResolver();
         boolean keepGoing = true;
         int responseCode = EmptyListView.Status.OK;

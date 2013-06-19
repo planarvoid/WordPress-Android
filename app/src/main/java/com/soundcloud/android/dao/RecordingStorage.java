@@ -7,6 +7,7 @@ import static com.soundcloud.android.model.Recording.isAmplitudeFile;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +39,7 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
     public RecordingStorage() {
         ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
         mRecordingDAO = new RecordingDAO(resolver);
+        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 
     @Override

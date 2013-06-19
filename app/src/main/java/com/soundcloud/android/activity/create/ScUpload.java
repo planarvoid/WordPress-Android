@@ -68,7 +68,7 @@ public class ScUpload extends ScActivity {
         mOldCloudAPI = new OldCloudAPI(this);
         setTitle(R.string.share);
 
-        mStorage = new RecordingStorage().subscribeInBackground();
+        mStorage = new RecordingStorage();
 
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, this, getCurrentUserId())) != null) {

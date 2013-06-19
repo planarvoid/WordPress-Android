@@ -8,8 +8,6 @@ import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 
-import android.content.Context;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -21,7 +19,6 @@ public interface AndroidCloudAPI extends CloudAPI {
     String getUserAgent();
     Env getEnv();
     ObjectMapper getMapper();
-    Context getContext();
 
     /**
      * Reads a single resource from the API.

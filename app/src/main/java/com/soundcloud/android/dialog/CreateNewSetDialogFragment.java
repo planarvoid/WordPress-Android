@@ -98,7 +98,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
         final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
         final Account account = accountOperations.getSoundCloudAccount();
 
-        PlaylistStorage playlistStorage = getPlaylistStorage().subscribeInBackground();
+        PlaylistStorage playlistStorage = getPlaylistStorage();
         // insert the new playlist into the database
         playlistStorage.createNewUserPlaylist(
                 loggedInUser,

@@ -4,6 +4,7 @@ package com.soundcloud.android.service.upload;
 import static com.soundcloud.android.service.upload.UploadService.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
@@ -73,7 +74,7 @@ public class Poller extends Handler {
                     persistTrack(track);
 
                     LocalBroadcastManager
-                            .getInstance(mApi.getContext())
+                            .getInstance(SoundCloudApplication.instance)
                             .sendBroadcast(new Intent(UploadService.TRANSCODING_FAILED)
                                     .putExtra(Track.EXTRA, track));
                 }
@@ -90,14 +91,14 @@ public class Poller extends Handler {
         }
 
         // local storage should reflect full track info
-        ContentResolver resolver = mApi.getContext().getContentResolver();
+        ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
         persistTrack(track);
 
         // this will tell any observers to update their UIs to the up to date track
         if (mNotifyUri != null) resolver.notifyChange(mNotifyUri, null, false);
 
         LocalBroadcastManager
-                .getInstance(mApi.getContext())
+                .getInstance(SoundCloudApplication.instance)
                 .sendBroadcast(new Intent(UploadService.TRANSCODING_SUCCESS)
                         .putExtra(Track.EXTRA, track));
     }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.rx.schedulers;
 
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -22,35 +21,6 @@ public abstract class ScheduledOperations {
     @SuppressWarnings("unchecked")
     public <R extends ScheduledOperations> R scheduleDefault() {
         mSubscribeOn = mObserveOn = null;
-        return (R) this;
-    }
-
-    /**
-     * Convenience method to have all observables created by this class execute in the background, and call back on
-     * the UI thread. This is the safest options when calling from an Activity or Fragment.
-     */
-    @SuppressWarnings("unchecked")
-    public <R extends ScheduledOperations> R scheduleFromActivity() {
-        mSubscribeOn = ScSchedulers.BACKGROUND_SCHEDULER;
-        mObserveOn = ScSchedulers.UI_SCHEDULER;
-        return (R) this;
-    }
-
-    /**
-     * Convenience method to have all observables created by this class execute in the background.
-     */
-    @SuppressWarnings("unchecked")
-    public <R extends ScheduledOperations> R subscribeInBackground() {
-        mSubscribeOn = ScSchedulers.BACKGROUND_SCHEDULER;
-        return (R) this;
-    }
-
-    /**
-     * Convenience method to have all observables created by this class call back on the UI thread.
-     */
-    @SuppressWarnings("unchecked")
-    public <R extends ScheduledOperations> R observeInForeground() {
-        mObserveOn = ScSchedulers.UI_SCHEDULER;
         return (R) this;
     }
 
