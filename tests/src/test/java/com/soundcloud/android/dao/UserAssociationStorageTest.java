@@ -18,12 +18,14 @@ import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.task.collection.RemoteCollectionLoaderTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -128,7 +130,7 @@ public class UserAssociationStorageTest {
         final List<User> users = createUsers(3);
         expect(storage.addFollowings(users)).toEqual(6); // 2 users, associations
         expect(Content.ME_FOLLOWINGS).toHaveCount(3);
-        for (User user : users){
+        for (User user : users) {
             expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user.getId()).getLocalSyncState())
                     .toBe(UserAssociation.LocalState.PENDING_ADDITION);
         }
@@ -139,7 +141,7 @@ public class UserAssociationStorageTest {
         final List<User> users = createUsers(3);
         expect(storage.removeFollowings(users)).toEqual(6); // 2 users, associations
         expect(Content.ME_FOLLOWINGS).toHaveCount(3);
-        for (User user : users){
+        for (User user : users) {
             expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user.getId()).getLocalSyncState())
                     .toBe(UserAssociation.LocalState.PENDING_REMOVAL);
         }
@@ -184,7 +186,7 @@ public class UserAssociationStorageTest {
         List<Long> ids = Lists.newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE), DiscreteDomain.longs()));
 
         ContentResolver resolver = mock(ContentResolver.class);
-        new UserAssociationStorage(resolver).insertInBatches(Content.ME_FOLLOWERS,USER_ID,ids,0, BATCH_SIZE);
+        new UserAssociationStorage(resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, 0, BATCH_SIZE);
         verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
         verifyNoMoreInteractions(resolver);
     }
@@ -200,7 +202,46 @@ public class UserAssociationStorageTest {
     }
 
     @Test
-    public void shouldQueryFollowings(){
+    public void shouldSetCorrectInsertPositionOfPositionColumnWhenInsertingSingleBatch() {
+        List<Long> ids = Lists.newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE), DiscreteDomain.longs()));
+
+        int START_POSITION = 27;
+        ContentResolver resolver = mock(ContentResolver.class);
+        new UserAssociationStorage(resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, START_POSITION, BATCH_SIZE);
+
+        ArgumentCaptor<ContentValues[]> argumentCaptor = ArgumentCaptor.forClass(ContentValues[].class);
+        verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), argumentCaptor.capture());
+        ContentValues[] contentValuesArr = argumentCaptor.getValue();
+        int counter = 0;
+        for (ContentValues contentValues : contentValuesArr) {
+            expect(contentValues.getAsInteger(DBHelper.UserAssociations.POSITION)).toEqual(START_POSITION + counter++);
+        }
+        expect(counter).toEqual(ids.size());
+    }
+
+    @Test
+    public void shouldSetCorrectInsertPositionOfPositionColumnWhenInsertingMultipleBatches() {
+        List<Long> ids = Lists.newArrayList(ContiguousSet.create(Range.closed(1L, (long) BATCH_SIZE*2), DiscreteDomain.longs()));
+
+        int START_POSITION = 66;
+        ContentResolver resolver = mock(ContentResolver.class);
+        new UserAssociationStorage(resolver).insertInBatches(Content.ME_FOLLOWERS, USER_ID, ids, START_POSITION, BATCH_SIZE);
+
+        ArgumentCaptor<ContentValues[]> argumentCaptor = ArgumentCaptor.forClass(ContentValues[].class);
+        verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), argumentCaptor.capture());
+        List<ContentValues[]> contentValues = argumentCaptor.getAllValues();
+        int counter = 0;
+        for (ContentValues[] contentValue : contentValues) {
+            for(ContentValues values : contentValue){
+                expect(values.getAsInteger(DBHelper.UserAssociations.POSITION)).toEqual(START_POSITION + counter++);
+            }
+        }
+        expect(counter).toEqual(ids.size());
+    }
+
+
+    @Test
+    public void shouldQueryFollowings() {
         TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         expect(storage.getFollowings().size()).toEqual(2);
@@ -251,7 +292,7 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldQueryUnsyncedFollowingAddition() {
         final List<User> users = createUsers(2);
-        TestHelper.bulkInsertToUserAssociations(users.subList(0,1), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsAdditions(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         expect(storage.getFollowingsNeedingSync().size()).toEqual(1);
@@ -260,7 +301,7 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldQueryUnsyncedFollowingAdditionWithToken() {
         final List<User> users = createUsers(3);
-        TestHelper.bulkInsertToUserAssociations(users.subList(0,1), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociations(users.subList(0, 1), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsAdditions(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
         TestHelper.bulkInsertToUserAssociationsAsAdditionsWithToken(users.subList(2, 3), Content.ME_FOLLOWINGS.uri, TOKEN);
 

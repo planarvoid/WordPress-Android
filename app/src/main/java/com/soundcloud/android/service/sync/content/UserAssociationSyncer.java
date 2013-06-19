@@ -1,7 +1,9 @@
 package com.soundcloud.android.service.sync.content;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.UserAssociationStorage;
@@ -35,13 +37,17 @@ public class UserAssociationSyncer extends SyncStrategy {
     private final CollectionStorage mCollectionStorage;
     private final UserAssociationStorage mUserAssociationStorage;
     private int mBulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
+    private SuggestedUsersOperations mSuggestedUsersOperations;
 
-    public UserAssociationSyncer(Context context, ContentResolver resolver) {
-        this(context, resolver, new UserAssociationStorage(resolver));
+    public UserAssociationSyncer(Context context) {
+        this(context, context.getContentResolver(), new UserAssociationStorage(context.getContentResolver()), new SuggestedUsersOperations());
     }
 
-    public UserAssociationSyncer(Context context, ContentResolver resolver, UserAssociationStorage userAssociationStorage) {
+    @VisibleForTesting
+    protected UserAssociationSyncer(Context context, ContentResolver resolver, UserAssociationStorage userAssociationStorage,
+                                    SuggestedUsersOperations suggestedUsersOperations) {
         super(context, resolver);
+        mSuggestedUsersOperations = suggestedUsersOperations;
         mCollectionStorage = new CollectionStorage();
         mUserAssociationStorage = userAssociationStorage;
     }
