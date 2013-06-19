@@ -3,7 +3,9 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,5 +96,28 @@ public class CategoryTest {
     @Test
     public void isFollowedShouldReturnTrueIfAtLeastOneUserIsBeingFollowed() {
         expect(mCategory.isFollowed(Sets.newSet(1L, 100L))).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnEmptyMessage() {
+        mCategory.setType(Category.Type.EMPTY);
+        checkEmptyMessage(R.string.suggested_users_section_empty);
+    }
+
+    @Test
+    public void shouldReturnErrorMessage() {
+        mCategory.setType(Category.Type.ERROR);
+        checkEmptyMessage(R.string.suggested_users_section_error);
+    }
+
+    @Test
+    public void shouldReturnNullEmptyMessage() {
+        mCategory.setType(Category.Type.DEFAULT);
+        expect(mCategory.getEmptyMessage(Robolectric.application.getResources())).toBeNull();
+    }
+
+    private void checkEmptyMessage(int expectedMessageResId) {
+        final String emptyMessage = mCategory.getEmptyMessage(Robolectric.application.getResources());
+        expect(emptyMessage).toEqual(Robolectric.application.getResources().getString(expectedMessageResId));
     }
 }

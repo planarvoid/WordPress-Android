@@ -153,7 +153,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     @Override
     public int getViewTypeCount() {
-        return 3;
+        return Category.Type.values().length;
     }
 
     @Override
@@ -182,6 +182,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 break;
 
             case EMPTY:
+            case ERROR:
                 if (convertView == null) {
                     convertView = inflater.inflate(R.layout.suggested_users_category_list_empty_item, parent, false);
                     viewHolder = getItemViewHolder(convertView);
@@ -189,7 +190,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 } else {
                     viewHolder = (ItemViewHolder) convertView.getTag();
                 }
-                viewHolder.emptyMessage.setText(category.getName()); // currently just set to the name
+                viewHolder.emptyMessage.setText(category.getEmptyMessage(convertView.getResources())); // currently just set to the name
                 break;
 
             case DEFAULT:

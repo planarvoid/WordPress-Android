@@ -96,8 +96,8 @@ public class SuggestedUsersCategoriesAdapterTest {
 
         expect(adapter.getItem(0).isProgressCategory()).toBeTrue();
         expect(adapter.getItem(1).isProgressCategory()).toBeFalse();
-        expect(adapter.getItem(1).isEmptyCategory()).toBeFalse();
-        expect(adapter.getItem(music().getCategoryCount() + 1).isEmptyCategory()).toBeTrue();
+        expect(adapter.getItem(1).isErrorOrEmptyCategory()).toBeFalse();
+        expect(adapter.getItem(music().getCategoryCount() + 1).isErrorOrEmptyCategory()).toBeTrue();
     }
 
     @Test

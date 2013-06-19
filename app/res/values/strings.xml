@@ -156,6 +156,9 @@
     <string name="suggested_users_section_music_and_audio">Music + Audio</string>
     <string name="suggested_users_error_get_genre_buckets">Failed to load categories at this time. Try again later.</string>
 
+    <string name="suggested_users_section_empty">No results found</string>
+    <string name="suggested_users_section_error">No results found, tap to retry</string>
+
     <string name="suggested_users_no_categories_returned">No categories returned</string>
 
     <string name="suggested_users_btn_select_all">Select All</string>

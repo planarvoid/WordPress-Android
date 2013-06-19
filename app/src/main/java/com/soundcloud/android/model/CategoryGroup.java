@@ -69,9 +69,9 @@ public class CategoryGroup extends ScModel {
         return categoryGroup;
     }
 
-    public static CategoryGroup createEmptyGroup(String key, String displayText){
+    public static CategoryGroup createErrorGroup(String key){
         CategoryGroup categoryGroup = new CategoryGroup(key);
-        categoryGroup.setCategories(Lists.<Category>newArrayList(Category.empty(displayText)));
+        categoryGroup.setCategories(Lists.<Category>newArrayList(Category.error()));
         return categoryGroup;
     }
 }

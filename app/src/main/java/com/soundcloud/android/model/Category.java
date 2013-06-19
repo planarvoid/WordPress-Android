@@ -1,7 +1,9 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.R;
 
+import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -19,7 +21,7 @@ public class Category extends ScModel {
     private List<SuggestedUser> mUsers = Collections.emptyList();
 
     public enum Type {
-        DEFAULT, EMPTY, PROGRESS;
+        DEFAULT, EMPTY, PROGRESS, ERROR;
     }
     private Type mType = Type.DEFAULT;
 
@@ -98,12 +100,19 @@ public class Category extends ScModel {
         return getUsersByFollowStatus(userFollowings, true);
     }
 
-    public boolean isEmptyCategory() {
-        return mType == Type.EMPTY;
+    public boolean isErrorOrEmptyCategory() {
+        return mType == Type.EMPTY || mType == Type.ERROR;
     }
 
     public boolean isProgressCategory() {
         return mType == Type.PROGRESS;
+    }
+
+    public String getEmptyMessage(Resources resources) {
+        if (isErrorOrEmptyCategory()){
+            return resources.getString(mType == Type.EMPTY ? R.string.suggested_users_section_empty : R.string.suggested_users_section_error);
+        }
+        return null;
     }
 
     private List<SuggestedUser> getUsersByFollowStatus(Set<Long> userFollowings, boolean isFollowing) {
@@ -136,13 +145,12 @@ public class Category extends ScModel {
         return new Category(Type.PROGRESS);
     }
 
-    public static Category empty() {
+    public static final Category empty() {
         return new Category(Type.EMPTY);
     }
 
-    public static final Category empty(String message){
-        Category category = new Category(Type.EMPTY);
-        category.setName(message);
-        return category;
+    public static final Category error(){
+        return new Category(Type.ERROR);
+
     }
 }
