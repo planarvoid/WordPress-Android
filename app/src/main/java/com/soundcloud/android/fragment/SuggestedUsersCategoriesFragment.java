@@ -18,6 +18,7 @@ import rx.Observer;
 import rx.Subscription;
 
 import android.content.Intent;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,6 +75,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
         final ListView listView = getListView();
         listView.setDrawSelectorOnTop(false);
+        listView.setSelector(new StateListDrawable());
         listView.setHeaderDividersEnabled(false);
         listView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null), null, false);
         listView.setOnItemClickListener(this);
@@ -97,9 +99,15 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final Intent intent = new Intent(getActivity(), SuggestedUsersCategoryActivity.class);
-        intent.putExtra(Category.EXTRA, mAdapter.getItem(position - getListView().getHeaderViewsCount()));
-        startActivity(intent);
+        final Category item = mAdapter.getItem(position - getListView().getHeaderViewsCount());
+        if (item.isErrorOrEmptyCategory()){
+            AndroidUtils.showToast(getActivity(), "REFRESH SOMETHING");
+        } else {
+            final Intent intent = new Intent(getActivity(), SuggestedUsersCategoryActivity.class);
+            intent.putExtra(Category.EXTRA, item);
+            startActivity(intent);
+        }
+
     }
 
     @VisibleForTesting
