@@ -35,6 +35,7 @@ public class UserAssociationStorageTest {
     final private static long USER_ID = 1L;
     final private static int BATCH_SIZE = 5;
     final private static int INITIAL_FOLLOWERS_COUNT = 3;
+    public static final String TOKEN = "12345";
 
     private User user;
     private ContentResolver resolver;
@@ -46,6 +47,26 @@ public class UserAssociationStorageTest {
         resolver = DefaultTestRunner.application.getContentResolver();
         storage = new UserAssociationStorage();
         user = new User(1);
+    }
+
+    @Test
+    public void shouldMarkFollowingWithoutToken() throws Exception {
+        user.followers_count = INITIAL_FOLLOWERS_COUNT;
+        storage.addFollowing(user);
+
+        UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.getId());
+        expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
+        expect(userAssociation.getToken()).toBeNull();
+    }
+
+    @Test
+    public void shouldMarkFollowingAndStoreToken() throws Exception {
+        user.followers_count = INITIAL_FOLLOWERS_COUNT;
+        storage.addFollowing(user, TOKEN);
+
+        UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.getId());
+        expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
+        expect(userAssociation.getToken()).toEqual(TOKEN);
     }
 
     @Test
@@ -237,6 +258,20 @@ public class UserAssociationStorageTest {
     }
 
     @Test
+    public void shouldQueryUnsyncedFollowingAdditionWithToken() {
+        final List<User> users = createUsers(3);
+        TestHelper.bulkInsertToUserAssociations(users.subList(0,1), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociationsAsAdditions(users.subList(1, 2), Content.ME_FOLLOWINGS.uri);
+        TestHelper.bulkInsertToUserAssociationsAsAdditionsWithToken(users.subList(2, 3), Content.ME_FOLLOWINGS.uri, TOKEN);
+
+        expect(Content.ME_FOLLOWINGS).toHaveCount(3);
+        final List<UserAssociation> followingsNeedingSync = storage.getFollowingsNeedingSync();
+        expect(followingsNeedingSync.size()).toEqual(2);
+        expect(followingsNeedingSync.get(0).getToken()).toBeNull();
+        expect(followingsNeedingSync.get(1).getToken()).toEqual(TOKEN);
+    }
+
+    @Test
     public void shouldQueryUnsyncedFollowingAdditionAndRemoval() {
         TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
@@ -262,31 +297,53 @@ public class UserAssociationStorageTest {
     }
 
     @Test
-    public void shouldClearSyncFlagForAddition() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+    public void shouldClearSyncFlagForAddition() throws Exception {
+        final List<User> users = createUsers(2);
+        final Long userId = users.get(0).getId();
+
+        TestHelper.bulkInsertToUserAssociationsAsAdditions(users, Content.ME_FOLLOWINGS.uri);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
-        UserAssociation association = storage.getFollowings().get(0);
-        association.markForAddition();
-        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
-        expect(storage.getFollowingsNeedingSync().size()).toEqual(1);
-
+        UserAssociation association = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, userId);
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
         expect(storage.setFollowingAsSynced(association)).toBeTrue();
-        expect(storage.getFollowingsNeedingSync().size()).toEqual(0);
+
+        association = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, userId);
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.NONE);
     }
 
     @Test
-    public void shouldClearSyncFlagForRemoval() {
-        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+    public void shouldClearSyncFlagAndTokenForAddition() throws Exception {
+        final List<User> users = createUsers(2);
+        final Long userId = users.get(0).getId();
+
+        TestHelper.bulkInsertToUserAssociationsAsAdditionsWithToken(users, Content.ME_FOLLOWINGS.uri, TOKEN);
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
 
-        UserAssociation association = storage.getFollowings().get(0);
-        association.markForRemoval();
-        expect(new UserAssociationDAO(resolver).update(association)).toBeTrue();
-        expect(storage.getFollowingsNeedingSync().size()).toEqual(1);
+        UserAssociation association = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, userId);
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
+        expect(association.getToken()).toEqual(TOKEN);
 
         expect(storage.setFollowingAsSynced(association)).toBeTrue();
-        expect(storage.getFollowingsNeedingSync().size()).toEqual(0);
+        association = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, userId);
+
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.NONE);
+        expect(association.getToken()).toBeNull();
+    }
+
+    @Test
+    public void shouldClearSyncFlagForRemoval() throws Exception {
+        final List<User> users = createUsers(2);
+        final Long userId = users.get(0).getId();
+
+        TestHelper.bulkInsertToUserAssociationsAsRemovals(users, Content.ME_FOLLOWINGS.uri);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
+
+        UserAssociation association = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, userId);
+        expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
+
+        expect(storage.setFollowingAsSynced(association)).toBeTrue();
+        expect(storage.getFollowingsNeedingSync().size()).toEqual(1);
         expect(Content.ME_FOLLOWINGS).toHaveCount(1);
     }
 }

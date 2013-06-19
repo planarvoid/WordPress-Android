@@ -11,6 +11,8 @@ import android.os.Parcel;
 @RunWith(DefaultTestRunner.class)
 public class UserAssociationTest {
 
+    public static final String TOKEN = "12345";
+
     @Test
     public void shouldParcelAndUnparcelCorrectly() throws Exception {
         User u = new User(123L);
@@ -22,18 +24,22 @@ public class UserAssociationTest {
 
         Parcel p = Parcel.obtain();
         userAssociation.writeToParcel(p, 0);
-        compareUserAssociations(new UserAssociation(p), userAssociation);
+        final UserAssociation userAssociation2 = new UserAssociation(p);
+        compareUserAssociations(userAssociation2, userAssociation);
+        expect(userAssociation2.getToken()).toBeNull();
     }
 
     @Test
     public void shouldParcelAndUnparcelWithAddition() throws Exception {
         User u = new User(123L);
         UserAssociation userAssociation = new UserAssociation(Association.Type.FOLLOWING, u);
-        userAssociation.markForAddition();
+        userAssociation.markForAddition(TOKEN);
 
         Parcel p = Parcel.obtain();
         userAssociation.writeToParcel(p, 0);
-        compareUserAssociations(new UserAssociation(p), userAssociation);
+        final UserAssociation userAssociation2 = new UserAssociation(p);
+        compareUserAssociations(userAssociation2, userAssociation);
+        expect(userAssociation.getToken()).toEqual(userAssociation2.getToken());
     }
 
     @Test
@@ -62,8 +68,9 @@ public class UserAssociationTest {
     @Test
     public void testShouldBeMarkedForAddition() {
         UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
-        association.markForAddition();
+        association.markForAddition(TOKEN);
         expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
+        expect(association.getToken()).toEqual(TOKEN);
     }
 
     @Test
@@ -76,7 +83,7 @@ public class UserAssociationTest {
     @Test
     public void testShouldNotBeMarkedForAdditionAfterMarkedForRemoval() {
         UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
-        association.markForAddition();
+        association.markForAddition(TOKEN);
         expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
         association.markForRemoval();
         expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
@@ -85,7 +92,7 @@ public class UserAssociationTest {
     @Test
     public void testShouldNotBeMarkedForAdditionAfterLocalSyncStateCleared() {
         UserAssociation association = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(1L));
-        association.markForAddition();
+        association.markForAddition(TOKEN);
         expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
         association.clearLocalSyncState();
         expect(association.getLocalSyncState()).toEqual(UserAssociation.LocalState.NONE);

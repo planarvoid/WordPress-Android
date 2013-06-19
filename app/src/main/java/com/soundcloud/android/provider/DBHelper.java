@@ -354,6 +354,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "created_at INTEGER, " +                // indicates when this was created on the api
             "added_at INTEGER, " +                  // when was this added locally (pre-api sync)
             "removed_at INTEGER, " +                // when was this removed locally (pre-api sync)
+            "token VARCHAR(150), " +                // whitelist token to avoid spam flagging. comes from API
             "PRIMARY KEY(owner_id, target_id, association_type, resource_type) ON CONFLICT REPLACE" +
             ");";
 
@@ -431,6 +432,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ", UserAssociations." + UserAssociations.ADDED_AT + " as " + UserAssociationView.USER_ASSOCIATION_ADDED_AT +
             ", UserAssociations." + UserAssociations.REMOVED_AT + " as " + UserAssociationView.USER_ASSOCIATION_REMOVED_AT +
             ", UserAssociations." + UserAssociations.OWNER_ID + " as " + UserAssociationView.USER_ASSOCIATION_OWNER_ID +
+            ", UserAssociations." + UserAssociations.TOKEN + " as " + UserAssociationView.USER_ASSOCIATION_TOKEN +
 
             // user data
             ", Users.*" +
@@ -640,6 +642,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String CREATED_AT = "created_at"; // indicates when this was created on the api
         public static final String ADDED_AT = "added_at"; // when was this added locally (pre-api sync)
         public static final String REMOVED_AT = "removed_at"; // when was this removed locally (pre-api sync)
+        public static final String TOKEN = "token"; // when was this removed locally (pre-api sync)
         public static final String SORT_ORDER = POSITION + " ASC";
     }
 
@@ -881,6 +884,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_ASSOCIATION_POSITION    = "user_association_position";
         public static final String USER_ASSOCIATION_ADDED_AT    = "user_association_added_at";
         public static final String USER_ASSOCIATION_REMOVED_AT  = "user_association_removed_at";
+        public static final String USER_ASSOCIATION_TOKEN       = "user_association_token";
     }
 
     public final static class SoundAssociationView extends SoundView {

@@ -25,15 +25,17 @@ public class UserAssociation extends Association implements UserHolder {
     private @Nullable Date      mAddedAt;
     private @Nullable Date      mRemovedAt;
 
+    private @Nullable String    mToken;
+
     public enum LocalState {
         NONE, PENDING_ADDITION, PENDING_REMOVAL
     }
-
     public UserAssociation(Cursor cursor) {
         super(cursor);
         mUser = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
         mAddedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
         mRemovedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
+        mToken = cursor.getString(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_TOKEN));
     }
 
     public UserAssociation(Type typeEnum, @NotNull User user) {
@@ -46,6 +48,7 @@ public class UserAssociation extends Association implements UserHolder {
         mUser = in.readParcelable(ClassLoader.getSystemClassLoader());
         mAddedAt = (Date) in.readSerializable();
         mRemovedAt = (Date) in.readSerializable();
+        mToken = in.readString();
     }
 
     @Override
@@ -59,12 +62,18 @@ public class UserAssociation extends Association implements UserHolder {
         return null;
     }
 
+    @Nullable
+    public String getToken() {
+        return mToken;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(mUser, 0);
         dest.writeSerializable(mAddedAt);
         dest.writeSerializable(mRemovedAt);
+        dest.writeString(mToken);
     }
 
     public long getItemId() {
@@ -81,6 +90,7 @@ public class UserAssociation extends Association implements UserHolder {
         cv.put(DBHelper.UserAssociations.CREATED_AT, created_at.getTime());
         cv.put(DBHelper.UserAssociations.ADDED_AT, mAddedAt == null ? null : mAddedAt.getTime());
         cv.put(DBHelper.UserAssociations.REMOVED_AT, mRemovedAt == null ? null : mRemovedAt.getTime());
+        cv.put(DBHelper.UserAssociations.TOKEN, mToken);
         return cv;
     }
 
@@ -112,8 +122,13 @@ public class UserAssociation extends Association implements UserHolder {
     }
 
     public UserAssociation markForAddition(){
+        return markForAddition(null);
+    }
+
+    public UserAssociation markForAddition(@Nullable String token){
         setLocalSyncState(LocalState.PENDING_ADDITION);
         mUser.addAFollower();
+        mToken = token;
         return this;
     }
 
@@ -137,11 +152,13 @@ public class UserAssociation extends Association implements UserHolder {
             case PENDING_REMOVAL:
                 mRemovedAt = new Date(System.currentTimeMillis());
                 mAddedAt = null;
+                mToken = null;
                 break;
 
             case NONE:
                 mRemovedAt = null;
                 mAddedAt = null;
+                mToken = null;
                 break;
         }
     }
