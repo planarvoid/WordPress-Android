@@ -39,27 +39,32 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private static final int INITIAL_LIST_CAPACITY = 30;
     private static final String TAG = "Sugg_User_Cat_Adp";
 
-    private final StringBuilder mUserNamesBuilder;
     private final List<Category> mCategories;
     private final Set<CategoryGroup> mCategoryGroups;
     private final Map<Integer, Section> mListPositionsToSections;
     private final FollowingOperations mFollowingOperations;
+    private final EnumSet<Section> mActiveSections;
     private FollowStatus mFollowStatus;
 
     public enum Section {
-        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook),
-        MUSIC(CategoryGroup.KEY_MUSIC, R.string.suggested_users_section_music),
-        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.suggested_users_section_audio);
+        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook, R.string.suggested_users_section_facebook),
+        MUSIC(CategoryGroup.KEY_MUSIC, R.string.suggested_users_section_music, R.string.suggested_users_section_music_and_audio),
+        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.suggested_users_section_audio, 0);
+
         public static final EnumSet<Section> ALL_EXCEPT_FACEBOOK = EnumSet.of(MUSIC, SPEECH_AND_SOUNDS);
         public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
 
         private final String mKey;
         private final int mLabelResId;
-        private String mLabel;
+        private final int mNotLoadedLabelId;
 
-        Section(String key, int labelId) {
+        private String mLabel;
+        private String mNotLoadedLabel;
+
+        Section(String key, int labelId, int notLoadedLabelId) {
             mKey = key;
             mLabelResId = labelId;
+            mNotLoadedLabelId = notLoadedLabelId;
         }
 
         String getLabel(Resources resources) {
@@ -67,6 +72,17 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 mLabel = resources.getString(mLabelResId);
             }
             return mLabel;
+        }
+
+        String getNotLoadedLabel(Resources resources) {
+            if (mNotLoadedLabel == null) {
+                mNotLoadedLabel = resources.getString(mNotLoadedLabelId);
+            }
+            return mNotLoadedLabel;
+        }
+
+        public boolean showWhileLoading() {
+            return mNotLoadedLabelId > 0;
         }
 
         static Section fromKey(String key) {
@@ -88,8 +104,8 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new HashMap<Integer, Section>();
-        mUserNamesBuilder = new StringBuilder();
         mFollowStatus = followStatus;
+        mActiveSections = activeSections;
     }
 
     public void addItem(CategoryGroup categoryGroup) {
@@ -98,6 +114,12 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
             categoryGroup.setCategories(Lists.newArrayList(Category.EMPTY));
         }
         mCategoryGroups.add(categoryGroup);
+
+        if (mCategoryGroups.size() < mActiveSections.size()){
+            for (Section section : mActiveSections){
+                if (section.showWhileLoading()) mCategoryGroups.add(CategoryGroup.createProgressGroup(section.mKey));
+            }
+        }
 
         mCategories.clear();
         mListPositionsToSections.clear();
@@ -183,7 +205,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
             viewHolder.toggleFollow.setTag(position);
             configureItemContent(category, viewHolder);
         }
-        configureSectionHeader(position, convertView, viewHolder);
+        configureSectionHeader(position, convertView, viewHolder, itemViewType != DEFAULT_VIEW_TYPE);
         return convertView;
     }
 
@@ -232,10 +254,11 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     }
 
-    private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {
+    private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder, boolean isLoading) {
         Section section = mListPositionsToSections.get(position);
         if (section != null) {
-            viewHolder.sectionHeader.setText(section.getLabel(convertView.getResources()));
+            final String label = isLoading ? section.getNotLoadedLabel(convertView.getResources()) : section.getLabel(convertView.getResources());
+            viewHolder.sectionHeader.setText(label);
             viewHolder.sectionHeader.setVisibility(View.VISIBLE);
         } else {
             viewHolder.sectionHeader.setVisibility(View.GONE);

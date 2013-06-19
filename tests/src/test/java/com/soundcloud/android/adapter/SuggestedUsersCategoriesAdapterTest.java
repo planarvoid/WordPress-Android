@@ -16,7 +16,6 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -31,6 +30,7 @@ import java.util.Map;
 public class SuggestedUsersCategoriesAdapterTest {
 
     private SuggestedUsersCategoriesAdapter adapter;
+    private SuggestedUsersCategoriesAdapter nonFacebookAdapter;
     @Mock
     private FollowStatus followStatus;
 
@@ -38,27 +38,44 @@ public class SuggestedUsersCategoriesAdapterTest {
     public void setup() throws CreateModelException {
         initMocks(this);
         adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followStatus);
-        adapter.addItem(new CategoryGroup(CategoryGroup.KEY_FACEBOOK));
-        adapter.addItem(new CategoryGroup(CategoryGroup.KEY_MUSIC));
-        adapter.addItem(new CategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS));
+        nonFacebookAdapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followStatus);
     }
 
     @Test
-    @Ignore
+    public void shouldHaveNoSectionsAtStart() {
+        expect(adapter.getCount()).toBe(0);
+    }
+
+    @Test
     public void shouldNotHaveFacebookLoadingSection() {
-        expect(new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followStatus).getCount() ).toBe(2);
+        nonFacebookAdapter.addItem(new CategoryGroup(CategoryGroup.KEY_MUSIC));
+        nonFacebookAdapter.addItem(new CategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS));
+        expect(nonFacebookAdapter.getCount() ).toBe(2);
     }
 
     @Test
     public void shouldHaveFacebookLoadingSection() {
+        adapter.addItem(new CategoryGroup(CategoryGroup.KEY_MUSIC));
+        adapter.addItem(new CategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS));
         expect(adapter.getCount()).toBe(3);
+        expect(adapter.getItem(0)).toBe(Category.PROGRESS);
+    }
+
+    @Test
+    public void shouldHaveMusicLoadingSectionAndNotSpeechAndSoundsLoadingsection() {
+        adapter.addItem(new CategoryGroup(CategoryGroup.KEY_FACEBOOK));
+        expect(adapter.getCount()).toBe(2);
+        expect(adapter.getItem(0)).not.toBe(Category.PROGRESS);
+        expect(adapter.getItem(1)).toBe(Category.PROGRESS);
     }
 
     @Test
     public void shouldHandleUnexpectedSection() throws CreateModelException {
-        SuggestedUsersCategoriesAdapter adapter1 = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followStatus);
-        adapter1.addItem(facebook());
-        expect(adapter1.getCount()).toBe(2);
+        nonFacebookAdapter.addItem(facebook());
+        expect(nonFacebookAdapter.getCount()).toBe(3); // 2 facebook sections, 1 loading section
+        expect(nonFacebookAdapter.getItem(0)).not.toBe(Category.PROGRESS);
+        expect(nonFacebookAdapter.getItem(1)).not.toBe(Category.PROGRESS);
+        expect(nonFacebookAdapter.getItem(2)).toBe(Category.PROGRESS);
     }
 
     @Test
@@ -73,7 +90,6 @@ public class SuggestedUsersCategoriesAdapterTest {
     }
 
     @Test
-    @Ignore
     public void addItemShouldReplaceDummySections() throws CreateModelException {
         adapter.addItem(emptyAudio());
         adapter.addItem(music());
@@ -85,20 +101,19 @@ public class SuggestedUsersCategoriesAdapterTest {
     }
 
     @Test
-    public void emptyCategoryItemsShouldNotBeEnabled() {
+    public void emptyCategoryItemsShouldNotBeEnabled() throws CreateModelException {
+        adapter.addItem(audio());
         expect(adapter.isEnabled(0)).toBeFalse();
-        expect(adapter.isEnabled(1)).toBeFalse();
-        expect(adapter.isEnabled(2)).toBeFalse();
     }
 
     @Test
     public void shouldCountItems() throws CreateModelException {
         // initially, we only have 3 dummy items
-        expect(adapter.getCount()).toBe(3);
+        expect(adapter.getCount()).toBe(0);
 
-        // 1 completed section, 2 more dummy sections waiting for data
+        // 1 completed section, 1 loading section for audio
         adapter.addItem(facebook());
-        expect(adapter.getCount()).toBe(2 + facebook().getCategoryCount());
+        expect(adapter.getCount()).toBe(1 + facebook().getCategoryCount());
 
         adapter.addItem(audio());
         adapter.addItem(music());
@@ -111,13 +126,15 @@ public class SuggestedUsersCategoriesAdapterTest {
 
     @Test
     public void shouldBuildListPositionsToSectionsMapWhileAddingNewItems() throws CreateModelException {
+        addAllSections();
         Map<Integer, SuggestedUsersCategoriesAdapter.Section> sectionMap = adapter.getListPositionsToSectionsMap();
         expect(sectionMap).not.toBeNull();
         expect(sectionMap.values()).toContainExactly(SuggestedUsersCategoriesAdapter.Section.FACEBOOK, SuggestedUsersCategoriesAdapter.Section.MUSIC, SuggestedUsersCategoriesAdapter.Section.SPEECH_AND_SOUNDS);
     }
 
     @Test
-    public void shouldGetViewWithHeader() {
+    public void shouldGetViewWithHeader() throws CreateModelException {
+        addAllSections();
         final int positionWithHeader = 0;
         View itemLayout = adapter.getView(positionWithHeader, null, new FrameLayout(Robolectric.application));
 
@@ -152,7 +169,7 @@ public class SuggestedUsersCategoriesAdapterTest {
         addAllSections();
         Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(buildUser("Skrillex"), buildUser("Forss")));
-        expect(adapter.getSubtextUsers(bucket)).toContainExactly("Skrillex","Forss");
+        expect(adapter.getSubtextUsers(bucket)).toContainExactly("Skrillex", "Forss");
     }
 
     @Test
@@ -161,7 +178,7 @@ public class SuggestedUsersCategoriesAdapterTest {
         Category bucket = adapter.getItem(0);
         bucket.setUsers(Lists.newArrayList(
                 buildUser("Skrillex"), buildUser("Forss"), buildUser("Rick Astley")));
-        expect(adapter.getSubtextUsers(bucket)).toContainExactly("Skrillex","Forss", "Rick Astley");
+        expect(adapter.getSubtextUsers(bucket)).toContainExactly("Skrillex", "Forss", "Rick Astley");
     }
 
     @Test

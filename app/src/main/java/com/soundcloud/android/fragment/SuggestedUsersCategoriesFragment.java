@@ -108,9 +108,15 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         return view != null ? (ListView) view.findViewById(android.R.id.list) : null;
     }
 
-    private void setListShown(boolean isShown){
-        mProgressSpinner.setVisibility(isShown ? View.GONE : View.VISIBLE);
-        mListContainer.setVisibility(isShown ? View.VISIBLE : View.GONE);
+    private void setListShown(boolean show){
+        if (show){
+            mProgressSpinner.setVisibility(View.GONE);
+            mListContainer.setVisibility(View.VISIBLE);
+            mAdapter.notifyDataSetChanged();
+        } else {
+            mProgressSpinner.setVisibility(View.VISIBLE);
+            mListContainer.setVisibility(View.GONE);
+        }
     }
 
     private static final class CategoryGroupsObserver extends RxFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {
@@ -123,12 +129,12 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         public void onNext(SuggestedUsersCategoriesFragment fragment, CategoryGroup categoryGroup) {
             Log.d(LOG_TAG, "got category group: " + categoryGroup);
             fragment.mAdapter.addItem(categoryGroup);
+            fragment.setListShown(true);
         }
 
         @Override
         public void onCompleted(SuggestedUsersCategoriesFragment fragment) {
             Log.d(LOG_TAG, "fragment: onCompleted");
-            fragment.mAdapter.notifyDataSetChanged();
             fragment.setListShown(true);
         }
 

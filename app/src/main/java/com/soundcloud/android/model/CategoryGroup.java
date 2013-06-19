@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,5 +61,16 @@ public class CategoryGroup extends ScModel {
         int result = super.hashCode();
         result = 31 * result + mKey.hashCode();
         return result;
+    }
+
+    public boolean isFacebook() {
+        return mKey.equals(KEY_FACEBOOK);
+    }
+
+    public static CategoryGroup createProgressGroup(String key){
+        CategoryGroup categoryGroup = new CategoryGroup(key);
+        categoryGroup.setCategories(new ArrayList<Category>(1));
+        categoryGroup.getCategories().add(Category.PROGRESS);
+        return categoryGroup;
     }
 }

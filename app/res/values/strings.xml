@@ -153,6 +153,7 @@
     <string name="suggested_users_section_facebook">Facebook</string>
     <string name="suggested_users_section_music">Music</string>
     <string name="suggested_users_section_audio">Audio</string>
+    <string name="suggested_users_section_music_and_audio">Music + Audio</string>
     <string name="suggested_users_error_get_genre_buckets">Failed to load categories at this time. Try again later.</string>
 
     <string name="suggested_users_no_categories_returned">No categories returned</string>
