@@ -8,6 +8,9 @@ import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -25,8 +28,8 @@ public class SignUp extends AuthLayout {
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
     private Button mSignUpButton;
 
-    private int mSignupLabelPadding, mSignupLabelDrawablePadding, mSignupLabelDrawableWidth;
     private boolean mEmailValid, mPasswordValid;
+    private Drawable mValidDrawable, mPlaceholderDrawable;
 
     public interface SignUpHandler extends AuthHandler {
         void onSignUp(String email, String password);
@@ -66,9 +69,10 @@ public class SignUp extends AuthLayout {
         final EditText passwordField = (EditText) findViewById(R.id.txt_choose_a_password);
         final Button   cancelButton       = (Button)   findViewById(R.id.btn_cancel);
         mSignUpButton = (Button)   findViewById(R.id.btn_signup);
-        mSignupLabelPadding = (int) getResources().getDimension(R.dimen.signup_label_padding);
-        mSignupLabelDrawableWidth = (int) getResources().getDimension(R.dimen.signup_done_drawable_width);
-        mSignupLabelDrawablePadding = (int) getResources().getDimension(R.dimen.signup_done_drawable_padding);
+
+        mValidDrawable = getResources().getDrawable(R.drawable.ic_done_dark_sm);
+        mPlaceholderDrawable = new ColorDrawable(Color.TRANSPARENT);
+        mPlaceholderDrawable.setBounds(0, 0, mValidDrawable.getIntrinsicWidth(), mValidDrawable.getIntrinsicHeight());
 
 
         emailField.addTextChangedListener(new InputValidator(emailField) {
@@ -229,18 +233,10 @@ public class SignUp extends AuthLayout {
 
         @Override
         public void validate(TextView textView, String text) {
-            boolean valid = validate(text);
-            if (valid) {
-                textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_done_dark_sm, 0);
-                textView.setPadding(mSignupLabelPadding, mSignupLabelPadding, mSignupLabelPadding, mSignupLabelPadding);
+            if (validate(text)){
+                textView.setCompoundDrawablesWithIntrinsicBounds(null, null, mValidDrawable, null);
             } else {
-                textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-                // we want to fake the checkmark bounds so the textview doesn't change size when it appears
-                textView.setPadding(
-                        mSignupLabelPadding,
-                        mSignupLabelPadding,
-                        mSignupLabelPadding + mSignupLabelDrawablePadding + mSignupLabelDrawableWidth,
-                        mSignupLabelPadding);
+                textView.setCompoundDrawables(null,null, mPlaceholderDrawable,null);
             }
             validateForm();
         }

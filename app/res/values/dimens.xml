@@ -117,7 +117,6 @@
     <dimen name="signup_label_height">32dp</dimen><!-- ic_done_dark_sm drawable + padding -->
     <dimen name="signup_label_padding">4dp</dimen>
     <dimen name="signup_done_drawable_padding">7dp</dimen>
-    <dimen name="signup_done_drawable_width">24dp</dimen>
 
     <dimen name="onboarding_suggested_user_item_height">200dp</dimen>
     <dimen name="onboarding_suggested_user_item_padding">3dp</dimen>

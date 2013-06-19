@@ -20,6 +20,7 @@
                                       style="@style/SignUp.EmailEntry"
                                       android:requiresFadingEdge="horizontal"
                                       android:hint="@string/authentication_your_email_address"
+                                      android:padding="@dimen/signup_label_padding"
                                       android:drawablePadding="@dimen/signup_done_drawable_padding" />
             </TableRow>
 
@@ -35,6 +36,7 @@
                           android:id="@+id/txt_choose_a_password"
                           android:hint="@string/authentication_choose_a_password"
                           android:requiresFadingEdge="horizontal"
+                          android:padding="@dimen/signup_label_padding"
                           android:drawablePadding="@dimen/signup_done_drawable_padding"
                           android:imeOptions="actionDone"/>
             </TableRow>
