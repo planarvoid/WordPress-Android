@@ -11,9 +11,23 @@ import org.junit.runner.RunWith;
 public class SignUpTest {
 
     @Test
-    public void shouldCheckpasswordLength() throws Exception {
-        expect(SignUp.checkPassword("1234")).toBeTrue();
-        expect(SignUp.checkPassword("123")).toBeFalse();
+    public void shouldNotAcceptPasswordShorterThan6Characters() throws Exception {
+        expect(SignUp.checkPassword("12345")).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotAcceptEmptyPassword() throws Exception {
         expect(SignUp.checkPassword(null)).toBeFalse();
     }
+
+    @Test
+    public void shouldNotAcceptEmptyStringAsPassword() throws Exception {
+        expect(SignUp.checkPassword("")).toBeFalse();
+    }
+
+    @Test
+    public void shouldAccept6CharactersPassword() throws Exception {
+        expect(SignUp.checkPassword("123456")).toBeTrue();
+    }
+
 }

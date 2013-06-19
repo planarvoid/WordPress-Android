@@ -1,9 +1,10 @@
 $ 63
-  % v current
-  _ 2013-05-27
+  % v 2.6.2
+  _ 2013-06-07
     ! Maintenance
+    * Fixed activity loading on samsung galaxy s4
     * Fixed device default notification styling
-    - Restored lockscreen
+    * Restored lockscreen player
     - Fixed occasional false empty screens after logout/login
     - Made playback debugging available in non-dialer devices
     - Fixed cancelable auth dialogs

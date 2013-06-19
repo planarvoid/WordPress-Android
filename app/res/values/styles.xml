@@ -292,9 +292,7 @@
 
     </style>
 
-    <style name="SignUp.LabelRow">
-        <item name="android:layout_margin">5dp</item>
-    </style>
+    <style name="SignUp.LabelRow" />
 
     <style name="SignUp.SeparatorRow">
         <item name="android:background">@color/signup_separator</item>
@@ -309,10 +307,10 @@
 
     <style name="SignUp.Label">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">@dimen/signup_label_height</item>
         <item name="android:layout_weight">0</item>
 
-        <item name="android:padding">4dp</item>
+        <item name="android:padding">@dimen/signup_label_padding</item>
         <item name="android:layout_margin">4dp</item>
 
         <item name="android:singleLine">true</item>

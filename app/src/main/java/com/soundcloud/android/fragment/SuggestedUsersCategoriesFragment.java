@@ -36,6 +36,9 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private Subscription mSubscription;
     private Observer<CategoryGroup> mObserver;
 
+    private View mListContainer;
+    private View mProgressSpinner;
+
     public SuggestedUsersCategoriesFragment() {
         this(new SuggestedUsersOperations(), null,
                 new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
@@ -65,12 +68,17 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mProgressSpinner = getView().findViewById(android.R.id.progress);
+        mListContainer = getView().findViewById(R.id.list_container);
+        setListShown(false);
+
         final ListView listView = getListView();
         listView.setDrawSelectorOnTop(false);
         listView.setHeaderDividersEnabled(false);
         listView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null), null, false);
         listView.setOnItemClickListener(this);
         listView.setAdapter(mAdapter);
+        listView.setEmptyView(getView().findViewById(android.R.id.empty));
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
         Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mSuggestions.getCategoryGroups().cache().observeOn(ScSchedulers.UI_SCHEDULER));
@@ -100,6 +108,11 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         return view != null ? (ListView) view.findViewById(android.R.id.list) : null;
     }
 
+    private void setListShown(boolean isShown){
+        mProgressSpinner.setVisibility(isShown ? View.GONE : View.VISIBLE);
+        mListContainer.setVisibility(isShown ? View.VISIBLE : View.GONE);
+    }
+
     private static final class CategoryGroupsObserver extends RxFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {
 
         public CategoryGroupsObserver(SuggestedUsersCategoriesFragment fragment) {
@@ -116,12 +129,14 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         public void onCompleted(SuggestedUsersCategoriesFragment fragment) {
             Log.d(LOG_TAG, "fragment: onCompleted");
             fragment.mAdapter.notifyDataSetChanged();
+            fragment.setListShown(true);
         }
 
         @Override
         public void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
+            // TODO : populate error view
+            fragment.setListShown(true);
             error.printStackTrace();
-            //TODO proper error message
             AndroidUtils.showToast(fragment.getActivity(), R.string.suggested_users_error_get_genre_buckets);
         }
     }

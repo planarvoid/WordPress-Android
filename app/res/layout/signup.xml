@@ -17,8 +17,11 @@
                 <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Label"
                                                                 android:text="@string/email"/>
                 <AutoCompleteTextView android:id="@+id/auto_txt_email_address"
+                                      style="@style/SignUp.EmailEntry"
+                                      android:requiresFadingEdge="horizontal"
                                       android:hint="@string/authentication_your_email_address"
-                                      style="@style/SignUp.EmailEntry"/>
+                                      android:padding="@dimen/signup_label_padding"
+                                      android:drawablePadding="@dimen/signup_done_drawable_padding" />
             </TableRow>
 
             <TableRow style="@style/SignUp.SeparatorRow">
@@ -29,24 +32,13 @@
                 <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Label"
                                                                 android:text="@string/password"/>
 
-                <com.soundcloud.android.view.ClearText style="@style/SignUp.PasswordEntry"
-                                                       android:id="@+id/txt_choose_a_password"
-                                                       android:hint="@string/authentication_choose_a_password"
-                                                       android:imeOptions="actionNext"/>
-            </TableRow>
-
-            <TableRow style="@style/SignUp.SeparatorRow">
-                <View style="@style/SignUp.SeparatorView"/>
-            </TableRow>
-
-            <TableRow style="@style/SignUp.LabelRow">
-                <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Label"
-                                                                android:text="@string/confirm"/>
-
-                <com.soundcloud.android.view.ClearText android:id="@+id/txt_repeat_your_password"
-                                                       style="@style/SignUp.PasswordEntry"
-                                                       android:hint="@string/authentication_repeat_your_password"
-                                                       android:imeOptions="actionDone"/>
+                <EditText style="@style/SignUp.TextEntry"
+                          android:id="@+id/txt_choose_a_password"
+                          android:hint="@string/authentication_choose_a_password"
+                          android:requiresFadingEdge="horizontal"
+                          android:padding="@dimen/signup_label_padding"
+                          android:drawablePadding="@dimen/signup_done_drawable_padding"
+                          android:imeOptions="actionDone"/>
             </TableRow>
         </TableLayout>
 
