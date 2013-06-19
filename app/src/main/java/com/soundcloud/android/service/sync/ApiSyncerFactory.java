@@ -15,7 +15,7 @@ public class ApiSyncerFactory {
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
             case ME_FRIENDS:
-                return new UserAssociationSyncer(context, context.getContentResolver());
+                return new UserAssociationSyncer(context);
 
             default:
                 return new ApiSyncer(context, context.getContentResolver());

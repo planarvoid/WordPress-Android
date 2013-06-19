@@ -1,21 +1,18 @@
 package com.soundcloud.android.service.sync.content;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addCannedResponse;
 import static com.soundcloud.android.robolectric.TestHelper.addIdResponse;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.robolectric.TestHelper.assertFirstIdToBe;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.dao.ResolverHelper;
+import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.User;
@@ -32,10 +29,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 
@@ -46,19 +41,23 @@ import java.util.List;
 @RunWith(DefaultTestRunner.class)
 public class UserAssociationSyncerTest {
     private static final long USER_ID = 133201L;
-    ContentResolver resolver;
-    UserAssociationSyncer userAssociationSyncerMockStorage;
+    UserAssociationSyncer userAssociationSyncer;
 
-    @Mock UserAssociationStorage mockUserAssociationStorage;
-    @Mock UserAssociation mockUserAssociation;
+    @Mock
+    private ContentResolver resolver;
+    @Mock
+    private UserAssociationStorage userAssociationStorage;
+    @Mock
+    private UserAssociation mockUserAssociation;
+    @Mock
+    private SuggestedUsersOperations suggestedUsersOperations;
 
     @Before
     public void before() {
         TestHelper.setUserId(USER_ID);
-        resolver = DefaultTestRunner.application.getContentResolver();
 
-        userAssociationSyncerMockStorage = new UserAssociationSyncer(Robolectric.application,
-                Robolectric.application.getContentResolver(), mockUserAssociationStorage);
+        userAssociationSyncer = new UserAssociationSyncer(Robolectric.application,
+                resolver, userAssociationStorage, suggestedUsersOperations);
     }
 
     @Test
@@ -73,44 +72,21 @@ public class UserAssociationSyncerTest {
 
         List<User> followers = TestHelper.loadLocalContent(Content.ME_FOLLOWERS.uri, User.class);
         expect(followers.get(0).getId()).toEqual(308291l);
-        for (User u : followers){
+        for (User u : followers) {
             expect(u.isStale()).toBeFalse();
         }
     }
 
     @Test
-    public void shouldSyncFollowersInSingleBatchIfCollectionIsSmallEnough() throws Exception {
+    public void shouldCallUserAssociationStorageWithAllIds() throws Exception {
         addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
         addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
 
-        ContentResolver resolver = Mockito.mock(ContentResolver.class);
+        userAssociationSyncer.setBulkInsertBatchSize(Integer.MAX_VALUE);
+        userAssociationSyncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
 
-        UserAssociationSyncer syncer = new UserAssociationSyncer(Robolectric.application, resolver);
+        verify(userAssociationStorage).insertInBatches(Content.ME_FOLLOWERS,USER_ID, newArrayList(792584L, 1255758L, 308291L),0,Integer.MAX_VALUE);
 
-        syncer.setBulkInsertBatchSize(Integer.MAX_VALUE);
-        syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
-        verify(resolver).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
-        verify(resolver).query(eq(ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWERS.uri)),
-                isNull(String[].class), isNull(String.class), isNull(String[].class), isNull(String.class));
-        verifyNoMoreInteractions(resolver);
-    }
-
-    @Test
-    public void shouldSyncFollowersInBatchesIfCollectionTooLarge() throws Exception {
-        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
-
-        ContentResolver resolver = Mockito.mock(ContentResolver.class);
-
-        UserAssociationSyncer syncer = new UserAssociationSyncer(Robolectric.application, resolver);
-
-        syncer.setBulkInsertBatchSize(2); // for 3 users, this should result in 2 batches being inserted
-        syncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
-
-        verify(resolver, times(2)).bulkInsert(eq(Content.ME_FOLLOWERS.uri), any(ContentValues[].class));
-        verify(resolver).query(eq(ResolverHelper.addIdOnlyParameter(Content.ME_FOLLOWERS.uri)),
-                isNull(String[].class), isNull(String.class), isNull(String[].class), isNull(String.class));
-        verifyNoMoreInteractions(resolver);
     }
 
     @Test
@@ -129,7 +105,7 @@ public class UserAssociationSyncerTest {
     @Test
     public void shouldNotRemoveDirtyAdditionsWhenSyncingLocalToRemote() throws Exception {
         final long user_id = 1L;
-        UserAssociation userAssociation = new UserAssociation(Association.Type.FOLLOWING,new User(user_id));
+        UserAssociation userAssociation = new UserAssociation(Association.Type.FOLLOWING, new User(user_id));
         userAssociation.markForAddition();
         TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, userAssociation);
 
@@ -148,7 +124,7 @@ public class UserAssociationSyncerTest {
     @Test
     public void shouldNotRemoveDirtyRemovalsWhenSyncingLocalToRemote() throws Exception {
         final long user_id = 1L;
-        UserAssociation userAssociation = new UserAssociation(Association.Type.FOLLOWING,new User(user_id));
+        UserAssociation userAssociation = new UserAssociation(Association.Type.FOLLOWING, new User(user_id));
         userAssociation.markForRemoval();
         TestHelper.insertWithDependencies(Content.USER_ASSOCIATIONS.uri, userAssociation);
 
@@ -193,8 +169,8 @@ public class UserAssociationSyncerTest {
         Robolectric.setDefaultHttpResponse(HttpStatus.SC_OK, "ok");
         when(mockUserAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.PENDING_ADDITION);
         when(mockUserAssociation.getUser()).thenReturn(new User(1L));
-        expect(userAssociationSyncerMockStorage.pushUserAssociation(mockUserAssociation)).toBeTrue();
-        verify(mockUserAssociationStorage).setFollowingAsSynced(mockUserAssociation);
+        expect(userAssociationSyncer.pushUserAssociation(mockUserAssociation)).toBeTrue();
+        verify(userAssociationStorage).setFollowingAsSynced(mockUserAssociation);
     }
 
     @Test
@@ -202,8 +178,8 @@ public class UserAssociationSyncerTest {
         Robolectric.setDefaultHttpResponse(HttpStatus.SC_CREATED, "created");
         when(mockUserAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.PENDING_ADDITION);
         when(mockUserAssociation.getUser()).thenReturn(new User(1L));
-        expect(userAssociationSyncerMockStorage.pushUserAssociation(mockUserAssociation)).toBeTrue();
-        verify(mockUserAssociationStorage).setFollowingAsSynced(mockUserAssociation);
+        expect(userAssociationSyncer.pushUserAssociation(mockUserAssociation)).toBeTrue();
+        verify(userAssociationStorage).setFollowingAsSynced(mockUserAssociation);
     }
 
     @Test
@@ -211,8 +187,8 @@ public class UserAssociationSyncerTest {
         Robolectric.setDefaultHttpResponse(HttpStatus.SC_OK, "ok");
         when(mockUserAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.PENDING_REMOVAL);
         when(mockUserAssociation.getUser()).thenReturn(new User(1L));
-        expect(userAssociationSyncerMockStorage.pushUserAssociation(mockUserAssociation)).toBeTrue();
-        verify(mockUserAssociationStorage).setFollowingAsSynced(mockUserAssociation);
+        expect(userAssociationSyncer.pushUserAssociation(mockUserAssociation)).toBeTrue();
+        verify(userAssociationStorage).setFollowingAsSynced(mockUserAssociation);
     }
 
     @Test
@@ -220,8 +196,8 @@ public class UserAssociationSyncerTest {
         Robolectric.setDefaultHttpResponse(HttpStatus.SC_NOT_FOUND, "not found");
         when(mockUserAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.PENDING_REMOVAL);
         when(mockUserAssociation.getUser()).thenReturn(new User(1L));
-        expect(userAssociationSyncerMockStorage.pushUserAssociation(mockUserAssociation)).toBeTrue();
-        verify(mockUserAssociationStorage).setFollowingAsSynced(mockUserAssociation);
+        expect(userAssociationSyncer.pushUserAssociation(mockUserAssociation)).toBeTrue();
+        verify(userAssociationStorage).setFollowingAsSynced(mockUserAssociation);
     }
 
     @Test
@@ -229,45 +205,45 @@ public class UserAssociationSyncerTest {
         Robolectric.setDefaultHttpResponse(HttpStatus.SC_OK, "ok");
         when(mockUserAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
         when(mockUserAssociation.getUser()).thenReturn(new User(1L));
-        expect(userAssociationSyncerMockStorage.pushUserAssociation(mockUserAssociation)).toBeTrue();
-        verify(mockUserAssociationStorage, never()).setFollowingAsSynced(mockUserAssociation);
+        expect(userAssociationSyncer.pushUserAssociation(mockUserAssociation)).toBeTrue();
+        verify(userAssociationStorage, never()).setFollowingAsSynced(mockUserAssociation);
     }
 
     @Test
     public void shouldReturnSuccessOnEmptyAssociationPush() throws Exception {
-        when(mockUserAssociationStorage.hasFollowingsNeedingSync()).thenReturn(false);
+        when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(false);
         expect(pushSyncMockedStorage(Content.ME_FOLLOWERS.uri).success).toBeTrue();
     }
 
     @Test
     public void shouldSetSuccesfullyPushedAssociationsAsSynced() throws Exception {
         Robolectric.setDefaultHttpResponse(HttpStatus.SC_OK, "ok");
-        when(mockUserAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
+        when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
 
         final List<UserAssociation> usersAssociations = createDirtyFollowings(3);
         for (UserAssociation association : usersAssociations) association.markForAddition();
 
-        when(mockUserAssociationStorage.getFollowingsNeedingSync()).thenReturn(usersAssociations);
+        when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(usersAssociations);
         expect(pushSyncMockedStorage(Content.ME_FOLLOWINGS.uri).success).toBeTrue();
 
-        for (UserAssociation userAssociation : usersAssociations){
-            verify(mockUserAssociationStorage).setFollowingAsSynced(userAssociation);
+        for (UserAssociation userAssociation : usersAssociations) {
+            verify(userAssociationStorage).setFollowingAsSynced(userAssociation);
         }
     }
 
     @Test
     public void shouldNotSetFailedAssociationPushesAsSynced() throws Exception {
         Robolectric.setDefaultHttpResponse(500, "error");
-        when(mockUserAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
+        when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
 
         final List<UserAssociation> usersAssociations = createDirtyFollowings(3);
         for (UserAssociation association : usersAssociations) association.markForAddition();
 
-        when(mockUserAssociationStorage.getFollowingsNeedingSync()).thenReturn(usersAssociations);
+        when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(usersAssociations);
         expect(pushSyncMockedStorage(Content.ME_FOLLOWINGS.uri).success).toBeFalse();
 
         for (UserAssociation userAssociation : usersAssociations) {
-            verify(mockUserAssociationStorage, never()).setFollowingAsSynced(userAssociation);
+            verify(userAssociationStorage, never()).setFollowingAsSynced(userAssociation);
         }
     }
 
@@ -277,15 +253,22 @@ public class UserAssociationSyncerTest {
         sync(Content.ME_FOLLOWERS.uri);
     }
 
+    @Test
+    public void shouldNotBulkFollowIfNoUserAssociations() throws IOException {
+        when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
+        userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH);
+        verifyZeroInteractions(suggestedUsersOperations);
+    }
+
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(ApiSyncServiceTest.class, fixtures);
-        UserAssociationSyncer syncer = new UserAssociationSyncer(Robolectric.application, Robolectric.application.getContentResolver());
+        UserAssociationSyncer syncer = new UserAssociationSyncer(Robolectric.application);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 
     private ApiSyncResult pushSyncMockedStorage(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(ApiSyncServiceTest.class, fixtures);
-        return userAssociationSyncerMockStorage.syncContent(uri, ApiSyncService.ACTION_PUSH);
+        return userAssociationSyncer.syncContent(uri, ApiSyncService.ACTION_PUSH);
     }
 
     private static List<UserAssociation> createDirtyFollowings(int count) {
