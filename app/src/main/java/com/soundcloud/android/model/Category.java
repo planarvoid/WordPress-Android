@@ -12,22 +12,29 @@ import java.util.Set;
 
 public class Category extends ScModel {
 
-    public static final Category EMPTY = new EmptyCategory();
-    public static final Category PROGRESS = new ProgressCategory();
     public static final String EXTRA = "category";
 
     private String mName;
     private String mPermalink;
     private List<SuggestedUser> mUsers = Collections.emptyList();
 
+    public enum Type {
+        DEFAULT, EMPTY, PROGRESS;
+    }
+    private Type mType = Type.DEFAULT;
 
     public Category() { /* for deserialization */ }
+
+    public Category(Type type) {
+        mType = type;
+    }
 
     public Category(Parcel parcel) {
         super(parcel);
         setName(parcel.readString());
         setPermalink(parcel.readString());
         mUsers = parcel.readArrayList(SuggestedUser.class.getClassLoader());
+        mType = Type.values()[parcel.readInt()];
     }
 
     public Category(String urn) {
@@ -40,6 +47,15 @@ public class Category extends ScModel {
         dest.writeString(mName);
         dest.writeString(mPermalink);
         dest.writeList(mUsers);
+        dest.writeInt(mType.ordinal());
+    }
+
+    public Type getType() {
+        return mType;
+    }
+
+    public void setType(Type type) {
+        mType = type;
     }
 
     public String getPermalink() {
@@ -82,6 +98,14 @@ public class Category extends ScModel {
         return getUsersByFollowStatus(userFollowings, true);
     }
 
+    public boolean isEmptyCategory() {
+        return mType == Type.EMPTY;
+    }
+
+    public boolean isProgressCategory() {
+        return mType == Type.PROGRESS;
+    }
+
     private List<SuggestedUser> getUsersByFollowStatus(Set<Long> userFollowings, boolean isFollowing) {
         List<SuggestedUser> resultSuggestedUsers = new ArrayList(userFollowings.size());
         for (SuggestedUser user : mUsers) {
@@ -108,9 +132,17 @@ public class Category extends ScModel {
                 '}';
     }
 
-    private static final class EmptyCategory extends Category {
+    public static final Category progress(){
+        return new Category(Type.PROGRESS);
     }
 
-    private static final class ProgressCategory extends Category {
+    public static Category empty() {
+        return new Category(Type.EMPTY);
+    }
+
+    public static final Category empty(String message){
+        Category category = new Category(Type.EMPTY);
+        category.setName(message);
+        return category;
     }
 }

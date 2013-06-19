@@ -26,7 +26,7 @@ import java.util.Set;
 public class SuggestedUsersCategoryFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
     private SuggestedUsersAdapter mAdapter;
-    private Category mCategory = Category.EMPTY;
+    private Category mCategory;
     private GridViewCompat mAdapterView;
     private FollowingOperations mFollowingOperations;
 
@@ -35,6 +35,8 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         super.onCreate(savedInstanceState);
         if (getArguments() != null && getArguments().containsKey(Category.EXTRA)) {
             mCategory = getArguments().getParcelable(Category.EXTRA);
+        } else {
+            mCategory = Category.empty();
         }
         setAdapter(new SuggestedUsersAdapter(mCategory.getUsers()));
         mFollowingOperations = new FollowingOperations().observeOn(ScSchedulers.UI_SCHEDULER);
