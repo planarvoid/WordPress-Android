@@ -261,8 +261,11 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder, boolean isLoading) {
         Section section = mListPositionsToSections.get(position);
         if (section != null) {
-            final String label = isLoading ? section.getNotLoadedLabel(convertView.getResources()) : section.getLabel(convertView.getResources());
-            viewHolder.sectionHeader.setText(label);
+            if (isLoading){
+                viewHolder.sectionHeader.setText(section.getNotLoadedLabel(convertView.getResources()));
+            } else {
+                viewHolder.sectionHeader.setText(section.getLabel(convertView.getResources()));
+            }
             viewHolder.sectionHeader.setVisibility(View.VISIBLE);
         } else {
             viewHolder.sectionHeader.setVisibility(View.GONE);
