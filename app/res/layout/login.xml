@@ -17,6 +17,7 @@
                           android:text="@string/email"/>
                 <AutoCompleteTextView android:id="@+id/auto_txt_email_address"
                                       android:hint="@string/authentication_your_email_address"
+                                      android:requiresFadingEdge="horizontal"
                                       style="@style/SignUp.EmailEntry"/>
             </TableRow>
 
@@ -29,6 +30,7 @@
                           android:text="@string/password"/>
 
                 <com.soundcloud.android.view.ClearText style="@style/SignUp.PasswordEntry"
+                                                       android:requiresFadingEdge="horizontal"
                                                        android:id="@+id/txt_password"
                                                        android:hint="@string/authentication_your_password"
                                                        android:imeOptions="actionDone"/>

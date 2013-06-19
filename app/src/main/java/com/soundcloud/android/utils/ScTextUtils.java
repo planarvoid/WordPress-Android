@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -11,6 +12,7 @@ import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
@@ -24,7 +26,7 @@ import java.util.regex.Pattern;
 
 public class ScTextUtils {
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
-            "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
+            "\\A([a-z0-9_\\-][a-z0-9_\\-\\+\\.]{0,62})?[a-z0-9_\\-]@(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)+[a-z]{2,}\\Z"
     );
 
     private ScTextUtils() {
@@ -165,7 +167,7 @@ public class ScTextUtils {
     }
 
     public static boolean isEmail(CharSequence string) {
-        return !TextUtils.isEmpty(string) && EMAIL_ADDRESS_PATTERN.matcher(string).matches();
+        return !TextUtils.isEmpty(string) && EMAIL_ADDRESS_PATTERN.matcher(string.toString().toLowerCase()).matches();
     }
 
     public static String getLocation(String city, String country) {
@@ -205,4 +207,24 @@ public class ScTextUtils {
         }
     }
 
+    public static abstract class TextValidator implements TextWatcher {
+        private TextView textView;
+
+        public TextValidator(TextView textView) {
+            this.textView = textView;
+        }
+
+        public abstract void validate(TextView textView, String text);
+
+        @Override
+        final public void afterTextChanged(Editable s) {
+            validate(textView, textView.getText().toString());
+        }
+
+        @Override
+        final public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* Don't care */ }
+
+        @Override
+        final public void onTextChanged(CharSequence s, int start, int before, int count) { /* Don't care */ }
+    }
 }

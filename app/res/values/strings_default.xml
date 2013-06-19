@@ -13,13 +13,13 @@
   <string name="authentication_add_info_progress_message">Adding your info</string>
   <string name="authentication_add_info_username_hint">Your username</string>
   <string name="authentication_by_signing_in_I_agree_to_the">By signing up I agree to the Terms of Use and Privacy policy of SoundCloud.</string>
-  <string name="authentication_choose_a_password">Choose a password</string>
+  <string name="authentication_choose_a_password">At least 6 characters</string>
   <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
   <string name="authentication_error_invalid_email">Please enter a valid email.</string>
   <string name="authentication_error_no_connection_message">There\'s a problem with your data connection. Please check your network settings.</string>
   <string name="authentication_error_no_connection_title">Sure you\'re hooked up to the Internet?</string>
   <string name="authentication_error_password_mismatch">Please check that both passwords are the same.</string>
-  <string name="authentication_error_password_too_short">Your Password must have 4 or more characters.</string>
+  <string name="authentication_error_password_too_short">Your Password must have 6 or more characters.</string>
   <string name="authentication_error_title">Error</string>
   <string name="authentication_log_in">Log In</string>
   <string name="authentication_log_in_with_facebook_two_lines">&lt;small&gt;Sign in with&lt;/small&gt; &lt;br&gt;&lt;b&gt;Facebook&lt;/b&gt;</string>

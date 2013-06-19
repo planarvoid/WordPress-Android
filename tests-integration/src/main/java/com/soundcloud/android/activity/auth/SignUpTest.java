@@ -35,7 +35,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
 
     @Suppress
     public void testSignup() throws Exception {
-        performSignup(generateEmail(), "password", "password");
+        performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
         // username (max 25 characters)
@@ -49,7 +49,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
 
     @Suppress
     public void testSignupSkip() throws Exception {
-        performSignup(generateEmail(), "password", "password");
+        performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
         solo.clickOnButtonResId(R.string.btn_skip);
@@ -65,7 +65,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
 
     @Suppress
     public void testSignupWithPhotoFromCamera() throws Exception {
-        performSignup(generateEmail(), "password", "password");
+        performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
         solo.clickOnText(R.string.add_image);
@@ -90,7 +90,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
 
     @Suppress
     public void testSignupWithExistingPhoto() throws Exception {
-        performSignup(generateEmail(), "password", "password");
+        performSignup(generateEmail(), "password");
 
         solo.clickOnText(R.string.add_image);
         solo.assertText(R.string.image_where); // How would you like to add an image?
@@ -114,7 +114,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
     }
 
     public void testSignupWithNonMatchingPasswords() throws Exception {
-        performSignup(generateEmail(), "password", "different-password");
+        performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_error_password_mismatch);
     }
 
@@ -126,14 +126,14 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
     }
 
     public void testSignupWithInvalidEmail() throws Exception {
-        performSignup("not-an-email", "password", "password");
+        performSignup("not-an-email", "password");
         solo.assertText(R.string.authentication_error_invalid_email);
     }
 
     @Suppress
     public void testSignupEmailAlreadyTaken() throws Exception {
         String email = generateEmail();
-        performSignup(email, "password", "password");
+        performSignup(email, "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
         solo.clickOnButtonResId(R.string.btn_skip);
@@ -148,14 +148,14 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
 
         menuScreen.logout();
 
-        performSignup(email, "password", "password");
+        performSignup(email, "password");
 
         solo.assertText(R.string.authentication_signup_error_message);
         solo.clickOnOK();
     }
 
     public void testSignupWithTooShortPassword() throws Exception {
-        performSignup(generateEmail(), "123", "123");
+        performSignup(generateEmail(), "123");
         solo.assertText(R.string.authentication_error_password_too_short);
     }
 
@@ -226,7 +226,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         return uuid.substring(0, 24).replace("-", "");
     }
 
-    private void performSignup(String email, String password, String passwordConfirm) {
+    private void performSignup(String email, String password) {
         solo.clickOnButtonResId(R.string.authentication_sign_up);
         solo.assertText(R.string.authentication_sign_up);
         EditText emailField = (EditText) solo.getView(R.id.txt_email_address);
@@ -234,8 +234,6 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         solo.assertText(email);
 
         solo.enterText((EditText) solo.getView(R.id.txt_choose_a_password), password);
-        solo.enterText((EditText) solo.getView(R.id.txt_repeat_your_password), passwordConfirm);
-
         solo.clickOnButtonResId(R.string.btn_done);
     }
 }
