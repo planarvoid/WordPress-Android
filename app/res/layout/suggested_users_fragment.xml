@@ -3,9 +3,18 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
-    <ListView android:id="@android:id/list"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:listSelector="@android:color/transparent"/>
+    <FrameLayout android:id="@+id/list_container"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent">
+
+        <ListView android:id="@android:id/list"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"/>
+
+        <include layout="@layout/empty_list_error"
+                 android:id="@android:id/empty"/>
+    </FrameLayout>
+
+    <include layout="@layout/indeterminate_progress"/>
 
 </FrameLayout>

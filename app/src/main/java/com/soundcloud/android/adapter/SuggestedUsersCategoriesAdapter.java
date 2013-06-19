@@ -88,12 +88,6 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         mListPositionsToSections = new HashMap<Integer, Section>();
         mUserNamesBuilder = new StringBuilder();
         mFollowStatus = followStatus;
-
-        for (Section section : activeSections) {
-            CategoryGroup categoryGroup = new CategoryGroup(section.mKey.toString());
-            categoryGroup.setCategories(Lists.newArrayList(Category.PROGRESS));
-            addItem(categoryGroup);
-        }
     }
 
     public void addItem(CategoryGroup categoryGroup) {
