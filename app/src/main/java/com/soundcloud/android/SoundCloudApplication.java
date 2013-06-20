@@ -249,8 +249,9 @@ public class SoundCloudApplication extends Application implements Tracker {
     public static Thread handleSilentException(@Nullable String msg, Exception e) {
         if (EMULATOR || !DALVIK) return null; // acra is disabled on emulator
         if (msg != null) {
-           Log.w(TAG, "silentException: "+msg, e);
-           ACRA.getErrorReporter().putCustomData("message", msg);
+            Log.w(TAG, "silentException: " + msg, e);
+            ACRA.getErrorReporter().putCustomData("tag", "silent");
+            ACRA.getErrorReporter().putCustomData("message", msg);
         }
         return ACRA.getErrorReporter().handleSilentException(new SilentException(e));
     }
