@@ -14,14 +14,14 @@ public class SyncPoller implements Runnable {
     private static final int POLL_DELAY = 60 * 1000;
 
     private final Handler mHandler;
-    private final Thread mThread;
-    private final String mUris;
+    private final Thread mWatchedThread;
+    private final String mSyncTargetUris;
     private int mPollCount;
 
-    public SyncPoller(Handler handler, Thread thread, List<CollectionSyncRequest> tasks) {
+    public SyncPoller(Handler handler, Thread watchedThread, List<CollectionSyncRequest> syncTasks) {
         mHandler = handler;
-        mThread = thread;
-        mUris = getUriPathsFromTasks(tasks);
+        mWatchedThread = watchedThread;
+        mSyncTargetUris = getUriPathsFromTasks(syncTasks);
     }
 
     public void schedule(){
@@ -34,9 +34,8 @@ public class SyncPoller implements Runnable {
 
     @Override
     public void run() {
-        mPollCount++;
-        final String msg = "[" + mPollCount + "] " + mUris;
-        SoundCloudApplication.handleSilentException(msg, new SyncPollData(msg, mThread.getStackTrace()));
+        final String msg = "[" + (++mPollCount) + "] " + mSyncTargetUris;
+        SoundCloudApplication.handleSilentException(msg, new SyncPollData(msg, mWatchedThread.getStackTrace()));
         schedule();
     }
 
