@@ -44,24 +44,23 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private FollowStatus mFollowStatus;
 
     public enum Section {
-        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook, R.string.suggested_users_section_facebook),
-        MUSIC(CategoryGroup.KEY_MUSIC, R.string.suggested_users_section_music, R.string.suggested_users_section_music_and_audio),
-        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.suggested_users_section_audio, 0);
+        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook, true),
+        MUSIC(CategoryGroup.KEY_MUSIC, R.string.suggested_users_section_music, true),
+        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.suggested_users_section_audio, false);
 
         public static final EnumSet<Section> ALL_EXCEPT_FACEBOOK = EnumSet.of(MUSIC, SPEECH_AND_SOUNDS);
         public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
 
         private final String mKey;
         private final int mLabelResId;
-        private final int mNotLoadedLabelId;
+        private final boolean mShowLoading;
 
         private String mLabel;
-        private String mNotLoadedLabel;
 
-        Section(String key, int labelId, int notLoadedLabelId) {
+        Section(String key, int labelId, boolean showLoading) {
             mKey = key;
             mLabelResId = labelId;
-            mNotLoadedLabelId = notLoadedLabelId;
+            mShowLoading = showLoading;
         }
 
         String getLabel(Resources resources) {
@@ -69,17 +68,6 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 mLabel = resources.getString(mLabelResId);
             }
             return mLabel;
-        }
-
-        String getNotLoadedLabel(Resources resources) {
-            if (mNotLoadedLabel == null) {
-                mNotLoadedLabel = resources.getString(mNotLoadedLabelId);
-            }
-            return mNotLoadedLabel;
-        }
-
-        public boolean showWhileLoading() {
-            return mNotLoadedLabelId > 0;
         }
 
         static Section fromKey(String key) {
@@ -114,7 +102,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
         if (mCategoryGroups.size() < mActiveSections.size()){
             for (Section section : mActiveSections){
-                if (section.showWhileLoading()) mCategoryGroups.add(CategoryGroup.createProgressGroup(section.mKey));
+                if (section.mShowLoading) mCategoryGroups.add(CategoryGroup.createProgressGroup(section.mKey));
             }
         }
 
@@ -190,7 +178,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 } else {
                     viewHolder = (ItemViewHolder) convertView.getTag();
                 }
-                viewHolder.emptyMessage.setText(category.getEmptyMessage(convertView.getResources())); // currently just set to the name
+                viewHolder.emptyMessage.setText(category.getEmptyMessage(convertView.getResources()));
                 break;
 
             case DEFAULT:
@@ -205,7 +193,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 break;
         }
 
-        configureSectionHeader(position, convertView, viewHolder, category.getType() != Category.Type.DEFAULT);
+        configureSectionHeader(position, convertView, viewHolder);
         return convertView;
     }
 
@@ -258,14 +246,10 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     }
 
-    private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder, boolean isLoading) {
+    private void configureSectionHeader(int position, View convertView, ItemViewHolder viewHolder) {
         Section section = mListPositionsToSections.get(position);
         if (section != null) {
-            if (isLoading){
-                viewHolder.sectionHeader.setText(section.getNotLoadedLabel(convertView.getResources()));
-            } else {
-                viewHolder.sectionHeader.setText(section.getLabel(convertView.getResources()));
-            }
+            viewHolder.sectionHeader.setText(section.getLabel(convertView.getResources()));
             viewHolder.sectionHeader.setVisibility(View.VISIBLE);
         } else {
             viewHolder.sectionHeader.setVisibility(View.GONE);

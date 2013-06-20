@@ -25,13 +25,6 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         }
     };
 
-    private static final Func1<Exception,CategoryGroup> EMPTY_MUSIC_GROUP = new Func1<Exception, CategoryGroup>() {
-        @Override
-        public CategoryGroup call(Exception e) {
-            return CategoryGroup.createErrorGroup(CategoryGroup.KEY_MUSIC);
-        }
-    };
-
     private RxHttpClient mRxHttpClient;
 
     public SuggestedUsersOperations() {
@@ -48,7 +41,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateAPI(1)
                 .forResource(new TypeToken<List<CategoryGroup>>() {})
                 .build();
-        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request).onErrorReturn(EMPTY_MUSIC_GROUP));
+        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request));
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions() {

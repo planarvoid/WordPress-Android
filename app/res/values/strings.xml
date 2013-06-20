@@ -165,4 +165,6 @@
     <string name="suggested_users_btn_deselect_all">Deselect All</string>
 
     <string name="and_conjunction">%1$s and %2$s</string>
+    <string name="problem_connecting_to_SoundCloud">There\'s a problem connecting to\nSoundCloud.</string>
+    <string name="try_again">Try Again</string>
 </resources>

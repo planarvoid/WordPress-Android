@@ -114,10 +114,4 @@ public class SuggestedUsersOperationsTest {
         verify(observer, never()).onError(any(Exception.class));
     }
 
-    @Test
-    public void shouldReturnEmptyCategoryWhenMusicAndSoundsFails() {
-        when(soundCloudRxHttpClient.executeAPIRequest(any(APIRequest.class))).thenReturn(TestObservables.errorThrowingObservable(new RuntimeException()));
-        suggestedUsersOperations.getMusicAndSoundsSuggestions().subscribe(observer);
-        verify(observer, never()).onError(any(Exception.class));
-    }
 }

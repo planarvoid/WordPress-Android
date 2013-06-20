@@ -34,6 +34,11 @@ public final class StateHolderFragment extends Fragment {
     }
 
     @SuppressWarnings("unchecked")
+    public <T> T get(String key) {
+        return (T) mData.get(key);
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> T getOrPut(String key, T defaultValue) {
         Class<?> clazz = defaultValue.getClass();
         Object value = mData.get(key);

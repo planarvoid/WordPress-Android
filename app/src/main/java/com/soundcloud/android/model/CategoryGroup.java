@@ -74,4 +74,8 @@ public class CategoryGroup extends ScModel {
         categoryGroup.setCategories(Lists.<Category>newArrayList(Category.error()));
         return categoryGroup;
     }
+
+    public boolean isFacebook() {
+        return mKey.equals(KEY_FACEBOOK);
+    }
 }
