@@ -41,6 +41,7 @@ public class ApiSyncService extends Service {
 
     public static final int MAX_TASK_LIMIT = 3;
     private int mActiveTaskCount;
+    private Handler mHandler = new Handler();
 
     /* package */ final List<SyncIntent> mSyncIntents = new ArrayList<SyncIntent>();
     /* package */ final LinkedList<CollectionSyncRequest> mPendingRequests = new LinkedList<CollectionSyncRequest>();
@@ -117,7 +118,7 @@ public class ApiSyncService extends Service {
             }
         }
     }
-    Handler mHandler = new Handler();
+
     private class ApiTask extends ParallelAsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
 
         public static final int POLL_DELAY = 60 * 1000;
