@@ -1,9 +1,6 @@
 package com.soundcloud.android.service.sync;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -17,7 +14,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -120,10 +116,7 @@ public class ApiSyncService extends Service {
     }
 
     private class ApiTask extends ParallelAsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
-
-        public static final int POLL_DELAY = 60 * 1000;
-        private Runnable mPoller;
-        private int mPollCount;
+        private SyncPoller mSyncPoller;
 
         @Override
         protected void onPreExecute() {
@@ -132,7 +125,9 @@ public class ApiSyncService extends Service {
 
         @Override
         protected Void doInBackground(final CollectionSyncRequest... tasks) {
-            startPoller(tasks); // must be started from background thread
+            mSyncPoller = new SyncPoller(mHandler, Thread.currentThread(), Lists.newArrayList(tasks));
+            mSyncPoller.schedule();
+
             for (CollectionSyncRequest task : tasks) {
                 publishProgress(task.execute());
             }
@@ -148,39 +143,9 @@ public class ApiSyncService extends Service {
 
         @Override
         protected void onPostExecute(Void result) {
+            mSyncPoller.stop();
             mActiveTaskCount--;
-            stopPoller();
             flushSyncRequests();
-        }
-
-        private void startPoller(CollectionSyncRequest[] tasks) {
-            final Thread thread = Thread.currentThread();
-            final String uris = Joiner.on(",").join(getTaskUriPaths(tasks));
-
-            mPoller = new Runnable() {
-                @Override
-                public void run() {
-                    mPollCount++;
-                    final String msg = "[" + mPollCount + "] " + uris;
-                    SoundCloudApplication.handleSilentException(msg, new SyncPollData(msg, thread.getStackTrace()));
-                    mHandler.postDelayed(mPoller, POLL_DELAY);
-                }
-            };
-            mHandler.postDelayed(mPoller, POLL_DELAY);
-        }
-
-        private void stopPoller() {
-            mHandler.removeCallbacks(mPoller);
-        }
-
-        private List<String> getTaskUriPaths(CollectionSyncRequest[] tasks) {
-            return Lists.transform(Lists.newArrayList(tasks), new Function<CollectionSyncRequest, String>() {
-                @Nullable
-                @Override
-                public String apply(@Nullable CollectionSyncRequest input) {
-                    return input.contentUri.getPath();
-                }
-            });
         }
     }
 
@@ -191,15 +156,5 @@ public class ApiSyncService extends Service {
         // TODO more stats?
     }
 
-    private static class SyncPollData extends Exception {
-        private SyncPollData(String message, StackTraceElement[] stackTraceElements) {
-            super(message);
-            setStackTrace(stackTraceElements);
-        }
 
-        @Override
-        public String toString() {
-            return "SyncPollData :" + getMessage();
-        }
-    }
 }
