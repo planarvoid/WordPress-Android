@@ -170,6 +170,8 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         public void onNext(SuggestedUsersCategoriesFragment fragment, CategoryGroup categoryGroup) {
             Log.d(LOG_TAG, "got category group: " + categoryGroup);
             fragment.mAdapter.addItem(categoryGroup);
+            fragment.mAdapter.notifyDataSetChanged();
+
             if (!categoryGroup.isFacebook()){
                 fragment.setDisplayMode(DisplayMode.CONTENT);
             }
