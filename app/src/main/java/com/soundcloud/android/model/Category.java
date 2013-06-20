@@ -100,17 +100,21 @@ public class Category extends ScModel {
         return getUsersByFollowStatus(userFollowings, true);
     }
 
-    public boolean isErrorOrEmptyCategory() {
+    public boolean isErrorOrEmpty() {
         return mType == Type.EMPTY || mType == Type.ERROR;
     }
 
-    public boolean isProgressCategory() {
-        return mType == Type.PROGRESS;
+    public boolean isError() {
+        return mType == Type.ERROR;
+    }
+
+    public boolean isProgressOrEmpty() {
+        return mType == Type.EMPTY || mType == Type.PROGRESS;
     }
 
     public String getEmptyMessage(Resources resources) {
-        if (isErrorOrEmptyCategory()){
-            return resources.getString(mType == Type.EMPTY ? R.string.suggested_users_section_empty : R.string.suggested_users_section_error);
+        if (isErrorOrEmpty()){
+            return resources.getString(isError() ? R.string.suggested_users_section_error : R.string.suggested_users_section_empty);
         }
         return null;
     }

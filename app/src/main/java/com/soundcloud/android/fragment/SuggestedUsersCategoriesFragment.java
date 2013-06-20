@@ -84,7 +84,8 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
             }
 
             @Override
-            public void onSecondaryAction() {}
+            public void onSecondaryAction() {
+            }
         });
 
         final ListView listView = getListView();
@@ -121,7 +122,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Category item = mAdapter.getItem(position - getListView().getHeaderViewsCount());
-        if (item.isErrorOrEmptyCategory()){
+        if (item.isError()){
             refresh();
         } else {
             final Intent intent = new Intent(getActivity(), SuggestedUsersCategoryActivity.class);

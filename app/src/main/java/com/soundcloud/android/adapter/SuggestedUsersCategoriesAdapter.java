@@ -146,7 +146,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     @Override
     public boolean isEnabled(int position) {
-        return !getItem(position).isProgressCategory();
+        return !getItem(position).isProgressOrEmpty();
     }
 
     protected Map<Integer, Section> getListPositionsToSectionsMap() {
