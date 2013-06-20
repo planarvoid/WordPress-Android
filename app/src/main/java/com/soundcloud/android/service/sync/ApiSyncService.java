@@ -36,8 +36,9 @@ public class ApiSyncService extends Service {
     public static final int STATUS_APPEND_FINISHED = 0x5;
 
     public static final int MAX_TASK_LIMIT = 3;
+
     private int mActiveTaskCount;
-    private Handler mHandler = new Handler();
+    private Handler mServiceHandler = new Handler();
 
     /* package */ final List<SyncIntent> mSyncIntents = new ArrayList<SyncIntent>();
     /* package */ final LinkedList<CollectionSyncRequest> mPendingRequests = new LinkedList<CollectionSyncRequest>();
@@ -125,7 +126,7 @@ public class ApiSyncService extends Service {
 
         @Override
         protected Void doInBackground(final CollectionSyncRequest... tasks) {
-            mSyncPoller = new SyncPoller(mHandler, Thread.currentThread(), Lists.newArrayList(tasks));
+            mSyncPoller = new SyncPoller(mServiceHandler, Thread.currentThread(), Lists.newArrayList(tasks));
             mSyncPoller.schedule();
 
             for (CollectionSyncRequest task : tasks) {
