@@ -24,7 +24,7 @@ public class SyncPoller implements Runnable {
         mUris = getUriPathsFromTasks(tasks);
     }
 
-    public SyncPoller schedule(){
+    public void schedule(){
         mHandler.postDelayed(this, POLL_DELAY);
     }
 
