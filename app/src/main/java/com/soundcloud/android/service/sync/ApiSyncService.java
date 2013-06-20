@@ -155,6 +155,4 @@ public class ApiSyncService extends Service {
         to.stats.numParseExceptions += from.stats.numParseExceptions;
         // TODO more stats?
     }
-
-
 }
