@@ -134,7 +134,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return getItem(position).getDisplayType().getId();
+        return getItem(position).getDisplayType().ordinal();
     }
 
     @Override
