@@ -54,7 +54,7 @@ public class CollectionSyncRequestTest {
     public void setup() {
         initMocks(this);
         collectionSyncRequest = new CollectionSyncRequest(Robolectric.application,
-                Content.ME_FOLLOWINGS.uri, SOME_ACTION, true, apiSyncerFactory, syncStateManager, sharedPreferences);
+                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager, sharedPreferences);
     }
 
     @Test
