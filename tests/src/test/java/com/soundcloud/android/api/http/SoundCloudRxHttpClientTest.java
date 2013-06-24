@@ -1,5 +1,6 @@
 package com.soundcloud.android.api.http;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.WrapperFactory;
 import static com.soundcloud.android.rx.android.ErrorRaisingObserver.errorRaisingObserver;
@@ -13,7 +14,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.json.JsonTransformer;
@@ -66,6 +67,7 @@ public class SoundCloudRxHttpClientTest {
         rxHttpClient = new SoundCloudRxHttpClient(jsonTransformer, wrapperFactory).subscribeOn(Schedulers.immediate());
         when(apiRequest.getUriPath()).thenReturn(URI);
         when(apiRequest.getMethod()).thenReturn("get");
+        when(apiRequest.getQueryParameters()).thenReturn(ArrayListMultimap.create());
         when(wrapperFactory.createWrapper(apiRequest)).thenReturn(wrapper);
         when(wrapper.get(any(Request.class))).thenReturn(httpResponse);
         when(httpResponse.getEntity()).thenReturn(httpEntity);
@@ -91,10 +93,29 @@ public class SoundCloudRxHttpClientTest {
     }
 
     @Test
+    public void shouldMakePostRequestWithAPIWrapper() throws IOException {
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        rxHttpClient.executeAPIRequest(apiRequest).subscribe(errorRaisingObserver());
+        verify(wrapper).post(any(Request.class));
+    }
+
+    @Test
     public void shouldMakeGetRequestWithSpecifiedURI() throws IOException {
         rxHttpClient.executeAPIRequest(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
         verify(wrapper).get(argumentCaptor.capture());
+        Request scRequest = argumentCaptor.getValue();
+        expect(scRequest.toUrl()).toEqual(URI);
+    }
+
+    @Test
+    public void shouldMakePostRequestWithSpecifiedURI() throws IOException {
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        rxHttpClient.executeAPIRequest(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).post(argumentCaptor.capture());
         Request scRequest = argumentCaptor.getValue();
         expect(scRequest.toUrl()).toEqual(URI);
     }
@@ -177,7 +198,7 @@ public class SoundCloudRxHttpClientTest {
     public void shouldCallOnNextWithAllResourcesIfResourceTypeIsOfList() throws Exception {
         User userOne = mock(User.class);
         User userTwo = mock(User.class);
-        List<User> users = Lists.newArrayList(userOne, userTwo);
+        List<User> users = newArrayList(userOne, userTwo);
         TypeToken<List<User>> resourceType = new TypeToken<List<User>>() {};
         when(apiRequest.getResourceType()).thenReturn(resourceType);
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
@@ -230,4 +251,35 @@ public class SoundCloudRxHttpClientTest {
         verify(observer).onError(any(APIRequestException.class));
     }
 
+    @Test
+    public void shouldMakeRequestWithSingleValueQueryParameter() throws IOException {
+        ArrayListMultimap map = ArrayListMultimap.create();
+        map.put("key","value");
+        when(apiRequest.getQueryParameters()).thenReturn(map);
+
+        rxHttpClient.executeAPIRequest(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).get(argumentCaptor.capture());
+        Request request = argumentCaptor.getValue();
+
+        expect(request.getParams().get("key")).toEqual("value");
+
+    }
+
+    @Test
+    public void shouldMakeRequestWithMultipleValueQueryParameter() throws IOException {
+        ArrayListMultimap map = ArrayListMultimap.create();
+        map.putAll("key", newArrayList("value1", "value2"));
+        map.putAll("key2", newArrayList("value3"));
+        when(apiRequest.getQueryParameters()).thenReturn(map);
+
+        rxHttpClient.executeAPIRequest(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).get(argumentCaptor.capture());
+        Request request = argumentCaptor.getValue();
+
+        expect(request.getParams().get("key")).toEqual("value1,value2");
+        expect(request.getParams().get("key2")).toEqual("value3");
+
+    }
 }

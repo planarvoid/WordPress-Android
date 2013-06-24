@@ -11,6 +11,11 @@ enum HttpMethod {
         public HttpResponse execute(ApiWrapper wrapper, Request request) throws IOException {
             return wrapper.get(request);
         }
+    },
+    POST(){
+        public HttpResponse execute(ApiWrapper wrapper, Request request) throws IOException {
+            return wrapper.post(request);
+        }
     };
 
 

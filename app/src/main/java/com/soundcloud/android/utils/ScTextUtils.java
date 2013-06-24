@@ -1,5 +1,8 @@
 package com.soundcloud.android.utils;
 
+import static com.google.common.base.Strings.nullToEmpty;
+
+import com.google.common.base.Strings;
 import com.soundcloud.android.R;
 
 import android.content.res.Resources;
@@ -30,6 +33,14 @@ public class ScTextUtils {
     );
 
     private ScTextUtils() {
+    }
+
+    public static boolean isBlank(String string){
+        return Strings.isNullOrEmpty(nullToEmpty(string).trim());
+    }
+
+    public static boolean isNotBlank(String string){
+        return !isBlank(string);
     }
 
     /**
