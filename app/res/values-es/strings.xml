@@ -95,7 +95,7 @@
 
     <string name="side_menu_likes">Tus votos positivos</string>
     <string name="side_menu_friend_finder">Encontrar amigos</string>
-    <string name="side_menu_suggested_users">A quién seguir</string>
+    <string name="side_menu_who_to_follow">A quién seguir</string>
 
     <string name="settings_logging_out">Cerrar la sesión</string>
 

@@ -45,7 +45,7 @@
 
     <string name="side_menu_likes">Your likes</string>
     <string name="side_menu_friend_finder">Find friends</string>
-    <string name="side_menu_suggested_users">Who to follow</string>
+    <string name="side_menu_who_to_follow">Who to follow</string>
 
     <string name="list_header_track_reposters">People who reposted this sound</string>
 
