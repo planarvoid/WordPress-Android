@@ -287,7 +287,8 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_SOUND_STREAM:
                 if (_columns == null) {
-                    final String[] rawColumns = getSoundViewColumns(Table.ACTIVITY_VIEW);
+                    final String[] rawColumns = getSoundViewColumns(Table.ACTIVITY_VIEW,
+                            DBHelper.ActivityView.SOUND_ID, DBHelper.ActivityView.SOUND_TYPE);
 
                     _columns = formatWithUser(rawColumns, userId);
                 }
@@ -976,18 +977,22 @@ public class ScContentProvider extends ContentProvider {
     }
 
     private static String[] getSoundViewColumns(Table table) {
+        return getSoundViewColumns(table, table.id, table.type);
+    }
+
+    private static String[] getSoundViewColumns(Table table, String idCol, String typeCol) {
         return new String[]{
                 table.name + ".*",
                 "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS + ", " + Table.SOUNDS.name
-                        + " WHERE " + DBHelper.Sounds._ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                        + " AND " + DBHelper.Sounds._TYPE + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
+                        + " WHERE " + idCol + " = " + DBHelper.CollectionItems.ITEM_ID
+                        + " AND " + typeCol + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + LIKE
                         + " AND " + Table.COLLECTION_ITEMS.name + "." +  DBHelper.CollectionItems.USER_ID + " = $$$)"
                         + " AS " + DBHelper.SoundView.USER_LIKE,
 
                 "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS + ", " + Table.SOUNDS.name
-                        + " WHERE " + DBHelper.Sounds._ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                        + " AND " + DBHelper.Sounds._TYPE + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
+                        + " WHERE " + idCol + " = " + DBHelper.CollectionItems.ITEM_ID
+                        + " AND " + typeCol + " = " + DBHelper.CollectionItems.RESOURCE_TYPE
                         + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.REPOST
                         + " AND " + Table.COLLECTION_ITEMS.name + "." +  DBHelper.CollectionItems.USER_ID + " = $$$)"
                         + " AS " + DBHelper.SoundView.USER_REPOST
