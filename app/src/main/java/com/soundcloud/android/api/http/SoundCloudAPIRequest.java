@@ -3,8 +3,7 @@ package com.soundcloud.android.api.http;
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.base.Strings.nullToEmpty;
+import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Objects;
@@ -26,7 +25,7 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
     private final int mEndpointVersion;
     private final TypeToken<ResourceType> mResourceType;
     private final Boolean mIsPrivate;
-    private Multimap<String, String> mQueryParams;
+    private final Multimap<String, String> mQueryParams;
 
     private SoundCloudAPIRequest(Uri uri, String method, int endpointVersion, TypeToken<ResourceType> typeToken,
                                  Boolean isPrivate, Multimap<String, String> queryParams) {
@@ -75,12 +74,12 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
         private int mEndpointVersion;
         private TypeToken<ResourceType> mResourceType;
         private Boolean mIsPrivate;
-        private Multimap<String, String> parameters;
+        private final Multimap<String, String> mParameters;
 
         public RequestBuilder(String builder, String methodName) {
             uriPath = builder;
             mHttpMethod = methodName;
-            parameters = ArrayListMultimap.create();
+            mParameters = ArrayListMultimap.create();
         }
 
         public static <ResourceType> RequestBuilder<ResourceType> get(String uriPath) {
@@ -92,13 +91,13 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
         }
 
         public APIRequest<ResourceType> build(){
-            checkArgument(!isNullOrEmpty(nullToEmpty(uriPath).trim()), "URI needs to be valid value");
+            checkArgument(isNotBlank(uriPath), "URI needs to be valid value");
             checkNotNull(mIsPrivate, "Must specify api mode");
             if(mIsPrivate){
                 checkArgument(mEndpointVersion > 0, "Not a valid api version: %s", mEndpointVersion);
             }
             return new SoundCloudAPIRequest<ResourceType>(Uri.parse(uriPath), mHttpMethod, mEndpointVersion,
-                    mResourceType, mIsPrivate, parameters);
+                    mResourceType, mIsPrivate, mParameters);
         }
 
         public RequestBuilder<ResourceType> forResource(TypeToken<ResourceType> typeToken) {
@@ -126,13 +125,13 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
 
         public RequestBuilder<ResourceType> addQueryParameters(String key, Object... values){
             for(Object object : values){
-                parameters.put(key, object.toString());
+                mParameters.put(key, object.toString());
             }
             return this;
         }
 
         public RequestBuilder<ResourceType> addQueryParametersAsCollection(String key, Collection<? extends Object> values){
-            parameters.putAll(key, Collections2.transform(values, Functions.toStringFunction()));
+            mParameters.putAll(key, Collections2.transform(values, Functions.toStringFunction()));
             return this;
         }
 

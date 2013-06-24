@@ -230,7 +230,7 @@ public class UserAssociationSyncerTest {
     }
 
     @Test
-    public void shouldSetSuccessfullyPushAssociationsAsSynced() throws Exception {
+    public void shouldSetSuccessfullyPushedAssociationsAsSynced() throws Exception {
         Robolectric.setDefaultHttpResponse(HttpStatus.SC_OK, "ok");
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
         when(suggestedUsersOperations.bulkFollowAssociations(anyCollection())).thenReturn(true);
