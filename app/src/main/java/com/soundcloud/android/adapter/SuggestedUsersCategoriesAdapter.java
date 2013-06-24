@@ -181,7 +181,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
             case DEFAULT:
                 if (convertView == null) {
-                    convertView = inflater.inflate(R.layout.suggested_users_category_list_item, null, false);
+                    convertView = inflater.inflate(R.layout.suggested_users_category_list_item, parent, false);
                     viewHolder = getContentItemViewHolder(convertView);
                 } else {
                     viewHolder = (ItemViewHolder) convertView.getTag();
