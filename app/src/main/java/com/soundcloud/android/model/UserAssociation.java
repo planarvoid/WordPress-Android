@@ -1,10 +1,13 @@
 package com.soundcloud.android.model;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +23,20 @@ import java.util.Date;
  * Currently maps to nothing on the back end. However, we should create UserAssociations there so we are consistent
  */
 public class UserAssociation extends Association implements UserHolder {
+
+    public static Function<UserAssociation, String> TO_TOKEN_FUNCTION = new Function<UserAssociation, String>(){
+        @Override
+        public String apply(UserAssociation input) {
+            return input.getToken();
+        }
+    };
+
+    public static Predicate<UserAssociation> HAS_TOKEN_PREDICATE = new Predicate<UserAssociation>(){
+        @Override
+        public boolean apply(UserAssociation input) {
+            return input.hasToken();
+        }
+    };
 
     private @NotNull User       mUser;
     private @Nullable Date      mAddedAt;
@@ -171,6 +188,11 @@ public class UserAssociation extends Association implements UserHolder {
         } else {
             return LocalState.NONE;
         }
+    }
+
+
+    public boolean hasToken() {
+        return ScTextUtils.isNotBlank(mToken);
     }
 
     @Override

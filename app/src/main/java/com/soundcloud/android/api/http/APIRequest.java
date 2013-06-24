@@ -1,6 +1,7 @@
 package com.soundcloud.android.api.http;
 
 
+import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 
 /**
@@ -42,4 +43,10 @@ public interface APIRequest<ResourceType> {
      * @return True if the request is to be made to the private API, false otherwise
      */
     boolean isPrivate();
+
+    /**
+     * Returns the query parameters to be sent with the request.
+     * @return Multimap containing the key value pairs representing the query parameters.
+     */
+    Multimap<String, String> getQueryParameters();
 }
