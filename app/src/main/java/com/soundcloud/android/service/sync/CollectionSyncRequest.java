@@ -86,7 +86,7 @@ import java.io.IOException;
          *  if we have synced this uri within a certain amount of time, send a silent exception as this might be a
             symptom of a sync loop (battery/data drain)
          */
-        if (System.currentTimeMillis() - localCollection.last_sync_attempt < SYNC_REPEAT_TOLERANCE){
+        if (System.currentTimeMillis() - localCollection.last_sync_attempt < SYNC_REPEAT_TOLERANCE && !mIsUi){
             String message = mContentUri.toString() + " " + mSharedPreferences.getString(mResultKey, PREF_VAL_NULL);
             sendRetryViolation(mContentUri.toString(), new SyncRetryViolation(message));
         }
