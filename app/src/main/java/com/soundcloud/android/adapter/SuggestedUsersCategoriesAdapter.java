@@ -34,7 +34,6 @@ import java.util.TreeSet;
 public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private static final int INITIAL_LIST_CAPACITY = 30;
-    private static final String TAG = "Sugg_User_Cat_Adp";
 
     private final List<Category> mCategories;
     private final Set<CategoryGroup> mCategoryGroups;
@@ -95,14 +94,13 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     public void addItem(CategoryGroup categoryGroup) {
         mCategoryGroups.remove(categoryGroup);
-        if (categoryGroup.getCategoryCount() == 0) {
-            categoryGroup.setCategories(Lists.newArrayList(Category.empty()));
-        }
         mCategoryGroups.add(categoryGroup);
 
         if (mCategoryGroups.size() < mActiveSections.size()){
             for (Section section : mActiveSections){
-                if (section.mShowLoading) mCategoryGroups.add(CategoryGroup.createProgressGroup(section.mKey));
+                if (section.mShowLoading) {
+                    mCategoryGroups.add(CategoryGroup.createProgressGroup(section.mKey));
+                }
             }
         }
 
@@ -111,7 +109,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
         for (CategoryGroup group : mCategoryGroups) {
             mListPositionsToSections.put(mCategories.size(), Section.fromKey(group.getKey()));
-            mCategories.addAll(group.getCategories());
+            mCategories.addAll(group.isEmpty() ? Lists.newArrayList(Category.empty()) : group.getCategories());
         }
     }
 

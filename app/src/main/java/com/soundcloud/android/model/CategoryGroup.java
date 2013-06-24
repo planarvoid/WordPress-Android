@@ -78,4 +78,8 @@ public class CategoryGroup extends ScModel {
     public boolean isFacebook() {
         return mKey.equals(KEY_FACEBOOK);
     }
+
+    public boolean isEmpty() {
+        return mCategories.isEmpty();
+    }
 }
