@@ -70,7 +70,7 @@ public class SyncIntentTest {
 
         expect(req.onUriResult(syncRequest.execute())).toBeTrue();
         expect(executed[0]).toBeTrue();
-        expect(syncRequest.result.success).toBeFalse();
+        expect(syncRequest.getResult().success).toBeFalse();
     }
 }
 
