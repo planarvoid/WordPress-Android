@@ -43,6 +43,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private Subscription mSubscription;
     private Observer<CategoryGroup> mObserver;
 
+    private ListView mListView;
     private EmptyListView mEmptyListView;
 
     public SuggestedUsersCategoriesFragment() {
@@ -74,7 +75,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mEmptyListView = (EmptyListView) getView().findViewById(android.R.id.empty);
+        mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setMessageText(R.string.problem_connecting_to_SoundCloud);
         mEmptyListView.setActionText(getResources().getString(R.string.try_again));
         mEmptyListView.setActionListener(new EmptyListView.ActionListener() {
@@ -88,18 +89,25 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
             }
         });
 
-        final ListView listView = getListView();
-        listView.setDrawSelectorOnTop(false);
-        listView.setSelector(new StateListDrawable());
-        listView.setHeaderDividersEnabled(false);
-        listView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null), null, false);
-        listView.setOnItemClickListener(this);
-        listView.setAdapter(mAdapter);
+        mListView = (ListView) view.findViewById(android.R.id.list);
+        mListView.setDrawSelectorOnTop(false);
+        mListView.setSelector(new StateListDrawable());
+        mListView.setHeaderDividersEnabled(false);
+        mListView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null), null, false);
+        mListView.setOnItemClickListener(this);
+        mListView.setAdapter(mAdapter);
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
         Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mSuggestions.getCategoryGroups().cache().observeOn(ScSchedulers.UI_SCHEDULER));
         Log.d(LOG_TAG, "SUBSCRIBING, obs = " + observable.hashCode());
         refresh(observable);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mListView = null;
+        mEmptyListView = null;
     }
 
     private void refresh() {
@@ -121,7 +129,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final Category item = mAdapter.getItem(position - getListView().getHeaderViewsCount());
+        final Category item = mAdapter.getItem(position - mListView.getHeaderViewsCount());
         if (item.isError()){
             refresh();
         } else {
@@ -129,13 +137,6 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
             intent.putExtra(Category.EXTRA, item);
             startActivity(intent);
         }
-
-    }
-
-    @VisibleForTesting
-    ListView getListView() {
-        final View view = getView();
-        return view != null ? (ListView) view.findViewById(android.R.id.list) : null;
     }
 
     private void setDisplayMode(DisplayMode mode){
@@ -144,18 +145,18 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
             case LOADING:
                 mEmptyListView.setStatus(EmptyListView.Status.WAITING);
                 mEmptyListView.setVisibility(View.VISIBLE);
-                getListView().setVisibility(View.GONE);
+                mListView.setVisibility(View.GONE);
                 break;
 
             case CONTENT:
-                getListView().setVisibility(View.VISIBLE);
+                mListView.setVisibility(View.VISIBLE);
                 mEmptyListView.setVisibility(View.GONE);
                 break;
 
             case ERROR:
                 mEmptyListView.setStatus(EmptyListView.Status.OK);
                 mEmptyListView.setVisibility(View.VISIBLE);
-                getListView().setVisibility(View.GONE);
+                mListView.setVisibility(View.GONE);
                 break;
         }
     }
