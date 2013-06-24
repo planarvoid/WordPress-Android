@@ -13,6 +13,7 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.view.SingleLineCollectionTextView;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,8 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private final List<Category> mCategories;
     private final Set<CategoryGroup> mCategoryGroups;
+
+
     private final Map<Integer, Section> mListPositionsToSections;
     private final FollowingOperations mFollowingOperations;
     private final EnumSet<Section> mActiveSections;
@@ -187,7 +190,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                     viewHolder = (ItemViewHolder) convertView.getTag();
                 }
                 viewHolder.toggleFollow.setTag(position);
-                configureItemContent(category, viewHolder);
+                configureItemContent(parent.getContext(), category, viewHolder);
                 break;
         }
 
@@ -225,8 +228,8 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         return viewHolder;
     }
 
-    private void configureItemContent(Category category, ItemViewHolder viewHolder) {
-        viewHolder.genreTitle.setText(category.getName());
+    private void configureItemContent(Context context, Category category, ItemViewHolder viewHolder) {
+        viewHolder.genreTitle.setText(category.getName(context));
         viewHolder.toggleFollow.setChecked(category.isFollowed(mFollowStatus.getFollowedUserIds()));
         viewHolder.genreSubtitle.setDisplayItems(getSubtextUsers(category));
     }

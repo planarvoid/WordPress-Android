@@ -34,16 +34,14 @@ public class CategoryTest {
 
     @Test
     public void shouldBeParcelable(){
-        mCategory.setName("TrapStep");
-        mCategory.setPermalink("trapstep");
+        mCategory.setKey("trapstep");
         mCategory.setDisplayType(Category.DisplayType.PROGRESS);
 
         Parcel parcel = Parcel.obtain();
         mCategory.writeToParcel(parcel, 0);
 
         Category category = new Category(parcel);
-        expect(category.getName()).toEqual(mCategory.getName());
-        expect(category.getPermalink()).toEqual(mCategory.getPermalink());
+        expect(category.getKey()).toEqual(mCategory.getKey());
         expect(category.getDisplayType()).toEqual(mCategory.getDisplayType());
         /*
         Not implemented by Robolectric

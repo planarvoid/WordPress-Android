@@ -1,8 +1,8 @@
 package com.soundcloud.android.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.R;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -16,8 +16,7 @@ public class Category extends ScModel {
 
     public static final String EXTRA = "category";
 
-    private String mName;
-    private String mPermalink;
+    private String mKey;
     private List<SuggestedUser> mUsers = Collections.emptyList();
 
     public enum DisplayType {
@@ -33,8 +32,7 @@ public class Category extends ScModel {
 
     public Category(Parcel parcel) {
         super(parcel);
-        setName(parcel.readString());
-        setPermalink(parcel.readString());
+        setKey(parcel.readString());
         mUsers = parcel.readArrayList(SuggestedUser.class.getClassLoader());
         mDisplayType = DisplayType.values()[parcel.readInt()];
     }
@@ -46,8 +44,7 @@ public class Category extends ScModel {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeString(mName);
-        dest.writeString(mPermalink);
+        dest.writeString(mKey);
         dest.writeList(mUsers);
         dest.writeInt(mDisplayType.ordinal());
     }
@@ -60,21 +57,17 @@ public class Category extends ScModel {
         mDisplayType = displayType;
     }
 
-    public String getPermalink() {
-        return mPermalink;
+    public String getKey() {
+        return mKey;
     }
 
-    public void setPermalink(String permalink) {
-        this.mPermalink = permalink;
+    public void setKey(String key) {
+        this.mKey = key;
     }
 
-    public String getName() {
-        return mName;
-    }
-
-    @JsonProperty
-    public void setName(String name) {
-        this.mName = name;
+    public String getName(Context context) {
+        int resId = context.getResources() .getIdentifier("category_" + mKey, "string", context.getPackageName());
+        return resId == 0 ? mKey : context.getString(resId);
     }
 
     public List<SuggestedUser> getUsers() {
@@ -141,7 +134,7 @@ public class Category extends ScModel {
     @Override
     public String toString() {
         return "Category{" +
-                "mPermalink='" + mPermalink + '\'' +
+                "mKey='" + mKey + '\'' +
                 '}';
     }
 
