@@ -113,5 +113,4 @@ public class SuggestedUsersOperationsTest {
         suggestedUsersOperations.getFacebookSuggestions().subscribe(observer);
         verify(observer, never()).onError(any(Exception.class));
     }
-
 }
