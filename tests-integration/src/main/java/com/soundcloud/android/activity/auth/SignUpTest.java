@@ -56,7 +56,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         solo.assertDialogClosed();
 
         // Find Friends
-        solo.assertText(R.string.side_menu_suggested_users);
+        solo.assertText(R.string.side_menu_who_to_follow);
 
         solo.clickOnButtonResId(R.string.btn_done);
 
@@ -140,7 +140,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         solo.assertDialogClosed();
 
         // Find Friends
-        solo.assertText(R.string.side_menu_suggested_users);
+        solo.assertText(R.string.side_menu_who_to_follow);
 
         solo.clickOnButtonResId(R.string.btn_done);
 
