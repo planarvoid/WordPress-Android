@@ -15,6 +15,7 @@ import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
+import com.soundcloud.android.activity.landing.WhoToFollowActivity;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.api.OldCloudAPI;
@@ -118,7 +119,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startNavActivity(ScActivity.this, FriendFinder.class, menuBundle);
                         return true;
                     case R.id.nav_suggested_users:
-                        startNavActivity(ScActivity.this, SuggestedUsersActivity.class, menuBundle);
+                        final Class<? extends ScLandingPage> destination = SoundCloudApplication.DEV_MODE ?
+                                SuggestedUsersActivity.class : WhoToFollowActivity.class;
+                        startNavActivity(ScActivity.this, destination, menuBundle);
                         return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));
