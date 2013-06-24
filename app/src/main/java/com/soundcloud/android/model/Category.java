@@ -21,7 +21,25 @@ public class Category extends ScModel {
     private List<SuggestedUser> mUsers = Collections.emptyList();
 
     public enum DisplayType {
-        DEFAULT, EMPTY, PROGRESS, ERROR;
+        DEFAULT(0), EMPTY(1), PROGRESS(2), ERROR(3);
+
+        private int id;
+        private DisplayType(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        private static DisplayType fromId(int targetId){
+            for (DisplayType displayType : DisplayType.values()){
+                if (displayType.id == targetId){
+                    return displayType;
+                }
+            }
+            return DEFAULT;
+        }
     }
     private DisplayType mDisplayType = DisplayType.DEFAULT;
 
@@ -36,7 +54,7 @@ public class Category extends ScModel {
         setName(parcel.readString());
         setPermalink(parcel.readString());
         mUsers = parcel.readArrayList(SuggestedUser.class.getClassLoader());
-        mDisplayType = DisplayType.values()[parcel.readInt()];
+        mDisplayType = DisplayType.fromId(parcel.readInt());
     }
 
     public Category(String urn) {
@@ -49,7 +67,7 @@ public class Category extends ScModel {
         dest.writeString(mName);
         dest.writeString(mPermalink);
         dest.writeList(mUsers);
-        dest.writeInt(mDisplayType.ordinal());
+        dest.writeInt(mDisplayType.id);
     }
 
     public DisplayType getDisplayType() {
