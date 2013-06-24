@@ -134,12 +134,12 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return getItem(position).getType().ordinal();
+        return getItem(position).getDisplayType().ordinal();
     }
 
     @Override
     public int getViewTypeCount() {
-        return Category.Type.values().length;
+        return Category.DisplayType.values().length;
     }
 
     @Override
@@ -157,7 +157,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         ItemViewHolder viewHolder = null;
 
         final Category category = getItem(position);
-        switch (category.getType()){
+        switch (category.getDisplayType()){
             case PROGRESS:
                 if (convertView == null) {
                     convertView = inflater.inflate(R.layout.suggested_users_category_list_loading_item, parent, false);

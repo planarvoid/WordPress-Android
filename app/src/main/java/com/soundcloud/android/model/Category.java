@@ -20,15 +20,15 @@ public class Category extends ScModel {
     private String mPermalink;
     private List<SuggestedUser> mUsers = Collections.emptyList();
 
-    public enum Type {
+    public enum DisplayType {
         DEFAULT, EMPTY, PROGRESS, ERROR;
     }
-    private Type mType = Type.DEFAULT;
+    private DisplayType mDisplayType = DisplayType.DEFAULT;
 
     public Category() { /* for deserialization */ }
 
-    public Category(Type type) {
-        mType = type;
+    public Category(DisplayType displayType) {
+        mDisplayType = displayType;
     }
 
     public Category(Parcel parcel) {
@@ -36,7 +36,7 @@ public class Category extends ScModel {
         setName(parcel.readString());
         setPermalink(parcel.readString());
         mUsers = parcel.readArrayList(SuggestedUser.class.getClassLoader());
-        mType = Type.values()[parcel.readInt()];
+        mDisplayType = DisplayType.values()[parcel.readInt()];
     }
 
     public Category(String urn) {
@@ -49,15 +49,15 @@ public class Category extends ScModel {
         dest.writeString(mName);
         dest.writeString(mPermalink);
         dest.writeList(mUsers);
-        dest.writeInt(mType.ordinal());
+        dest.writeInt(mDisplayType.ordinal());
     }
 
-    public Type getType() {
-        return mType;
+    public DisplayType getDisplayType() {
+        return mDisplayType;
     }
 
-    public void setType(Type type) {
-        mType = type;
+    public void setDisplayType(DisplayType displayType) {
+        mDisplayType = displayType;
     }
 
     public String getPermalink() {
@@ -101,15 +101,15 @@ public class Category extends ScModel {
     }
 
     public boolean isErrorOrEmpty() {
-        return mType == Type.EMPTY || mType == Type.ERROR;
+        return mDisplayType == DisplayType.EMPTY || mDisplayType == DisplayType.ERROR;
     }
 
     public boolean isError() {
-        return mType == Type.ERROR;
+        return mDisplayType == DisplayType.ERROR;
     }
 
     public boolean isProgressOrEmpty() {
-        return mType == Type.EMPTY || mType == Type.PROGRESS;
+        return mDisplayType == DisplayType.EMPTY || mDisplayType == DisplayType.PROGRESS;
     }
 
     public String getEmptyMessage(Resources resources) {
@@ -146,15 +146,15 @@ public class Category extends ScModel {
     }
 
     public static final Category progress(){
-        return new Category(Type.PROGRESS);
+        return new Category(DisplayType.PROGRESS);
     }
 
     public static final Category empty() {
-        return new Category(Type.EMPTY);
+        return new Category(DisplayType.EMPTY);
     }
 
     public static final Category error(){
-        return new Category(Type.ERROR);
+        return new Category(DisplayType.ERROR);
 
     }
 }

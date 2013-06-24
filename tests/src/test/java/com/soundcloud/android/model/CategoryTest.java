@@ -36,7 +36,7 @@ public class CategoryTest {
     public void shouldBeParcelable(){
         mCategory.setName("TrapStep");
         mCategory.setPermalink("trapstep");
-        mCategory.setType(Category.Type.PROGRESS);
+        mCategory.setDisplayType(Category.DisplayType.PROGRESS);
 
         Parcel parcel = Parcel.obtain();
         mCategory.writeToParcel(parcel, 0);
@@ -44,7 +44,7 @@ public class CategoryTest {
         Category category = new Category(parcel);
         expect(category.getName()).toEqual(mCategory.getName());
         expect(category.getPermalink()).toEqual(mCategory.getPermalink());
-        expect(category.getType()).toEqual(mCategory.getType());
+        expect(category.getDisplayType()).toEqual(mCategory.getDisplayType());
         /*
         Not implemented by Robolectric
         expect(category.getUsers()).toEqual(mCategory.getUsers());
@@ -100,19 +100,19 @@ public class CategoryTest {
 
     @Test
     public void shouldReturnEmptyMessage() {
-        mCategory.setType(Category.Type.EMPTY);
+        mCategory.setDisplayType(Category.DisplayType.EMPTY);
         checkEmptyMessage(R.string.suggested_users_section_empty);
     }
 
     @Test
     public void shouldReturnErrorMessage() {
-        mCategory.setType(Category.Type.ERROR);
+        mCategory.setDisplayType(Category.DisplayType.ERROR);
         checkEmptyMessage(R.string.suggested_users_section_error);
     }
 
     @Test
     public void shouldReturnNullEmptyMessage() {
-        mCategory.setType(Category.Type.DEFAULT);
+        mCategory.setDisplayType(Category.DisplayType.DEFAULT);
         expect(mCategory.getEmptyMessage(Robolectric.application.getResources())).toBeNull();
     }
 

@@ -58,24 +58,24 @@ public class SuggestedUsersCategoriesAdapterTest {
         adapter.addItem(new CategoryGroup(CategoryGroup.KEY_MUSIC));
         adapter.addItem(new CategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS));
         expect(adapter.getCount()).toBe(3);
-        expect(adapter.getItem(0).getType()).toBe(Category.Type.PROGRESS);
+        expect(adapter.getItem(0).getDisplayType()).toBe(Category.DisplayType.PROGRESS);
     }
 
     @Test
     public void shouldHaveMusicLoadingSectionAndNotSpeechAndSoundsLoadingsection() {
         adapter.addItem(new CategoryGroup(CategoryGroup.KEY_FACEBOOK));
         expect(adapter.getCount()).toBe(2);
-        expect(adapter.getItem(0).getType()).not.toBe(Category.Type.PROGRESS);
-        expect(adapter.getItem(1).getType()).toBe(Category.Type.PROGRESS);
+        expect(adapter.getItem(0).getDisplayType()).not.toBe(Category.DisplayType.PROGRESS);
+        expect(adapter.getItem(1).getDisplayType()).toBe(Category.DisplayType.PROGRESS);
     }
 
     @Test
     public void shouldHandleUnexpectedSection() throws CreateModelException {
         nonFacebookAdapter.addItem(facebook());
         expect(nonFacebookAdapter.getCount()).toBe(3); // 2 facebook sections, 1 loading section
-        expect(nonFacebookAdapter.getItem(0).getType()).not.toBe(Category.Type.PROGRESS);
-        expect(nonFacebookAdapter.getItem(1).getType()).not.toBe(Category.Type.PROGRESS);
-        expect(nonFacebookAdapter.getItem(2).getType()).toBe(Category.Type.PROGRESS);
+        expect(nonFacebookAdapter.getItem(0).getDisplayType()).not.toBe(Category.DisplayType.PROGRESS);
+        expect(nonFacebookAdapter.getItem(1).getDisplayType()).not.toBe(Category.DisplayType.PROGRESS);
+        expect(nonFacebookAdapter.getItem(2).getDisplayType()).toBe(Category.DisplayType.PROGRESS);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class SuggestedUsersCategoriesAdapterTest {
         adapter.addItem(facebook());
 
         for (Category category : adapter.getItems()) {
-            expect(category.getType()).not.toBe(Category.Type.PROGRESS);
+            expect(category.getDisplayType()).not.toBe(Category.DisplayType.PROGRESS);
         }
     }
 
@@ -94,8 +94,8 @@ public class SuggestedUsersCategoriesAdapterTest {
         adapter.addItem(emptyAudio());
         adapter.addItem(music());
 
-        expect(adapter.getItem(0).getType()).toBe(Category.Type.PROGRESS);
-        expect(adapter.getItem(1).getType()).not.toBe(Category.Type.PROGRESS);
+        expect(adapter.getItem(0).getDisplayType()).toBe(Category.DisplayType.PROGRESS);
+        expect(adapter.getItem(1).getDisplayType()).not.toBe(Category.DisplayType.PROGRESS);
         expect(adapter.getItem(1).isErrorOrEmpty()).toBeFalse();
         expect(adapter.getItem(music().getCategoryCount() + 1).isErrorOrEmpty()).toBeTrue();
     }
