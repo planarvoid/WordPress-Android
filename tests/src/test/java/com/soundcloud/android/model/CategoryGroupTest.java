@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -58,6 +59,7 @@ public class CategoryGroupTest {
     }
 
     @Test
+    @Ignore
     public void shouldBeEmptyWithEmptyCategory() throws CreateModelException {
         when(category1.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
         when(category2.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
