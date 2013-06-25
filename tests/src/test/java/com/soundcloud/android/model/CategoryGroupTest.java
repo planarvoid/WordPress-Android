@@ -56,4 +56,13 @@ public class CategoryGroupTest {
         mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
         expect(mCategoryGroup.getNonEmptyCategories()).toContainExactly(category1);
     }
+
+    @Test
+    public void shouldBeEmptyWithEmptyCategory() throws CreateModelException {
+        when(category1.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
+        when(category2.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
+
+        mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
+        expect(mCategoryGroup.isEmpty()).toBeTrue();
+    }
 }
