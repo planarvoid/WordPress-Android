@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.google.common.base.Predicate;
 import com.soundcloud.android.R;
 
 import android.content.Context;
@@ -15,6 +16,13 @@ import java.util.Set;
 public class Category extends ScModel {
 
     public static final String EXTRA = "category";
+
+    public static Predicate<Category> HAS_USERS_PREDICATE = new Predicate<Category>(){
+        @Override
+        public boolean apply(Category input) {
+            return !input.getUsers().isEmpty();
+        }
+    };
 
     private String mKey;
     private List<SuggestedUser> mUsers = Collections.emptyList();

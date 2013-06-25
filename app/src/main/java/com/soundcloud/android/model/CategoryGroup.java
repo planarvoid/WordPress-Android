@@ -1,8 +1,11 @@
 package com.soundcloud.android.model;
 
+import static com.google.common.collect.Collections2.filter;
+
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +28,11 @@ public class CategoryGroup extends ScModel {
     @NotNull
     public List<Category> getCategories() {
         return mCategories;
+    }
+
+    @NotNull
+    public Collection<Category> getNonEmptyCategories() {
+        return filter(mCategories, Category.HAS_USERS_PREDICATE);
     }
 
     public void setCategories(@NotNull List<Category> categories) {
