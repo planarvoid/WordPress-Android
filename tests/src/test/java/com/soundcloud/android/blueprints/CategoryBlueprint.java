@@ -10,7 +10,7 @@ import java.util.List;
 @Blueprint(Category.class)
 public class CategoryBlueprint {
 
-    @MappedList(target = SuggestedUser.class, size = 3)
+    @MappedList(force = true, target = SuggestedUser.class, size = 3)
     List<SuggestedUser> users;
 
 }

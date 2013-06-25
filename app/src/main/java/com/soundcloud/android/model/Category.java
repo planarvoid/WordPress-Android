@@ -20,7 +20,8 @@ public class Category extends ScModel {
     public static Predicate<Category> HAS_USERS_PREDICATE = new Predicate<Category>(){
         @Override
         public boolean apply(Category input) {
-            return !input.getUsers().isEmpty();
+            final DisplayType displayType = input.getDisplayType();
+            return displayType == DisplayType.PROGRESS || displayType == DisplayType.ERROR || !input.getUsers().isEmpty();
         }
     };
 

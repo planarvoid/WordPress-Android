@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -59,12 +58,25 @@ public class CategoryGroupTest {
     }
 
     @Test
-    @Ignore
-    public void shouldBeEmptyWithEmptyCategory() throws CreateModelException {
+    public void shouldBeEmptyWithEmptyCategories() throws CreateModelException {
         when(category1.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
         when(category2.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
 
         mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
         expect(mCategoryGroup.isEmpty()).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotBeEmptyWithProgressCategory() throws CreateModelException {
+        when(category1.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
+        mCategoryGroup.setCategories(Lists.newArrayList(category1, Category.progress()));
+        expect(mCategoryGroup.isEmpty()).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotBeEmptyWithErrorCategory() throws CreateModelException {
+        when(category1.getUsers()).thenReturn(Collections.<SuggestedUser>emptyList());
+        mCategoryGroup.setCategories(Lists.newArrayList(category1, Category.error()));
+        expect(mCategoryGroup.isEmpty()).toBeFalse();
     }
 }
