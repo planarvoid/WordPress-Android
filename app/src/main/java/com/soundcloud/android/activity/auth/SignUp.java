@@ -139,6 +139,8 @@ public class SignUp extends AuthLayout {
                     final String email = emailField.getText().toString();
                     final String password = passwordField.getText().toString();
 
+                    hideKeyboardOnSignup(emailField, passwordField);
+
                     if (mSignUpHandler != null) {
                         mSignUpHandler.onSignUp(email, password);
                     }
@@ -153,9 +155,7 @@ public class SignUp extends AuthLayout {
                     getSignUpHandler().onCancelSignUp();
                 }
 
-                InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(emailField.getWindowToken(), 0);
-                imm.hideSoftInputFromWindow(passwordField.getWindowToken(), 0);
+                hideKeyboardOnSignup(emailField, passwordField);
             }
         });
 
@@ -167,7 +167,6 @@ public class SignUp extends AuthLayout {
                         if (mSignUpHandler != null) {
                             mSignUpHandler.onShowTermsOfUse();
                         }
-                        ;
                     }
                 }, false, false);
 
@@ -179,11 +178,16 @@ public class SignUp extends AuthLayout {
                         if (mSignUpHandler != null) {
                             mSignUpHandler.onShowPrivacyPolicy();
                         }
-                        ;
                     }
                 }, false, false);
 
         validateForm();
+    }
+
+    private void hideKeyboardOnSignup(AutoCompleteTextView emailField, EditText passwordField) {
+        InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(emailField.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(passwordField.getWindowToken(), 0);
     }
 
     private void validateForm() {
