@@ -6,7 +6,7 @@
         android:layout_height="match_parent">
     <RelativeLayout android:layout_width="match_parent"
                     android:id="@+id/suggested_user_layout"
-                    android:layout_margin="7dp"
+                    android:layout_margin="16dp"
                     android:padding="@dimen/onboarding_suggested_user_item_padding"
                     android:layout_height="@dimen/onboarding_suggested_user_item_height">
 
@@ -28,8 +28,8 @@
 
         <ToggleButton android:id="@id/toggle_btn_follow"
                       android:layout_alignParentBottom="true"
-                      android:layout_marginBottom="10dp"
-                      android:layout_marginRight="10dp"
+                      android:layout_marginBottom="9dp"
+                      android:layout_marginRight="9dp"
                       style="@style/SuggestedUserToggleButton"/>
     </RelativeLayout>
 </com.soundcloud.android.view.SuggestedUserItemLayout>

@@ -126,13 +126,15 @@
     </style>
 
     <style name="OnboardSuggestedUserText" parent="BlackOverlayText">
-        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginLeft">13dp</item>
     </style>
-    <style name="OnboardSuggestedUserUsernameText" parent="OnboardSuggestedUserText" />
+    <style name="OnboardSuggestedUserUsernameText" parent="OnboardSuggestedUserText">
+        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+    </style>
     <style name="OnboardSuggestedUserLocationText" parent="OnboardSuggestedUserText">
         <item name="android:textColor">#CCCCCC</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_marginBottom">13dp</item>
     </style>
 
     <style name="Tour"/>
