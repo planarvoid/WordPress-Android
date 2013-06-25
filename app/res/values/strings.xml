@@ -166,4 +166,37 @@
     <string name="and_conjunction">%1$s and %2$s</string>
     <string name="try_again">Try Again</string>
     <string name="finish">Finish</string>
+
+    <string name="category_facebook_friends">Facebook Friends</string>
+    <string name="category_facebook_likes">Facebook Likes</string>
+
+    <string name="category_rock">Rock</string>
+    <string name="category_indie">Indie</string>
+    <string name="category_dubstep">Dubstep</string>
+    <string name="category_pop">Pop</string>
+    <string name="category_punk">Punk</string>
+    <string name="category_country">Country</string>
+    <string name="category_alternative">Alternative</string>
+    <string name="category_electronic">Electronic</string>
+    <string name="category_house">House</string>
+    <string name="category_rnb_and_soul">RnB and Soul</string>
+    <string name="category_hiphop_and_rap">HipHop and Rap</string>
+    <string name="category_reggae">Reggae</string>
+    <string name="category_singer_songwriter">Singer Songwriter</string>
+    <string name="category_jazz_and_blues">Jazz and Blues</string>
+    <string name="category_metal">Metal</string>
+    <string name="category_classical">Classical</string>
+    <string name="category_folk_and_world">Folk and World</string>
+    <string name="category_ideas">Ideas</string>
+    <string name="category_business">Business</string>
+    <string name="category_religion_and_spirituality">Religion and Spirituality</string>
+    <string name="category_audiobooks">Audiobooks</string>
+    <string name="category_arts_and_entertainment">Arts and Entertainment</string>
+    <string name="category_sports">Sports</string>
+    <string name="category_science_and_technology">Science and Technology</string>
+    <string name="category_comedy">Comedy</string>
+    <string name="category_news">News</string>
+    <string name="category_storytelling">Storytelling</string>
+    <string name="category_learning">Learning</string>
+
 </resources>
