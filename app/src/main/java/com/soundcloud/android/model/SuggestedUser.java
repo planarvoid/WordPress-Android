@@ -77,7 +77,7 @@ public class SuggestedUser extends ScModel {
     }
 
     public String getAvatarUrl() {
-        return ClientUri.fromUri("soundcloud:users:30511050").imageUri(ImageSize.T500).toString();
+        return getUrn().imageUri(ImageSize.T500).toString();
     }
 
     public String getLocation() {
