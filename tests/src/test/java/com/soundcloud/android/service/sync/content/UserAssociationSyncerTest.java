@@ -61,14 +61,12 @@ public class UserAssociationSyncerTest {
     @Mock
     private Observable<Void> observable;
 
-
     @Before
     public void before() {
         TestHelper.setUserId(USER_ID);
 
         userAssociationSyncer = new UserAssociationSyncer(Robolectric.application,
                 resolver, userAssociationStorage, suggestedUsersOperations);
-
         when(userAssociation.getUser()).thenReturn(user);
         when(userAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
 
@@ -100,7 +98,6 @@ public class UserAssociationSyncerTest {
         userAssociationSyncer.syncContent(Content.ME_FOLLOWERS.uri, Intent.ACTION_SYNC);
 
         verify(userAssociationStorage).insertInBatches(Content.ME_FOLLOWERS, USER_ID, newArrayList(792584L, 1255758L, 308291L), 0, Integer.MAX_VALUE);
-
     }
 
     @Test
@@ -304,7 +301,6 @@ public class UserAssociationSyncerTest {
         when(suggestedUsersOperations.bulkFollowAssociations(anyList())).thenReturn(true);
         expect(userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH).success).toBeTrue();
     }
-
 
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(ApiSyncServiceTest.class, fixtures);

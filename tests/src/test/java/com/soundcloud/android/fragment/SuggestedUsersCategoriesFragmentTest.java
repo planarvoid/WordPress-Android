@@ -51,9 +51,7 @@ public class SuggestedUsersCategoriesFragmentTest {
 
     @Test
     public void shouldFetchGenreBucketsIntoListAdapterInOnCreate() {
-        when(fragment.getView()).thenReturn(View.inflate(Robolectric.application, R.layout.suggested_users_fragment, null));
-        fragment.onViewCreated(new View(Robolectric.application), null);
-
+        fragment.onViewCreated(View.inflate(Robolectric.application, R.layout.suggested_users_fragment, null), null);
         verify(observer, times(2)).onNext(any(CategoryGroup.class));
         verify(observer).onCompleted();
     }

@@ -31,7 +31,7 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.done) {
+        if (item.getItemId() == R.id.finish) {
             new SyncStateManager().forceToStale(Content.ME_SOUND_STREAM);
             startActivity(new Intent(Actions.STREAM));
             finish();

@@ -149,16 +149,21 @@
 
     <!-- onboarding -->
     <string name="suggested_users_genres_large_title">Choose your favorite categories</string>
-    <string name="suggested_users_genres_sub_title">Follow people trending in the SoundCloud community. Tap each category to see full list.</string>
+    <string name="suggested_users_genres_sub_title">Follow people trending in the SoundCloud community.</string>
     <string name="suggested_users_section_facebook">Facebook</string>
     <string name="suggested_users_section_music">Music</string>
     <string name="suggested_users_section_audio">Audio</string>
     <string name="suggested_users_error_get_genre_buckets">Failed to load categories at this time. Try again later.</string>
 
-    <string name="suggested_users_no_categories_returned">No categories returned</string>
+    <string name="suggested_users_section_empty">No results found</string>
+    <string name="suggested_users_section_error">No results found, tap to retry</string>
 
     <string name="suggested_users_btn_select_all">Select All</string>
     <string name="suggested_users_btn_deselect_all">Deselect All</string>
 
+    <string name="problem_connecting_to_SoundCloud">There\'s a problem connecting to\nSoundCloud.</string>
+
     <string name="and_conjunction">%1$s and %2$s</string>
+    <string name="try_again">Try Again</string>
+    <string name="finish">Finish</string>
 </resources>

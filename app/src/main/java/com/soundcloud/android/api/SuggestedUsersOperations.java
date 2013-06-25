@@ -28,7 +28,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     private static final Func1<Exception, CategoryGroup> EMPTY_FACEBOOK_GROUP = new Func1<Exception, CategoryGroup>() {
         @Override
         public CategoryGroup call(Exception e) {
-            return new CategoryGroup(CategoryGroup.KEY_FACEBOOK);
+            return CategoryGroup.createErrorGroup(CategoryGroup.KEY_FACEBOOK);
         }
     };
 

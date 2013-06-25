@@ -13,6 +13,7 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.view.SingleLineCollectionTextView;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,33 +34,35 @@ import java.util.TreeSet;
 
 public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
-    private static final int PROGRESS_VIEW_TYPE = 0;
-    private static final int EMPTY_VIEW_TYPE = 1;
-    private static final int DEFAULT_VIEW_TYPE = 2;
     private static final int INITIAL_LIST_CAPACITY = 30;
-    private static final String TAG = "Sugg_User_Cat_Adp";
 
-    private final StringBuilder mUserNamesBuilder;
     private final List<Category> mCategories;
     private final Set<CategoryGroup> mCategoryGroups;
+
+
     private final Map<Integer, Section> mListPositionsToSections;
     private final FollowingOperations mFollowingOperations;
+    private final EnumSet<Section> mActiveSections;
     private FollowStatus mFollowStatus;
 
     public enum Section {
-        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook),
-        MUSIC(CategoryGroup.KEY_MUSIC, R.string.suggested_users_section_music),
-        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.suggested_users_section_audio);
+        FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook, true),
+        MUSIC(CategoryGroup.KEY_MUSIC, R.string.suggested_users_section_music, true),
+        SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.suggested_users_section_audio, false);
+
         public static final EnumSet<Section> ALL_EXCEPT_FACEBOOK = EnumSet.of(MUSIC, SPEECH_AND_SOUNDS);
         public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
 
         private final String mKey;
         private final int mLabelResId;
+        private final boolean mShowLoading;
+
         private String mLabel;
 
-        Section(String key, int labelId) {
+        Section(String key, int labelId, boolean showLoading) {
             mKey = key;
             mLabelResId = labelId;
+            mShowLoading = showLoading;
         }
 
         String getLabel(Resources resources) {
@@ -88,23 +91,28 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new HashMap<Integer, Section>();
-        mUserNamesBuilder = new StringBuilder();
         mFollowStatus = followStatus;
+        mActiveSections = activeSections;
     }
 
     public void addItem(CategoryGroup categoryGroup) {
         mCategoryGroups.remove(categoryGroup);
-        if (categoryGroup.getCategoryCount() == 0) {
-            categoryGroup.setCategories(Lists.newArrayList(Category.EMPTY));
-        }
         mCategoryGroups.add(categoryGroup);
+
+        if (mCategoryGroups.size() < mActiveSections.size()){
+            for (Section section : mActiveSections){
+                if (section.mShowLoading) {
+                    mCategoryGroups.add(CategoryGroup.createProgressGroup(section.mKey));
+                }
+            }
+        }
 
         mCategories.clear();
         mListPositionsToSections.clear();
 
         for (CategoryGroup group : mCategoryGroups) {
             mListPositionsToSections.put(mCategories.size(), Section.fromKey(group.getKey()));
-            mCategories.addAll(group.getCategories());
+            mCategories.addAll(group.isEmpty() ? Lists.newArrayList(Category.empty()) : group.getCategories());
         }
     }
 
@@ -129,23 +137,17 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        final Category item = getItem(position);
-        if (item == Category.EMPTY) {
-            return EMPTY_VIEW_TYPE;
-        } else if (item == Category.PROGRESS) {
-            return PROGRESS_VIEW_TYPE;
-        }
-        return DEFAULT_VIEW_TYPE;
+        return getItem(position).getDisplayType().ordinal();
     }
 
     @Override
     public int getViewTypeCount() {
-        return 3;
+        return Category.DisplayType.values().length;
     }
 
     @Override
     public boolean isEnabled(int position) {
-        return getItemViewType(position) == DEFAULT_VIEW_TYPE;
+        return !getItem(position).isProgressOrEmpty();
     }
 
     protected Map<Integer, Section> getListPositionsToSectionsMap() {
@@ -155,45 +157,51 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        final ItemViewHolder viewHolder;
+        ItemViewHolder viewHolder = null;
 
-        final int itemViewType = getItemViewType(position);
-        if (itemViewType != DEFAULT_VIEW_TYPE) {
-            if (convertView == null) {
-                viewHolder = new ItemViewHolder();
-                final int layout = itemViewType == PROGRESS_VIEW_TYPE ?
-                        R.layout.suggested_users_category_list_loading_item : R.layout.suggested_users_category_list_empty_item;
+        final Category category = getItem(position);
+        switch (category.getDisplayType()){
+            case PROGRESS:
+                if (convertView == null) {
+                    convertView = inflater.inflate(R.layout.suggested_users_category_list_loading_item, parent, false);
+                    viewHolder = getItemViewHolder(convertView);
+                } else {
+                    viewHolder = (ItemViewHolder) convertView.getTag();
+                }
+                break;
 
-                convertView = inflater.inflate(layout, parent, false);
-                convertView.setTag(viewHolder);
-                viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.suggested_users_list_header);
-            } else {
-                viewHolder = (ItemViewHolder) convertView.getTag();
-            }
+            case EMPTY:
+            case ERROR:
+                if (convertView == null) {
+                    convertView = inflater.inflate(R.layout.suggested_users_category_list_empty_item, parent, false);
+                    viewHolder = getItemViewHolder(convertView);
+                    viewHolder.emptyMessage = (TextView) convertView.findViewById(android.R.id.text1);
+                } else {
+                    viewHolder = (ItemViewHolder) convertView.getTag();
+                }
+                viewHolder.emptyMessage.setText(category.getEmptyMessage(convertView.getResources()));
+                break;
 
-        } else {
-            final Category category = getItem(position);
-            if (convertView == null) {
-                convertView = inflater.inflate(R.layout.suggested_users_category_list_item, null, false);
-                viewHolder = getItemViewHolder(convertView);
-                convertView.setTag(viewHolder);
-            } else {
-                viewHolder = (ItemViewHolder) convertView.getTag();
-            }
-            viewHolder.toggleFollow.setTag(position);
-            configureItemContent(category, viewHolder);
+            case DEFAULT:
+                if (convertView == null) {
+                    convertView = inflater.inflate(R.layout.suggested_users_category_list_item, parent, false);
+                    viewHolder = getContentItemViewHolder(convertView);
+                } else {
+                    viewHolder = (ItemViewHolder) convertView.getTag();
+                }
+                viewHolder.toggleFollow.setTag(position);
+                configureItemContent(parent.getContext(), category, viewHolder);
+                break;
         }
+
         configureSectionHeader(position, convertView, viewHolder);
         return convertView;
     }
 
-    private ItemViewHolder getItemViewHolder(View convertView) {
-        ItemViewHolder viewHolder;
-        viewHolder = new ItemViewHolder();
-
+    private ItemViewHolder getContentItemViewHolder(View convertView) {
+        ItemViewHolder viewHolder = getItemViewHolder(convertView);
         viewHolder.genreTitle = (TextView) convertView.findViewById(android.R.id.text1);
         viewHolder.genreSubtitle = (SingleLineCollectionTextView) convertView.findViewById(android.R.id.text2);
-        viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.suggested_users_list_header);
         viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.btn_user_bucket_select_all);
         viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -213,8 +221,15 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         return viewHolder;
     }
 
-    private void configureItemContent(Category category, ItemViewHolder viewHolder) {
-        viewHolder.genreTitle.setText(category.getName());
+    private ItemViewHolder getItemViewHolder(View convertView) {
+        ItemViewHolder viewHolder = new ItemViewHolder();
+        convertView.setTag(viewHolder);
+        viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.suggested_users_list_header);
+        return viewHolder;
+    }
+
+    private void configureItemContent(Context context, Category category, ItemViewHolder viewHolder) {
+        viewHolder.genreTitle.setText(category.getName(context));
         viewHolder.toggleFollow.setChecked(category.isFollowed(mFollowStatus.getFollowedUserIds()));
         viewHolder.genreSubtitle.setDisplayItems(getSubtextUsers(category));
     }
@@ -255,7 +270,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     };
 
     private static class ItemViewHolder {
-        public TextView genreTitle, sectionHeader;
+        public TextView genreTitle, sectionHeader, emptyMessage;
         public SingleLineCollectionTextView genreSubtitle;
         public ToggleButton toggleFollow;
     }

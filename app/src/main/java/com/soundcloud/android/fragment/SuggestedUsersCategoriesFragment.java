@@ -12,12 +12,14 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.view.EmptyListView;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 
 import android.content.Intent;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +28,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class SuggestedUsersCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
+
+    private enum DisplayMode {
+        LOADING, ERROR, CONTENT
+    }
+    private DisplayMode mMode = DisplayMode.LOADING;
 
     private static final String KEY_OBSERVABLE = "buckets_observable";
     private static final String FRAGMENT_TAG = "suggested_users_fragment";
@@ -36,8 +43,8 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private Subscription mSubscription;
     private Observer<CategoryGroup> mObserver;
 
-    private View mListContainer;
-    private View mProgressSpinner;
+    private ListView mListView;
+    private EmptyListView mEmptyListView;
 
     public SuggestedUsersCategoriesFragment() {
         this(new SuggestedUsersOperations(), null,
@@ -68,24 +75,49 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mProgressSpinner = getView().findViewById(android.R.id.progress);
-        mListContainer = getView().findViewById(R.id.list_container);
-        setListShown(false);
+        mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
+        mEmptyListView.setMessageText(R.string.problem_connecting_to_SoundCloud);
+        mEmptyListView.setActionText(getResources().getString(R.string.try_again));
+        mEmptyListView.setActionListener(new EmptyListView.ActionListener() {
+            @Override
+            public void onAction() {
+                refresh();
+            }
 
-        final ListView listView = getListView();
-        listView.setDrawSelectorOnTop(false);
-        listView.setHeaderDividersEnabled(false);
-        listView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null), null, false);
-        listView.setOnItemClickListener(this);
-        listView.setAdapter(mAdapter);
-        listView.setEmptyView(getView().findViewById(android.R.id.empty));
+            @Override
+            public void onSecondaryAction() {
+            }
+        });
+
+        mListView = (ListView) view.findViewById(android.R.id.list);
+        mListView.setDrawSelectorOnTop(false);
+        mListView.setSelector(new StateListDrawable());
+        mListView.setHeaderDividersEnabled(false);
+        mListView.addHeaderView(getLayoutInflater(null).inflate(R.layout.suggested_users_category_list_header, null), null, false);
+        mListView.setOnItemClickListener(this);
+        mListView.setAdapter(mAdapter);
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
         Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mSuggestions.getCategoryGroups().cache().observeOn(ScSchedulers.UI_SCHEDULER));
         Log.d(LOG_TAG, "SUBSCRIBING, obs = " + observable.hashCode());
+        refresh(observable);
+    }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mListView = null;
+        mEmptyListView = null;
+    }
+
+    private void refresh() {
+        refresh((Observable<?>) StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG).get(KEY_OBSERVABLE));
+    }
+
+    private void refresh(Observable<?> observable) {
         if (mObserver == null) mObserver = new CategoryGroupsObserver(this);
         mSubscription = observable.subscribe(mObserver);
+        setDisplayMode(DisplayMode.LOADING);
     }
 
     @Override
@@ -97,20 +129,36 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final Intent intent = new Intent(getActivity(), SuggestedUsersCategoryActivity.class);
-        intent.putExtra(Category.EXTRA, mAdapter.getItem(position - getListView().getHeaderViewsCount()));
-        startActivity(intent);
+        final Category item = mAdapter.getItem(position - mListView.getHeaderViewsCount());
+        if (item.isError()){
+            refresh();
+        } else {
+            final Intent intent = new Intent(getActivity(), SuggestedUsersCategoryActivity.class);
+            intent.putExtra(Category.EXTRA, item);
+            startActivity(intent);
+        }
     }
 
-    @VisibleForTesting
-    ListView getListView() {
-        final View view = getView();
-        return view != null ? (ListView) view.findViewById(android.R.id.list) : null;
-    }
+    private void setDisplayMode(DisplayMode mode){
+        mMode = mode;
+        switch (mMode){
+            case LOADING:
+                mEmptyListView.setStatus(EmptyListView.Status.WAITING);
+                mEmptyListView.setVisibility(View.VISIBLE);
+                mListView.setVisibility(View.GONE);
+                break;
 
-    private void setListShown(boolean isShown){
-        mProgressSpinner.setVisibility(isShown ? View.GONE : View.VISIBLE);
-        mListContainer.setVisibility(isShown ? View.VISIBLE : View.GONE);
+            case CONTENT:
+                mListView.setVisibility(View.VISIBLE);
+                mEmptyListView.setVisibility(View.GONE);
+                break;
+
+            case ERROR:
+                mEmptyListView.setStatus(EmptyListView.Status.OK);
+                mEmptyListView.setVisibility(View.VISIBLE);
+                mListView.setVisibility(View.GONE);
+                break;
+        }
     }
 
     private static final class CategoryGroupsObserver extends RxFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {
@@ -123,19 +171,21 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         public void onNext(SuggestedUsersCategoriesFragment fragment, CategoryGroup categoryGroup) {
             Log.d(LOG_TAG, "got category group: " + categoryGroup);
             fragment.mAdapter.addItem(categoryGroup);
+            fragment.mAdapter.notifyDataSetChanged();
+
+            if (!categoryGroup.isFacebook()){
+                fragment.setDisplayMode(DisplayMode.CONTENT);
+            }
         }
 
         @Override
         public void onCompleted(SuggestedUsersCategoriesFragment fragment) {
             Log.d(LOG_TAG, "fragment: onCompleted");
-            fragment.mAdapter.notifyDataSetChanged();
-            fragment.setListShown(true);
         }
 
         @Override
         public void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
-            // TODO : populate error view
-            fragment.setListShown(true);
+            fragment.setDisplayMode(DisplayMode.ERROR);
             error.printStackTrace();
             AndroidUtils.showToast(fragment.getActivity(), R.string.suggested_users_error_get_genre_buckets);
         }

@@ -1,7 +1,9 @@
 package com.soundcloud.android.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.R;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -12,22 +14,27 @@ import java.util.Set;
 
 public class Category extends ScModel {
 
-    public static final Category EMPTY = new EmptyCategory();
-    public static final Category PROGRESS = new ProgressCategory();
     public static final String EXTRA = "category";
 
-    private String mName;
-    private String mPermalink;
+    private String mKey;
     private List<SuggestedUser> mUsers = Collections.emptyList();
 
+    public enum DisplayType {
+        DEFAULT, EMPTY, PROGRESS, ERROR;
+    }
+    private DisplayType mDisplayType = DisplayType.DEFAULT;
 
     public Category() { /* for deserialization */ }
 
+    public Category(DisplayType displayType) {
+        mDisplayType = displayType;
+    }
+
     public Category(Parcel parcel) {
         super(parcel);
-        setName(parcel.readString());
-        setPermalink(parcel.readString());
+        setKey(parcel.readString());
         mUsers = parcel.readArrayList(SuggestedUser.class.getClassLoader());
+        mDisplayType = DisplayType.values()[parcel.readInt()];
     }
 
     public Category(String urn) {
@@ -37,26 +44,30 @@ public class Category extends ScModel {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeString(mName);
-        dest.writeString(mPermalink);
+        dest.writeString(mKey);
         dest.writeList(mUsers);
+        dest.writeInt(mDisplayType.ordinal());
     }
 
-    public String getPermalink() {
-        return mPermalink;
+    public DisplayType getDisplayType() {
+        return mDisplayType;
     }
 
-    public void setPermalink(String permalink) {
-        this.mPermalink = permalink;
+    public void setDisplayType(DisplayType displayType) {
+        mDisplayType = displayType;
     }
 
-    public String getName() {
-        return mName;
+    public String getKey() {
+        return mKey;
     }
 
-    @JsonProperty
-    public void setName(String name) {
-        this.mName = name;
+    public void setKey(String key) {
+        this.mKey = key;
+    }
+
+    public String getName(Context context) {
+        int resId = context.getResources() .getIdentifier("category_" + mKey, "string", context.getPackageName());
+        return resId == 0 ? mKey : context.getString(resId);
     }
 
     public List<SuggestedUser> getUsers() {
@@ -82,6 +93,25 @@ public class Category extends ScModel {
         return getUsersByFollowStatus(userFollowings, true);
     }
 
+    public boolean isErrorOrEmpty() {
+        return mDisplayType == DisplayType.EMPTY || mDisplayType == DisplayType.ERROR;
+    }
+
+    public boolean isError() {
+        return mDisplayType == DisplayType.ERROR;
+    }
+
+    public boolean isProgressOrEmpty() {
+        return mDisplayType == DisplayType.EMPTY || mDisplayType == DisplayType.PROGRESS;
+    }
+
+    public String getEmptyMessage(Resources resources) {
+        if (isErrorOrEmpty()){
+            return resources.getString(isError() ? R.string.suggested_users_section_error : R.string.suggested_users_section_empty);
+        }
+        return null;
+    }
+
     private List<SuggestedUser> getUsersByFollowStatus(Set<Long> userFollowings, boolean isFollowing) {
         List<SuggestedUser> resultSuggestedUsers = new ArrayList(userFollowings.size());
         for (SuggestedUser user : mUsers) {
@@ -104,13 +134,20 @@ public class Category extends ScModel {
     @Override
     public String toString() {
         return "Category{" +
-                "mPermalink='" + mPermalink + '\'' +
+                "mKey='" + mKey + '\'' +
                 '}';
     }
 
-    private static final class EmptyCategory extends Category {
+    public static final Category progress(){
+        return new Category(DisplayType.PROGRESS);
     }
 
-    private static final class ProgressCategory extends Category {
+    public static final Category empty() {
+        return new Category(DisplayType.EMPTY);
+    }
+
+    public static final Category error(){
+        return new Category(DisplayType.ERROR);
+
     }
 }
