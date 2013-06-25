@@ -19,9 +19,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -202,7 +202,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         ItemViewHolder viewHolder = getItemViewHolder(convertView);
         viewHolder.genreTitle = (TextView) convertView.findViewById(android.R.id.text1);
         viewHolder.genreSubtitle = (SingleLineCollectionTextView) convertView.findViewById(android.R.id.text2);
-        viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.btn_user_bucket_select_all);
+        viewHolder.toggleFollow = (CheckBox) convertView.findViewById(R.id.btn_user_bucket_select_all);
         viewHolder.toggleFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -272,7 +272,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private static class ItemViewHolder {
         public TextView genreTitle, sectionHeader, emptyMessage;
         public SingleLineCollectionTextView genreSubtitle;
-        public ToggleButton toggleFollow;
+        public CompoundButton toggleFollow;
     }
 
     private static class CategoryGroupComparator implements Comparator<CategoryGroup> {

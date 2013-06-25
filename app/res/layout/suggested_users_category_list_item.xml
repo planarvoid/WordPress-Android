@@ -8,6 +8,7 @@
 
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="?android:attr/listPreferredItemHeight"
                     android:paddingTop="15dp"
                     android:paddingBottom="15dp"
                     android:paddingLeft="20dp"
@@ -17,10 +18,11 @@
 
         <TextView android:id="@android:id/text1"
                   android:layout_width="wrap_content"
-                  android:layout_height="?android:attr/listPreferredItemHeight"
+                  android:layout_height="wrap_content"
                   android:layout_alignParentLeft="true"
                   android:layout_alignWithParentIfMissing="true"
                   android:layout_toLeftOf="@+id/btn_user_bucket_select_all"
+                  android:singleLine="true"
                   android:textStyle="bold"
                   android:textColor="@drawable/txt_list_main_states"/>
 
@@ -30,9 +32,11 @@
                                                                   android:layout_alignParentLeft="true"
                                                                   android:layout_below="@android:id/text1"
                                                                   android:layout_toLeftOf="@id/btn_user_bucket_select_all"
+                                                                  android:singleLine="true"
+                                                                  android:ellipsize="end"
                                                                   android:textColor="@drawable/txt_list_secondary_states"/>
 
-        <ToggleButton android:id="@id/btn_user_bucket_select_all"
+        <CheckBox android:id="@id/btn_user_bucket_select_all"
                       android:layout_centerVertical="true"
                       style="@style/SuggestedUserToggleButton"/>
 
