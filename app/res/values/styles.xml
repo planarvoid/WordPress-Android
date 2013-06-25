@@ -108,6 +108,13 @@
         <item name="android:textOff">@string/btn_follow</item>
     </style>
 
+    <style name="OnboardActionButtonStyle" parent="Widget.Sherlock.ActionButton">
+        <item name="android:paddingLeft">20dip</item>
+        <item name="android:paddingRight">20dip</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+    </style>
+
     <style name="BlackOverlayText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

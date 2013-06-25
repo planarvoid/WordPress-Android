@@ -171,7 +171,13 @@
         </activity>
 
         <!-- new suggested users -->
-        <activity android:name=".activity.landing.SuggestedUsersActivity" android:label="" />
+        <activity android:name=".activity.landing.SuggestedUsersActivity"
+                  android:theme="@style/Theme.Onboard"
+                  android:label="" />
+        <activity android:name=".activity.landing.SuggestedUsersCategoryActivity"
+                  android:theme="@style/Theme.Onboard"
+                  android:label="" />
+
         <!-- old suggested users -->
         <activity android:name=".activity.landing.WhoToFollowActivity" android:label="@string/side_menu_who_to_follow">
             <intent-filter>
@@ -185,9 +191,8 @@
                 <data android:scheme="http" android:host="soundcloud.com" android:path="/people"/>
                 <data android:scheme="https" android:host="soundcloud.com" android:path="/people"/>
             </intent-filter>
-
         </activity>
-        <activity android:name=".activity.landing.SuggestedUsersCategoryActivity" android:label="" />
+
         <activity android:name=".activity.landing.FriendFinder" android:label="@string/side_menu_friend_finder"
                   android:configChanges="orientation">
             <intent-filter>
