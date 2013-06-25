@@ -25,7 +25,6 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
             finish();
         } else {
             mCategory = getIntent().getParcelableExtra(Category.EXTRA);
-            setTitle(mCategory.getName(this));
             setContentView(R.layout.suggested_users_category_activity);
 
             if (state == null) {

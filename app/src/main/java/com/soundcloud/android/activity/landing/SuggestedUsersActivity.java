@@ -18,7 +18,6 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        setTitle(getString(R.string.side_menu_who_to_follow));
         setContentView(R.layout.suggested_users_activity);
 
         if (state == null) {
