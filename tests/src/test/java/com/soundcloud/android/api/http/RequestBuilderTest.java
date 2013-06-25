@@ -3,6 +3,8 @@ package com.soundcloud.android.api.http;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilder;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
@@ -35,6 +37,12 @@ public class RequestBuilderTest {
     public void shouldReturnRequestInstanceWithGetMethodSet() {
         APIRequest<Integer> request = buildValidRequest();
         expect(request.getMethod()).toEqual("GET");
+    }
+
+    @Test
+    public void shouldReturnRequestInstanceWithPostMethodSet() {
+        APIRequest<Integer> request = RequestBuilder.<Integer>post(URI_PATH).forResource(Integer.class).forPrivateAPI(1).build();
+        expect(request.getMethod()).toEqual("POST");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -87,6 +95,44 @@ public class RequestBuilderTest {
     public void shouldReturnSpecifiedPublicAPITarget(){
         APIRequest<Integer> request = RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPublicAPI().build();
         expect(request.isPrivate()).toBeFalse();
+    }
+
+    @Test
+    public void shouldAddSingleQueryParameterToRequest(){
+        APIRequest<Integer> request = RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPublicAPI().addQueryParameters("key", 1).build();
+        expect(request.getQueryParameters().get("key")).toContainExactly("1");
+    }
+
+    @Test
+    public void shouldAddMultipleQueryParameterToRequest(){
+        APIRequest<Integer> request = RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPublicAPI().addQueryParameters("key", "value1", "value2").build();
+        expect(request.getQueryParameters().get("key")).toContainExactly("value1", "value2");
+    }
+
+    @Test
+    public void shouldReplaceSingleQueryParameterOnRequest(){
+        APIRequest<Integer> request = RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPublicAPI()
+                .addQueryParameters("key", "value").addQueryParameters("key", "value2").build();
+        expect(request.getQueryParameters().get("key")).toContainExactly("value", "value2");
+    }
+
+    @Test
+    public void shouldReturnEmptyQueryParameterMapIfNoParametersSpecified(){
+        APIRequest<Integer> request = buildValidRequest();
+        expect(request.getQueryParameters()).toEqual(ArrayListMultimap.<String, String>create());
+    }
+
+    @Test
+    public void shouldAddQueryParametersFromCollection(){
+        APIRequest<Integer> request = RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPublicAPI().addQueryParametersAsCollection("key", Lists.newArrayList(1,2)).build();
+        expect(request.getQueryParameters().get("key")).toContainExactly("1", "2");
+    }
+
+    @Test
+    public void shouldReplaceQueryParametersFromCollectionOnRequest(){
+        APIRequest<Integer> request = RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPublicAPI()
+                .addQueryParameters("key", "value").addQueryParameters("key", "value2").build();
+        expect(request.getQueryParameters().get("key")).toContainExactly("value", "value2");
     }
 
     private <T> APIRequest<Integer> buildValidRequest() {

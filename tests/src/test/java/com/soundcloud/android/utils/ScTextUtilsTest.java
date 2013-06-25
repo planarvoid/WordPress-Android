@@ -142,6 +142,26 @@ public class ScTextUtilsTest {
         expectEmailInvalid(".email.address@example.com");
     }
 
+    @Test
+    public void shouldReturnTrueIfStringIsWhitespaceOnly(){
+        expect(ScTextUtils.isBlank("  ")).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnTrueIfStringIsEmpty(){
+        expect(ScTextUtils.isBlank("")).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnTrueIfStringIsNull(){
+        expect(ScTextUtils.isBlank(null)).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnFalseIfStringHasCharacters(){
+        expect(ScTextUtils.isBlank("  a ")).toBeFalse();
+    }
+
     private void expectEmailValid(String string){
         expect(ScTextUtils.isEmail(string)).toBeTrue();
     }

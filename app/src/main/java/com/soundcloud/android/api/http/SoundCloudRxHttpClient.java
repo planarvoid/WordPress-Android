@@ -4,6 +4,10 @@ import static java.lang.String.format;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.net.MediaType;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -17,6 +21,7 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -28,6 +33,7 @@ import android.content.Context;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient  {
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json";
@@ -123,7 +129,21 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     }
 
     private Request createSCRequest(APIRequest<?> apiRequest) {
-        return Request.to(apiRequest.getUriPath());
+        Request request = Request.to(apiRequest.getUriPath());
+        final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();
+
+        Map<String, String> transformedParameters = Maps.toMap(queryParameters.keySet(), new Function<String, String>() {
+            @Nullable
+            @Override
+            public String apply(@Nullable String input) {
+                return Joiner.on(",").join(queryParameters.get(input));
+            }
+        });
+
+        for(String key : transformedParameters.keySet()){
+            request.add(key, transformedParameters.get(key));
+        }
+        return request;
     }
 
     protected static class WrapperFactory {

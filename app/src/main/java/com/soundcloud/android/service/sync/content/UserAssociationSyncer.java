@@ -120,22 +120,33 @@ public class UserAssociationSyncer extends SyncStrategy {
     }
 
     private ApiSyncResult pushUserAssociations(Content content) {
-        ApiSyncResult result = new ApiSyncResult(content.uri);
+        final ApiSyncResult result = new ApiSyncResult(content.uri);
         result.success = true;
         if (content == Content.ME_FOLLOWINGS && mUserAssociationStorage.hasFollowingsNeedingSync()) {
-            for (UserAssociation userAssociation : mUserAssociationStorage.getFollowingsNeedingSync()) {
-                if (!pushUserAssociation(userAssociation)) result.success = false;
+
+            List<UserAssociation> associationsNeedingSync = mUserAssociationStorage.getFollowingsNeedingSync();
+
+            for(UserAssociation userAssociation : associationsNeedingSync){
+                if (!userAssociation.hasToken() && !pushUserAssociation(userAssociation)){
+                    result.success = false;
+                }
+            }
+
+            if(!mSuggestedUsersOperations.bulkFollowAssociations(associationsNeedingSync)){
+                Log.e(TAG, "Token based User associations did not sync");
+                result.success = false;
             }
         }
+
         return result;
     }
 
-    /* package */ boolean pushUserAssociation(UserAssociation a) {
-        final Request request = Request.to(Endpoints.MY_FOLLOWING, a.getUser().getId());
+    /* package */ boolean pushUserAssociation(UserAssociation userAssociation) {
+        final Request request = Request.to(Endpoints.MY_FOLLOWING, userAssociation.getUser().getId());
         try {
             final boolean success;
 
-            switch (a.getLocalSyncState()) {
+            switch (userAssociation.getLocalSyncState()) {
                 case PENDING_ADDITION:
                     int status = mApi.put(request).getStatusLine().getStatusCode();
                     success = status == HttpStatus.SC_OK || status == HttpStatus.SC_CREATED;
@@ -150,7 +161,9 @@ public class UserAssociationSyncer extends SyncStrategy {
                     // no flags, no op.
                     return true;
             }
-            if (success) mUserAssociationStorage.setFollowingAsSynced(a);
+            if (success){
+                mUserAssociationStorage.setFollowingAsSynced(userAssociation);
+            }
             return success;
 
         } catch (IOException e) {
