@@ -1305,6 +1305,7 @@
     </style>
 
     <style name="SuggestedUserToggleButton">
+        <item name="android:background">@null</item>-->
         <item name="android:button">@drawable/btn_check_round</item>-->
         <item name="android:layout_width">40dp</item>
         <item name="android:layout_height">40dp</item>
