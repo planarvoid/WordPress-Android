@@ -88,6 +88,6 @@ public class CategoryGroup extends ScModel {
     }
 
     public boolean isEmpty() {
-        return getNonEmptyCategories().isEmpty();
+        return getCategories().isEmpty();
     }
 }

@@ -112,7 +112,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
         for (CategoryGroup group : mCategoryGroups) {
             mListPositionsToSections.put(mCategories.size(), Section.fromKey(group.getKey()));
-            mCategories.addAll(group.isEmpty() ? Lists.newArrayList(Category.empty()) : group.getNonEmptyCategories());
+            mCategories.addAll(group.isEmpty() ? Lists.newArrayList(Category.empty()) : group.getCategories());
         }
     }
 
