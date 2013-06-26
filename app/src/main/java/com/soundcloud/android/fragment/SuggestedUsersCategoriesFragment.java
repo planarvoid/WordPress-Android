@@ -98,9 +98,14 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         mListView.setAdapter(mAdapter);
 
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
-        Observable<?> observable = savedState.getOrPut(KEY_OBSERVABLE, mSuggestions.getCategoryGroups().cache().observeOn(ScSchedulers.UI_SCHEDULER));
-        Log.d(LOG_TAG, "SUBSCRIBING, obs = " + observable.hashCode());
-        refresh(observable);
+        Observable<?> observable;
+        if (savedState.has(KEY_OBSERVABLE)){
+            observable = savedState.get(KEY_OBSERVABLE);
+        } else {
+            observable = createCategoriesObservable();
+            savedState.put(KEY_OBSERVABLE, observable);
+        }
+        loadCategories(observable);
     }
 
     @Override
@@ -110,11 +115,17 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         mEmptyListView = null;
     }
 
-    private void refresh() {
-        refresh((Observable<?>) StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG).get(KEY_OBSERVABLE));
+    private Observable<CategoryGroup> createCategoriesObservable() {
+        return mSuggestions.getCategoryGroups().cache().observeOn(ScSchedulers.UI_SCHEDULER);
     }
 
-    private void refresh(Observable<?> observable) {
+    private void refresh() {
+        final Observable<CategoryGroup> categoriesObservable = createCategoriesObservable();
+        StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG).put(KEY_OBSERVABLE, categoriesObservable);
+        loadCategories(categoriesObservable);
+    }
+
+    private void loadCategories(Observable<?> observable) {
         if (mObserver == null) mObserver = new CategoryGroupsObserver(this);
         mSubscription = observable.subscribe(mObserver);
         setDisplayMode(DisplayMode.LOADING);
