@@ -7,6 +7,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.net.MediaType;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.api.ApiWrapper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -30,6 +31,8 @@ public class WrapperFactoryTest {
     public void setUp() {
         initMocks(this);
         wrapperFactory = new WrapperFactory(Robolectric.application, httpProperties, accountOperations);
+        // TODO remove this once we fix gzip for suggested users
+        when(apiRequest.getUriPath()).thenReturn(APIEndpoints.BULK_FOLLOW_USERS.path());
     }
 
     @Test
