@@ -1,19 +1,18 @@
 package com.soundcloud.android.activity.landing;
 
 import com.actionbarsherlock.view.MenuItem;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.dialog.OnboardSuggestedUsersSyncFragment;
 import com.soundcloud.android.fragment.SuggestedUsersCategoriesFragment;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.SyncStateManager;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
 public class SuggestedUsersActivity extends ScActivity implements ScLandingPage {
+
+    public static final String SYNC_DIALOG_FRAGMENT = "sync_dialog_fragment";
 
     @Override
     protected void onCreate(Bundle state) {
@@ -31,9 +30,10 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.finish) {
-            new SyncStateManager().forceToStale(Content.ME_SOUND_STREAM);
-            startActivity(new Intent(Actions.STREAM));
-            finish();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.categories_fragment_holder, new OnboardSuggestedUsersSyncFragment())
+                    .commit();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
