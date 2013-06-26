@@ -33,4 +33,7 @@ public class SuggestedUserBlueprint {
 
     @Default
     String country = "Germany";
+
+    @Default
+    String token = "gUgTzUrZoWnuuDVHdrJNoCyGAls2fW3BWDdYfUxCPFMI4tGe3RiP4/7j9x7f\\nOVKNVtHd3BIXWzlwonKt5oAjMw==\\n";
 }

@@ -67,9 +67,9 @@ public class FollowStatusTest {
     public void testToggleFollowing() throws Exception {
         final User user = new User(ID);
         expect(status.isFollowing(user)).toBeFalse();
-        status.toggleFollowing(user);
+        status.toggleFollowing(user.getId());
         expect(status.isFollowing(user)).toBeTrue();
-        status.toggleFollowing(user);
+        status.toggleFollowing(user.getId());
         expect(status.isFollowing(user)).toBeFalse();
     }
 
@@ -78,10 +78,10 @@ public class FollowStatusTest {
         List<User> users = TestHelper.createUsers(3);
         expect(status.isFollowing(users.get(0))).toBeFalse();
 
-        status.toggleFollowing(users.get(0));
+        status.toggleFollowing(users.get(0).getId());
         expect(status.isFollowing(users.get(0))).toBeTrue();
 
-        status.toggleFollowing(users.toArray(new User[users.size()]));
+        status.toggleFollowing(TestHelper.getIdList(users));
         expect(status.isFollowing(users.get(0))).toBeFalse();
         expect(status.isFollowing(users.get(1))).toBeTrue();
         expect(status.isFollowing(users.get(2))).toBeTrue();

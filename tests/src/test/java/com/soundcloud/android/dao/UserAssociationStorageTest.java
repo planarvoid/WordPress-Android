@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
@@ -63,12 +64,12 @@ public class UserAssociationStorageTest {
 
     @Test
     public void shouldMarkFollowingAndStoreToken() throws Exception {
-        user.followers_count = INITIAL_FOLLOWERS_COUNT;
-        storage.addFollowing(user, TOKEN);
+        SuggestedUser suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
+        storage.addFollowingBySuggestedUser(suggestedUser);
 
         UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.getId());
         expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
-        expect(userAssociation.getToken()).toEqual(TOKEN);
+        expect(userAssociation.getToken()).toEqual(suggestedUser.getToken());
     }
 
     @Test
@@ -133,6 +134,19 @@ public class UserAssociationStorageTest {
         for (User user : users) {
             expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user.getId()).getLocalSyncState())
                     .toBe(UserAssociation.LocalState.PENDING_ADDITION);
+        }
+    }
+
+    @Test
+    public void shouldBulkInsertFollowingsFromSuggestedUsers() throws Exception {
+        final List<SuggestedUser> suggestedUsers = TestHelper.createSuggestedUsers(3);
+        storage.addFollowingsBySuggestedUsers(suggestedUsers);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(3);
+
+        for (SuggestedUser suggestedUser : suggestedUsers) {
+            final UserAssociation userAssociationByTargetId = TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, suggestedUser.getId());
+            expect(userAssociationByTargetId.getLocalSyncState()).toBe(UserAssociation.LocalState.PENDING_ADDITION);
+            expect(userAssociationByTargetId.getToken()).not.toBeNull();
         }
     }
 

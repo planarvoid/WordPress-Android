@@ -18,6 +18,7 @@ public class SuggestedUserTest {
         user.setUsername("JonSchmidt");
         user.setCity("Berlin");
         user.setCountry("Germany");
+        user.setToken("JUs51mg8aMqsisKlsCrzuuZVILNLFJKMVUYK/OEXAWbazqNWZiPZGhWprfsk\\nnKK6M28iNFBzhNJot3o5AL/5sQ==\\n");
 
         Parcel parcel = Parcel.obtain();
         user.writeToParcel(parcel, 0);
@@ -26,6 +27,7 @@ public class SuggestedUserTest {
         expect(unparceledUser.getUsername()).toEqual(user.getUsername());
         expect(unparceledUser.getCity()).toEqual(user.getCity());
         expect(unparceledUser.getCountry()).toEqual(user.getCountry());
+        expect(unparceledUser.getToken()).toEqual(user.getToken());
     }
 
 }

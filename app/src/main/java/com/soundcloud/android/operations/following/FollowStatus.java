@@ -13,11 +13,9 @@ import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.database.Cursor;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -107,14 +105,14 @@ public class FollowStatus {
                 null, DBHelper.UserAssociations.REMOVED_AT + " IS NULL", null, null);
     }
 
-    /* package */ void toggleFollowing(User... users) {
+    /* package */ void toggleFollowing(long... userIds) {
 
         synchronized (followings) {
-            for (User user : users) {
-                if (followings.contains(user.getId())) {
-                    followings.remove(user.getId());
+            for (long id : userIds) {
+                if (followings.contains(id)) {
+                    followings.remove(id);
                 } else {
-                    followings.add(user.getId());
+                    followings.add(id);
                 }
             }
         }

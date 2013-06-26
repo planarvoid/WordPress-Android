@@ -1,6 +1,7 @@
 package com.soundcloud.android.operations.following;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -34,6 +36,8 @@ public class FollowingOperationsTest {
 
     private User user;
     private List<User> users;
+    private SuggestedUser suggestedUser;
+    private List<SuggestedUser> suggestedUsers;
 
     @Before
     public void before() throws CreateModelException {
@@ -47,54 +51,69 @@ public class FollowingOperationsTest {
 
         user = TestHelper.getModelFactory().createModel(User.class);
         users = TestHelper.createUsers(5);
+
+        suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
+        suggestedUsers = TestHelper.createSuggestedUsers(3);
     }
 
     @Test
     public void shouldToggleFollowingOnAddition() throws CreateModelException {
         ops.addFollowing(user).toBlockingObservable().last();
-        verify(followStatus).toggleFollowing(user);
+        verify(followStatus).toggleFollowing(user.getId());
     }
 
     @Test
-    public void shouldToggleFollowingsListOnAddition() throws CreateModelException {
+    public void shouldToggleFollowingsOnAdditions() throws CreateModelException {
         ops.addFollowings(users).toBlockingObservable().last();
-        verify(followStatus).toggleFollowing(users.toArray(new User[users.size()]));
+        verify(followStatus).toggleFollowing(TestHelper.getIdList(users));
+    }
+
+    @Test
+    public void shouldToggleFollowingOnSuggestedUserAddition() throws CreateModelException {
+        ops.addFollowingBySuggestedUser(suggestedUser).toBlockingObservable().last();
+        verify(followStatus).toggleFollowing(suggestedUser.getId());
+    }
+
+    @Test
+    public void shouldToggleFollowingsOnSuggestedUserAdditions() throws CreateModelException {
+        ops.addFollowingsBySuggestedUsers(suggestedUsers).toBlockingObservable().last();
+        verify(followStatus).toggleFollowing(TestHelper.getIdList(suggestedUsers));
     }
 
     @Test
     public void shouldToggleFollowingOnRemoval() throws CreateModelException {
         ops.removeFollowing(user).toBlockingObservable().last();
-        verify(followStatus).toggleFollowing(user);
+        verify(followStatus).toggleFollowing(user.getId());
     }
 
     @Test
     public void shouldToggleFollowingsListOnRemoval() throws CreateModelException {
         ops.removeFollowings(users).toBlockingObservable().last();
-        verify(followStatus).toggleFollowing(users.toArray(new User[users.size()]));
+        verify(followStatus).toggleFollowing(TestHelper.getIdList(users));
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnAddition() throws CreateModelException {
         ops.addFollowing(user).toBlockingObservable().last();
-        verify(scModelManager, times(1)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
+        verify(scModelManager, times(1)).getCachedUser(user.getId());
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnListAddition() throws CreateModelException {
         ops.addFollowings(users).toBlockingObservable().last();
-        verify(scModelManager, times(5)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
+        verify(scModelManager, times(5)).getCachedUser(anyLong());
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnRemoval() throws CreateModelException {
         ops.removeFollowing(user).toBlockingObservable().last();
-        verify(scModelManager, times(1)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
+        verify(scModelManager, times(1)).getCachedUser(user.getId());
     }
 
     @Test
     public void shouldUpdateCacheForEachUserOnListRemoval() throws CreateModelException {
         ops.removeFollowings(users).toBlockingObservable().last();
-        verify(scModelManager, times(5)).cache(any(User.class), any(ScResource.CacheUpdateMode.class));
+        verify(scModelManager, times(5)).getCachedUser(anyLong());
     }
 
     @Test
