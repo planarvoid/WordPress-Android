@@ -129,6 +129,14 @@ public class FollowingOperations extends ScheduledOperations {
         }
     }
 
+    public Observable<Void> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
+        if (mFollowStatus.isFollowing(suggestedUser.getId())){
+            return removeFollowing(new User(suggestedUser));
+        } else {
+            return addFollowingBySuggestedUser(suggestedUser);
+        }
+    }
+
     private List<User> getUsersFromSuggestedUsers(List<SuggestedUser> suggestedUsers) {
         List<User> users = new ArrayList<User>(suggestedUsers.size());
         for (SuggestedUser suggestedUser : suggestedUsers){
