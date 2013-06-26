@@ -1,7 +1,6 @@
 package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.model.Category;
@@ -54,11 +53,6 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
 
     public void setAdapter(SuggestedUsersAdapter adapter) {
         mAdapter = adapter;
-    }
-
-    @VisibleForTesting
-    GridViewCompat getAdapterView() {
-        return mAdapterView;
     }
 
     @Override
