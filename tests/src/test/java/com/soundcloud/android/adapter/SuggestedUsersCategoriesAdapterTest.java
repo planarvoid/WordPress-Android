@@ -1,6 +1,8 @@
 package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -12,8 +14,10 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.operations.following.FollowStatus;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.ScObservables;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.jetbrains.annotations.Nullable;
@@ -21,11 +25,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Scheduler;
 
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,12 +42,15 @@ public class SuggestedUsersCategoriesAdapterTest {
     private SuggestedUsersCategoriesAdapter nonFacebookAdapter;
     @Mock
     private FollowStatus followStatus;
+    @Mock
+    private FollowingOperations followingOperations;
 
     @Before
     public void setup() throws CreateModelException {
         initMocks(this);
-        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followStatus);
-        nonFacebookAdapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followStatus);
+        when (followingOperations.observeOn(any(Scheduler.class))).thenReturn(followingOperations);
+        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followingOperations, followStatus);
+        nonFacebookAdapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followingOperations, followStatus);
     }
 
     @Test
@@ -235,6 +244,19 @@ public class SuggestedUsersCategoriesAdapterTest {
         final CompoundButton followButton = (CompoundButton) itemLayout.findViewById(R.id.btn_user_bucket_select_all);
 
         expect(followButton.isChecked()).toBeFalse();
+    }
+
+    @Test
+    public void shouldFollowBySuggestedUsersOnClick() throws CreateModelException {
+        nonFacebookAdapter.addItem(audio());
+        nonFacebookAdapter.addItem(music());
+        List<SuggestedUser> users = nonFacebookAdapter.getItem(0).getUsers();
+        when(followingOperations.addFollowingsBySuggestedUsers(users)).thenReturn(ScObservables.EMPTY);
+
+        View itemLayout = nonFacebookAdapter.getView(0, null, new FrameLayout(Robolectric.application));
+        itemLayout.findViewById(R.id.btn_user_bucket_select_all).performClick();
+
+        verify(followingOperations).addFollowingsBySuggestedUsers(users);
     }
 
     private CategoryGroup facebook() throws CreateModelException {

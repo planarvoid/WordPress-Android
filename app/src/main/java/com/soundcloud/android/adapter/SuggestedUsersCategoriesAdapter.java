@@ -83,11 +83,11 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections) {
-        this(activeSections, FollowStatus.get());
+        this(activeSections, new FollowingOperations(), FollowStatus.get());
     }
 
-    public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowStatus followStatus) {
-        mFollowingOperations = new FollowingOperations().observeOn(ScSchedulers.UI_SCHEDULER);
+    public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowingOperations followingOperations, FollowStatus followStatus) {
+        mFollowingOperations = followingOperations.observeOn(ScSchedulers.UI_SCHEDULER);
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new HashMap<Integer, Section>();
@@ -208,7 +208,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
             public void onClick(View v) {
                 final boolean shouldFollow = ((CompoundButton) v).isChecked();
                 final Category toggleCategory = getItem((Integer) v.getTag());
-                final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
+                final Set<Long> followedUserIds = mFollowStatus.getFollowedUserIds();
                 if (shouldFollow) {
                     final List<SuggestedUser> notFollowedUsers = toggleCategory.getNotFollowedUsers(followedUserIds);
                     mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers).subscribe(mNotifyWhenDoneObserver);

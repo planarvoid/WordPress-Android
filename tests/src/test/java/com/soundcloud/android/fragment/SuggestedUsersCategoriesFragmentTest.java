@@ -13,6 +13,7 @@ import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.operations.following.FollowStatus;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -35,13 +36,15 @@ public class SuggestedUsersCategoriesFragmentTest {
     private FollowStatus followStatus;
     @Mock
     private Observer<CategoryGroup> observer;
+    @Mock
+    private FollowingOperations followingOperations;
 
     @Before
     public void setup() throws CreateModelException {
         SuggestedUsersOperations operations = mock(SuggestedUsersOperations.class);
         when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
 
-        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followStatus);
+        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followingOperations, followStatus);
         fragment = spy(new SuggestedUsersCategoriesFragment(operations, observer, adapter));
 
         SherlockFragmentActivity fragmentActivity = new SherlockFragmentActivity();

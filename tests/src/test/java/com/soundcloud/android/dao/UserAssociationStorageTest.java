@@ -67,7 +67,7 @@ public class UserAssociationStorageTest {
         SuggestedUser suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
         storage.addFollowingBySuggestedUser(suggestedUser);
 
-        UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, user.getId());
+        UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, suggestedUser.getId());
         expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
         expect(userAssociation.getToken()).toEqual(suggestedUser.getToken());
     }
