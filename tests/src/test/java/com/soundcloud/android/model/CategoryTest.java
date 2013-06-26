@@ -92,8 +92,13 @@ public class CategoryTest {
     }
 
     @Test
-    public void isFollowedShouldReturnTrueIfAtLeastOneUserIsBeingFollowed() {
-        expect(mCategory.isFollowed(Sets.newSet(1L, 100L))).toBeTrue();
+    public void isFollowedShouldReturnFalseIfAtLeastOneUserIsNotBeingFollowed() {
+        expect(mCategory.isFollowed(Sets.newSet(1L, 100L))).toBeFalse();
+    }
+
+    @Test
+    public void isFollowedShouldReturnTrueIfAllUsersAreBeingFollowed() {
+        expect(mCategory.isFollowed(Sets.newSet(1L, 2L, 3L))).toBeTrue();
     }
 
     @Test

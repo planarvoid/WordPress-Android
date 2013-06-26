@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.R;
@@ -15,6 +16,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +27,7 @@ import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 
 import java.util.Map;
+import java.util.Set;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SuggestedUsersCategoriesAdapterTest {
@@ -193,7 +196,24 @@ public class SuggestedUsersCategoriesAdapterTest {
     }
 
     @Test
-    public void shouldCheckFollowButtonIfAtLeastOneUserIsFollowed() throws CreateModelException {
+    public void shouldCheckFollowButtonIfAllUsersAreFollowed() throws CreateModelException {
+        final CategoryGroup facebook = facebook();
+        adapter.addItem(facebook);
+
+        Set<Long> followedUsers = Sets.newHashSet(Lists.transform(facebook.getCategories().get(0).getUsers(), new Function<SuggestedUser, Long>() {
+            @Override
+            public Long apply(@Nullable SuggestedUser input) {
+                return input == null ? 0L : input.getId();
+            }
+        }));
+        when(followStatus.getFollowedUserIds()).thenReturn(followedUsers);
+        View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
+        final CompoundButton followButton = (CompoundButton) itemLayout.findViewById(R.id.btn_user_bucket_select_all);
+        expect(followButton.isChecked()).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotCheckFollowButtonIfCategoryPartiallyFollowedsFollowed() throws CreateModelException {
         addAllSections();
         SuggestedUser followedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
         when(followStatus.getFollowedUserIds()).thenReturn(Sets.newHashSet(followedUser.getId()));
@@ -204,7 +224,7 @@ public class SuggestedUsersCategoriesAdapterTest {
         View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
         final CompoundButton followButton = (CompoundButton) itemLayout.findViewById(R.id.btn_user_bucket_select_all);
 
-        expect(followButton.isChecked()).toBeTrue();
+        expect(followButton.isChecked()).toBeFalse();
     }
 
     @Test
