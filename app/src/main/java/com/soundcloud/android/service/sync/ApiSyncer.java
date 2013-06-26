@@ -53,7 +53,7 @@ import java.util.Set;
 /**
  * Performs the actual sync with the API. Used by {@link CollectionSyncRequest}.
  * <p/>
- * As a client, do not use this class directly, but use {@link SyncOperations} instead.
+ * As a client, do not use this class directly, but use {@link SyncOperationsOld} instead.
  * <p/>
  * TODO: make package level visible again after removing {@link com.soundcloud.android.task.collection.ActivitiesLoader}
  * TODO: Split this up into different syncers

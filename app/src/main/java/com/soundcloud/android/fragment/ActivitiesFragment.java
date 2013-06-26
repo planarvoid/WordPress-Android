@@ -15,7 +15,7 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.event.Event;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.service.sync.SyncOperations;
+import com.soundcloud.android.service.sync.SyncOperationsOld;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
@@ -33,7 +33,7 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
     private Uri mContentUri;
 
     private ActivitiesStorage mActivitiesStorage;
-    private SyncOperations<Activity> mSyncOperations;
+    private SyncOperationsOld<Activity> mSyncOperations;
     private Subscription mAssocChangedSubscription;
     private Observable<Activity> mLoadFromLocalStorage;
 
@@ -54,7 +54,7 @@ public class ActivitiesFragment extends ReactiveListFragment<Activity> {
 
         mActivitiesStorage = new ActivitiesStorage().observeOn(ScSchedulers.UI_SCHEDULER);
         mLoadFromLocalStorage = mActivitiesStorage.getLatestActivities(mContentUri, PAGE_SIZE);
-        mSyncOperations = new SyncOperations<Activity>(getActivity(), mLoadFromLocalStorage);
+        mSyncOperations = new SyncOperationsOld<Activity>(getActivity(), mLoadFromLocalStorage);
 
         mAssocChangedSubscription = Event.anyOf(Event.LIKE_CHANGED, Event.REPOST_CHANGED).subscribe(mLoadFromLocalStorage, mLoadItemsObserver);
 

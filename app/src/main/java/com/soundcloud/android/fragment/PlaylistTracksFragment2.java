@@ -12,7 +12,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScFunctions;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.event.Event;
-import com.soundcloud.android.service.sync.SyncOperations;
+import com.soundcloud.android.service.sync.SyncOperationsOld;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
@@ -35,7 +35,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
     private Playlist mPlaylist;
 
     private PlaylistObserver mPlaylistObserver;
-    private SyncOperations<Playlist> mSyncOperations;
+    private SyncOperationsOld<Playlist> mSyncOperations;
 
     private Observable<Track> mLoadTracksFromLocalStorage;
     private Observable<Playlist> mLoadPlaylistFromLocalStorage;
@@ -65,7 +65,7 @@ public class PlaylistTracksFragment2 extends ReactiveListFragment<Track> {
         mLoadPlaylistFromLocalStorage = playlistStorage.loadPlaylistWithTracks(mPlaylist.getId());
         mLoadTracksFromLocalStorage = playlistStorage.loadPlaylistTracks(mPlaylist.getId());
 
-        mSyncOperations = new SyncOperations<Playlist>(getActivity(), mLoadPlaylistFromLocalStorage);
+        mSyncOperations = new SyncOperationsOld<Playlist>(getActivity(), mLoadPlaylistFromLocalStorage);
         mPlaylistObserver = new PlaylistObserver();
 
         // since we need to sync the playlist first, but the list fragment is modeled around a playlist's tracks,
