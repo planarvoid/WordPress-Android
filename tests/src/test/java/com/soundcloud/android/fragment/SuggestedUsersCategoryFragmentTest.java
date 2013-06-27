@@ -11,7 +11,6 @@ import com.google.common.collect.Sets;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -37,8 +36,6 @@ public class SuggestedUsersCategoryFragmentTest {
     @Mock
     private FollowingOperations followingOperations;
     @Mock
-    private FollowStatus followStatus;
-    @Mock
     private View fragmentView;
     @Mock
     private GridViewCompat gridView;
@@ -58,12 +55,12 @@ public class SuggestedUsersCategoryFragmentTest {
         final Bundle args = new Bundle();
         args.putParcelable(Category.EXTRA, category);
 
-        fragment = new SuggestedUsersCategoryFragment(followingOperations, followStatus);
+        fragment = new SuggestedUsersCategoryFragment(followingOperations);
         fragment.setArguments(args);
         fragment.onCreate(null);
 
         final HashSet<Long> followingSet = Sets.newHashSet(suggestedUsers.get(0).getId(), suggestedUsers.get(2).getId());
-        when(followStatus.getFollowedUserIds()).thenReturn(followingSet);
+        when(followingOperations.getFollowedUserIds()).thenReturn(followingSet);
         fragment.onViewCreated(fragmentView, null);
     }
 

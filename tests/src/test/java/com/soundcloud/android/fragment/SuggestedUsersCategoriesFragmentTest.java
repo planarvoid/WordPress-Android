@@ -12,7 +12,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.CategoryGroup;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -33,8 +32,6 @@ public class SuggestedUsersCategoriesFragmentTest {
     private SuggestedUsersCategoriesFragment fragment;
     private SuggestedUsersCategoriesAdapter adapter;
     @Mock
-    private FollowStatus followStatus;
-    @Mock
     private Observer<CategoryGroup> observer;
     @Mock
     private FollowingOperations followingOperations;
@@ -44,7 +41,7 @@ public class SuggestedUsersCategoriesFragmentTest {
         SuggestedUsersOperations operations = mock(SuggestedUsersOperations.class);
         when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
 
-        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followingOperations, followStatus);
+        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followingOperations);
         fragment = spy(new SuggestedUsersCategoriesFragment(operations, observer, adapter));
 
         SherlockFragmentActivity fragmentActivity = new SherlockFragmentActivity();

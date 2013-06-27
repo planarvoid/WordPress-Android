@@ -18,7 +18,6 @@ import com.soundcloud.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
@@ -61,7 +60,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class UserBrowser extends ScActivity implements
-        FollowStatus.Listener,
+        FollowingOperations.FollowStatusChangedListener,
         EventAware, ActionBar.OnNavigationListener, FetchModelTask.Listener<User> {
 
     public static final String EXTRA_USER_ID = "userId";
@@ -75,7 +74,6 @@ public class UserBrowser extends ScActivity implements
     private ImageView mIcon;
     private String mIconURL;
     private ImageLoader.BindResult avatarResult;
-    private FollowStatus mFollowStatus;
     private UserFragmentAdapter mAdapter;
     private FetchUserTask mLoadUserTask;
     protected ViewPager mPager;
@@ -104,7 +102,6 @@ public class UserBrowser extends ScActivity implements
         super.onCreate(bundle);
         setContentView(R.layout.user_browser);
         mOldCloudAPI = new OldCloudAPI(this);
-        mFollowStatus = FollowStatus.get();
         mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(this);
         mIcon = (ImageView) findViewById(R.id.user_icon);
@@ -155,7 +152,7 @@ public class UserBrowser extends ScActivity implements
             if (isYou()){
                 mToggleFollow.setVisibility(View.GONE);
             } else {
-                mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
+                mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
                 mToggleFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -194,7 +191,7 @@ public class UserBrowser extends ScActivity implements
             loadYou();
         }
 
-        if (!isYou()) mFollowStatus.requestUserFollowings(this);
+        if (!isYou()) mFollowingOperations.requestUserFollowings(this);
 
         if (intent.hasExtra(Tab.EXTRA)) {
             mPager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
@@ -292,7 +289,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     public void onFollowChanged() {
-        mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
+        mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
     }
 
     private void trackScreen() {
@@ -318,7 +315,7 @@ public class UserBrowser extends ScActivity implements
 
             @Override
             public void onError(Exception e) {
-                mToggleFollow.setChecked(mFollowStatus.isFollowing(mUser));
+                mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
             }
         });
 

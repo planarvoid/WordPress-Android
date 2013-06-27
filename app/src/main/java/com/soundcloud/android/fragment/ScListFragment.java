@@ -20,12 +20,12 @@ import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.adapter.UserAssociationAdapter;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -561,8 +561,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         if (adapter != null && getActivity() != null) {
             if (userRefresh) {
                 adapter.refreshCreationStamps(getActivity());
-                if (adapter instanceof FollowStatus.Listener) {
-                    FollowStatus.get().requestUserFollowings((FollowStatus.Listener) adapter);
+                if (adapter instanceof FollowingOperations.FollowStatusChangedListener) {
+                    new FollowingOperations().requestUserFollowings((FollowingOperations.FollowStatusChangedListener) adapter);
                 }
             }
             if (!isSyncable()) {

@@ -50,7 +50,7 @@ public class FollowStatusTest {
 
 
         final boolean[] called = new boolean[1];
-        status.requestUserFollowings(new FollowStatus.Listener() {
+        status.requestUserFollowings(new FollowingOperations.FollowStatusChangedListener() {
             @Override
             public void onFollowChanged() {
                 called[0] = true;

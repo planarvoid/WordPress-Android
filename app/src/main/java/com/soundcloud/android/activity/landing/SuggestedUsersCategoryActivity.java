@@ -4,9 +4,9 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.fragment.SuggestedUsersCategoryFragment;
 import com.soundcloud.android.model.Category;
+import com.soundcloud.android.operations.following.FollowingOperations;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -49,7 +49,7 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        if (mCategory.isFollowed(FollowStatus.get().getFollowedUserIds())){
+        if (mCategory.isFollowed(new FollowingOperations().getFollowedUserIds())){
             menu.findItem(R.id.menu_select_all).setVisible(false);
         } else {
             menu.findItem(R.id.menu_deselect_all).setVisible(false);

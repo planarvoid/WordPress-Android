@@ -4,7 +4,6 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.model.Category;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
@@ -28,15 +27,13 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
     private Category mCategory;
     private GridViewCompat mAdapterView;
     private FollowingOperations mFollowingOperations;
-    private FollowStatus mFollowStatus;
 
     public SuggestedUsersCategoryFragment() {
-        this(new FollowingOperations(), FollowStatus.get());
+        this(new FollowingOperations());
     }
 
-    public SuggestedUsersCategoryFragment(FollowingOperations followingOperations, FollowStatus followStatus) {
+    public SuggestedUsersCategoryFragment(FollowingOperations followingOperations) {
         mFollowingOperations = followingOperations.observeOn(ScSchedulers.UI_SCHEDULER);
-        mFollowStatus = followStatus;
     }
 
     @Override
@@ -71,7 +68,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         mAdapterView.setAdapter(mAdapter);
 
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            mAdapterView.setItemChecked(i, mFollowStatus.getFollowedUserIds().contains(mAdapter.getItemId(i)));
+            mAdapterView.setItemChecked(i, mFollowingOperations.getFollowedUserIds().contains(mAdapter.getItemId(i)));
         }
     }
 
@@ -86,7 +83,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
             mAdapterView.setItemChecked(i, shouldFollow);
         }
 
-        final Set<Long> followedUserIds = mFollowStatus.getFollowedUserIds();
+        final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
         if (shouldFollow) {
             mFollowingOperations.addFollowingsBySuggestedUsers(mCategory.getNotFollowedUsers(followedUserIds)).subscribe(mToggleAllObserver);
         } else {

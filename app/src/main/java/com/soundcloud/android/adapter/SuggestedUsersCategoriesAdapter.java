@@ -7,7 +7,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
@@ -43,7 +42,6 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private final Map<Integer, Section> mListPositionsToSections;
     private final FollowingOperations mFollowingOperations;
     private final EnumSet<Section> mActiveSections;
-    private FollowStatus mFollowStatus;
 
     public enum Section {
         FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook, true),
@@ -83,15 +81,14 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections) {
-        this(activeSections, new FollowingOperations(), FollowStatus.get());
+        this(activeSections, new FollowingOperations());
     }
 
-    public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowingOperations followingOperations, FollowStatus followStatus) {
+    public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowingOperations followingOperations) {
         mFollowingOperations = followingOperations.observeOn(ScSchedulers.UI_SCHEDULER);
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new HashMap<Integer, Section>();
-        mFollowStatus = followStatus;
         mActiveSections = activeSections;
     }
 
@@ -208,7 +205,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
             public void onClick(View v) {
                 final boolean shouldFollow = ((CompoundButton) v).isChecked();
                 final Category toggleCategory = getItem((Integer) v.getTag());
-                final Set<Long> followedUserIds = mFollowStatus.getFollowedUserIds();
+                final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
                 if (shouldFollow) {
                     final List<SuggestedUser> notFollowedUsers = toggleCategory.getNotFollowedUsers(followedUserIds);
                     mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers).subscribe(mNotifyWhenDoneObserver);
@@ -230,12 +227,12 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private void configureItemContent(Context context, Category category, ItemViewHolder viewHolder) {
         viewHolder.genreTitle.setText(category.getName(context));
-        viewHolder.toggleFollow.setChecked(category.isFollowed(mFollowStatus.getFollowedUserIds()));
+        viewHolder.toggleFollow.setChecked(category.isFollowed(mFollowingOperations.getFollowedUserIds()));
         viewHolder.genreSubtitle.setDisplayItems(getSubtextUsers(category));
     }
 
     /* package */ List<String> getSubtextUsers(Category category) {
-        final Set<Long> followedUserIds = mFollowStatus.getFollowedUserIds();
+        final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
         final List<SuggestedUser> followedUsers = category.getFollowedUsers(followedUserIds);
         final List<SuggestedUser> subtextUsers = followedUsers.isEmpty() ? category.getUsers() : followedUsers;
         return Lists.transform(subtextUsers, new Function<SuggestedUser, String>() {

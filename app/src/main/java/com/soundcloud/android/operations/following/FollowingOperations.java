@@ -18,7 +18,9 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class FollowingOperations extends ScheduledOperations {
 
@@ -136,6 +138,30 @@ public class FollowingOperations extends ScheduledOperations {
         }
     }
 
+    public Set<Long> getFollowedUserIds() {
+        return mFollowStatus.getFollowedUserIds();
+    }
+
+    public boolean isFollowing(User user) {
+        return mFollowStatus.isFollowing(user);
+    }
+
+    public void requestUserFollowings(FollowStatusChangedListener listener) {
+        mFollowStatus.requestUserFollowings(listener);
+    }
+
+    public void clearState() {
+        FollowStatus.clearState();
+    }
+
+    private List<User> getUsersFromSuggestedUsers(List<SuggestedUser> suggestedUsers) {
+        List<User> users = new ArrayList<User>(suggestedUsers.size());
+        for (SuggestedUser suggestedUser : suggestedUsers){
+            users.add(new User(suggestedUser));
+        }
+        return users;
+    }
+
     private void updateLocalStatus(boolean newStatus, long... userIds) {
         final boolean hadNoFollowings = mFollowStatus.isEmpty();
         // update followings ID cache
@@ -151,4 +177,7 @@ public class FollowingOperations extends ScheduledOperations {
         }
     }
 
+    public interface FollowStatusChangedListener {
+        void onFollowChanged();
+    }
 }
