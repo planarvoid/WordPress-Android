@@ -49,4 +49,10 @@ public interface APIRequest<ResourceType> {
      * @return Multimap containing the key value pairs representing the query parameters.
      */
     Multimap<String, String> getQueryParameters();
+
+    /**
+     * Returns json content that is to be paired with this request
+     * @return String representing the json content
+     */
+    String getJsonContent();
 }

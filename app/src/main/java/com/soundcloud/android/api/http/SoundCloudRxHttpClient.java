@@ -17,6 +17,7 @@ import com.soundcloud.android.api.http.json.JsonTransformer;
 import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -38,6 +39,7 @@ import java.util.Map;
 
 public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient  {
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json";
+    private static final String CONTENT_TYPE_JSON = "application/json";
 
     private final JsonTransformer mJsonTransformer;
     private final WrapperFactory mWrapperFactory;
@@ -143,6 +145,11 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
 
         for(String key : transformedParameters.keySet()){
             request.add(key, transformedParameters.get(key));
+        }
+
+        final String jsonContent = apiRequest.getJsonContent();
+        if (!ScTextUtils.isBlank(jsonContent)){
+            request.withContent(jsonContent, CONTENT_TYPE_JSON);
         }
         return request;
     }
