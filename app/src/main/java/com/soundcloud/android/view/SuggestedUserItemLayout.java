@@ -7,9 +7,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
-public class SuggestedUserItemLayout extends FrameLayout implements Checkable {
+public class SuggestedUserItemLayout extends LinearLayout implements Checkable {
     private boolean mChecked;
     private CompoundButton mFollowButton;
     private View mSuggestedUserLayout;
