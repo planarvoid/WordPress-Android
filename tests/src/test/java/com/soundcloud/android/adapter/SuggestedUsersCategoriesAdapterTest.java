@@ -47,7 +47,6 @@ public class SuggestedUsersCategoriesAdapterTest {
 
     @Before
     public void setup() throws CreateModelException {
-        initMocks(this);
         when (followingOperations.observeOn(any(Scheduler.class))).thenReturn(followingOperations);
         adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followingOperations, followStatus);
         nonFacebookAdapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followingOperations, followStatus);
