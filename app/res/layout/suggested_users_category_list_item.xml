@@ -19,22 +19,18 @@
         <TextView android:id="@android:id/text1"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
+                  style="@style/OnboardSuggestedUserCategoryText"
                   android:layout_alignParentLeft="true"
                   android:layout_alignWithParentIfMissing="true"
-                  android:layout_toLeftOf="@+id/btn_user_bucket_select_all"
-                  android:singleLine="true"
-                  android:textStyle="bold"
-                  android:textColor="@drawable/txt_list_main_states"/>
+                  android:layout_toLeftOf="@+id/btn_user_bucket_select_all"/>
 
         <com.soundcloud.android.view.SingleLineCollectionTextView android:id="@android:id/text2"
                                                                   android:layout_width="wrap_content"
                                                                   android:layout_height="wrap_content"
+                                                                  style="@style/OnboardSuggestedUserCategoryUsernamesText"
                                                                   android:layout_alignParentLeft="true"
                                                                   android:layout_below="@android:id/text1"
-                                                                  android:layout_toLeftOf="@id/btn_user_bucket_select_all"
-                                                                  android:singleLine="true"
-                                                                  android:ellipsize="end"
-                                                                  android:textColor="@drawable/txt_list_secondary_states"/>
+                                                                  android:layout_toLeftOf="@id/btn_user_bucket_select_all"/>
 
         <CheckBox android:id="@id/btn_user_bucket_select_all"
                       android:layout_centerVertical="true"
