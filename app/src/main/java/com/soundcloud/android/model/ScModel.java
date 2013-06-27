@@ -2,6 +2,9 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Longs;
 import com.soundcloud.android.model.behavior.Identifiable;
 
 import android.content.ContentValues;
@@ -9,6 +12,8 @@ import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.BaseColumns;
+
+import java.util.List;
 
 public class ScModel implements Parcelable, Identifiable {
 
@@ -114,5 +119,14 @@ public class ScModel implements Parcelable, Identifiable {
         }
         ScModel that = (ScModel) o;
         return this.mID == that.mID;
+    }
+
+    public static <T extends ScModel> long[] getIdList(List<T> modelList) {
+        return Longs.toArray(Lists.transform(modelList, new Function<T, Long>() {
+            @Override
+            public Long apply(T input) {
+                return input.getId();
+            }
+        }));
     }
 }

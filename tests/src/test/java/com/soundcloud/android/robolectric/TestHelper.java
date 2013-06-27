@@ -19,6 +19,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
@@ -489,5 +490,13 @@ public class TestHelper {
             items.add(u);
         }
         return items;
+    }
+
+    public static List<SuggestedUser> createSuggestedUsers(int count) throws CreateModelException {
+        List<SuggestedUser> suggestedUsers = new ArrayList<SuggestedUser>();
+        for (int i = 0; i < count; i++){
+            suggestedUsers.add(TestHelper.getModelFactory().createModel(SuggestedUser.class));
+        }
+        return suggestedUsers;
     }
 }

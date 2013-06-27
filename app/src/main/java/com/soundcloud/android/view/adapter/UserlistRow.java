@@ -6,7 +6,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserHolder;
 import com.soundcloud.android.operations.following.FollowingOperations;
@@ -104,7 +103,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     private void setFollowingStatus(boolean enabled) {
-        final boolean following = FollowStatus.get().isFollowing(mUser);
+        final boolean following = mFollowingOperations.isFollowing(mUser);
         mFollowBtn.setEnabled(enabled);
         if (mUser.getId() == getCurrentUserId()) {
             mFollowBtn.setVisibility(View.INVISIBLE);

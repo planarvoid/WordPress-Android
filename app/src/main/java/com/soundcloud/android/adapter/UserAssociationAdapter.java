@@ -1,8 +1,8 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.UserlistRow;
 
@@ -10,10 +10,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
-public class UserAssociationAdapter extends ScBaseAdapter<UserAssociation> implements FollowStatus.Listener {
+public class UserAssociationAdapter extends ScBaseAdapter<UserAssociation> implements FollowingOperations.FollowStatusChangedListener {
     public UserAssociationAdapter(Uri uri) {
         super(uri);
-        FollowStatus.get().requestUserFollowings(this);
+        new FollowingOperations().requestUserFollowings(this);
     }
 
     @Override

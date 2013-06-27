@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.BulkInsertMap;
@@ -79,13 +80,20 @@ public class UserAssociationStorage {
      * @return the new association created
      */
     public UserAssociation addFollowing(User user) {
-        return addFollowing(user, null);
+        UserAssociation following = queryFollowingByTargetUserId(user.getId());
+        if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
+            following = new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition();
+            mFollowingsDAO.create(following);
+
+        }
+        return following;
     }
 
-    public UserAssociation addFollowing(User user, @Nullable String token) {
-        UserAssociation following = queryFollowingByTargetUserId(user.getId());
-        if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL){
-            following = new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition(token);
+    public UserAssociation addFollowingBySuggestedUser(SuggestedUser suggestedUser) {
+        UserAssociation following = queryFollowingByTargetUserId(suggestedUser.getId());
+        if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
+            following = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(suggestedUser))
+                    .markForAddition(suggestedUser.getToken());
             mFollowingsDAO.create(following);
 
         }
@@ -95,6 +103,7 @@ public class UserAssociationStorage {
     /**
      * Add the users passed in as followings. This will not take into account the current status of the logged in
      * user's association, but will just create or update the current status
+     *
      * @param users The users to be followed
      * @return the number of insertions/updates performed
      */
@@ -102,6 +111,24 @@ public class UserAssociationStorage {
         List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
         for (User user : users) {
             userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
+        }
+        return mFollowingsDAO.createCollection(userAssociations);
+    }
+
+    /**
+     * Add the Suggested Users passed in as followings. This will also pass the Suggested User token to the constructor
+     * of the User Association. This will not take into account the current status of the logged in
+     * user's association, but will just create or update the current status
+     *
+     * @param suggestedUsers
+     * @return
+     */
+    public int addFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
+        List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(suggestedUsers.size());
+        for (SuggestedUser suggestedUser : suggestedUsers) {
+            userAssociations.add(new UserAssociation(
+                    UserAssociation.Type.FOLLOWING, new User(suggestedUser)
+            ).markForAddition(suggestedUser.getToken()));
         }
         return mFollowingsDAO.createCollection(userAssociations);
     }
@@ -125,6 +152,7 @@ public class UserAssociationStorage {
     /**
      * Create or update user associations of type FOLLOWING as marked for removal. This will ignore any current user
      * associations and do a bulk insert.
+     *
      * @param users the users to mark for removal
      * @return the number of insertions/updates performed
      */

@@ -4,8 +4,6 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.model.Category;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
@@ -30,6 +28,14 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
     private GridViewCompat mAdapterView;
     private FollowingOperations mFollowingOperations;
 
+    public SuggestedUsersCategoryFragment() {
+        this(new FollowingOperations());
+    }
+
+    public SuggestedUsersCategoryFragment(FollowingOperations followingOperations) {
+        mFollowingOperations = followingOperations.observeOn(ScSchedulers.UI_SCHEDULER);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +45,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
             mCategory = Category.empty();
         }
         setAdapter(new SuggestedUsersAdapter(mCategory.getUsers()));
-        mFollowingOperations = new FollowingOperations().observeOn(ScSchedulers.UI_SCHEDULER);
+
     }
 
     public void setAdapter(SuggestedUsersAdapter adapter) {
@@ -61,15 +67,14 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         mAdapterView.setOnItemClickListener(this);
         mAdapterView.setAdapter(mAdapter);
 
-        final Set<Long> followingIds = FollowStatus.get().getFollowedUserIds();
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            mAdapterView.setItemChecked(i, followingIds.contains(mAdapter.getItemId(i)));
+            mAdapterView.setItemChecked(i, mFollowingOperations.getFollowedUserIds().contains(mAdapter.getItemId(i)));
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mFollowingOperations.toggleFollowing(new User(mAdapter.getItem(position))).subscribe(mToggleFollowingObserver);
+        mFollowingOperations.toggleFollowingBySuggestedUser(mAdapter.getItem(position)).subscribe(mToggleFollowingObserver);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridview setItemChecked
@@ -78,7 +83,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
             mAdapterView.setItemChecked(i, shouldFollow);
         }
 
-        final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
+        final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
         if (shouldFollow) {
             mFollowingOperations.addFollowingsBySuggestedUsers(mCategory.getNotFollowedUsers(followedUserIds)).subscribe(mToggleAllObserver);
         } else {

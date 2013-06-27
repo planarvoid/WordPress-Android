@@ -1,6 +1,8 @@
 package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -11,7 +13,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.operations.following.FollowStatus;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -21,11 +23,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
+import rx.Observer;
+import rx.Scheduler;
 
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,13 +41,15 @@ public class SuggestedUsersCategoriesAdapterTest {
     private SuggestedUsersCategoriesAdapter adapter;
     private SuggestedUsersCategoriesAdapter nonFacebookAdapter;
     @Mock
-    private FollowStatus followStatus;
+    private FollowingOperations followingOperations;
+    @Mock
+    Observable observable;
 
     @Before
     public void setup() throws CreateModelException {
-        initMocks(this);
-        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followStatus);
-        nonFacebookAdapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followStatus);
+        when (followingOperations.observeOn(any(Scheduler.class))).thenReturn(followingOperations);
+        adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followingOperations);
+        nonFacebookAdapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followingOperations);
     }
 
     @Test
@@ -122,8 +130,8 @@ public class SuggestedUsersCategoriesAdapterTest {
         adapter.addItem(music());
         expect(adapter.getCount()).toBe(
                 facebook().getCategoryCount() +
-                music().getCategoryCount() +
-                audio().getCategoryCount()
+                        music().getCategoryCount() +
+                        audio().getCategoryCount()
         );
     }
 
@@ -188,7 +196,7 @@ public class SuggestedUsersCategoriesAdapterTest {
     public void shouldGetCorrectUserlistForMultipleCategoryUsersWithOneFollowing() throws CreateModelException {
         addAllSections();
         SuggestedUser followedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
-        when(followStatus.getFollowedUserIds()).thenReturn(Sets.newHashSet(followedUser.getId()));
+        when(followingOperations.getFollowedUserIds()).thenReturn(Sets.newHashSet(followedUser.getId()));
 
         Category category = adapter.getItem(0);
         category.getUsers().add(followedUser);
@@ -206,7 +214,7 @@ public class SuggestedUsersCategoriesAdapterTest {
                 return input == null ? 0L : input.getId();
             }
         }));
-        when(followStatus.getFollowedUserIds()).thenReturn(followedUsers);
+        when(followingOperations.getFollowedUserIds()).thenReturn(followedUsers);
         View itemLayout = adapter.getView(0, null, new FrameLayout(Robolectric.application));
         final CompoundButton followButton = (CompoundButton) itemLayout.findViewById(R.id.btn_user_bucket_select_all);
         expect(followButton.isChecked()).toBeTrue();
@@ -216,7 +224,7 @@ public class SuggestedUsersCategoriesAdapterTest {
     public void shouldNotCheckFollowButtonIfCategoryPartiallyFollowedsFollowed() throws CreateModelException {
         addAllSections();
         SuggestedUser followedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
-        when(followStatus.getFollowedUserIds()).thenReturn(Sets.newHashSet(followedUser.getId()));
+        when(followingOperations.getFollowedUserIds()).thenReturn(Sets.newHashSet(followedUser.getId()));
 
         Category category = adapter.getItem(0);
         category.getUsers().add(followedUser);
@@ -235,6 +243,19 @@ public class SuggestedUsersCategoriesAdapterTest {
         final CompoundButton followButton = (CompoundButton) itemLayout.findViewById(R.id.btn_user_bucket_select_all);
 
         expect(followButton.isChecked()).toBeFalse();
+    }
+
+    @Test
+    public void shouldFollowBySuggestedUsersOnClick() throws CreateModelException {
+        nonFacebookAdapter.addItem(audio());
+        nonFacebookAdapter.addItem(music());
+        List<SuggestedUser> users = nonFacebookAdapter.getItem(0).getUsers();
+        when(followingOperations.addFollowingsBySuggestedUsers(users)).thenReturn(observable);
+
+        View itemLayout = nonFacebookAdapter.getView(0, null, new FrameLayout(Robolectric.application));
+        itemLayout.findViewById(R.id.btn_user_bucket_select_all).performClick();
+
+        verify(observable).subscribe(any(Observer.class));
     }
 
     private CategoryGroup facebook() throws CreateModelException {
