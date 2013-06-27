@@ -89,9 +89,9 @@ public class Category extends ScModel {
 
     public boolean isFollowed(Set<Long> userFollowings) {
         for (SuggestedUser user : mUsers) {
-            if (!userFollowings.contains(user.getId())) return false;
+            if (userFollowings.contains(user.getId())) return true;
         }
-        return true;
+        return false;
     }
 
     public List<SuggestedUser> getNotFollowedUsers(Set<Long> userFollowings) {
