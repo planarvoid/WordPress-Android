@@ -16,7 +16,6 @@ import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.ScObservables;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
+import rx.Observer;
 import rx.Scheduler;
 
 import android.view.View;
@@ -41,6 +42,8 @@ public class SuggestedUsersCategoriesAdapterTest {
     private SuggestedUsersCategoriesAdapter nonFacebookAdapter;
     @Mock
     private FollowingOperations followingOperations;
+    @Mock
+    Observable observable;
 
     @Before
     public void setup() throws CreateModelException {
@@ -127,8 +130,8 @@ public class SuggestedUsersCategoriesAdapterTest {
         adapter.addItem(music());
         expect(adapter.getCount()).toBe(
                 facebook().getCategoryCount() +
-                music().getCategoryCount() +
-                audio().getCategoryCount()
+                        music().getCategoryCount() +
+                        audio().getCategoryCount()
         );
     }
 
@@ -247,12 +250,12 @@ public class SuggestedUsersCategoriesAdapterTest {
         nonFacebookAdapter.addItem(audio());
         nonFacebookAdapter.addItem(music());
         List<SuggestedUser> users = nonFacebookAdapter.getItem(0).getUsers();
-        when(followingOperations.addFollowingsBySuggestedUsers(users)).thenReturn(ScObservables.EMPTY);
+        when(followingOperations.addFollowingsBySuggestedUsers(users)).thenReturn(observable);
 
         View itemLayout = nonFacebookAdapter.getView(0, null, new FrameLayout(Robolectric.application));
         itemLayout.findViewById(R.id.btn_user_bucket_select_all).performClick();
 
-        verify(followingOperations).addFollowingsBySuggestedUsers(users);
+        verify(observable).subscribe(any(Observer.class));
     }
 
     private CategoryGroup facebook() throws CreateModelException {

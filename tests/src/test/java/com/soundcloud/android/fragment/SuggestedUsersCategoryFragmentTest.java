@@ -1,7 +1,6 @@
 package com.soundcloud.android.fragment;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Observer;
 import rx.Scheduler;
 
 import android.os.Bundle;
@@ -39,6 +39,8 @@ public class SuggestedUsersCategoryFragmentTest {
     private View fragmentView;
     @Mock
     private GridViewCompat gridView;
+    @Mock
+    private Observable observable;
 
     private List<SuggestedUser> suggestedUsers;
 
@@ -79,22 +81,22 @@ public class SuggestedUsersCategoryFragmentTest {
     }
 
     @Test
-    public void shouldFollowAllUsers() {
-        when(followingOperations.addFollowingsBySuggestedUsers(anyList())).thenReturn(Observable.<Void>empty());
+    public void shouldFollowAllUsers(){
+        when(followingOperations.addFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(1)))).thenReturn(observable);
         fragment.toggleFollowings(true);
 
-        verify(followingOperations).addFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(1)));
+        verify(observable).subscribe(any(Observer.class));
         verify(gridView, times(2)).setItemChecked(0, true);
         verify(gridView).setItemChecked(1, true);
         verify(gridView, times(2)).setItemChecked(2, true);
     }
 
     @Test
-    public void shouldUnfollowAllUsers() {
-        when(followingOperations.removeFollowingsBySuggestedUsers(anyList())).thenReturn(Observable.<Void>empty());
+    public void shouldUnfollowAllUsers(){
+        when(followingOperations.removeFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(0), suggestedUsers.get(2)))).thenReturn(observable);
         fragment.toggleFollowings(false);
 
-        verify(followingOperations).removeFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(0), suggestedUsers.get(2)));
+        verify(observable).subscribe(any(Observer.class));
         verify(gridView).setItemChecked(0, false);
         verify(gridView, times(2)).setItemChecked(1, false);
         verify(gridView).setItemChecked(2, false);
