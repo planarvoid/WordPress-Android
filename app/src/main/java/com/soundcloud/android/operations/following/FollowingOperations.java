@@ -18,7 +18,6 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FollowingOperations extends ScheduledOperations {
@@ -135,14 +134,6 @@ public class FollowingOperations extends ScheduledOperations {
         } else {
             return addFollowingBySuggestedUser(suggestedUser);
         }
-    }
-
-    private List<User> getUsersFromSuggestedUsers(List<SuggestedUser> suggestedUsers) {
-        List<User> users = new ArrayList<User>(suggestedUsers.size());
-        for (SuggestedUser suggestedUser : suggestedUsers){
-            users.add(new User(suggestedUser));
-        }
-        return users;
     }
 
     private void updateLocalStatus(boolean newStatus, long... userIds) {
