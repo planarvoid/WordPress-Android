@@ -81,7 +81,7 @@ public class UserAssociationStorage {
      */
     public UserAssociation addFollowing(User user) {
         UserAssociation following = queryFollowingByTargetUserId(user.getId());
-        if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL){
+        if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
             following = new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition();
             mFollowingsDAO.create(following);
 
@@ -91,7 +91,7 @@ public class UserAssociationStorage {
 
     public UserAssociation addFollowingBySuggestedUser(SuggestedUser suggestedUser) {
         UserAssociation following = queryFollowingByTargetUserId(suggestedUser.getId());
-        if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL){
+        if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
             following = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(suggestedUser))
                     .markForAddition(suggestedUser.getToken());
             mFollowingsDAO.create(following);
@@ -103,6 +103,7 @@ public class UserAssociationStorage {
     /**
      * Add the users passed in as followings. This will not take into account the current status of the logged in
      * user's association, but will just create or update the current status
+     *
      * @param users The users to be followed
      * @return the number of insertions/updates performed
      */
@@ -118,6 +119,7 @@ public class UserAssociationStorage {
      * Add the Suggested Users passed in as followings. This will also pass the Suggested User token to the constructor
      * of the User Association. This will not take into account the current status of the logged in
      * user's association, but will just create or update the current status
+     *
      * @param suggestedUsers
      * @return
      */
@@ -150,6 +152,7 @@ public class UserAssociationStorage {
     /**
      * Create or update user associations of type FOLLOWING as marked for removal. This will ignore any current user
      * associations and do a bulk insert.
+     *
      * @param users the users to mark for removal
      * @return the number of insertions/updates performed
      */

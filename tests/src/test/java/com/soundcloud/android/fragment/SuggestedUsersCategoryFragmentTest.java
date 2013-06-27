@@ -75,14 +75,14 @@ public class SuggestedUsersCategoryFragmentTest {
     }
 
     @Test
-    public void shouldCallToggleFollowingBySuggestedUser(){
+    public void shouldCallToggleFollowingBySuggestedUser() {
         when(followingOperations.toggleFollowingBySuggestedUser(any(SuggestedUser.class))).thenReturn(Observable.<Void>empty());
         fragment.onItemClick(null, null, 2, 0);
         verify(followingOperations).toggleFollowingBySuggestedUser(suggestedUsers.get(2));
     }
 
     @Test
-    public void shouldFollowAllUsers(){
+    public void shouldFollowAllUsers() {
         when(followingOperations.addFollowingsBySuggestedUsers(anyList())).thenReturn(Observable.<Void>empty());
         fragment.toggleFollowings(true);
 
@@ -93,7 +93,7 @@ public class SuggestedUsersCategoryFragmentTest {
     }
 
     @Test
-    public void shouldUnfollowAllUsers(){
+    public void shouldUnfollowAllUsers() {
         when(followingOperations.removeFollowingsBySuggestedUsers(anyList())).thenReturn(Observable.<Void>empty());
         fragment.toggleFollowings(false);
 

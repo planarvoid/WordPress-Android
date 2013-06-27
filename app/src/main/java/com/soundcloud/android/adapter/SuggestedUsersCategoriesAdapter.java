@@ -99,8 +99,8 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         mCategoryGroups.remove(categoryGroup);
         mCategoryGroups.add(categoryGroup);
 
-        if (mCategoryGroups.size() < mActiveSections.size()){
-            for (Section section : mActiveSections){
+        if (mCategoryGroups.size() < mActiveSections.size()) {
+            for (Section section : mActiveSections) {
                 if (section.mShowLoading) {
                     mCategoryGroups.add(CategoryGroup.createProgressGroup(section.mKey));
                 }
@@ -160,7 +160,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         ItemViewHolder viewHolder = null;
 
         final Category category = getItem(position);
-        switch (category.getDisplayType()){
+        switch (category.getDisplayType()) {
             case PROGRESS:
                 if (convertView == null) {
                     convertView = inflater.inflate(R.layout.suggested_users_category_list_loading_item, parent, false);
@@ -237,7 +237,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     /* package */ List<String> getSubtextUsers(Category category) {
         final Set<Long> followedUserIds = mFollowStatus.getFollowedUserIds();
         final List<SuggestedUser> followedUsers = category.getFollowedUsers(followedUserIds);
-        final List<SuggestedUser> subtextUsers =  followedUsers.isEmpty() ? category.getUsers() : followedUsers;
+        final List<SuggestedUser> subtextUsers = followedUsers.isEmpty() ? category.getUsers() : followedUsers;
         return Lists.transform(subtextUsers, new Function<SuggestedUser, String>() {
             @Override
             public String apply(SuggestedUser input) {
