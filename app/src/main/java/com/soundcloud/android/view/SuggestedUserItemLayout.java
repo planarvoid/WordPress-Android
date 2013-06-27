@@ -56,6 +56,6 @@ public class SuggestedUserItemLayout extends LinearLayout implements Checkable {
 
     @Override
     protected void dispatchSetPressed(boolean pressed) {
-        // nop
+        mSuggestedUserLayout.setPressed(pressed);
     }
 }
