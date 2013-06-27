@@ -5,9 +5,6 @@ import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys.
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.Longs;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.Wrapper;
@@ -20,7 +17,6 @@ import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.SuggestedUser;
@@ -345,15 +341,6 @@ public class TestHelper {
         return categoryGroup;
     }
 
-    public static <T extends ScModel> long[] getIdList(List<T> modelList) {
-        return Longs.toArray(Lists.transform(modelList, new Function<T, Long>() {
-            @Override
-            public Long apply(T input) {
-                return input.getId();
-            }
-        }));
-    }
-
     private static int bulkInsertToUserAssociations(List<? extends ScResource> resources, Uri collectionUri,
                                                     Date addedAt, Date removedAt, String token) {
         SoundCloudApplication application = DefaultTestRunner.application;
@@ -507,7 +494,7 @@ public class TestHelper {
 
     public static List<SuggestedUser> createSuggestedUsers(int count) throws CreateModelException {
         List<SuggestedUser> suggestedUsers = new ArrayList<SuggestedUser>();
-        for (int i = 0; i < 3; i++){
+        for (int i = 0; i < count; i++){
             suggestedUsers.add(TestHelper.getModelFactory().createModel(SuggestedUser.class));
         }
         return suggestedUsers;

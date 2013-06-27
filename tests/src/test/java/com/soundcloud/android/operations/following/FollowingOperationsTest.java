@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.dao.UserAssociationStorage;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SuggestedUser;
@@ -65,7 +66,7 @@ public class FollowingOperationsTest {
     @Test
     public void shouldToggleFollowingsOnAdditions() throws CreateModelException {
         ops.addFollowings(users).toBlockingObservable().last();
-        verify(followStatus).toggleFollowing(TestHelper.getIdList(users));
+        verify(followStatus).toggleFollowing(ScModel.getIdList(users));
     }
 
     @Test
@@ -77,7 +78,7 @@ public class FollowingOperationsTest {
     @Test
     public void shouldToggleFollowingsOnSuggestedUserAdditions() throws CreateModelException {
         ops.addFollowingsBySuggestedUsers(suggestedUsers).toBlockingObservable().last();
-        verify(followStatus).toggleFollowing(TestHelper.getIdList(suggestedUsers));
+        verify(followStatus).toggleFollowing(ScModel.getIdList(suggestedUsers));
     }
 
     @Test
@@ -89,7 +90,7 @@ public class FollowingOperationsTest {
     @Test
     public void shouldToggleFollowingsListOnRemoval() throws CreateModelException {
         ops.removeFollowings(users).toBlockingObservable().last();
-        verify(followStatus).toggleFollowing(TestHelper.getIdList(users));
+        verify(followStatus).toggleFollowing(ScModel.getIdList(users));
     }
 
     @Test

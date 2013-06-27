@@ -2,6 +2,7 @@ package com.soundcloud.android.operations.following;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -81,7 +82,7 @@ public class FollowStatusTest {
         status.toggleFollowing(users.get(0).getId());
         expect(status.isFollowing(users.get(0))).toBeTrue();
 
-        status.toggleFollowing(TestHelper.getIdList(users));
+        status.toggleFollowing(ScModel.getIdList(users));
         expect(status.isFollowing(users.get(0))).toBeFalse();
         expect(status.isFollowing(users.get(1))).toBeTrue();
         expect(status.isFollowing(users.get(2))).toBeTrue();
