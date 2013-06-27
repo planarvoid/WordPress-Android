@@ -26,6 +26,7 @@ import org.apache.http.util.EntityUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
@@ -45,8 +46,12 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     private final WrapperFactory mWrapperFactory;
 
     public SoundCloudRxHttpClient() {
+        this(ScSchedulers.API_SCHEDULER);
+    }
+
+    public SoundCloudRxHttpClient(Scheduler scheduler) {
         this(new JacksonJsonTransformer(), new WrapperFactory(SoundCloudApplication.instance));
-        subscribeOn(ScSchedulers.API_SCHEDULER);
+        subscribeOn(scheduler);
     }
 
     @VisibleForTesting

@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.SuggestedUsersOperations;
+import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.UserAssociationStorage;
@@ -17,6 +18,7 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.concurrency.Schedulers;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -40,7 +42,8 @@ public class UserAssociationSyncer extends SyncStrategy {
     private SuggestedUsersOperations mSuggestedUsersOperations;
 
     public UserAssociationSyncer(Context context) {
-        this(context, context.getContentResolver(), new UserAssociationStorage(context.getContentResolver()), new SuggestedUsersOperations());
+        this(context, context.getContentResolver(), new UserAssociationStorage(context.getContentResolver()),
+                new SuggestedUsersOperations(new SoundCloudRxHttpClient(Schedulers.immediate())));
     }
 
     @VisibleForTesting
