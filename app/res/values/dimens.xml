@@ -118,6 +118,8 @@
     <dimen name="signup_label_padding">4dp</dimen>
     <dimen name="signup_done_drawable_padding">7dp</dimen>
 
-    <dimen name="onboarding_suggested_user_item_height">200dp</dimen>
+    <dimen name="onboarding_suggested_user_item_height">115dp</dimen>
     <dimen name="onboarding_suggested_user_item_padding">3dp</dimen>
+    <dimen name="onboarding_suggested_user_item_marginTopBottom">8dp</dimen>
+    <dimen name="onboarding_suggested_user_item_marginLeftRight">16dp</dimen>
 </resources>

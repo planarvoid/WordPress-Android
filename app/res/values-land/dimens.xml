@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="onboarding_suggested_user_item_marginLeftRight">8dp</dimen>
+</resources>

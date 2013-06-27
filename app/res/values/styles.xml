@@ -108,6 +108,20 @@
         <item name="android:textOff">@string/btn_follow</item>
     </style>
 
+    <style name="OnboardSuggestedUserCategoryText">
+        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textSize">@dimen/list_txt_main_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="OnboardSuggestedUserCategoryUsernamesText">
+        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textSize">@dimen/list_txt_sub_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
     <style name="OnboardActionButtonStyle" parent="Widget.Sherlock.ActionButton">
         <item name="android:paddingLeft">20dip</item>
         <item name="android:paddingRight">20dip</item>
