@@ -13,11 +13,10 @@
                     android:padding="@dimen/onboarding_suggested_user_item_padding"
                     android:layout_height="@dimen/onboarding_suggested_user_item_height">
 
-        <ImageView android:id="@+id/suggested_user_image"
-                   android:layout_width="match_parent"
-                   android:layout_height="match_parent"
-                   android:cropToPadding="true"
-                   android:scaleType="centerCrop"/>
+        <com.soundcloud.android.view.SuggestedUserImageView android:id="@+id/suggested_user_image"
+                                                            android:layout_width="match_parent"
+                                                            android:layout_height="match_parent"
+                                                            android:cropToPadding="true"/>
         <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/username"
                                                          style="@style/OnboardSuggestedUserUsernameText"
                                                          android:layout_alignParentLeft="true"
