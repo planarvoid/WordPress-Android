@@ -12,17 +12,17 @@ import android.view.View;
 
 public class SuggestedUsersActivity extends ScActivity implements ScLandingPage {
 
-    public static final String SYNC_DIALOG_FRAGMENT = "sync_dialog_fragment";
-
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.suggested_users_activity);
 
         if (state == null) {
+            final SuggestedUsersCategoriesFragment suggestedUsersCategoriesFragment = new SuggestedUsersCategoriesFragment();
+            suggestedUsersCategoriesFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.categories_fragment_holder, new SuggestedUsersCategoriesFragment())
+                    .add(R.id.categories_fragment_holder, suggestedUsersCategoriesFragment)
                     .commit();
         }
     }
