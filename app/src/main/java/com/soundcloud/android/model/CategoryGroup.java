@@ -95,15 +95,15 @@ public class CategoryGroup extends ScModel {
         return getNonEmptyCategories().isEmpty();
     }
 
-    public void filterCategories(Set<SuggestedUser> uniqueSuggestedUsersSet) {
+    public void removeDuplicateUsers(Set<SuggestedUser> currentUniqueSuggestedUsersSet) {
         for (Category category : mCategories) {
             Iterator<SuggestedUser> iter = category.getUsers().iterator();
             while (iter.hasNext()) {
                 final SuggestedUser suggestedUser = iter.next();
-                if (uniqueSuggestedUsersSet.contains(suggestedUser)) {
+                if (currentUniqueSuggestedUsersSet.contains(suggestedUser)) {
                     iter.remove();
                 } else {
-                    uniqueSuggestedUsersSet.add(suggestedUser);
+                    currentUniqueSuggestedUsersSet.add(suggestedUser);
                 }
             }
         }
