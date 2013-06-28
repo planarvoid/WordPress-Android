@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +54,14 @@ public class CategoryGroupTest {
 
         mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
         expect(mCategoryGroup.getNonEmptyCategories()).toContainExactly(category1, category2);
+    }
+
+    @Test
+    public void shouldReturnAllSuggestedUsers() throws CreateModelException {
+        when(category1.getUsers()).thenReturn(TestHelper.createSuggestedUsers(2));
+        when(category2.getUsers()).thenReturn(TestHelper.createSuggestedUsers(2));
+        mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
+        expect(mCategoryGroup.getAllSuggestedUsers().size()).toBe(4);
     }
 
     @Test

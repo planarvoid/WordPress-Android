@@ -5,6 +5,7 @@ import static com.google.common.collect.Collections2.filter;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -30,8 +31,12 @@ public class CategoryGroup extends ScModel {
     }
 
     @NotNull
-    public List<Category> getCategories() {
-        return mCategories;
+    public List<SuggestedUser> getAllSuggestedUsers() {
+        List<SuggestedUser> allUsers = new ArrayList<SuggestedUser>();
+        for (Category category : mCategories){
+            allUsers.addAll(category.getUsers());
+        }
+        return allUsers;
     }
 
     @NotNull
