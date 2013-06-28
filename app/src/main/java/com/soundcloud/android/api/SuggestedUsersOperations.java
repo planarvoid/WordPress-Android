@@ -12,7 +12,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.APIRequest;
-import com.soundcloud.android.api.http.QueryParameters;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.dao.UserAssociationStorage;
@@ -88,7 +87,6 @@ public class SuggestedUsersOperations extends ScheduledOperations {
             APIRequest<Void> request = RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
                     .forPublicAPI()
                     .withJsonContent(bulkFollowJsonContent)
-                    .addQueryParametersAsCollection(QueryParameters.TOKENS.paramKey(), tokens)
                     .build();
 
             ScSuccessObserver<Void> successObserver = new BulkFollowObserver(associationsWithTokens, mUserAssociationStorage);
