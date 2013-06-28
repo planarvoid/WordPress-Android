@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -114,7 +115,9 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         mCategories.clear();
         mListPositionsToSections.clear();
 
+        final Set<SuggestedUser> uniqueSuggestedUsersSet = new HashSet<SuggestedUser>();
         for (CategoryGroup group : mCategoryGroups) {
+            group.filterCategories(uniqueSuggestedUsersSet);
             mListPositionsToSections.put(mCategories.size(), Section.fromKey(group.getKey()));
             mCategories.addAll(group.isEmpty() ? Lists.newArrayList(Category.empty()) : group.getNonEmptyCategories());
         }
