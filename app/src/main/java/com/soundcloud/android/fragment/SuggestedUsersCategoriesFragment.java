@@ -66,12 +66,10 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null){
-            mSignupVia = SignupVia.fromBundle(getArguments());
-            mAdapter.setActiveSections(mSignupVia.isNonFacebookSignup() ?
-                    SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK :
-                    SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS);
-        }
+        mSignupVia = getArguments() == null ? SignupVia.NONE : SignupVia.fromBundle(getArguments());
+        mAdapter.setActiveSections(mSignupVia.isNonFacebookSignup() ?
+                SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK :
+                SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS);
     }
 
     @Override
