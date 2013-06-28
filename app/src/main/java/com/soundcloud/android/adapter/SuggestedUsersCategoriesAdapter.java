@@ -117,7 +117,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
         final Set<SuggestedUser> uniqueSuggestedUsersSet = new HashSet<SuggestedUser>();
         for (CategoryGroup group : mCategoryGroups) {
-            group.filterCategories(uniqueSuggestedUsersSet);
+            group.removeDuplicateUsers(uniqueSuggestedUsersSet);
             mListPositionsToSections.put(mCategories.size(), Section.fromKey(group.getKey()));
             mCategories.addAll(group.isEmpty() ? Lists.newArrayList(Category.empty()) : group.getNonEmptyCategories());
         }

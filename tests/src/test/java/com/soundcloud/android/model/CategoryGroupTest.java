@@ -97,7 +97,7 @@ public class CategoryGroupTest {
         when(category1.getUsers()).thenReturn(category1Users);
         when(category2.getUsers()).thenReturn(category2Users);
         mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
-        mCategoryGroup.filterCategories(new HashSet<SuggestedUser>());
+        mCategoryGroup.removeDuplicateUsers(new HashSet<SuggestedUser>());
         expect(category2Users).toContainExactly(suggestedUser3);
     }
 
@@ -110,7 +110,7 @@ public class CategoryGroupTest {
         when(category2.getUsers()).thenReturn(category2Users);
         mCategoryGroup.setCategories(Lists.newArrayList(category1, category2));
 
-        mCategoryGroup.filterCategories(new HashSet<SuggestedUser>());
+        mCategoryGroup.removeDuplicateUsers(new HashSet<SuggestedUser>());
         expect(category2Users).toBeEmpty();
         expect(mCategoryGroup.getNonEmptyCategories()).not.toContain(category2);
     }
@@ -128,8 +128,8 @@ public class CategoryGroupTest {
         categoryGroup2.setCategories(Lists.newArrayList(category2));
 
         final HashSet<SuggestedUser> uniqueSuggestedUsersSet = new HashSet<SuggestedUser>();
-        mCategoryGroup.filterCategories(uniqueSuggestedUsersSet);
-        categoryGroup2.filterCategories(uniqueSuggestedUsersSet);
+        mCategoryGroup.removeDuplicateUsers(uniqueSuggestedUsersSet);
+        categoryGroup2.removeDuplicateUsers(uniqueSuggestedUsersSet);
         expect(category2Users).toContainExactly(suggestedUser3);
 
     }
