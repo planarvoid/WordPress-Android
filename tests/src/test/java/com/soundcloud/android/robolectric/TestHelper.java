@@ -337,7 +337,7 @@ public class TestHelper {
     public static CategoryGroup buildCategoryGroup(String key, int categoryCount) throws CreateModelException {
         CategoryGroup categoryGroup = new CategoryGroup();
         categoryGroup.setKey(key);
-        categoryGroup.setCategories(Collections.nCopies(categoryCount, getModelFactory().createModel(Category.class)));
+        categoryGroup.setCategories(createCategories(categoryCount));
         return categoryGroup;
     }
 
@@ -498,5 +498,13 @@ public class TestHelper {
             suggestedUsers.add(TestHelper.getModelFactory().createModel(SuggestedUser.class));
         }
         return suggestedUsers;
+    }
+
+    public static List<Category> createCategories(int count) throws CreateModelException {
+        List<Category> categories = new ArrayList<Category>();
+        for (int i = 0; i < count; i++){
+            categories.add(TestHelper.getModelFactory().createModel(Category.class));
+        }
+        return categories;
     }
 }
