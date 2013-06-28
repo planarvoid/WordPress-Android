@@ -9,8 +9,10 @@ import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
+import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
@@ -200,6 +202,9 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
             if (!categoryGroup.isFacebook()){
                 fragment.setDisplayMode(DisplayMode.CONTENT);
+            } else if (fragment.mSignupVia.isFacebook()) {
+                new FollowingOperations().addFollowingsBySuggestedUsers(categoryGroup.getAllSuggestedUsers())
+                        .subscribe(new ScObserver<Void>() {});
             }
         }
 
