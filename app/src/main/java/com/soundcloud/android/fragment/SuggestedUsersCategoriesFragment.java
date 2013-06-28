@@ -3,6 +3,7 @@ package com.soundcloud.android.fragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.api.SuggestedUsersOperations;
@@ -46,9 +47,11 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private ListView mListView;
     private EmptyListView mEmptyListView;
 
+    private SignupVia mSignupVia;
+
     public SuggestedUsersCategoriesFragment() {
         this(new SuggestedUsersOperations(), null,
-                new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS));
+                new SuggestedUsersCategoriesAdapter());
     }
 
     @VisibleForTesting
@@ -58,6 +61,17 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         mSuggestions = onboardingOps;
         mObserver = observer;
         mAdapter = adapter;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null){
+            mSignupVia = SignupVia.fromBundle(getArguments());
+            mAdapter.setActiveSections(mSignupVia.isNonFacebookSignup() ?
+                    SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK :
+                    SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS);
+        }
     }
 
     @Override
@@ -116,7 +130,9 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     }
 
     private Observable<CategoryGroup> createCategoriesObservable() {
-        return mSuggestions.getCategoryGroups().cache().observeOn(ScSchedulers.UI_SCHEDULER);
+        final Observable<CategoryGroup> categoryGroups = mSignupVia.isNonFacebookSignup() ?
+                mSuggestions.getMusicAndSoundsSuggestions() : mSuggestions.getCategoryGroups();
+        return categoryGroups.cache().observeOn(ScSchedulers.UI_SCHEDULER);
     }
 
     private void refresh() {

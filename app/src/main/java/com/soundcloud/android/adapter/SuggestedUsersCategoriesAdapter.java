@@ -41,7 +41,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private final Map<Integer, Section> mListPositionsToSections;
     private final FollowingOperations mFollowingOperations;
-    private final EnumSet<Section> mActiveSections;
+    private EnumSet<Section> mActiveSections;
 
     public enum Section {
         FACEBOOK(CategoryGroup.KEY_FACEBOOK, R.string.suggested_users_section_facebook, true),
@@ -49,12 +49,11 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         SPEECH_AND_SOUNDS(CategoryGroup.KEY_SPEECH_AND_SOUNDS, R.string.suggested_users_section_audio, false);
 
         public static final EnumSet<Section> ALL_EXCEPT_FACEBOOK = EnumSet.of(MUSIC, SPEECH_AND_SOUNDS);
-        public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
 
+        public static final EnumSet<Section> ALL_SECTIONS = EnumSet.allOf(Section.class);
         private final String mKey;
         private final int mLabelResId;
         private final boolean mShowLoading;
-
         private String mLabel;
 
         Section(String key, int labelId, boolean showLoading) {
@@ -80,6 +79,10 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         }
     }
 
+    public SuggestedUsersCategoriesAdapter() {
+        this(Section.ALL_SECTIONS);
+    }
+
     public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections) {
         this(activeSections, new FollowingOperations());
     }
@@ -89,6 +92,10 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new HashMap<Integer, Section>();
+        mActiveSections = activeSections;
+    }
+
+    public void setActiveSections(EnumSet<Section> activeSections){
         mActiveSections = activeSections;
     }
 

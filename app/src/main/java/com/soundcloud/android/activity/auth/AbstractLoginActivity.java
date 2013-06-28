@@ -74,7 +74,7 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
         if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {
             startActivity(new Intent(this, SuggestedUsersActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .putExtra(Consts.Keys.WAS_SIGNUP, true));
+                    .putExtra(SignupVia.EXTRA, via.name));
         } else {
             startActivity(new Intent(this, Home.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
