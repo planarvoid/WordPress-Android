@@ -8,15 +8,12 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,79 +38,37 @@ public class FollowingOperations extends ScheduledOperations {
         mModelManager = modelManager;
     }
 
-    public Observable<Void> addFollowing(@NotNull final User user){
-        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
-            @Override
-            public Subscription call(Observer<Void> observer) {
-                updateLocalStatus(true, user.getId());
-                mUserAssociationStorage.addFollowing(user);
-                observer.onCompleted();
-                return Subscriptions.empty();
-            }
-        }));
+    public Observable<UserAssociation> addFollowing(@NotNull final User user){
+        updateLocalStatus(true, user.getId());
+        return mUserAssociationStorage.addFollowing(user);
     }
 
-    public Observable<Void> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser){
-        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
-            @Override
-            public Subscription call(Observer<Void> observer) {
-                updateLocalStatus(true, suggestedUser.getId());
-                mUserAssociationStorage.addFollowingBySuggestedUser(suggestedUser);
-                observer.onCompleted();
-                return Subscriptions.empty();
-            }
-        }));
+    public Observable<UserAssociation> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser){
+        updateLocalStatus(true, suggestedUser.getId());
+        return mUserAssociationStorage.addFollowingBySuggestedUser(suggestedUser);
     }
 
-    public Observable<Void> addFollowings(final List<User> users) {
-        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
-            @Override
-            public Subscription call(Observer<Void> observer) {
-                updateLocalStatus(true, ScModel.getIdList(users));
-                mUserAssociationStorage.addFollowings(users);
-                observer.onCompleted();
-                return Subscriptions.empty();
-            }
-        }));
+    public Observable<UserAssociation> addFollowings(final List<User> users) {
+        updateLocalStatus(true, ScModel.getIdList(users));
+        return mUserAssociationStorage.addFollowings(users);
     }
 
-    public Observable<Void> removeFollowing(final User user) {
-        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
-            @Override
-            public Subscription call(Observer<Void> observer) {
-                updateLocalStatus(false, user.getId());
-                mUserAssociationStorage.removeFollowing(user);
-                observer.onCompleted();
-                return Subscriptions.empty();
-            }
-        }));
+    public Observable<UserAssociation> removeFollowing(final User user) {
+        updateLocalStatus(false, user.getId());
+        return mUserAssociationStorage.removeFollowing(user);
     }
 
-    public Observable<Void> removeFollowings(final List<User> users) {
-        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
-            @Override
-            public Subscription call(Observer<Void> observer) {
-                updateLocalStatus(false, ScModel.getIdList(users));
-                mUserAssociationStorage.removeFollowings(users);
-                observer.onCompleted();
-                return Subscriptions.empty();
-            }
-        }));
+    public Observable<UserAssociation> removeFollowings(final List<User> users) {
+        updateLocalStatus(false, ScModel.getIdList(users));
+        return mUserAssociationStorage.removeFollowings(users);
     }
 
-    public Observable<Void> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
-        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
-            @Override
-            public Subscription call(Observer<Void> observer) {
-                updateLocalStatus(true, ScModel.getIdList(suggestedUsers));
-                mUserAssociationStorage.addFollowingsBySuggestedUsers(suggestedUsers);
-                observer.onCompleted();
-                return Subscriptions.empty();
-            }
-        }));
+    public Observable<UserAssociation> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
+        updateLocalStatus(true, ScModel.getIdList(suggestedUsers));
+        return mUserAssociationStorage.addFollowingsBySuggestedUsers(suggestedUsers);
     }
 
-    public Observable<Void> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
+    public Observable<UserAssociation> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
         return removeFollowings(Lists.transform(suggestedUsers,new Function<SuggestedUser, User>() {
             @Override
             public User apply(SuggestedUser input) {
@@ -122,7 +77,7 @@ public class FollowingOperations extends ScheduledOperations {
         }));
     }
 
-    public Observable<Void> toggleFollowing(User user) {
+    public Observable<UserAssociation> toggleFollowing(User user) {
         if (mFollowStatus.isFollowing(user)){
             return removeFollowing(user);
         } else {
@@ -130,7 +85,7 @@ public class FollowingOperations extends ScheduledOperations {
         }
     }
 
-    public Observable<Void> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
+    public Observable<UserAssociation> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
         if (mFollowStatus.isFollowing(suggestedUser.getId())){
             return removeFollowing(new User(suggestedUser));
         } else {
