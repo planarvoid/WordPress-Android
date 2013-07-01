@@ -8,7 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class CategoryGroup extends ScModel {
 
@@ -16,8 +18,10 @@ public class CategoryGroup extends ScModel {
     public static final String KEY_MUSIC = "music";
     public static final String KEY_SPEECH_AND_SOUNDS = "speech_and_sounds";
 
-    @NotNull private String mKey;
-    @NotNull private List<Category> mCategories = Collections.emptyList();
+    @NotNull
+    private String mKey;
+    @NotNull
+    private List<Category> mCategories = Collections.emptyList();
 
     public CategoryGroup() {
     }
@@ -76,13 +80,13 @@ public class CategoryGroup extends ScModel {
         return result;
     }
 
-    public static CategoryGroup createProgressGroup(String key){
+    public static CategoryGroup createProgressGroup(String key) {
         CategoryGroup categoryGroup = new CategoryGroup(key);
         categoryGroup.setCategories(Lists.<Category>newArrayList(Category.progress()));
         return categoryGroup;
     }
 
-    public static CategoryGroup createErrorGroup(String key){
+    public static CategoryGroup createErrorGroup(String key) {
         CategoryGroup categoryGroup = new CategoryGroup(key);
         categoryGroup.setCategories(Lists.<Category>newArrayList(Category.error()));
         return categoryGroup;
@@ -94,5 +98,19 @@ public class CategoryGroup extends ScModel {
 
     public boolean isEmpty() {
         return getNonEmptyCategories().isEmpty();
+    }
+
+    public void removeDuplicateUsers(Set<SuggestedUser> currentUniqueSuggestedUsersSet) {
+        for (Category category : mCategories) {
+            Iterator<SuggestedUser> iter = category.getUsers().iterator();
+            while (iter.hasNext()) {
+                final SuggestedUser suggestedUser = iter.next();
+                if (currentUniqueSuggestedUsersSet.contains(suggestedUser)) {
+                    iter.remove();
+                } else {
+                    currentUniqueSuggestedUsersSet.add(suggestedUser);
+                }
+            }
+        }
     }
 }

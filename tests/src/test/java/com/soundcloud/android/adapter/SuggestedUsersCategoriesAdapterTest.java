@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -236,6 +235,20 @@ public class SuggestedUsersCategoriesAdapterTest {
         itemLayout.findViewById(R.id.btn_user_bucket_select_all).performClick();
 
         verify(observable).subscribe(any(Observer.class));
+    }
+
+    @Test
+    public void shouldRemoveDuplicateUsers() throws CreateModelException {
+        CategoryGroup cat1 = TestHelper.buildCategoryGroup(CategoryGroup.KEY_MUSIC, 2);
+        nonFacebookAdapter.addItem(cat1);
+
+        CategoryGroup cat2 = TestHelper.buildCategoryGroup(CategoryGroup.KEY_SPEECH_AND_SOUNDS, 2);
+        // make the first user in the second group be the same as the first user in the first group
+        cat2.getCategories().get(0).getUsers().set(0,cat1.getCategories().get(0).getUsers().get(0));
+        expect(cat2.getCategories().get(0).getUsers().size()).toBe(3); // untouched category
+
+        nonFacebookAdapter.addItem(cat2);
+        expect(cat2.getCategories().get(0).getUsers().size()).toBe(2); // one removed user
     }
 
     private CategoryGroup facebook() throws CreateModelException {
