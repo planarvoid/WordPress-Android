@@ -17,6 +17,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -84,6 +85,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private View mArtworkOverlay;
     private AndroidCloudAPI oldCloudApi;
 
+    @Deprecated
     public PlayerTrackView(ScPlayer player) {
         super(player);
         View.inflate(player, R.layout.player_track, this);
@@ -129,7 +131,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         final OnClickListener closeCommentListener = new OnClickListener(){
             @Override
             public void onClick(View v) {
-                mPlayer.closeCommentMode();
+                //mPlayer.closeCommentMode();
             }
         };
 
@@ -162,6 +164,15 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mWaveformController.setOnScreen(onScreen);
     }
 
+    public void setPlayQueueItem(@NotNull PlayQueueItem playQueueItem){
+        setPlayQueueItem(playQueueItem, true, true);
+    }
+
+    public void setPlayQueueItem(@NotNull PlayQueueItem playQueueItem, boolean forceUpdate, boolean priority){
+        setTrack(playQueueItem.getTrack(), playQueueItem.getPlayQueuePosition(), forceUpdate, priority);
+    }
+
+    @Deprecated
     public void setTrack(@NotNull Track track, int queuePosition, boolean forceUpdate, boolean priority) {
         final boolean changed = mTrack != track;
         if (!(forceUpdate || changed)) return;
@@ -330,7 +341,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     public void onTrackDetailsFlip(@NotNull ViewFlipper trackFlipper, boolean showDetails) {
         if (mTrack != null && showDetails && trackFlipper.getDisplayedChild() == 0) {
-            if (mIsCommenting) mPlayer.closeCommentMode();
+            //if (mIsCommenting) mPlayer.closeCommentMode();
 
             mPlayer.track(Page.Sounds_info__main, mTrack);
             mWaveformController.closeComment(false);

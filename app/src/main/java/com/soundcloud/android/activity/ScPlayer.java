@@ -9,6 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.adapter.player.PlayerTrackPagerAdapter;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Comment;
@@ -66,6 +67,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private int mPendingPlayPosition = -1, mCommentingPosition = -1;
     private AccountOperations mAccountOperations;
     private AndroidCloudAPI mAndroidCloudAPI;
+    private PlayerTrackPagerAdapter mTrackPagerAdapter;
 
     public int getCommentPosition() {
         return mCommentingPosition;
@@ -89,6 +91,9 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);
         mTrackPager.setPageMargin((int) (5 * getResources().getDisplayMetrics().density));
         mTrackPager.setListener(this);
+
+        mTrackPagerAdapter = new PlayerTrackPagerAdapter(this);
+        mTrackPager.setAdapter(mTrackPagerAdapter);
 
         mTransportBar = (TransportBar) findViewById(R.id.transport_bar);
         mTransportBar.setOnPrevListener(mPrevListener);
@@ -182,14 +187,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     @Override
-    public void onBackPressed() {
-        final PlayerTrackView currentTrackView = mTrackPager.getCurrentTrackView();
-        if (currentTrackView == null || !currentTrackView.onBackPressed() ){
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle state) {
         state.putInt(STATE_PAGER_QUEUE_POSITION, getCurrentDisplayedTrackPosition());
         super.onSaveInstanceState(state);
@@ -204,20 +201,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         super.onRestoreInstanceState(state);
     }
 
-    public void closeCommentMode(){
-        mCommentingPosition = -1;
-        setCommentMode(true);
-    }
-
-    private void setCommentMode(boolean animate){
-        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
-            ptv.setCommentMode((ptv.getPlayPosition() == mCommentingPosition), animate);
-        }
-        mTransportBar.setIsCommenting(getCurrentDisplayedTrackPosition() == mCommentingPosition);
-    }
-
     public void addNewComment(final Comment comment) {
-        closeCommentMode();
+        mTrackPagerAdapter.clearCommentingPosition();
         pendingComment = comment;
         safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
     }
@@ -248,9 +233,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     @Override
     protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
+        //TODO
         if (isConnected) {
             if (mTrackPager != null) {
-                for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
+                for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
                     ptv.onDataConnected();
                 }
             }
@@ -259,9 +245,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     @Override
     protected void onDestroy() {
-        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
-            ptv.onDestroy();
-        }
+        // TODO
+//        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
+//            ptv.onDestroy();
+//        }
         super.onDestroy();
     }
 
@@ -286,9 +273,9 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             }
         }
         if (displayTrack != null) {
-            mTrackPager.configureFromTrack(this, displayTrack,
-                    intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, 0));
-            mIgnoreServiceQueue = true;
+//            mTrackPager.configureFromTrack(this, displayTrack,
+//                    intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, 0));
+//            mIgnoreServiceQueue = true;
         }
 
         // only handle intent once for now (currently they are just one shot playback requests)
@@ -367,9 +354,9 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     protected void onStop() {
         super.onStop();
         unbindService(osc);
-        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
-            ptv.onStop(true);
-        }
+//        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
+//            ptv.onStop(true);
+//        }
 
         mActivityPaused = true;
         mHandler.removeMessages(REFRESH);
@@ -381,7 +368,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         @Override
         public void onClick(View v) {
             mCommentingPosition = ((CompoundButton) v).isChecked() ? getCurrentDisplayedTrackPosition() : -1;
-            setCommentMode(true);
+            //setCommentMode(true);
         }
     };
 
@@ -552,7 +539,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                     }
                 } else {
                     // unhandled here, pass along to trackviews who may be interested
-                    for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
+                    for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
                         ptv.handleIdBasedIntent(intent);
                     }
                 }
@@ -576,7 +563,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             }
         }
 
-        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
+        for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
             if (ptv.getPlayPosition() != queuePos) {
                 ptv.getWaveformController().reset(false);
             }
@@ -598,7 +585,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTrackPager.configureFromService(this, playQueueManager, queuePosition);
         setBufferingState();
 
-        setCommentMode(false);
+        //setCommentMode(false);
         setPlaybackState();
     }
 
@@ -611,26 +598,15 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private int getCurrentDisplayedTrackPosition() {
-        final PlayerTrackView currentTrackView = mTrackPager.getCurrentTrackView();
-        return currentTrackView == null ? -1 : currentTrackView.getPlayPosition();
+        return mTrackPager.getCurrentItem();
     }
 
     private @Nullable PlayerTrackView getTrackView(int playPos){
-        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
-            if (ptv.getPlayPosition() == playPos) {
-                return ptv;
-            }
-        }
-        return null;
+        return mTrackPagerAdapter.getPlayerTrackViewByPosition(playPos);
     }
 
-    private @Nullable PlayerTrackView getTrackViewById(long track_id) {
-        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
-            if (ptv.getTrackId() == track_id) {
-                return ptv;
-            }
-        }
-        return null;
+    private @Nullable PlayerTrackView getTrackViewById(long id) {
+        return mTrackPagerAdapter.getPlayerTrackViewById(id);
     }
 
     private void setPlaybackState() {
