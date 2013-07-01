@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.google.common.collect.Collections2.filter;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,6 +38,11 @@ public class CategoryGroup extends ScModel {
             allUsers.addAll(category.getUsers());
         }
         return allUsers;
+    }
+
+    @VisibleForTesting
+    public List<Category> getCategories() {
+        return mCategories;
     }
 
     @NotNull
