@@ -4,6 +4,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.adapter.BasePagerAdapter;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.service.playback.PlayQueueManager;
@@ -21,6 +22,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     private int mCommentingPosition;
 
     private final BiMap<PlayerTrackView, Integer> mPlayerViewsById = HashBiMap.create(3);
+    private Track mPlaceholderTrack;
 
     public PlayerTrackPagerAdapter(ScPlayer player) {
         mPlayer = player;
@@ -57,6 +59,16 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         getPlayerTrackViewByPosition(commentingPosition).setCommentMode(true);
     }
 
+    public void setPlaceholderTrack(Track displayTrack) {
+        mPlaceholderTrack = displayTrack;
+        notifyDataSetChanged();
+    }
+
+    public void clearForRefresh() {
+        clearCommentingPosition();
+        mPlaceholderTrack = null;
+    }
+
     private PlayQueueManager getPlayQueueManager(){
         if (mPlayQueueManager == null) mPlayQueueManager = CloudPlaybackService.getPlaylistManager();
         return mPlayQueueManager;
@@ -64,8 +76,12 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     @Override
     public int getCount() {
-        final PlayQueueManager playQueueManager = getPlayQueueManager();
-        return playQueueManager == null ? 0 : playQueueManager.length();
+        if (mPlaceholderTrack != null){
+            return 1;
+        } else {
+            final PlayQueueManager playQueueManager = getPlayQueueManager();
+            return playQueueManager == null ? 0 : playQueueManager.length();
+        }
     }
 
     public void clearCommentingPosition() {
@@ -77,10 +93,12 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     @Override
     protected PlayQueueItem getItem(int position) {
-        final PlayQueueManager playQueueManager = getPlayQueueManager();
-        final PlayQueueItem playQueueItem = playQueueManager == null ? null : mPlayQueueManager.getPlayQueueItem(position);
-        playQueueItem.setIsInCommentingMode(mCommentingPosition == position);
-        return playQueueItem;
+        if (position == 0 && mPlaceholderTrack != null){
+            return new PlayQueueItem(mPlaceholderTrack, 0);
+        } else {
+            final PlayQueueManager playQueueManager = getPlayQueueManager();
+            return playQueueManager == null ? null : mPlayQueueManager.getPlayQueueItem(position);
+        }
     }
 
     @Override

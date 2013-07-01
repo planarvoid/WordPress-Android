@@ -212,6 +212,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         handleIntent(intent);
+        refreshTrackPager();
     }
 
     @Override
@@ -261,9 +262,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             }
         }
         if (displayTrack != null) {
-//            mTrackPager.configureFromTrack(this, displayTrack,
-//                    intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, 0));
-//            mIgnoreServiceQueue = true;
+            mTrackPagerAdapter.setPlaceholderTrack(displayTrack);
+            mIgnoreServiceQueue = true;
         }
 
         // only handle intent once for now (currently they are just one shot playback requests)
@@ -397,7 +397,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                         mTrackPager.prev();
                     } else {
                         mPlaybackService.setQueuePosition(playPosition - 1);
-                        setTrackDisplayFromService();
+                        refreshTrackPager();
                     }
 
                 } else if (isSeekable()) {
@@ -430,7 +430,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                             mTrackPager.next();
                         } else {
                             mPlaybackService.setQueuePosition(playPosition + 1);
-                            setTrackDisplayFromService();
+                            refreshTrackPager();
                         }
                     }
                 } else {
@@ -509,7 +509,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                     // Service has no playlist. Probably came from the widget. Kick them out to home
                     onHomePressed();
                 } else {
-                    setTrackDisplayFromService();
+                    refreshTrackPager();
                 }
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 onMetaChanged(queuePos);
@@ -548,7 +548,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 // auto advance
                 mTrackPager.next();
             } else {
-                setTrackDisplayFromService();
+                refreshTrackPager();
             }
         }
 
@@ -564,17 +564,14 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         }
     }
 
-    private void setTrackDisplayFromService() {
-        setTrackDisplayFromService(-1);
-    }
+    private void refreshTrackPager() {
+        mTrackPagerAdapter.clearForRefresh();
+        mTrackPager.refreshAdapter();
 
-    private void setTrackDisplayFromService(int queuePosition) {
-        final PlayQueueManager playQueueManager = getPlaylistManager();
+        final PlayQueueManager playlistManager = getPlaylistManager();
+        mTrackPager.setCurrentItem(playlistManager == null ? 0 : playlistManager.getPosition());
 
-        mTrackPager.configureFromService(this, playQueueManager, queuePosition);
         setBufferingState();
-
-        mTrackPagerAdapter.clearCommentingPosition();
         setPlaybackState();
     }
 

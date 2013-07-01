@@ -1,11 +1,10 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
@@ -60,23 +59,15 @@ public class PlayerTrackPager extends ViewPager {
         });
     }
 
-
+    public void refreshAdapter() {
+        // set to null first as it will force item reinstantiation of objects
+        final PagerAdapter adapter = getAdapter();
+        super.setAdapter(null);
+        super.setAdapter(adapter);
+    }
 
     public void setListener(OnTrackPageListener listener) {
         mTrackPagerScrollListener = listener;
-    }
-
-    @Deprecated
-    public void configureFromService(ScPlayer player, @Nullable PlayQueueManager playQueueManager, int playPosition) {
-        final long queueLength = playQueueManager == null ? 1 : playQueueManager.length();
-        if (playPosition == -1) playPosition = playQueueManager == null ? 0 : playQueueManager.getPosition();
-
-        final boolean onLastTrack = playPosition == queueLength - 1;
-
-        setCurrentItem(playPosition == 0 ? 0 : // beginning
-                onLastTrack ? mViews.size() - 1 : // end
-                1, // middle
-                false); // no animate
     }
 
     public void prev() {
