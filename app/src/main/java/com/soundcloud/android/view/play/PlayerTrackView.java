@@ -213,9 +213,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             if (mTrackFlipper != null) {
                 onTrackDetailsFlip(mTrackFlipper, false);
             }
-
-            setCommentMode(mPlayer.getCommentPosition() == queuePosition, false);
-
         }
     }
 

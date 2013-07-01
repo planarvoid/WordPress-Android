@@ -64,14 +64,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private PlayerTrackPager mTrackPager;
     private TransportBar mTransportBar;
     private @Nullable CloudPlaybackService mPlaybackService;
-    private int mPendingPlayPosition = -1, mCommentingPosition = -1;
+    private int mPendingPlayPosition = -1;
     private AccountOperations mAccountOperations;
     private AndroidCloudAPI mAndroidCloudAPI;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
-
-    public int getCommentPosition() {
-        return mCommentingPosition;
-    }
 
     public interface PlayerError {
         int PLAYBACK_ERROR    = 0;
@@ -134,7 +130,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             mChangeTrackFast = false;
         }
 
-        mTransportBar.setIsCommenting(getCurrentDisplayedTrackPosition() == mCommentingPosition);
+        mTransportBar.setIsCommenting(mTrackPager.getCurrentItem() == mTrackPagerAdapter.getCommentingPosition());
     }
 
     public void toggleShowingComments() {
@@ -233,22 +229,14 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     @Override
     protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
-        //TODO
         if (isConnected) {
-            if (mTrackPager != null) {
-                for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
-                    ptv.onDataConnected();
-                }
-            }
+            mTrackPagerAdapter.onConnected();
         }
     }
 
     @Override
     protected void onDestroy() {
-        // TODO
-//        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()) {
-//            ptv.onDestroy();
-//        }
+        mTrackPagerAdapter.onDestroy();
         super.onDestroy();
     }
 
@@ -354,9 +342,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     protected void onStop() {
         super.onStop();
         unbindService(osc);
-//        for (PlayerTrackView ptv : mTrackPager.playerTrackViews()){
-//            ptv.onStop(true);
-//        }
+        mTrackPagerAdapter.onStop();
 
         mActivityPaused = true;
         mHandler.removeMessages(REFRESH);
@@ -367,8 +353,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private final View.OnClickListener mCommentListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mCommentingPosition = ((CompoundButton) v).isChecked() ? getCurrentDisplayedTrackPosition() : -1;
-            //setCommentMode(true);
+            if (((CompoundButton) v).isChecked()){
+                mTrackPagerAdapter.setCommentingPosition(getCurrentDisplayedTrackPosition());
+            } else {
+                mTrackPagerAdapter.clearCommentingPosition();
+            }
         }
     };
 
@@ -585,7 +574,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTrackPager.configureFromService(this, playQueueManager, queuePosition);
         setBufferingState();
 
-        //setCommentMode(false);
+        mTrackPagerAdapter.clearCommentingPosition();
         setPlaybackState();
     }
 

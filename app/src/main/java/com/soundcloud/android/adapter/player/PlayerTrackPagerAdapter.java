@@ -7,7 +7,6 @@ import com.soundcloud.android.adapter.BasePagerAdapter;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.play.PlayerTrackView;
 
 import android.view.View;
@@ -31,6 +30,33 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         return mPlayerViewsById.keySet();
     }
 
+    public int getCommentingPosition() {
+        return mCommentingPosition;
+    }
+
+    public void onConnected() {
+        for (PlayerTrackView ptv : getPlayerTrackViews()) {
+            ptv.onDestroy();
+        }
+    }
+
+    public void onStop() {
+        for (PlayerTrackView ptv : getPlayerTrackViews()) {
+            ptv.onStop(true);
+        }
+    }
+
+    public void onDestroy() {
+        for (PlayerTrackView ptv : getPlayerTrackViews()) {
+            ptv.onDestroy();
+        }
+    }
+
+    public void setCommentingPosition(int commentingPosition) {
+        mCommentingPosition = commentingPosition;
+        getPlayerTrackViewByPosition(commentingPosition).setCommentMode(true);
+    }
+
     private PlayQueueManager getPlayQueueManager(){
         if (mPlayQueueManager == null) mPlayQueueManager = CloudPlaybackService.getPlaylistManager();
         return mPlayQueueManager;
@@ -44,6 +70,9 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     public void clearCommentingPosition() {
         mCommentingPosition = -1;
+        for (PlayerTrackView playerTrackView : mPlayerViewsById.keySet()){
+            playerTrackView.setCommentMode(false);
+        }
     }
 
     @Override
@@ -61,9 +90,11 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         }
 
         final PlayerTrackView playerTrackView = (PlayerTrackView) convertView;
-        Log.i("asdf", "Putting " + playerTrackView + " at " + dataItem.getPlayQueuePosition());
-        mPlayerViewsById.put(playerTrackView, dataItem.getPlayQueuePosition());
+        mPlayerViewsById.forcePut(playerTrackView, dataItem.getPlayQueuePosition());
+
+        //TODO consolidate these calls
         playerTrackView.setPlayQueueItem(dataItem);
+        playerTrackView.setCommentMode(mCommentingPosition == dataItem.getPlayQueuePosition());
         playerTrackView.setOnScreen(true);
         return convertView;
     }
