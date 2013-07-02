@@ -186,7 +186,7 @@
     </style>
 
     <style name="Tour.SignupButton" parent="Tour.BottomButton">
-        <item name="android:layout_marginRight">15dp</item>
+        <item name="android:layout_marginRight">16dp</item>
         <item name="android:background">@drawable/next_button_orange</item>
         <item name="android:textColor">#FFFFFFFF</item>
     </style>
@@ -1342,6 +1342,15 @@
 
     <style name="OnboardSuggestedUserGridView">
         <item name="android:numColumns">1</item>
+    </style>
+    <style name="TourOverlayTextHolderLayout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:tag">parallax</item>
+        <item name="android:layout_marginBottom">@dimen/tour_bottom_bar_height</item>
+        <item name="android:layout_alignParentBottom">true</item>
     </style>
 
 </resources>
