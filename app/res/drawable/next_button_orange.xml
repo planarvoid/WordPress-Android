@@ -1,32 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true">
-        <layer-list>
-            <item>
-                <shape android:shape="rectangle" >
-                    <corners android:radius="4dp" />
-                    <gradient android:type="linear"
-                              android:angle="270"
-                              android:startColor="#CCde3700"
-                              android:centerColor="#df330b"
-                              android:endColor="#e02e16"/>
-                </shape>
-            </item>
-        </layer-list>
-    </item>
+    <item android:state_enabled="false" android:drawable="@drawable/btn_gradient_disabled" />
+    <item android:state_enabled="false" android:state_focused="true" android:drawable="@drawable/btn_gradient_disabled_focused" />
 
-    <item>
-        <layer-list>
-            <item>
-                <shape android:shape="rectangle" >
-                    <corners android:radius="4dp" />
-                    <gradient android:type="linear"
-                              android:angle="270"
-                              android:startColor="#F76700"
-                              android:centerColor="#f94b0d"
-                              android:endColor="#FA3219"/>
-                </shape>
-            </item>
-        </layer-list>
-    </item>
+    <item android:state_pressed="true" android:drawable="@drawable/btn_gradient_pressed" />
+    <item android:state_focused="true" android:drawable="@drawable/btn_gradient_focused" />
+    <item android:drawable="@drawable/btn_gradient_normal" />
 </selector>
-

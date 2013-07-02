@@ -1,73 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false">
-            <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-                <item>
-                    <shape android:shape="rectangle">
-                        <corners android:radius="4dp" />
-                        <gradient android:startColor="#C0C0C0"
-                                  android:centerColor="#B5B5B5"
-                                  android:endColor="#C2C2C2"
-                                  android:angle="270"/>
+    <item android:state_enabled="false" android:drawable="@drawable/btn_white_disabled" />
+    <item android:state_enabled="false" android:state_focused="true" android:drawable="@drawable/btn_white_disabled_focused" />
 
-                    </shape>
-                </item>
-                <item>
-                    <shape android:shape="rectangle">
-                        <corners android:radius="4dp" />
-                        <stroke android:color="#60666666" android:width="1dp"/>
-                        <solid android:color="@android:color/transparent"/>
-                    </shape>
-                </item>
-            </layer-list>
-        </item>
-    <item android:state_pressed="true">
-        <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-            <item>
-                <shape android:shape="rectangle">
-                    <corners android:radius="4dp" />
-                    <gradient android:startColor="#F0F0F0"
-                              android:centerColor="#E5E5E5"
-                              android:endColor="#F2F2F2"
-                              android:angle="270"/>
-
-                </shape>
-            </item>
-            <item>
-                <shape android:shape="rectangle">
-                    <corners android:radius="4dp" />
-                    <stroke android:color="#60666666" android:width="1dp"/>
-                    <solid android:color="@android:color/transparent"/>
-                </shape>
-            </item>
-        </layer-list>
-    </item>
-
-    <item>
-        <layer-list>
-            <item>
-                <shape android:shape="rectangle">
-                    <corners android:radius="4dp" />
-                    <gradient android:startColor="#FFFFFF"
-                              android:endColor="#F2F2F2"
-                              android:angle="270"/>
-
-                </shape>
-            </item>
-            <item>
-                <shape android:shape="rectangle">
-                    <corners android:radius="4dp" />
-                    <stroke android:color="#66FFFFFF" android:width="2dp"/>
-                    <solid android:color="@android:color/transparent"/>
-                </shape>
-            </item>
-            <item>
-                <shape android:shape="rectangle">
-                    <corners android:radius="4dp" />
-                    <stroke android:color="#e3e3e3" android:width="1dp"/>
-                    <solid android:color="@android:color/transparent"/>
-                </shape>
-            </item>
-        </layer-list>
-    </item>
+    <item android:state_pressed="true" android:drawable="@drawable/btn_white_pressed" />
+    <item android:state_focused="true" android:drawable="@drawable/btn_white_focused" />
+    <item android:drawable="@drawable/btn_white_normal" />
 </selector>
-
