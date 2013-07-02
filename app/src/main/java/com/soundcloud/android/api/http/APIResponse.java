@@ -52,6 +52,10 @@ public class APIResponse {
         return mStatusCode == SC_REQUEST_TOO_MANY_REQUESTS;
     }
 
+    public boolean responseCodeisForbidden(){
+        return mStatusCode == HttpStatus.SC_FORBIDDEN;
+    }
+
     public boolean hasResponseBody(){
         return !isNullOrEmpty(nullToEmpty(mResponseBody).trim());
     }

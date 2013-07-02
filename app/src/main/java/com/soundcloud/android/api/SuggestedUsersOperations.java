@@ -10,18 +10,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Collections2;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.observers.ScSuccessObserver;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
-import com.soundcloud.android.utils.Log;
 import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import java.util.Collection;
@@ -38,20 +37,14 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     };
 
     private final RxHttpClient mRxHttpClient;
-    private final UserAssociationStorage mUserAssociationStorage;
 
     public SuggestedUsersOperations() {
         this(new SoundCloudRxHttpClient(ScSchedulers.API_SCHEDULER));
     }
 
-    public SuggestedUsersOperations(SoundCloudRxHttpClient soundCloudRxHttpClient) {
-        this(soundCloudRxHttpClient, new UserAssociationStorage());
-    }
-
     @VisibleForTesting
-    protected SuggestedUsersOperations(RxHttpClient rxHttpClient, UserAssociationStorage userAssociationStorage) {
+    public SuggestedUsersOperations(SoundCloudRxHttpClient rxHttpClient) {
         mRxHttpClient = rxHttpClient;
-        mUserAssociationStorage = userAssociationStorage;
     }
 
     public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
@@ -74,31 +67,39 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         return schedule(Observable.merge(getMusicAndSoundsSuggestions(), getFacebookSuggestions()));
     }
 
-    public boolean bulkFollowAssociations(Collection<UserAssociation> userAssociations) {
-        Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
-        Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
+    public Observable<Void> bulkFollowAssociations(final Collection<UserAssociation> userAssociations) {
 
-        if(tokens.isEmpty()){
-            return true;
-        }
+        Observable<APIRequest<Void>> requestObservable = Observable.create(new Func1<Observer<APIRequest<Void>>, Subscription>() {
+            @Override
+            public Subscription call(Observer<APIRequest<Void>> apiRequestObserver) {
+                Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
+                Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
+                try {
+                    if (!tokens.isEmpty()) {
+                        final String bulkFollowJsonContent = new ObjectMapper().writeValueAsString(new BulkFollowingsJsonCreator(tokens));
+                        APIRequest<Void> request = RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
+                                .forPublicAPI()
+                                .withJsonContent(bulkFollowJsonContent)
+                                .build();
 
-        try {
-            final String bulkFollowJsonContent = new ObjectMapper().writeValueAsString(new BulkFollowingsJsonCreator(tokens));
-            APIRequest<Void> request = RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
-                    .forPublicAPI()
-                    .withJsonContent(bulkFollowJsonContent)
-                    .build();
+                        apiRequestObserver.onNext(request);
+                    }
+                    apiRequestObserver.onCompleted();
 
-            ScSuccessObserver<Void> successObserver = new BulkFollowObserver(associationsWithTokens, mUserAssociationStorage);
-            mRxHttpClient.executeAPIRequest(request).toBlockingObservable().subscribe(successObserver);
-            return successObserver.wasSuccess();
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                    apiRequestObserver.onError(e);
+                }
+                return Subscriptions.empty();
+            }
+        });
 
-        } catch (JsonProcessingException e) {
-            Log.e(SoundCloudApplication.TAG, "Error processing bulk follow json", e);
-        }
-
-        return false;
-
+        return requestObservable.flatMap(new Func1<APIRequest<Void>, Observable<Void>>() {
+            @Override
+            public Observable<Void> call(APIRequest<Void> voidAPIRequest) {
+                return mRxHttpClient.executeAPIRequest(voidAPIRequest);
+            }
+        });
     }
 
     private static class BulkFollowingsJsonCreator {
@@ -109,23 +110,4 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         Collection<String> tokens;
     }
 
-    protected static class BulkFollowObserver extends ScSuccessObserver<Void> {
-
-        private UserAssociationStorage mUserAssociationStorage;
-        private Collection<UserAssociation> mUserAssociations;
-
-        public BulkFollowObserver(Collection<UserAssociation> userAssociations, UserAssociationStorage userAssociationStorage) {
-            mUserAssociations = userAssociations;
-            mUserAssociationStorage = userAssociationStorage;
-
-        }
-
-        @Override
-        public void onCompleted() {
-            for(UserAssociation userAssociation : mUserAssociations){
-                mUserAssociationStorage.setFollowingAsSynced(userAssociation);
-            }
-            super.onCompleted();
-        }
-    }
 }

@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Observer;
 import rx.Scheduler;
 
 import android.os.Bundle;
@@ -86,7 +85,7 @@ public class SuggestedUsersCategoryFragmentTest {
         when(followingOperations.addFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(1)))).thenReturn(observable);
         fragment.toggleFollowings(true);
 
-        verify(observable).subscribe(any(Observer.class));
+        verify(observable).subscribe(any());
         verify(gridView, times(2)).setItemChecked(0, true);
         verify(gridView).setItemChecked(1, true);
         verify(gridView, times(2)).setItemChecked(2, true);
@@ -97,7 +96,7 @@ public class SuggestedUsersCategoryFragmentTest {
         when(followingOperations.removeFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(0), suggestedUsers.get(2)))).thenReturn(observable);
         fragment.toggleFollowings(false);
 
-        verify(observable).subscribe(any(Observer.class));
+        verify(observable).subscribe(any());
         verify(gridView).setItemChecked(0, false);
         verify(gridView, times(2)).setItemChecked(1, false);
         verify(gridView).setItemChecked(2, false);
