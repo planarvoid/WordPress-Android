@@ -150,7 +150,7 @@ public class FollowingOperations extends ScheduledOperations {
         mFollowStatus.requestUserFollowings(listener);
     }
 
-    public void clearState() {
+    public static void clearState() {
         FollowStatus.clearState();
     }
 
