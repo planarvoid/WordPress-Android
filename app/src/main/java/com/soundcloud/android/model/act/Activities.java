@@ -287,7 +287,7 @@ public class Activities extends CollectionHolder<Activity> {
     public String getFirstAvailableArtwork() {
         for (Activity a : this) {
             Playable p = a.getPlayable();
-            if (p != null && p.shouldLoadIcon()) {
+            if (p != null && p.shouldLoadArtwork()) {
                 return p.artwork_url;
             }
         }

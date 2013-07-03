@@ -409,6 +409,8 @@ public class WaveformController extends TouchLayout {
 
         if (changed) {
             hideWaiting();
+            clearTrackComments();
+            setProgress(0);
             stopSmoothProgress();
             determineProgressInterval();
         }

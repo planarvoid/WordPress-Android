@@ -88,7 +88,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTrackPager.setPageMargin((int) (5 * getResources().getDisplayMetrics().density));
         mTrackPager.setListener(this);
 
-        mTrackPagerAdapter = new PlayerTrackPagerAdapter(this);
+        mTrackPagerAdapter = new PlayerTrackPagerAdapter();
         mTrackPager.setAdapter(mTrackPagerAdapter);
 
         mTransportBar = (TransportBar) findViewById(R.id.transport_bar);
