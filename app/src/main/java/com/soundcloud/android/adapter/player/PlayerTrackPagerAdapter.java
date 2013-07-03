@@ -49,19 +49,13 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         }
     }
 
-    public void setCommentingPosition(int commentingPosition) {
+    public void setCommentingPosition(int commentingPosition, boolean animated) {
         mCommentingPosition = commentingPosition;
-        getPlayerTrackViewByPosition(commentingPosition).setCommentMode(true);
+        getPlayerTrackViewByPosition(commentingPosition).setCommentMode(true, animated);
     }
 
     public void setPlaceholderTrack(Track displayTrack) {
         mPlaceholderTrack = displayTrack;
-        notifyDataSetChanged();
-    }
-
-    public void clearForRefresh() {
-        clearCommentingPosition();
-        mPlaceholderTrack = null;
     }
 
     private PlayQueueManager getPlayQueueManager(){
@@ -79,10 +73,10 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         }
     }
 
-    public void clearCommentingPosition() {
+    public void clearCommentingPosition(boolean animated) {
         mCommentingPosition = -1;
         for (PlayerTrackView playerTrackView : mPlayerViewsById.keySet()){
-            playerTrackView.setCommentMode(false);
+            playerTrackView.setCommentMode(false, animated);
         }
     }
 

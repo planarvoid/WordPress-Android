@@ -197,10 +197,20 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         super.onRestoreInstanceState(state);
     }
 
+    // TODO something else
     public void addNewComment(final Comment comment) {
-        mTrackPagerAdapter.clearCommentingPosition();
+        setCommentMode(false, true);
         pendingComment = comment;
         safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+    }
+
+    private void setCommentMode(boolean isCommenting, boolean animate) {
+        if (isCommenting) {
+            mTrackPagerAdapter.setCommentingPosition(getCurrentDisplayedTrackPosition(), animate);
+        } else {
+            mTrackPagerAdapter.clearCommentingPosition(animate);
+        }
+        mTransportBar.setIsCommenting(isCommenting);
     }
 
     @Override
@@ -263,6 +273,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         }
         if (displayTrack != null) {
             mTrackPagerAdapter.setPlaceholderTrack(displayTrack);
+            mTrackPagerAdapter.notifyDataSetChanged();
             mIgnoreServiceQueue = true;
         }
 
@@ -353,11 +364,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private final View.OnClickListener mCommentListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (((CompoundButton) v).isChecked()){
-                mTrackPagerAdapter.setCommentingPosition(getCurrentDisplayedTrackPosition());
-            } else {
-                mTrackPagerAdapter.clearCommentingPosition();
-            }
+            setCommentMode(((CompoundButton) v).isChecked(), true);
         }
     };
 
@@ -565,12 +572,13 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private void refreshTrackPager() {
-        mTrackPagerAdapter.clearForRefresh();
+        mTrackPagerAdapter.setPlaceholderTrack(null);
         mTrackPager.refreshAdapter();
 
         final PlayQueueManager playlistManager = getPlaylistManager();
         mTrackPager.setCurrentItem(playlistManager == null ? 0 : playlistManager.getPosition());
 
+        setCommentMode(false, false);
         setBufferingState();
         setPlaybackState();
     }
