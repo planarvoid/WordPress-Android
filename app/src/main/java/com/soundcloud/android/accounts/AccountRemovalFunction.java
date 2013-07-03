@@ -92,7 +92,7 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
 
 
         mC2DMReceiver.unregister(mContext);
-        new FollowingOperations().clearState();
+        FollowingOperations.clearState();
         ConnectionsCache.reset();
         SoundCloudApplication applicationContext = (SoundCloudApplication)mContext.getApplicationContext();
         applicationContext.clearLoggedInUser();
