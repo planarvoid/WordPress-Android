@@ -1,10 +1,13 @@
 package com.soundcloud.android.view.play;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -34,9 +37,6 @@ public class CommentPanel extends RelativeLayout {
     private final ImageButton mBtnClose;
     protected final TextView mTxtComment;
 
-    private WaveformController mController;
-    private ScPlayer mPlayer;
-
     /* package */ boolean interacted, closing;
 
     private final String at_timestamp;
@@ -47,6 +47,12 @@ public class CommentPanel extends RelativeLayout {
     private final int mPlayheadArrowWidth;
     private final int mPlayheadArrowHeight;
 
+    private CommentPanelListener mListener;
+
+    public interface CommentPanelListener {
+        void onNextCommentInThread();
+        void onCloseComment();
+    }
 
     public CommentPanel(Context context, boolean isLandscape) {
         super(context);
@@ -70,9 +76,9 @@ public class CommentPanel extends RelativeLayout {
         mIcon.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mPlayer, UserBrowser.class);
+                Intent intent = new Intent(getContext(), UserBrowser.class);
                 intent.putExtra("user", mComment.user);
-                mPlayer.startActivity(intent);
+                getContext().startActivity(intent);
             }
 
         });
@@ -93,15 +99,17 @@ public class CommentPanel extends RelativeLayout {
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (mComment != null && mComment.track != null){
-                    mPlayer.addNewComment(
-                            Comment.build(
+                if (mComment != null && mComment.track != null) {
+                    Intent intent = new Intent(Comment.ACTION_CREATE_COMMENT)
+                            .putExtra(Comment.EXTRA, Comment.build(
                                     mComment.track,
-                                    mPlayer.getApp().getLoggedInUser(),
+                                    SoundCloudApplication.fromContext(getContext()).getLoggedInUser(),
                                     mComment.timestamp,
                                     "",
                                     mComment.getId(),
                                     mComment.user.username));
+                    getContext().sendBroadcast(intent);
+
                 }
                 return true;
             }
@@ -110,7 +118,7 @@ public class CommentPanel extends RelativeLayout {
         mTxtReadOn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mController.nextCommentInThread();
+                mListener.onNextCommentInThread();
             }
 
         });
@@ -120,9 +128,9 @@ public class CommentPanel extends RelativeLayout {
         mTxtUsername.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mPlayer, UserBrowser.class);
+                Intent intent = new Intent(getContext(), UserBrowser.class);
                 intent.putExtra("user", mComment.user);
-                mPlayer.startActivity(intent);
+                getContext().startActivity(intent);
             }
 
         });
@@ -131,7 +139,7 @@ public class CommentPanel extends RelativeLayout {
             mBtnClose.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mController.closeComment(true);
+                    mListener.onCloseComment();
                 }
             });
 
@@ -145,9 +153,9 @@ public class CommentPanel extends RelativeLayout {
         interacted = false;
     }
 
-    protected void setControllers(ScPlayer player, WaveformController controller) {
-        mPlayer = player;
-        mController = controller;
+
+    public void setListener(CommentPanelListener commentPanelListener) {
+        mListener = commentPanelListener;
     }
 
     protected void showComment(final Comment current) {

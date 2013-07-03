@@ -1,8 +1,11 @@
 package com.soundcloud.android.adapter.player;
 
+import static com.soundcloud.android.view.play.PlayerTrackView.PlayerTrackViewListener;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.adapter.BasePagerAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -92,13 +95,18 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     @Override
     protected View getView(PlayQueueItem dataItem, View convertView, ViewGroup parent) {
+        PlayerTrackView playerTrackView;
+        if (convertView == null) {
+            playerTrackView = (PlayerTrackView) View.inflate(parent.getContext(), R.layout.player_track_view, null);
+        } else {
+            playerTrackView = (PlayerTrackView) convertView;
+        }
 
-        final PlayerTrackView playerTrackView = convertView != null ? (PlayerTrackView) convertView :
-                (PlayerTrackView) View.inflate(parent.getContext(), R.layout.player_track_view, null);
 
         mPlayerViewsById.forcePut(playerTrackView, dataItem.getPlayQueuePosition());
 
         //TODO consolidate these calls
+
         playerTrackView.setPlayQueueItem(dataItem);
         playerTrackView.setCommentMode(mCommentingPosition == dataItem.getPlayQueuePosition());
         playerTrackView.setOnScreen(true);

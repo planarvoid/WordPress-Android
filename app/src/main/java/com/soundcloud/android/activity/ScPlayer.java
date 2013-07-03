@@ -8,10 +8,10 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.adapter.player.PlayerTrackPagerAdapter;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.TrackStorage;
+import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -48,11 +48,10 @@ import android.widget.CompoundButton;
 
 import java.lang.ref.WeakReference;
 
-public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener {
+public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener {
     public static final int REFRESH_DELAY = 1000;
 
     private static final String STATE_PAGER_QUEUE_POSITION = "pager_queue_position";
-    private static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
     private static final int REFRESH = 1;
     private static final int SEND_CURRENT_QUEUE_POSITION = 2;
     private static final long TRACK_SWIPE_UPDATE_DELAY = 1000;
@@ -60,12 +59,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     public static final boolean SMOOTH_PROGRESS = Build.VERSION.SDK_INT >= WaveformController.MINIMUM_SMOOTH_PROGRESS_SDK;
 
     private long mSeekPos = -1;
-    private boolean mActivityPaused, mChangeTrackFast, mShouldShowComments, mIgnoreServiceQueue;
+    private boolean mActivityPaused, mChangeTrackFast, mIgnoreServiceQueue;
     private PlayerTrackPager mTrackPager;
     private TransportBar mTransportBar;
     private @Nullable CloudPlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1;
-    private AccountOperations mAccountOperations;
     private AndroidCloudAPI mAndroidCloudAPI;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
 
@@ -81,7 +79,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.sc_player);
-        mAccountOperations = new AccountOperations(this);
+
         mAndroidCloudAPI = new OldCloudAPI(this);
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
         mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);
@@ -96,8 +94,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTransportBar.setOnNextListener(mNextListener);
         mTransportBar.setOnPauseListener(mPauseListener);
         mTransportBar.setOnCommentListener(mCommentListener);
-
-        mShouldShowComments = mAccountOperations.getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -133,46 +129,34 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTransportBar.setIsCommenting(mTrackPager.getCurrentItem() == mTrackPagerAdapter.getCommentingPosition());
     }
 
-    public void toggleShowingComments() {
-        mShouldShowComments = !mShouldShowComments;
-        mAccountOperations.setAccountData(PLAYER_SHOWING_COMMENTS, Boolean.toString(mShouldShowComments));
+    @Override
+    public long sendSeek(float seekPercent) {
+        if (CloudPlaybackService.isSeekable() && mPlaybackService != null) {
+            mSeekPos = -1;
+            return mPlaybackService.seek(seekPercent, true);
+        } else {
+            return -1;
+        }
     }
 
-    public boolean shouldShowComments() {
-        return mShouldShowComments;
-    }
-
+    @Override
     public long setSeekMarker(int queuePosition, float seekPercent) {
         final PlayQueueManager playlistManager = getPlaylistManager();
         if (mPlaybackService != null && playlistManager != null) {
             if (playlistManager.getPosition() != queuePosition) {
                 mPlaybackService.setQueuePosition(queuePosition);
             } else {
-                if (!mPlaybackService.isSeekable()) {
-                    mSeekPos = -1;
-                    return mPlaybackService.getProgress();
-                } else {
+                if (CloudPlaybackService.isSeekable()) {
                     // returns where would we be if we had seeked
                     mSeekPos = mPlaybackService.seek(seekPercent, false);
                     return mSeekPos;
+                } else {
+                    mSeekPos = -1;
+                    return mPlaybackService.getProgress();
                 }
             }
         }
-
         return -1;
-    }
-
-    public long sendSeek(float seekPercent) {
-
-        if (mPlaybackService == null || !mPlaybackService.isSeekable()) {
-            return -1;
-        }
-        mSeekPos = -1;
-        return mPlaybackService.seek(seekPercent,true);
-    }
-
-    public boolean isSeekable() {
-        return !(mPlaybackService == null || !mPlaybackService.isSeekable());
     }
 
     public void onNewComment(Comment comment) {
@@ -180,6 +164,18 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         if (ptv != null){
             ptv.onNewComment(comment);
         }
+    }
+
+    @Override
+    public void onAddToPlaylist(Track track) {
+        if (track != null && isForeground()) {
+            MyPlaylistsDialogFragment.from(track).show(getSupportFragmentManager(), "playlist_dialog");
+        }
+    }
+
+    @Override
+    public void onCloseCommentMode() {
+        setCommentMode(false, true);
     }
 
     @Override
@@ -339,6 +335,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         f.addAction(Playable.ACTION_SOUND_INFO_UPDATED);
         f.addAction(Playable.ACTION_SOUND_INFO_ERROR);
         f.addAction(Playable.COMMENTS_UPDATED);
+        f.addAction(Comment.ACTION_CREATE_COMMENT);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
 
@@ -407,7 +404,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                         refreshTrackPager();
                     }
 
-                } else if (isSeekable()) {
+                } else if (CloudPlaybackService.isSeekable()) {
                     mPlaybackService.seek(0, true);
 
                 } else {
@@ -520,7 +517,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 }
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 onMetaChanged(queuePos);
-
+            } else if (action.equals(Comment.ACTION_CREATE_COMMENT)) {
+                addNewComment(intent.<Comment>getParcelableExtra(Comment.EXTRA));
             } else {
 
                 if (CloudPlaybackService.PLAYBACK_COMPLETE.equals(action) || action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
