@@ -17,11 +17,14 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import rx.Observable;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +42,9 @@ public class FollowingOperationsTest {
     private List<User> users;
     private SuggestedUser suggestedUser;
     private List<SuggestedUser> suggestedUsers;
+
+    @Mock
+    Observable observable;
 
     @Before
     public void before() throws CreateModelException {
@@ -119,16 +125,18 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldForceStreamToStaleIfFirstFollowingFromAddition() {
-        when(followStatus.isEmpty()).thenReturn(true);
+        when (syncStateManager.forceToStale(Content.ME_SOUND_STREAM)).thenReturn(observable);
+        when(followStatus.isEmpty()).thenReturn(true, false);
         ops.addFollowing(user);
-        verify(syncStateManager).forceToStale(Content.ME_SOUND_STREAM);
+        verify(observable).subscribe(ScActions.NO_OP);
     }
 
     @Test
     public void shouldForceStreamToStaleIfFirstFollowingFromListAddition() {
-        when(followStatus.isEmpty()).thenReturn(true);
+        when (syncStateManager.forceToStale(Content.ME_SOUND_STREAM)).thenReturn(observable);
+        when(followStatus.isEmpty()).thenReturn(true, false);
         ops.addFollowings(users);
-        verify(syncStateManager).forceToStale(Content.ME_SOUND_STREAM);
+        verify(observable).subscribe(ScActions.NO_OP);
     }
 
     @Test

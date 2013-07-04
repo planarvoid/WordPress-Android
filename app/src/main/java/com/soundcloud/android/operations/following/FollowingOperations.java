@@ -10,12 +10,12 @@ import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -30,6 +30,7 @@ public class FollowingOperations extends ScheduledOperations {
         this(new UserAssociationStorage(), FollowStatus.get(), new SyncStateManager(), SoundCloudApplication.MODEL_MANAGER);
     }
 
+    // TODO, rollback memory state on error
     public FollowingOperations(UserAssociationStorage userAssociationStorage, FollowStatus followStatus,
                                SyncStateManager syncStateManager, ScModelManager modelManager){
         mUserAssociationStorage = userAssociationStorage;
@@ -109,26 +110,19 @@ public class FollowingOperations extends ScheduledOperations {
         FollowStatus.clearState();
     }
 
-    private List<User> getUsersFromSuggestedUsers(List<SuggestedUser> suggestedUsers) {
-        List<User> users = new ArrayList<User>(suggestedUsers.size());
-        for (SuggestedUser suggestedUser : suggestedUsers){
-            users.add(new User(suggestedUser));
-        }
-        return users;
-    }
 
-    private void updateLocalStatus(boolean newStatus, long... userIds) {
+    private void updateLocalStatus(boolean shouldFollow, long... userIds) {
         final boolean hadNoFollowings = mFollowStatus.isEmpty();
         // update followings ID cache
         mFollowStatus.toggleFollowing(userIds);
-
-        // first follower, set the stream to stale so next time the users goes there it will sync
-        if (hadNoFollowings && userIds.length > 0) mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM);
-
         // make sure the cache reflects the new state of each following
         for (long userId : userIds) {
             final User cachedUser = mModelManager.getCachedUser(userId);
-            if (cachedUser != null) cachedUser.user_following = newStatus;
+            if (cachedUser != null) cachedUser.user_following = shouldFollow;
+        }
+        // invalidate stream SyncState if necessary
+        if (hadNoFollowings && !mFollowStatus.isEmpty()){
+            mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM).subscribe(ScActions.NO_OP);
         }
     }
 
