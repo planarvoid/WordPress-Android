@@ -6,9 +6,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.api.http.APIRequestException;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.UserAssociationStorage;
@@ -26,6 +24,7 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.Scheduler;
 import rx.concurrency.Schedulers;
 
 import android.content.ContentResolver;
@@ -45,23 +44,28 @@ public class UserAssociationSyncer extends SyncStrategy {
     private static final int BULK_INSERT_BATCH_SIZE = 500;
     private static final String REQUEST_NO_BACKOFF = "0";
 
-    private final CollectionStorage mCollectionStorage;
-    private final UserAssociationStorage mUserAssociationStorage;
+    private CollectionStorage mCollectionStorage;
+    private UserAssociationStorage mUserAssociationStorage;
+    private FollowingOperations mFollowingOperations;
     private int mBulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
-    private SuggestedUsersOperations mSuggestedUsersOperations;
 
     public UserAssociationSyncer(Context context) {
-        this(context, context.getContentResolver(), new UserAssociationStorage(context.getContentResolver()),
-                new SuggestedUsersOperations(new SoundCloudRxHttpClient(Schedulers.immediate())));
+        super(context, context.getContentResolver());
+        Scheduler scheduler = Schedulers.currentThread();
+        init(new UserAssociationStorage(scheduler, context.getContentResolver()), new FollowingOperations(scheduler));
     }
 
     @VisibleForTesting
     protected UserAssociationSyncer(Context context, ContentResolver resolver, UserAssociationStorage userAssociationStorage,
-                                    SuggestedUsersOperations suggestedUsersOperations) {
+                                    FollowingOperations followingOperations) {
         super(context, resolver);
-        mSuggestedUsersOperations = suggestedUsersOperations;
-        mCollectionStorage = new CollectionStorage();
+        init(userAssociationStorage, followingOperations);
+    }
+
+    private void init(UserAssociationStorage userAssociationStorage, FollowingOperations followingOperations) {
+        mFollowingOperations = followingOperations;
         mUserAssociationStorage = userAssociationStorage;
+        mCollectionStorage = new CollectionStorage();
     }
 
     public void setBulkInsertBatchSize(int bulkInsertBatchSize) {
@@ -200,7 +204,7 @@ public class UserAssociationSyncer extends SyncStrategy {
             }
 
             final BulkFollowObserver observer = new BulkFollowObserver(associationsNeedingSync, mUserAssociationStorage, new FollowingOperations());
-            mSuggestedUsersOperations.bulkFollowAssociations(associationsNeedingSync).subscribe(observer);
+            mFollowingOperations.bulkFollowAssociations(associationsNeedingSync).subscribe(observer);
             result.success = observer.wasSuccess();
         }
         return result;

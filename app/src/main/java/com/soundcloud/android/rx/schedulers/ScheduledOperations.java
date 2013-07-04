@@ -13,6 +13,10 @@ public abstract class ScheduledOperations {
     protected ScheduledOperations() {
     }
 
+    protected ScheduledOperations(@Nullable Scheduler subscribeOn) {
+        mSubscribeOn = subscribeOn;
+    }
+
     protected ScheduledOperations(@Nullable Scheduler subscribeOn, @Nullable Scheduler observeOn) {
         mSubscribeOn = subscribeOn;
         mObserveOn = observeOn;

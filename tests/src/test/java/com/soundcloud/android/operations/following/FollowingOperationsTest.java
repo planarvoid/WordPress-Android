@@ -1,19 +1,25 @@
 package com.soundcloud.android.operations.following;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
+import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -23,9 +29,12 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Observer;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,34 +42,45 @@ import java.util.List;
 public class FollowingOperationsTest {
 
     private FollowingOperations ops;
+
+    @Mock
     private UserAssociationStorage userAssociationStorage;
+    @Mock
     private FollowStatus followStatus;
+    @Mock
     private SyncStateManager syncStateManager;
+    @Mock
     private ScModelManager scModelManager;
+    @Mock
+    private SoundCloudRxHttpClient soundCloudRxHttpClient;
+    @Mock
+    private UserAssociation userAssociationsOne;
+    @Mock
+    private UserAssociation userAssociationsTwo;
+    @Mock
+    private Observable observable;
+    @Mock
+    private Observer<Void> voidObserver;
 
     private User user;
     private List<User> users;
     private SuggestedUser suggestedUser;
     private List<SuggestedUser> suggestedUsers;
-
-    @Mock
-    Observable observable;
+    private Collection<UserAssociation> userAssociations;
 
     @Before
     public void before() throws CreateModelException {
-        userAssociationStorage = mock(UserAssociationStorage.class);
-        followStatus = mock(FollowStatus.class);
-        syncStateManager = mock(SyncStateManager.class);
-        scModelManager = mock(ScModelManager.class);
         when(scModelManager.cache(any(User.class), any(ScResource.CacheUpdateMode.class))).thenReturn(mock(User.class));
 
-        ops = new FollowingOperations(userAssociationStorage, followStatus, syncStateManager, scModelManager);
+        ops = new FollowingOperations(soundCloudRxHttpClient, userAssociationStorage, syncStateManager, followStatus, scModelManager);
 
         user = TestHelper.getModelFactory().createModel(User.class);
         users = TestHelper.createUsers(5);
 
         suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
         suggestedUsers = TestHelper.createSuggestedUsers(3);
+
+        userAssociations = Lists.newArrayList(userAssociationsOne, userAssociationsTwo);
     }
 
     @Test
@@ -183,4 +203,56 @@ public class FollowingOperationsTest {
         ops.removeFollowings(users);
         verify(userAssociationStorage).removeFollowings(users);
     }
+
+    @Test
+    public void shouldReturnTrueIfNoAssociationHasToken(){
+        ops.bulkFollowAssociations(userAssociations).subscribe(voidObserver);
+        verify(voidObserver).onCompleted();
+        verifyZeroInteractions(soundCloudRxHttpClient);
+        verifyZeroInteractions(userAssociationStorage);
+
+    }
+
+    @Test
+    public void shouldMakeAPostRequestWhenBulkFollowing() {
+        when(userAssociationsOne.getToken()).thenReturn("token1");
+        when(userAssociationsOne.hasToken()).thenReturn(true);
+        ops.bulkFollowAssociations(userAssociations).subscribe(voidObserver);
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getMethod()).toEqual("POST");
+    }
+
+    @Test
+    public void shouldMakeRequestToPublicAPIWhenBulkFollowing() {
+        when(userAssociationsOne.getToken()).thenReturn("token1");
+        when(userAssociationsOne.hasToken()).thenReturn(true);
+        ops.bulkFollowAssociations(userAssociations).subscribe(voidObserver);
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().isPrivate()).toBeFalse();
+    }
+
+    @Test
+    public void shouldAddTokensAsQueryParametersWhenBulkFollowing() {
+        when(userAssociationsOne.getToken()).thenReturn("token1");
+        when(userAssociationsTwo.getToken()).thenReturn("token2");
+        when(userAssociationsOne.hasToken()).thenReturn(true);
+        when(userAssociationsTwo.hasToken()).thenReturn(true);
+        ops.bulkFollowAssociations(userAssociations).subscribe(voidObserver);
+        ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
+        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        Object jsonContent = argumentCaptor.getValue().getContent();
+        expect(((FollowingOperations.BulkFollowingsHolder) jsonContent).tokens).toContainExactly("token1", "token2");
+    }
+
+    @Test
+    public void shouldReturnTrueIfBulkFollowingRequestSucceeds(){
+        when(soundCloudRxHttpClient.executeAPIRequest(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(userAssociationsOne.getToken()).thenReturn("token1");
+        when(userAssociationsOne.hasToken()).thenReturn(true);
+        ops.bulkFollowAssociations(userAssociations).subscribe(voidObserver);
+        verify(voidObserver).onCompleted();
+    }
+
 }

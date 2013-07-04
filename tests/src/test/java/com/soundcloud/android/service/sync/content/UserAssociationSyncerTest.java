@@ -80,7 +80,7 @@ public class UserAssociationSyncerTest {
         TestHelper.setUserId(USER_ID);
 
         userAssociationSyncer = new UserAssociationSyncer(Robolectric.application,
-                resolver, userAssociationStorage, suggestedUsersOperations);
+                resolver, userAssociationStorage, followingOperations);
         when(userAssociation.getUser()).thenReturn(user);
         when(userAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
     }
@@ -282,7 +282,7 @@ public class UserAssociationSyncerTest {
         for (UserAssociation association : usersAssociations) association.markForAddition();
 
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(usersAssociations);
-        when (suggestedUsersOperations.bulkFollowAssociations(usersAssociations)).thenReturn(observable);
+        when (followingOperations.bulkFollowAssociations(usersAssociations)).thenReturn(observable);
 
         expect(pushSyncMockedStorage(Content.ME_FOLLOWINGS.uri).success).toBeFalse();
 
@@ -309,9 +309,9 @@ public class UserAssociationSyncerTest {
         final ArrayList<UserAssociation> userAssociations = newArrayList(userAssociation, userAssociation, userAssociation);
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(userAssociations);
-        when (suggestedUsersOperations.bulkFollowAssociations(userAssociations)).thenReturn(observable);
+        when (followingOperations.bulkFollowAssociations(userAssociations)).thenReturn(observable);
         userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH);
-        verify(suggestedUsersOperations).bulkFollowAssociations(userAssociations);
+        verify(followingOperations).bulkFollowAssociations(userAssociations);
     }
 
     @Test
@@ -319,7 +319,7 @@ public class UserAssociationSyncerTest {
         when(userAssociation.hasToken()).thenReturn(true, true);
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(newArrayList(userAssociation, userAssociation));
-        when(suggestedUsersOperations.bulkFollowAssociations(anyList())).thenReturn(Observable.<Void>error(new IOException()));
+        when(followingOperations.bulkFollowAssociations(anyList())).thenReturn(Observable.<Void>error(new IOException()));
         expect(userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH).success).toBeFalse();
     }
 
@@ -328,7 +328,7 @@ public class UserAssociationSyncerTest {
         when(userAssociation.hasToken()).thenReturn(true, true);
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(newArrayList(userAssociation, userAssociation));
-        when(suggestedUsersOperations.bulkFollowAssociations(anyList())).thenReturn(Observable.<Void>empty());
+        when(followingOperations.bulkFollowAssociations(anyList())).thenReturn(Observable.<Void>empty());
         expect(userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH).success).toBeTrue();
     }
 

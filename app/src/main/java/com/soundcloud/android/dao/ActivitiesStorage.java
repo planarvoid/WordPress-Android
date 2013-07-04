@@ -31,7 +31,7 @@ public class ActivitiesStorage extends ScheduledOperations {
 
     public ActivitiesStorage(Context context) {
         mResolver = context.getContentResolver();
-        mSyncStateManager = new SyncStateManager(context);
+        mSyncStateManager = new SyncStateManager();
         mActivitiesDAO = new ActivityDAO(mResolver);
         subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }

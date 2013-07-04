@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
@@ -43,14 +44,14 @@ public class UserAssociationStorage extends ScheduledOperations {
     private final UserAssociationDAO mFollowingsDAO;
 
     public UserAssociationStorage() {
-        this(SoundCloudApplication.instance.getContentResolver());
+        this(ScSchedulers.STORAGE_SCHEDULER, SoundCloudApplication.instance.getContentResolver());
     }
 
-    public UserAssociationStorage(ContentResolver resolver) {
+    public UserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {
+        super(scheduler);
         mResolver = resolver;
         mUserAssociationDAO = new UserAssociationDAO(mResolver);
         mFollowingsDAO = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, mResolver);
-        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 
     public Observable<UserAssociation> getFollowings() {

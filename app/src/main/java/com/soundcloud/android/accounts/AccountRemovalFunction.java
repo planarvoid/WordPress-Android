@@ -37,7 +37,7 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
     private final C2DMReceiver mC2DMReceiver;
 
     public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context){
-        this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context), new ActivitiesStorage(context),
+        this(soundCloudAccount, context, accountManager, new SyncStateManager(), new CollectionStorage(context), new ActivitiesStorage(context),
                 SoundRecorder.getInstance(context), new PlayQueueManager(context), new C2DMReceiver());
     }
 

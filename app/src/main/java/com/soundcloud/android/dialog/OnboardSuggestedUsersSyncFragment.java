@@ -5,9 +5,9 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
-import com.soundcloud.android.service.sync.SyncOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
 
 import android.content.Intent;
@@ -15,41 +15,33 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
 
-    public static final int MAX_RETRIES = 3;
-
-    private int mTriesRemaining = MAX_RETRIES;
     private SyncStateManager mSyncStateManager;
-    private SyncOperations mSyncOperations;
+    private FollowingOperations mFollowingOperations;
 
     public OnboardSuggestedUsersSyncFragment() {
         this(new SyncStateManager(), null);
     }
-    public OnboardSuggestedUsersSyncFragment(SyncStateManager syncStateManager, SyncOperations syncOperations) {
+
+    public OnboardSuggestedUsersSyncFragment(SyncStateManager syncStateManager, FollowingOperations followingOperations) {
         mSyncStateManager = syncStateManager;
-        mSyncOperations = syncOperations;
+        mFollowingOperations = followingOperations;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        if (mSyncOperations == null){
-            mSyncOperations = new SyncOperations(getActivity());
+        if (mFollowingOperations == null){
+            mFollowingOperations = new FollowingOperations();
         }
         sendFollowingsPush();
     }
 
-    private boolean sendFollowingsPush() {
-        if (mTriesRemaining-- > 0){
-            mSyncOperations.pushFollowings().subscribe(new FollowingsSyncObserver(this));
-            return true;
-        } else {
-            return false;
-        }
+    private void sendFollowingsPush() {
+        mFollowingOperations.pushFollowings(getActivity()).subscribe(new FollowingsSyncObserver(this));
     }
 
     @Override
@@ -78,10 +70,7 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
 
         @Override
         public void onError(OnboardSuggestedUsersSyncFragment fragment, Exception error) {
-            if (fragment.sendFollowingsPush()) {
-                Toast.makeText(fragment.getActivity(), "Error pushing some of your followings", Toast.LENGTH_LONG).show();
-                fragment.finish(false);
-            }
+            fragment.finish(false);
         }
     }
 
