@@ -17,7 +17,6 @@ import com.soundcloud.android.api.http.json.JsonTransformer;
 import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -130,7 +129,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         }
     }
 
-    private Request createSCRequest(APIRequest<?> apiRequest) {
+    private Request createSCRequest(APIRequest<?> apiRequest) throws IOException {
         Request request = Request.to(apiRequest.getUriPath());
         final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();
 
@@ -146,9 +145,9 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
             request.add(key, transformedParameters.get(key));
         }
 
-        final String jsonContent = apiRequest.getJsonContent();
-        if (!ScTextUtils.isBlank(jsonContent)){
-            request.withContent(jsonContent, MediaType.JSON_UTF_8.toString());
+        final Object content = apiRequest.getContent();
+        if (content != null) {
+            request.withContent(mJsonTransformer.toJson(content), MediaType.JSON_UTF_8.toString());
         }
         return request;
     }

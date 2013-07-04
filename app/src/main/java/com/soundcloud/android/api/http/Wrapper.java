@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
@@ -127,7 +126,6 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
     public static ObjectMapper buildObjectMapper() {
         return new ObjectMapper().
                 configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).
-                configure(SerializationFeature.WRAP_ROOT_VALUE, true).
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).
                 setDateFormat(new CloudDateFormat());
     }
