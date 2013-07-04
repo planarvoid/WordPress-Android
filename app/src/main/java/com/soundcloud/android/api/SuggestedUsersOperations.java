@@ -13,7 +13,6 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import rx.Observable;
 import rx.Observer;
@@ -37,7 +36,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     private final RxHttpClient mRxHttpClient;
 
     public SuggestedUsersOperations() {
-        this(new SoundCloudRxHttpClient(ScSchedulers.API_SCHEDULER));
+        this(new SoundCloudRxHttpClient());
     }
 
     @VisibleForTesting
@@ -66,12 +65,20 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     }
 
     public Observable<Void> bulkFollowAssociations(final Collection<UserAssociation> userAssociations) {
+        return createApiRequestObservable(userAssociations).flatMap(new Func1<APIRequest<Void>, Observable<Void>>() {
+            @Override
+            public Observable<Void> call(APIRequest<Void> request) {
+                return mRxHttpClient.executeAPIRequest(request);
+            }
+        });
+    }
 
-        Observable<APIRequest<Void>> requestObservable = Observable.create(new Func1<Observer<APIRequest<Void>>, Subscription>() {
+    private Observable<APIRequest<Void>> createApiRequestObservable(final Collection<UserAssociation> userAssociations) {
+        return Observable.create(new Func1<Observer<APIRequest<Void>>, Subscription>() {
             @Override
             public Subscription call(Observer<APIRequest<Void>> apiRequestObserver) {
-                Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
-                Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
+                final Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
+                final Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
                 if (!tokens.isEmpty()) {
                     APIRequest<Void> request = RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
                             .forPublicAPI()
@@ -82,13 +89,6 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 }
                 apiRequestObserver.onCompleted();
                 return Subscriptions.empty();
-            }
-        });
-
-        return requestObservable.flatMap(new Func1<APIRequest<Void>, Observable<Void>>() {
-            @Override
-            public Observable<Void> call(APIRequest<Void> voidAPIRequest) {
-                return mRxHttpClient.executeAPIRequest(voidAPIRequest);
             }
         });
     }
