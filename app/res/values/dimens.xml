@@ -122,4 +122,6 @@
     <dimen name="onboarding_suggested_user_item_padding">3dp</dimen>
     <dimen name="onboarding_suggested_user_item_marginTopBottom">8dp</dimen>
     <dimen name="onboarding_suggested_user_item_marginLeftRight">16dp</dimen>
+
+    <dimen name="empty_message_margin_left_right">20dp</dimen>
 </resources>

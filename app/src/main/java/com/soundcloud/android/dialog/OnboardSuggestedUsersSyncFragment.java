@@ -4,6 +4,7 @@ package com.soundcloud.android.dialog;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.service.sync.SyncOperations;
@@ -56,9 +57,11 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
         return inflater.inflate(R.layout.list_loading_item, container, false);
     }
 
-    private void finish() {
+    private void finish(boolean success) {
         mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM);
-        startActivity(new Intent(Actions.STREAM));
+        final Intent intent = new Intent(Actions.STREAM);
+        intent.putExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, success);
+        startActivity(intent);
         getSherlockActivity().finish();
     }
 
@@ -70,14 +73,14 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
 
         @Override
         public void onCompleted(OnboardSuggestedUsersSyncFragment fragment) {
-            fragment.finish();
+            fragment.finish(true);
         }
 
         @Override
         public void onError(OnboardSuggestedUsersSyncFragment fragment, Exception error) {
             if (fragment.sendFollowingsPush()) {
                 Toast.makeText(fragment.getActivity(), "Error pushing some of your followings", Toast.LENGTH_LONG).show();
-                fragment.finish();
+                fragment.finish(false);
             }
         }
     }

@@ -199,4 +199,6 @@
     <string name="category_storytelling">Storytelling</string>
     <string name="category_learning">Learning</string>
 
+    <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
+
 </resources>

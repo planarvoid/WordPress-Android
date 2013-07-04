@@ -292,4 +292,5 @@
     <string name="category_storytelling">Narración</string>
     <string name="category_learning">Aprendizaje</string>
 
+    <string name="error_onboarding_fail">Aún estamos trabajando para llenar tu Stream. Seguiremos intentándolo hasta que lo logremos! Por que no buscar &amp; descubrir aún mas música &amp; audio mientras tanto?</string>
 </resources>
