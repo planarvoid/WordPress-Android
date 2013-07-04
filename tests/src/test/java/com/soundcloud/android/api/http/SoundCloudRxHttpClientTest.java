@@ -26,6 +26,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -281,5 +283,39 @@ public class SoundCloudRxHttpClientTest {
         expect(request.getParams().get("key")).toEqual("value1,value2");
         expect(request.getParams().get("key2")).toEqual("value3");
 
+    }
+
+    @Test
+    public void shouldMakePostRequestWithJsonContent() throws IOException {
+
+        final Object jsonSource = new Object();
+        final String jsonContent = "{\"data\": \"I Am Json Content\"}";
+
+        when(apiRequest.getContent()).thenReturn(jsonSource);
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(jsonTransformer.toJson(jsonSource)).thenReturn(jsonContent);
+
+        rxHttpClient.executeAPIRequest(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).post(argumentCaptor.capture());
+        Request request = argumentCaptor.getValue();
+
+        final HttpPost httpPost = request.buildRequest(HttpPost.class);
+        expect(EntityUtils.toString(httpPost.getEntity())).toEqual(jsonContent);
+        expect(httpPost.getFirstHeader("Content-Type").getValue()).toEqual("application/json; charset=utf-8");
+    }
+
+    @Test
+    public void shouldThrowExceptionOnJsonContentParsingError() throws IOException {
+        final Object jsonSource = new Object();
+
+        when(apiRequest.getContent()).thenReturn(jsonSource);
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(jsonTransformer.toJson(jsonSource)).thenThrow(new IOException());
+
+        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        verify(observer).onError(any(APIRequestException.class));
     }
 }

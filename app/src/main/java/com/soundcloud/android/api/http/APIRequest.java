@@ -49,4 +49,10 @@ public interface APIRequest<ResourceType> {
      * @return Multimap containing the key value pairs representing the query parameters.
      */
     Multimap<String, String> getQueryParameters();
+
+    /**
+     * Returns content object that is to be serialized to json and sent along with the request
+     * @return Object representing the content to b serialized
+     */
+    Object getContent();
 }
