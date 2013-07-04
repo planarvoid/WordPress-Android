@@ -287,7 +287,6 @@ public class SoundCloudRxHttpClientTest {
 
     @Test
     public void shouldMakePostRequestWithJsonContent() throws IOException {
-
         final Object jsonSource = new Object();
         final String jsonContent = "{\"data\": \"I Am Json Content\"}";
 

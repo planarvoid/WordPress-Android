@@ -48,27 +48,27 @@ public class APIResponse {
         return mStatusCode >= HttpStatus.SC_OK && mStatusCode < HttpStatus.SC_BAD_REQUEST;
     }
 
-    public boolean accountIsRateLimited(){
+    public boolean accountIsRateLimited() {
         return mStatusCode == SC_REQUEST_TOO_MANY_REQUESTS;
     }
 
-    public boolean hasResponseBody(){
+    public boolean responseCodeisForbidden() {
+        return mStatusCode == HttpStatus.SC_FORBIDDEN;
+    }
+
+    public boolean hasResponseBody() {
         return !isNullOrEmpty(nullToEmpty(mResponseBody).trim());
     }
 
-    public String getHeader(String key){
+    public String getHeader(String key) {
         return mResponseHeaders.get(key);
     }
 
-    public boolean responseContainsHeader(String key){
-        return mResponseHeaders.containsKey(key);
-    }
-
-    public String getResponseBody(){
+    public String getResponseBody() {
         return mResponseBody;
     }
 
-    public boolean isNotSuccess(){
+    public boolean isNotSuccess() {
         return !isSuccess();
     }
 

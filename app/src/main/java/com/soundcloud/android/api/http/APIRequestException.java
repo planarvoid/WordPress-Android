@@ -69,6 +69,10 @@ public class APIRequestException extends RuntimeException {
         return errorReason;
     }
 
+    public APIResponse response() {
+        return mResponse;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this).omitNullValues()

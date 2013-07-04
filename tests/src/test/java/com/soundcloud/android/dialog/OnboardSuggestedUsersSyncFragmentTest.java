@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.service.sync.SyncOperations;
@@ -38,6 +39,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
     public void shouldForceStreamToStaleOnFinish() {
         when(syncOperations.pushFollowings()).thenReturn(observable);
         fragment.onCreate(null);
+        fragment.onAttach(new SherlockFragmentActivity());
 
         ArgumentCaptor<FollowingsSyncObserver> argumentCaptor = ArgumentCaptor.forClass(FollowingsSyncObserver.class);
         verify(observable).subscribe(argumentCaptor.capture());
@@ -51,6 +53,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
     public void shouldTryThreeTimes() {
         when(syncOperations.pushFollowings()).thenReturn(observable);
         fragment.onCreate(null);
+        fragment.onAttach(new SherlockFragmentActivity());
 
         ArgumentCaptor<FollowingsSyncObserver> argumentCaptor = ArgumentCaptor.forClass(FollowingsSyncObserver.class);
         verify(observable).subscribe(argumentCaptor.capture());

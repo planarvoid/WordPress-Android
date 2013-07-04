@@ -5,6 +5,7 @@ import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -45,6 +46,7 @@ public class SyncStateManager extends ScheduledOperations {
         mResolver = context.getContentResolver();
         mLocalCollectionDao = new LocalCollectionDAO(mResolver);
         mContentObservers = new HashMap<Long, ContentObserver>();
+        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 
     @NotNull

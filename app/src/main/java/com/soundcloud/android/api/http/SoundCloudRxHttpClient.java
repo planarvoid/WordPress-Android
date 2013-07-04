@@ -11,7 +11,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.net.MediaType;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.http.json.JsonTransformer;
 import com.soundcloud.android.model.UnknownResource;
@@ -25,6 +24,7 @@ import org.apache.http.util.EntityUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
@@ -43,8 +43,12 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     private final WrapperFactory mWrapperFactory;
 
     public SoundCloudRxHttpClient() {
+        this(ScSchedulers.API_SCHEDULER);
+    }
+
+    public SoundCloudRxHttpClient(Scheduler scheduler) {
         this(new JacksonJsonTransformer(), new WrapperFactory(SoundCloudApplication.instance));
-        subscribeOn(ScSchedulers.API_SCHEDULER);
+        subscribeOn(scheduler);
     }
 
     @VisibleForTesting
@@ -170,10 +174,6 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         public ApiWrapper createWrapper(APIRequest apiRequest){
             Wrapper wrapper = new Wrapper(mContext, mHttpProperties, mAccountOperations);
             String acceptContentType = apiRequest.isPrivate() ? format(PRIVATE_API_ACCEPT_CONTENT_TYPE, apiRequest.getVersion()) : MediaType.JSON_UTF_8.toString();
-            // TODO : remove once gzip is fixed for this endpoint
-            if (apiRequest.getUriPath().equals(APIEndpoints.SUGGESTED_USER_CATEGORIES.path())){
-                wrapper.setDefaultAcceptEncoding("");
-            }
             wrapper.setDefaultContentType(acceptContentType);
             return wrapper;
         }
