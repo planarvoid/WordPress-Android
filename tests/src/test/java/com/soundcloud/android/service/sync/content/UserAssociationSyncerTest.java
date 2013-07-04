@@ -7,6 +7,7 @@ import static com.soundcloud.android.robolectric.TestHelper.addIdResponse;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.robolectric.TestHelper.assertFirstIdToBe;
 import static com.soundcloud.android.service.sync.content.UserAssociationSyncer.BulkFollowObserver;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -32,7 +33,6 @@ import com.soundcloud.android.service.sync.ApiSyncServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -315,23 +315,20 @@ public class UserAssociationSyncerTest {
     }
 
     @Test
-    @Ignore
     public void shouldSetResultAsErrorIfBulkFollowFails() throws IOException {
         when(userAssociation.hasToken()).thenReturn(true, true);
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(newArrayList(userAssociation, userAssociation));
-        //when(suggestedUsersOperations.bulkFollowAssociations(anyList())).thenReturn(false);
+        when(suggestedUsersOperations.bulkFollowAssociations(anyList())).thenReturn(Observable.<Void>error(new IOException()));
         expect(userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH).success).toBeFalse();
     }
 
     @Test
-    @Ignore
     public void shouldSetResultAsSuccessIfBulkFollowSucceeds() throws IOException {
         when(userAssociation.hasToken()).thenReturn(true, true);
-
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(newArrayList(userAssociation, userAssociation));
-        //when(suggestedUsersOperations.bulkFollowAssociations(anyList())).thenReturn(true);
+        when(suggestedUsersOperations.bulkFollowAssociations(anyList())).thenReturn(Observable.<Void>empty());
         expect(userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH).success).toBeTrue();
     }
 
