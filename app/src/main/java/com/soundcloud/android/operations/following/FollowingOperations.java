@@ -32,19 +32,19 @@ public class FollowingOperations extends ScheduledOperations {
 
     // TODO, rollback memory state on error
     public FollowingOperations(UserAssociationStorage userAssociationStorage, FollowStatus followStatus,
-                               SyncStateManager syncStateManager, ScModelManager modelManager){
+                               SyncStateManager syncStateManager, ScModelManager modelManager) {
         mUserAssociationStorage = userAssociationStorage;
         mFollowStatus = followStatus;
         mSyncStateManager = syncStateManager;
         mModelManager = modelManager;
     }
 
-    public Observable<UserAssociation> addFollowing(@NotNull final User user){
+    public Observable<UserAssociation> addFollowing(@NotNull final User user) {
         updateLocalStatus(true, user.getId());
         return mUserAssociationStorage.addFollowing(user);
     }
 
-    public Observable<UserAssociation> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser){
+    public Observable<UserAssociation> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
         updateLocalStatus(true, suggestedUser.getId());
         return mUserAssociationStorage.addFollowingBySuggestedUser(suggestedUser);
     }
@@ -70,7 +70,7 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     public Observable<UserAssociation> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
-        return removeFollowings(Lists.transform(suggestedUsers,new Function<SuggestedUser, User>() {
+        return removeFollowings(Lists.transform(suggestedUsers, new Function<SuggestedUser, User>() {
             @Override
             public User apply(SuggestedUser input) {
                 return new User(input);
@@ -79,7 +79,7 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     public Observable<UserAssociation> toggleFollowing(User user) {
-        if (mFollowStatus.isFollowing(user)){
+        if (mFollowStatus.isFollowing(user)) {
             return removeFollowing(user);
         } else {
             return addFollowing(user);
@@ -87,7 +87,7 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     public Observable<UserAssociation> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
-        if (mFollowStatus.isFollowing(suggestedUser.getId())){
+        if (mFollowStatus.isFollowing(suggestedUser.getId())) {
             return removeFollowing(new User(suggestedUser));
         } else {
             return addFollowingBySuggestedUser(suggestedUser);
@@ -121,7 +121,7 @@ public class FollowingOperations extends ScheduledOperations {
             if (cachedUser != null) cachedUser.user_following = shouldFollow;
         }
         // invalidate stream SyncState if necessary
-        if (hadNoFollowings && !mFollowStatus.isEmpty()){
+        if (hadNoFollowings && !mFollowStatus.isEmpty()) {
             mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM).subscribe(ScActions.NO_OP);
         }
     }

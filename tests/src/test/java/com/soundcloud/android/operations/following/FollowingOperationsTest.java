@@ -125,7 +125,7 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldForceStreamToStaleIfFirstFollowingFromAddition() {
-        when (syncStateManager.forceToStale(Content.ME_SOUND_STREAM)).thenReturn(observable);
+        when(syncStateManager.forceToStale(Content.ME_SOUND_STREAM)).thenReturn(observable);
         when(followStatus.isEmpty()).thenReturn(true, false);
         ops.addFollowing(user);
         verify(observable).subscribe(ScActions.NO_OP);
@@ -133,7 +133,7 @@ public class FollowingOperationsTest {
 
     @Test
     public void shouldForceStreamToStaleIfFirstFollowingFromListAddition() {
-        when (syncStateManager.forceToStale(Content.ME_SOUND_STREAM)).thenReturn(observable);
+        when(syncStateManager.forceToStale(Content.ME_SOUND_STREAM)).thenReturn(observable);
         when(followStatus.isEmpty()).thenReturn(true, false);
         ops.addFollowings(users);
         verify(observable).subscribe(ScActions.NO_OP);
