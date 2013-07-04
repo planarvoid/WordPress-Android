@@ -287,10 +287,13 @@ public class SoundCloudRxHttpClientTest {
 
     @Test
     public void shouldMakePostRequestWithJsonContent() throws IOException {
-        String jsonContent = "{data: \"I Am Json Content\"}";
-        when(apiRequest.getJsonContent()).thenReturn(jsonContent);
+        final Object jsonSource = new Object();
+        final String jsonContent = "{\"data\": \"I Am Json Content\"}";
+
+        when(apiRequest.getContent()).thenReturn(jsonSource);
         when(apiRequest.getMethod()).thenReturn("post");
         when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(jsonTransformer.toJson(jsonSource)).thenReturn(jsonContent);
 
         rxHttpClient.executeAPIRequest(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
@@ -299,6 +302,19 @@ public class SoundCloudRxHttpClientTest {
 
         final HttpPost httpPost = request.buildRequest(HttpPost.class);
         expect(EntityUtils.toString(httpPost.getEntity())).toEqual(jsonContent);
-        expect(httpPost.getFirstHeader("Content-Type").getValue()).toEqual("application/json");
+        expect(httpPost.getFirstHeader("Content-Type").getValue()).toEqual("application/json; charset=utf-8");
+    }
+
+    @Test
+    public void shouldThrowExceptionOnJsonContentParsingError() throws IOException {
+        final Object jsonSource = new Object();
+
+        when(apiRequest.getContent()).thenReturn(jsonSource);
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(jsonTransformer.toJson(jsonSource)).thenThrow(new IOException());
+
+        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        verify(observer).onError(any(APIRequestException.class));
     }
 }

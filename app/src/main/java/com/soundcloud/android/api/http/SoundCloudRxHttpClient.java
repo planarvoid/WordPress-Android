@@ -136,7 +136,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         }
     }
 
-    private Request createSCRequest(APIRequest<?> apiRequest) {
+    private Request createSCRequest(APIRequest<?> apiRequest) throws IOException {
         Request request = Request.to(apiRequest.getUriPath());
         final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();
 
@@ -152,9 +152,9 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
             request.add(key, transformedParameters.get(key));
         }
 
-        final String jsonContent = apiRequest.getJsonContent();
-        if (!ScTextUtils.isBlank(jsonContent)){
-            request.withContent(jsonContent, CONTENT_TYPE_JSON);
+        final Object content = apiRequest.getContent();
+        if (content != null) {
+            request.withContent(mJsonTransformer.toJson(content), MediaType.JSON_UTF_8.toString());
         }
         return request;
     }

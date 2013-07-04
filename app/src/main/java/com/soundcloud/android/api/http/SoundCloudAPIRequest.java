@@ -26,17 +26,17 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
     private final TypeToken<ResourceType> mResourceType;
     private final Boolean mIsPrivate;
     private final Multimap<String, String> mQueryParams;
-    private final String mJsonContent;
+    private final Object mContent;
 
     private SoundCloudAPIRequest(Uri uri, String method, int endpointVersion, TypeToken<ResourceType> typeToken,
-                                 Boolean isPrivate, Multimap<String, String> queryParams, String jsonContent) {
+                                 Boolean isPrivate, Multimap<String, String> queryParams, Object content) {
         mUri = uri;
         mHttpMethod = method;
         mEndpointVersion = endpointVersion;
         mResourceType = typeToken;
         mIsPrivate = isPrivate;
         mQueryParams = queryParams;
-        mJsonContent = jsonContent;
+        mContent = content;
     }
 
     @Override
@@ -70,8 +70,8 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
     }
 
     @Override
-    public String getJsonContent() {
-        return mJsonContent;
+    public Object getContent() {
+        return mContent;
     }
 
 
@@ -82,7 +82,7 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
         private TypeToken<ResourceType> mResourceType;
         private Boolean mIsPrivate;
         private final Multimap<String, String> mParameters;
-        private String mJsonContent;
+        private Object mContent;
 
         public RequestBuilder(String builder, String methodName) {
             uriPath = builder;
@@ -105,7 +105,7 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
                 checkArgument(mEndpointVersion > 0, "Not a valid api version: %s", mEndpointVersion);
             }
             return new SoundCloudAPIRequest<ResourceType>(Uri.parse(uriPath), mHttpMethod, mEndpointVersion,
-                    mResourceType, mIsPrivate, mParameters, mJsonContent);
+                    mResourceType, mIsPrivate, mParameters, mContent);
         }
 
         public RequestBuilder<ResourceType> forResource(TypeToken<ResourceType> typeToken) {
@@ -143,8 +143,8 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
             return this;
         }
 
-        public RequestBuilder<ResourceType> withJsonContent(String content){
-            mJsonContent = content;
+        public RequestBuilder<ResourceType> withContent(Object content) {
+            mContent = content;
             return this;
         }
 

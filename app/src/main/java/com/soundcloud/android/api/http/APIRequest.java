@@ -51,8 +51,8 @@ public interface APIRequest<ResourceType> {
     Multimap<String, String> getQueryParameters();
 
     /**
-     * Returns json content that is to be paired with this request
-     * @return String representing the json content
+     * Returns content object that is to be serialized to json and sent along with the request
+     * @return Object representing the content to b serialized
      */
-    String getJsonContent();
+    Object getContent();
 }

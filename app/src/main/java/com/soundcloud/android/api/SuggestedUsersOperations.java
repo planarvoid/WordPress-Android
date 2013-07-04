@@ -5,8 +5,6 @@ import static com.google.common.collect.Collections2.filter;
 import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilder;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Collections2;
 import com.google.common.reflect.TypeToken;
@@ -74,22 +72,15 @@ public class SuggestedUsersOperations extends ScheduledOperations {
             public Subscription call(Observer<APIRequest<Void>> apiRequestObserver) {
                 Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
                 Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
-                try {
-                    if (!tokens.isEmpty()) {
-                        final String bulkFollowJsonContent = new ObjectMapper().writeValueAsString(new BulkFollowingsJsonCreator(tokens));
-                        APIRequest<Void> request = RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
-                                .forPublicAPI()
-                                .withJsonContent(bulkFollowJsonContent)
-                                .build();
+                if (!tokens.isEmpty()) {
+                    APIRequest<Void> request = RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
+                            .forPublicAPI()
+                            .withContent(new BulkFollowingsHolder(tokens))
+                            .build();
 
-                        apiRequestObserver.onNext(request);
-                    }
-                    apiRequestObserver.onCompleted();
-
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                    apiRequestObserver.onError(e);
+                    apiRequestObserver.onNext(request);
                 }
+                apiRequestObserver.onCompleted();
                 return Subscriptions.empty();
             }
         });
@@ -102,8 +93,9 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         });
     }
 
-    private static class BulkFollowingsJsonCreator {
-        private BulkFollowingsJsonCreator(Collection<String> tokens) {
+    @VisibleForTesting
+    public static class BulkFollowingsHolder {
+        public BulkFollowingsHolder(Collection<String> tokens) {
             this.tokens = tokens;
         }
         @JsonProperty

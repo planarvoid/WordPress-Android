@@ -172,8 +172,8 @@ public class SuggestedUsersOperationsTest {
         suggestedUsersOperations.bulkFollowAssociations(userAssociations).subscribe(voidObserver);
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
-        String jsonContent = argumentCaptor.getValue().getJsonContent();
-        expect(jsonContent).toEqual("{\"tokens\":[\"token1\",\"token2\"]}");
+        Object jsonContent = argumentCaptor.getValue().getContent();
+        expect(((SuggestedUsersOperations.BulkFollowingsHolder) jsonContent).tokens).toContainExactly("token1", "token2");
     }
 
     @Test
