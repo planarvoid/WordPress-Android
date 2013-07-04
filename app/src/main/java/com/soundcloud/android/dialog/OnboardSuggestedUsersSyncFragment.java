@@ -11,7 +11,6 @@ import com.soundcloud.android.service.sync.SyncStateManager;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,11 +59,7 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
     private void finish() {
         mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM);
         startActivity(new Intent(Actions.STREAM));
-
-        final FragmentActivity activity = getActivity();
-        if (activity != null) {
-            activity.finish();
-        }
+        getActivity().finish();
     }
 
     public static class FollowingsSyncObserver extends RxFragmentObserver<OnboardSuggestedUsersSyncFragment, Void> {
