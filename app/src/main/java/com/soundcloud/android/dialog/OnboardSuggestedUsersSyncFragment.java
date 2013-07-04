@@ -59,7 +59,7 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
     private void finish() {
         mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM);
         startActivity(new Intent(Actions.STREAM));
-        getActivity().finish();
+        getSherlockActivity().finish();
     }
 
     public static class FollowingsSyncObserver extends RxFragmentObserver<OnboardSuggestedUsersSyncFragment, Void> {
