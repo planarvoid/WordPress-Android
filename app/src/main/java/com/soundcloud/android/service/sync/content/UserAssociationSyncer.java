@@ -192,9 +192,7 @@ public class UserAssociationSyncer extends SyncStrategy {
         final ApiSyncResult result = new ApiSyncResult(content.uri);
         result.success = true;
         if (content == Content.ME_FOLLOWINGS && mUserAssociationStorage.hasFollowingsNeedingSync()) {
-
             List<UserAssociation> associationsNeedingSync = mUserAssociationStorage.getFollowingsNeedingSync();
-
             for(UserAssociation userAssociation : associationsNeedingSync){
                 if (!userAssociation.hasToken() && !pushUserAssociation(userAssociation)){
                     result.success = false;
@@ -205,7 +203,6 @@ public class UserAssociationSyncer extends SyncStrategy {
             mSuggestedUsersOperations.bulkFollowAssociations(associationsNeedingSync).subscribe(observer);
             result.success = observer.wasSuccess();
         }
-
         return result;
     }
 
