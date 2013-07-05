@@ -8,7 +8,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.api.APIEndpoints;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.RxHttpClient;
@@ -22,16 +24,24 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScActions;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
+import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Observer;
 import rx.Scheduler;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
-import rx.util.functions.Func2;
 
+import android.content.Context;
+
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -154,13 +164,46 @@ public class FollowingOperations extends ScheduledOperations {
         return null;
     }
 
-    public Observable<Activities> waitForActivities() {
-        return Observable.takeWhileWithIndex(Observable.just(Activities.EMPTY), new Func2<Activities, Integer, Boolean>() {
+    public Observable<Boolean> waitForActivities(final Context context) {
+        return getFollowingsNeedingSync().toList().flatMap(new Func1<List<UserAssociation>, Observable<Collection<UserAssociation>>>() {
             @Override
-            public Boolean call(Activities activities, Integer attempts) {
-                return attempts < 3 && activities.isEmpty();
+            public Observable<Collection<UserAssociation>> call(List<UserAssociation> userAssociations) {
+                return bulkFollowAssociations(userAssociations);
+            }
+        }).flatMap(new Func1<Collection<UserAssociation>, Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call(Collection<UserAssociation> userAssociations) {
+                return fetchActivities(new OldCloudAPI(context));
             }
         });
+    }
+
+    //TODO: didn't have enough time porting this over, next time :)
+    private Observable<Boolean> fetchActivities(final OldCloudAPI api) {
+        return Observable.create(new Func1<Observer<Boolean>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Boolean> observer) {
+                try {
+                    Activities activities = Activities.fetch(api, Request.to(TempEndpoints.e1.MY_STREAM));
+                    observer.onNext(activities != null && !activities.isEmpty());
+                    observer.onCompleted();
+                } catch (IOException e) {
+                    observer.onError(e);
+                }
+                return Subscriptions.empty();
+            }
+        }).subscribeOn(ScSchedulers.API_SCHEDULER);
+    }
+
+    private Observable<UserAssociation> getFollowingsNeedingSync() {
+        return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
+            @Override
+            public Subscription call(Observer<UserAssociation> observer) {
+                RxUtils.emitCollection(observer, mUserAssociationStorage.getFollowingsNeedingSync());
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     public Set<Long> getFollowedUserIds() {
