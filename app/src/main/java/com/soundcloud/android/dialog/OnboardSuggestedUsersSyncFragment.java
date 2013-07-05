@@ -4,9 +4,11 @@ package com.soundcloud.android.dialog;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
+import com.soundcloud.android.service.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
@@ -63,6 +65,8 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
         @Override
         public void onError(OnboardSuggestedUsersSyncFragment fragment, Exception error) {
             error.printStackTrace();
+            // send sync adapter request for followings so retry logic will kick in
+            SyncInitiator.pushFollowingsToApi(new AccountOperations(fragment.getActivity()).getSoundCloudAccount());
             fragment.finish(false);
         }
     }
