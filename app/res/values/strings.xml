@@ -149,16 +149,57 @@
 
     <!-- onboarding -->
     <string name="suggested_users_genres_large_title">Choose your favorite categories</string>
-    <string name="suggested_users_genres_sub_title">Follow people trending in the SoundCloud community. Tap each category to see full list.</string>
+    <string name="suggested_users_genres_sub_title">Follow people trending in the SoundCloud community.</string>
     <string name="suggested_users_section_facebook">Facebook</string>
     <string name="suggested_users_section_music">Music</string>
     <string name="suggested_users_section_audio">Audio</string>
     <string name="suggested_users_error_get_genre_buckets">Failed to load categories at this time. Try again later.</string>
 
-    <string name="suggested_users_no_categories_returned">No categories returned</string>
+    <string name="suggested_users_section_empty">No results found</string>
+    <string name="suggested_users_section_error">No results found, tap to retry</string>
 
     <string name="suggested_users_btn_select_all">Select All</string>
     <string name="suggested_users_btn_deselect_all">Deselect All</string>
 
+    <string name="problem_connecting_to_SoundCloud">There\'s a problem connecting to\nSoundCloud.</string>
+
     <string name="and_conjunction">%1$s and %2$s</string>
+    <string name="try_again">Try Again</string>
+    <string name="finish">Finish</string>
+
+    <string name="category_facebook_friends">Facebook Friends</string>
+    <string name="category_facebook_likes">Facebook Likes</string>
+
+    <string name="category_rock">Rock</string>
+    <string name="category_indie">Indie</string>
+    <string name="category_dubstep">Dubstep</string>
+    <string name="category_pop">Pop</string>
+    <string name="category_punk">Punk</string>
+    <string name="category_country">Country</string>
+    <string name="category_alternative">Alternative</string>
+    <string name="category_electronic">Electronic</string>
+    <string name="category_house">House</string>
+    <string name="category_rnb_and_soul">RnB and Soul</string>
+    <string name="category_hiphop_and_rap">HipHop and Rap</string>
+    <string name="category_reggae">Reggae</string>
+    <string name="category_singer_songwriter">Singer Songwriter</string>
+    <string name="category_jazz_and_blues">Jazz and Blues</string>
+    <string name="category_metal">Metal</string>
+    <string name="category_classical">Classical</string>
+    <string name="category_folk_and_world">Folk and World</string>
+    <string name="category_ideas">Ideas</string>
+    <string name="category_business">Business</string>
+    <string name="category_religion_and_spirituality">Religion and Spirituality</string>
+    <string name="category_audiobooks">Audiobooks</string>
+    <string name="category_arts_and_entertainment">Arts and Entertainment</string>
+    <string name="category_sports">Sports</string>
+    <string name="category_science_and_technology">Science and Technology</string>
+    <string name="category_comedy">Comedy</string>
+    <string name="category_news">News</string>
+    <string name="category_storytelling">Storytelling</string>
+    <string name="category_learning">Learning</string>
+
+    <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
+    <string name="error_onboarding_filling">We\'re working on it!</string>
+
 </resources>

@@ -68,12 +68,11 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         viewHolder.username.setText(suggestedUser.getUsername());
         viewHolder.location.setText(suggestedUser.getLocation());
 
-        final ImageLoader.BindResult result = ImageLoader.get(parent.getContext()).bind(this, viewHolder.imageView,
-                suggestedUser.getAvatarUrl(), IMAGE_OPTIONS);
-        if (result != ImageLoader.BindResult.OK){
-            viewHolder.imageView.setImageResource(R.drawable.artwork_player);
+        final ImageLoader.BindResult result = ImageLoader.get(parent.getContext()).bind(viewHolder.imageView,
+                suggestedUser.getAvatarUrl(), null, IMAGE_OPTIONS);
+        if (result != ImageLoader.BindResult.OK) {
+            viewHolder.imageView.setImageResource(R.drawable.placeholder_cells);
         }
-
         return convertView;
     }
 

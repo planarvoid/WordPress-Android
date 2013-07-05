@@ -61,6 +61,8 @@
     <issue id="ValidFragment">
         <!-- allow non-default constructors for test dependency injection -->
         <ignore path="src/main/java/com/soundcloud/android/fragment/SuggestedUsersCategoriesFragment.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/fragment/SuggestedUsersCategoryFragment.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/dialog/OnboardSuggestedUsersSyncFragment.java"/>
     </issue>
 
     <issue id="MergeRootFrame">

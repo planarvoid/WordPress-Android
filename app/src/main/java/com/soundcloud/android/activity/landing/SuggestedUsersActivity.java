@@ -1,12 +1,9 @@
 package com.soundcloud.android.activity.landing;
 
 import com.actionbarsherlock.view.MenuItem;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.SuggestedUsersCategoriesFragment;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.SyncStateManager;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -18,22 +15,22 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        setTitle(getString(R.string.side_menu_who_to_follow));
         setContentView(R.layout.suggested_users_activity);
 
         if (state == null) {
+            final SuggestedUsersCategoriesFragment suggestedUsersCategoriesFragment = new SuggestedUsersCategoriesFragment();
+            suggestedUsersCategoriesFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.categories_fragment_holder, new SuggestedUsersCategoriesFragment())
+                    .add(R.id.categories_fragment_holder, suggestedUsersCategoriesFragment)
                     .commit();
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.done) {
-            new SyncStateManager().forceToStale(Content.ME_SOUND_STREAM);
-            startActivity(new Intent(Actions.STREAM));
+        if (item.getItemId() == R.id.finish) {
+            startActivity(new Intent(this, SuggestedUsersSyncActivity.class));
             finish();
             return true;
         } else {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.6.2"
+      android:versionName="2.6.3-BETA1"
       android:installLocation="auto"
       android:versionCode="63">
 
@@ -26,6 +26,10 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+
+    <!-- allows non-flash, non-autofocus devices to use app -->
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <!-- c2dm -->
     <permission android:name="com.soundcloud.android.permission.C2D_MESSAGE" android:protectionLevel="signature" />
@@ -171,7 +175,16 @@
         </activity>
 
         <!-- new suggested users -->
-        <activity android:name=".activity.landing.SuggestedUsersActivity" />
+        <activity android:name=".activity.landing.SuggestedUsersActivity"
+                  android:theme="@style/Theme.Onboard"
+                  android:label="" />
+        <activity android:name=".activity.landing.SuggestedUsersCategoryActivity"
+                  android:theme="@style/Theme.Onboard"
+                  android:label="" />
+        <activity android:name=".activity.landing.SuggestedUsersSyncActivity"
+                  android:theme="@style/Theme.Onboard"
+                  android:label="" />
+
         <!-- old suggested users -->
         <activity android:name=".activity.landing.WhoToFollowActivity" android:label="@string/side_menu_who_to_follow">
             <intent-filter>
@@ -185,9 +198,8 @@
                 <data android:scheme="http" android:host="soundcloud.com" android:path="/people"/>
                 <data android:scheme="https" android:host="soundcloud.com" android:path="/people"/>
             </intent-filter>
-
         </activity>
-        <activity android:name=".activity.landing.SuggestedUsersCategoryActivity" />
+
         <activity android:name=".activity.landing.FriendFinder" android:label="@string/side_menu_friend_finder"
                   android:configChanges="orientation">
             <intent-filter>

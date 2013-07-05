@@ -1,5 +1,6 @@
 package com.soundcloud.android.api.http;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.WrapperFactory;
 import static com.soundcloud.android.rx.android.ErrorRaisingObserver.errorRaisingObserver;
@@ -13,7 +14,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.json.JsonTransformer;
@@ -25,6 +26,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -66,6 +69,7 @@ public class SoundCloudRxHttpClientTest {
         rxHttpClient = new SoundCloudRxHttpClient(jsonTransformer, wrapperFactory).subscribeOn(Schedulers.immediate());
         when(apiRequest.getUriPath()).thenReturn(URI);
         when(apiRequest.getMethod()).thenReturn("get");
+        when(apiRequest.getQueryParameters()).thenReturn(ArrayListMultimap.create());
         when(wrapperFactory.createWrapper(apiRequest)).thenReturn(wrapper);
         when(wrapper.get(any(Request.class))).thenReturn(httpResponse);
         when(httpResponse.getEntity()).thenReturn(httpEntity);
@@ -78,7 +82,7 @@ public class SoundCloudRxHttpClientTest {
     @Test
     public void shouldThrowExceptionIfResponseIsRateLimited(){
         when(statusLine.getStatusCode()).thenReturn(429);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
 
@@ -86,13 +90,21 @@ public class SoundCloudRxHttpClientTest {
     @Test
     public void shouldMakeGetRequestWithAPIWrapper() throws IOException {
         when(apiRequest.getMethod()).thenReturn("get");
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(errorRaisingObserver());
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         verify(wrapper).get(any(Request.class));
     }
 
     @Test
+    public void shouldMakePostRequestWithAPIWrapper() throws IOException {
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
+        verify(wrapper).post(any(Request.class));
+    }
+
+    @Test
     public void shouldMakeGetRequestWithSpecifiedURI() throws IOException {
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(errorRaisingObserver());
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
         verify(wrapper).get(argumentCaptor.capture());
         Request scRequest = argumentCaptor.getValue();
@@ -100,30 +112,41 @@ public class SoundCloudRxHttpClientTest {
     }
 
     @Test
+    public void shouldMakePostRequestWithSpecifiedURI() throws IOException {
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).post(argumentCaptor.capture());
+        Request scRequest = argumentCaptor.getValue();
+        expect(scRequest.toUrl()).toEqual(URI);
+    }
+
+    @Test
     public void shouldRaiseAPIExceptionIfInvalidTokenExists() throws IOException {
         when(wrapper.get(any(Request.class))).thenThrow(InvalidTokenException.class);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
 
     @Test
     public void shouldRaiseAPIExceptionIfIOExceptionOccurs() throws IOException {
         when(wrapper.get(any(Request.class))).thenThrow(IOException.class);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
 
     @Test
     public void shouldRaiseAPIExceptionIfResponseStatusCodeIs400() throws IOException {
         when(statusLine.getStatusCode()).thenReturn(400);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
 
     @Test
     public void shouldRaiseAPIExceptionIfResponseStatusCodeIs199() throws IOException {
         when(statusLine.getStatusCode()).thenReturn(199);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
 
@@ -131,7 +154,7 @@ public class SoundCloudRxHttpClientTest {
     public void shouldParseJsonResponseWithSpecifiedTypeInRequest() throws Exception {
         when(apiRequest.getResourceType()).thenReturn(TypeToken.of(User.class));
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(errorRaisingObserver());
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         verify(jsonTransformer).fromJson(STREAM_DATA, TypeToken.of(User.class));
     }
 
@@ -140,7 +163,7 @@ public class SoundCloudRxHttpClientTest {
         when(apiRequest.getResourceType()).thenReturn(TypeToken.of(User.class));
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
         when(jsonTransformer.fromJson(STREAM_DATA, TypeToken.of(User.class))).thenThrow(Exception.class);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
 
@@ -149,7 +172,7 @@ public class SoundCloudRxHttpClientTest {
         when(apiRequest.getResourceType()).thenReturn(TypeToken.of(User.class));
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
         when(jsonTransformer.fromJson(STREAM_DATA, TypeToken.of(User.class))).thenReturn(null);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
 
@@ -158,7 +181,7 @@ public class SoundCloudRxHttpClientTest {
         when(apiRequest.getResourceType()).thenReturn(TypeToken.of(User.class));
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
         when(jsonTransformer.fromJson(STREAM_DATA, TypeToken.of(User.class))).thenReturn(mock(UnknownResource.class));
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
 
@@ -168,7 +191,7 @@ public class SoundCloudRxHttpClientTest {
         when(apiRequest.getResourceType()).thenReturn(TypeToken.of(User.class));
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
         when(jsonTransformer.fromJson(STREAM_DATA, TypeToken.of(User.class))).thenReturn(mock);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onNext(mock);
         verify(observer).onCompleted();
     }
@@ -177,12 +200,12 @@ public class SoundCloudRxHttpClientTest {
     public void shouldCallOnNextWithAllResourcesIfResourceTypeIsOfList() throws Exception {
         User userOne = mock(User.class);
         User userTwo = mock(User.class);
-        List<User> users = Lists.newArrayList(userOne, userTwo);
+        List<User> users = newArrayList(userOne, userTwo);
         TypeToken<List<User>> resourceType = new TypeToken<List<User>>() {};
         when(apiRequest.getResourceType()).thenReturn(resourceType);
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
         when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(users);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onNext(userOne);
         verify(observer).onNext(userTwo);
         verify(observer).onCompleted();
@@ -197,7 +220,7 @@ public class SoundCloudRxHttpClientTest {
         when(apiRequest.getResourceType()).thenReturn(resourceType);
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
         when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(users);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onNext(userOne);
         verify(observer).onNext(userTwo);
         verify(observer).onCompleted();
@@ -206,7 +229,7 @@ public class SoundCloudRxHttpClientTest {
     @Test
     public void shouldNotTryToParseResponseJsonIfNoResponseBodyExists() throws IOException {
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream("".getBytes()));
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verifyZeroInteractions(jsonTransformer);
         verify(observer, never()).onNext(any());
         verify(observer).onCompleted();
@@ -215,7 +238,7 @@ public class SoundCloudRxHttpClientTest {
     @Test
     public void shouldNotTryToDeserialiseResponseIfNoResourceTypeSpecifiedInRequest(){
         when(apiRequest.getResourceType()).thenReturn(null);
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verifyZeroInteractions(jsonTransformer);
         verify(observer, never()).onNext(any());
         verify(observer, never()).onError((Exception)any());
@@ -226,8 +249,72 @@ public class SoundCloudRxHttpClientTest {
     public void shouldThrowExceptionIfResourceTypeSpecifiedButResponseBodyIsEmpty() throws IOException {
         when(apiRequest.getResourceType()).thenReturn(TypeToken.of(User.class));
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream("".getBytes()));
-        rxHttpClient.executeAPIRequest(apiRequest).subscribe(observer);
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
 
+    @Test
+    public void shouldMakeRequestWithSingleValueQueryParameter() throws IOException {
+        ArrayListMultimap map = ArrayListMultimap.create();
+        map.put("key","value");
+        when(apiRequest.getQueryParameters()).thenReturn(map);
+
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).get(argumentCaptor.capture());
+        Request request = argumentCaptor.getValue();
+
+        expect(request.getParams().get("key")).toEqual("value");
+
+    }
+
+    @Test
+    public void shouldMakeRequestWithMultipleValueQueryParameter() throws IOException {
+        ArrayListMultimap map = ArrayListMultimap.create();
+        map.putAll("key", newArrayList("value1", "value2"));
+        map.putAll("key2", newArrayList("value3"));
+        when(apiRequest.getQueryParameters()).thenReturn(map);
+
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).get(argumentCaptor.capture());
+        Request request = argumentCaptor.getValue();
+
+        expect(request.getParams().get("key")).toEqual("value1,value2");
+        expect(request.getParams().get("key2")).toEqual("value3");
+
+    }
+
+    @Test
+    public void shouldMakePostRequestWithJsonContent() throws IOException {
+        final Object jsonSource = new Object();
+        final String jsonContent = "{\"data\": \"I Am Json Content\"}";
+
+        when(apiRequest.getContent()).thenReturn(jsonSource);
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(jsonTransformer.toJson(jsonSource)).thenReturn(jsonContent);
+
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).post(argumentCaptor.capture());
+        Request request = argumentCaptor.getValue();
+
+        final HttpPost httpPost = request.buildRequest(HttpPost.class);
+        expect(EntityUtils.toString(httpPost.getEntity())).toEqual(jsonContent);
+        expect(httpPost.getFirstHeader("Content-Type").getValue()).toEqual("application/json; charset=utf-8");
+    }
+
+    @Test
+    public void shouldThrowExceptionOnJsonContentParsingError() throws IOException {
+        final Object jsonSource = new Object();
+
+        when(apiRequest.getContent()).thenReturn(jsonSource);
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(jsonTransformer.toJson(jsonSource)).thenThrow(new IOException());
+
+        rxHttpClient.fetchModels(apiRequest).subscribe(observer);
+        verify(observer).onError(any(APIRequestException.class));
+    }
 }

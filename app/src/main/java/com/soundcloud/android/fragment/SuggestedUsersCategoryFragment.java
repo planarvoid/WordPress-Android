@@ -4,17 +4,15 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.model.Category;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.observers.ScObserver;
+import com.soundcloud.android.rx.android.RxFragmentErrorHandler;
+import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.view.GridViewCompat;
 
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,18 +24,28 @@ import java.util.Set;
 public class SuggestedUsersCategoryFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
     private SuggestedUsersAdapter mAdapter;
-    private Category mCategory = Category.EMPTY;
+    private Category mCategory;
     private GridViewCompat mAdapterView;
     private FollowingOperations mFollowingOperations;
+
+    public SuggestedUsersCategoryFragment() {
+        this(new FollowingOperations());
+    }
+
+    public SuggestedUsersCategoryFragment(FollowingOperations followingOperations) {
+        mFollowingOperations = followingOperations.observeOn(ScSchedulers.UI_SCHEDULER);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null && getArguments().containsKey(Category.EXTRA)) {
             mCategory = getArguments().getParcelable(Category.EXTRA);
+        } else {
+            mCategory = Category.empty();
         }
         setAdapter(new SuggestedUsersAdapter(mCategory.getUsers()));
-        mFollowingOperations = new FollowingOperations().observeOn(ScSchedulers.UI_SCHEDULER);
+
     }
 
     public void setAdapter(SuggestedUsersAdapter adapter) {
@@ -59,15 +67,14 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         mAdapterView.setOnItemClickListener(this);
         mAdapterView.setAdapter(mAdapter);
 
-        final Set<Long> followingIds = FollowStatus.get().getFollowedUserIds();
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            mAdapterView.setItemChecked(i, followingIds.contains(mAdapter.getItemId(i)));
+            mAdapterView.setItemChecked(i, mFollowingOperations.getFollowedUserIds().contains(mAdapter.getItemId(i)));
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mFollowingOperations.toggleFollowing(new User(mAdapter.getItem(position))).subscribe(mToggleFollowingObserver);
+        mFollowingOperations.toggleFollowingBySuggestedUser(mAdapter.getItem(position)).subscribe(new ToggleFollowingObserver(this));
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridview setItemChecked
@@ -76,33 +83,40 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
             mAdapterView.setItemChecked(i, shouldFollow);
         }
 
-        final Set<Long> followedUserIds = FollowStatus.get().getFollowedUserIds();
+        final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
         if (shouldFollow) {
-            mFollowingOperations.addFollowingsBySuggestedUsers(mCategory.getNotFollowedUsers(followedUserIds)).subscribe(mToggleAllObserver);
+            mFollowingOperations.addFollowingsBySuggestedUsers(
+                    mCategory.getNotFollowedUsers(followedUserIds)).subscribe(new ToggleAllObserver(this));
         } else {
-            mFollowingOperations.removeFollowingsBySuggestedUsers(mCategory.getFollowedUsers(followedUserIds)).subscribe(mToggleAllObserver);
+            mFollowingOperations.removeFollowingsBySuggestedUsers(
+                    mCategory.getFollowedUsers(followedUserIds)).subscribe(new ToggleAllObserver(this));
         }
     }
 
-    private ScObserver<Void> mToggleFollowingObserver = new ScObserver<Void>() {
-        @Override
-        public void onCompleted() {
-            final FragmentActivity activity = getActivity();
-            if (activity != null) {
-                activity.supportInvalidateOptionsMenu();
-            }
+    private static final class ToggleFollowingObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, Void> {
+        public ToggleFollowingObserver(SuggestedUsersCategoryFragment fragment) {
+            super(fragment);
         }
 
         @Override
-        public void onError(Exception e) {
-            mAdapter.notifyDataSetChanged();
+        public void onCompleted(SuggestedUsersCategoryFragment fragment) {
+            fragment.getActivity().supportInvalidateOptionsMenu();
         }
-    };
 
-    private ScObserver<Void> mToggleAllObserver = new ScObserver<Void>() {
         @Override
-        public void onError(Exception e) {
-            mAdapter.notifyDataSetChanged();
+        public void onError(SuggestedUsersCategoryFragment fragment, Exception e) {
+            fragment.mAdapter.notifyDataSetChanged();
         }
-    };
+    }
+
+    private static final class ToggleAllObserver extends RxFragmentErrorHandler<SuggestedUsersCategoryFragment> {
+        public ToggleAllObserver(SuggestedUsersCategoryFragment fragment) {
+            super(fragment);
+        }
+
+        @Override
+        public void onError(SuggestedUsersCategoryFragment fragment, Exception error) {
+            fragment.mAdapter.notifyDataSetChanged();
+        }
+    }
 }

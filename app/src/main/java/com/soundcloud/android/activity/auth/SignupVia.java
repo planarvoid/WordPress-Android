@@ -41,4 +41,8 @@ public enum SignupVia {
     public boolean isFacebook()  {
         return this == FACEBOOK_SSO || this == FACEBOOK_WEBFLOW;
     }
+
+    public boolean isNonFacebookSignup()  {
+        return this == API || this == GOOGLE_PLUS;
+    }
 }

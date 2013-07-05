@@ -12,6 +12,7 @@ import com.soundcloud.android.blueprints.CategoryBlueprint;
 import com.soundcloud.android.blueprints.SuggestedUserBlueprint;
 import com.soundcloud.android.blueprints.TrackBlueprint;
 import com.soundcloud.android.blueprints.UserBlueprint;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.Playable;
@@ -19,6 +20,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
@@ -336,7 +338,7 @@ public class TestHelper {
     public static CategoryGroup buildCategoryGroup(String key, int categoryCount) throws CreateModelException {
         CategoryGroup categoryGroup = new CategoryGroup();
         categoryGroup.setKey(key);
-        categoryGroup.setCategories(Collections.nCopies(categoryCount, getModelFactory().createModel(Category.class)));
+        categoryGroup.setCategories(createCategories(categoryCount));
         return categoryGroup;
     }
 
@@ -405,6 +407,11 @@ public class TestHelper {
         String where = DBHelper.UserAssociationView._ID + " = " + targetId + " AND " +
                 DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
         return loadLocalContentItem(content.uri, UserAssociation.class, where);
+    }
+
+    public static List<UserAssociation> loadUserAssociations(final Content content) throws Exception {
+        String where = DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
+        return loadLocalContent(content.uri, UserAssociation.class, where);
     }
 
     @SuppressWarnings("unchecked")
@@ -489,5 +496,32 @@ public class TestHelper {
             items.add(u);
         }
         return items;
+    }
+
+    public static List<SuggestedUser> createSuggestedUsers(int count) throws CreateModelException {
+        List<SuggestedUser> suggestedUsers = new ArrayList<SuggestedUser>();
+        for (int i = 0; i < count; i++){
+            suggestedUsers.add(TestHelper.getModelFactory().createModel(SuggestedUser.class));
+        }
+        return suggestedUsers;
+    }
+
+    public static List<Category> createCategories(int count) throws CreateModelException {
+        List<Category> categories = new ArrayList<Category>();
+        for (int i = 0; i < count; i++){
+            categories.add(TestHelper.getModelFactory().createModel(Category.class));
+        }
+        return categories;
+    }
+
+    public static List<UserAssociation> createDirtyFollowings(int count) {
+        List<UserAssociation> userAssociations = new ArrayList<UserAssociation>();
+        for (User user : createUsers(count)) {
+            final UserAssociation association = new UserAssociation(Association.Type.FOLLOWING, user);
+            association.markForAddition();
+            userAssociations.add(association);
+        }
+        return userAssociations;
+
     }
 }

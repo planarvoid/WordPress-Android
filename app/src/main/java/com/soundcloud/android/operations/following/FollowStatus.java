@@ -1,5 +1,7 @@
 package com.soundcloud.android.operations.following;
 
+import static com.soundcloud.android.operations.following.FollowingOperations.FollowStatusChangedListener;
+
 import com.google.common.collect.ImmutableSet;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ResolverHelper;
@@ -13,11 +15,9 @@ import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.database.Cursor;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -26,11 +26,13 @@ import java.util.WeakHashMap;
  * support in our list loading.
  */
 @Deprecated
-public class FollowStatus {
+/* package */ class FollowStatus {
     private final Set<Long> followings = Collections.synchronizedSet(new HashSet<Long>());
     private static FollowStatus sInstance;
 
-    private WeakHashMap<Listener, Listener> listeners = new WeakHashMap<Listener, Listener>();
+    private WeakHashMap<FollowStatusChangedListener,FollowStatusChangedListener> listeners =
+            new WeakHashMap<FollowStatusChangedListener, FollowStatusChangedListener>();
+
     private AsyncQueryHandler asyncQueryHandler;
     private Context mContext;
     private long last_sync_success = -1;
@@ -85,7 +87,7 @@ public class FollowStatus {
         return user != null && isFollowing(user.getId());
     }
 
-    public synchronized void requestUserFollowings(final Listener listener) {
+    public synchronized void requestUserFollowings(final FollowStatusChangedListener listener) {
         // add this listener with a weak reference
         listeners.put(listener, null);
         if (asyncQueryHandler == null) {
@@ -107,25 +109,21 @@ public class FollowStatus {
                 null, DBHelper.UserAssociations.REMOVED_AT + " IS NULL", null, null);
     }
 
-    /* package */ void toggleFollowing(User... users) {
+    /* package */ void toggleFollowing(long... userIds) {
 
         synchronized (followings) {
-            for (User user : users) {
-                if (followings.contains(user.getId())) {
-                    followings.remove(user.getId());
+            for (long id : userIds) {
+                if (followings.contains(id)) {
+                    followings.remove(id);
                 } else {
-                    followings.add(user.getId());
+                    followings.add(id);
                 }
             }
         }
 
-        for (Listener l : listeners.keySet()) {
+        for (FollowStatusChangedListener l : listeners.keySet()) {
             l.onFollowChanged();
         }
-    }
-
-    public interface Listener {
-        void onFollowChanged();
     }
 
     private class FollowingQueryHandler extends AsyncQueryHandler {
@@ -153,7 +151,7 @@ public class FollowStatus {
                     if (unFollowedAtStamps.get(id) > last_sync_success) followings.remove(id);
                 }
 
-                for (Listener l : listeners.keySet()) {
+                for (FollowStatusChangedListener l : listeners.keySet()) {
                     l.onFollowChanged();
                 }
             }

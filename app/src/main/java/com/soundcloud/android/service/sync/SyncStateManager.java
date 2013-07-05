@@ -5,11 +5,13 @@ import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
@@ -38,11 +40,12 @@ public class SyncStateManager extends ScheduledOperations {
     private final Map<Long, ContentObserver> mContentObservers;
 
     public SyncStateManager() {
-        this(SoundCloudApplication.instance);
+        this(ScSchedulers.STORAGE_SCHEDULER);
     }
 
-    public SyncStateManager(Context context){
-        mResolver = context.getContentResolver();
+    public SyncStateManager(Scheduler scheduler) {
+        super(scheduler);
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mLocalCollectionDao = new LocalCollectionDAO(mResolver);
         mContentObservers = new HashMap<Long, ContentObserver>();
     }

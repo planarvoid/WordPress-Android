@@ -82,6 +82,17 @@ public class ApiSyncServiceTest {
     }
 
     @Test
+    public void shouldNotEnqueueSameIntentTwice() throws Exception {
+        final Intent syncIntent = new Intent(ApiSyncService.ACTION_PUSH);
+        syncIntent.setData(Content.ME_FOLLOWINGS.uri);
+
+        ApiSyncService svc = new ApiSyncService();
+        svc.enqueueRequest(new SyncIntent(DefaultTestRunner.application, syncIntent));
+        svc.enqueueRequest(new SyncIntent(DefaultTestRunner.application, syncIntent));
+        expect(svc.mPendingRequests.size()).toBe(1);
+    }
+
+    @Test
     public void shouldHandleComplexQueueSituation() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         Context context = DefaultTestRunner.application;

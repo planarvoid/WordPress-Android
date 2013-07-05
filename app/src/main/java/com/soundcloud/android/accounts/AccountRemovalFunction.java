@@ -7,9 +7,9 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
-import com.soundcloud.android.operations.following.FollowStatus;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.CollectionStorage;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
@@ -37,7 +37,7 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
     private final C2DMReceiver mC2DMReceiver;
 
     public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context){
-        this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context), new ActivitiesStorage(context),
+        this(soundCloudAccount, context, accountManager, new SyncStateManager(), new CollectionStorage(context), new ActivitiesStorage(context),
                 SoundRecorder.getInstance(context), new PlayQueueManager(context), new C2DMReceiver());
     }
 
@@ -92,7 +92,7 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
 
 
         mC2DMReceiver.unregister(mContext);
-        FollowStatus.clearState();
+        FollowingOperations.clearState();
         ConnectionsCache.reset();
         SoundCloudApplication applicationContext = (SoundCloudApplication)mContext.getApplicationContext();
         applicationContext.clearLoggedInUser();

@@ -53,7 +53,7 @@ import java.util.Set;
 /**
  * Performs the actual sync with the API. Used by {@link CollectionSyncRequest}.
  * <p/>
- * As a client, do not use this class directly, but use {@link SyncOperations} instead.
+ * As a client, do not use this class directly, but use {@link SyncOperationsOld} instead.
  * <p/>
  * TODO: make package level visible again after removing {@link com.soundcloud.android.task.collection.ActivitiesLoader}
  * TODO: Split this up into different syncers
@@ -228,7 +228,7 @@ public class ApiSyncer extends SyncStrategy {
                     }
                 }
 
-                final String content = mApi.getMapper().writeValueAsString(createObject);
+                final String content = createObject.toJson();
                 log("Pushing new playlist to api: " + content);
 
                 Request r = Request.to(TempEndpoints.PLAYLISTS).withContent(content, "application/json");
@@ -412,7 +412,7 @@ public class ApiSyncer extends SyncStrategy {
                 }
 
                 Playlist.ApiUpdateObject updateObject = new Playlist.ApiUpdateObject(toAdd);
-                final String content = mApi.getMapper().writeValueAsString(updateObject);
+                final String content = updateObject.toJson();
                 log("Pushing new playlist content to api: " + content);
 
                 Request r = Content.PLAYLIST.request(contentUri).withContent(content, "application/json");

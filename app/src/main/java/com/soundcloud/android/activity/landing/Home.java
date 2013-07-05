@@ -24,10 +24,13 @@ import net.hockeyapp.android.UpdateManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 public class Home extends ScActivity implements ScLandingPage {
+    public static final String EXTRA_ONBOARDING_USERS_RESULT  = "onboarding_users_result";
     private FetchUserTask mFetchUserTask;
     private AccountOperations mAccountOperations;
+
     private AndroidCloudAPI oldCloudAPI;
 
     @Override
@@ -38,15 +41,18 @@ public class Home extends ScActivity implements ScLandingPage {
         setTitle(getString(R.string.side_menu_stream));
         final SoundCloudApplication app = getApp();
         if (mAccountOperations.soundCloudAccountExists()) {
-            if (state == null) {
-                getSupportFragmentManager().beginTransaction()
-                        .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
-                        .commit();
-
-                if (SoundCloudApplication.BETA_MODE){
-                    ChangeLog changeLog = new ChangeLog(this);
-                    if (changeLog.isFirstRun()) {
-                        changeLog.getDialog(true).show();
+            if (startedFromOnboardingError()) {
+                mRootView.setContent(View.inflate(this, R.layout.home_onboarding_error, null));
+            } else {
+                if (state == null) {
+                    getSupportFragmentManager().beginTransaction()
+                            .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
+                            .commit();
+                    if (SoundCloudApplication.BETA_MODE) {
+                        ChangeLog changeLog = new ChangeLog(this);
+                        if (changeLog.isFirstRun()) {
+                            changeLog.getDialog(true).show();
+                        }
                     }
                 }
             }
@@ -64,6 +70,10 @@ public class Home extends ScActivity implements ScLandingPage {
                 UpdateManager.register(this, getString(R.string.hockey_app_id));
             }
         }
+    }
+
+    private boolean startedFromOnboardingError() {
+        return !getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true);
     }
 
     @Override

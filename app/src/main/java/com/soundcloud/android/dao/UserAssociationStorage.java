@@ -7,19 +7,31 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SoundAssociation;
+import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.Observer;
+import rx.Scheduler;
+import rx.Subscription;
+import rx.subscriptions.BooleanSubscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,82 +40,127 @@ import java.util.List;
  *
  * @see com.soundcloud.android.model.UserAssociation.Type
  */
-public class UserAssociationStorage {
+public class UserAssociationStorage extends ScheduledOperations {
     private final ContentResolver mResolver;
     private final UserAssociationDAO mUserAssociationDAO;
     private final UserAssociationDAO mFollowingsDAO;
 
     public UserAssociationStorage() {
-        this(SoundCloudApplication.instance.getContentResolver());
+        this(ScSchedulers.STORAGE_SCHEDULER, SoundCloudApplication.instance.getContentResolver());
     }
 
-    public UserAssociationStorage(ContentResolver resolver) {
+    public UserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {
+        super(scheduler);
         mResolver = resolver;
         mUserAssociationDAO = new UserAssociationDAO(mResolver);
         mFollowingsDAO = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, mResolver);
     }
 
-    @Deprecated
-    public List<Long> getStoredIds(Uri uri) {
-        final String selection = Content.ME_FOLLOWINGS.uri.equals(uri)
-                ? DBHelper.UserAssociations.REMOVED_AT + " IS NULL AND " + DBHelper.UserAssociations.ADDED_AT + " IS NULL"
-                : null;
-        return ResolverHelper.idCursorToList(
-                mResolver.query(ResolverHelper.addIdOnlyParameter(uri), null, selection, null, null)
-        );
+    public Observable<UserAssociation> getFollowings() {
+        return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
+            @Override
+            public Subscription call(Observer<UserAssociation> userAssociationObserver) {
+                RxUtils.emitCollection(userAssociationObserver,
+                        mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll()
+                );
+                userAssociationObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+
     }
 
-    public List<UserAssociation> getFollowings() {
-        return mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll();
-    }
-
-    public List<UserAssociation> getFollowingsNeedingSync() {
-        return mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT + " IS NOT NULL OR " +
-                DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NOT NULL"
-        ).queryAll();
-    }
-
-    public boolean hasFollowingsNeedingSync() {
-        return mUserAssociationDAO.count(
-                DBHelper.UserAssociations.ASSOCIATION_TYPE + " = ? AND (" +
-                        DBHelper.UserAssociations.ADDED_AT + " IS NOT NULL OR " +
-                        DBHelper.UserAssociations.REMOVED_AT + " IS NOT NULL )"
-                , String.valueOf(Association.Type.FOLLOWING.collectionType)) > 0;
-    }
-
-    /**
-     * Persists user-followings information to the database. Will create a user association,
+    /* Persists user-followings information to the database. Will create a user association,
      * update the followers count of the target user, and commit to the database.
      *
      * @param user the user that is being followed
      * @return the new association created
      */
-    public UserAssociation addFollowing(User user) {
-        return addFollowing(user, null);
+    public Observable<UserAssociation> follow(final User user) {
+        return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
+            @Override
+            public Subscription call(Observer<UserAssociation> userAssociationObserver) {
+                UserAssociation following = queryFollowingByTargetUserId(user.getId());
+                if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
+                    following = new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition();
+                    mFollowingsDAO.create(following);
+
+                }
+                userAssociationObserver.onNext(following);
+                userAssociationObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+
     }
 
-    public UserAssociation addFollowing(User user, @Nullable String token) {
-        UserAssociation following = queryFollowingByTargetUserId(user.getId());
-        if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL){
-            following = new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition(token);
-            mFollowingsDAO.create(following);
+    public Observable<UserAssociation> followSuggestedUser(final SuggestedUser suggestedUser) {
+        return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
+            @Override
+            public Subscription call(Observer<UserAssociation> userAssociationObserver) {
+                UserAssociation following = queryFollowingByTargetUserId(suggestedUser.getId());
+                if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
+                    following = new UserAssociation(UserAssociation.Type.FOLLOWING, new User(suggestedUser))
+                            .markForAddition(suggestedUser.getToken());
+                    mFollowingsDAO.create(following);
+                }
+                userAssociationObserver.onNext(following);
+                userAssociationObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
 
-        }
-        return following;
     }
 
     /**
      * Add the users passed in as followings. This will not take into account the current status of the logged in
      * user's association, but will just create or update the current status
+     *
      * @param users The users to be followed
-     * @return the number of insertions/updates performed
+     * @return the UserAssociations inserted
      */
-    public int addFollowings(List<User> users) {
-        List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
-        for (User user : users) {
-            userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
-        }
-        return mFollowingsDAO.createCollection(userAssociations);
+    public Observable<UserAssociation> followList(final List<User> users) {
+        return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
+            @Override
+            public Subscription call(Observer<UserAssociation> userAssociationObserver) {
+                List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
+                for (User user : users) {
+                    userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
+                }
+                mFollowingsDAO.createCollection(userAssociations);
+                RxUtils.emitCollection(userAssociationObserver, userAssociations);
+                userAssociationObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+
+    }
+
+    /**
+     * Add the Suggested Users passed in as followings. This will also pass the Suggested User token to the constructor
+     * of the User Association. This will not take into account the current status of the logged in
+     * user's association, but will just create or update the current status
+     *
+     * @param suggestedUsers
+     * @return
+     */
+    public Observable<UserAssociation> followSuggestedUserList(final List<SuggestedUser> suggestedUsers) {
+        return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
+            @Override
+            public Subscription call(Observer<UserAssociation> userAssociationObserver) {
+                List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(suggestedUsers.size());
+                for (SuggestedUser suggestedUser : suggestedUsers) {
+                    userAssociations.add(new UserAssociation(
+                            UserAssociation.Type.FOLLOWING, new User(suggestedUser)
+                    ).markForAddition(suggestedUser.getToken()));
+                }
+                mFollowingsDAO.createCollection(userAssociations);
+                RxUtils.emitCollection(userAssociationObserver, userAssociations);
+                userAssociationObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+
     }
 
     /**
@@ -113,27 +170,52 @@ public class UserAssociationStorage {
      * @param user the user whose following should be removed
      * @return
      */
-    public UserAssociation removeFollowing(User user) {
-        final UserAssociation following = new UserAssociation(SoundAssociation.Type.FOLLOWING, user).markForRemoval();
-        if (mUserAssociationDAO.update(following)) {
-            new UserDAO(mResolver).update(user);
-            return following;
-        }
-        return null;
+    public Observable<UserAssociation> unfollow(final User user) {
+        return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
+            @Override
+            public Subscription call(Observer<UserAssociation> userAssociationObserver) {
+                final UserAssociation following = new UserAssociation(SoundAssociation.Type.FOLLOWING, user).markForRemoval();
+                if (mUserAssociationDAO.update(following)) {
+                    new UserDAO(mResolver).update(user);
+                    userAssociationObserver.onNext(following);
+                    userAssociationObserver.onCompleted();
+                } else {
+                    userAssociationObserver.onError(new Exception("Update failed"));
+                }
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     /**
      * Create or update user associations of type FOLLOWING as marked for removal. This will ignore any current user
      * associations and do a bulk insert.
+     *
      * @param users the users to mark for removal
      * @return the number of insertions/updates performed
      */
-    public int removeFollowings(List<User> users) {
-        List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
-        for (User user : users) {
-            userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForRemoval());
-        }
-        return mFollowingsDAO.createCollection(userAssociations);
+    public Observable<UserAssociation> unfollowList(final List<User> users) {
+        return  schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
+            @Override
+            public Subscription call(Observer<UserAssociation> userAssociationObserver) {
+                List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
+                for (User user : users) {
+                    userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForRemoval());
+                }
+                mFollowingsDAO.createCollection(userAssociations);
+                RxUtils.emitCollection(userAssociationObserver, userAssociations);
+                userAssociationObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
+    @Deprecated
+    public List<Long> getStoredIds(Uri uri) {
+        final String selection = Content.ME_FOLLOWINGS.uri.equals(uri)
+                ? DBHelper.UserAssociations.REMOVED_AT + " IS NULL AND " + DBHelper.UserAssociations.ADDED_AT + " IS NULL"
+                : null;
+        return ResolverHelper.idCursorToList(mResolver.query(ResolverHelper.addIdOnlyParameter(uri), null, selection, null, null));
     }
 
     @Deprecated
@@ -189,6 +271,20 @@ public class UserAssociationStorage {
         UserAssociationDAO.forContent(Content.USER_ASSOCIATIONS, mResolver).deleteAll();
     }
 
+    public List<UserAssociation> getFollowingsNeedingSync() {
+        return mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT + " IS NOT NULL OR " +
+                DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NOT NULL"
+        ).queryAll();
+    }
+
+    public boolean hasFollowingsNeedingSync() {
+        return mUserAssociationDAO.count(
+                DBHelper.UserAssociations.ASSOCIATION_TYPE + " = ? AND (" +
+                        DBHelper.UserAssociations.ADDED_AT + " IS NOT NULL OR " +
+                        DBHelper.UserAssociations.REMOVED_AT + " IS NOT NULL )"
+                , String.valueOf(Association.Type.FOLLOWING.collectionType)) > 0;
+    }
+
     public boolean setFollowingAsSynced(UserAssociation a) {
         UserAssociation following = queryFollowingByTargetUserId(a.getUser().getId());
         if (following != null) {
@@ -201,6 +297,30 @@ public class UserAssociationStorage {
             }
         }
         return false;
+    }
+
+    public boolean deleteFollowings(Collection<UserAssociation> followings){
+        for (UserAssociation following : followings){
+            if (!mFollowingsDAO.delete(following)) return false;
+        }
+        return true;
+    }
+
+    //TODO: this should be a bulk insert
+    public Observable<Collection<UserAssociation>> setFollowingsAsSynced(final Collection<UserAssociation> userAssociations) {
+        return Observable.create(new Func1<Observer<Collection<UserAssociation>>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Collection<UserAssociation>> observer) {
+                final BooleanSubscription subscription = new BooleanSubscription();
+                for (UserAssociation ua : userAssociations) {
+                    if (subscription.isUnsubscribed()) break;
+                    setFollowingAsSynced(ua);
+                }
+                observer.onNext(userAssociations);
+                observer.onCompleted();
+                return subscription;
+            }
+        });
     }
 
     @Nullable

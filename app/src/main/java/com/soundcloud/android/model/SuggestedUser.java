@@ -9,7 +9,11 @@ import android.os.Parcelable;
 @Model
 public class SuggestedUser extends ScModel {
 
-    private String mUsername, mCity, mCountry;
+    private String mUsername;
+    private String mCity;
+    private String mCountry;
+
+    private String mToken;
 
     public SuggestedUser() {
     }
@@ -23,6 +27,7 @@ public class SuggestedUser extends ScModel {
         mUsername = parcel.readString();
         mCity = parcel.readString();
         mCountry = parcel.readString();
+        mToken = parcel.readString();
     }
 
     public String getUsername() {
@@ -49,12 +54,21 @@ public class SuggestedUser extends ScModel {
         this.mCountry = country;
     }
 
+    public String getToken() {
+        return mToken;
+    }
+
+    public void setToken(String token) {
+        mToken = token;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeString(mUsername);
         dest.writeString(mCity);
         dest.writeString(mCountry);
+        dest.writeString(mToken);
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
@@ -77,7 +91,7 @@ public class SuggestedUser extends ScModel {
     }
 
     public String getAvatarUrl() {
-        return ClientUri.fromUri("soundcloud:users:30511050").imageUri(ImageSize.T500).toString();
+        return getUrn().imageUri(ImageSize.T500).toString();
     }
 
     public String getLocation() {

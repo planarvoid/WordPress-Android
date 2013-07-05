@@ -18,22 +18,22 @@ import java.util.List;
 
 public class SuggestedUsersOperations extends ScheduledOperations {
 
-    private static final Func1<Exception,CategoryGroup> EMPTY_FACEBOOK_GROUP = new Func1<Exception, CategoryGroup>() {
+    private static final Func1<Exception, CategoryGroup> EMPTY_FACEBOOK_GROUP = new Func1<Exception, CategoryGroup>() {
         @Override
         public CategoryGroup call(Exception e) {
-            return new CategoryGroup(CategoryGroup.KEY_FACEBOOK);
+            return CategoryGroup.createErrorGroup(CategoryGroup.KEY_FACEBOOK);
         }
     };
 
-    private RxHttpClient mRxHttpClient;
+    private final RxHttpClient mRxHttpClient;
 
     public SuggestedUsersOperations() {
         this(new SoundCloudRxHttpClient());
     }
 
     @VisibleForTesting
-    protected SuggestedUsersOperations(RxHttpClient rxHttpClient) {
-        this.mRxHttpClient = rxHttpClient;
+    public SuggestedUsersOperations(RxHttpClient rxHttpClient) {
+        mRxHttpClient = rxHttpClient;
     }
 
     public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
@@ -41,7 +41,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateAPI(1)
                 .forResource(new TypeToken<List<CategoryGroup>>() {})
                 .build();
-        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request));
+        return schedule(mRxHttpClient.<CategoryGroup>fetchModels(request));
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions() {
@@ -49,10 +49,11 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateAPI(1)
                 .forResource(new TypeToken<List<CategoryGroup>>() {})
                 .build();
-        return schedule(mRxHttpClient.<CategoryGroup>executeAPIRequest(request).onErrorReturn(EMPTY_FACEBOOK_GROUP));
+        return schedule(mRxHttpClient.<CategoryGroup>fetchModels(request).onErrorReturn(EMPTY_FACEBOOK_GROUP));
     }
 
     public Observable<CategoryGroup> getCategoryGroups() {
         return schedule(Observable.merge(getMusicAndSoundsSuggestions(), getFacebookSuggestions()));
     }
+
 }

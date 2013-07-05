@@ -2,6 +2,7 @@ package com.soundcloud.android.service.sync;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.ParallelAsyncTask;
@@ -44,6 +45,13 @@ public class ApiSyncService extends Service {
     /* package */ final LinkedList<CollectionSyncRequest> mPendingRequests = new LinkedList<CollectionSyncRequest>();
     /* package */ final List<CollectionSyncRequest> mRunningRequests = new ArrayList<CollectionSyncRequest>();
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // We have to make sure the follow cache is instantiated on the UI thread, or the syncer could cause a crash
+        // TODO, remove this once we get rid of FollowStatus
+        FollowingOperations.init();
+    }
 
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);

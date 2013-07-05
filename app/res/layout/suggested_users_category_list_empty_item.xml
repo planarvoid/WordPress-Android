@@ -7,7 +7,7 @@
     <include layout="@layout/suggested_users_category_list_section_header"/>
 
     <RelativeLayout android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="?android:attr/listPreferredItemHeight"
                     android:paddingTop="15dp"
                     android:paddingBottom="15dp"
                     android:paddingLeft="20dp"
@@ -16,10 +16,9 @@
                     android:background="@drawable/list_selector_background">
 
         <TextView android:id="@android:id/text1"
-                  android:layout_width="wrap_content"
+                  android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:gravity="center"
-                  android:text="@string/suggested_users_no_categories_returned"
                   android:textColor="@drawable/txt_list_secondary_states"/>
 
     </RelativeLayout>

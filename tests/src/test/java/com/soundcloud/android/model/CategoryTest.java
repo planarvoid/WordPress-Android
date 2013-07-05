@@ -3,7 +3,9 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,15 +34,15 @@ public class CategoryTest {
 
     @Test
     public void shouldBeParcelable(){
-        mCategory.setName("TrapStep");
-        mCategory.setPermalink("trapstep");
+        mCategory.setKey("trapstep");
+        mCategory.setDisplayType(Category.DisplayType.PROGRESS);
 
         Parcel parcel = Parcel.obtain();
         mCategory.writeToParcel(parcel, 0);
 
         Category category = new Category(parcel);
-        expect(category.getName()).toEqual(mCategory.getName());
-        expect(category.getPermalink()).toEqual(mCategory.getPermalink());
+        expect(category.getKey()).toEqual(mCategory.getKey());
+        expect(category.getDisplayType()).toEqual(mCategory.getDisplayType());
         /*
         Not implemented by Robolectric
         expect(category.getUsers()).toEqual(mCategory.getUsers());
@@ -92,5 +94,28 @@ public class CategoryTest {
     @Test
     public void isFollowedShouldReturnTrueIfAtLeastOneUserIsBeingFollowed() {
         expect(mCategory.isFollowed(Sets.newSet(1L, 100L))).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnEmptyMessage() {
+        mCategory.setDisplayType(Category.DisplayType.EMPTY);
+        checkEmptyMessage(R.string.suggested_users_section_empty);
+    }
+
+    @Test
+    public void shouldReturnErrorMessage() {
+        mCategory.setDisplayType(Category.DisplayType.ERROR);
+        checkEmptyMessage(R.string.suggested_users_section_error);
+    }
+
+    @Test
+    public void shouldReturnNullEmptyMessage() {
+        mCategory.setDisplayType(Category.DisplayType.DEFAULT);
+        expect(mCategory.getEmptyMessage(Robolectric.application.getResources())).toBeNull();
+    }
+
+    private void checkEmptyMessage(int expectedMessageResId) {
+        final String emptyMessage = mCategory.getEmptyMessage(Robolectric.application.getResources());
+        expect(emptyMessage).toEqual(Robolectric.application.getResources().getString(expectedMessageResId));
     }
 }

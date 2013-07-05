@@ -1,15 +1,22 @@
 package com.soundcloud.android.service.sync.content;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.SuggestedUsersOperations;
+import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.UserAssociationStorage;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.rx.observers.ScSuccessObserver;
 import com.soundcloud.android.service.sync.ApiSyncResult;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.api.Endpoints;
@@ -17,6 +24,8 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.Scheduler;
+import rx.concurrency.Schedulers;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -25,6 +34,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,22 +44,28 @@ public class UserAssociationSyncer extends SyncStrategy {
     private static final int BULK_INSERT_BATCH_SIZE = 500;
     private static final String REQUEST_NO_BACKOFF = "0";
 
-    private final CollectionStorage mCollectionStorage;
-    private final UserAssociationStorage mUserAssociationStorage;
+    private CollectionStorage mCollectionStorage;
+    private UserAssociationStorage mUserAssociationStorage;
+    private FollowingOperations mFollowingOperations;
     private int mBulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
-    private SuggestedUsersOperations mSuggestedUsersOperations;
 
     public UserAssociationSyncer(Context context) {
-        this(context, context.getContentResolver(), new UserAssociationStorage(context.getContentResolver()), new SuggestedUsersOperations());
+        super(context, context.getContentResolver());
+        Scheduler scheduler = Schedulers.currentThread();
+        init(new UserAssociationStorage(scheduler, context.getContentResolver()), new FollowingOperations(scheduler));
     }
 
     @VisibleForTesting
     protected UserAssociationSyncer(Context context, ContentResolver resolver, UserAssociationStorage userAssociationStorage,
-                                    SuggestedUsersOperations suggestedUsersOperations) {
+                                    FollowingOperations followingOperations) {
         super(context, resolver);
-        mSuggestedUsersOperations = suggestedUsersOperations;
-        mCollectionStorage = new CollectionStorage();
+        init(userAssociationStorage, followingOperations);
+    }
+
+    private void init(UserAssociationStorage userAssociationStorage, FollowingOperations followingOperations) {
+        mFollowingOperations = followingOperations;
         mUserAssociationStorage = userAssociationStorage;
+        mCollectionStorage = new CollectionStorage();
     }
 
     public void setBulkInsertBatchSize(int bulkInsertBatchSize) {
@@ -119,23 +135,12 @@ public class UserAssociationSyncer extends SyncStrategy {
         return result;
     }
 
-    private ApiSyncResult pushUserAssociations(Content content) {
-        ApiSyncResult result = new ApiSyncResult(content.uri);
-        result.success = true;
-        if (content == Content.ME_FOLLOWINGS && mUserAssociationStorage.hasFollowingsNeedingSync()) {
-            for (UserAssociation userAssociation : mUserAssociationStorage.getFollowingsNeedingSync()) {
-                if (!pushUserAssociation(userAssociation)) result.success = false;
-            }
-        }
-        return result;
-    }
-
-    /* package */ boolean pushUserAssociation(UserAssociation a) {
-        final Request request = Request.to(Endpoints.MY_FOLLOWING, a.getUser().getId());
+    /* package */ boolean pushUserAssociation(UserAssociation userAssociation) {
+        final Request request = Request.to(Endpoints.MY_FOLLOWING, userAssociation.getUser().getId());
         try {
             final boolean success;
 
-            switch (a.getLocalSyncState()) {
+            switch (userAssociation.getLocalSyncState()) {
                 case PENDING_ADDITION:
                     int status = mApi.put(request).getStatusLine().getStatusCode();
                     success = status == HttpStatus.SC_OK || status == HttpStatus.SC_CREATED;
@@ -150,7 +155,9 @@ public class UserAssociationSyncer extends SyncStrategy {
                     // no flags, no op.
                     return true;
             }
-            if (success) mUserAssociationStorage.setFollowingAsSynced(a);
+            if (success){
+                mUserAssociationStorage.setFollowingAsSynced(userAssociation);
+            }
             return success;
 
         } catch (IOException e) {
@@ -183,5 +190,55 @@ public class UserAssociationSyncer extends SyncStrategy {
                 }
         }
         return result.change == ApiSyncResult.UNCHANGED;
+    }
+
+    private ApiSyncResult pushUserAssociations(Content content) {
+        final ApiSyncResult result = new ApiSyncResult(content.uri);
+        result.success = true;
+        if (content == Content.ME_FOLLOWINGS && mUserAssociationStorage.hasFollowingsNeedingSync()) {
+            List<UserAssociation> associationsNeedingSync = mUserAssociationStorage.getFollowingsNeedingSync();
+            for(UserAssociation userAssociation : associationsNeedingSync){
+                if (!userAssociation.hasToken() && !pushUserAssociation(userAssociation)){
+                    result.success = false;
+                }
+            }
+
+            final BulkFollowObserver observer = new BulkFollowObserver(associationsNeedingSync, mUserAssociationStorage, new FollowingOperations());
+            mFollowingOperations.bulkFollowAssociations(associationsNeedingSync).subscribe(observer);
+            result.success = observer.wasSuccess();
+        }
+        return result;
+    }
+
+    protected static class BulkFollowObserver extends ScSuccessObserver<Void> {
+
+        private final FollowingOperations mFollowingOperations;
+        private UserAssociationStorage mUserAssociationStorage;
+        private Collection<UserAssociation> mUserAssociations;
+
+        public BulkFollowObserver(Collection<UserAssociation> userAssociations, UserAssociationStorage userAssociationStorage, FollowingOperations followingOperations) {
+            mUserAssociations = userAssociations;
+            mUserAssociationStorage = userAssociationStorage;
+            mFollowingOperations = followingOperations;
+        }
+
+        @Override
+        public void onError(Exception e) {
+            if (e instanceof APIRequestException && ((APIRequestException) e).response().responseCodeisForbidden()) {
+                /*
+                 Tokens were expired. Delete the user associations and followings from memory.
+                 TODO : retry logic somehow
+                  */
+                final Collection<User> users = Collections2.transform(mUserAssociations, new Function<UserAssociation, User>() {
+                    @Override
+                    public User apply(UserAssociation input) {
+                        return input.getUser();
+                    }
+                });
+                mFollowingOperations.updateLocalStatus(false, ScModel.getIdList(Lists.newArrayList(users)));
+                mUserAssociationStorage.deleteFollowings(mUserAssociations);
+            }
+            super.onError(e);
+        }
     }
 }
