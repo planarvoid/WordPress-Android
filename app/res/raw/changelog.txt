@@ -1,7 +1,8 @@
 $ 64
   % v current
   _ 2013-07-03
-  ! TBD
+  ! Onboarding
+  * Added new suggested users screen to Onboarding
 
 $ 63
   % v 2.6.2
