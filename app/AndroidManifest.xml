@@ -181,6 +181,9 @@
         <activity android:name=".activity.landing.SuggestedUsersCategoryActivity"
                   android:theme="@style/Theme.Onboard"
                   android:label="" />
+        <activity android:name=".activity.landing.SuggestedUsersSyncActivity"
+                  android:theme="@style/Theme.Onboard"
+                  android:label="" />
 
         <!-- old suggested users -->
         <activity android:name=".activity.landing.WhoToFollowActivity" android:label="@string/side_menu_who_to_follow">

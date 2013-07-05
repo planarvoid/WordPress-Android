@@ -3,9 +3,9 @@ package com.soundcloud.android.activity.landing;
 import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.dialog.OnboardSuggestedUsersSyncFragment;
 import com.soundcloud.android.fragment.SuggestedUsersCategoriesFragment;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -30,10 +30,8 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.finish) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.categories_fragment_holder, new OnboardSuggestedUsersSyncFragment())
-                    .commit();
+            startActivity(new Intent(this, SuggestedUsersSyncActivity.class));
+            finish();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
