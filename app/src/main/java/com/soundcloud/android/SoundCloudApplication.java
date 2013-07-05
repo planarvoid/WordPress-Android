@@ -183,10 +183,6 @@ public class SoundCloudApplication extends Application implements Tracker {
         if (account != null) {
             mLoggedInUser = user;
 
-            // We have to make sure the follow cache is instantiated on the UI thread, or the syncer could cause a crash
-            // TODO, remove this once we get rid of FollowStatus
-            FollowingOperations.init();
-
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
 
