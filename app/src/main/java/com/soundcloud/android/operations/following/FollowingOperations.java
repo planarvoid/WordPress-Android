@@ -40,13 +40,16 @@ import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import android.content.Context;
+import android.os.SystemClock;
+import android.util.Log;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 public class FollowingOperations extends ScheduledOperations {
+
+    private static final String LOG_TAG = FollowingOperations.class.getSimpleName();
 
     private final FollowStatus mFollowStatus;
     private final SyncStateManager mSyncStateManager;
@@ -179,15 +182,28 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     //TODO: didn't have enough time porting this over, next time :)
+    // couldn't write tests either since Activities.fetch isn't mockable :(
     private Observable<Boolean> fetchActivities(final OldCloudAPI api) {
         return Observable.create(new Func1<Observer<Boolean>, Subscription>() {
             @Override
             public Subscription call(Observer<Boolean> observer) {
                 try {
-                    Activities activities = Activities.fetch(api, Request.to(TempEndpoints.e1.MY_STREAM));
-                    observer.onNext(activities != null && !activities.isEmpty());
+                    boolean hasActivities = false;
+                    int attempts = 3;
+                    while (!hasActivities && attempts > 0) {
+                        // backoff for 1, 2, 4 seconds
+                        long backoffTime = 4 / attempts * 1000;
+                        Log.d(LOG_TAG, "Fetching activities; tries left = " + attempts);
+                        Log.d(LOG_TAG, "Sleeping for " + backoffTime);
+                        SystemClock.sleep(backoffTime);
+                        attempts--;
+                        Activities activities = Activities.fetch(api, Request.to(TempEndpoints.e1.MY_STREAM));
+                        hasActivities = activities != null && !activities.isEmpty();
+                        Log.d(LOG_TAG, "Has activities = " + hasActivities);
+                    }
+                    observer.onNext(hasActivities);
                     observer.onCompleted();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     observer.onError(e);
                 }
                 return Subscriptions.empty();

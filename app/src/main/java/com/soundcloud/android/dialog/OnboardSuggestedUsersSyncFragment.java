@@ -57,19 +57,20 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
         getSherlockActivity().finish();
     }
 
-    public static class FollowingsSyncObserver extends RxFragmentObserver<OnboardSuggestedUsersSyncFragment, Void> {
+    public static class FollowingsSyncObserver extends RxFragmentObserver<OnboardSuggestedUsersSyncFragment, Boolean> {
 
         public FollowingsSyncObserver(OnboardSuggestedUsersSyncFragment fragment) {
             super(fragment);
         }
 
         @Override
-        public void onCompleted(OnboardSuggestedUsersSyncFragment fragment) {
-            fragment.finish(true);
+        public void onNext(OnboardSuggestedUsersSyncFragment fragment, Boolean success) {
+            fragment.finish(success);
         }
 
         @Override
         public void onError(OnboardSuggestedUsersSyncFragment fragment, Exception error) {
+            error.printStackTrace();
             fragment.finish(false);
         }
     }
