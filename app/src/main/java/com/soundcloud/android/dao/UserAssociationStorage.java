@@ -76,7 +76,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param user the user that is being followed
      * @return the new association created
      */
-    public Observable<UserAssociation> addFollowing(final User user) {
+    public Observable<UserAssociation> follow(final User user) {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -94,7 +94,7 @@ public class UserAssociationStorage extends ScheduledOperations {
 
     }
 
-    public Observable<UserAssociation> addFollowingBySuggestedUser(final SuggestedUser suggestedUser) {
+    public Observable<UserAssociation> followSuggestedUser(final SuggestedUser suggestedUser) {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -119,7 +119,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param users The users to be followed
      * @return the UserAssociations inserted
      */
-    public Observable<UserAssociation> addFollowings(final List<User> users) {
+    public Observable<UserAssociation> followList(final List<User> users) {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -144,7 +144,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param suggestedUsers
      * @return
      */
-    public Observable<UserAssociation> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
+    public Observable<UserAssociation> followSuggestedUserList(final List<SuggestedUser> suggestedUsers) {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -170,7 +170,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param user the user whose following should be removed
      * @return
      */
-    public Observable<UserAssociation> removeFollowing(final User user) {
+    public Observable<UserAssociation> unfollow(final User user) {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -194,7 +194,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param users the users to mark for removal
      * @return the number of insertions/updates performed
      */
-    public Observable<UserAssociation> removeFollowings(final List<User> users) {
+    public Observable<UserAssociation> unfollowList(final List<User> users) {
         return  schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -297,6 +297,13 @@ public class UserAssociationStorage extends ScheduledOperations {
             }
         }
         return false;
+    }
+
+    public boolean deleteFollowings(Collection<UserAssociation> followings){
+        for (UserAssociation following : followings){
+            if (!mFollowingsDAO.delete(following)) return false;
+        }
+        return true;
     }
 
     //TODO: this should be a bulk insert

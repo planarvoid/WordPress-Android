@@ -10,12 +10,12 @@ import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.dao.CollectionStorage;
 import com.soundcloud.android.dao.UserAssociationStorage;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.rx.observers.ScSuccessObserver;
 import com.soundcloud.android.service.sync.ApiSyncResult;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -223,27 +223,20 @@ public class UserAssociationSyncer extends SyncStrategy {
         }
 
         @Override
-        public void onCompleted() {
-            for(UserAssociation userAssociation : mUserAssociations){
-                mUserAssociationStorage.setFollowingAsSynced(userAssociation);
-            }
-            super.onCompleted();
-        }
-
-        @Override
         public void onError(Exception e) {
             if (e instanceof APIRequestException && ((APIRequestException) e).response().responseCodeisForbidden()) {
                 /*
-                 Tokens were expired. Remove the user associations and followings from memory.
+                 Tokens were expired. Delete the user associations and followings from memory.
                  TODO : retry logic somehow
                   */
-                Collection<User> users = Collections2.transform(mUserAssociations, new Function<UserAssociation, User>() {
+                final Collection<User> users = Collections2.transform(mUserAssociations, new Function<UserAssociation, User>() {
                     @Override
                     public User apply(UserAssociation input) {
                         return input.getUser();
                     }
                 });
-                mFollowingOperations.removeFollowings(Lists.newArrayList(users)).subscribe(ScActions.NO_OP);
+                mFollowingOperations.updateLocalStatus(false, ScModel.getIdList(Lists.newArrayList(users)));
+                mUserAssociationStorage.deleteFollowings(mUserAssociations);
             }
             super.onError(e);
         }

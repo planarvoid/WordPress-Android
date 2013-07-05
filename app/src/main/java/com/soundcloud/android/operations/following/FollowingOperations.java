@@ -84,32 +84,32 @@ public class FollowingOperations extends ScheduledOperations {
 
     public Observable<UserAssociation> addFollowing(@NotNull final User user) {
         updateLocalStatus(true, user.getId());
-        return mUserAssociationStorage.addFollowing(user);
+        return mUserAssociationStorage.follow(user);
     }
 
     public Observable<UserAssociation> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
         updateLocalStatus(true, suggestedUser.getId());
-        return mUserAssociationStorage.addFollowingBySuggestedUser(suggestedUser);
+        return mUserAssociationStorage.followSuggestedUser(suggestedUser);
     }
 
     public Observable<UserAssociation> addFollowings(final List<User> users) {
         updateLocalStatus(true, ScModel.getIdList(users));
-        return mUserAssociationStorage.addFollowings(users);
+        return mUserAssociationStorage.followList(users);
     }
 
     public Observable<UserAssociation> removeFollowing(final User user) {
         updateLocalStatus(false, user.getId());
-        return mUserAssociationStorage.removeFollowing(user);
+        return mUserAssociationStorage.unfollow(user);
     }
 
     public Observable<UserAssociation> removeFollowings(final List<User> users) {
         updateLocalStatus(false, ScModel.getIdList(users));
-        return mUserAssociationStorage.removeFollowings(users);
+        return mUserAssociationStorage.unfollowList(users);
     }
 
     public Observable<UserAssociation> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
         updateLocalStatus(true, ScModel.getIdList(suggestedUsers));
-        return mUserAssociationStorage.addFollowingsBySuggestedUsers(suggestedUsers);
+        return mUserAssociationStorage.followSuggestedUserList(suggestedUsers);
     }
 
     public Observable<UserAssociation> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
@@ -223,7 +223,7 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
 
-    private void updateLocalStatus(boolean shouldFollow, long... userIds) {
+    public void updateLocalStatus(boolean shouldFollow, long... userIds) {
         final boolean hadNoFollowings = mFollowStatus.isEmpty();
         // update followings ID cache
         mFollowStatus.toggleFollowing(userIds);

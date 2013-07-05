@@ -20,13 +20,13 @@ import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.model.Association;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.service.sync.ApiSyncResult;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ApiSyncServiceTest;
@@ -66,8 +66,6 @@ public class UserAssociationSyncerTest {
     private User user;
     @Mock
     private Observable<Collection<UserAssociation>> observable;
-    @Mock
-    private Observable<UserAssociation> userAssociationObservable;
     @Mock
     private FollowingOperations followingOperations;
     @Mock
@@ -241,29 +239,18 @@ public class UserAssociationSyncerTest {
     }
 
     @Test
-    public void shouldSetSuccessfullyPushedAssociationsAsSynced() throws Exception {
-        List<UserAssociation> usersAssociations = getDirtyUserAssociations();
-        BulkFollowObserver bulkFollowObserver = new BulkFollowObserver(usersAssociations, userAssociationStorage, followingOperations);
-        bulkFollowObserver.onCompleted();
-
-        for (UserAssociation userAssociation : usersAssociations) {
-            verify(userAssociationStorage).setFollowingAsSynced(userAssociation);
-        }
-    }
-
-    @Test
     public void shouldDeleteAssociationsPushedThatReceiveForbiddenResponse() throws Exception {
-        List<UserAssociation> usersAssociations = getDirtyUserAssociations();
+        List<UserAssociation> userAssociations = getDirtyUserAssociations();
 
-        BulkFollowObserver bulkFollowObserver = new BulkFollowObserver(usersAssociations, userAssociationStorage, followingOperations);
+        BulkFollowObserver bulkFollowObserver = new BulkFollowObserver(userAssociations, userAssociationStorage, followingOperations);
         when(apiRequestException.response()).thenReturn(apiResponse);
         when(apiResponse.responseCodeisForbidden()).thenReturn(true);
 
-        final ArrayList<User> users = Lists.newArrayList(usersAssociations.get(0).getUser(), usersAssociations.get(1).getUser(), usersAssociations.get(2).getUser());
-        when(followingOperations.removeFollowings(users)).thenReturn(userAssociationObservable);
+        final ArrayList<User> users = Lists.newArrayList(userAssociations.get(0).getUser(), userAssociations.get(1).getUser(), userAssociations.get(2).getUser());
 
         bulkFollowObserver.onError(apiRequestException);
-        verify(userAssociationObservable).subscribe(ScActions.NO_OP);
+        verify(followingOperations).updateLocalStatus(false, ScModel.getIdList(users));
+        verify(userAssociationStorage).deleteFollowings(userAssociations);
     }
 
     private List<UserAssociation> getDirtyUserAssociations() {
@@ -286,10 +273,6 @@ public class UserAssociationSyncerTest {
         when(followingOperations.bulkFollowAssociations(usersAssociations)).thenReturn(observable);
 
         expect(pushSyncMockedStorage(Content.ME_FOLLOWINGS.uri).success).toBeFalse();
-
-        for (UserAssociation userAssociation : usersAssociations) {
-            verify(userAssociationStorage, never()).setFollowingAsSynced(userAssociation);
-        }
     }
 
     @Test(expected = IOException.class)

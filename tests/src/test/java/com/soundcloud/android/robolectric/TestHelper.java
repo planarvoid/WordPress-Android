@@ -409,6 +409,11 @@ public class TestHelper {
         return loadLocalContentItem(content.uri, UserAssociation.class, where);
     }
 
+    public static List<UserAssociation> loadUserAssociations(final Content content) throws Exception {
+        String where = DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
+        return loadLocalContent(content.uri, UserAssociation.class, where);
+    }
+
     @SuppressWarnings("unchecked")
     public static <T extends Persisted> T reload(final T model) {
         try {

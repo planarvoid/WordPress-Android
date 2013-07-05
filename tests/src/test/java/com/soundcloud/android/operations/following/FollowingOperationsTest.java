@@ -186,25 +186,25 @@ public class FollowingOperationsTest {
     @Test
     public void shouldCommitFollowingsListToLocalStorageOnAddition() throws CreateModelException {
         ops.addFollowing(user);
-        verify(userAssociationStorage).addFollowing(user);
+        verify(userAssociationStorage).follow(user);
     }
 
     @Test
     public void shouldCommitFollowingsListToLocalStorageOnRemoval() throws CreateModelException {
         ops.removeFollowing(user);
-        verify(userAssociationStorage).removeFollowing(user);
+        verify(userAssociationStorage).unfollow(user);
     }
 
     @Test
     public void shouldCommitFollowingsListToLocalStorageOnListAddition() throws CreateModelException {
         ops.addFollowings(users);
-        verify(userAssociationStorage).addFollowings(users);
+        verify(userAssociationStorage).followList(users);
     }
 
     @Test
     public void shouldCommitFollowingsListToLocalStorageOnListRemoval() throws CreateModelException {
         ops.removeFollowings(users);
-        verify(userAssociationStorage).removeFollowings(users);
+        verify(userAssociationStorage).unfollowList(users);
     }
 
     @Test
