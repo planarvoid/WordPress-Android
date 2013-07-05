@@ -44,7 +44,7 @@ public class SyncPoller implements Runnable {
             @Nullable
             @Override
             public String apply(@Nullable CollectionSyncRequest input) {
-                return input.contentUri.getPath();
+                return input.getContentUri().getPath();
             }
         });
         return Joiner.on(",").join(uriList);
