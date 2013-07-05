@@ -268,7 +268,7 @@ public class UserAssociationSyncerTest {
 
     private List<UserAssociation> getDirtyUserAssociations() {
         List<UserAssociation> usersAssociations = TestHelper.createDirtyFollowings(3);
-        for (UserAssociation association : usersAssociations){
+        for (UserAssociation association : usersAssociations) {
             association.markForAddition();
         }
         return usersAssociations;
@@ -283,7 +283,7 @@ public class UserAssociationSyncerTest {
         for (UserAssociation association : usersAssociations) association.markForAddition();
 
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(usersAssociations);
-        when (followingOperations.bulkFollowAssociations(usersAssociations)).thenReturn(observable);
+        when(followingOperations.bulkFollowAssociations(usersAssociations)).thenReturn(observable);
 
         expect(pushSyncMockedStorage(Content.ME_FOLLOWINGS.uri).success).toBeFalse();
 
@@ -306,11 +306,11 @@ public class UserAssociationSyncerTest {
     }
 
     @Test
-    public void shouldBulkFollowAllAssociationsThatRequire() throws IOException {
+    public void shouldBulkFollowAllAssociations() throws IOException {
         final ArrayList<UserAssociation> userAssociations = newArrayList(userAssociation, userAssociation, userAssociation);
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(userAssociations);
-        when (followingOperations.bulkFollowAssociations(userAssociations)).thenReturn(observable);
+        when(followingOperations.bulkFollowAssociations(userAssociations)).thenReturn(observable);
         userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH);
         verify(followingOperations).bulkFollowAssociations(userAssociations);
     }
