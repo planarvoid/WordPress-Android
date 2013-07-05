@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.http.APIResponse;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
@@ -19,26 +20,17 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
-import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.Observer;
 import rx.Scheduler;
-import rx.Subscription;
-import rx.subscriptions.BooleanSubscription;
-import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
-
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.ResultReceiver;
+import rx.util.functions.Func2;
 
 import java.util.Collection;
 import java.util.List;
@@ -135,83 +127,40 @@ public class FollowingOperations extends ScheduledOperations {
         }
     }
 
-    public Observable<Void> bulkFollowAssociations(final Collection<UserAssociation> userAssociations) {
-        return createApiRequestObservable(userAssociations).flatMap(new Func1<APIRequest<Void>, Observable<Void>>() {
+    public Observable<Collection<UserAssociation>> bulkFollowAssociations(final Collection<UserAssociation> userAssociations) {
+        final APIRequest<Void> apiRequest = createBulkFollowApiRequest(userAssociations);
+        if (apiRequest == null) {
+            return Observable.empty();
+        }
+
+        return mRxHttpClient.fetchResponse(apiRequest).flatMap(new Func1<APIResponse, Observable<Collection<UserAssociation>>>() {
             @Override
-            public Observable<Void> call(APIRequest<Void> request) {
-                return mRxHttpClient.fetchModels(request);
+            public Observable<Collection<UserAssociation>> call(APIResponse apiResponse) {
+                return mUserAssociationStorage.setFollowingsAsSynced(userAssociations);
             }
         });
     }
 
-    private Observable<APIRequest<Void>> createApiRequestObservable(final Collection<UserAssociation> userAssociations) {
-        return Observable.create(new Func1<Observer<APIRequest<Void>>, Subscription>() {
-            @Override
-            public Subscription call(Observer<APIRequest<Void>> apiRequestObserver) {
-                final Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
-                final Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
-                if (!tokens.isEmpty()) {
-                    APIRequest<Void> request = SoundCloudAPIRequest.RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
-                            .forPublicAPI()
-                            .withContent(new BulkFollowingsHolder(tokens))
-                            .build();
-
-                    apiRequestObserver.onNext(request);
-                }
-                apiRequestObserver.onCompleted();
-                return Subscriptions.empty();
-            }
-        });
+    @Nullable
+    private APIRequest<Void> createBulkFollowApiRequest(final Collection<UserAssociation> userAssociations) {
+        final Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
+        final Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
+        if (!tokens.isEmpty()) {
+            return SoundCloudAPIRequest.RequestBuilder.<Void>post(APIEndpoints.BULK_FOLLOW_USERS.path())
+                    .forPublicAPI()
+                    .withContent(new BulkFollowingsHolder(tokens))
+                    .build();
+        }
+        return null;
     }
 
-    public Observable<Void> pushFollowings(final Context context) {
-        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
+    public Observable<Activities> waitForActivities() {
+        return Observable.takeWhileWithIndex(Observable.just(Activities.EMPTY), new Func2<Activities, Integer, Boolean>() {
             @Override
-            public Subscription call(final Observer<Void> observer) {
-                log("Pushing followings...");
-
-                final BooleanSubscription subscription = new BooleanSubscription();
-
-                // make sure the result receiver is invoked on the main thread, that's because after a sync error
-                // we call through to the observer directly rather than going through a scheduler
-                final ResultReceiver receiver = new ResultReceiver(new Handler(Looper.getMainLooper())) {
-                    @Override
-                    protected void onReceiveResult(int resultCode, Bundle resultData) {
-                        if (!subscription.isUnsubscribed()) {
-                            handleSyncResult(resultCode, observer);
-                        } else {
-                            log("Not delivering results, was unsubscribed");
-                        }
-                    }
-                };
-
-                Intent intent = new Intent(context, ApiSyncService.class)
-                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, receiver)
-                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                        .setData(Content.ME_FOLLOWINGS.uri)
-                        .setAction(ApiSyncService.ACTION_PUSH);
-                context.startService(intent);
-                return subscription;
+            public Boolean call(Activities activities, Integer attempts) {
+                return attempts < 3 && activities.isEmpty();
             }
-
-            private void handleSyncResult(int resultCode, Observer<Void> observer) {
-                log("handleSyncResult");
-                switch (resultCode) {
-                    case ApiSyncService.STATUS_SYNC_FINISHED:
-                        log("Sync successful!");
-                        observer.onCompleted();
-                        break;
-
-                    case ApiSyncService.STATUS_SYNC_ERROR:
-                        //TODO: Proper Syncer error handling
-                        observer.onError(new Exception("Sync failed"));
-                        break;
-
-                    default:
-                        throw new IllegalArgumentException("Unexpected syncer result code: " + resultCode);
-                }
-            }
-        }));
+        });
     }
 
     public Set<Long> getFollowedUserIds() {

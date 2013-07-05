@@ -22,6 +22,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
+import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
@@ -30,6 +31,7 @@ import android.content.ContentValues;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -295,6 +297,23 @@ public class UserAssociationStorage extends ScheduledOperations {
             }
         }
         return false;
+    }
+
+    //TODO: this should be a bulk insert
+    public Observable<Collection<UserAssociation>> setFollowingsAsSynced(final Collection<UserAssociation> userAssociations) {
+        return Observable.create(new Func1<Observer<Collection<UserAssociation>>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Collection<UserAssociation>> observer) {
+                final BooleanSubscription subscription = new BooleanSubscription();
+                for (UserAssociation ua : userAssociations) {
+                    if (subscription.isUnsubscribed()) break;
+                    setFollowingAsSynced(ua);
+                }
+                observer.onNext(userAssociations);
+                observer.onCompleted();
+                return subscription;
+            }
+        });
     }
 
     @Nullable

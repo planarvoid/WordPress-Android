@@ -41,7 +41,7 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
     }
 
     private void sendFollowingsPush() {
-        mFollowingOperations.pushFollowings(getActivity()).subscribe(new FollowingsSyncObserver(this));
+        mFollowingOperations.waitForActivities().subscribe(new FollowingsSyncObserver(this));
     }
 
     @Override
