@@ -6,9 +6,8 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.operations.following.FollowingOperations;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
-import com.soundcloud.android.service.sync.SyncStateManager;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,15 +17,12 @@ import android.view.ViewGroup;
 
 public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
 
-    private SyncStateManager mSyncStateManager;
     private FollowingOperations mFollowingOperations;
 
     public OnboardSuggestedUsersSyncFragment() {
-        this(new SyncStateManager(), null);
     }
 
-    public OnboardSuggestedUsersSyncFragment(SyncStateManager syncStateManager, FollowingOperations followingOperations) {
-        mSyncStateManager = syncStateManager;
+    public OnboardSuggestedUsersSyncFragment(@Nullable FollowingOperations followingOperations) {
         mFollowingOperations = followingOperations;
     }
 
@@ -34,13 +30,10 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        if (mFollowingOperations == null){
+        if (mFollowingOperations == null) {
             mFollowingOperations = new FollowingOperations();
         }
-        sendFollowingsPush();
-    }
 
-    private void sendFollowingsPush() {
         mFollowingOperations.waitForActivities(getActivity()).subscribe(new FollowingsSyncObserver(this));
     }
 
@@ -50,11 +43,10 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
     }
 
     private void finish(boolean success) {
-        mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM);
         final Intent intent = new Intent(Actions.STREAM);
         intent.putExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, success);
         startActivity(intent);
-        getSherlockActivity().finish();
+        getActivity().finish();
     }
 
     public static class FollowingsSyncObserver extends RxFragmentObserver<OnboardSuggestedUsersSyncFragment, Boolean> {
