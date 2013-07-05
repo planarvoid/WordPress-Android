@@ -218,6 +218,10 @@ public class FollowingOperations extends ScheduledOperations {
         mFollowStatus.requestUserFollowings(listener);
     }
 
+    public static void init() {
+        FollowStatus.get();
+    }
+
     public static void clearState() {
         FollowStatus.clearState();
     }

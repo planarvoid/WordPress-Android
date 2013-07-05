@@ -15,6 +15,7 @@ import com.soundcloud.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
@@ -181,13 +182,20 @@ public class SoundCloudApplication extends Application implements Tracker {
         Account account = accountOperations.addSoundCloudAccountExplicitly(user, token, via);
         if (account != null) {
             mLoggedInUser = user;
+
+            // We have to make sure the follow cache is instantiated on the UI thread, or the syncer could cause a crash
+            // TODO, remove this once we get rid of FollowStatus
+            FollowingOperations.init();
+
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
 
-                // sync shortcuts so suggest works properly
-                Intent intent = new Intent(this, ApiSyncService.class)
-                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                        .setData(Content.ME_SHORTCUT.uri);
+            // sync shortcuts so suggest works properly
+            Intent intent = new Intent(this, ApiSyncService.class)
+                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                    .setData(Content.ME_SHORTCUT.uri);
+
+
 
             startService(intent);
 
