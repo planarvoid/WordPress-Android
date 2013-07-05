@@ -219,7 +219,7 @@ public class FollowingOperationsTest {
         when(userAssociationsOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(voidObserver);
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("POST");
     }
 
@@ -229,7 +229,7 @@ public class FollowingOperationsTest {
         when(userAssociationsOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(voidObserver);
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().isPrivate()).toBeFalse();
     }
 
@@ -241,14 +241,14 @@ public class FollowingOperationsTest {
         when(userAssociationsTwo.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(voidObserver);
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         Object jsonContent = argumentCaptor.getValue().getContent();
         expect(((FollowingOperations.BulkFollowingsHolder) jsonContent).tokens).toContainExactly("token1", "token2");
     }
 
     @Test
     public void shouldReturnTrueIfBulkFollowingRequestSucceeds(){
-        when(soundCloudRxHttpClient.executeAPIRequest(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         when(userAssociationsOne.getToken()).thenReturn("token1");
         when(userAssociationsOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(voidObserver);

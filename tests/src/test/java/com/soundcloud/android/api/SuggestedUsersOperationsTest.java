@@ -44,14 +44,14 @@ public class SuggestedUsersOperationsTest {
     @Before
     public void setUp(){
         suggestedUsersOperations = new SuggestedUsersOperations(soundCloudRxHttpClient);
-        when(soundCloudRxHttpClient.executeAPIRequest(any(APIRequest.class))).thenReturn(Observable.empty());
+        when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
     }
 
     @Test
     public void shouldMakeRequestToFacebookSuggestionsEndpoint(){
         suggestedUsersOperations.getFacebookSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getUriPath()).toEqual("/app/mobileapps/suggestions/users/social/facebook");
     }
 
@@ -59,7 +59,7 @@ public class SuggestedUsersOperationsTest {
     public void shouldMakeRequestToFacebookSuggestionsEndpointVersion1(){
         suggestedUsersOperations.getFacebookSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getVersion()).toEqual(1);
     }
 
@@ -67,7 +67,7 @@ public class SuggestedUsersOperationsTest {
     public void shouldMakeGetRequestToFacebookSuggestionsEndpoint(){
         suggestedUsersOperations.getFacebookSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
     }
 
@@ -75,7 +75,7 @@ public class SuggestedUsersOperationsTest {
     public void shouldRequestCollectionOfCategoriesFromFacebookSuggestionsEndpoint(){
         suggestedUsersOperations.getFacebookSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getResourceType()).toEqual(new TypeToken<List<CategoryGroup>>(){});
     }
 
@@ -83,7 +83,7 @@ public class SuggestedUsersOperationsTest {
     public void shouldMakeRequestToSoundSuggestionsEndpoint(){
         suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getUriPath()).toEqual("/app/mobileapps/suggestions/users/categories");
     }
 
@@ -91,7 +91,7 @@ public class SuggestedUsersOperationsTest {
     public void shouldMakeRequestToSoundSuggestionsEndpointVersion1(){
         suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getVersion()).toEqual(1);
     }
 
@@ -99,7 +99,7 @@ public class SuggestedUsersOperationsTest {
     public void shouldMakeGetRequestToSoundSuggestionsEndpoint(){
         suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
     }
 
@@ -107,13 +107,13 @@ public class SuggestedUsersOperationsTest {
     public void shouldRequestCollectionOfCategoriesFromSoundSuggestionsEndpoint(){
         suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
-        verify(soundCloudRxHttpClient).executeAPIRequest(argumentCaptor.capture());
+        verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getResourceType()).toEqual(new TypeToken<List<CategoryGroup>>(){});
     }
 
     @Test
     public void shouldReturnEmptyCategoryWhenFacebookFails() {
-        when(soundCloudRxHttpClient.executeAPIRequest(any(APIRequest.class))).thenReturn(TestObservables.errorThrowingObservable(new RuntimeException()));
+        when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(TestObservables.errorThrowingObservable(new RuntimeException()));
         suggestedUsersOperations.getFacebookSuggestions().subscribe(observer);
         verify(observer, never()).onError(any(Exception.class));
     }

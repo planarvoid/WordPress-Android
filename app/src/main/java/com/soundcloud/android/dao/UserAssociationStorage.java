@@ -58,7 +58,7 @@ public class UserAssociationStorage extends ScheduledOperations {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
-                RxUtils.emitList(userAssociationObserver,
+                RxUtils.emitCollection(userAssociationObserver,
                         mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll()
                 );
                 userAssociationObserver.onCompleted();
@@ -126,7 +126,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
                 }
                 mFollowingsDAO.createCollection(userAssociations);
-                RxUtils.emitList(userAssociationObserver,userAssociations);
+                RxUtils.emitCollection(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
                 return Subscriptions.empty();
             }
@@ -153,7 +153,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                     ).markForAddition(suggestedUser.getToken()));
                 }
                 mFollowingsDAO.createCollection(userAssociations);
-                RxUtils.emitList(userAssociationObserver, userAssociations);
+                RxUtils.emitCollection(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
                 return Subscriptions.empty();
             }
@@ -201,7 +201,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForRemoval());
                 }
                 mFollowingsDAO.createCollection(userAssociations);
-                RxUtils.emitList(userAssociationObserver, userAssociations);
+                RxUtils.emitCollection(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
                 return Subscriptions.empty();
             }

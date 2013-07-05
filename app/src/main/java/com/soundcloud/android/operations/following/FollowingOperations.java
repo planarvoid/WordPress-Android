@@ -139,7 +139,7 @@ public class FollowingOperations extends ScheduledOperations {
         return createApiRequestObservable(userAssociations).flatMap(new Func1<APIRequest<Void>, Observable<Void>>() {
             @Override
             public Observable<Void> call(APIRequest<Void> request) {
-                return mRxHttpClient.executeAPIRequest(request);
+                return mRxHttpClient.fetchModels(request);
             }
         });
     }

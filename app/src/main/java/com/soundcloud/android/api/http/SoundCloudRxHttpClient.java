@@ -9,11 +9,13 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.net.MediaType;
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.http.json.JsonTransformer;
 import com.soundcloud.android.model.UnknownResource;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.api.ApiWrapper;
@@ -59,46 +61,49 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
 
 
     @Override
-    public <ModelType> Observable<ModelType> executeAPIRequest(final APIRequest apiRequest) {
-        return schedule(Observable.create(new Func1<Observer<ModelType>, Subscription>() {
-            /*
-            TODO Version headers, gzip acceptance, connectivity check, proxy information
-             */
+    public Observable<APIResponse> fetchResponse(final APIRequest apiRequest) {
+        return schedule(Observable.create(new Func1<Observer<APIResponse>, Subscription>() {
             @Override
-            public Subscription call(Observer<ModelType> observer) {
-
-                APIResponse apiResponse = executeRequest(apiRequest);
-                if (apiResponse.accountIsRateLimited()) {
-                    //TODO We need to improve on this, so that further requests are prevented. Maybe have an event system based on RX
-                    throw APIRequestException.rateLimited(apiRequest, apiResponse);
-                } else if (apiResponse.isNotSuccess()) {
-                    throw APIRequestException.badResponse(apiRequest, apiResponse);
-                }
-
-                if(apiRequest.getResourceType() != null && apiResponse.hasResponseBody()){
-                    Object resource = parseJsonResponse(apiResponse, apiRequest);
-                    notifyObserverOfResult(observer, apiRequest, resource);
-                } else if(apiRequest.getResourceType() != null && !apiResponse.hasResponseBody()){
-                    throw APIRequestException.badResponse(apiRequest,apiResponse,"Response could not be unmarshaled into resource type as response is empty");
-                }
+            public Subscription call(Observer<APIResponse> observer) {
+                observer.onNext(executeRequest(apiRequest));
                 observer.onCompleted();
                 return Subscriptions.empty();
-
             }
 
         }));
     }
 
-    private <T> void notifyObserverOfResult(Observer<T> observer, APIRequest apiRequest, Object resource) {
-        @SuppressWarnings("unchecked")
-        Collection<T> resources = isRequestedResourceTypeOfCollection(apiRequest) ? Collection.class.cast(resource) : Collections.singleton(resource);
-        for (T modelType : resources) {
-            observer.onNext(modelType);
-        }
+    @Override
+    public <ModelType> Observable<ModelType> fetchModels(final APIRequest apiRequest) {
+        return fetchResponse(apiRequest).flatMap(new Func1<APIResponse, Observable<ModelType>>() {
+            @Override
+            public Observable<ModelType> call(APIResponse apiResponse) {
+                return mapResponseToModels(apiRequest, apiResponse);
+            }
+        });
     }
 
-    private boolean isRequestedResourceTypeOfCollection(APIRequest apiRequest) {
-        return Collection.class.isAssignableFrom(apiRequest.getResourceType().getRawType());
+    private <ModelType> Observable<ModelType> mapResponseToModels(final APIRequest apiRequest, final APIResponse apiResponse) {
+        return Observable.create(new Func1<Observer<ModelType>, Subscription>() {
+            @Override
+            public Subscription call(Observer<ModelType> observer) {
+                TypeToken resourceType = apiRequest.getResourceType();
+                if (resourceType != null && apiResponse.hasResponseBody()) {
+                    Object resource = parseJsonResponse(apiResponse, apiRequest);
+                    @SuppressWarnings("unchecked")
+                    Collection<ModelType> resources = isRequestedResourceTypeOfCollection(resourceType) ? Collection.class.cast(resource) : Collections.singleton(resource);
+                    RxUtils.emitCollection(observer, resources);
+                } else if (resourceType != null && !apiResponse.hasResponseBody()) {
+                    throw APIRequestException.badResponse(apiRequest, apiResponse, "Response could not be unmarshaled into resource type as response is empty");
+                }
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        });
+    }
+
+    private boolean isRequestedResourceTypeOfCollection(TypeToken resourceType) {
+        return Collection.class.isAssignableFrom(resourceType.getRawType());
     }
 
     private Object parseJsonResponse(APIResponse apiResponse, APIRequest apiRequest) {
@@ -115,6 +120,9 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         return resource;
     }
 
+    /*
+    TODO Version headers, gzip acceptance, connectivity check, proxy information
+     */
     private APIResponse executeRequest(APIRequest apiRequest) {
 
         ApiWrapper apiWrapper = mWrapperFactory.createWrapper(apiRequest);
@@ -122,9 +130,15 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
             HttpMethod httpMethod = HttpMethod.valueOf(apiRequest.getMethod().toUpperCase());
             HttpResponse response = httpMethod.execute(apiWrapper, createSCRequest(apiRequest));
             String responseBody = EntityUtils.toString(response.getEntity(), Charsets.UTF_8.name());
-            return new APIResponse(response.getStatusLine().getStatusCode(),
+            APIResponse apiResponse = new APIResponse(response.getStatusLine().getStatusCode(),
                     responseBody, response.getAllHeaders());
-
+            if (apiResponse.accountIsRateLimited()) {
+                //TODO We need to improve on this, so that further requests are prevented. Maybe have an event system based on RX
+                throw APIRequestException.rateLimited(apiRequest, apiResponse);
+            } else if (apiResponse.isNotSuccess()) {
+                throw APIRequestException.badResponse(apiRequest, apiResponse);
+            }
+            return apiResponse;
 
         } catch (CloudAPI.InvalidTokenException e) {
             throw APIRequestException.authError(apiRequest, e);
