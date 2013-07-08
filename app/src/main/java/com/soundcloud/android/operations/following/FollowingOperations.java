@@ -193,17 +193,18 @@ public class FollowingOperations extends ScheduledOperations {
             public Subscription call(Observer<Boolean> observer) {
                 try {
                     boolean hasActivities = false;
-                    int attempts = 3;
+                    int attempts = 5;
+                    final long backoffTime = 2000;
                     while (!hasActivities && attempts > 0) {
-                        // backoff for 1, 2, 4 seconds
-                        long backoffTime = 4 / attempts * 1000;
                         Log.d(LOG_TAG, "Fetching activities; tries left = " + attempts);
-                        Log.d(LOG_TAG, "Sleeping for " + backoffTime);
-                        SystemClock.sleep(backoffTime);
                         attempts--;
                         Activities activities = Activities.fetch(api, Request.to(TempEndpoints.e1.MY_STREAM));
                         hasActivities = activities != null && !activities.isEmpty();
                         Log.d(LOG_TAG, "Has activities = " + hasActivities);
+                        if (!hasActivities) {
+                            Log.d(LOG_TAG, "Sleeping for " + backoffTime);
+                            SystemClock.sleep(backoffTime);
+                        }
                     }
                     observer.onNext(hasActivities);
                     observer.onCompleted();
