@@ -155,7 +155,6 @@
     <style name="OnboardSuggestedUserLocationText" parent="OnboardSuggestedUserText">
         <item name="android:textColor">#CCCCCC</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:layout_marginBottom">13dp</item>
     </style>
 
     <style name="Tour"/>

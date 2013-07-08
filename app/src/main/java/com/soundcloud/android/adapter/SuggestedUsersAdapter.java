@@ -8,6 +8,7 @@ import com.soundcloud.android.view.SuggestedUserItemLayout;
 
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -66,7 +67,13 @@ public class SuggestedUsersAdapter extends BaseAdapter {
 
         final SuggestedUser suggestedUser = getItem(position);
         viewHolder.username.setText(suggestedUser.getUsername());
-        viewHolder.location.setText(suggestedUser.getLocation());
+        final String location = suggestedUser.getLocation();
+        if (TextUtils.isEmpty(location)) {
+            viewHolder.location.setVisibility(View.GONE);
+        } else {
+            viewHolder.location.setText(location);
+            viewHolder.location.setVisibility(View.VISIBLE);
+        }
 
         final ImageLoader.BindResult result = ImageLoader.get(parent.getContext()).bind(viewHolder.imageView,
                 suggestedUser.getAvatarUrl(), null, IMAGE_OPTIONS);
