@@ -143,15 +143,19 @@ public class FollowingOperations extends ScheduledOperations {
     public Observable<Collection<UserAssociation>> bulkFollowAssociations(final Collection<UserAssociation> userAssociations) {
         final APIRequest<Void> apiRequest = createBulkFollowApiRequest(userAssociations);
         if (apiRequest == null) {
+            Log.d(LOG_TAG, "No api request, skipping bulk follow");
             return Observable.empty();
+        } else {
+            Log.d(LOG_TAG, "Executing bulk follow request: " + apiRequest);
+            return mRxHttpClient.fetchResponse(apiRequest).flatMap(new Func1<APIResponse, Observable<Collection<UserAssociation>>>() {
+                @Override
+                public Observable<Collection<UserAssociation>> call(APIResponse apiResponse) {
+                    Log.d(LOG_TAG, "Bulk follow request returned with response: " + apiResponse);
+                    return mUserAssociationStorage.setFollowingsAsSynced(userAssociations);
+                }
+            });
         }
 
-        return mRxHttpClient.fetchResponse(apiRequest).flatMap(new Func1<APIResponse, Observable<Collection<UserAssociation>>>() {
-            @Override
-            public Observable<Collection<UserAssociation>> call(APIResponse apiResponse) {
-                return mUserAssociationStorage.setFollowingsAsSynced(userAssociations);
-            }
-        });
     }
 
     @Nullable
@@ -270,6 +274,13 @@ public class FollowingOperations extends ScheduledOperations {
 
         @JsonProperty
         Collection<String> tokens;
+
+        @Override
+        public String toString() {
+            return "BulkFollowingsHolder{" +
+                    "tokensCount=" + tokens.size() +
+                    '}';
+        }
     }
 
 }

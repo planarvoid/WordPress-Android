@@ -157,6 +157,7 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
                 .add("httpMethod", mHttpMethod)
                 .add("endPointVersion", mEndpointVersion)
                 .add("isPrivate", mIsPrivate)
-                .add("resourceType", mResourceType).toString();
+                .add("resourceType", mResourceType)
+                .add("content", mContent.toString()).toString();
     }
 }
