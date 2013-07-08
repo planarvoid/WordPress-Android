@@ -248,7 +248,7 @@ namespace :beta do
         version_code = 0
       end
       sh <<-END
-        mvn clean install -DskipTests -Psign,soundcloud,beta \
+        mvn clean install --projects app -DskipTests -Psign,soundcloud,beta \
           -Dandroid.manifest.versionCode=#{version_code+1} \
           -Dandroid.manifest.debuggable=true
       END
