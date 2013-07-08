@@ -10,6 +10,7 @@ import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.service.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.view.ViewGroup;
 public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
 
     private FollowingOperations mFollowingOperations;
+    private Subscription mSubscription;
 
     public OnboardSuggestedUsersSyncFragment() {
     }
@@ -36,12 +38,18 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
             mFollowingOperations = new FollowingOperations();
         }
 
-        mFollowingOperations.waitForActivities(getActivity()).subscribe(new FollowingsSyncObserver(this));
+        mSubscription = mFollowingOperations.waitForActivities(getActivity()).subscribe(new FollowingsSyncObserver(this));
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.home_onboarding_progress, null);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSubscription.unsubscribe();
     }
 
     private void finish(boolean success) {
