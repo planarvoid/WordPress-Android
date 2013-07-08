@@ -12,7 +12,6 @@ import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.rx.observers.ScObserver;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import org.jetbrains.annotations.Nullable;
@@ -217,9 +216,8 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
         @Override
         public void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
-            fragment.setDisplayMode(DisplayMode.ERROR);
             error.printStackTrace();
-            AndroidUtils.showToast(fragment.getActivity(), R.string.suggested_users_error_get_genre_buckets);
+            fragment.setDisplayMode(DisplayMode.ERROR);
         }
     }
 }

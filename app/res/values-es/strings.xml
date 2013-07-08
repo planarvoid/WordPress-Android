@@ -246,7 +246,6 @@
     <string name="suggested_users_section_facebook">Facebook</string>
     <string name="suggested_users_section_music">Música</string>
     <string name="suggested_users_section_audio">Audio</string>
-    <string name="suggested_users_error_get_genre_buckets">Error al cargar las categorías en este momento. Vuelve a intentarlo más tarde.</string>
 
     <string name="suggested_users_section_empty">No se han encontrado resultados.</string>
     <string name="suggested_users_section_error">No se han encontrado resultados, toca para volver a intentarlo.</string>
