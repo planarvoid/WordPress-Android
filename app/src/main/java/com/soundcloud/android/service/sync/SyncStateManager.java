@@ -8,6 +8,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Observer;
@@ -70,9 +71,10 @@ public class SyncStateManager extends ScheduledOperations {
      */
     @NotNull
     public LocalCollection fromContentAsync(@NotNull Uri contentUri, @NotNull LocalCollection.OnChangeListener listener) {
-        LocalCollection syncState = new LocalCollection(contentUri);
+        final Uri cleanUri = UriUtils.clearQueryParams(contentUri);
+        LocalCollection syncState = new LocalCollection(cleanUri);
         SyncStateQueryHandler handler = new SyncStateQueryHandler(syncState, listener);
-        handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
+        handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "uri = ?", new String[]{cleanUri.toString()}, null);
         return syncState;
     }
 

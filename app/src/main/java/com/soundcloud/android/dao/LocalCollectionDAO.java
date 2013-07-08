@@ -2,6 +2,7 @@ package com.soundcloud.android.dao;
 
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
@@ -17,16 +18,17 @@ public class LocalCollectionDAO extends BaseDAO<LocalCollection> {
         return Content.COLLECTIONS;
     }
 
-    public @Nullable LocalCollection fromContentUri(Uri contentUri, boolean createIfNecessary) {
+    @Nullable public LocalCollection fromContentUri(Uri contentUri, boolean createIfNecessary) {
         LocalCollection lc = null;
-        Cursor c = mResolver.query(getContent().uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
+        final Uri cleanUri = UriUtils.clearQueryParams(contentUri);
+        Cursor c = mResolver.query(getContent().uri, null, "uri = ?", new String[]{cleanUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
             lc = new LocalCollection(c);
         }
         if (c != null) c.close();
 
-        if (lc == null && createIfNecessary){
-            lc = new LocalCollection(contentUri);
+        if (lc == null && createIfNecessary) {
+            lc = new LocalCollection(cleanUri);
             create(lc);
         }
         return lc;
@@ -36,7 +38,7 @@ public class LocalCollectionDAO extends BaseDAO<LocalCollection> {
     public boolean deleteUri(Uri contentUri) {
         return mResolver.delete(getContent().uri,
                 "uri = ?",
-                new String[] { contentUri.toString() }) == 1;
+                new String[]{UriUtils.clearQueryParams(contentUri).toString()}) == 1;
 
     }
 }

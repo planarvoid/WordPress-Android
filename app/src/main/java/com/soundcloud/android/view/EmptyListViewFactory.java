@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -36,15 +37,20 @@ public class EmptyListViewFactory {
         return view;
     }
 
-    public EmptyListViewFactory forContent(final Context context, final Content content, @Nullable final User user) {
-        switch (content) {
+    public EmptyListViewFactory forContent(final Context context, final Uri contentUri, @Nullable final User user) {
+
+        switch (Content.match(contentUri)) {
             case ME_SOUND_STREAM:
-                mMessageText = context.getString(R.string.list_empty_stream_message);
-                mSecondaryText = context.getString(R.string.list_empty_stream_secondary);
-                mActionText = context.getString(R.string.list_empty_stream_action);
                 mImage = R.drawable.empty_follow;
-                mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
-                mSecondaryAction = new Intent(Actions.FRIEND_FINDER);
+                if (Consts.StringValues.ERROR.equals(contentUri.getQueryParameter(Consts.Keys.ONBOARDING))){
+                    mMessageText = context.getString(R.string.error_onboarding_fail);
+                } else {
+                    mMessageText = context.getString(R.string.list_empty_stream_message);
+                    mSecondaryText = context.getString(R.string.list_empty_stream_secondary);
+                    mActionText = context.getString(R.string.list_empty_stream_action);
+                    mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
+                    mSecondaryAction = new Intent(Actions.FRIEND_FINDER);
+                }
                 break;
 
             case ME_ACTIVITIES:

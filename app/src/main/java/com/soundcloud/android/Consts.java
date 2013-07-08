@@ -52,15 +52,17 @@ public final class Consts {
 
     public static interface Keys {
         String WAS_SIGNUP = "wasSignup";
+        String ONBOARDING = "onboarding";
+    }
+
+    public static interface StringValues {
+        String ERROR = "error";
     }
 
     public static interface SdkSwitches {
         boolean useCustomNotificationLayouts = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
         boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         boolean canDetermineActivityBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-    }
-    public interface SecretCodes {
-        String TOGGLE_ERROR_REPORTING = "12345";
     }
 
     public interface Dialogs {

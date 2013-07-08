@@ -3,6 +3,7 @@ package com.soundcloud.android.activity.landing;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -22,9 +23,9 @@ import com.soundcloud.api.Request;
 import net.hockeyapp.android.UpdateManager;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 public class Home extends ScActivity implements ScLandingPage {
     public static final String EXTRA_ONBOARDING_USERS_RESULT  = "onboarding_users_result";
@@ -41,18 +42,19 @@ public class Home extends ScActivity implements ScLandingPage {
         setTitle(getString(R.string.side_menu_stream));
         final SoundCloudApplication app = getApp();
         if (mAccountOperations.soundCloudAccountExists()) {
-            if (startedFromOnboardingError()) {
-                mRootView.setContent(View.inflate(this, R.layout.home_onboarding_error, null));
-            } else {
-                if (state == null) {
-                    getSupportFragmentManager().beginTransaction()
-                            .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
-                            .commit();
-                    if (SoundCloudApplication.BETA_MODE) {
-                        ChangeLog changeLog = new ChangeLog(this);
-                        if (changeLog.isFirstRun()) {
-                            changeLog.getDialog(true).show();
-                        }
+            if (state == null) {
+                final Uri build = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true) ?
+                        Content.ME_SOUND_STREAM.uri :
+                        Content.ME_SOUND_STREAM.uri.buildUpon()
+                                .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
+
+                getSupportFragmentManager().beginTransaction()
+                        .add(mRootView.getContentHolderId(), ScListFragment.newInstance(build))
+                        .commit();
+                if (SoundCloudApplication.BETA_MODE) {
+                    ChangeLog changeLog = new ChangeLog(this);
+                    if (changeLog.isFirstRun()) {
+                        changeLog.getDialog(true).show();
                     }
                 }
             }
