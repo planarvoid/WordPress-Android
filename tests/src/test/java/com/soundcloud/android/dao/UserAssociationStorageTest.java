@@ -437,6 +437,7 @@ public class UserAssociationStorageTest {
 
         storage.setFollowingsAsSynced(Lists.newArrayList(association1, association2)).subscribe(ScActions.NO_OP);
 
+        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         association1 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(0).getId());
         expect(association1.getLocalSyncState()).toEqual(UserAssociation.LocalState.NONE);
         association2 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(1).getId());

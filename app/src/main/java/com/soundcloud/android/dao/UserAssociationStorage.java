@@ -313,9 +313,10 @@ public class UserAssociationStorage extends ScheduledOperations {
             public Subscription call(Observer<Collection<UserAssociation>> observer) {
                 final BooleanSubscription subscription = new BooleanSubscription();
                 for (UserAssociation ua : userAssociations) {
-                    if (subscription.isUnsubscribed()) break;
-                    setFollowingAsSynced(ua);
+                    ua.clearLocalSyncState();
                 }
+                // TODO: this will trigger an upsert, but we should have an explicit updateAll method
+                mFollowingsDAO.createCollection(userAssociations);
                 observer.onNext(userAssociations);
                 observer.onCompleted();
                 return subscription;
