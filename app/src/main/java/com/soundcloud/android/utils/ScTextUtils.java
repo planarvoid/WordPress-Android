@@ -43,6 +43,10 @@ public class ScTextUtils {
         return !isBlank(string);
     }
 
+    public static String safeToString(Object object){
+        return object == null ? "" : object.toString();
+    }
+
     /**
      * Like {@link android.text.Html#fromHtml(String)}, but with line separation handling
      * and guard against RuntimeExceptions.

@@ -11,6 +11,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
@@ -152,12 +153,12 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return Objects.toStringHelper(this).omitNullValues()
                 .add("uriPath", mUri.getPath())
                 .add("httpMethod", mHttpMethod)
                 .add("endPointVersion", mEndpointVersion)
                 .add("isPrivate", mIsPrivate)
                 .add("resourceType", mResourceType)
-                .add("content", mContent.toString()).toString();
+                .add("content", ScTextUtils.safeToString(mContent)).toString();
     }
 }
