@@ -49,9 +49,8 @@ import java.util.Date;
  * Facebook SSO based login. Most of this code is taken from the
  * <a href="https://github.com/facebook/facebook-android-sdk/">Facebook Android SDK </a>
  */
-public class FacebookSSO extends AbstractLoginActivity {
+public class FacebookSSO extends FacebookBaseActivity {
     private static final String TAG = FacebookSSO.class.getSimpleName();
-
     /* package */ static final String FB_PERMISSION_EXTRA = "scope";
     private static final String FB_CLIENT_ID_EXTRA = "client_id";
     private static final String TOKEN = "access_token";

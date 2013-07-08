@@ -71,6 +71,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     private static final Uri PRIVACY_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy");
     private static final Uri COOKIE_POLICY_URL = Uri.parse("http://m.soundcloud.com/pages/privacy#cookies");
 
+    private StartState mLastAuthState;
+
     private StartState mState = StartState.TOUR;
 
     private String mLastGoogleAccountSelected;
@@ -392,6 +394,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 break;
 
             case LOGIN:
+                mLastAuthState = StartState.LOGIN;
                 if (mSignUp != null)        hideView(this, getSignUp(), animated);
                 if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
                 if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
@@ -399,6 +402,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 break;
 
             case SIGN_UP:
+                mLastAuthState = StartState.SIGN_UP;
                 if (mLogin != null)         hideView(this, getLogin(), animated);
                 if (mUserDetails != null)   hideView(this, getUserDetails(), animated);
                 if (mAcceptTerms != null)   hideView(this, getAcceptTerms(), animated);
@@ -540,7 +544,9 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 GooglePlusSignInTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
                 break;
             case FACEBOOK_SSO:
-                startActivityForResult(new Intent(this, Facebook.class), RequestCodes.SIGNUP_VIA_FACEBOOK);
+                startActivityForResult(new Intent(this, FacebookSwitcherActivity.class)
+                        .putExtra(FacebookSSO.VIA_SIGNUP_SCREEN, mLastAuthState == StartState.SIGN_UP),
+                        RequestCodes.SIGNUP_VIA_FACEBOOK);
                 break;
             case API:
                 SignupTaskFragment.create(signupParams).show(getSupportFragmentManager(), SIGNUP_DIALOG_TAG);
@@ -565,6 +571,11 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         } else {
             super.onAuthTaskComplete(user, via, wasApiSignupTask);
         }
+    }
+
+    @Override
+    protected boolean wasAuthorizedViaSignupScreen() {
+        return mLastAuthState == StartState.SIGN_UP;
     }
 
     private void onGoogleAccountSelected(String name) {

@@ -3,7 +3,6 @@ package com.soundcloud.android.fragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.api.SuggestedUsersOperations;
@@ -32,6 +31,8 @@ import android.widget.ListView;
 
 public class SuggestedUsersCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
+    public final static String SHOW_FACEBOOK = "SHOW_FACEBOOK";
+
     private enum DisplayMode {
         LOADING, ERROR, CONTENT
     }
@@ -48,8 +49,6 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
     private ListView mListView;
     private EmptyListView mEmptyListView;
-
-    private SignupVia mSignupVia;
 
     public SuggestedUsersCategoriesFragment() {
         this(new SuggestedUsersOperations(), null,
@@ -68,10 +67,9 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSignupVia = getArguments() == null ? SignupVia.NONE : SignupVia.fromBundle(getArguments());
-        mAdapter.setActiveSections(mSignupVia.isNonFacebookSignup() ?
-                SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK :
-                SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS);
+        mAdapter.setActiveSections(shouldShowFacebook() ?
+                SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS :
+                SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK);
     }
 
     @Override
@@ -130,8 +128,8 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     }
 
     private Observable<CategoryGroup> createCategoriesObservable() {
-        final Observable<CategoryGroup> categoryGroups = mSignupVia.isNonFacebookSignup() ?
-                mSuggestions.getMusicAndSoundsSuggestions() : mSuggestions.getCategoryGroups();
+        final Observable<CategoryGroup> categoryGroups = shouldShowFacebook() ?
+                mSuggestions.getCategoryGroups() : mSuggestions.getMusicAndSoundsSuggestions();
         return categoryGroups.cache().observeOn(ScSchedulers.UI_SCHEDULER);
     }
 
@@ -164,6 +162,10 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
             intent.putExtra(Category.EXTRA, item);
             startActivity(intent);
         }
+    }
+
+    private boolean shouldShowFacebook(){
+        return getArguments() != null && getArguments().getBoolean(SHOW_FACEBOOK, false);
     }
 
     private void setDisplayMode(DisplayMode mode){
@@ -202,7 +204,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
             if (!categoryGroup.isFacebook()){
                 fragment.setDisplayMode(DisplayMode.CONTENT);
-            } else if (fragment.mSignupVia.isFacebook()) {
+            } else if (fragment.shouldShowFacebook()) {
                 new FollowingOperations().addFollowingsBySuggestedUsers(categoryGroup.getAllSuggestedUsers())
                         .subscribe(new ScObserver<Void>() {});
             }

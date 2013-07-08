@@ -24,7 +24,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class FacebookWebFlow extends AbstractLoginActivity {
+public class FacebookWebFlow extends FacebookBaseActivity {
     private WebView mWebview;
     private AndroidCloudAPI mAndroidCloudAPI;
 

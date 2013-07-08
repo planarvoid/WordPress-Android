@@ -9,11 +9,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(DefaultTestRunner.class)
-public class FacebookTest {
+public class FacebookSwitcherActivityTest {
 
     @Test
     public void testFallbackToWebFlow() throws Exception {
-        Facebook fb = new Facebook();
+        FacebookSwitcherActivity fb = new FacebookSwitcherActivity();
         ShadowActivity shadow = shadowOf(fb);
         fb.onCreate(null);
         ShadowActivity.IntentForResult intent = shadow.peekNextStartedActivityForResult();
@@ -23,7 +23,7 @@ public class FacebookTest {
 
     @Test
     public void shouldUseSSOIfAvailable() throws Exception {
-        Facebook fb = new Facebook() {
+        FacebookSwitcherActivity fb = new FacebookSwitcherActivity() {
             @Override boolean clientSupportsSSO() {
                 return true;
             }

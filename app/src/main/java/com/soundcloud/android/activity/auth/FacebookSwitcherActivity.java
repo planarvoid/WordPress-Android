@@ -11,7 +11,7 @@ import android.util.Log;
  * Handles Facebook auth-flow: this activity first tries to use SSO to log in, falling
  * back to a WebView based login flow if FB app is not installed or fails to return a valid token.
  */
-public class Facebook extends Activity {
+public class FacebookSwitcherActivity extends Activity {
     public static final int SSO = 1;
     public static final int WEBFLOW = 2;
 
@@ -51,10 +51,17 @@ public class Facebook extends Activity {
 
     private void startSSOFlow() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "starting FB proxy auth");
-        startActivityForResult(new Intent(this, FacebookSSO.class), SSO);
+        startActivityForResult(passExtras(new Intent(this, FacebookSSO.class)), SSO);
     }
 
     private void startWebFlow() {
-        startActivityForResult(new Intent(this, FacebookWebFlow.class), WEBFLOW);
+        startActivityForResult(passExtras(new Intent(this, FacebookWebFlow.class)), WEBFLOW);
+    }
+
+    /**
+     * Primarily to pass along the extra telling whether this action was triggered via {@link Onboard.StartState.SIGN_UP}
+     */
+    private Intent passExtras(Intent intent) {
+        return intent.getExtras() != null ? intent.putExtras(getIntent().getExtras()) : intent;
     }
 }

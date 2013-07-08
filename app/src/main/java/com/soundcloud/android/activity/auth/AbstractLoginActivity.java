@@ -9,6 +9,7 @@ import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
 import com.soundcloud.android.dialog.auth.AuthTaskFragment;
 import com.soundcloud.android.dialog.auth.LoginTaskFragment;
+import com.soundcloud.android.fragment.SuggestedUsersCategoriesFragment;
 import com.soundcloud.android.model.User;
 
 import android.accounts.AccountAuthenticatorActivity;
@@ -71,16 +72,17 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
                 .putExtra(User.EXTRA_ID, user.getId())
                 .putExtra(SignupVia.EXTRA, via.name));
 
-        if (result.getBoolean(Consts.Keys.WAS_SIGNUP)) {
+        if (result.getBoolean(Consts.Keys.WAS_SIGNUP) || wasAuthorizedViaSignupScreen()) {
             startActivity(new Intent(this, SuggestedUsersActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .putExtra(SignupVia.EXTRA, via.name));
-        } else {
-            startActivity(new Intent(this, Home.class)
+                    .putExtra(SuggestedUsersCategoriesFragment.SHOW_FACEBOOK, this instanceof FacebookBaseActivity)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        } else {
+            startActivity(new Intent(this, Home.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }
         finish();
     }
+
+    protected abstract boolean wasAuthorizedViaSignupScreen();
 
     @Override
     public void onError(String message){
