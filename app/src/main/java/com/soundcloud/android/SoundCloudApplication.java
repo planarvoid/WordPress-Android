@@ -15,7 +15,6 @@ import com.soundcloud.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
@@ -179,7 +178,7 @@ public class SoundCloudApplication extends Application implements Tracker {
     }
     //TODO Move this into AccountOperations once we refactor User info out of here
     public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
-        Account account = accountOperations.addSoundCloudAccountExplicitly(user, token, via);
+        Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
             mLoggedInUser = user;
 

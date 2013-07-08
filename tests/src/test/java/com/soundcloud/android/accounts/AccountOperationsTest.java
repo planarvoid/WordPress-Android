@@ -107,8 +107,21 @@ public class AccountOperationsTest {
     public void shouldReturnNullIfAccountAdditionFails(){
         when(user.getUsername()).thenReturn("username");
         when(accountManager.addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class))).thenReturn(false);
-        expect(accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API)).toBeNull();
+        expect(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).toBeNull();
 
+    }
+
+    @Test
+    public void shouldReplaceExistingAccount(){
+        when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
+        when(user.getUsername()).thenReturn("username");
+        when(accountManager.addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class))).thenReturn(true);
+
+        final Account actual = accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
+        expect(actual).toBeInstanceOf(Account.class);
+        verify(accountManager).removeAccount(scAccount, null, null);
+        verify(accountManager).addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class));
+        verify(accountManager).setUserData(actual, "currentUsername", "username");
     }
 
     @Test
@@ -120,7 +133,7 @@ public class AccountOperationsTest {
         when(user.getUsername()).thenReturn("username");
         when(user.getPermalink()).thenReturn("permalink");
 
-        accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API);
+        accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
         verify(accountManager).setUserData(account, "currentUserId", "2");
         verify(accountManager).setUserData(account, "currentUsername", "username");
         verify(accountManager).setUserData(account, "currentUserPermalink", "permalink");
@@ -134,7 +147,7 @@ public class AccountOperationsTest {
         when(user.getUsername()).thenReturn("username");
         when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
-        accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API);
+        accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
 
         verify(tokenOperations).storeSoundCloudTokenData(account, token);
     }
@@ -146,7 +159,7 @@ public class AccountOperationsTest {
         when(user.getUsername()).thenReturn("username");
         when(accountManager.addAccountExplicitly(account,null,null)).thenReturn(true);
 
-        expect(accountOperations.addSoundCloudAccountExplicitly(user, token, SignupVia.API)).toEqual(account);
+        expect(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).toEqual(account);
 
     }
 

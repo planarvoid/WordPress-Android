@@ -62,7 +62,7 @@ public final class IntegrationTestHelper {
             }
             User user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
             assertNotNull("could not get test user", user);
-            assertNotNull("addAccount failed", new AccountOperations(instrumentation.getContext()).addSoundCloudAccountExplicitly(user, token, SignupVia.NONE));
+            assertNotNull("addAccount failed", new AccountOperations(instrumentation.getContext()).addOrReplaceSoundCloudAccount(user, token, SignupVia.NONE));
             return account;
         } else {
             Log.d(TAG, "already logged in as user "+account);
