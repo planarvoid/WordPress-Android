@@ -71,6 +71,11 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
         }
 
         @Override
+        public void onCompleted(OnboardSuggestedUsersSyncFragment fragment) {
+            fragment.finish(true);
+        }
+
+        @Override
         public void onError(OnboardSuggestedUsersSyncFragment fragment, Exception error) {
             error.printStackTrace();
             // send sync adapter request for followings so retry logic will kick in

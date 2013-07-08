@@ -93,4 +93,20 @@ public class OnboardSuggestedUsersSyncFragmentTest {
         expect(activity).not.toBeNull();
         expect(activity.getBooleanExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, true)).toBeFalse();
     }
+
+    @Test
+    public void shouldFinishWithSuccessIfObservableCallsOnCompleted() {
+        when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
+        fragment.onCreate(null);
+
+        ArgumentCaptor<FollowingsSyncObserver> argumentCaptor = ArgumentCaptor.forClass(FollowingsSyncObserver.class);
+        verify(observable).subscribe(argumentCaptor.capture());
+        FollowingsSyncObserver observer = argumentCaptor.getValue();
+
+        observer.onCompleted(fragment);
+
+        Intent activity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
+        expect(activity).not.toBeNull();
+        expect(activity.getBooleanExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, false)).toBeTrue();
+    }
 }
