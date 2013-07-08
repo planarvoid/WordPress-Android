@@ -3,6 +3,7 @@ package com.soundcloud.android.dialog;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.dialog.OnboardSuggestedUsersSyncFragment.FollowingsSyncObserver;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.content.Intent;
+import android.support.v4.app.FragmentActivity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class OnboardSuggestedUsersSyncFragmentTest {
@@ -95,7 +97,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
     }
 
     @Test
-    public void shouldFinishWithSuccessIfObservableCallsOnCompleted() {
+    public void shouldFinishWithSuccessIfObservableCallsOnCompletedBeforeOnNextWasCalled() {
         when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
         fragment.onCreate(null);
 
@@ -108,5 +110,24 @@ public class OnboardSuggestedUsersSyncFragmentTest {
         Intent activity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
         expect(activity).not.toBeNull();
         expect(activity.getBooleanExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, false)).toBeTrue();
+    }
+
+    // catch case where both onNext and onCompleted would try to finish the activity
+    @Test
+    public void shouldIgnoreOnCompletedIfActivityIsAlreadyFinishing() {
+        when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
+        fragment.onCreate(null);
+
+        SherlockFragmentActivity activity = new SherlockFragmentActivity();
+        Robolectric.shadowOf(fragment).setActivity(activity);
+
+        ArgumentCaptor<FollowingsSyncObserver> argumentCaptor = ArgumentCaptor.forClass(FollowingsSyncObserver.class);
+        verify(observable).subscribe(argumentCaptor.capture());
+        FollowingsSyncObserver observer = argumentCaptor.getValue();
+
+        activity.finish();
+        observer.onCompleted(fragment);
+
+        expect(Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity()).toBeNull();
     }
 }

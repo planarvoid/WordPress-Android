@@ -72,7 +72,10 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
 
         @Override
         public void onCompleted(OnboardSuggestedUsersSyncFragment fragment) {
-            fragment.finish(true);
+            // onNext might have already finished it
+            if (!fragment.getActivity().isFinishing()) {
+                fragment.finish(true);
+            }
         }
 
         @Override
