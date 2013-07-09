@@ -43,7 +43,7 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.home_onboarding_progress, null);
+        return inflater.inflate(R.layout.list_loading_item, null);
     }
 
     @Override
