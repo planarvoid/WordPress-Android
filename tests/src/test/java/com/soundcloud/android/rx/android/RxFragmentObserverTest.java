@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx.android;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -7,9 +8,7 @@ import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -18,6 +17,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.support.v4.app.Fragment;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @RunWith(SoundCloudTestRunner.class)
 public class RxFragmentObserverTest {
@@ -73,6 +77,44 @@ public class RxFragmentObserverTest {
         invokeRxCallbacks();
 
         verifyCallbacksNotInvoked();
+    }
+
+    @Test(expected = IllegalThreadException.class)
+    public void shouldThrowWhenCallbacksNotInvokedOnUiThread() throws Throwable {
+        handler = new TestCompletedHandler(mockFragment);
+
+        Future<Void> future = Executors.newSingleThreadExecutor().submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                handler.onCompleted();
+                return null;
+            }
+        });
+
+        try {
+            future.get();
+        } catch (ExecutionException e) {
+            throw e.getCause();
+        }
+    }
+
+    @Test
+    public void shouldNotThrowAgainWhenOnErrorWasCalledWithIllegalThreadException() {
+        handler = new TestCompletedHandler(mockFragment);
+
+        Future<Void> future = Executors.newSingleThreadExecutor().submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                handler.onError(new IllegalThreadException(""));
+                return null;
+            }
+        });
+
+        try {
+            future.get();
+        } catch (Throwable t) {
+            fail("Expected call not to throw, but got " + t.getCause());
+        }
     }
 
     private void invokeRxCallbacks() {

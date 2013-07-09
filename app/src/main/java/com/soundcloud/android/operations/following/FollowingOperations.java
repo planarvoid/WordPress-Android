@@ -87,56 +87,56 @@ public class FollowingOperations extends ScheduledOperations {
 
     public Observable<UserAssociation> addFollowing(@NotNull final User user) {
         updateLocalStatus(true, user.getId());
-        return mUserAssociationStorage.follow(user);
+        return schedule(mUserAssociationStorage.follow(user));
     }
 
     public Observable<UserAssociation> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
         updateLocalStatus(true, suggestedUser.getId());
-        return mUserAssociationStorage.followSuggestedUser(suggestedUser);
+        return schedule(mUserAssociationStorage.followSuggestedUser(suggestedUser));
     }
 
     public Observable<UserAssociation> addFollowings(final List<User> users) {
         updateLocalStatus(true, ScModel.getIdList(users));
-        return mUserAssociationStorage.followList(users);
+        return schedule(mUserAssociationStorage.followList(users));
     }
 
     public Observable<UserAssociation> removeFollowing(final User user) {
         updateLocalStatus(false, user.getId());
-        return mUserAssociationStorage.unfollow(user);
+        return schedule(mUserAssociationStorage.unfollow(user));
     }
 
     public Observable<UserAssociation> removeFollowings(final List<User> users) {
         updateLocalStatus(false, ScModel.getIdList(users));
-        return mUserAssociationStorage.unfollowList(users);
+        return schedule(mUserAssociationStorage.unfollowList(users));
     }
 
     public Observable<UserAssociation> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
         updateLocalStatus(true, ScModel.getIdList(suggestedUsers));
-        return mUserAssociationStorage.followSuggestedUserList(suggestedUsers);
+        return schedule(mUserAssociationStorage.followSuggestedUserList(suggestedUsers));
     }
 
     public Observable<UserAssociation> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
-        return removeFollowings(Lists.transform(suggestedUsers, new Function<SuggestedUser, User>() {
+        return schedule(removeFollowings(Lists.transform(suggestedUsers, new Function<SuggestedUser, User>() {
             @Override
             public User apply(SuggestedUser input) {
                 return new User(input);
             }
-        }));
+        })));
     }
 
     public Observable<UserAssociation> toggleFollowing(User user) {
         if (mFollowStatus.isFollowing(user)) {
-            return removeFollowing(user);
+            return schedule(removeFollowing(user));
         } else {
-            return addFollowing(user);
+            return schedule(addFollowing(user));
         }
     }
 
     public Observable<UserAssociation> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
         if (mFollowStatus.isFollowing(suggestedUser.getId())) {
-            return removeFollowing(new User(suggestedUser));
+            return schedule(removeFollowing(new User(suggestedUser)));
         } else {
-            return addFollowingBySuggestedUser(suggestedUser);
+            return schedule(addFollowingBySuggestedUser(suggestedUser));
         }
     }
 
@@ -147,13 +147,13 @@ public class FollowingOperations extends ScheduledOperations {
             return Observable.empty();
         } else {
             Log.d(LOG_TAG, "Executing bulk follow request: " + apiRequest);
-            return mRxHttpClient.fetchResponse(apiRequest).flatMap(new Func1<APIResponse, Observable<Collection<UserAssociation>>>() {
+            return schedule(mRxHttpClient.fetchResponse(apiRequest).flatMap(new Func1<APIResponse, Observable<Collection<UserAssociation>>>() {
                 @Override
                 public Observable<Collection<UserAssociation>> call(APIResponse apiResponse) {
                     Log.d(LOG_TAG, "Bulk follow request returned with response: " + apiResponse);
                     return mUserAssociationStorage.setFollowingsAsSynced(userAssociations);
                 }
-            });
+            }));
         }
 
     }
@@ -172,7 +172,7 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     public Observable<Boolean> waitForActivities(final Context context) {
-        return getFollowingsNeedingSync().toList().flatMap(new Func1<List<UserAssociation>, Observable<Collection<UserAssociation>>>() {
+        return schedule(getFollowingsNeedingSync().toList().flatMap(new Func1<List<UserAssociation>, Observable<Collection<UserAssociation>>>() {
             @Override
             public Observable<Collection<UserAssociation>> call(List<UserAssociation> userAssociations) {
                 return bulkFollowAssociations(userAssociations);
@@ -182,13 +182,13 @@ public class FollowingOperations extends ScheduledOperations {
             public Observable<Boolean> call(Collection<UserAssociation> userAssociations) {
                 return fetchActivities(new OldCloudAPI(context));
             }
-        });
+        }));
     }
 
     //TODO: didn't have enough time porting this over, next time :)
     // couldn't write tests either since Activities.fetch isn't mockable :(
     private Observable<Boolean> fetchActivities(final OldCloudAPI api) {
-        return Observable.create(new Func1<Observer<Boolean>, Subscription>() {
+        return schedule(Observable.create(new Func1<Observer<Boolean>, Subscription>() {
             @Override
             public Subscription call(Observer<Boolean> observer) {
                 try {
@@ -213,7 +213,7 @@ public class FollowingOperations extends ScheduledOperations {
                 }
                 return Subscriptions.empty();
             }
-        }).subscribeOn(ScSchedulers.API_SCHEDULER);
+        })).subscribeOn(ScSchedulers.API_SCHEDULER);
     }
 
     private Observable<UserAssociation> getFollowingsNeedingSync() {
