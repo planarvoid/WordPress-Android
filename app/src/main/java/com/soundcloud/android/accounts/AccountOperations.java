@@ -81,14 +81,22 @@ public class AccountOperations {
      * @return the new account, or null if account already existed or adding it failed
      */
     public Account addOrReplaceSoundCloudAccount(User user, Token token, SignupVia via) {
-        String type = context.getString(R.string.account_type);
+        boolean accountexists = false;
         Account account = getSoundCloudAccount();
         if (account != null) {
-            accountManager.removeAccount(account, null, null);
+            if (account.name.equals(user.getUsername())){
+                accountexists = true; // same username, do not replace account
+            } else {
+                accountManager.removeAccount(account, null, null);
+            }
         }
 
-        account = new Account(user.getUsername(), type);
-        if (accountManager.addAccountExplicitly(account, null, null)) {
+        if (!accountexists){
+            account = new Account(user.getUsername(), context.getString(R.string.account_type));
+            accountexists = accountManager.addAccountExplicitly(account, null, null);
+        }
+
+        if (accountexists) {
             tokenOperations.storeSoundCloudTokenData(account, token);
             accountManager.setUserData(account, AccountInfoKeys.USER_ID.getKey(), Long.toString(user.getId()));
             accountManager.setUserData(account, AccountInfoKeys.USERNAME.getKey(), user.getUsername());
