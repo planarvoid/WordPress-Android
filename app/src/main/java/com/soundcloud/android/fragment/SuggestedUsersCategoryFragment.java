@@ -74,7 +74,9 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mFollowingOperations.toggleFollowingBySuggestedUser(mAdapter.getItem(position)).subscribe(new ToggleFollowingObserver(this));
+        mFollowingOperations.toggleFollowingBySuggestedUser(mAdapter.getItem(position))
+                .observeOn(ScSchedulers.UI_SCHEDULER)
+                .subscribe(new ToggleFollowingObserver(this));
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridview setItemChecked
@@ -86,10 +88,14 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
         if (shouldFollow) {
             mFollowingOperations.addFollowingsBySuggestedUsers(
-                    mCategory.getNotFollowedUsers(followedUserIds)).subscribe(new ToggleAllObserver(this));
+                    mCategory.getNotFollowedUsers(followedUserIds))
+                    .observeOn(ScSchedulers.UI_SCHEDULER)
+                    .subscribe(new ToggleAllObserver(this));
         } else {
             mFollowingOperations.removeFollowingsBySuggestedUsers(
-                    mCategory.getFollowedUsers(followedUserIds)).subscribe(new ToggleAllObserver(this));
+                    mCategory.getFollowedUsers(followedUserIds))
+                    .observeOn(ScSchedulers.UI_SCHEDULER)
+                    .subscribe(new ToggleAllObserver(this));
         }
     }
 
