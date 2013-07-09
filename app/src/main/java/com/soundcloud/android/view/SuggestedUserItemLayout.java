@@ -27,8 +27,6 @@ public class SuggestedUserItemLayout extends LinearLayout implements Checkable {
     protected void onFinishInflate() {
         super.onFinishInflate();
         mFollowButton = ((CompoundButton) findViewById(R.id.toggle_btn_follow));
-        mFollowButton.setClickable(false);
-        mFollowButton.setDuplicateParentStateEnabled(false);
         mSuggestedUserLayout = findViewById(R.id.suggested_user_layout);
         mLayoutPadding = (int) getResources().getDimension(R.dimen.onboarding_suggested_user_item_padding);
     }
