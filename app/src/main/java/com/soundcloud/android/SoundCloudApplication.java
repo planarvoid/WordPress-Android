@@ -45,7 +45,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=fc54b4c2",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=878e4d88",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
