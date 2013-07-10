@@ -116,6 +116,7 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
                         String location = connection.getHeaderField("Location");
                         Log.d(TAG, "Got redirect, new URL: " + location);
                         mResolvedImageUrls.put(buildResolverUrlKey(url), location);
+                        Log.d(TAG, "Caching resolved URL, new size is " + mResolvedImageUrls.size());
                         if (!TextUtils.isEmpty(location)) {
                             return doGetContent((HttpURLConnection) new URL(location).openConnection(), options, redirects + 1);
                         } else {
