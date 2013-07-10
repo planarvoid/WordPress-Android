@@ -5,5 +5,7 @@
         android:layout_gravity="top"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:horizontalSpacing="@dimen/onboarding_suggested_user_item_spacing"
+        android:verticalSpacing="@dimen/onboarding_suggested_user_item_spacing"
         android:listSelector="@android:color/transparent"
         style="@style/OnboardSuggestedUserGridView"/>
