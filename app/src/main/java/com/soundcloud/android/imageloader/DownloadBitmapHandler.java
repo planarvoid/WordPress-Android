@@ -19,14 +19,12 @@ package com.soundcloud.android.imageloader;
 import static com.soundcloud.android.imageloader.ImageLoader.TAG;
 
 import com.google.common.collect.MapMaker;
-import com.google.common.collect.Maps;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 
 import java.io.FilterInputStream;
@@ -36,22 +34,20 @@ import java.net.ContentHandler;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
  * A {@link ContentHandler} that decodes a {@link Bitmap} from a {@link URLConnection}.
- * <p>
+ * <p/>
  * The implementation includes a work-around for <a
  * href="http://code.google.com/p/android/issues/detail?id=6066">Issue 6066</a>.
- * <p>
+ * <p/>
  * An {@link IOException} is thrown if there is a decoding exception.
  */
 public class DownloadBitmapHandler extends BitmapContentHandler {
-    public static final int READ_TIMEOUT    = 10000;
+    public static final int READ_TIMEOUT = 10000;
     public static final int CONNECT_TIMEOUT = 3000;
-    private static final int LOADTIME_WARN  = 10 * 1000; // flag requests taking longer than 10 sec
+    private static final int LOADTIME_WARN = 10 * 1000; // flag requests taking longer than 10 sec
 
     private static final int MAX_REDIRECTS = 1;
     private final boolean mUseCache;
@@ -70,7 +66,8 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
                 .makeMap();
     }
 
-    @Override @NotNull
+    @Override
+    @NotNull
     public Bitmap getContent(URLConnection connection) throws IOException {
         return getContent(connection, (BitmapFactory.Options) null);
     }
@@ -87,7 +84,8 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
         }
     }
 
-    @Override @NotNull
+    @Override
+    @NotNull
     public Bitmap getContent(URLConnection connection, BitmapFactory.Options options) throws IOException {
         if (connection instanceof HttpURLConnection) {
             return doGetContent((HttpURLConnection) connection, options, 0);
@@ -117,14 +115,14 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
                     if (redirects < MAX_REDIRECTS) {
                         String location = connection.getHeaderField("Location");
                         Log.d(TAG, "Got redirect, new URL: " + location);
-                        mResolvedImageUrls.put(buildResolverUrlKey(url), location); //TODO: use hash instead of URL
+                        mResolvedImageUrls.put(buildResolverUrlKey(url), location);
                         if (!TextUtils.isEmpty(location)) {
-                            return doGetContent((HttpURLConnection) new URL(location).openConnection(), options, redirects+1);
+                            return doGetContent((HttpURLConnection) new URL(location).openConnection(), options, redirects + 1);
                         } else {
                             throw new IOException("redirect without location header");
                         }
                     } else {
-                        throw new IOException("Reached max redirects: " +redirects);
+                        throw new IOException("Reached max redirects: " + redirects);
                     }
 
                 case 200:
@@ -132,7 +130,7 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
 
                     return getBitmapFromInputStream(new BlockingFilterInputStream(connection.getInputStream()), options);
                 default:
-                    throw new IOException("response code "+code+ " received");
+                    throw new IOException("response code " + code + " received");
             }
         } finally {
             final long loadTime = System.currentTimeMillis() - start;
@@ -162,7 +160,7 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
     /**
      * A {@link java.io.FilterInputStream} that blocks until the requested number of bytes
      * have been read/skipped, or the end of the stream is reached.
-     * <p>
+     * <p/>
      * This filter can be used as a work-around for <a
      * href="http://code.google.com/p/android/issues/detail?id=6066">Issue
      * #6066</a>.
