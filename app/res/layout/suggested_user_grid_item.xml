@@ -4,19 +4,18 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
     <RelativeLayout android:layout_width="match_parent"
-                    android:id="@+id/suggested_user_layout"
-                    android:layout_marginLeft="@dimen/onboarding_suggested_user_item_marginLeftRight"
-                    android:layout_marginRight="@dimen/onboarding_suggested_user_item_marginLeftRight"
-                    android:layout_marginTop="@dimen/onboarding_suggested_user_item_marginTopBottom"
-                    android:layout_marginBottom="@dimen/onboarding_suggested_user_item_marginTopBottom"
-                    android:padding="@dimen/onboarding_suggested_user_item_padding"
                     android:layout_height="@dimen/onboarding_suggested_user_item_height">
 
         <com.soundcloud.android.view.SuggestedUserImageView android:id="@+id/suggested_user_image"
                                                             android:layout_width="match_parent"
                                                             android:layout_height="match_parent"
                                                             android:cropToPadding="true"/>
+        <View android:id="@+id/suggested_user_selector"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"/>
+
 
         <LinearLayout android:layout_width="wrap_content"
                       android:layout_height="wrap_content"

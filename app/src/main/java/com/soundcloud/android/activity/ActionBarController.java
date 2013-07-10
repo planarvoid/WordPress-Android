@@ -72,11 +72,11 @@ public class ActionBarController {
         ((TextView) getActionBarCustomView().findViewById(R.id.title)).setText(title);
     }
 
-    public void onMenuOpenLeft() {
+    public void hideMenuIndicator() {
         getMenuIndicator().setVisibility(View.GONE);
     }
 
-    public void onMenuClosed() {
+    public void showMenuIndicator() {
         getMenuIndicator().setVisibility(View.VISIBLE);
     }
 

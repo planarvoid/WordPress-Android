@@ -13,7 +13,6 @@ public class SuggestedUserItemLayout extends LinearLayout implements Checkable {
     private boolean mChecked;
     private CompoundButton mFollowButton;
     private View mSuggestedUserLayout;
-    private int mLayoutPadding;
 
     public SuggestedUserItemLayout(Context context) {
         super(context);
@@ -27,8 +26,7 @@ public class SuggestedUserItemLayout extends LinearLayout implements Checkable {
     protected void onFinishInflate() {
         super.onFinishInflate();
         mFollowButton = ((CompoundButton) findViewById(R.id.toggle_btn_follow));
-        mSuggestedUserLayout = findViewById(R.id.suggested_user_layout);
-        mLayoutPadding = (int) getResources().getDimension(R.dimen.onboarding_suggested_user_item_padding);
+        mSuggestedUserLayout = findViewById(R.id.suggested_user_selector);
     }
 
     @Override
@@ -39,7 +37,6 @@ public class SuggestedUserItemLayout extends LinearLayout implements Checkable {
         } else {
             mSuggestedUserLayout.setBackgroundResource(R.drawable.suggested_user_grid_item_selector);
         }
-        mSuggestedUserLayout.setPadding(mLayoutPadding, mLayoutPadding, mLayoutPadding, mLayoutPadding);
     }
 
     @Override

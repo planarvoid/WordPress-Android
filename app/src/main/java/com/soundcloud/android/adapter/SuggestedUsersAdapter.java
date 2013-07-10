@@ -22,6 +22,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
 
     private static final ImageLoader.Options IMAGE_OPTIONS = ImageLoader.Options.listFadeIn();
     private final List<SuggestedUser> mSuggestedUsers;
+    private int mItemSpacing = Integer.MIN_VALUE;
 
     public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers) {
         mSuggestedUsers = suggestedUsers;
@@ -60,6 +61,8 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder = (ItemViewHolder) convertView.getTag();
         }
 
+        configureItemPadding(convertView, position, ((GridViewCompat) parent).getNumColumns());
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             final boolean checked = ((GridViewCompat) parent).getCheckedItemPositions().get(position);
             ((SuggestedUserItemLayout) convertView).setChecked(checked);
@@ -81,6 +84,21 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder.imageView.setImageResource(R.drawable.placeholder_cells);
         }
         return convertView;
+    }
+
+    /**
+     * This will configure the edges to have padding that is equivalent to the inner item spacing
+     */
+    private void configureItemPadding(View convertView, int position, int numColumns) {
+        if (mItemSpacing == Integer.MIN_VALUE){
+            mItemSpacing = (int) convertView.getResources().getDimension(R.dimen.onboarding_suggested_user_item_spacing);
+        }
+        convertView.setPadding(
+                position % numColumns == 0 ? mItemSpacing : 0,
+                position < numColumns ? mItemSpacing : 0,
+                position % numColumns == numColumns - 1 ? mItemSpacing : 0,
+                position >= getCount() - numColumns ? mItemSpacing : 0
+        );
     }
 
     private static class ItemViewHolder {
