@@ -87,6 +87,8 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
         try {
             final int code = connection.getResponseCode();
             switch (code) {
+                // we follow redirects manually, since resolver URLs are HTTPS, CDNs are HTTP, and HttpURLConnection
+                // refuses to follow redirects from secure domains into unsecure ones.
                 case 302:
                     if (redirects < MAX_REDIRECTS) {
                         String location = connection.getHeaderField("Location");
