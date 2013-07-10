@@ -18,12 +18,15 @@ package com.soundcloud.android.imageloader;
 
 import static com.soundcloud.android.imageloader.ImageLoader.TAG;
 
+import com.google.common.collect.MapMaker;
+import com.google.common.collect.Maps;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 import java.io.FilterInputStream;
@@ -33,6 +36,9 @@ import java.net.ContentHandler;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 /**
  * A {@link ContentHandler} that decodes a {@link Bitmap} from a {@link URLConnection}.
@@ -50,17 +56,35 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
     private static final int MAX_REDIRECTS = 1;
     private final boolean mUseCache;
 
+    private Map<String, String> mResolvedImageUrls;
+
     public DownloadBitmapHandler() {
         this(true);
     }
 
-    public DownloadBitmapHandler(boolean usecache) {
-        mUseCache = usecache;
+    public DownloadBitmapHandler(boolean useResponseCache) {
+        mUseCache = useResponseCache;
+        mResolvedImageUrls = new MapMaker()
+                .concurrencyLevel(ImageLoader.DEFAULT_TASK_LIMIT)
+                .initialCapacity(50)
+                .makeMap();
     }
 
     @Override @NotNull
     public Bitmap getContent(URLConnection connection) throws IOException {
         return getContent(connection, (BitmapFactory.Options) null);
+    }
+
+    @Override
+    public Bitmap getContent(URL url, BitmapFactory.Options options) throws IOException {
+        final String resolvedUrlKey = buildResolverUrlKey(url);
+        if (mResolvedImageUrls.containsKey(resolvedUrlKey)) {
+            final String resolvedUrl = mResolvedImageUrls.get(resolvedUrlKey);
+            Log.d(TAG, "Resolver URL was cached; skipping redirect. CDN URL: " + resolvedUrl);
+            return getContent(new URL(resolvedUrl), options);
+        } else {
+            return getContent(url.openConnection(), options);
+        }
     }
 
     @Override @NotNull
@@ -92,6 +116,8 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
                 case 302:
                     if (redirects < MAX_REDIRECTS) {
                         String location = connection.getHeaderField("Location");
+                        Log.d(TAG, "Got redirect, new URL: " + location);
+                        mResolvedImageUrls.put(buildResolverUrlKey(url), location); //TODO: use hash instead of URL
                         if (!TextUtils.isEmpty(location)) {
                             return doGetContent((HttpURLConnection) new URL(location).openConnection(), options, redirects+1);
                         } else {
@@ -118,6 +144,10 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
             // should only be needed for Keep-Alive which we're not using
             connection.disconnect();
         }
+    }
+
+    private String buildResolverUrlKey(URL url) {
+        return url.toString();
     }
 
     private Bitmap getBitmapFromInputStream(InputStream input, BitmapFactory.Options options) throws IOException {

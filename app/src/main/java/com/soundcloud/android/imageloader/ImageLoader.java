@@ -565,7 +565,7 @@ public class ImageLoader {
         private @NotNull Bitmap loadImage(URL url, Options options) throws IOException {
             // fallback - open connection and use whatever is provided by the system
             log("loading "+url+" for "+mImageCallbacks);
-            return mBitmapContentHandler.getContent(url.openConnection(), options.getBitmapFactoryOptions());
+            return mBitmapContentHandler.getContent(url, options.getBitmapFactoryOptions());
         }
 
         @Override
