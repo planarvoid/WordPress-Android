@@ -25,17 +25,17 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
             finish();
         } else {
             mCategory = getIntent().getParcelableExtra(Category.EXTRA);
-            setContentView(R.layout.suggested_users_category_activity);
+            setContentView(R.layout.frame_layout_holder);
 
             if (state == null) {
                 mCategoryFragment = new SuggestedUsersCategoryFragment();
                 mCategoryFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.users_fragment_holder, mCategoryFragment)
+                        .add(R.id.holder, mCategoryFragment)
                         .commit();
             } else {
-                mCategoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.users_fragment_holder);
+                mCategoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.holder);
             }
         }
     }

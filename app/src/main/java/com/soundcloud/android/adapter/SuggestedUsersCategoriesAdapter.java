@@ -2,7 +2,6 @@ package com.soundcloud.android.adapter;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
@@ -14,6 +13,7 @@ import com.soundcloud.android.view.SingleLineCollectionTextView;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,10 +25,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -40,7 +38,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private final Set<CategoryGroup> mCategoryGroups;
 
 
-    private final Map<Integer, Section> mListPositionsToSections;
+    private final SparseArray<Section> mListPositionsToSections;
     private final FollowingOperations mFollowingOperations;
     private EnumSet<Section> mActiveSections;
 
@@ -92,7 +90,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         mFollowingOperations = followingOperations.observeOn(ScSchedulers.UI_SCHEDULER);
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
-        mListPositionsToSections = new HashMap<Integer, Section>();
+        mListPositionsToSections = new SparseArray<Section>();
         mActiveSections = activeSections;
     }
 
@@ -157,8 +155,8 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         return !getItem(position).isProgressOrEmpty();
     }
 
-    protected Map<Integer, Section> getListPositionsToSectionsMap() {
-        return Maps.newHashMap(mListPositionsToSections);
+    protected SparseArray<Section> getListPositionsToSectionsMap() {
+        return mListPositionsToSections;
     }
 
     @Override

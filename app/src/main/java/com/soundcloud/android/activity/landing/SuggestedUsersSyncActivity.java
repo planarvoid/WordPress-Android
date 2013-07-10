@@ -10,12 +10,12 @@ public class SuggestedUsersSyncActivity extends ScActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        setContentView(R.layout.suggested_users_activity);
+        setContentView(R.layout.frame_layout_holder);
 
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.categories_fragment_holder, new OnboardSuggestedUsersSyncFragment())
+                    .add(R.id.holder, new OnboardSuggestedUsersSyncFragment())
                     .commit();
         }
     }

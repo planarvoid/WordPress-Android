@@ -15,14 +15,14 @@ public class SuggestedUsersActivity extends ScActivity implements ScLandingPage 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        setContentView(R.layout.suggested_users_activity);
+        setContentView(R.layout.frame_layout_holder);
 
         if (state == null) {
             final SuggestedUsersCategoriesFragment suggestedUsersCategoriesFragment = new SuggestedUsersCategoriesFragment();
             suggestedUsersCategoriesFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.categories_fragment_holder, suggestedUsersCategoriesFragment)
+                    .add(R.id.holder, suggestedUsersCategoriesFragment)
                     .commit();
         }
     }
