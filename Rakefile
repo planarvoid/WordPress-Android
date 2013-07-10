@@ -8,7 +8,7 @@ require 'json'
 require 'yaml'
 
 DEFAULT_LEVELS = %w(
-   CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
+   SoundCloudApplication CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
    StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
    ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
    VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
