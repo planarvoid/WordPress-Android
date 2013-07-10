@@ -32,7 +32,7 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>3.6.1-ndkfix</version>
                 <configuration>
                     <!-- Prevents signing of the apk if no profile specified when building -->
                     <sign>
@@ -135,6 +135,11 @@
             <id>soundcloud.internal.thirdparty.releases</id>
             <name>SoundCloud Internal thirdparty</name>
             <url>http://maven.int.s-cloud.net/content/repositories/thirdparty_releases</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>soundcloud.internal.releases</id>
+            <name>SoundCloud Internal Releases</name>
+            <url>http://maven.int.s-cloud.net/content/repositories/releases</url>
         </pluginRepository>
     </pluginRepositories>
 
