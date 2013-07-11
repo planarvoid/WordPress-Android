@@ -31,7 +31,7 @@
                 <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.MultiLineInfoLabel"
                                                                 android:id="@+id/txt_image_msg"
                                                                 android:text="@string/authentication_add_info_add_image_msg"
-
+                                                                android:layout_height="fill_parent"
                                                                 android:layout_width="fill_parent"
                                                                 android:layout_weight="1"
                                                                 android:layout_marginTop="0dp"/>
