@@ -1338,10 +1338,6 @@
         <item name="android:textOff">@null</item>
         <item name="android:textOn">@null</item>
     </style>
-
-    <style name="OnboardSuggestedUserGridView">
-        <item name="android:numColumns">1</item>
-    </style>
     <style name="TourOverlayTextHolderLayout">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>

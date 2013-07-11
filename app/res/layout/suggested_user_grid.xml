@@ -8,4 +8,4 @@
         android:horizontalSpacing="@dimen/onboarding_suggested_user_item_spacing"
         android:verticalSpacing="@dimen/onboarding_suggested_user_item_spacing"
         android:listSelector="@android:color/transparent"
-        style="@style/OnboardSuggestedUserGridView"/>
+        android:numColumns="@integer/suggested_user_grid_num_columns"/>
