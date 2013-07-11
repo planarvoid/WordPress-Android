@@ -220,7 +220,7 @@
   <string name="list_empty_activity_nosounds_secondary">Find out more about sharing sounds with our 101s</string>
   <string name="list_empty_activity_secondary">Find out more about sharing sounds with our 101s</string>
   <string name="list_empty_stream_action">Find people to follow</string>
-  <string name="list_empty_stream_message">Hmm. You don’t have any sounds in your Stream.\n\n        Start following people to listen to their sounds!</string>
+  <string name="list_empty_stream_message">Hmm. You don’t have any sounds in your Stream.\nStart following people to listen to their sounds!</string>
   <string name="list_empty_stream_secondary">On Facebook? Connect with friends already on SoundCloud!</string>
   <string name="list_empty_user_followers_action">Share your sounds</string>
   <string name="list_empty_user_followers_message">You don’t have any followers yet. But you can change that! The best way to get people to follow you is to share your sounds with others.</string>

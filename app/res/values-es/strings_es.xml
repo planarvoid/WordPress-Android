@@ -221,7 +221,7 @@
   <string name="list_empty_activity_nosounds_secondary">Descubra más sobre cómo compartir sonidos con nuestro 101s</string>
   <string name="list_empty_activity_secondary">Descubra más sobre cómo compartir sonidos con nuestro 101s</string>
   <string name="list_empty_stream_action">Encuentre personas a las que seguir</string>
-  <string name="list_empty_stream_message">Hmm. No tiene ningún sonido en su dispositivo.\n\n ¡Empiece a seguir a gente para escuchar sus sonidos!</string>
+  <string name="list_empty_stream_message">Hmm. No tiene ningún sonido en su dispositivo.\n ¡Empiece a seguir a gente para escuchar sus sonidos!</string>
   <string name="list_empty_stream_secondary">¿Tiene Facebook? ¡Conecte con sus amigos de SoundCloud!</string>
   <string name="list_empty_user_followers_action">Comparta sus sonidos</string>
   <string name="list_empty_user_followers_message">Aún no tiene ningún seguidor. ¡Pero puede hacer que esto cambie! La mejor manera de que le sigan es compartir sus sonidos.</string>
