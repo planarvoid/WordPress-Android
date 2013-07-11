@@ -193,7 +193,7 @@ public class FollowingOperations extends ScheduledOperations {
             public Subscription call(Observer<Boolean> observer) {
                 try {
                     boolean hasActivities = false;
-                    int attempts = 10;
+                    int attempts = 15;
                     final long backoffTime = 2000;
                     while (!hasActivities && attempts > 0) {
                         Log.d(LOG_TAG, "Fetching activities; tries left = " + attempts);
