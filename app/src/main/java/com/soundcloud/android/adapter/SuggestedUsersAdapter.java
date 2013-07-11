@@ -61,7 +61,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder = (ItemViewHolder) convertView.getTag();
         }
 
-        configureItemPadding(convertView, position, ((GridViewCompat) parent).getNumColumns());
+        configureItemPadding(convertView, position, ((GridViewCompat) parent).getNumColumnsCompat());
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             final boolean checked = ((GridViewCompat) parent).getCheckedItemPositions().get(position);
