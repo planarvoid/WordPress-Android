@@ -88,11 +88,13 @@ public class UserAssociationSyncer extends SyncStrategy {
 
         List<Long> local = mUserAssociationStorage.getStoredIds(content.uri);
         List<Long> remote = mApi.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
-
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(), remote.size(), null);
 
-        if (checkUnchanged(content, result, local, remote)) return result;
+        if (checkUnchanged(content, result, local, remote)) {
+            result.success = true;
+            return result;
+        }
 
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);

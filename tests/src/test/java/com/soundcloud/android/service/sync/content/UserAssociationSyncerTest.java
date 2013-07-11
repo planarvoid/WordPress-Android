@@ -163,6 +163,25 @@ public class UserAssociationSyncerTest {
                 .toEqual(UserAssociation.LocalState.PENDING_REMOVAL);
     }
 
+    @Test
+    public void shouldReturnSuccessAndUnchangedResultForRepeatEmptySync() throws Exception {
+        addIdResponse("/me/followers/ids?linked_partitioning=1");
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
+
+        ApiSyncResult result = sync(Content.ME_FOLLOWERS.uri);
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(Content.USERS).toHaveCount(0);
+        expect(Content.ME_FOLLOWERS).toHaveCount(0);
+
+        addIdResponse("/me/followers/ids?linked_partitioning=1");
+        addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "empty_collection.json");
+        result = sync(Content.ME_FOLLOWERS.uri);
+        expect(result.success).toBe(true);
+        expect(result.change).toEqual(ApiSyncResult.UNCHANGED);
+        expect(result.synced_at).toBeGreaterThan(0l);
+    }
+
 
     @Test
     public void shouldReturnReorderedForUsersIfLocalStateEqualsRemote() throws Exception {
