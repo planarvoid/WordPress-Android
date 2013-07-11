@@ -208,14 +208,19 @@ public class SyncAdapterService extends Service {
                 final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
                 final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
                 if (SyncConfig.shouldUpdateDashboard(app)) {
-                    if (SyncConfig.isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
-                    if (SyncConfig.isActivitySyncEnabled(app, extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
+                    if (SyncConfig.isIncomingEnabled(app, extras) &&
+                            (manual || syncStateManager.isContentDueForSync(SyncContent.MySoundStream))) {
+                        urisToSync.add(Content.ME_SOUND_STREAM.uri);
+                    }
+                    if (SyncConfig.isActivitySyncEnabled(app, extras) &&
+                            (manual || syncStateManager.isContentDueForSync(SyncContent.MyActivities))){
+                        urisToSync.add(Content.ME_ACTIVITIES.uri);
+                    }
                 }
 
                 if (manual || SyncConfig.shouldSyncCollections(app)) {
-                    final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(app, manual);
+                    final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(app, SyncContent.NON_ACTIVITIES, manual);
                     Log.d(TAG, "collection due for sync:" + dueForSync);
-
                     urisToSync.addAll(dueForSync);
                 } else {
                     Log.d(TAG, "skipping collection sync, no wifi");

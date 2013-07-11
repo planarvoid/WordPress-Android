@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -170,20 +171,26 @@ public class SyncStateManager extends ScheduledOperations {
      * Returns a list of uris to be synced, based on recent changes. The idea is that collections which don't change
      * very often don't get synced as frequently as collections which do.
      *
-     * @param manual manual sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
+     * @param syncContentEnumSet
+     * @param force force sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
      */
-    public List<Uri> getCollectionsDueForSync(Context c, boolean manual) {
+    public List<Uri> getCollectionsDueForSync(Context c, EnumSet<SyncContent> syncContentEnumSet, boolean force) {
         List<Uri> urisToSync = new ArrayList<Uri>();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
-        for (SyncContent sc : SyncContent.values()) {
-            if (sc.isEnabled(prefs)) {
-                final LocalCollection lc = fromContent(sc.content);
-                if (manual || sc.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
-                    urisToSync.add(sc.content.uri);
-                }
+        for (SyncContent sc : syncContentEnumSet) {
+            if (sc.isEnabled(prefs) && (force || isContentDueForSync(sc))){
+                urisToSync.add(sc.content.uri);
             }
         }
         return urisToSync;
+    }
+
+    public boolean isContentDueForSync(SyncContent syncContent) {
+        final LocalCollection lc = fromContent(syncContent.content);
+        if (syncContent.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
+            return true;
+        }
+        return false;
     }
 
     public void addChangeListener(@NotNull LocalCollection lc, @NotNull LocalCollection.OnChangeListener listener) {
