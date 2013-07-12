@@ -29,6 +29,13 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>lint</id>
+                        <goals>
+                            <goal>lint</goal>
+                        </goals>
+                        <phase>install</phase>
+                    </execution>
+                    <execution>
                         <id>build-ndk</id>
                         <phase>compile</phase>
                         <goals>
