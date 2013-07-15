@@ -27,7 +27,7 @@
                         <skip>false</skip>
                     </proguard>
                     <lint>
-                        <config>lint.xml</config>
+                        <config>app/lint.xml</config>
                     </lint>
                 </configuration>
                 <executions>
