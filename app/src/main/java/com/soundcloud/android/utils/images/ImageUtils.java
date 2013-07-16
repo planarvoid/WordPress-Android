@@ -3,6 +3,8 @@ package com.soundcloud.android.utils.images;
 
 import static com.soundcloud.android.imageloader.OldImageLoader.Options;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
@@ -582,5 +584,14 @@ public final class ImageUtils {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
+    }
+
+    public static DisplayImageOptions createListIconDisplayImageOptions(int defaultIconResId){
+        return new DisplayImageOptions.Builder()
+                .resetViewBeforeLoading(true)
+                .showImageForEmptyUri(defaultIconResId)
+                .showStubImage(defaultIconResId)
+                .displayer(new FadeInBitmapDisplayer(200))
+                .build();
     }
 }
