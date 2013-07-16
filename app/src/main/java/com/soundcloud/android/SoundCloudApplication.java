@@ -4,6 +4,9 @@ import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
@@ -162,7 +165,19 @@ public class SoundCloudApplication extends Application implements Tracker {
     }
 
     protected OldImageLoader createImageLoader() {
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+        .cacheInMemory(true)
+        .cacheOnDisc(true)
+        .build();
+
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
+        .defaultDisplayImageOptions(defaultOptions)
+        .build();
+
+        ImageLoader.getInstance().init(config); // Do it on Application start
+
         FileCache.installFileCache(IOUtils.getCacheDir(this));
+
         return new OldImageLoader(new DownloadBitmapHandler(),
                 new PrefetchHandler(),
                 OldImageLoader.DEFAULT_CACHE_SIZE, OldImageLoader.DEFAULT_TASK_LIMIT);

@@ -1,10 +1,11 @@
 
 package com.soundcloud.android.view.adapter;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.imageloader.OldImageLoader;
-import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -18,23 +19,14 @@ import android.widget.ImageView;
  */
 public abstract class IconLayout extends FrameLayout {
 
-    private OldImageLoader.Options mIconOptions;
-
-    protected OldImageLoader mOldImageLoader;
     protected ImageView mIcon;
-    private OldImageLoader.BindResult mCurrentIconBindResult;
-    private OldImageLoader.Callback mImageLoaderCallback = new OldImageLoader.Callback() {
-        @Override
-        public void onImageError(ImageView view, String url, Throwable error) {
-            mCurrentIconBindResult = OldImageLoader.BindResult.ERROR;
-        }
 
-        @Override
-        public void onImageLoaded(ImageView view, String url) {
-            mCurrentIconBindResult = OldImageLoader.BindResult.OK;
-        }
-
-    };
+    private DisplayImageOptions options = new DisplayImageOptions.Builder()
+            .resetViewBeforeLoading(true)
+            .showImageForEmptyUri(getDefaultArtworkResId())
+            .showStubImage(getDefaultArtworkResId())
+            .displayer(new FadeInBitmapDisplayer(200))
+            .build();
 
     public IconLayout(Context context) {
         this(context,null);
@@ -42,12 +34,7 @@ public abstract class IconLayout extends FrameLayout {
 
     public IconLayout(Context context, @Nullable AttributeSet attributeSet) {
         super(context, attributeSet);
-
-        if (mIconOptions == null) mIconOptions = OldImageLoader.Options.listFadeIn();
-        mOldImageLoader = OldImageLoader.get(context);
-
         addContent(attributeSet);
-
         mIcon = (ImageView) findViewById(R.id.icon);
     }
 
@@ -57,26 +44,8 @@ public abstract class IconLayout extends FrameLayout {
 
     protected abstract View addContent(AttributeSet attributeSet);
 
-    public ImageView getIcon() {
-        return mIcon;
-    }
-
     protected void loadIcon() {
-        final String iconUri = getIconRemoteUri();
-        if (ImageUtils.checkIconShouldLoad(iconUri)) {
-            mCurrentIconBindResult = mOldImageLoader.bind(mIcon, iconUri, mImageLoaderCallback, mIconOptions);
-            if (mCurrentIconBindResult != OldImageLoader.BindResult.OK){
-                mIcon.setImageResource(getDefaultArtworkResId());
-            }
-        } else {
-            mCurrentIconBindResult = OldImageLoader.BindResult.OK;
-            mOldImageLoader.unbind(mIcon);
-            mIcon.setImageResource(getDefaultArtworkResId());
-        }
-    }
-
-    protected boolean lastImageLoadFailed() {
-        return mCurrentIconBindResult == OldImageLoader.BindResult.ERROR;
+        ImageLoader.getInstance().displayImage(getIconRemoteUri(), mIcon, options);
     }
 
     abstract protected int getDefaultArtworkResId();

@@ -121,10 +121,8 @@ public class PlayableBar extends IconLayout {
         mTitle.setText(mPlayableHolder.getPlayable().title);
     }
 
-    public void onConnected(){
-        if (lastImageLoadFailed()) {
-            loadIcon();
-        }
+    public void onConnected() {
+        loadIcon(); // over optimization??
     }
 
     public void addTextShadows() {

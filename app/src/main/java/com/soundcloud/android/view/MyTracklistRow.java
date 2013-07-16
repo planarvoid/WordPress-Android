@@ -29,11 +29,14 @@ public class MyTracklistRow extends PlayableRow {
     private Drawable mVeryPrivateBgDrawable;
     private final int mTargetIconDimension;
 
+    private OldImageLoader mOldImageLoader;
+
     private Recording mRecording;
 
     public MyTracklistRow(Context activity) {
         super(activity);
         mTargetIconDimension = (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE);
+        mOldImageLoader = OldImageLoader.get(activity);
     }
 
     @Override
