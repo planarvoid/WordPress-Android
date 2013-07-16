@@ -1,8 +1,9 @@
 package com.soundcloud.android.view.play;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.R;
-import com.soundcloud.android.imageloader.OldImageLoader;
-import com.soundcloud.android.imageloader.OldImageLoader.BitmapLoadCallback;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
@@ -17,7 +18,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -58,7 +58,7 @@ public class PlayerAvatarBar extends View {
 
     private Bitmap mDefaultAvatar;
 
-    private OldImageLoader mBitmapLoader;
+    private ImageLoader mBitmapLoader;
     private ImageSize mAvatarGraphicsSize;
 
     private boolean mLandscape;
@@ -66,7 +66,7 @@ public class PlayerAvatarBar extends View {
     public PlayerAvatarBar(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
-        mBitmapLoader = OldImageLoader.get(context.getApplicationContext());
+        mBitmapLoader = ImageLoader.getInstance();
 
         if (ImageUtils.isScreenXL(context)) {
             mAvatarGraphicsSize= ImageSize.LARGE;
@@ -110,11 +110,11 @@ public class PlayerAvatarBar extends View {
 
     public void onStop(){
         if (mCurrentComments != null) {
-            for (Comment c : mCurrentComments) {
-                if (!TextUtils.isEmpty(c.user.avatar_url)){
-                    mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
-                }
-            }
+//            for (Comment c : mCurrentComments) {
+//                if (!TextUtils.isEmpty(c.user.avatar_url)){
+//                    mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
+//                }
+//            }
         }
     }
 
@@ -129,7 +129,7 @@ public class PlayerAvatarBar extends View {
 
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
-                mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
+                //mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
                 c.avatar = null;
             }
         }
@@ -148,7 +148,6 @@ public class PlayerAvatarBar extends View {
     }
 
     public void setTrackData(long duration, List<Comment> newItems){
-        OldImageLoader.get(getContext()).clearErrors();
         mDuration = duration;
         mCurrentComments = newItems;
         for (Comment c : newItems){
@@ -166,10 +165,15 @@ public class PlayerAvatarBar extends View {
     private void loadAvatar(final Comment c){
         if (c == null || !c.shouldLoadIcon()) return;
 
-        OldImageLoader.get(getContext()).getBitmap(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new BitmapLoadCallback() {
+        mBitmapLoader.loadImage(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new SimpleImageLoadingListener() {
             @Override
-            public void onImageLoaded(Bitmap bitmap, String uri) {
-                c.avatar = bitmap;
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                Log.i(TAG, "Avatar Loading Error " + imageUri + " " + failReason);
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                c.avatar = loadedImage;
                 if (c.topLevelComment) {
                     if (!mUIHandler.hasMessages(REFRESH_AVATARS)) {
                         Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
@@ -177,12 +181,7 @@ public class PlayerAvatarBar extends View {
                     }
                 }
             }
-
-            @Override
-            public void onImageError(String uri, Throwable error) {
-                Log.i(TAG, "Avatar Loading Error " + uri + " " + error.toString());
-            }
-        }, getContext(), new OldImageLoader.Options());
+        });
     }
 
     private void refreshDefaultAvatar() {
