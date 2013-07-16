@@ -219,7 +219,7 @@ public class Activities extends CollectionHolder<Activity> {
                 return a;
             }
         } else {
-            return handleBadResponse(response);
+            return handleUnexpectedResponse(response);
         }
     }
 
@@ -229,11 +229,11 @@ public class Activities extends CollectionHolder<Activity> {
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             return api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
         } else {
-            return handleBadResponse(response);
+            return handleUnexpectedResponse(response);
         }
     }
 
-    private static Activities handleBadResponse(HttpResponse response) throws IOException {
+    private static Activities handleUnexpectedResponse(HttpResponse response) throws IOException {
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
             return EMPTY;
