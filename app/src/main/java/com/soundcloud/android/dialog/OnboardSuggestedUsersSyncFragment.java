@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.operations.following.FollowingOperations;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.service.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +36,7 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         if (mFollowingOperations == null) {
-            mFollowingOperations = new FollowingOperations();
+            mFollowingOperations = new FollowingOperations().observeOn(ScSchedulers.UI_SCHEDULER);
         }
 
         mSubscription = mFollowingOperations.waitForActivities(getActivity()).subscribe(new FollowingsSyncObserver(this));
