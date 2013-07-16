@@ -4,7 +4,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.utils.Log;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ReactiveListFragment<T extends ScModel> extends Fragment implements PullToRefreshBase.OnRefreshListener,
-        AdapterView.OnItemClickListener, AbsListView.OnScrollListener, ImageLoader.LoadBlocker {
+        AdapterView.OnItemClickListener, AbsListView.OnScrollListener, OldImageLoader.LoadBlocker {
 
     protected static final int PAGE_SIZE = Consts.COLLECTION_PAGE_SIZE;
     private static final int PROGRESS_DELAY_MILLIS = 250;
@@ -144,10 +144,10 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
         switch (scrollState) {
             case SCROLL_STATE_FLING:
             case SCROLL_STATE_TOUCH_SCROLL:
-                ImageLoader.get(getActivity()).block(this);
+                OldImageLoader.get(getActivity()).block(this);
                 break;
             case SCROLL_STATE_IDLE:
-                ImageLoader.get(getActivity()).unblock(this);
+                OldImageLoader.get(getActivity()).unblock(this);
         }
     }
 

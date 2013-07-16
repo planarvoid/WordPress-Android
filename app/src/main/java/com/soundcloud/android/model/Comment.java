@@ -4,7 +4,7 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.behavior.RelatesToPlayable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
@@ -127,7 +127,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     public void prefetchAvatar(Context c) {
         if (shouldLoadIcon()) {
-            ImageLoader.get(c).prefetch(ImageSize.formatUriForList(c, user.avatar_url));
+            OldImageLoader.get(c).prefetch(ImageSize.formatUriForList(c, user.avatar_url));
         }
     }
 

@@ -2,12 +2,12 @@ package com.soundcloud.android.adapter;
 
 import static android.os.Process.THREAD_PRIORITY_DEFAULT;
 
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.utils.images.ImageSize;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.SearchSuggestions;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -62,7 +62,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    private ImageLoader mImageLoader;
+    private OldImageLoader mOldImageLoader;
 
     private final static int TYPE_SEARCH_ITEM = 0;
     private final static int TYPE_TRACK  = 1;
@@ -98,7 +98,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         super(context, null, 0);
         mContentResolver = context.getContentResolver();
         mContext = context;
-        mImageLoader = ImageLoader.get(mContext);
+        mOldImageLoader = OldImageLoader.get(mContext);
         mApi = api;
 
         mSuggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
@@ -346,13 +346,13 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private void setIcon(SearchTag tag, String iconUri, boolean isUser) {
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
-            ImageLoader.BindResult result = mImageLoader.bind(tag.iv_icon,
+            OldImageLoader.BindResult result = mOldImageLoader.bind(tag.iv_icon,
                     ImageSize.formatUriForSearchSuggestionsList(mContext, iconUri),
                     null
             );
-            if (result == ImageLoader.BindResult.OK) return;
+            if (result == OldImageLoader.BindResult.OK) return;
         } else {
-            mImageLoader.unbind(tag.iv_icon);
+            mOldImageLoader.unbind(tag.iv_icon);
         }
         tag.iv_icon.setImageResource(isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
     }

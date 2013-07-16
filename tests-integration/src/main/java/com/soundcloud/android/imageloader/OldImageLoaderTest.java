@@ -1,6 +1,6 @@
 package com.soundcloud.android.imageloader;
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
+import static com.soundcloud.android.imageloader.OldImageLoader.Options;
 
 import com.soundcloud.android.utils.IOUtils;
 import org.json.JSONArray;
@@ -20,19 +20,19 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ImageLoaderTest extends InstrumentationTestCase {
+public class OldImageLoaderTest extends InstrumentationTestCase {
     static final String TAG = "ImageLoaderTest";
     static final String LARGE_AVATAR = "https://i1.sndcdn.com/avatars-000006111783-xqaxy3-large.jpg?d95e793";
     static final String RESOLVER = "https://api.soundcloud.com/resolve/image?url=soundcloud:users:1&client_id=40ccfee680a844780a41fbe23ea89934";
 
-    ImageLoader loader;
+    OldImageLoader loader;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        loader = new ImageLoader(new DownloadBitmapHandler(false), null,
-                ImageLoader.DEFAULT_CACHE_SIZE,
-                ImageLoader.DEFAULT_TASK_LIMIT);
+        loader = new OldImageLoader(new DownloadBitmapHandler(false), null,
+                OldImageLoader.DEFAULT_CACHE_SIZE,
+                OldImageLoader.DEFAULT_TASK_LIMIT);
     }
 
     public void testGetBitmap() throws Throwable {
@@ -51,7 +51,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
             @Override
             public void run() {
                 Bitmap bmp = loader.getBitmap(url,
-                        new ImageLoader.BitmapLoadCallback() {
+                        new OldImageLoader.BitmapLoadCallback() {
                             @Override
                             public void onImageLoaded(Bitmap bitmap, String uri) {
                                 latch.countDown();
@@ -80,7 +80,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    loader.getBitmap(u, new ImageLoader.BitmapLoadCallback() {
+                    loader.getBitmap(u, new OldImageLoader.BitmapLoadCallback() {
                         @Override
                         public void onImageError(String uri, Throwable error) {
                             latch.countDown();
@@ -115,7 +115,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
             runTestOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    loader.getBitmap(u, new ImageLoader.BitmapLoadCallback() {
+                    loader.getBitmap(u, new OldImageLoader.BitmapLoadCallback() {
                         @Override
                         public void onImageError(String uri, Throwable error) {
                             latch.countDown();
@@ -140,7 +140,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
 
     public void testPrefetch() throws Throwable {
         final boolean[] prefetchCalled = new boolean[1];
-        ImageLoader prefetcher = new ImageLoader(null, new PrefetchHandler() {
+        OldImageLoader prefetcher = new OldImageLoader(null, new PrefetchHandler() {
             @Override
             public Object getContent(URLConnection connection) throws IOException {
                 prefetchCalled[0] = true;
@@ -161,7 +161,7 @@ public class ImageLoaderTest extends InstrumentationTestCase {
             @Override
             public void run() {
                 Bitmap bmp = loader.getBitmap(url,
-                        new ImageLoader.BitmapLoadCallback() {
+                        new OldImageLoader.BitmapLoadCallback() {
                             @Override
                             public void onImageLoaded(Bitmap bitmap, String uri) {
                                 latch.countDown();

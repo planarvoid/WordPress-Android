@@ -3,7 +3,7 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.adapter.PlayableRow;
@@ -122,9 +122,9 @@ public class MyTracklistRow extends PlayableRow {
 
     protected void loadIcon(Recording recording) {
         if (recording.artwork_path == null) {
-            mImageLoader.unbind(mIcon);
+            mOldImageLoader.unbind(mIcon);
         } else {
-            ImageLoader.Options options = new ImageLoader.Options();
+            OldImageLoader.Options options = new OldImageLoader.Options();
             try {
                 options.decodeInSampleSize = ImageUtils.determineResizeOptions(
                         recording.artwork_path,
@@ -134,20 +134,20 @@ public class MyTracklistRow extends PlayableRow {
             } catch (IOException e) {
                 Log.w(SoundCloudApplication.TAG, "error", e);
             }
-            mImageLoader.bind(mIcon, recording.artwork_path.getAbsolutePath(), null, options);
+            mOldImageLoader.bind(mIcon, recording.artwork_path.getAbsolutePath(), null, options);
         }
     }
 
     private void setArtwork(final Recording recording) {
 
         if (recording.artwork_path == null) {
-            mImageLoader.unbind(mIcon);
+            mOldImageLoader.unbind(mIcon);
         } else {
             // use getBitmap instead of bind here because we have to account for exif rotation on local images
             final String fileUri = Uri.fromFile(recording.artwork_path).toString();
-            mImageLoader.getBitmap(
+            mOldImageLoader.getBitmap(
                     fileUri,
-                    new ImageLoader.BitmapLoadCallback(){
+                    new OldImageLoader.BitmapLoadCallback(){
                         @Override
                         public void onImageLoaded(Bitmap bitmap, String url) {
                             if (fileUri.equals(url)) setImageBitmap(recording, bitmap);

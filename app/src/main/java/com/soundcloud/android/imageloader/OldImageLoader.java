@@ -43,7 +43,7 @@ import java.util.WeakHashMap;
  *
  * @see <a href="http://code.google.com/p/libs-for-android/">libs-for-android</a>
  */
-public class ImageLoader {
+public class OldImageLoader {
     public static final String TAG = "ImageLoader";
     public static final String IMAGE_LOADER_SERVICE = "com.soundcloud.android.imageloader";
     public static final int DEFAULT_TASK_LIMIT = 3;
@@ -94,13 +94,13 @@ public class ImageLoader {
     private final WeakHashMap<ImageView, String> mImageViewBinding;
     private final WeakHashMap<Context, Set<BitmapLoadCallback>> mBitmapCallbackBinding;
 
-    public ImageLoader() {
+    public OldImageLoader() {
         this(null, null, DEFAULT_CACHE_SIZE, DEFAULT_TASK_LIMIT);
     }
 
-    public ImageLoader(@Nullable BitmapContentHandler bitmapHandler,
-                       @Nullable ContentHandler prefetchHandler,
-                       long cacheSize, int taskLimit) {
+    public OldImageLoader(@Nullable BitmapContentHandler bitmapHandler,
+                          @Nullable ContentHandler prefetchHandler,
+                          long cacheSize, int taskLimit) {
         if (taskLimit < 1) throw new IllegalArgumentException("Task limit must be positive");
         if (cacheSize < 1) throw new IllegalArgumentException("Cache size must be positive");
 
@@ -115,11 +115,11 @@ public class ImageLoader {
         mErrors   = new LruCache<String, ImageError>(256);
     }
 
-    public static ImageLoader get(Context context) {
-        ImageLoader loader = (ImageLoader) context.getSystemService(IMAGE_LOADER_SERVICE);
+    public static OldImageLoader get(Context context) {
+        OldImageLoader loader = (OldImageLoader) context.getSystemService(IMAGE_LOADER_SERVICE);
         if (loader == null) {
             context = context.getApplicationContext();
-            loader = (ImageLoader) context.getSystemService(IMAGE_LOADER_SERVICE);
+            loader = (OldImageLoader) context.getSystemService(IMAGE_LOADER_SERVICE);
         }
         if (loader == null) {
             throw new IllegalStateException("ImageLoader not available");
@@ -258,7 +258,7 @@ public class ImageLoader {
 
 
     /**
-     * See {@link #bind(android.widget.ImageView, String, com.soundcloud.android.imageloader.ImageLoader.Callback, com.soundcloud.android.imageloader.ImageLoader.Options)}
+     * See {@link #bind(android.widget.ImageView, String, OldImageLoader.Callback, OldImageLoader.Options)}
      */
     public BindResult bind(ImageView view, String url, @Nullable Callback callback) {
         return bind(view, url, callback, new Options());

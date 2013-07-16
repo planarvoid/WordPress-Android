@@ -1,7 +1,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.view.GridViewCompat;
 import com.soundcloud.android.view.SuggestedUserItemLayout;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class SuggestedUsersAdapter extends BaseAdapter {
 
-    private static final ImageLoader.Options IMAGE_OPTIONS = ImageLoader.Options.listFadeIn();
+    private static final OldImageLoader.Options IMAGE_OPTIONS = OldImageLoader.Options.listFadeIn();
     private final List<SuggestedUser> mSuggestedUsers;
     private int mItemSpacing = Integer.MIN_VALUE, mNumColumns = Integer.MIN_VALUE;
 
@@ -80,9 +80,9 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder.location.setVisibility(View.VISIBLE);
         }
 
-        final ImageLoader.BindResult result = ImageLoader.get(parent.getContext()).bind(viewHolder.imageView,
+        final OldImageLoader.BindResult result = OldImageLoader.get(parent.getContext()).bind(viewHolder.imageView,
                 suggestedUser.getAvatarUrl(), null, IMAGE_OPTIONS);
-        if (result != ImageLoader.BindResult.OK) {
+        if (result != OldImageLoader.BindResult.OK) {
             viewHolder.imageView.setImageResource(R.drawable.placeholder_cells);
         }
         return convertView;

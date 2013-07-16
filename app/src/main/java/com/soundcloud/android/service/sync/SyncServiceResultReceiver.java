@@ -5,7 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
@@ -173,7 +173,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
             }
             int tofetch = SyncAdapterService.MAX_ARTWORK_PREFETCH;
             for (String url : urls) {
-                ImageLoader.get(context).prefetch(url);
+                OldImageLoader.get(context).prefetch(url);
                 if (tofetch-- <= 0) break;
             }
             return Math.min(urls.size(), SyncAdapterService.MAX_ARTWORK_PREFETCH);

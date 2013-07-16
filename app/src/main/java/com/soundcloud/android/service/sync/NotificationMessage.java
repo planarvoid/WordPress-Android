@@ -1,12 +1,12 @@
 package com.soundcloud.android.service.sync;
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
+import static com.soundcloud.android.imageloader.OldImageLoader.Options;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -154,14 +154,14 @@ class NotificationMessage {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
 
-            final Bitmap bmp = ImageLoader.get(context).getBitmap(largeIcon, null, null, Options.dontLoadRemote());
+            final Bitmap bmp = OldImageLoader.get(context).getBitmap(largeIcon, null, null, Options.dontLoadRemote());
             if (bmp != null){
                 showDashboardNotification(context, ticker, intent, title, message, id, bmp);
             } else {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        ImageLoader.get(context).getBitmap(largeIcon, new ImageLoader.BitmapLoadCallback() {
+                        OldImageLoader.get(context).getBitmap(largeIcon, new OldImageLoader.BitmapLoadCallback() {
                             public void onImageLoaded(Bitmap loadedBmp, String uri) {
                                 showDashboardNotification(context, ticker, intent, title, message, id, loadedBmp);
                             }

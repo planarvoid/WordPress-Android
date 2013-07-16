@@ -13,8 +13,8 @@ import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.fragment.UserDetailsFragment;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.imageloader.OldImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader.BindResult;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
@@ -73,7 +73,7 @@ public class UserBrowser extends ScActivity implements
     private View mVrStats;
     private ImageView mIcon;
     private String mIconURL;
-    private ImageLoader.BindResult avatarResult;
+    private OldImageLoader.BindResult avatarResult;
     private UserFragmentAdapter mAdapter;
     private FetchUserTask mLoadUserTask;
     protected ViewPager mPager;
@@ -393,7 +393,7 @@ public class UserBrowser extends ScActivity implements
 
     private void reloadAvatar() {
         if (ImageUtils.checkIconShouldLoad(mIconURL)) {
-            if ((avatarResult = ImageUtils.loadImageSubstitute(this,mIcon,mIconURL, ImageSize.LARGE,new ImageLoader.Callback() {
+            if ((avatarResult = ImageUtils.loadImageSubstitute(this,mIcon,mIconURL, ImageSize.LARGE,new OldImageLoader.Callback() {
                 @Override
                 public void onImageLoaded(ImageView view, String url) {}
 

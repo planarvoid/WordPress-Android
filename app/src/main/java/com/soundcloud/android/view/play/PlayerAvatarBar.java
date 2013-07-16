@@ -1,8 +1,8 @@
 package com.soundcloud.android.view.play;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.ImageLoader.BitmapLoadCallback;
+import com.soundcloud.android.imageloader.OldImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader.BitmapLoadCallback;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
@@ -58,7 +58,7 @@ public class PlayerAvatarBar extends View {
 
     private Bitmap mDefaultAvatar;
 
-    private ImageLoader mBitmapLoader;
+    private OldImageLoader mBitmapLoader;
     private ImageSize mAvatarGraphicsSize;
 
     private boolean mLandscape;
@@ -66,7 +66,7 @@ public class PlayerAvatarBar extends View {
     public PlayerAvatarBar(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
-        mBitmapLoader = ImageLoader.get(context.getApplicationContext());
+        mBitmapLoader = OldImageLoader.get(context.getApplicationContext());
 
         if (ImageUtils.isScreenXL(context)) {
             mAvatarGraphicsSize= ImageSize.LARGE;
@@ -148,7 +148,7 @@ public class PlayerAvatarBar extends View {
     }
 
     public void setTrackData(long duration, List<Comment> newItems){
-        ImageLoader.get(getContext()).clearErrors();
+        OldImageLoader.get(getContext()).clearErrors();
         mDuration = duration;
         mCurrentComments = newItems;
         for (Comment c : newItems){
@@ -166,7 +166,7 @@ public class PlayerAvatarBar extends View {
     private void loadAvatar(final Comment c){
         if (c == null || !c.shouldLoadIcon()) return;
 
-        ImageLoader.get(getContext()).getBitmap(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new BitmapLoadCallback() {
+        OldImageLoader.get(getContext()).getBitmap(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new BitmapLoadCallback() {
             @Override
             public void onImageLoaded(Bitmap bitmap, String uri) {
                 c.avatar = bitmap;
@@ -182,7 +182,7 @@ public class PlayerAvatarBar extends View {
             public void onImageError(String uri, Throwable error) {
                 Log.i(TAG, "Avatar Loading Error " + uri + " " + error.toString());
             }
-        }, getContext(), new ImageLoader.Options());
+        }, getContext(), new OldImageLoader.Options());
     }
 
     private void refreshDefaultAvatar() {

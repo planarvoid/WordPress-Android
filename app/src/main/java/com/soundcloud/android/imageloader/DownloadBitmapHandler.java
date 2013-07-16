@@ -16,7 +16,7 @@
 
 package com.soundcloud.android.imageloader;
 
-import static com.soundcloud.android.imageloader.ImageLoader.TAG;
+import static com.soundcloud.android.imageloader.OldImageLoader.TAG;
 
 import com.google.common.collect.MapMaker;
 import com.soundcloud.android.utils.IOUtils;
@@ -61,7 +61,7 @@ public class DownloadBitmapHandler extends BitmapContentHandler {
     public DownloadBitmapHandler(boolean useResponseCache) {
         mUseCache = useResponseCache;
         mResolvedImageUrls = new MapMaker()
-                .concurrencyLevel(ImageLoader.DEFAULT_TASK_LIMIT)
+                .concurrencyLevel(OldImageLoader.DEFAULT_TASK_LIMIT)
                 .initialCapacity(50)
                 .makeMap();
     }

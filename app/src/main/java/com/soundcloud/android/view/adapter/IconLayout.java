@@ -3,7 +3,7 @@ package com.soundcloud.android.view.adapter;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,20 +18,20 @@ import android.widget.ImageView;
  */
 public abstract class IconLayout extends FrameLayout {
 
-    private ImageLoader.Options mIconOptions;
+    private OldImageLoader.Options mIconOptions;
 
-    protected ImageLoader mImageLoader;
+    protected OldImageLoader mOldImageLoader;
     protected ImageView mIcon;
-    private ImageLoader.BindResult mCurrentIconBindResult;
-    private ImageLoader.Callback mImageLoaderCallback = new ImageLoader.Callback() {
+    private OldImageLoader.BindResult mCurrentIconBindResult;
+    private OldImageLoader.Callback mImageLoaderCallback = new OldImageLoader.Callback() {
         @Override
         public void onImageError(ImageView view, String url, Throwable error) {
-            mCurrentIconBindResult = ImageLoader.BindResult.ERROR;
+            mCurrentIconBindResult = OldImageLoader.BindResult.ERROR;
         }
 
         @Override
         public void onImageLoaded(ImageView view, String url) {
-            mCurrentIconBindResult = ImageLoader.BindResult.OK;
+            mCurrentIconBindResult = OldImageLoader.BindResult.OK;
         }
 
     };
@@ -43,8 +43,8 @@ public abstract class IconLayout extends FrameLayout {
     public IconLayout(Context context, @Nullable AttributeSet attributeSet) {
         super(context, attributeSet);
 
-        if (mIconOptions == null) mIconOptions = ImageLoader.Options.listFadeIn();
-        mImageLoader = ImageLoader.get(context);
+        if (mIconOptions == null) mIconOptions = OldImageLoader.Options.listFadeIn();
+        mOldImageLoader = OldImageLoader.get(context);
 
         addContent(attributeSet);
 
@@ -64,19 +64,19 @@ public abstract class IconLayout extends FrameLayout {
     protected void loadIcon() {
         final String iconUri = getIconRemoteUri();
         if (ImageUtils.checkIconShouldLoad(iconUri)) {
-            mCurrentIconBindResult = mImageLoader.bind(mIcon, iconUri, mImageLoaderCallback, mIconOptions);
-            if (mCurrentIconBindResult != ImageLoader.BindResult.OK){
+            mCurrentIconBindResult = mOldImageLoader.bind(mIcon, iconUri, mImageLoaderCallback, mIconOptions);
+            if (mCurrentIconBindResult != OldImageLoader.BindResult.OK){
                 mIcon.setImageResource(getDefaultArtworkResId());
             }
         } else {
-            mCurrentIconBindResult = ImageLoader.BindResult.OK;
-            mImageLoader.unbind(mIcon);
+            mCurrentIconBindResult = OldImageLoader.BindResult.OK;
+            mOldImageLoader.unbind(mIcon);
             mIcon.setImageResource(getDefaultArtworkResId());
         }
     }
 
     protected boolean lastImageLoadFailed() {
-        return mCurrentIconBindResult == ImageLoader.BindResult.ERROR;
+        return mCurrentIconBindResult == OldImageLoader.BindResult.ERROR;
     }
 
     abstract protected int getDefaultArtworkResId();

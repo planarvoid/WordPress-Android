@@ -1,12 +1,12 @@
 package com.soundcloud.android.utils.images;
 
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
+import static com.soundcloud.android.imageloader.OldImageLoader.Options;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.utils.AndroidUtils;
 
 import android.annotation.TargetApi;
@@ -64,11 +64,11 @@ public final class ImageUtils {
         return options;
     }
 
-    public static ImageLoader.Options getImageLoaderOptionsWithResizeSet(File imageFile,
+    public static OldImageLoader.Options getImageLoaderOptionsWithResizeSet(File imageFile,
                                                                          int targetWidth,
                                                                          int targetHeight,
                                                                          boolean crop) {
-        ImageLoader.Options options = new ImageLoader.Options();
+        OldImageLoader.Options options = new OldImageLoader.Options();
         try {
             options.decodeInSampleSize = ImageUtils.determineResizeOptions(imageFile, targetWidth, targetHeight, crop).inSampleSize;
         } catch (IOException e) {
@@ -459,61 +459,61 @@ public final class ImageUtils {
         }
     }
 
-    public static ImageLoader.BindResult loadImageSubstitute(Context c,
+    public static OldImageLoader.BindResult loadImageSubstitute(Context c,
                                                              ImageView imageView,
                                                              String uri,
                                                              ImageSize targetSize,
-                                                             ImageLoader.Callback callback,
+                                                             OldImageLoader.Callback callback,
                                                              Options options) {
 
         final String targetUri = targetSize.formatUri(uri);
-        final ImageLoader imageLoader = ImageLoader.get(c);
+        final OldImageLoader oldImageLoader = OldImageLoader.get(c);
         if (options == null) options = new Options();
-        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, null, Options.dontLoadRemote());
+        Bitmap targetBitmap = oldImageLoader.getBitmap(targetUri, null, null, Options.dontLoadRemote());
         if (targetBitmap != null) {
-            return imageLoader.bind(imageView, targetUri, callback, options);
+            return oldImageLoader.bind(imageView, targetUri, callback, options);
         } else {
             for (ImageSize gs : ImageSize.values()) {
-                final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri),
+                final Bitmap tempBitmap = oldImageLoader.getBitmap(gs.formatUri(uri),
                         null, null,
                         Options.dontLoadRemote());
 
                 if (tempBitmap != null) {
                     options.temporaryBitmapRef = new WeakReference<Bitmap>(tempBitmap);
-                    imageLoader.bind(imageView, targetUri, callback, options);
-                    return ImageLoader.BindResult.OK;
+                    oldImageLoader.bind(imageView, targetUri, callback, options);
+                    return OldImageLoader.BindResult.OK;
                 }
             }
 
-            return imageLoader.bind(imageView, targetUri, callback, options);
+            return oldImageLoader.bind(imageView, targetUri, callback, options);
         }
     }
 
     @SuppressWarnings("UnusedDeclaration") // useful, keep plz
     public static Bitmap getBitmapSubstitute(Context c, String uri,
                                              ImageSize targetSize,
-                                             ImageLoader.BitmapLoadCallback callback,
+                                             OldImageLoader.BitmapLoadCallback callback,
                                              Options options) {
         final String targetUri = targetSize.formatUri(uri);
-        final ImageLoader imageLoader = ImageLoader.get(c);
+        final OldImageLoader oldImageLoader = OldImageLoader.get(c);
         if (options == null) options = new Options();
 
-        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, null, Options.dontLoadRemote());
+        Bitmap targetBitmap = oldImageLoader.getBitmap(targetUri, null, null, Options.dontLoadRemote());
         if (targetBitmap != null){
-            return imageLoader.getBitmap(targetUri, callback, c, options);
+            return oldImageLoader.getBitmap(targetUri, callback, c, options);
         } else {
             for (ImageSize gs : EnumSet.allOf(ImageSize.class)) {
-                final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri), null, null, Options.dontLoadRemote());
+                final Bitmap tempBitmap = oldImageLoader.getBitmap(gs.formatUri(uri), null, null, Options.dontLoadRemote());
                 if (tempBitmap != null && !tempBitmap.isRecycled()) {
                     if (callback != null) {
                         callback.onImageLoaded(tempBitmap, uri);
                     }
                     // get the normal one anyway, will be handled by the callback
-                    imageLoader.getBitmap(targetUri, callback, c, options);
+                    oldImageLoader.getBitmap(targetUri, callback, c, options);
                     return tempBitmap;
                 }
             }
-            return imageLoader.getBitmap(targetUri, callback, c, options);
+            return oldImageLoader.getBitmap(targetUri, callback, c, options);
         }
     }
 

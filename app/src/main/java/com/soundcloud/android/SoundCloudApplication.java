@@ -10,7 +10,7 @@ import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.imageloader.DownloadBitmapHandler;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
@@ -56,7 +56,7 @@ public class SoundCloudApplication extends Application implements Tracker {
 
     public static final boolean DALVIK = Build.PRODUCT != null;
     public static boolean DEV_MODE, BETA_MODE;
-    private ImageLoader mImageLoader;
+    private OldImageLoader mOldImageLoader;
 
     @Deprecated public static ScModelManager MODEL_MANAGER;
 
@@ -85,7 +85,7 @@ public class SoundCloudApplication extends Application implements Tracker {
         instance = this;
         IOUtils.checkState(this);
         accountOperations = new AccountOperations(this);
-        mImageLoader = createImageLoader();
+        mOldImageLoader = createImageLoader();
         final Account account = accountOperations.getSoundCloudAccount();
 
 
@@ -161,17 +161,17 @@ public class SoundCloudApplication extends Application implements Tracker {
         mLoggedInUser = null;
     }
 
-    protected ImageLoader createImageLoader() {
+    protected OldImageLoader createImageLoader() {
         FileCache.installFileCache(IOUtils.getCacheDir(this));
-        return new ImageLoader(new DownloadBitmapHandler(),
+        return new OldImageLoader(new DownloadBitmapHandler(),
                 new PrefetchHandler(),
-                ImageLoader.DEFAULT_CACHE_SIZE, ImageLoader.DEFAULT_TASK_LIMIT);
+                OldImageLoader.DEFAULT_CACHE_SIZE, OldImageLoader.DEFAULT_TASK_LIMIT);
     }
 
     @Override
     public Object getSystemService(String name) {
-        if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
-            return mImageLoader;
+        if (OldImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
+            return mOldImageLoader;
         } else {
             return super.getSystemService(name);
         }

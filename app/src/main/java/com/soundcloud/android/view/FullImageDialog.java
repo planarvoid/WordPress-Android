@@ -1,8 +1,8 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.imageloader.OldImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader.BindResult;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.MotionEventUtils;
 
@@ -32,7 +32,7 @@ public class FullImageDialog extends Dialog {
         final ImageView image = (ImageView) this.findViewById(R.id.image);
         final ProgressBar progress = (ProgressBar) this.findViewById(R.id.progress);
         BindResult result;
-        if ((result = ImageLoader.get(context).bind(image, imageUri, new ImageLoader.Callback() {
+        if ((result = OldImageLoader.get(context).bind(image, imageUri, new OldImageLoader.Callback() {
             @Override
             public void onImageLoaded(ImageView view, String url) {
                 if (!isShowing()) return;

@@ -1,6 +1,6 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
+import static com.soundcloud.android.imageloader.OldImageLoader.Options;
 import static com.soundcloud.android.service.playback.State.COMPLETED;
 import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 import static com.soundcloud.android.service.playback.State.ERROR;
@@ -23,7 +23,7 @@ import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.dao.TrackStorage;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -409,7 +409,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (mFocus.isTrackChangeSupported()) {
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap cached = ImageLoader.get(this).getBitmap(artworkUri, null, null, Options.dontLoadRemote());
+                final Bitmap cached = OldImageLoader.get(this).getBitmap(artworkUri, null, null, Options.dontLoadRemote());
                 if (cached != null) {
                     // use a copy of the bitmap because it is going to get recycled afterwards
                     try {
@@ -421,7 +421,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     }
                 } else {
                     mFocus.onTrackChanged(track, null);
-                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapLoadCallback() {
+                    OldImageLoader.get(this).getBitmap(artworkUri, new OldImageLoader.BitmapLoadCallback() {
                         public void onImageLoaded(Bitmap loadedBmp, String uri) {
                             if (track.equals(currentTrack)) onTrackChanged(track);
                         }
@@ -765,12 +765,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap cachedBmp = ImageLoader.get(this).getBitmap(artworkUri, null, null, Options.dontLoadRemote());
+                final Bitmap cachedBmp = OldImageLoader.get(this).getBitmap(artworkUri, null, null, Options.dontLoadRemote());
                 if (cachedBmp != null) {
                     view.setIcon(cachedBmp);
                 } else {
                     view.clearIcon();
-                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapLoadCallback() {
+                    OldImageLoader.get(this).getBitmap(artworkUri, new OldImageLoader.BitmapLoadCallback() {
                         @Override public void onImageLoaded(Bitmap bitmap, String uri) {
                             //noinspection ObjectEquality
                             if (currentTrack == track) {
