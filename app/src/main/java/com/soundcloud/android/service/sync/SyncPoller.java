@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class SyncPoller implements Runnable {
-    private static final int POLL_DELAY = 60 * 1000;
+    private static final int POLL_DELAY = 2 * 60 * 1000;
 
     private final Handler mHandler;
     private final Thread mWatchedThread;
