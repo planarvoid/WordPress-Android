@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -13,6 +14,7 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import android.content.SyncResult;
 import android.preference.PreferenceManager;
@@ -93,5 +95,11 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
                 .commit();
         SyncOutcome result = doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
         expect(result.notifications).toBeEmpty();
+    }
+
+    @Test public void shouldNotPerformSyncWithNullToken(){
+        SyncResult syncResult = new SyncResult();
+        expect(SyncAdapterService.performSync(Mockito.mock(SoundCloudApplication.class), null, syncResult, null, null)).toBeFalse();
+        expect(syncResult.stats.numAuthExceptions).toBeGreaterThan(0L);
     }
 }

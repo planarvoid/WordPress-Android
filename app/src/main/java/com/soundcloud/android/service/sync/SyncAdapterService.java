@@ -128,7 +128,7 @@ public class SyncAdapterService extends Service {
                                final SyncResult syncResult,
                                @Nullable Token token,
                                final @Nullable Runnable onResult) {
-        if (token != null && !token.valid()) {
+        if (token == null || !token.valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
             return false;
