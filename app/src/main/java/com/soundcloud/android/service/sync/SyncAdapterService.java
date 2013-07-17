@@ -126,9 +126,9 @@ public class SyncAdapterService extends Service {
     static boolean performSync(final SoundCloudApplication app,
                                Bundle extras,
                                final SyncResult syncResult,
-                               Token token,
+                               @Nullable Token token,
                                final @Nullable Runnable onResult) {
-        if (!token.valid()) {
+        if (token != null && !token.valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
             return false;

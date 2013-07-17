@@ -67,8 +67,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
-    private AccountOperations mAccountOperations;
-    private AndroidCloudAPI mAndroidCloudAPI;
+    protected AccountOperations mAccountOperations;
+    protected AndroidCloudAPI mAndroidCloudAPI;
 
     @Nullable
     protected ActionBarController mActionBarController;
