@@ -1,12 +1,12 @@
 package com.soundcloud.android.service.sync;
 
-import static com.soundcloud.android.imageloader.OldImageLoader.Options;
-
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.Activities;
@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
+import android.view.View;
 
 import java.util.List;
 
@@ -153,26 +154,23 @@ class NotificationMessage {
         if (!Consts.SdkSwitches.useRichNotifications || !ImageUtils.checkIconShouldLoad(largeIcon)) {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    ImageLoader.getInstance().loadImage(largeIcon, new SimpleImageLoadingListener() {
+                        @Override
+                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                            showDashboardNotification(context, ticker, intent, title, message, id, null);
+                        }
 
-            final Bitmap bmp = OldImageLoader.get(context).getBitmap(largeIcon, null, null, Options.dontLoadRemote());
-            if (bmp != null){
-                showDashboardNotification(context, ticker, intent, title, message, id, bmp);
-            } else {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        OldImageLoader.get(context).getBitmap(largeIcon, new OldImageLoader.BitmapLoadCallback() {
-                            public void onImageLoaded(Bitmap loadedBmp, String uri) {
-                                showDashboardNotification(context, ticker, intent, title, message, id, loadedBmp);
-                            }
+                        @Override
+                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            showDashboardNotification(context, ticker, intent, title, message, id, loadedImage);
+                        }
+                    });
 
-                            public void onImageError(String uri, Throwable error) {
-                                showDashboardNotification(context, ticker, intent, title, message, id, null);
-                            }
-                        }, context);
-                    }
-                });
-            }
+                }
+            });
         }
     }
 

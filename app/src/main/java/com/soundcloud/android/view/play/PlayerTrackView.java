@@ -1,10 +1,11 @@
 package com.soundcloud.android.view.play;
 
 
-import static com.soundcloud.android.imageloader.OldImageLoader.Options;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -12,7 +13,6 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
-import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -32,8 +32,6 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Animation;
@@ -57,7 +55,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private @Nullable ImageView mArtwork;
     private ImageView mAvatar;
     private @Nullable FrameLayout mArtworkHolder;
-    private OldImageLoader.BindResult mCurrentArtBindResult;
 
     private WaveformController mWaveformController;
     private FrameLayout mUnplayableLayout;
@@ -65,8 +62,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private PlayableBar mTrackInfoBar;
     private @Nullable ViewFlipper mTrackFlipper;            // can be null in landscape mode
     private @Nullable PlayerTrackDetails mTrackDetailsView; // ditto
-
-    private OldImageLoader.BindResult mCurrentAvatarBindResult;
 
     private @Nullable Track mTrack;
     private int mQueuePosition;
@@ -108,7 +103,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mArtwork = (ImageView) findViewById(R.id.artwork);
         if (mArtwork != null) {
             mArtworkHolder = (FrameLayout) mArtwork.getParent();
-            showDefaultArtwork();
             mArtwork.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             mLandscape = false;
@@ -231,53 +225,15 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         // this will cause OOMs
         if (mTrack == null || ActivityManager.isUserAMonkey()) return;
 
-        OldImageLoader.get(getContext()).unbind(mArtwork);
-        if (TextUtils.isEmpty(mTrack.getArtwork())) {
-            // no artwork
-            showDefaultArtwork();
-        } else {
-            // executeAppendTask artwork as necessary
-            if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
-                    getContext(),
-                    mArtwork,
-                    mTrack.getArtwork(),
-                    ImageSize.getPlayerImageSize(getContext()),
-                    new OldImageLoader.Callback() {
-                        @Override
-                        public void onImageError(ImageView view, String url, Throwable error) {
-                            mCurrentArtBindResult = OldImageLoader.BindResult.ERROR;
-                            Log.e(getClass().getSimpleName(), "Error loading artwork " + error);
-                        }
-
-                        @Override
-                        public void onImageLoaded(ImageView view, String url) {
-                            onArtworkSet(mOnScreen);
-                        }
-            }, postAtFront ? Options.postAtFront() : new Options())) != OldImageLoader.BindResult.OK) {
-                showDefaultArtwork();
-            } else {
-                onArtworkSet(false);
-            }
-        }
-    }
-
-    private void showDefaultArtwork() {
-        if (mArtwork != null && mArtworkHolder != null) {
-            mArtwork.setVisibility(View.GONE);
-            mArtwork.setImageDrawable(null);
-            if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null){
-                try {
-                    mArtworkBgDrawable = new SoftReference<Drawable>(getResources().getDrawable(R.drawable.artwork_player));
-                } catch (OutOfMemoryError ignored){}
-            }
-
-            final Drawable bg = mArtworkBgDrawable == null ? null : mArtworkBgDrawable.get();
-            if (bg == null) {
-                mArtwork.setBackgroundColor(0xFFFFFFFF);
-            } else {
-                mArtworkHolder.setBackgroundDrawable(bg);
-            }
-        }
+        // TODO priority if postAtFront and load failures. Check for OOM errors
+        ImageLoader.getInstance().displayImage(mTrack.getPlayerArtworkUri(getContext()), mArtwork,
+                ImageUtils.createPlaceholderDisplayImageOptions(R.drawable.artwork_player),
+                new SimpleImageLoadingListener(){
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+                        onArtworkSet(true);
+                    }
+                });
     }
 
     private void onArtworkSet(boolean animate) {
@@ -310,21 +266,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     private void updateAvatar(boolean postAtFront) {
         if (mTrack != null && mTrack.hasAvatar()) {
-            mCurrentAvatarBindResult = OldImageLoader.get(mPlayer).bind(
-                    mAvatar,
-                    ImageSize.formatUriForList(mPlayer, mTrack.getAvatarUrl()),
-                    new OldImageLoader.Callback() {
-                        @Override
-                        public void onImageError(ImageView view, String url, Throwable error) {
-                            mCurrentAvatarBindResult = OldImageLoader.BindResult.ERROR;
-                        }
+            ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(mPlayer, mTrack.getAvatarUrl()), mAvatar);
 
-                        @Override
-                        public void onImageLoaded(ImageView view, String url) {
-                        }
-                    }, postAtFront ? Options.postAtFront() : new Options());
         } else {
-            OldImageLoader.get(mPlayer).unbind(mAvatar);
+            ImageLoader.getInstance().cancelDisplayTask(mAvatar);
         }
     }
 
@@ -370,13 +315,14 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     public void onDataConnected() {
         mWaveformController.onDataConnected();
 
-        if (!mLandscape && mCurrentArtBindResult == OldImageLoader.BindResult.ERROR) {
-            updateArtwork(mOnScreen);
-        }
-
-        if (mCurrentAvatarBindResult == OldImageLoader.BindResult.ERROR) {
-            updateAvatar(mOnScreen);
-        }
+        // TODO, errors
+//        if (!mLandscape && mCurrentArtBindResult == OldImageLoader.BindResult.ERROR) {
+//            updateArtwork(mOnScreen);
+//        }
+//
+//        if (mCurrentAvatarBindResult == OldImageLoader.BindResult.ERROR) {
+//            updateAvatar(mOnScreen);
+//        }
     }
 
     public void setCommentMode(boolean  isCommenting) {
@@ -602,7 +548,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     public void clear() {
         mOnScreen = false;
         onStop(true);
-        showDefaultArtwork();
+        mArtwork.setImageResource(R.drawable.artwork_player);
         mAvatar.setImageBitmap(null);
         mWaveformController.reset(true);
         mWaveformController.setOnScreen(false);

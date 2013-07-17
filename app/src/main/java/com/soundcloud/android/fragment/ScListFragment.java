@@ -20,7 +20,6 @@ import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.adapter.UserAssociationAdapter;
-import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
@@ -71,8 +70,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                                                             DetachableResultReceiver.Receiver,
                                                             LocalCollection.OnChangeListener,
                                                             CollectionTask.Callback,
-                                                            AbsListView.OnScrollListener,
-                                                            OldImageLoader.LoadBlocker {
+                                                            AbsListView.OnScrollListener {
     private static final int CONNECTIVITY_MSG = 0;
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
@@ -508,10 +506,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         switch (scrollState){
             case SCROLL_STATE_FLING:
             case SCROLL_STATE_TOUCH_SCROLL:
-                OldImageLoader.get(getActivity()).block(this);
+                // TODO : block image loading
                 break;
             case SCROLL_STATE_IDLE:
-                OldImageLoader.get(getActivity()).unblock(this);
+                // TODO : unblock image loading
+                break;
         }
     }
 

@@ -5,7 +5,6 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.Track;
@@ -27,8 +26,6 @@ import android.widget.TextView;
  * specialized form as list items (@see {@link PlayableRow}.
  */
 public class PlayableBar extends IconLayout {
-    public static final OldImageLoader.Options ICON_OPTIONS = OldImageLoader.Options.postAtFront();
-
     protected PlayableHolder mPlayableHolder;
     protected TextView mTitle;
     protected TextView mUser;

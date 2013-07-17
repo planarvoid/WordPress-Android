@@ -1,16 +1,17 @@
 package com.soundcloud.android.service.sync;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
 import android.content.SyncResult;
@@ -173,7 +174,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
             }
             int tofetch = SyncAdapterService.MAX_ARTWORK_PREFETCH;
             for (String url : urls) {
-                OldImageLoader.get(context).prefetch(url);
+                ImageLoader.getInstance().loadImage(url, ImageUtils.createPrefetchDisplayImageOptions(), null);
                 if (tofetch-- <= 0) break;
             }
             return Math.min(urls.size(), SyncAdapterService.MAX_ARTWORK_PREFETCH);

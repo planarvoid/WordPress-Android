@@ -4,6 +4,7 @@ import static android.text.TextUtils.isEmpty;
 import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
@@ -13,8 +14,6 @@ import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.fragment.UserDetailsFragment;
-import com.soundcloud.android.imageloader.OldImageLoader;
-import com.soundcloud.android.imageloader.OldImageLoader.BindResult;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
@@ -73,7 +72,6 @@ public class UserBrowser extends ScActivity implements
     private View mVrStats;
     private ImageView mIcon;
     private String mIconURL;
-    private OldImageLoader.BindResult avatarResult;
     private UserFragmentAdapter mAdapter;
     private FetchUserTask mLoadUserTask;
     protected ViewPager mPager;
@@ -242,7 +240,7 @@ public class UserBrowser extends ScActivity implements
     @Override
      protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
-        if (isConnected && avatarResult == BindResult.ERROR) reloadAvatar();
+        // TODO : reload avatar
     }
 
     private void loadYou() {
@@ -375,11 +373,8 @@ public class UserBrowser extends ScActivity implements
         invalidateOptionsMenu();
 
         if (user.shouldLoadIcon()) {
-            if (mIconURL == null
-                || avatarResult == BindResult.ERROR
-                || (user.avatar_url != null && !mIconURL.equals(user.avatar_url))) {
+            if (mIconURL == null|| (user.avatar_url != null && !mIconURL.equals(user.avatar_url))) {
                 mIconURL = user.avatar_url;
-
                 reloadAvatar();
             }
         }
@@ -392,19 +387,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     private void reloadAvatar() {
-        if (ImageUtils.checkIconShouldLoad(mIconURL)) {
-            if ((avatarResult = ImageUtils.loadImageSubstitute(this,mIcon,mIconURL, ImageSize.LARGE,new OldImageLoader.Callback() {
-                @Override
-                public void onImageLoaded(ImageView view, String url) {}
-
-                @Override
-                public void onImageError(ImageView view, String url, Throwable error) {
-                    avatarResult = BindResult.ERROR;
-                }
-            }, null)) != BindResult.OK) {
-                mIcon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge_large));
-            }
-        }
+        ImageLoader.getInstance().displayImage(mIconURL, mIcon, ImageUtils.createListIconDisplayImageOptions(R.drawable.avatar_badge_large));
     }
 
     private Configuration toConfiguration() {

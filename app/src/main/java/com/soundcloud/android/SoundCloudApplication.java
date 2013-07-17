@@ -12,9 +12,6 @@ import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.imageloader.DownloadBitmapHandler;
-import com.soundcloud.android.imageloader.OldImageLoader;
-import com.soundcloud.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
@@ -59,7 +56,6 @@ public class SoundCloudApplication extends Application implements Tracker {
 
     public static final boolean DALVIK = Build.PRODUCT != null;
     public static boolean DEV_MODE, BETA_MODE;
-    private OldImageLoader mOldImageLoader;
 
     @Deprecated public static ScModelManager MODEL_MANAGER;
 
@@ -87,8 +83,9 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
         instance = this;
         IOUtils.checkState(this);
+        createImageLoader();
+
         accountOperations = new AccountOperations(this);
-        mOldImageLoader = createImageLoader();
         final Account account = accountOperations.getSoundCloudAccount();
 
 
@@ -164,7 +161,7 @@ public class SoundCloudApplication extends Application implements Tracker {
         mLoggedInUser = null;
     }
 
-    protected OldImageLoader createImageLoader() {
+    protected void createImageLoader() {
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
         .cacheInMemory(true)
         .cacheOnDisc(true)
@@ -177,20 +174,8 @@ public class SoundCloudApplication extends Application implements Tracker {
         ImageLoader.getInstance().init(config); // Do it on Application start
 
         FileCache.installFileCache(IOUtils.getCacheDir(this));
-
-        return new OldImageLoader(new DownloadBitmapHandler(),
-                new PrefetchHandler(),
-                OldImageLoader.DEFAULT_CACHE_SIZE, OldImageLoader.DEFAULT_TASK_LIMIT);
     }
 
-    @Override
-    public Object getSystemService(String name) {
-        if (OldImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
-            return mOldImageLoader;
-        } else {
-            return super.getSystemService(name);
-        }
-    }
     //TODO Move this into AccountOperations once we refactor User info out of here
     public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);

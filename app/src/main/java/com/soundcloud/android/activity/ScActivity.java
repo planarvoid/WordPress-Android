@@ -19,7 +19,6 @@ import com.soundcloud.android.activity.landing.WhoToFollowActivity;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.api.OldCloudAPI;
-import com.soundcloud.android.imageloader.OldImageLoader;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -58,7 +57,7 @@ import java.lang.ref.WeakReference;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, RootView.OnMenuStateListener, OldImageLoader.LoadBlocker, ActionBarController.ActionBarOwner {
+public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, RootView.OnMenuStateListener, ActionBarController.ActionBarOwner {
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -316,7 +315,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mIsConnected = isConnected;
         if (isConnected) {
             // clear image loading errors
-            OldImageLoader.get(this).clearErrors();
+            // TODO, retry failed images??
         }
     }
 
@@ -423,8 +422,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         NetworkInfo networkInfo = (NetworkInfo) msg.obj;
                         final boolean connected = networkInfo.isConnectedOrConnecting();
                         if (connected) {
-                            OldImageLoader.get(context.getApplicationContext()).clearErrors();
-
                             // announce potential proxy change
                             context.sendBroadcast(new Intent(Actions.CHANGE_PROXY_ACTION)
                                     .putExtra(Actions.EXTRA_PROXY, IOUtils.getProxy(context, networkInfo)));
@@ -472,16 +469,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (mActionBarController != null) {
             mActionBarController.showMenuIndicator();
         }
-    }
-
-    @Override
-    public void onScrollStarted() {
-        OldImageLoader.get(this).block(this);
-    }
-
-    @Override
-    public void onScrollEnded() {
-        OldImageLoader.get(this).unblock(this);
     }
 
     @Override

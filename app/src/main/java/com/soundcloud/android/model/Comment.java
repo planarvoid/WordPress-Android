@@ -4,7 +4,7 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.imageloader.OldImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.behavior.RelatesToPlayable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
@@ -12,6 +12,8 @@ import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -80,7 +82,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     }
 
     @Override
-    public void putDependencyValues(BulkInsertMap destination) {
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
         if (user != null) {
             user.putFullContentValues(destination);
         }
@@ -127,7 +129,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     public void prefetchAvatar(Context c) {
         if (shouldLoadIcon()) {
-            OldImageLoader.get(c).prefetch(ImageSize.formatUriForList(c, user.avatar_url));
+            ImageLoader.getInstance().loadImage(ImageSize.formatUriForList(c, user.avatar_url), ImageUtils.createPrefetchDisplayImageOptions(), null);
         }
     }
 

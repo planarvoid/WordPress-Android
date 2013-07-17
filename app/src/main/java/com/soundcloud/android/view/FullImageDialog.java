@@ -1,13 +1,15 @@
 package com.soundcloud.android.view;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.R;
-import com.soundcloud.android.imageloader.OldImageLoader;
-import com.soundcloud.android.imageloader.OldImageLoader.BindResult;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.MotionEventUtils;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,35 +33,26 @@ public class FullImageDialog extends Dialog {
 
         final ImageView image = (ImageView) this.findViewById(R.id.image);
         final ProgressBar progress = (ProgressBar) this.findViewById(R.id.progress);
-        BindResult result;
-        if ((result = OldImageLoader.get(context).bind(image, imageUri, new OldImageLoader.Callback() {
+        ImageLoader.getInstance().displayImage(imageUri, image, new SimpleImageLoadingListener(){
             @Override
-            public void onImageLoaded(ImageView view, String url) {
-                if (!isShowing()) return;
-                Activity activity = mActivityRef.get();
-                if (activity != null && !activity.isFinishing()) {
-                    new FullImageDialog(activity, imageUri).show();
-                }
-                try {
-                    dismiss();
-                } catch (IllegalArgumentException ignored) {}
+            public void onLoadingStarted(String imageUri, View view) {
+                image.setVisibility(View.GONE);
+                progress.setVisibility(View.VISIBLE);
             }
 
             @Override
-            public void onImageError(ImageView view, String url, Throwable error) {
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
                 if (!isShowing()) return;
                 mHandler.post(mImageError);
             }
-        })) != BindResult.OK) {
-            if (result == BindResult.ERROR) {
-                mHandler.postDelayed(mImageError, 300);
-            } else {
-                image.setVisibility(View.GONE);
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                if (!isShowing()) return;
+                image.setVisibility(View.VISIBLE);
+                progress.setVisibility(View.GONE);
             }
-        } else {
-            progress.setVisibility(View.GONE);
-            image.setVisibility(View.VISIBLE);
-        }
+        });
     }
 
     private Runnable mImageError = new Runnable() {
