@@ -1,15 +1,14 @@
 $ 64
-  % v current
-  _ 2013-07-11
-  ! Onboarding
-  * Release Candidate 1
-  - Added new suggested users screen to Onboarding
+  % v 2.6.3
+  _ 2013-07-17
+  ! Onboarding v2
+      * Updated new-user flow to suggest genres to follow and integrate Facebook interests.
+      * Fixed activity loading on samsung galaxy s4
 
 $ 63
   % v 2.6.2
   _ 2013-06-07
     ! Maintenance
-    * Fixed activity loading on samsung galaxy s4
     * Fixed device default notification styling
     * Restored lockscreen player
     - Fixed occasional false empty screens after logout/login
