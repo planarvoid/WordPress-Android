@@ -443,4 +443,34 @@ public class UserAssociationStorageTest {
         association2 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(1).getId());
         expect(association2.getLocalSyncState()).toEqual(UserAssociation.LocalState.NONE);
     }
+
+    @Test
+    public void shouldDeleteFollowings() {
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWINGS.uri);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(2);
+
+        List<Long> storedIds = storage.getStoredIds(Content.ME_FOLLOWINGS.uri);
+        storage.deleteAssociations(Content.ME_FOLLOWINGS.uri, storedIds);
+        expect(Content.ME_FOLLOWINGS).toHaveCount(0);
+    }
+
+    @Test
+    public void shouldDeleteFollowers() {
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FOLLOWERS.uri);
+        expect(Content.ME_FOLLOWERS).toHaveCount(2);
+
+        List<Long> storedIds = storage.getStoredIds(Content.ME_FOLLOWERS.uri);
+        storage.deleteAssociations(Content.ME_FOLLOWERS.uri, storedIds);
+        expect(Content.ME_FOLLOWERS).toHaveCount(0);
+    }
+
+    @Test
+    public void shouldDeleteFriends() {
+        TestHelper.bulkInsertToUserAssociations(createUsers(2), Content.ME_FRIENDS.uri);
+        expect(Content.ME_FRIENDS).toHaveCount(2);
+
+        List<Long> storedIds = storage.getStoredIds(Content.ME_FRIENDS.uri);
+        storage.deleteAssociations(Content.ME_FRIENDS.uri, storedIds);
+        expect(Content.ME_FRIENDS).toHaveCount(0);
+    }
 }

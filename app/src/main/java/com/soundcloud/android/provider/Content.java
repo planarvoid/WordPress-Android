@@ -69,7 +69,7 @@ public enum Content  {
     ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
-    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND, Table.COLLECTION_ITEMS),
+    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND, Table.USER_ASSOCIATIONS),
 
     SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, User.class, -1, null),
 

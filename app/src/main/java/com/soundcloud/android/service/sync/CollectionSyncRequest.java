@@ -24,7 +24,7 @@ import java.io.IOException;
 /* package */  class CollectionSyncRequest {
 
     public static final String TAG = ApiSyncService.class.getSimpleName();
-    public static final int SYNC_REPEAT_TOLERANCE = 10 * 60 * 1000;
+    public static final int SYNC_REPEAT_TOLERANCE = 5 * 60 * 1000;
     public static final String PREFIX_LAST_SYNC_RESULT = "last_sync_result_";
 
     public static final String PREF_VAL_SUCCESS = "success";
