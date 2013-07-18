@@ -1,5 +1,7 @@
 package com.soundcloud.android;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.model.Recording;
@@ -54,7 +56,7 @@ public class TestApplication extends SoundCloudApplication {
 
     @Override
     protected void createImageLoader() {
-
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this)); // Do it on Application start
     }
 
     // object mother
