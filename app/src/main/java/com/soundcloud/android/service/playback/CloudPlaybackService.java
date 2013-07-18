@@ -761,6 +761,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             playbackRemoteViews.setNotification(track, state.isSupposedToBePlaying());
             playbackRemoteViews.linkButtonsNotification(this);
             playbackRemoteViews.setPlaybackStatus(state.isSupposedToBePlaying());
+            notification.contentView = playbackRemoteViews;
+            notification.contentIntent = pi;
 
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
@@ -779,8 +781,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             } else {
                 playbackRemoteViews.clearIcon();
             }
-            notification.contentView = playbackRemoteViews;
-            notification.contentIntent = pi;
         }
         startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
         status = notification;
