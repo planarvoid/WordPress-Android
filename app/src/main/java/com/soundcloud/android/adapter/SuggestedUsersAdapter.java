@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.SuggestedUser;
@@ -24,6 +25,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
 
     private final List<SuggestedUser> mSuggestedUsers;
     private int mItemSpacing = Integer.MIN_VALUE, mNumColumns = Integer.MIN_VALUE;
+    private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.adapterView(R.drawable.placeholder_cells);
 
 
     public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers) {
@@ -80,8 +82,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder.location.setVisibility(View.VISIBLE);
         }
 
-        ImageLoader.getInstance().displayImage(suggestedUser.getAvatarUrl(), viewHolder.imageView,
-                ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
+        ImageLoader.getInstance().displayImage(suggestedUser.getAvatarUrl(), viewHolder.imageView, mDisplayImageOptions);
         return convertView;
     }
 
