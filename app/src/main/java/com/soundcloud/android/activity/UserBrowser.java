@@ -29,6 +29,7 @@ import com.soundcloud.android.tracking.EventAware;
 import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.EmptyListViewFactory;
@@ -387,7 +388,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     private void reloadAvatar() {
-        ImageLoader.getInstance().displayImage(mIconURL, mIcon, ImageUtils.createListIconDisplayImageOptions(R.drawable.avatar_badge_large));
+        ImageLoader.getInstance().displayImage(mIconURL, mIcon, ImageOptionsFactory.list(R.drawable.avatar_badge_large));
     }
 
     private Configuration toConfiguration() {

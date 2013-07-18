@@ -11,8 +11,8 @@ import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
-import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -129,7 +129,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     public void prefetchAvatar(Context c) {
         if (shouldLoadIcon()) {
-            ImageLoader.getInstance().loadImage(ImageSize.formatUriForList(c, user.avatar_url), ImageUtils.createPrefetchDisplayImageOptions(), null);
+            ImageLoader.getInstance().loadImage(ImageSize.formatUriForList(c, user.avatar_url), ImageOptionsFactory.prefetch(), null);
         }
     }
 

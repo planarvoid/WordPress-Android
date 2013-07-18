@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.xmlpull.v1.XmlPullParser;
@@ -290,7 +291,7 @@ public class MainMenu extends LinearLayout {
                     final String listAvatarUri = u.getListAvatarUri(context);
                     if (ImageUtils.checkIconShouldLoad(listAvatarUri)){
                         ImageLoader.getInstance().displayImage(listAvatarUri, holder.image,
-                                ImageUtils.createPlaceholderDisplayImageOptions(menuItem.icon));
+                                ImageOptionsFactory.placeholder(menuItem.icon));
                     } else {
                         holder.image.setImageResource(menuItem.icon);
                     }

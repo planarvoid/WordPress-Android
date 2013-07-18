@@ -3,7 +3,7 @@ package com.soundcloud.android.adapter;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.view.GridViewCompat;
 import com.soundcloud.android.view.SuggestedUserItemLayout;
 
@@ -81,7 +81,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         }
 
         ImageLoader.getInstance().displayImage(suggestedUser.getAvatarUrl(), viewHolder.imageView,
-                ImageUtils.createPlaceholderDisplayImageOptions(R.drawable.placeholder_cells));
+                ImageOptionsFactory.placeholder(R.drawable.placeholder_cells));
         return convertView;
     }
 

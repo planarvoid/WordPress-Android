@@ -13,6 +13,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.api.Request;
@@ -61,8 +62,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    private final DisplayImageOptions mUserDisplayBitmapOptions = ImageUtils.createListIconDisplayImageOptions(R.drawable.no_user_cover);
-    private final DisplayImageOptions mSoundDisplayBitmapOptions = ImageUtils.createListIconDisplayImageOptions(R.drawable.no_sound_cover);
+    private final DisplayImageOptions mUserDisplayBitmapOptions = ImageOptionsFactory.list(R.drawable.no_user_cover);
+    private final DisplayImageOptions mSoundDisplayBitmapOptions = ImageOptionsFactory.list(R.drawable.no_sound_cover);
 
     private final static int TYPE_SEARCH_ITEM = 0;
     private final static int TYPE_TRACK  = 1;

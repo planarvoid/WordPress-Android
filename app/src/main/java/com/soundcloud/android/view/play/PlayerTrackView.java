@@ -21,8 +21,8 @@ import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
-import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
@@ -227,7 +227,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         // TODO priority if postAtFront and load failures. Check for OOM errors
         ImageLoader.getInstance().displayImage(mTrack.getPlayerArtworkUri(getContext()), mArtwork,
-                ImageUtils.createPlaceholderDisplayImageOptions(R.drawable.artwork_player),
+                ImageOptionsFactory.placeholder(R.drawable.artwork_player),
                 new SimpleImageLoadingListener(){
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {

@@ -5,7 +5,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -21,7 +21,7 @@ public abstract class IconLayout extends FrameLayout {
 
     protected ImageView mIcon;
 
-    private DisplayImageOptions options = ImageUtils.createListIconDisplayImageOptions(getDefaultArtworkResId());
+    private DisplayImageOptions options = ImageOptionsFactory.list(getDefaultArtworkResId());
 
     public IconLayout(Context context) {
         this(context,null);
@@ -48,4 +48,5 @@ public abstract class IconLayout extends FrameLayout {
     public String getIconRemoteUri() {
         return "";
     }
+
 }
