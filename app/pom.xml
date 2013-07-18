@@ -340,6 +340,8 @@
                             </sign>
 
                             <zipalign>
+                                <skip>false</skip>
+                                <verbose>true</verbose>
                                 <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-${release.type}.apk</outputApk>
                             </zipalign>
                         </configuration>
