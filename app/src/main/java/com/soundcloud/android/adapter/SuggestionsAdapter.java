@@ -1,19 +1,20 @@
 package com.soundcloud.android.adapter;
 
 import static android.os.Process.THREAD_PRIORITY_DEFAULT;
-
-import com.soundcloud.android.utils.images.ImageSize;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.SearchSuggestions;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
+import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -58,11 +59,11 @@ import java.util.regex.Pattern;
 public class SuggestionsAdapter extends CursorAdapter implements DetachableResultReceiver.Receiver {
     private final ContentResolver mContentResolver;
     private final Context mContext;
-    private final AndroidCloudAPI mApi;
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    private ImageLoader mImageLoader;
+    private final DisplayImageOptions mUserDisplayBitmapOptions = ImageOptionsFactory.adapterView(R.drawable.no_user_cover);
+    private final DisplayImageOptions mSoundDisplayBitmapOptions = ImageOptionsFactory.adapterView(R.drawable.no_sound_cover);
 
     private final static int TYPE_SEARCH_ITEM = 0;
     private final static int TYPE_TRACK  = 1;
@@ -98,8 +99,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         super(context, null, 0);
         mContentResolver = context.getContentResolver();
         mContext = context;
-        mImageLoader = ImageLoader.get(mContext);
-        mApi = api;
 
         mSuggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
         mSuggestionsHandlerThread.start();
@@ -345,16 +344,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private void setIcon(SearchTag tag, String iconUri, boolean isUser) {
-        if (ImageUtils.checkIconShouldLoad(iconUri)) {
-            ImageLoader.BindResult result = mImageLoader.bind(tag.iv_icon,
-                    ImageSize.formatUriForSearchSuggestionsList(mContext, iconUri),
-                    null
-            );
-            if (result == ImageLoader.BindResult.OK) return;
-        } else {
-            mImageLoader.unbind(tag.iv_icon);
-        }
-        tag.iv_icon.setImageResource(isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
+        ImageLoader.getInstance().displayImage(ImageUtils.checkIconShouldLoad(iconUri) ? iconUri : "", tag.iv_icon,
+                isUser ? mUserDisplayBitmapOptions : mSoundDisplayBitmapOptions);
     }
 
     static class SearchTag {

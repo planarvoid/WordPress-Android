@@ -1,12 +1,12 @@
 package com.soundcloud.android.utils.images;
 
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
-
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.MemoryCacheUtil;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.AndroidUtils;
 
 import android.annotation.TargetApi;
@@ -43,8 +43,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.util.EnumSet;
 import java.util.Locale;
 
 public final class ImageUtils {
@@ -62,20 +60,6 @@ public final class ImageUtils {
         /* output ignored */ BitmapFactory.decodeStream(is, null, options);
         is.close();
         return options;
-    }
-
-    public static ImageLoader.Options getImageLoaderOptionsWithResizeSet(File imageFile,
-                                                                         int targetWidth,
-                                                                         int targetHeight,
-                                                                         boolean crop) {
-        ImageLoader.Options options = new ImageLoader.Options();
-        try {
-            options.decodeInSampleSize = ImageUtils.determineResizeOptions(imageFile, targetWidth, targetHeight, crop).inSampleSize;
-        } catch (IOException e) {
-            Log.w(TAG, "error", e);
-        }
-        return options;
-
     }
 
     public static BitmapFactory.Options determineResizeOptions(File imageFile,
@@ -459,64 +443,6 @@ public final class ImageUtils {
         }
     }
 
-    public static ImageLoader.BindResult loadImageSubstitute(Context c,
-                                                             ImageView imageView,
-                                                             String uri,
-                                                             ImageSize targetSize,
-                                                             ImageLoader.Callback callback,
-                                                             Options options) {
-
-        final String targetUri = targetSize.formatUri(uri);
-        final ImageLoader imageLoader = ImageLoader.get(c);
-        if (options == null) options = new Options();
-        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, null, Options.dontLoadRemote());
-        if (targetBitmap != null) {
-            return imageLoader.bind(imageView, targetUri, callback, options);
-        } else {
-            for (ImageSize gs : ImageSize.values()) {
-                final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri),
-                        null, null,
-                        Options.dontLoadRemote());
-
-                if (tempBitmap != null) {
-                    options.temporaryBitmapRef = new WeakReference<Bitmap>(tempBitmap);
-                    imageLoader.bind(imageView, targetUri, callback, options);
-                    return ImageLoader.BindResult.OK;
-                }
-            }
-
-            return imageLoader.bind(imageView, targetUri, callback, options);
-        }
-    }
-
-    @SuppressWarnings("UnusedDeclaration") // useful, keep plz
-    public static Bitmap getBitmapSubstitute(Context c, String uri,
-                                             ImageSize targetSize,
-                                             ImageLoader.BitmapLoadCallback callback,
-                                             Options options) {
-        final String targetUri = targetSize.formatUri(uri);
-        final ImageLoader imageLoader = ImageLoader.get(c);
-        if (options == null) options = new Options();
-
-        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, null, Options.dontLoadRemote());
-        if (targetBitmap != null){
-            return imageLoader.getBitmap(targetUri, callback, c, options);
-        } else {
-            for (ImageSize gs : EnumSet.allOf(ImageSize.class)) {
-                final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri), null, null, Options.dontLoadRemote());
-                if (tempBitmap != null && !tempBitmap.isRecycled()) {
-                    if (callback != null) {
-                        callback.onImageLoaded(tempBitmap, uri);
-                    }
-                    // get the normal one anyway, will be handled by the callback
-                    imageLoader.getBitmap(targetUri, callback, c, options);
-                    return tempBitmap;
-                }
-            }
-            return imageLoader.getBitmap(targetUri, callback, c, options);
-        }
-    }
-
     public static void sendCropIntent(Activity activity, Uri imageUri) {
         sendCropIntent(activity, imageUri, imageUri, RECOMMENDED_IMAGE_SIZE, RECOMMENDED_IMAGE_SIZE);
     }
@@ -582,5 +508,21 @@ public final class ImageUtils {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
+    }
+
+    /**
+     * Get an instance of a list sized bitmap for a particular track (for player image substitution)
+     * @param context
+     * @param track
+     * @return
+     */
+    public static Bitmap getCachedTrackListIcon(Context context, Track track){
+        return ImageLoader.getInstance().getMemoryCache().get(MemoryCacheUtil.generateKey(
+                track.getListArtworkUrl(context),
+                new com.nostra13.universalimageloader.core.assist.ImageSize(
+                        (int) context.getResources().getDimension(R.dimen.list_icon_width),
+                        (int) context.getResources().getDimension(R.dimen.list_icon_height)
+                )
+        ));
     }
 }

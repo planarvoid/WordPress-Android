@@ -1,6 +1,8 @@
 package com.soundcloud.android.fragment;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
@@ -93,6 +95,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mListView = (ScListView) layout.findViewById(R.id.list);
         mListView.setOnRefreshListener(this);
         mListView.setOnItemClickListener(this);
+        mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true));
 
         View mInfoHeader = View.inflate(getActivity(), R.layout.playlist_header, null);
         mInfoHeaderText = (TextView) mInfoHeader.findViewById(android.R.id.text1);

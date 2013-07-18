@@ -1,11 +1,12 @@
 package com.soundcloud.android.view.create;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -31,9 +32,8 @@ public class ShareUserHeader extends RelativeLayout {
 
         if (user.shouldLoadIcon()) {
             final ImageView icon = (ImageView) findViewById(R.id.icon);
-            if (ImageLoader.get(activity).bind(icon, user.avatar_url, null) != ImageLoader.BindResult.OK) {
-                icon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge));
-            }
+            ImageLoader.getInstance().displayImage(user.getAvatarUrl(), icon,
+                    ImageOptionsFactory.placeholder(R.drawable.avatar_badge));
         }
     }
 

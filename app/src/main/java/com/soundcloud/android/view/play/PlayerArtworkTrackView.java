@@ -1,18 +1,22 @@
 package com.soundcloud.android.view.play;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.LoadedFrom;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.soundcloud.android.R;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.FrameLayout;
@@ -24,11 +28,9 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
 
     private ImageView mArtwork;
     private FrameLayout mArtworkHolder;
-    private ImageLoader.BindResult mCurrentArtBindResult;
     private SoftReference<Drawable> mArtworkBgDrawable;
 
     private View mArtworkOverlay;
-    private ImageLoader.Callback mArtworkCallback;
 
     public PlayerArtworkTrackView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -43,20 +45,6 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
                 mListener.onCloseCommentMode();
             }
         });
-
-        mArtworkCallback = new ImageLoader.Callback() {
-            @Override
-            public void onImageError(ImageView view, String url, Throwable error) {
-                mCurrentArtBindResult = ImageLoader.BindResult.ERROR;
-                Log.e(getClass().getSimpleName(), "Error loading artwork " + error);
-            }
-
-            @Override
-            public void onImageLoaded(ImageView view, String url) {
-                onArtworkSet(mOnScreen);
-            }
-        };
-
         showDefaultArtwork();
     }
 
@@ -69,9 +57,9 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
     @Override
     public void onDataConnected() {
         super.onDataConnected();
-        if (mCurrentArtBindResult == ImageLoader.BindResult.ERROR) {
-            updateArtwork(mOnScreen);
-        }
+//        if (mCurrentArtBindResult == ImageLoader.BindResult.ERROR) {
+//            updateArtwork(mOnScreen);
+//        }
     }
 
     @Override
@@ -95,29 +83,29 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
         }
     }
 
-    private void updateArtwork(boolean postAtFront) {
+    private void updateArtwork(boolean priority) {
         // this will cause OOMs
         if (mTrack == null || ActivityManager.isUserAMonkey()) return;
 
-        // TODO, do not change the artwork if it is the same as the last time this was called
-        ImageLoader.get(getContext()).unbind(mArtwork);
-        if (!mTrack.shouldLoadArtwork()) {
-            showDefaultArtwork();
-        } else {
-            mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
-                    getContext(),
-                    mArtwork,
-                    mTrack.getArtwork(),
-                    ImageSize.getPlayerImageSize(getContext()),
-                    mArtworkCallback,
-                    postAtFront ? ImageLoader.Options.postAtFront() : new ImageLoader.Options());
+        mArtwork.setVisibility(View.GONE);
+        mArtworkHolder.setBackgroundResource(R.drawable.artwork_player);
+        ImageLoader.getInstance().cancelDisplayTask(mArtwork);
 
-            if (mCurrentArtBindResult != ImageLoader.BindResult.OK) {
-                showDefaultArtwork();
-            } else {
-                onArtworkSet(false);
-            }
-        }
+        ImageLoader.getInstance().displayImage(
+                mTrack.getPlayerArtworkUri(getContext()),
+                mArtwork,
+                createPlayerDisplayImageOptions(priority),
+                new SimpleImageLoadingListener(){
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+                        Bitmap memoryBitmap = ImageUtils.getCachedTrackListIcon(getContext(), mTrack);
+                        if (memoryBitmap != null){
+                            mArtwork.setImageBitmap(memoryBitmap);
+                            mArtwork.setVisibility(View.VISIBLE);
+                            mArtworkHolder.setBackgroundDrawable(null);
+                        }
+                    }
+                });
     }
 
     private void showDefaultArtwork() {
@@ -166,4 +154,37 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
             }
         }
     }
+
+    private DisplayImageOptions createPlayerDisplayImageOptions(boolean priority){
+        return ImageOptionsFactory
+                .fullCacheBuilder()
+                .delayBeforeLoading(priority ? 0 : 200)
+                .displayer(mArtworkDisplayer)
+                .build();
+    }
+
+    private BitmapDisplayer mArtworkDisplayer = new BitmapDisplayer() {
+        @Override
+        public Bitmap display(Bitmap bitmap, ImageView imageView, LoadedFrom loadedFrom) {
+            imageView.setImageBitmap(bitmap);
+            if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
+                if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
+                    AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
+                    mArtwork.getAnimation().setAnimationListener(new AnimUtils.SimpleAnimationListener() {
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            if (animation.equals(mArtwork.getAnimation())) {
+                                mArtworkHolder.setBackgroundDrawable(null);
+                            }
+                        }
+                    });
+                    mArtwork.setVisibility(View.VISIBLE);
+                } else {
+                    mArtwork.setVisibility(View.VISIBLE);
+                    mArtworkHolder.setBackgroundDrawable(null);
+                }
+            }
+            return bitmap;
+        }
+    };
 }

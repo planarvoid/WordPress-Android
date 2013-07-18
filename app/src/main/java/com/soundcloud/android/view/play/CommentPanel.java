@@ -1,16 +1,12 @@
 package com.soundcloud.android.view.play;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.utils.images.ImageSize;
-import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -181,22 +177,11 @@ public class CommentPanel extends RelativeLayout {
         }
 
         if (!mComment.shouldLoadIcon()) {
-            ImageLoader.get(getContext()).unbind(mIcon);
+            ImageLoader.getInstance().cancelDisplayTask(mIcon);
             return;
         }
 
-        ImageLoader.get(getContext()).bind(mIcon,
-                ImageSize.formatUriForList(getContext(), mComment.user.avatar_url),
-                new ImageLoader.Callback() {
-                    @Override
-                    public void onImageLoaded(ImageView view, String url) {
-                    }
-
-                    @Override
-                    public void onImageError(ImageView view, String url, Throwable error) {
-                    }
-                });
-
+        ImageLoader.getInstance().displayImage(mComment.user.avatar_url, mIcon);
         mPlayheadOffset = mComment.xPos;
     }
 

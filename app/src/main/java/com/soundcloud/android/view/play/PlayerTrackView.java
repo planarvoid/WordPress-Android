@@ -1,15 +1,13 @@
 package com.soundcloud.android.view.play;
 
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
-
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.api.OldCloudAPI;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -45,15 +43,12 @@ import java.util.List;
 public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.LoadCommentsListener, WaveformController.WaveformListener {
 
     private ImageView mAvatar;
-
     private WaveformController mWaveformController;
     private FrameLayout mUnplayableLayout;
 
     private PlayableBar mTrackInfoBar;
     private @Nullable ViewFlipper mTrackFlipper;            // can be null in landscape mode
     private @Nullable PlayerTrackDetails mTrackDetailsView; // ditto
-
-    private ImageLoader.BindResult mCurrentAvatarBindResult;
 
     protected  @Nullable Track mTrack;
     private int mQueuePosition;
@@ -90,7 +85,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         });
 
         mTrackInfoBar.addTextShadows();
-
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
@@ -203,21 +197,9 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     private void updateAvatar(boolean postAtFront) {
         if (mTrack != null && mTrack.hasAvatar()) {
-            mCurrentAvatarBindResult = ImageLoader.get(getContext()).bind(
-                    mAvatar,
-                    ImageSize.formatUriForList(getContext(), mTrack.getAvatarUrl()),
-                    new ImageLoader.Callback() {
-                        @Override
-                        public void onImageError(ImageView view, String url, Throwable error) {
-                            mCurrentAvatarBindResult = ImageLoader.BindResult.ERROR;
-                        }
-
-                        @Override
-                        public void onImageLoaded(ImageView view, String url) {
-                        }
-                    }, postAtFront ? Options.postAtFront() : new Options());
+            ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(getContext(), mTrack.getAvatarUrl()), mAvatar);
         } else {
-            ImageLoader.get(getContext()).unbind(mAvatar);
+            ImageLoader.getInstance().cancelDisplayTask(mAvatar);
         }
     }
 
@@ -263,9 +245,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     public void onDataConnected() {
         mWaveformController.onDataConnected();
-        if (mCurrentAvatarBindResult == ImageLoader.BindResult.ERROR) {
-            updateAvatar(mOnScreen);
-        }
     }
 
     public void setCommentMode(boolean  isCommenting) {
