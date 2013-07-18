@@ -1,6 +1,8 @@
 package com.soundcloud.android.fragment;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ScBaseAdapter;
@@ -85,7 +87,7 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
         mListView.setOnRefreshListener(this);
-        mListView.setOnScrollListener(this);
+        mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true, this));
 
         return layout;
     }

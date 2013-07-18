@@ -4,9 +4,10 @@ import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
@@ -18,8 +19,9 @@ import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
-import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.adapter.UserAssociationAdapter;
+import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
@@ -152,7 +154,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
         mListView = configureList(new ScListView(getActivity()));
         mListView.setOnRefreshListener(this);
-        mListView.setOnScrollListener(this);
+        mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true, this));
 
         if (mEmptyListView == null) {
             mEmptyListView = createEmptyView();
@@ -503,15 +505,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-        switch (scrollState){
-            case SCROLL_STATE_FLING:
-            case SCROLL_STATE_TOUCH_SCROLL:
-                // TODO : block image loading
-                break;
-            case SCROLL_STATE_IDLE:
-                // TODO : unblock image loading
-                break;
-        }
     }
 
     @Override
