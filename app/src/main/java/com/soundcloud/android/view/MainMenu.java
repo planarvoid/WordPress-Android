@@ -283,7 +283,6 @@ public class MainMenu extends LinearLayout {
                     if (holder.counter != null) holder.counter.setVisibility(View.GONE);
             }
 
-            boolean setDefaultImage = true;
             if (menuItem.id == R.id.nav_you) {
                 final User u = SoundCloudApplication.fromContext(context).getLoggedInUser();
                 if (u != null) {
@@ -299,11 +298,8 @@ public class MainMenu extends LinearLayout {
                     holder.text.setText(menuItem.text);
                 }
             } else {
+                holder.image.setImageResource(menuItem.icon);
                 holder.text.setText(menuItem.text);
-            }
-
-            if (setDefaultImage) {
-
             }
 
             if (mOffsetRight > 0){
