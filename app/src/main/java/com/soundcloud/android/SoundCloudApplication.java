@@ -4,7 +4,6 @@ import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -26,6 +25,7 @@ import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -162,16 +162,11 @@ public class SoundCloudApplication extends Application implements Tracker {
     }
 
     protected void createImageLoader() {
-        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-        .cacheInMemory(true)
-        .cacheOnDisc(true)
-        .build();
-
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-        .defaultDisplayImageOptions(defaultOptions)
-        .build();
-
-        ImageLoader.getInstance().init(config); // Do it on Application start
+        ImageLoader.getInstance().init(
+                new ImageLoaderConfiguration.Builder(getApplicationContext())
+                .defaultDisplayImageOptions(ImageOptionsFactory.cache())
+                .build()
+        );
 
         FileCache.installFileCache(IOUtils.getCacheDir(this));
     }

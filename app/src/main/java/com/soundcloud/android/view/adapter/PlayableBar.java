@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.model.behavior.PlayableHolder;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -119,7 +118,7 @@ public class PlayableBar extends IconLayout {
     }
 
     public void onConnected() {
-        loadIcon(); // over optimization??
+        loadIcon();
     }
 
     public void addTextShadows() {
