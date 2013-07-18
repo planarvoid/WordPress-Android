@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import com.soundcloud.android.SoundCloudApplication;
 
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class UriUtils {
@@ -15,5 +16,15 @@ public class UriUtils {
             }
         }
         return -1l;
+    }
+
+    /**
+     * Remove query params from Uri
+     * @param contentUri
+     * @return
+     */
+    public static Uri clearQueryParams(Uri contentUri) {
+        // could use clearQuery here but its min api 11
+        return TextUtils.isEmpty(contentUri.getQuery()) ? contentUri : contentUri.buildUpon().query(null).build();
     }
 }

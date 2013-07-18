@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 
 /**
@@ -36,15 +38,20 @@ public class EmptyListViewFactory {
         return view;
     }
 
-    public EmptyListViewFactory forContent(final Context context, final Content content, @Nullable final User user) {
-        switch (content) {
+    public EmptyListViewFactory forContent(final Context context, final Uri contentUri, @Nullable final User user) {
+
+        switch (Content.match(contentUri)) {
             case ME_SOUND_STREAM:
-                mMessageText = context.getString(R.string.list_empty_stream_message);
-                mSecondaryText = context.getString(R.string.list_empty_stream_secondary);
-                mActionText = context.getString(R.string.list_empty_stream_action);
                 mImage = R.drawable.empty_follow;
-                mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
-                mSecondaryAction = new Intent(Actions.FRIEND_FINDER);
+                if (Consts.StringValues.ERROR.equals(contentUri.getQueryParameter(Consts.Keys.ONBOARDING))) {
+                    mMessageText = context.getString(R.string.error_onboarding_fail);
+                } else {
+                    mMessageText = context.getString(R.string.list_empty_stream_message);
+                    mSecondaryText = context.getString(R.string.list_empty_stream_secondary);
+                    mActionText = context.getString(R.string.list_empty_stream_action);
+                    mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
+                    mSecondaryAction = new Intent(Actions.FRIEND_FINDER);
+                }
                 break;
 
             case ME_ACTIVITIES:
@@ -68,9 +75,11 @@ public class EmptyListViewFactory {
             // user browser specific
             case ME_SOUNDS:
                 mMessageText = context.getString(R.string.list_empty_user_sounds_message);
-                mActionText = context.getString(R.string.list_empty_user_sounds_action);
-                mImage = R.drawable.empty_rec;
-                mPrimaryAction = new Intent(Actions.RECORD);
+                if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    mActionText = context.getString(R.string.list_empty_user_sounds_action);
+                    mImage = R.drawable.empty_rec;
+                    mPrimaryAction = new Intent(Actions.RECORD);
+                }
                 break;
 
             case USER_SOUNDS:
@@ -87,10 +96,11 @@ public class EmptyListViewFactory {
 
             case ME_LIKES:
                 mMessageText = context.getString(R.string.list_empty_user_likes_message);
-                mActionText = context.getString(R.string.list_empty_user_likes_action);
-                mImage = R.drawable.empty_like;
-                mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
-                mSecondaryAction = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101"));
+                if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    mActionText = context.getString(R.string.list_empty_user_likes_action);
+                    mImage = R.drawable.empty_like;
+                    mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
+                }
                 break;
 
             case USER_LIKES:
@@ -100,14 +110,18 @@ public class EmptyListViewFactory {
             case ME_FOLLOWERS:
                 if (showRecordingTeaser(context)) {
                     mMessageText = context.getString(R.string.list_empty_user_followers_nosounds_message);
-                    mActionText = context.getString(R.string.list_empty_user_followers_nosounds_action);
-                    mImage = R.drawable.empty_share;
-                    mPrimaryAction = new Intent(Actions.RECORD);
+                    if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        mActionText = context.getString(R.string.list_empty_user_followers_nosounds_action);
+                        mImage = R.drawable.empty_share;
+                        mPrimaryAction = new Intent(Actions.RECORD);
+                    }
                 } else {
                     mMessageText = context.getString(R.string.list_empty_user_followers_message);
-                    mActionText = context.getString(R.string.list_empty_user_followers_action);
-                    mImage = R.drawable.empty_rec;
-                    mPrimaryAction = new Intent(Actions.YOUR_SOUNDS);
+                    if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        mActionText = context.getString(R.string.list_empty_user_followers_action);
+                        mImage = R.drawable.empty_rec;
+                        mPrimaryAction = new Intent(Actions.YOUR_SOUNDS);
+                    }
                 }
                 break;
 
@@ -117,9 +131,11 @@ public class EmptyListViewFactory {
 
             case ME_FOLLOWINGS:
                 mMessageText = context.getString(R.string.list_empty_user_following_message);
-                mActionText = context.getString(R.string.list_empty_user_following_action);
-                mImage = R.drawable.empty_follow_3row;
-                mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
+                if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    mActionText = context.getString(R.string.list_empty_user_following_action);
+                    mImage = R.drawable.empty_follow_3row;
+                    mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
+                }
                 break;
 
             case USER_FOLLOWINGS:

@@ -67,11 +67,11 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
-    private AccountOperations mAccountOperations;
-    private AndroidCloudAPI mAndroidCloudAPI;
+    protected AccountOperations mAccountOperations;
+    protected AndroidCloudAPI mAndroidCloudAPI;
 
     @Nullable
-    private ActionBarController mActionBarController;
+    protected ActionBarController mActionBarController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,7 +119,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startNavActivity(ScActivity.this, FriendFinder.class, menuBundle);
                         return true;
                     case R.id.nav_suggested_users:
-                        final Class<? extends ScLandingPage> destination = SoundCloudApplication.DEV_MODE ?
+                        final Class<? extends Activity> destination = SoundCloudApplication.DEV_MODE ?
                                 SuggestedUsersActivity.class : WhoToFollowActivity.class;
                         startNavActivity(ScActivity.this, destination, menuBundle);
                         return true;
@@ -463,14 +463,14 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     public void onMenuOpenLeft() {
         if (mActionBarController != null) {
-            mActionBarController.onMenuOpenLeft();
+            mActionBarController.hideMenuIndicator();
         }
     }
 
     @Override
     public void onMenuClosed() {
         if (mActionBarController != null) {
-            mActionBarController.onMenuClosed();
+            mActionBarController.showMenuIndicator();
         }
     }
 

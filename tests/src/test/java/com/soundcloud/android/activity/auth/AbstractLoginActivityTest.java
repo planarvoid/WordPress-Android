@@ -30,7 +30,12 @@ public class AbstractLoginActivityTest {
     @Before
     public void setup() throws Exception {
         initMocks(this);
-        abstractLoginActivity = new AbstractLoginActivity() {};
+        abstractLoginActivity = new AbstractLoginActivity() {
+            @Override
+            protected boolean wasAuthorizedViaSignupScreen() {
+                return false;
+            }
+        };
     }
 
     @Test

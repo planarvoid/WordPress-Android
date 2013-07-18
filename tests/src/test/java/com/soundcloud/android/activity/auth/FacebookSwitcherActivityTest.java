@@ -8,13 +8,16 @@ import com.xtremelabs.robolectric.shadows.ShadowActivity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.Intent;
+
 @RunWith(DefaultTestRunner.class)
-public class FacebookTest {
+public class FacebookSwitcherActivityTest {
 
     @Test
     public void testFallbackToWebFlow() throws Exception {
-        Facebook fb = new Facebook();
+        FacebookSwitcherActivity fb = new FacebookSwitcherActivity();
         ShadowActivity shadow = shadowOf(fb);
+        fb.setIntent(new Intent());
         fb.onCreate(null);
         ShadowActivity.IntentForResult intent = shadow.peekNextStartedActivityForResult();
 
@@ -23,7 +26,7 @@ public class FacebookTest {
 
     @Test
     public void shouldUseSSOIfAvailable() throws Exception {
-        Facebook fb = new Facebook() {
+        FacebookSwitcherActivity fb = new FacebookSwitcherActivity() {
             @Override boolean clientSupportsSSO() {
                 return true;
             }
@@ -34,6 +37,7 @@ public class FacebookTest {
             }
         };
         ShadowActivity shadow = shadowOf(fb);
+        fb.setIntent(new Intent());
         fb.onCreate(null);
         ShadowActivity.IntentForResult intent = shadow.peekNextStartedActivityForResult();
         expect(intent.intent.getComponent().getClassName()).toEqual(FacebookSSO.class.getName());

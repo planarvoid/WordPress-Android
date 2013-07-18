@@ -155,7 +155,6 @@
     <style name="OnboardSuggestedUserLocationText" parent="OnboardSuggestedUserText">
         <item name="android:textColor">#CCCCCC</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:layout_marginBottom">13dp</item>
     </style>
 
     <style name="Tour"/>
@@ -342,8 +341,6 @@
         <item name="android:textSize">16sp</item>
 
         <item name="android:background">@null</item>
-
-        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
     </style>
 
     <style name="SignUp.AddImageLabel">
@@ -359,15 +356,11 @@
         <item name="android:textColor">@drawable/txt_list_secondary_states</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
-
-        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
     </style>
 
     <style name="SignUp.MultiLineInfoLabel" parent="SignUp.Label">
         <item name="android:singleLine">false</item>
         <item name="android:lines">2</item>
-
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
     <style name="SignUp.TextEntry" parent="SignUp.Label">
@@ -375,7 +368,6 @@
         <item name="android:layout_weight">1</item>
         <item name="android:imeOptions">actionNext</item>
         <item name="android:cursorVisible">true</item>
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
     <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">
@@ -1149,13 +1141,13 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textColorLink">@drawable/txt_gray_states</item>
         <item name="android:layout_marginTop">15dp</item>
-        <item name="android:layout_marginBottom">15dp</item>
-        <item name="android:layout_marginLeft">15dp</item>
-        <item name="android:layout_marginRight">15dp</item>
+        <item name="android:layout_marginLeft">@dimen/empty_message_margin_left_right</item>
+        <item name="android:layout_marginRight">@dimen/empty_message_margin_left_right</item>
     </style>
 
     <style name="txt_empty_collection_link" parent="txt_empty_collection_message">
         <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
         <item name="android:textSize">12sp</item>
     </style>
     <style name="btn_empty_collection" parent="txt_empty_collection_message">
@@ -1163,7 +1155,7 @@
         <item name="android:paddingLeft">30dp</item>
         <item name="android:paddingRight">30dp</item>
         <item name="android:singleLine">false</item>
-        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginTop">15dp</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:layout_marginLeft">10dp</item>
         <item name="android:layout_marginRight">10dp</item>
@@ -1339,10 +1331,21 @@
         <item name="android:textOff">@null</item>
         <item name="android:textOn">@null</item>
     </style>
-
-    <style name="OnboardSuggestedUserGridView">
-        <item name="android:numColumns">1</item>
+    <style name="TourOverlayTextHolderLayout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:tag">parallax</item>
+        <item name="android:layout_marginBottom">@dimen/tour_bottom_bar_height</item>
+        <item name="android:layout_alignParentBottom">true</item>
     </style>
+    <style name="emptyCollectionContentHolderBase">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <style name="TourOverlayTextHolderLayout">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -1353,4 +1356,7 @@
         <item name="android:layout_alignParentBottom">true</item>
     </style>
 
+    <style name="emptyCollectionContentHolder" parent="emptyCollectionContentHolderBase">
+        <item name="android:layout_height">wrap_content</item>
+    </style>
 </resources>

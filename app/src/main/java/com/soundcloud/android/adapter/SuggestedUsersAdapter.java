@@ -7,7 +7,9 @@ import com.soundcloud.android.view.GridViewCompat;
 import com.soundcloud.android.view.SuggestedUserItemLayout;
 
 import android.annotation.TargetApi;
+import android.content.res.Resources;
 import android.os.Build;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -21,6 +23,8 @@ public class SuggestedUsersAdapter extends BaseAdapter {
 
     private static final ImageLoader.Options IMAGE_OPTIONS = ImageLoader.Options.listFadeIn();
     private final List<SuggestedUser> mSuggestedUsers;
+    private int mItemSpacing = Integer.MIN_VALUE, mNumColumns = Integer.MIN_VALUE;
+
 
     public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers) {
         mSuggestedUsers = suggestedUsers;
@@ -59,6 +63,8 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder = (ItemViewHolder) convertView.getTag();
         }
 
+        configureItemPadding(convertView, position);
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             final boolean checked = ((GridViewCompat) parent).getCheckedItemPositions().get(position);
             ((SuggestedUserItemLayout) convertView).setChecked(checked);
@@ -66,7 +72,13 @@ public class SuggestedUsersAdapter extends BaseAdapter {
 
         final SuggestedUser suggestedUser = getItem(position);
         viewHolder.username.setText(suggestedUser.getUsername());
-        viewHolder.location.setText(suggestedUser.getLocation());
+        final String location = suggestedUser.getLocation();
+        if (TextUtils.isEmpty(location)) {
+            viewHolder.location.setVisibility(View.GONE);
+        } else {
+            viewHolder.location.setText(location);
+            viewHolder.location.setVisibility(View.VISIBLE);
+        }
 
         final ImageLoader.BindResult result = ImageLoader.get(parent.getContext()).bind(viewHolder.imageView,
                 suggestedUser.getAvatarUrl(), null, IMAGE_OPTIONS);
@@ -74,6 +86,28 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder.imageView.setImageResource(R.drawable.placeholder_cells);
         }
         return convertView;
+    }
+
+    /**
+     * This will configure the edges to have padding that is equivalent to the inner item spacing
+     */
+    private void configureItemPadding(View convertView, int position) {
+        initResourceValues(convertView.getResources());
+        convertView.setPadding(
+                position % mNumColumns == 0 ? mItemSpacing : 0,
+                position < mNumColumns ? mItemSpacing : 0,
+                position % mNumColumns == mNumColumns - 1 ? mItemSpacing : 0,
+                position >= getCount() - mNumColumns ? mItemSpacing : 0
+        );
+    }
+
+    private void initResourceValues(Resources resources) {
+        if (mItemSpacing == Integer.MIN_VALUE){
+            mItemSpacing = (int) resources.getDimension(R.dimen.onboarding_suggested_user_item_spacing);
+        }
+        if (mNumColumns == Integer.MIN_VALUE){
+            mNumColumns = resources.getInteger(R.integer.suggested_user_grid_num_columns);
+        }
     }
 
     private static class ItemViewHolder {

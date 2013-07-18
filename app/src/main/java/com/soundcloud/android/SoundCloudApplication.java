@@ -45,7 +45,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=fc54b4c2",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=878e4d88",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
@@ -178,16 +178,19 @@ public class SoundCloudApplication extends Application implements Tracker {
     }
     //TODO Move this into AccountOperations once we refactor User info out of here
     public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
-        Account account = accountOperations.addSoundCloudAccountExplicitly(user, token, via);
+        Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
             mLoggedInUser = user;
+
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
 
-                // sync shortcuts so suggest works properly
-                Intent intent = new Intent(this, ApiSyncService.class)
-                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                        .setData(Content.ME_SHORTCUT.uri);
+            // sync shortcuts so suggest works properly
+            Intent intent = new Intent(this, ApiSyncService.class)
+                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                    .setData(Content.ME_SHORTCUT.uri);
+
+
 
             startService(intent);
 

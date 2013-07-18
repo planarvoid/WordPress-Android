@@ -18,5 +18,7 @@ public interface RxHttpClient {
      * @param <ModelType> The resource type (which can be of collection or single POJO)
      * @return An observable which delivers the result of the request
      */
-    <ModelType> Observable<ModelType> executeAPIRequest(APIRequest apiRequest) throws APIRequestException;
+    <ModelType> Observable<ModelType> fetchModels(APIRequest apiRequest) throws APIRequestException;
+
+    Observable<APIResponse> fetchResponse(APIRequest apiRequest) throws APIRequestException;;
 }

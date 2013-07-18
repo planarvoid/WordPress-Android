@@ -24,12 +24,12 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 
 import java.util.List;
-import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SuggestedUsersCategoriesAdapterTest {
@@ -134,9 +134,11 @@ public class SuggestedUsersCategoriesAdapterTest {
     @Test
     public void shouldBuildListPositionsToSectionsMapWhileAddingNewItems() throws CreateModelException {
         addAllSections();
-        Map<Integer, SuggestedUsersCategoriesAdapter.Section> sectionMap = adapter.getListPositionsToSectionsMap();
+        SparseArray<SuggestedUsersCategoriesAdapter.Section> sectionMap = adapter.getListPositionsToSectionsMap();
         expect(sectionMap).not.toBeNull();
-        expect(sectionMap.values()).toContainExactly(SuggestedUsersCategoriesAdapter.Section.FACEBOOK, SuggestedUsersCategoriesAdapter.Section.MUSIC, SuggestedUsersCategoriesAdapter.Section.SPEECH_AND_SOUNDS);
+        expect(sectionMap.get(0)).toBe(SuggestedUsersCategoriesAdapter.Section.FACEBOOK);
+        expect(sectionMap.get(2)).toBe(SuggestedUsersCategoriesAdapter.Section.MUSIC);
+        expect(sectionMap.get(5)).toBe(SuggestedUsersCategoriesAdapter.Section.SPEECH_AND_SOUNDS);
     }
 
     @Test

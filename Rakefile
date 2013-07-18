@@ -8,12 +8,12 @@ require 'json'
 require 'yaml'
 
 DEFAULT_LEVELS = %w(
-   CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
+   SoundCloudApplication CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
    StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
    ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
    VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
    PlayEventTracker PlayEventTrackerApi ReactiveScheduler ScObservables ReactiveListFragment ActivitiesFragment
-   DetachableObserver SyncOperations ActivitiesStorage PlaylistStorage TrackStorage
+   DetachableObserver SyncOperations ActivitiesStorage PlaylistStorage TrackStorage FollowingOperations
    LoadItemsObserver
 )
 DISABLED_LEVELS = %w()
@@ -248,7 +248,7 @@ namespace :beta do
         version_code = 0
       end
       sh <<-END
-        mvn clean install -DskipTests -Psign,soundcloud,beta \
+        mvn clean install --projects app -DskipTests -Psign,soundcloud,beta \
           -Dandroid.manifest.versionCode=#{version_code+1} \
           -Dandroid.manifest.debuggable=true
       END

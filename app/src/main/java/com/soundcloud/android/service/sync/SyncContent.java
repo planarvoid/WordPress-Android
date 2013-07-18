@@ -8,10 +8,15 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.EnumSet;
+
 enum SyncContent {
-    MySounds    (Content.ME_SOUNDS,     SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
-    MyPlaylists (Content.ME_PLAYLISTS,  SyncConfig.PLAYLIST_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
-    MyLikes     (Content.ME_LIKES,      SyncConfig.TRACK_STALE_TIME, SyncConfig.TRACK_BACKOFF_MULTIPLIERS),
+
+    MySoundStream (Content.ME_SOUND_STREAM, SyncConfig.ACTIVITY_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
+    MyActivities  (Content.ME_ACTIVITIES, SyncConfig.ACTIVITY_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
+    MySounds    (Content.ME_SOUNDS,     SyncConfig.TRACK_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
+    MyPlaylists (Content.ME_PLAYLISTS,  SyncConfig.PLAYLIST_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
+    MyLikes     (Content.ME_LIKES,      SyncConfig.TRACK_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
     MyFollowings(Content.ME_FOLLOWINGS, SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
     MyFollowers (Content.ME_FOLLOWERS,  SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS),
     MyConnections (Content.ME_CONNECTIONS,  SyncConfig.CONNECTIONS_STALE_TIME,  null),
@@ -24,6 +29,8 @@ enum SyncContent {
         this.prefSyncEnabledKey = "sync"+name();
         this.backoffMultipliers = backoffMultipliers;
     }
+
+    public static EnumSet<SyncContent> NON_ACTIVITIES = EnumSet.complementOf(EnumSet.of(MySoundStream, MyActivities));
 
     public final Content content;
     public final long syncDelay;

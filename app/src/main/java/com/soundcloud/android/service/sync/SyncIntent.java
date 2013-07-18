@@ -63,16 +63,16 @@ import java.util.Set;
             // if this is a different instance of the same sync request, share the result
             for (CollectionSyncRequest instance : requestsRemaining){
                 if (instance.equals(request) && instance != request){
-                    instance.result = request.result;
+                    instance.setmResult(request.getResult());
                 }
             }
             requestsRemaining.remove(request);
 
-            resultData.putBoolean(request.contentUri.toString(), isUIRequest ?
-                    request.result.change != ApiSyncResult.UNCHANGED : request.result.change == ApiSyncResult.CHANGED);
+            resultData.putBoolean(request.getContentUri().toString(), isUIRequest ?
+                    request.getResult().change != ApiSyncResult.UNCHANGED : request.getResult().change == ApiSyncResult.CHANGED);
 
-            if (!request.result.success) {
-                ApiSyncService.appendSyncStats(request.result.syncResult, syncAdapterResult);
+            if (!request.getResult().success) {
+                ApiSyncService.appendSyncStats(request.getResult().syncResult, syncAdapterResult);
             }
         }
 
@@ -99,7 +99,7 @@ import java.util.Set;
 
     private boolean isSuccess() {
         for (CollectionSyncRequest r : collectionSyncRequests) {
-            if (!r.result.success) {
+            if (!r.getResult().success) {
                 if (Log.isLoggable(TAG, Log.WARN)) {
                     Log.w(TAG, "collection sync request "+r+" not successful");
                 }

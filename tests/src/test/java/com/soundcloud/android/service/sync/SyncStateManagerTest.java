@@ -42,6 +42,13 @@ public class SyncStateManagerTest {
     }
 
     @Test
+    public void shouldCreateSyncStateWithoutQueryparam() {
+        final Uri uri = Content.PLAYLISTS.forId(123);
+        Uri contentUri = uri.buildUpon().appendQueryParameter("foo","bar").build();
+        expect(syncStateManager.fromContent(contentUri).getUri()).toEqual(uri);
+    }
+
+    @Test
     public void shouldGetLastSyncAttempt() throws Exception {
         final Uri uri = Uri.parse("foo");
 

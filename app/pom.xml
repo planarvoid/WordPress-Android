@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.soundcloud.android</groupId>
         <artifactId>parent</artifactId>
-        <version>2.6.3-BETA1</version>
+        <version>2.6.3</version>
     </parent>
 
     <artifactId>soundcloud-android</artifactId>
@@ -26,8 +26,18 @@
                     <proguard>
                         <skip>false</skip>
                     </proguard>
+                    <lint>
+                        <config>app/lint.xml</config>
+                    </lint>
                 </configuration>
                 <executions>
+                    <execution>
+                        <id>lint</id>
+                        <goals>
+                            <goal>lint</goal>
+                        </goals>
+                        <phase>install</phase>
+                    </execution>
                     <execution>
                         <id>build-ndk</id>
                         <phase>compile</phase>
@@ -64,6 +74,12 @@
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>2.0.1</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
@@ -319,6 +335,8 @@
                             </sign>
 
                             <zipalign>
+                                <skip>false</skip>
+                                <verbose>true</verbose>
                                 <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-${release.type}.apk</outputApk>
                             </zipalign>
                         </configuration>
@@ -336,4 +354,16 @@
             </build>
         </profile>
     </profiles>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <onlyAnalyze>com.soundcloud.android.-</onlyAnalyze>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

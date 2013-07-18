@@ -139,7 +139,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         oldCloudApi = new OldCloudAPI(getActivity());
-        mEmptyListViewFactory = new EmptyListViewFactory().forContent(getActivity(), mContent, null);
+        mEmptyListViewFactory = new EmptyListViewFactory().forContent(getActivity(), mContentUri, null);
         mKeepGoing = true;
         setupListAdapter();
         accountOperations = new AccountOperations(getActivity());

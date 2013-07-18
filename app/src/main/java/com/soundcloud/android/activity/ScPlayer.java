@@ -80,7 +80,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         super.onCreate(bundle);
         setContentView(R.layout.sc_player);
 
-        mAndroidCloudAPI = new OldCloudAPI(this);
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
         mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);
         mTrackPager.setPageMargin((int) (5 * getResources().getDisplayMetrics().density));

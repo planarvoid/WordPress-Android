@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.PlaylistActivity;
@@ -243,8 +244,8 @@ public class Playlist extends Playable {
             }
         }
 
-        public String toJson(ObjectMapper mapper) throws JsonProcessingException {
-            return mapper.writeValueAsString(this);
+        public String toJson() throws JsonProcessingException {
+            return new ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true).writeValueAsString(this);
         }
     }
 
@@ -259,8 +260,8 @@ public class Playlist extends Playable {
             }
         }
 
-        public String toJson(ObjectMapper mapper) throws IOException {
-            return mapper.writeValueAsString(this);
+        public String toJson() throws IOException {
+            return new ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true).writeValueAsString(this);
         }
     }
 

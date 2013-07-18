@@ -12,6 +12,7 @@ import com.soundcloud.android.blueprints.CategoryBlueprint;
 import com.soundcloud.android.blueprints.SuggestedUserBlueprint;
 import com.soundcloud.android.blueprints.TrackBlueprint;
 import com.soundcloud.android.blueprints.UserBlueprint;
+import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.Playable;
@@ -408,6 +409,11 @@ public class TestHelper {
         return loadLocalContentItem(content.uri, UserAssociation.class, where);
     }
 
+    public static List<UserAssociation> loadUserAssociations(final Content content) throws Exception {
+        String where = DBHelper.UserAssociationView.USER_ASSOCIATION_TYPE + " = " + content.collectionType;
+        return loadLocalContent(content.uri, UserAssociation.class, where);
+    }
+
     @SuppressWarnings("unchecked")
     public static <T extends Persisted> T reload(final T model) {
         try {
@@ -506,5 +512,16 @@ public class TestHelper {
             categories.add(TestHelper.getModelFactory().createModel(Category.class));
         }
         return categories;
+    }
+
+    public static List<UserAssociation> createDirtyFollowings(int count) {
+        List<UserAssociation> userAssociations = new ArrayList<UserAssociation>();
+        for (User user : createUsers(count)) {
+            final UserAssociation association = new UserAssociation(Association.Type.FOLLOWING, user);
+            association.markForAddition();
+            userAssociations.add(association);
+        }
+        return userAssociations;
+
     }
 }

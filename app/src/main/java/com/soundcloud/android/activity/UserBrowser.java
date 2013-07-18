@@ -506,7 +506,7 @@ public class UserBrowser extends ScActivity implements
                     contentUri = content.forId(mUser.getId());
                 }
                 ScListFragment listFragment = ScListFragment.newInstance(contentUri);
-                listFragment.setEmptyViewFactory(new EmptyListViewFactory().forContent(UserBrowser.this, content, mUser));
+                listFragment.setEmptyViewFactory(new EmptyListViewFactory().forContent(UserBrowser.this, contentUri, mUser));
                 return listFragment;
             }
         }

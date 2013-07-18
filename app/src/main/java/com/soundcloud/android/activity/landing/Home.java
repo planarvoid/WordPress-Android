@@ -3,6 +3,7 @@ package com.soundcloud.android.activity.landing;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -22,12 +23,15 @@ import com.soundcloud.api.Request;
 import net.hockeyapp.android.UpdateManager;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
 public class Home extends ScActivity implements ScLandingPage {
+    public static final String EXTRA_ONBOARDING_USERS_RESULT  = "onboarding_users_result";
     private FetchUserTask mFetchUserTask;
     private AccountOperations mAccountOperations;
+
     private AndroidCloudAPI oldCloudAPI;
 
     @Override
@@ -39,11 +43,15 @@ public class Home extends ScActivity implements ScLandingPage {
         final SoundCloudApplication app = getApp();
         if (mAccountOperations.soundCloudAccountExists()) {
             if (state == null) {
-                getSupportFragmentManager().beginTransaction()
-                        .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_SOUND_STREAM))
-                        .commit();
+                final Uri build = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true) ?
+                        Content.ME_SOUND_STREAM.uri :
+                        Content.ME_SOUND_STREAM.uri.buildUpon()
+                                .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
 
-                if (SoundCloudApplication.BETA_MODE){
+                getSupportFragmentManager().beginTransaction()
+                        .add(mRootView.getContentHolderId(), ScListFragment.newInstance(build))
+                        .commit();
+                if (SoundCloudApplication.BETA_MODE) {
                     ChangeLog changeLog = new ChangeLog(this);
                     if (changeLog.isFirstRun()) {
                         changeLog.getDialog(true).show();
@@ -64,6 +72,10 @@ public class Home extends ScActivity implements ScLandingPage {
                 UpdateManager.register(this, getString(R.string.hockey_app_id));
             }
         }
+    }
+
+    private boolean startedFromOnboardingError() {
+        return !getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true);
     }
 
     @Override

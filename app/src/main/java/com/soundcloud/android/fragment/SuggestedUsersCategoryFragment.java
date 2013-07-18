@@ -4,15 +4,15 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.model.Category;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.observers.ScObserver;
+import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.view.GridViewCompat;
 
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,7 +74,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mFollowingOperations.toggleFollowingBySuggestedUser(mAdapter.getItem(position)).subscribe(mToggleFollowingObserver);
+        mFollowingOperations.toggleFollowingBySuggestedUser(mAdapter.getItem(position)).subscribe(new ToggleFollowingObserver(this));
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridview setItemChecked
@@ -85,31 +85,40 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
 
         final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
         if (shouldFollow) {
-            mFollowingOperations.addFollowingsBySuggestedUsers(mCategory.getNotFollowedUsers(followedUserIds)).subscribe(mToggleAllObserver);
+            mFollowingOperations.addFollowingsBySuggestedUsers(
+                    mCategory.getNotFollowedUsers(followedUserIds)).subscribe(new ToggleAllObserver(this));
         } else {
-            mFollowingOperations.removeFollowingsBySuggestedUsers(mCategory.getFollowedUsers(followedUserIds)).subscribe(mToggleAllObserver);
+            mFollowingOperations.removeFollowingsBySuggestedUsers(
+                    mCategory.getFollowedUsers(followedUserIds)).subscribe(new ToggleAllObserver(this));
         }
     }
 
-    private ScObserver<Void> mToggleFollowingObserver = new ScObserver<Void>() {
-        @Override
-        public void onCompleted() {
-            final FragmentActivity activity = getActivity();
-            if (activity != null) {
-                activity.supportInvalidateOptionsMenu();
-            }
+    private static final class ToggleFollowingObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, Void> {
+        public ToggleFollowingObserver(SuggestedUsersCategoryFragment fragment) {
+            super(fragment);
         }
 
         @Override
-        public void onError(Exception e) {
-            mAdapter.notifyDataSetChanged();
+        public void onCompleted(SuggestedUsersCategoryFragment fragment) {
+            fragment.getActivity().supportInvalidateOptionsMenu();
         }
-    };
 
-    private ScObserver<Void> mToggleAllObserver = new ScObserver<Void>() {
         @Override
-        public void onError(Exception e) {
-            mAdapter.notifyDataSetChanged();
+        public void onError(SuggestedUsersCategoryFragment fragment, Exception error) {
+            error.printStackTrace();
+            fragment.mAdapter.notifyDataSetChanged();
         }
-    };
+    }
+
+    private static final class ToggleAllObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, UserAssociation> {
+        public ToggleAllObserver(SuggestedUsersCategoryFragment fragment) {
+            super(fragment);
+        }
+
+        @Override
+        public void onError(SuggestedUsersCategoryFragment fragment, Exception error) {
+            error.printStackTrace();
+            fragment.mAdapter.notifyDataSetChanged();
+        }
+    }
 }

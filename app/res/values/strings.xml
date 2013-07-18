@@ -153,7 +153,6 @@
     <string name="suggested_users_section_facebook">Facebook</string>
     <string name="suggested_users_section_music">Music</string>
     <string name="suggested_users_section_audio">Audio</string>
-    <string name="suggested_users_error_get_genre_buckets">Failed to load categories at this time. Try again later.</string>
 
     <string name="suggested_users_section_empty">No results found</string>
     <string name="suggested_users_section_error">No results found, tap to retry</string>
@@ -198,5 +197,8 @@
     <string name="category_news">News</string>
     <string name="category_storytelling">Storytelling</string>
     <string name="category_learning">Learning</string>
+
+    <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
+    <string name="error_onboarding_filling">We\'re working on it!</string>
 
 </resources>

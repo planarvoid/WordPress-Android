@@ -5,11 +5,14 @@ import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.schedulers.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
@@ -26,6 +29,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +42,12 @@ public class SyncStateManager extends ScheduledOperations {
     private final Map<Long, ContentObserver> mContentObservers;
 
     public SyncStateManager() {
-        this(SoundCloudApplication.instance);
+        this(ScSchedulers.STORAGE_SCHEDULER);
     }
 
-    public SyncStateManager(Context context){
-        mResolver = context.getContentResolver();
+    public SyncStateManager(Scheduler scheduler) {
+        super(scheduler);
+        mResolver = SoundCloudApplication.instance.getContentResolver();
         mLocalCollectionDao = new LocalCollectionDAO(mResolver);
         mContentObservers = new HashMap<Long, ContentObserver>();
     }
@@ -67,9 +72,10 @@ public class SyncStateManager extends ScheduledOperations {
      */
     @NotNull
     public LocalCollection fromContentAsync(@NotNull Uri contentUri, @NotNull LocalCollection.OnChangeListener listener) {
-        LocalCollection syncState = new LocalCollection(contentUri);
+        final Uri cleanUri = UriUtils.clearQueryParams(contentUri);
+        LocalCollection syncState = new LocalCollection(cleanUri);
         SyncStateQueryHandler handler = new SyncStateQueryHandler(syncState, listener);
-        handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
+        handler.startQuery(0, null, Content.COLLECTIONS.uri, null, "uri = ?", new String[]{cleanUri.toString()}, null);
         return syncState;
     }
 
@@ -165,20 +171,26 @@ public class SyncStateManager extends ScheduledOperations {
      * Returns a list of uris to be synced, based on recent changes. The idea is that collections which don't change
      * very often don't get synced as frequently as collections which do.
      *
-     * @param manual manual sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
+     * @param syncContentEnumSet
+     * @param force force sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
      */
-    public List<Uri> getCollectionsDueForSync(Context c, boolean manual) {
+    public List<Uri> getCollectionsDueForSync(Context c, EnumSet<SyncContent> syncContentEnumSet, boolean force) {
         List<Uri> urisToSync = new ArrayList<Uri>();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
-        for (SyncContent sc : SyncContent.values()) {
-            if (sc.isEnabled(prefs)) {
-                final LocalCollection lc = fromContent(sc.content);
-                if (manual || sc.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
-                    urisToSync.add(sc.content.uri);
-                }
+        for (SyncContent sc : syncContentEnumSet) {
+            if (sc.isEnabled(prefs) && (force || isContentDueForSync(sc))){
+                urisToSync.add(sc.content.uri);
             }
         }
         return urisToSync;
+    }
+
+    public boolean isContentDueForSync(SyncContent syncContent) {
+        final LocalCollection lc = fromContent(syncContent.content);
+        if (syncContent.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
+            return true;
+        }
+        return false;
     }
 
     public void addChangeListener(@NotNull LocalCollection lc, @NotNull LocalCollection.OnChangeListener listener) {

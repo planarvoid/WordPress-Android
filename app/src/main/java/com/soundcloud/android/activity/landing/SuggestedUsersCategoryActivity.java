@@ -8,9 +8,7 @@ import com.soundcloud.android.fragment.SuggestedUsersCategoryFragment;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.operations.following.FollowingOperations;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
 
 public class SuggestedUsersCategoryActivity extends ScActivity {
 
@@ -20,30 +18,28 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-
+        setContentView(R.layout.frame_layout_holder);
         if (!getIntent().hasExtra(Category.EXTRA)) {
             finish();
         } else {
             mCategory = getIntent().getParcelableExtra(Category.EXTRA);
-            setContentView(R.layout.suggested_users_category_activity);
-
             if (state == null) {
                 mCategoryFragment = new SuggestedUsersCategoryFragment();
                 mCategoryFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.users_fragment_holder, mCategoryFragment)
+                        .add(R.id.holder, mCategoryFragment)
                         .commit();
             } else {
-                mCategoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.users_fragment_holder);
+                mCategoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.holder);
             }
         }
+
     }
 
     @Override
-    public void setContentView(View layout) {
-        super.setContentView(layout);
-        layout.setBackgroundColor(Color.WHITE);
+    protected int getSelectedMenuId() {
+        return 0;
     }
 
     @Override
@@ -72,10 +68,5 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     @Override
     public int getMenuResourceId() {
         return R.menu.suggested_users_category;
-    }
-
-    @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_suggested_users;
     }
 }

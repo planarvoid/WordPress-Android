@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.CategoryGroup;
@@ -40,6 +39,7 @@ public class SuggestedUsersCategoriesFragmentTest {
     public void setup() throws CreateModelException {
         SuggestedUsersOperations operations = mock(SuggestedUsersOperations.class);
         when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
+        when(operations.getMusicAndSoundsSuggestions()).thenReturn(Observable.from(audio(), music()).cache());
 
         fragment = spy(new SuggestedUsersCategoriesFragment(operations, observer, adapter));
 
@@ -50,26 +50,15 @@ public class SuggestedUsersCategoriesFragmentTest {
 
     @Test
     public void shouldSetAdapterSectionsToExcludeFacebook() {
-        final Bundle args = new Bundle();
-        args.putString(SignupVia.EXTRA, SignupVia.API.getSignupIdentifier());
-        fragment.setArguments(args);
+        fragment.setArguments(new Bundle());
         fragment.onCreate(null);
         verify(adapter).setActiveSections(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK);
     }
 
     @Test
-    public void shouldSetAdapterSectionsToIncludeFacebookWhenSignupViaFacebookSSO() {
+    public void shouldSetAdapterSectionsToIncludeFacebook() {
         final Bundle args = new Bundle();
-        args.putString(SignupVia.EXTRA, SignupVia.FACEBOOK_SSO.getSignupIdentifier());
-        fragment.setArguments(args);
-        fragment.onCreate(null);
-        verify(adapter).setActiveSections(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS);
-    }
-
-    @Test
-    public void shouldSetAdapterSectionsToIncludeFacebookWhenSignupViaFacebookWebflow() {
-        final Bundle args = new Bundle();
-        args.putString(SignupVia.EXTRA, SignupVia.FACEBOOK_WEBFLOW.getSignupIdentifier());
+        args.putBoolean(SuggestedUsersCategoriesFragment.SHOW_FACEBOOK, true);
         fragment.setArguments(args);
         fragment.onCreate(null);
         verify(adapter).setActiveSections(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS);

@@ -20,7 +20,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscription;
+import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
@@ -29,6 +31,7 @@ import android.content.ContentValues;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -43,21 +46,21 @@ public class UserAssociationStorage extends ScheduledOperations {
     private final UserAssociationDAO mFollowingsDAO;
 
     public UserAssociationStorage() {
-        this(SoundCloudApplication.instance.getContentResolver());
+        this(ScSchedulers.STORAGE_SCHEDULER, SoundCloudApplication.instance.getContentResolver());
     }
 
-    public UserAssociationStorage(ContentResolver resolver) {
+    public UserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {
+        super(scheduler);
         mResolver = resolver;
         mUserAssociationDAO = new UserAssociationDAO(mResolver);
         mFollowingsDAO = UserAssociationDAO.forContent(Content.ME_FOLLOWINGS, mResolver);
-        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 
     public Observable<UserAssociation> getFollowings() {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
-                RxUtils.emitList(userAssociationObserver,
+                RxUtils.emitCollection(userAssociationObserver,
                         mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll()
                 );
                 userAssociationObserver.onCompleted();
@@ -73,7 +76,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param user the user that is being followed
      * @return the new association created
      */
-    public Observable<UserAssociation> addFollowing(final User user) {
+    public Observable<UserAssociation> follow(final User user) {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -91,7 +94,7 @@ public class UserAssociationStorage extends ScheduledOperations {
 
     }
 
-    public Observable<UserAssociation> addFollowingBySuggestedUser(final SuggestedUser suggestedUser) {
+    public Observable<UserAssociation> followSuggestedUser(final SuggestedUser suggestedUser) {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -116,7 +119,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param users The users to be followed
      * @return the UserAssociations inserted
      */
-    public Observable<UserAssociation> addFollowings(final List<User> users) {
+    public Observable<UserAssociation> followList(final List<User> users) {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -125,7 +128,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
                 }
                 mFollowingsDAO.createCollection(userAssociations);
-                RxUtils.emitList(userAssociationObserver,userAssociations);
+                RxUtils.emitCollection(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
                 return Subscriptions.empty();
             }
@@ -141,7 +144,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param suggestedUsers
      * @return
      */
-    public Observable<UserAssociation> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
+    public Observable<UserAssociation> followSuggestedUserList(final List<SuggestedUser> suggestedUsers) {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -152,7 +155,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                     ).markForAddition(suggestedUser.getToken()));
                 }
                 mFollowingsDAO.createCollection(userAssociations);
-                RxUtils.emitList(userAssociationObserver, userAssociations);
+                RxUtils.emitCollection(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
                 return Subscriptions.empty();
             }
@@ -167,7 +170,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param user the user whose following should be removed
      * @return
      */
-    public Observable<UserAssociation> removeFollowing(final User user) {
+    public Observable<UserAssociation> unfollow(final User user) {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -191,7 +194,7 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param users the users to mark for removal
      * @return the number of insertions/updates performed
      */
-    public Observable<UserAssociation> removeFollowings(final List<User> users) {
+    public Observable<UserAssociation> unfollowList(final List<User> users) {
         return  schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
@@ -200,7 +203,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForRemoval());
                 }
                 mFollowingsDAO.createCollection(userAssociations);
-                RxUtils.emitList(userAssociationObserver, userAssociations);
+                RxUtils.emitCollection(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
                 return Subscriptions.empty();
             }
@@ -294,6 +297,31 @@ public class UserAssociationStorage extends ScheduledOperations {
             }
         }
         return false;
+    }
+
+    public boolean deleteFollowings(Collection<UserAssociation> followings){
+        for (UserAssociation following : followings){
+            if (!mFollowingsDAO.delete(following)) return false;
+        }
+        return true;
+    }
+
+    //TODO: this should be a bulk insert
+    public Observable<Collection<UserAssociation>> setFollowingsAsSynced(final Collection<UserAssociation> userAssociations) {
+        return Observable.create(new Func1<Observer<Collection<UserAssociation>>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Collection<UserAssociation>> observer) {
+                final BooleanSubscription subscription = new BooleanSubscription();
+                for (UserAssociation ua : userAssociations) {
+                    ua.clearLocalSyncState();
+                }
+                // TODO: this will trigger an upsert, but we should have an explicit updateAll method
+                mFollowingsDAO.createCollection(userAssociations);
+                observer.onNext(userAssociations);
+                observer.onCompleted();
+                return subscription;
+            }
+        });
     }
 
     @Nullable

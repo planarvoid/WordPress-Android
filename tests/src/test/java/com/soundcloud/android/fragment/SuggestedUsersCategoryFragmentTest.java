@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -75,7 +76,7 @@ public class SuggestedUsersCategoryFragmentTest {
 
     @Test
     public void shouldCallToggleFollowingBySuggestedUser() {
-        when(followingOperations.toggleFollowingBySuggestedUser(any(SuggestedUser.class))).thenReturn(Observable.<Void>empty());
+        when(followingOperations.toggleFollowingBySuggestedUser(any(SuggestedUser.class))).thenReturn(Observable.<UserAssociation>empty());
         fragment.onItemClick(null, null, 2, 0);
         verify(followingOperations).toggleFollowingBySuggestedUser(suggestedUsers.get(2));
     }
