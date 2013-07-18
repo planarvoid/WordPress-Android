@@ -3,9 +3,9 @@ package com.soundcloud.android.view.adapter;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -21,12 +21,7 @@ public abstract class IconLayout extends FrameLayout {
 
     protected ImageView mIcon;
 
-    private DisplayImageOptions options = new DisplayImageOptions.Builder()
-            .resetViewBeforeLoading(true)
-            .showImageForEmptyUri(getDefaultArtworkResId())
-            .showStubImage(getDefaultArtworkResId())
-            .displayer(new FadeInBitmapDisplayer(200))
-            .build();
+    private DisplayImageOptions options = ImageUtils.createListIconDisplayImageOptions(getDefaultArtworkResId());
 
     public IconLayout(Context context) {
         this(context,null);

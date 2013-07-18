@@ -2,7 +2,8 @@ package com.soundcloud.android.utils.images;
 
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.assist.LoadedFrom;
+import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
@@ -27,6 +28,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -572,7 +575,7 @@ public final class ImageUtils {
                 .resetViewBeforeLoading(true)
                 .showImageForEmptyUri(defaultIconResId)
                 .showStubImage(defaultIconResId)
-                .displayer(new FadeInBitmapDisplayer(200))
+                .displayer(new ListAnimateListener())
                 .build();
     }
 
@@ -588,6 +591,38 @@ public final class ImageUtils {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(false)
                 .cacheOnDisc(true).build();
+    }
+
+    /**
+     * Prevents image flashing on subsequent loads in lists
+     */
+    public static class ListAnimateListener implements BitmapDisplayer {
+        @Override
+        public Bitmap display(Bitmap bitmap, final ImageView imageView, LoadedFrom loadedFrom) {
+            if (bitmap != null) {
+                Log.i("asdf","Loaded from " + loadedFrom);
+                if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
+                    final Drawable from = imageView.getDrawable();
+                    TransitionDrawable tDrawable = new TransitionDrawable(
+                            new Drawable[]{
+                                    from == null ? new BitmapDrawable() : from,
+                                    new BitmapDrawable(bitmap)
+                            });
+                    tDrawable.setCrossFadeEnabled(true);
+                    tDrawable.setCallback(new android.graphics.drawable.Drawable.Callback() {
+                        @Override public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) {}
+                        @Override public void unscheduleDrawable(Drawable drawable, Runnable runnable) {}
+                        @Override
+                        public void invalidateDrawable(Drawable drawable) {
+                            imageView.invalidate();
+                        }
+                    });
+                    tDrawable.startTransition(200);
+                    imageView.setImageDrawable(tDrawable);
+                }
+            }
+            return bitmap;
+        }
     }
 
 
