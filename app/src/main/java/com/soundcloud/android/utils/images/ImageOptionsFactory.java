@@ -15,9 +15,7 @@ public class ImageOptionsFactory {
 
 
     public static DisplayImageOptions adapterView(int defaultIconResId){
-        return new DisplayImageOptions.Builder()
-                .cacheInMemory(true)
-                .cacheOnDisc(true)
+        return fullCacheBuilder()
                 .resetViewBeforeLoading(true)
                 .showImageOnFail(defaultIconResId)
                 .showImageForEmptyUri(defaultIconResId)
@@ -27,9 +25,7 @@ public class ImageOptionsFactory {
     }
 
     public static DisplayImageOptions placeholder(int defaultIconResId){
-        return new DisplayImageOptions.Builder()
-                .cacheInMemory(true)
-                .cacheOnDisc(true)
+        return fullCacheBuilder()
                 .showImageForEmptyUri(defaultIconResId)
                 .showImageOnFail(defaultIconResId)
                 .showStubImage(defaultIconResId)
@@ -44,10 +40,14 @@ public class ImageOptionsFactory {
     }
 
     public static DisplayImageOptions cache(){
+        return fullCacheBuilder()
+                .build();
+    }
+
+    public static DisplayImageOptions.Builder fullCacheBuilder() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
-                .cacheOnDisc(true)
-                .build();
+                .cacheOnDisc(true);
     }
 
     /**

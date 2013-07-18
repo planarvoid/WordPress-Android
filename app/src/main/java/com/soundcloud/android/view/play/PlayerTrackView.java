@@ -1,11 +1,15 @@
 package com.soundcloud.android.view.play;
 
 
+import static com.soundcloud.android.utils.AnimUtils.SimpleAnimationListener;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -23,6 +27,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.app.ActivityManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.View;
@@ -221,47 +227,37 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         }
     }
 
-    private void updateArtwork(boolean postAtFront) {
+    private void updateArtwork(boolean priority) {
         // this will cause OOMs
         if (mTrack == null || ActivityManager.isUserAMonkey()) return;
 
-        // TODO priority if postAtFront and load failures. Check for OOM errors
-        ImageLoader.getInstance().displayImage(mTrack.getPlayerArtworkUri(getContext()), mArtwork,
-                ImageOptionsFactory.placeholder(R.drawable.artwork_player),
+        mArtwork.setVisibility(View.GONE);
+        mArtworkHolder.setBackgroundResource(R.drawable.artwork_player);
+        ImageLoader.getInstance().cancelDisplayTask(mArtwork);
+
+        ImageLoader.getInstance().displayImage(
+                mTrack.getPlayerArtworkUri(getContext()),
+                mArtwork,
+                createPlayerDisplayImageOptions(priority),
                 new SimpleImageLoadingListener(){
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
-                        onArtworkSet(true);
+                        Bitmap memoryBitmap = ImageUtils.getCachedTrackListIcon(getContext(), mTrack);
+                        if (memoryBitmap != null){
+                            mArtwork.setImageBitmap(memoryBitmap);
+                            mArtwork.setVisibility(View.VISIBLE);
+                            mArtworkHolder.setBackgroundDrawable(null);
+                        }
                     }
                 });
     }
 
-    private void onArtworkSet(boolean animate) {
-        if (mArtwork != null && mArtworkHolder != null) {
-            if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-                if (animate) {
-                    AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
-                    mArtwork.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            if (animation.equals(mArtwork.getAnimation())) mArtworkHolder.setBackgroundDrawable(null);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-                        }
-                    });
-                    mArtwork.setVisibility(View.VISIBLE);
-                } else {
-                    mArtwork.setVisibility(View.VISIBLE);
-                    mArtworkHolder.setBackgroundDrawable(null);
-                }
-            }
-        }
+    private DisplayImageOptions createPlayerDisplayImageOptions(boolean priority){
+        return ImageOptionsFactory
+                .fullCacheBuilder()
+                .delayBeforeLoading(priority ? 0 : 200)
+                .displayer(mArtworkDisplayer)
+                .build();
     }
 
     private void updateAvatar(boolean postAtFront) {
@@ -346,7 +342,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                         runFadeInAnimationOn(mPlayer, mArtworkOverlay);
                     } else {
                         runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
-                        attachVisibilityListener(mArtworkOverlay, GONE);
+                        AnimUtils.attachVisibilityListener(mArtworkOverlay, GONE);
                     }
                 } else {
                     int visibility = mIsCommenting ? VISIBLE : GONE;
@@ -356,21 +352,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         }
     }
-
-    private static void attachVisibilityListener(final View target, final int visibility) {
-        target.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-            @Override public void onAnimationStart(Animation animation) {}
-            @Override public void onAnimationRepeat(Animation animation) {}
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if (target.getAnimation().equals(animation)) {
-                    target.setVisibility(visibility);
-                    target.setEnabled(true);
-                }
-            }
-        });
-    }
-
 
     public int getPlayPosition() {
         return mQueuePosition;
@@ -548,10 +529,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     public void clear() {
         mOnScreen = false;
         onStop(true);
-        mArtwork.setImageResource(R.drawable.artwork_player);
         mAvatar.setImageBitmap(null);
         mWaveformController.reset(true);
         mWaveformController.setOnScreen(false);
+        if (mArtwork != null) mArtwork.setImageResource(R.drawable.artwork_player);
     }
 
     public boolean onBackPressed() {
@@ -565,4 +546,30 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             return false;
         }
     }
+
+    private BitmapDisplayer mArtworkDisplayer = new BitmapDisplayer() {
+        @Override
+        public Bitmap display(Bitmap bitmap, ImageView imageView, LoadedFrom loadedFrom) {
+            imageView.setImageBitmap(bitmap);
+            if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
+                if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
+                    AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
+                    mArtwork.getAnimation().setAnimationListener(new SimpleAnimationListener() {
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            if (animation.equals(mArtwork.getAnimation())) {
+                                mArtworkHolder.setBackgroundDrawable(null);
+                            }
+                        }
+                    });
+                    mArtwork.setVisibility(View.VISIBLE);
+                } else {
+                    mArtwork.setVisibility(View.VISIBLE);
+                    mArtworkHolder.setBackgroundDrawable(null);
+                }
+            }
+            return bitmap;
+        }
+    };;
+
 }
