@@ -141,15 +141,6 @@ public abstract class ReactiveListFragment<T extends ScModel> extends Fragment i
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-        // to make image scrolling smoother, we block the image loader until scrolling has stopped
-        switch (scrollState) {
-            case SCROLL_STATE_FLING:
-            case SCROLL_STATE_TOUCH_SCROLL:
-                // TODO : block image loader
-                break;
-            case SCROLL_STATE_IDLE:
-                break;
-        }
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -1300,11 +1300,11 @@
     <style name="emptyCollectionContentHolder" parent="emptyCollectionContentHolderBase">
         <item name="android:layout_height">wrap_content</item>
     </style>
-    <style name="FullImageDialogBase">
+    <style name="FullImageDialogImageViewBase">
         <item name="android:layout_centerInParent">true</item>
         <item name="android:layout_margin">10dip</item>
     </style>
-    <style name="FullImageDialog" parent="FullImageDialogBase">
+    <style name="FullImageDialogImageView" parent="FullImageDialogImageViewBase">
         <item name="android:scaleType">fitCenter</item>
         <item name="android:layout_height">fill_parent</item>
         <item name="android:layout_width">fill_parent</item>

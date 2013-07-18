@@ -8,5 +8,5 @@
             android:layout_centerInParent="true"
             android:layout_margin="10dip"/>
     <ImageView android:id="@+id/image"
-               style="@style/FullImageDialogBase"/>
+               style="@style/FullImageDialogImageView"/>
 </RelativeLayout>

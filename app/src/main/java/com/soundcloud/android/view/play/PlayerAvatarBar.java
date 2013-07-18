@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.play;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
@@ -109,6 +108,7 @@ public class PlayerAvatarBar extends View {
     }
 
     public void onStop(){
+        // TODO, reinstate avatar load killing with new imageloader
         if (mCurrentComments != null) {
 //            for (Comment c : mCurrentComments) {
 //                if (!TextUtils.isEmpty(c.user.avatar_url)){
@@ -166,11 +166,6 @@ public class PlayerAvatarBar extends View {
         if (c == null || !c.shouldLoadIcon()) return;
 
         mBitmapLoader.loadImage(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new SimpleImageLoadingListener() {
-            @Override
-            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                Log.i(TAG, "Avatar Loading Error " + imageUri + " " + failReason);
-            }
-
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                 c.avatar = loadedImage;
