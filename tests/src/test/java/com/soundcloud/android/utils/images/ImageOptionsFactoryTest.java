@@ -19,14 +19,14 @@ public class ImageOptionsFactoryTest {
 
     @Test
     public void shouldCreateCacheOptions() throws Exception {
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.list(123);
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.cache();
         expect(displayImageOptions.isCacheInMemory()).toBeTrue();
         expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
     }
 
     @Test
     public void shouldCreatePlaceholderOptions() throws Exception {
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.list(123);
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.placeholder(123);
         expect(displayImageOptions.isCacheInMemory()).toBeTrue();
         expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
         expect(displayImageOptions.getImageForEmptyUri()).toBe(123);
@@ -35,8 +35,8 @@ public class ImageOptionsFactoryTest {
     }
 
     @Test
-    public void shouldCreateListOptions() throws Exception {
-        DisplayImageOptions displayImageOptions = ImageOptionsFactory.list(123);
+    public void shouldCreateAdapterViewOptions() throws Exception {
+        DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(123);
         expect(displayImageOptions.isCacheInMemory()).toBeTrue();
         expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
         expect(displayImageOptions.getImageForEmptyUri()).toBe(123);

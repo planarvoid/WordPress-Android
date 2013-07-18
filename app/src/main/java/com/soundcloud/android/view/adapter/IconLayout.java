@@ -21,7 +21,7 @@ public abstract class IconLayout extends FrameLayout {
 
     protected ImageView mIcon;
 
-    private DisplayImageOptions options = ImageOptionsFactory.list(getDefaultArtworkResId());
+    private DisplayImageOptions options = ImageOptionsFactory.adapterView(getDefaultArtworkResId());
 
     public IconLayout(Context context) {
         this(context,null);

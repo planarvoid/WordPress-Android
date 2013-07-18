@@ -81,7 +81,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         }
 
         ImageLoader.getInstance().displayImage(suggestedUser.getAvatarUrl(), viewHolder.imageView,
-                ImageOptionsFactory.placeholder(R.drawable.placeholder_cells));
+                ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
         return convertView;
     }
 

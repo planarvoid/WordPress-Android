@@ -14,7 +14,7 @@ import android.widget.ImageView;
 public class ImageOptionsFactory {
 
 
-    public static DisplayImageOptions list(int defaultIconResId){
+    public static DisplayImageOptions adapterView(int defaultIconResId){
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisc(true)

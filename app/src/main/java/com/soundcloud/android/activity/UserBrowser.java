@@ -388,7 +388,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     private void reloadAvatar() {
-        ImageLoader.getInstance().displayImage(mIconURL, mIcon, ImageOptionsFactory.list(R.drawable.avatar_badge_large));
+        ImageLoader.getInstance().displayImage(mIconURL, mIcon, ImageOptionsFactory.adapterView(R.drawable.avatar_badge_large));
     }
 
     private Configuration toConfiguration() {
