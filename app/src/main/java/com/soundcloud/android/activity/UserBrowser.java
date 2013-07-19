@@ -31,7 +31,6 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
-import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.api.Endpoints;
@@ -53,6 +52,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -72,7 +72,6 @@ public class UserBrowser extends ScActivity implements
     private ToggleButton mToggleFollow;
     private View mVrStats;
     private ImageView mIcon;
-    private String mIconURL;
     private UserFragmentAdapter mAdapter;
     private FetchUserTask mLoadUserTask;
     protected ViewPager mPager;
@@ -116,8 +115,11 @@ public class UserBrowser extends ScActivity implements
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ImageUtils.checkIconShouldLoad(mIconURL)) {
-                    new FullImageDialog(UserBrowser.this, ImageSize.CROP.formatUri(mIconURL)).show();
+                if (mUser != null){
+                    final String avatarUrl = mUser.getAvatarUrl();
+                    if (!TextUtils.isEmpty(avatarUrl)) {
+                        new FullImageDialog(UserBrowser.this, ImageSize.CROP.formatUri(avatarUrl)).show();
+                    }
                 }
 
             }
@@ -371,24 +373,15 @@ public class UserBrowser extends ScActivity implements
             mFollowerCount.setText(String.valueOf(user.followers_count));
         }
 
+        ImageLoader.getInstance().displayImage(user.getAvatarUrl(), mIcon,
+                ImageOptionsFactory.adapterView(R.drawable.avatar_badge_large));
+
         invalidateOptionsMenu();
 
-        if (user.shouldLoadIcon()) {
-            if (mIconURL == null|| (user.avatar_url != null && !mIconURL.equals(user.avatar_url))) {
-                mIconURL = user.avatar_url;
-                reloadAvatar();
-            }
-        }
-
     }
-
 
     public User getUser() {
         return mUser;
-    }
-
-    private void reloadAvatar() {
-        ImageLoader.getInstance().displayImage(mIconURL, mIcon, ImageOptionsFactory.adapterView(R.drawable.avatar_badge_large));
     }
 
     private Configuration toConfiguration() {
