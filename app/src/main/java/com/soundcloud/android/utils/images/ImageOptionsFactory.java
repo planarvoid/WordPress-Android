@@ -62,8 +62,8 @@ public class ImageOptionsFactory {
                     final Drawable from = imageView.getDrawable();
                     TransitionDrawable tDrawable = new TransitionDrawable(
                             new Drawable[]{
-                                    from == null ? new BitmapDrawable() : from,
-                                    new BitmapDrawable(bitmap)
+                                    from == null ? new BitmapDrawable(imageView.getResources()) : from,
+                                    new BitmapDrawable(imageView.getResources(), bitmap)
                             });
                     tDrawable.setCrossFadeEnabled(true);
                     tDrawable.setCallback(new Drawable.Callback() {

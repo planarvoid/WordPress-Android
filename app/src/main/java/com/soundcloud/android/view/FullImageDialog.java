@@ -39,19 +39,23 @@ public class FullImageDialog extends Dialog {
                 new SimpleImageLoadingListener() {
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
-                        progress.setVisibility(View.VISIBLE);
+                        if (isShowing()) {
+                            progress.setVisibility(View.VISIBLE);
+                        }
                     }
 
                     @Override
                     public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                        if (!isShowing()) return;
-                        mHandler.post(mImageError);
+                        if (isShowing()) {
+                            mHandler.post(mImageError);
+                        }
                     }
 
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        if (!isShowing()) return;
-                        progress.setVisibility(View.GONE);
+                        if (isShowing()) {
+                            progress.setVisibility(View.GONE);
+                        }
                     }
                 });
     }

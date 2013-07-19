@@ -163,7 +163,7 @@ public class SoundCloudApplication extends Application implements Tracker {
 
     protected void createImageLoader() {
         ImageLoader.getInstance().init(
-                new ImageLoaderConfiguration.Builder(getApplicationContext())
+                new ImageLoaderConfiguration.Builder(this)
                 .defaultDisplayImageOptions(ImageOptionsFactory.cache())
                 .build()
         );

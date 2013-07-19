@@ -2,6 +2,7 @@ package com.soundcloud.android.view.play;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.images.ImageSize;
@@ -20,8 +21,11 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PlayerAvatarBar extends View {
     private static final String TAG = "PlayerCommentBar";
@@ -48,8 +52,6 @@ public class PlayerAvatarBar extends View {
     private Paint mActiveImagePaint;
     private Paint mActiveLinePaint;
 
-    private ImageSize mTargetSize;
-
     private Thread mAvatarRefreshThread;
 
     private @Nullable Bitmap mCanvasBmp;
@@ -59,6 +61,8 @@ public class PlayerAvatarBar extends View {
 
     private ImageLoader mBitmapLoader;
     private ImageSize mAvatarGraphicsSize;
+
+    private Set<ImageView> mAvatarLoadingViews;
 
     private boolean mLandscape;
 
@@ -74,6 +78,8 @@ public class PlayerAvatarBar extends View {
                     ImageSize.BADGE :
                     ImageSize.SMALL;
         }
+
+        mAvatarLoadingViews = new HashSet<ImageView>(Consts.MAX_COMMENTS_TO_LOAD);
 
         mImagePaint = new Paint();
         mImagePaint.setAntiAlias(false);
@@ -95,10 +101,8 @@ public class PlayerAvatarBar extends View {
         mActiveMatrix = new Matrix();
 
         if (ImageUtils.isScreenXL(context)) {
-            mTargetSize = ImageSize.LARGE;
             mAvatarWidth = (int) (AVATAR_WIDTH_LARGE * mDensity);
         } else {
-            mTargetSize = ImageSize.BADGE;
             mAvatarWidth = (int) (AVATAR_WIDTH * mDensity);
         }
     }
@@ -107,15 +111,11 @@ public class PlayerAvatarBar extends View {
         return mAvatarWidth;
     }
 
-    public void onStop(){
-        // TODO, reinstate avatar load killing with new imageloader
-        if (mCurrentComments != null) {
-//            for (Comment c : mCurrentComments) {
-//                if (!TextUtils.isEmpty(c.user.avatar_url)){
-//                    mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
-//                }
-//            }
+    public void stopAvatarLoading(){
+        for (ImageView imageView : mAvatarLoadingViews) {
+            mBitmapLoader.cancelDisplayTask(imageView);
         }
+        mAvatarLoadingViews.clear();
     }
 
     public void clearTrackData(){
@@ -129,7 +129,6 @@ public class PlayerAvatarBar extends View {
 
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
-                //mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
                 c.avatar = null;
             }
         }
@@ -167,7 +166,13 @@ public class PlayerAvatarBar extends View {
 
         mBitmapLoader.loadImage(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new SimpleImageLoadingListener() {
             @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                mAvatarLoadingViews.add((ImageView) view);
+            }
+
+            @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                mAvatarLoadingViews.remove(view);
                 c.avatar = loadedImage;
                 if (c.topLevelComment) {
                     if (!mUIHandler.hasMessages(REFRESH_AVATARS)) {

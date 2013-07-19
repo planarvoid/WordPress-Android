@@ -247,7 +247,7 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
         resetCommentDisplay();
 
          //only performed on activity stop
-         if (mPlayerAvatarBar != null && killLoading) mPlayerAvatarBar.onStop();
+         if (mPlayerAvatarBar != null && killLoading) mPlayerAvatarBar.stopAvatarLoading();
     }
 
     public void resetCommentDisplay(){

@@ -330,8 +330,15 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             tag.iv_search_type.setVisibility(View.VISIBLE);
 
             boolean isUser = rowType == TYPE_USER;
-            setIcon(tag, ImageSize.formatUriForList(mContext,
-                    cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))), isUser);
+
+            final String iconUri = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL));
+            if (ImageUtils.checkIconShouldLoad(iconUri)){
+                ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(mContext, iconUri),
+                        tag.iv_icon, isUser ? mUserDisplayBitmapOptions : mSoundDisplayBitmapOptions);
+            } else {
+                tag.iv_icon.setImageResource(isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
+            }
+
 
             if (isUser) {
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
@@ -341,11 +348,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
         }
         return view;
-    }
-
-    private void setIcon(SearchTag tag, String iconUri, boolean isUser) {
-        ImageLoader.getInstance().displayImage(ImageUtils.checkIconShouldLoad(iconUri) ? iconUri : "", tag.iv_icon,
-                isUser ? mUserDisplayBitmapOptions : mSoundDisplayBitmapOptions);
     }
 
     static class SearchTag {

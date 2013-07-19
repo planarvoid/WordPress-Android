@@ -122,7 +122,7 @@ public class MyTracklistRow extends PlayableRow {
             mImageLoader.cancelDisplayTask(mIcon);
             mIcon.setImageDrawable(null);
         } else {
-            mImageLoader.displayImage("file:///"+ recording.artwork_path.getAbsolutePath(),mIcon);
+            mImageLoader.displayImage("file://"+ recording.artwork_path.getAbsolutePath(),mIcon);
         }
     }
 
