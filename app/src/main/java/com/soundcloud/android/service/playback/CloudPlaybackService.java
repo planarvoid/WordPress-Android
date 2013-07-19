@@ -1,6 +1,5 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
 import static com.soundcloud.android.service.playback.State.COMPLETED;
 import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 import static com.soundcloud.android.service.playback.State.ERROR;
@@ -13,6 +12,8 @@ import static com.soundcloud.android.service.playback.State.PREPARED;
 import static com.soundcloud.android.service.playback.State.PREPARING;
 import static com.soundcloud.android.service.playback.State.STOPPED;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
@@ -23,7 +24,6 @@ import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.dao.TrackStorage;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -64,6 +64,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.View;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -409,25 +410,23 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (mFocus.isTrackChangeSupported()) {
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap cached = ImageLoader.get(this).getBitmap(artworkUri, null, null, Options.dontLoadRemote());
-                if (cached != null) {
-                    // use a copy of the bitmap because it is going to get recycled afterwards
-                    try {
-                        mFocus.onTrackChanged(track, cached.copy(Bitmap.Config.ARGB_8888, false));
-                    } catch (OutOfMemoryError e) {
-                        mFocus.onTrackChanged(track, null);
-                        System.gc();
-                        // retry?
-                    }
-                } else {
-                    mFocus.onTrackChanged(track, null);
-                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapLoadCallback() {
-                        public void onImageLoaded(Bitmap loadedBmp, String uri) {
-                            if (track.equals(currentTrack)) onTrackChanged(track);
+                ImageLoader.getInstance().loadImage(artworkUri, new SimpleImageLoadingListener(){
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        super.onLoadingComplete(imageUri, view, loadedImage);
+                        if (track == currentTrack){
+                            // use a copy of the bitmap because it is going to get recycled afterwards
+                            try {
+                                mFocus.onTrackChanged(track, loadedImage.copy(Bitmap.Config.ARGB_8888, false));
+                            } catch (OutOfMemoryError e) {
+                                mFocus.onTrackChanged(track, null);
+                                System.gc();
+                                // retry?
+                            }
                         }
-                        public void onImageError(String uri, Throwable error) {}
-                    }, this);
-                }
+
+                    }
+                });
             }
         }
     }
@@ -757,38 +756,31 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (!Consts.SdkSwitches.useRichNotifications) {
             notification.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
-            final NotificationPlaybackRemoteViews view = new NotificationPlaybackRemoteViews(getPackageName());
+            final NotificationPlaybackRemoteViews playbackRemoteViews = new NotificationPlaybackRemoteViews(getPackageName());
 
-            view.setNotification(track, state.isSupposedToBePlaying());
-            view.linkButtonsNotification(this);
-            view.setPlaybackStatus(state.isSupposedToBePlaying());
+            playbackRemoteViews.setNotification(track, state.isSupposedToBePlaying());
+            playbackRemoteViews.linkButtonsNotification(this);
+            playbackRemoteViews.setPlaybackStatus(state.isSupposedToBePlaying());
+            notification.contentView = playbackRemoteViews;
+            notification.contentIntent = pi;
 
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap cachedBmp = ImageLoader.get(this).getBitmap(artworkUri, null, null, Options.dontLoadRemote());
-                if (cachedBmp != null) {
-                    view.setIcon(cachedBmp);
-                } else {
-                    view.clearIcon();
-                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapLoadCallback() {
-                        @Override public void onImageLoaded(Bitmap bitmap, String uri) {
-                            //noinspection ObjectEquality
-                            if (currentTrack == track) {
-                                view.setIcon(bitmap);
-                                startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
-                            }
+                playbackRemoteViews.clearIcon();
+                ImageLoader.getInstance().loadImage(artworkUri, new SimpleImageLoadingListener() {
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        super.onLoadingComplete(imageUri, view, loadedImage);
+                        if (currentTrack == track) {
+                            playbackRemoteViews.setIcon(loadedImage);
+                            startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
                         }
+                    }
+                });
 
-                        @Override
-                        public void onImageError(String url, Throwable error) {
-                        }
-                    }, null);
-                }
             } else {
-                view.clearIcon();
+                playbackRemoteViews.clearIcon();
             }
-            notification.contentView = view;
-            notification.contentIntent = pi;
         }
         startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
         status = notification;

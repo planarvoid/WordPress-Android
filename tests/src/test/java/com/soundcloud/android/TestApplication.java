@@ -1,15 +1,14 @@
 package com.soundcloud.android;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.audio.WavHeader;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.api.Token;
 
 import android.content.Intent;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,13 +55,8 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     @Override
-    protected ImageLoader createImageLoader() {
-        return new ImageLoader() {
-            @Override
-            public BindResult bind(BaseAdapter adapter, ImageView view, String url, Options options) {
-                return BindResult.LOADING;
-            }
-        };
+    protected void createImageLoader() {
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this)); // Do it on Application start
     }
 
     // object mother

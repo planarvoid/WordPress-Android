@@ -1,10 +1,15 @@
 package com.soundcloud.android.view.play;
 
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
+import static com.soundcloud.android.utils.AnimUtils.SimpleAnimationListener;
 import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
 import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.LoadedFrom;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -12,7 +17,6 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -21,6 +25,7 @@ import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.PlayableActionButtonsController;
@@ -30,10 +35,9 @@ import org.jetbrains.annotations.Nullable;
 
 import android.app.ActivityManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Animation;
@@ -57,7 +61,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private @Nullable ImageView mArtwork;
     private ImageView mAvatar;
     private @Nullable FrameLayout mArtworkHolder;
-    private ImageLoader.BindResult mCurrentArtBindResult;
 
     private WaveformController mWaveformController;
     private FrameLayout mUnplayableLayout;
@@ -65,8 +68,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private PlayableBar mTrackInfoBar;
     private @Nullable ViewFlipper mTrackFlipper;            // can be null in landscape mode
     private @Nullable PlayerTrackDetails mTrackDetailsView; // ditto
-
-    private ImageLoader.BindResult mCurrentAvatarBindResult;
 
     private @Nullable Track mTrack;
     private int mQueuePosition;
@@ -108,7 +109,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mArtwork = (ImageView) findViewById(R.id.artwork);
         if (mArtwork != null) {
             mArtworkHolder = (FrameLayout) mArtwork.getParent();
-            showDefaultArtwork();
             mArtwork.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             mLandscape = false;
@@ -227,104 +227,45 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         }
     }
 
-    private void updateArtwork(boolean postAtFront) {
+    private void updateArtwork(boolean priority) {
         // this will cause OOMs
         if (mTrack == null || ActivityManager.isUserAMonkey()) return;
 
-        ImageLoader.get(getContext()).unbind(mArtwork);
-        if (TextUtils.isEmpty(mTrack.getArtwork())) {
-            // no artwork
-            showDefaultArtwork();
-        } else {
-            // executeAppendTask artwork as necessary
-            if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
-                    getContext(),
-                    mArtwork,
-                    mTrack.getArtwork(),
-                    ImageSize.getPlayerImageSize(getContext()),
-                    new ImageLoader.Callback() {
-                        @Override
-                        public void onImageError(ImageView view, String url, Throwable error) {
-                            mCurrentArtBindResult = ImageLoader.BindResult.ERROR;
-                            Log.e(getClass().getSimpleName(), "Error loading artwork " + error);
-                        }
+        mArtwork.setVisibility(View.GONE);
+        mArtworkHolder.setBackgroundResource(R.drawable.artwork_player);
+        ImageLoader.getInstance().cancelDisplayTask(mArtwork);
 
-                        @Override
-                        public void onImageLoaded(ImageView view, String url) {
-                            onArtworkSet(mOnScreen);
+        ImageLoader.getInstance().displayImage(
+                mTrack.getPlayerArtworkUri(getContext()),
+                mArtwork,
+                createPlayerDisplayImageOptions(priority),
+                new SimpleImageLoadingListener(){
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+                        Bitmap memoryBitmap = ImageUtils.getCachedTrackListIcon(getContext(), mTrack);
+                        if (memoryBitmap != null){
+                            mArtwork.setImageBitmap(memoryBitmap);
+                            mArtwork.setVisibility(View.VISIBLE);
+                            mArtworkHolder.setBackgroundDrawable(null);
                         }
-            }, postAtFront ? Options.postAtFront() : new Options())) != ImageLoader.BindResult.OK) {
-                showDefaultArtwork();
-            } else {
-                onArtworkSet(false);
-            }
-        }
+                    }
+                });
     }
 
-    private void showDefaultArtwork() {
-        if (mArtwork != null && mArtworkHolder != null) {
-            mArtwork.setVisibility(View.GONE);
-            mArtwork.setImageDrawable(null);
-            if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null){
-                try {
-                    mArtworkBgDrawable = new SoftReference<Drawable>(getResources().getDrawable(R.drawable.artwork_player));
-                } catch (OutOfMemoryError ignored){}
-            }
-
-            final Drawable bg = mArtworkBgDrawable == null ? null : mArtworkBgDrawable.get();
-            if (bg == null) {
-                mArtwork.setBackgroundColor(0xFFFFFFFF);
-            } else {
-                mArtworkHolder.setBackgroundDrawable(bg);
-            }
-        }
-    }
-
-    private void onArtworkSet(boolean animate) {
-        if (mArtwork != null && mArtworkHolder != null) {
-            if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-                if (animate) {
-                    AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
-                    mArtwork.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            if (animation.equals(mArtwork.getAnimation())) mArtworkHolder.setBackgroundDrawable(null);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-                        }
-                    });
-                    mArtwork.setVisibility(View.VISIBLE);
-                } else {
-                    mArtwork.setVisibility(View.VISIBLE);
-                    mArtworkHolder.setBackgroundDrawable(null);
-                }
-            }
-        }
+    private DisplayImageOptions createPlayerDisplayImageOptions(boolean priority){
+        return ImageOptionsFactory
+                .fullCacheBuilder()
+                .delayBeforeLoading(priority ? 0 : 200)
+                .displayer(mArtworkDisplayer)
+                .build();
     }
 
     private void updateAvatar(boolean postAtFront) {
         if (mTrack != null && mTrack.hasAvatar()) {
-            mCurrentAvatarBindResult = ImageLoader.get(mPlayer).bind(
-                    mAvatar,
-                    ImageSize.formatUriForList(mPlayer, mTrack.getAvatarUrl()),
-                    new ImageLoader.Callback() {
-                        @Override
-                        public void onImageError(ImageView view, String url, Throwable error) {
-                            mCurrentAvatarBindResult = ImageLoader.BindResult.ERROR;
-                        }
+            ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(mPlayer, mTrack.getAvatarUrl()), mAvatar);
 
-                        @Override
-                        public void onImageLoaded(ImageView view, String url) {
-                        }
-                    }, postAtFront ? Options.postAtFront() : new Options());
         } else {
-            ImageLoader.get(mPlayer).unbind(mAvatar);
+            ImageLoader.getInstance().cancelDisplayTask(mAvatar);
         }
     }
 
@@ -370,13 +311,14 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     public void onDataConnected() {
         mWaveformController.onDataConnected();
 
-        if (!mLandscape && mCurrentArtBindResult == ImageLoader.BindResult.ERROR) {
-            updateArtwork(mOnScreen);
-        }
-
-        if (mCurrentAvatarBindResult == ImageLoader.BindResult.ERROR) {
-            updateAvatar(mOnScreen);
-        }
+        // TODO, errors
+//        if (!mLandscape && mCurrentArtBindResult == OldImageLoader.BindResult.ERROR) {
+//            updateArtwork(mOnScreen);
+//        }
+//
+//        if (mCurrentAvatarBindResult == OldImageLoader.BindResult.ERROR) {
+//            updateAvatar(mOnScreen);
+//        }
     }
 
     public void setCommentMode(boolean  isCommenting) {
@@ -400,7 +342,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                         runFadeInAnimationOn(mPlayer, mArtworkOverlay);
                     } else {
                         runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
-                        attachVisibilityListener(mArtworkOverlay, GONE);
+                        AnimUtils.attachVisibilityListener(mArtworkOverlay, GONE);
                     }
                 } else {
                     int visibility = mIsCommenting ? VISIBLE : GONE;
@@ -410,21 +352,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         }
     }
-
-    private static void attachVisibilityListener(final View target, final int visibility) {
-        target.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-            @Override public void onAnimationStart(Animation animation) {}
-            @Override public void onAnimationRepeat(Animation animation) {}
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if (target.getAnimation().equals(animation)) {
-                    target.setVisibility(visibility);
-                    target.setEnabled(true);
-                }
-            }
-        });
-    }
-
 
     public int getPlayPosition() {
         return mQueuePosition;
@@ -602,10 +529,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     public void clear() {
         mOnScreen = false;
         onStop(true);
-        showDefaultArtwork();
         mAvatar.setImageBitmap(null);
         mWaveformController.reset(true);
         mWaveformController.setOnScreen(false);
+        if (mArtwork != null) mArtwork.setImageResource(R.drawable.artwork_player);
     }
 
     public boolean onBackPressed() {
@@ -619,4 +546,30 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             return false;
         }
     }
+
+    private BitmapDisplayer mArtworkDisplayer = new BitmapDisplayer() {
+        @Override
+        public Bitmap display(Bitmap bitmap, ImageView imageView, LoadedFrom loadedFrom) {
+            imageView.setImageBitmap(bitmap);
+            if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
+                if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
+                    AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
+                    mArtwork.getAnimation().setAnimationListener(new SimpleAnimationListener() {
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            if (animation.equals(mArtwork.getAnimation())) {
+                                mArtworkHolder.setBackgroundDrawable(null);
+                            }
+                        }
+                    });
+                    mArtwork.setVisibility(View.VISIBLE);
+                } else {
+                    mArtwork.setVisibility(View.VISIBLE);
+                    mArtworkHolder.setBackgroundDrawable(null);
+                }
+            }
+            return bitmap;
+        }
+    };;
+
 }

@@ -4,14 +4,13 @@ import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.imageloader.DownloadBitmapHandler;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
@@ -26,6 +25,7 @@ import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -56,7 +56,6 @@ public class SoundCloudApplication extends Application implements Tracker {
 
     public static final boolean DALVIK = Build.PRODUCT != null;
     public static boolean DEV_MODE, BETA_MODE;
-    private ImageLoader mImageLoader;
 
     @Deprecated public static ScModelManager MODEL_MANAGER;
 
@@ -84,8 +83,9 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
         instance = this;
         IOUtils.checkState(this);
+        createImageLoader();
+
         accountOperations = new AccountOperations(this);
-        mImageLoader = createImageLoader();
         final Account account = accountOperations.getSoundCloudAccount();
 
 
@@ -161,21 +161,16 @@ public class SoundCloudApplication extends Application implements Tracker {
         mLoggedInUser = null;
     }
 
-    protected ImageLoader createImageLoader() {
+    protected void createImageLoader() {
+        ImageLoader.getInstance().init(
+                new ImageLoaderConfiguration.Builder(this)
+                .defaultDisplayImageOptions(ImageOptionsFactory.cache())
+                .build()
+        );
+
         FileCache.installFileCache(IOUtils.getCacheDir(this));
-        return new ImageLoader(new DownloadBitmapHandler(),
-                new PrefetchHandler(),
-                ImageLoader.DEFAULT_CACHE_SIZE, ImageLoader.DEFAULT_TASK_LIMIT);
     }
 
-    @Override
-    public Object getSystemService(String name) {
-        if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
-            return mImageLoader;
-        } else {
-            return super.getSystemService(name);
-        }
-    }
     //TODO Move this into AccountOperations once we refactor User info out of here
     public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);

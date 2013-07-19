@@ -2,9 +2,9 @@ package com.soundcloud.android.activity.create;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.task.create.FoursquareVenueTask;
 import com.soundcloud.android.utils.Capitalizer;
@@ -246,17 +246,7 @@ public class LocationPicker extends ListActivity {
             FoursquareVenue venue = getItem(position);
             URI categoryIconUri = venue.getHttpIcon(); // Android has problems with HTTPS
             if (categoryIconUri != null) {
-                try {
-                    ImageLoader.BindResult result = ImageLoader.get(parent.getContext()).bind(
-                            this,
-                            image,
-                            categoryIconUri.toString());
-                    if (result == ImageLoader.BindResult.ERROR) {
-                        Log.e(TAG, "error loading");
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "error", e);
-                }
+                ImageLoader.getInstance().displayImage(categoryIconUri.toString(), image);
             }
             name.setText(venue.name);
             return view;

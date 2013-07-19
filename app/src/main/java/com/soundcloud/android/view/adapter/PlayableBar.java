@@ -5,12 +5,10 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.TrackRepostActivity;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,8 +25,6 @@ import android.widget.TextView;
  * specialized form as list items (@see {@link PlayableRow}.
  */
 public class PlayableBar extends IconLayout {
-    public static final ImageLoader.Options ICON_OPTIONS = ImageLoader.Options.postAtFront();
-
     protected PlayableHolder mPlayableHolder;
     protected TextView mTitle;
     protected TextView mUser;
@@ -121,10 +117,8 @@ public class PlayableBar extends IconLayout {
         mTitle.setText(mPlayableHolder.getPlayable().title);
     }
 
-    public void onConnected(){
-        if (lastImageLoadFailed()) {
-            loadIcon();
-        }
+    public void onConnected() {
+        loadIcon();
     }
 
     public void addTextShadows() {
@@ -135,7 +129,7 @@ public class PlayableBar extends IconLayout {
 
     @Override
     public String getIconRemoteUri() {
-        return ImageSize.formatUriForList(getContext(), mPlayableHolder.getPlayable().getArtwork());
+        return mPlayableHolder.getPlayable().getListArtworkUrl(getContext());
     }
 
     @Override
