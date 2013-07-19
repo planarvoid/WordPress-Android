@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playable;
@@ -209,26 +210,16 @@ public class Activities extends CollectionHolder<Activity> {
         if (max <= 0) return EMPTY;
         Request remote = new Request(request).set("limit", max);
         HttpResponse response = api.get(remote);
-        final int status = response.getStatusLine().getStatusCode();
-        switch (status) {
-            case HttpStatus.SC_OK: {
-                Activities a = api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
-                if (a.size() < max && a.moreResourcesExist() && !a.isEmpty() && requestNumber < MAX_REQUESTS) {
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+            Activities a = api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
+            if (a.size() < max && a.moreResourcesExist() && !a.isEmpty() && requestNumber < MAX_REQUESTS) {
                     /* should not happen in theory, but backend might limit max number per requests */
-                    return a.merge(fetchRecent(api, a.getNextRequest(), max - a.size(), requestNumber+1));
-                } else {
-                    return a;
-                }
+                return a.merge(fetchRecent(api, a.getNextRequest(), max - a.size(), requestNumber+1));
+            } else {
+                return a;
             }
-            case HttpStatus.SC_NO_CONTENT: {
-                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
-                return EMPTY;
-            }
-            case HttpStatus.SC_UNAUTHORIZED:
-                throw new CloudAPI.InvalidTokenException(status, response.getStatusLine().getReasonPhrase());
-
-            // sync will get retried later
-            default: throw new IOException(response.getStatusLine().toString());
+        } else {
+            return handleUnexpectedResponse(response);
         }
     }
 
@@ -238,15 +229,19 @@ public class Activities extends CollectionHolder<Activity> {
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             return api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
         } else {
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
-                return EMPTY;
-            } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
-                throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
-                        response.getStatusLine().getReasonPhrase());
-            } else {
-                throw new IOException(response.getStatusLine().toString());
-            }
+            return handleUnexpectedResponse(response);
+        }
+    }
+
+    private static Activities handleUnexpectedResponse(HttpResponse response) throws IOException {
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
+            return EMPTY;
+        } else  if (Wrapper.isStatusCodeClientError(response.getStatusLine().getStatusCode())){
+            throw new CloudAPI.InvalidTokenException(response.getStatusLine().getStatusCode(),
+                    response.getStatusLine().getReasonPhrase());
+        } else {
+            throw new IOException(response.getStatusLine().toString());
         }
     }
 

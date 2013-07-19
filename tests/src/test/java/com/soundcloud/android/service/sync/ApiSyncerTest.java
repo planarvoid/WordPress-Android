@@ -18,7 +18,10 @@ import com.soundcloud.android.model.act.TrackSharingActivity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.api.CloudAPI;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,6 +64,12 @@ public class ApiSyncerTest {
         expect(Content.USERS).toHaveCount(1);
         expect(result.success).toBe(true);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
+    }
+
+    @Test(expected = CloudAPI.InvalidTokenException.class)
+    public void shouldThrowAuthExceptionFrom404FromSyncStream() throws Exception {
+        Robolectric.getFakeHttpLayer().addPendingHttpResponse(new TestHttpResponse(HttpStatus.SC_NOT_FOUND, ""));
+        sync(Content.ME_SOUND_STREAM.uri);
     }
 
     @Test
