@@ -21,7 +21,7 @@
                     android:layout_marginRight="20dp"
                     android:layout_width="wrap_content"
                     android:text="@android:string/cancel"/>
-            <Button android:id="@+id/btn_continue"
+            <Button android:id="@+id/btn_accept_terms"
                     style="@style/Tour.TermsButton"
                     android:layout_width="wrap_content"
                     android:text="@string/btn_continue"/>
