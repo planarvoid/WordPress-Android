@@ -252,6 +252,10 @@ public class Han  {
         waitForActivity(name.getSimpleName());
     }
 
+    public void waitForActivity(Class<? extends Activity> name, int timeout) {
+        solo.waitForActivity(name.getSimpleName(), timeout);
+    }
+
     @Deprecated
     public void waitForActivity(String name) {
         assertTrue(String.format("timeout waiting for activity %s, current=%s",

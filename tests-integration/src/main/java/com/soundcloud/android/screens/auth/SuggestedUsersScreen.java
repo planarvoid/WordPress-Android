@@ -40,8 +40,8 @@ public class SuggestedUsersScreen {
     }
 
     public HomeScreen finish() {
-        solo.clickOnActionBarItem(R.id.finish);
-        solo.waitForActivity(Home.class);
+        solo.clickOnView(R.id.finish);
+        solo.waitForActivity(Home.class, 30000);
         waiter.waitForListContent();
         return new HomeScreen(solo);
     }
