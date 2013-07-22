@@ -88,7 +88,7 @@ public class UserDetailsFragment extends Fragment {
         EmptyListView emptyView = (EmptyListView) fragmentLayout.findViewById(android.R.id.empty);
         if (emptyView != null) fragmentLayout.removeView(emptyView);
 
-        if (showEmptyView()) {
+        if (!mDisplayedInfo) {
             if (mEmptyViewStatus == EmptyListView.Status.OK) {
                 if (mUserId == SoundCloudApplication.getUserId()) {
                     mEmptyViewFactory
@@ -113,13 +113,6 @@ public class UserDetailsFragment extends Fragment {
                     new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
     }
-
-    private boolean showEmptyView() {
-        return mEmptyViewStatus == EmptyListView.Status.OK && !mDisplayedInfo
-                || mEmptyViewStatus == EmptyListView.Status.ERROR
-                || mEmptyViewStatus == EmptyListView.Status.WAITING;
-    }
-
 
     private boolean setupDiscogs(ViewGroup fragmentLayout, final User user) {
         TextView discogsName = (TextView) fragmentLayout.findViewById(R.id.discogs_name);
