@@ -78,7 +78,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
             Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
             getActivity().finish();
         } else {
-            mSyncStateManager = new SyncStateManager();
+            mSyncStateManager = new SyncStateManager(getActivity());
             mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
             getLoaderManager().initLoader(TRACK_LIST_LOADER, null, this);
             mDetachableReceiver.setReceiver(this);
@@ -213,7 +213,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     @Nullable
     private LocalCollection getLocalCollection() {
-        return mPlaylist == null ? null : new SyncStateManager().fromContent(mPlaylist.toUri());
+        return mPlaylist == null ? null : new SyncStateManager(getActivity()).fromContent(mPlaylist.toUri());
     }
 
     public void scrollToPosition(int position) {

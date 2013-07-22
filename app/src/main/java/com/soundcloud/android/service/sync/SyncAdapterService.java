@@ -142,7 +142,7 @@ public class SyncAdapterService extends Service {
             ContentStats.setLastSeen(app, Content.ME_ACTIVITIES, now);
         }
 
-        final SyncStateManager syncStateManager = new SyncStateManager();
+        final SyncStateManager syncStateManager = new SyncStateManager(app);
         final PlaylistStorage playlistStorage = new PlaylistStorage();
         final UserStorage userStorage = new UserStorage();
 

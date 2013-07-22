@@ -126,7 +126,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mContent = Content.match(mContentUri);
 
             if (mContent.isSyncable()) {
-                mSyncStateManager = new SyncStateManager();
+                mSyncStateManager = new SyncStateManager(activity);
                 mChangeObserver = new ChangeObserver();
             }
         }

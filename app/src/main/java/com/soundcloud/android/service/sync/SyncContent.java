@@ -60,7 +60,7 @@ enum SyncContent {
     }
 
     public static void updateCollections(Context c, Bundle resultData) {
-        SyncStateManager stateManager = new SyncStateManager();
+        SyncStateManager stateManager = new SyncStateManager(c);
 
         for (SyncContent sc : SyncContent.values()) {
             if (resultData.containsKey(sc.content.uri.toString()) &&

@@ -64,7 +64,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
 
         doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
 
-        final SyncStateManager syncStateManager = new SyncStateManager();
+        final SyncStateManager syncStateManager = new SyncStateManager(DefaultTestRunner.application);
         LocalCollection lc = syncStateManager.fromContent(Content.ME_SOUNDS);
         expect(lc.extra).toBeNull();
         expect(lc.size).toEqual(50);
