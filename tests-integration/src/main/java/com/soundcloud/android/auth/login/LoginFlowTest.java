@@ -1,4 +1,4 @@
-package com.soundcloud.android.login;
+package com.soundcloud.android.auth.login;
 
 
 import static com.soundcloud.android.tests.TestUser.GPlusAccount;
@@ -12,11 +12,10 @@ import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.FacebookWebFlow;
 import com.soundcloud.android.activity.auth.Onboard;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.screens.FBWebViewScreen;
-import com.soundcloud.android.screens.LoginScreen;
+import com.soundcloud.android.screens.auth.FBWebViewScreen;
+import com.soundcloud.android.auth.LoginTestCase;
 import com.soundcloud.android.screens.MenuScreen;
-import com.soundcloud.android.screens.RecoverPasswordScreen;
-import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.Waiter;
 
@@ -27,14 +26,13 @@ import android.webkit.WebView;
  * I want to log in to SoundCloud application
  * So that I can listen to my favourite tracks
  */
-public class LoginFlowTest extends ActivityTestCase<Onboard> {
-    private LoginScreen loginScreen;
+public class LoginFlowTest extends LoginTestCase {
     private RecoverPasswordScreen recoveryScreen;
     private FBWebViewScreen FBWebViewScreen;
     private Waiter waiter;
 
     public LoginFlowTest() {
-        super(Onboard.class);
+        super();
     }
 
     @Override
@@ -42,7 +40,6 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
         IntegrationTestHelper.logOut(getInstrumentation());
         super.setUp();
 
-        loginScreen     = new LoginScreen(solo);
         recoveryScreen  = new RecoverPasswordScreen(solo);
         menuScreen      = new MenuScreen(solo);
         FBWebViewScreen = new FBWebViewScreen(solo);
@@ -55,7 +52,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
      * So that I can listen to my favourite tracks
      */
     public void testSCUserLoginFlow() throws Exception {
-        loginScreen.clickLogInButton();
+        onboardScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
 
         assertEquals(scTestAccount.getUsername(), menuScreen.getUserName());
@@ -68,7 +65,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
     */
     public void testGPlusLoginFlow() throws Exception {
 
-        loginScreen.clickLogInButton();
+        onboardScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
 
         //FIXME Assuming that we have more than one g+ account, there should be another test for this
@@ -90,7 +87,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
     */
     public void testGoogleAccountLoginError() throws Exception {
 
-        loginScreen.clickLogInButton();
+        onboardScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
         loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
 
@@ -116,7 +113,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
             log("Facebook SSO is available, not testing WebFlow");
 
         }
-        loginScreen.clickLogInButton();
+        onboardScreen.clickLogInButton();
         loginScreen.clickOnFBSignInButton();
 
         //Then termsOfUse dialog should be shown
@@ -154,7 +151,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
      * So that I can correct myself
      */
     public void testLoginWithWrongCredentials() {
-        loginScreen.clickLogInButton();
+        onboardScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), "wrong-password", false);
 
         solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
@@ -171,7 +168,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
      * So that I am sure no one can modify my account
      */
     public void testLoginAndLogout() throws Exception {
-        loginScreen.clickLogInButton();
+        onboardScreen.clickLogInButton();
         loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
         menuScreen.logout();
 
@@ -185,7 +182,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
     * So that I don't need to recreate my account
     */
     public void testRecoverPassword() throws Throwable {
-        loginScreen.clickLogInButton();
+        onboardScreen.clickLogInButton();
         loginScreen.clickForgotPassword();
         recoveryScreen.typeEmail("some-email-"+System.currentTimeMillis()+"@baz"+System.currentTimeMillis()+".com");
         recoveryScreen.clickOkButton();
@@ -200,7 +197,7 @@ public class LoginFlowTest extends ActivityTestCase<Onboard> {
     * So that I know what went wrong
     */
     public void testRecoverPasswordNoInput() throws Exception {
-        loginScreen.clickLogInButton();
+        onboardScreen.clickLogInButton();
         loginScreen.clickForgotPassword();
         loginScreen.clickOkButton();
 

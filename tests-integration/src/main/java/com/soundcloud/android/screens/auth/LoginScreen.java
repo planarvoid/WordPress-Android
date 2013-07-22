@@ -1,4 +1,4 @@
-package com.soundcloud.android.screens;
+package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.Onboard;
@@ -38,12 +38,6 @@ public class LoginScreen {
     // What would be the best way of getting reference to element?
     public int logInButton() {
         return (R.string.authentication_log_in);
-    }
-
-    public void clickLogInButton() {
-        solo.clickOnButtonResId(R.string.authentication_log_in);
-        solo.waitForActivity(Onboard.class);
-        solo.waitForViewId(R.id.btn_login, 5000);
     }
 
     public void clickOkButton() {

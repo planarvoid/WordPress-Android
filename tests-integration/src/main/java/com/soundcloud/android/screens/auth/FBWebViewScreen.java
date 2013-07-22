@@ -1,4 +1,4 @@
-package com.soundcloud.android.screens;
+package com.soundcloud.android.screens.auth;
 
 import com.jayway.android.robotium.solo.By;
 import com.soundcloud.android.R;
