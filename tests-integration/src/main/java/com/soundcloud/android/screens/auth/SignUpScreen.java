@@ -1,17 +1,21 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.Waiter;
 
 import android.view.View;
 import android.widget.EditText;
 
 public class SignUpScreen {
 
+    private final Waiter waiter;
     private Han solo;
 
     public SignUpScreen(Han driver) {
         solo    = driver;
+        waiter  = new Waiter(solo);
     }
 
     public EditText email() {
@@ -41,7 +45,10 @@ public class SignUpScreen {
 
     public void acceptTerms(){
         solo.clickOnView(R.id.btn_accept_terms);
+        solo.assertText(R.string.authentication_add_info_msg);
+        solo.clickOnButtonResId(R.string.btn_skip);
+        solo.waitForActivity(SuggestedUsersActivity.class);
+        waiter.waitForListContent();
     }
-
 
 }

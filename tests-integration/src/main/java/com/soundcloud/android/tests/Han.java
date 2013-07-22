@@ -18,8 +18,13 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.ListView;
+import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -149,6 +154,24 @@ public class Han  {
 
     public String getString(int resId, Object... args) {
         return solo.getCurrentActivity().getString(resId, args);
+    }
+
+    public List<ListView> getCurrentListViews(){
+        return solo.getCurrentViews(ListView.class);
+    }
+
+    public GridView getCurrentGridView(){
+        final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
+        return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
+    }
+
+
+    public ArrayList<TextView> clickInList(int line){
+        return solo.clickInList(line);
+    }
+
+    public ArrayList<TextView> clickInList(int line, int listIndex) {
+        return solo.clickInList(line, listIndex);
     }
 
     public void swipeLeft() {
@@ -325,6 +348,14 @@ public class Han  {
 
     public void poseForScreenshot(String name) {
         poseForScreenshotWithKeyValue("name", name);
+    }
+
+    public boolean scrollListToTop(int index) {
+        return solo.scrollListToTop(index);
+    }
+
+    public void clickOnActionBarItem(int itemId) {
+        solo.clickOnActionBarItem(itemId);
     }
 
     private void poseForScreenshotWithKeyValue(String key, String value) {
