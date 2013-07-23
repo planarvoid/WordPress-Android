@@ -1,3 +1,10 @@
+$ 67
+  % v 2.6.4
+  _ 2013-07-23
+  ! Maintenance
+      * Restored Lockscreen
+      - Fixed UserBrowser Details empty screen
+
 $ 64
   % v 2.6.3
   _ 2013-07-17
