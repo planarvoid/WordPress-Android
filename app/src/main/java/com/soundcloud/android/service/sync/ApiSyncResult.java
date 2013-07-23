@@ -1,7 +1,5 @@
 package com.soundcloud.android.service.sync;
 
-import org.jetbrains.annotations.Nullable;
-
 import android.content.SyncResult;
 import android.net.Uri;
 
@@ -33,10 +31,9 @@ public class ApiSyncResult {
         this.change = change;
     }
 
-    public void setSyncData(long synced_at, int new_size, @Nullable String extra){
+    public void setSyncData(long synced_at, int new_size){
         this.synced_at = synced_at;
         this.new_size = new_size;
-        this.extra = extra;
     }
 
     public static ApiSyncResult fromAuthException(Uri uri) {
