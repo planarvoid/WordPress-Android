@@ -8,7 +8,7 @@ public class ByEmail extends SignUpTestCase {
         super();
     }
 
-    public void testSomething() throws Exception {
+    public void testUserFollowSingleSuccess() throws Exception {
         onboardScreen.clickSignUpButton();
 
         // TODO : Re-use the same user

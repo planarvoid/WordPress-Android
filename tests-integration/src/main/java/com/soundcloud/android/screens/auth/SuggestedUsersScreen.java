@@ -7,6 +7,10 @@ import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
 public class SuggestedUsersScreen {
     private final Waiter waiter;
     private Han solo;
@@ -38,6 +42,31 @@ public class SuggestedUsersScreen {
         solo.clickOnText("Rock");
         solo.waitForActivity(SuggestedUsersCategoryActivity.class);
     }
+
+    public boolean subtextAtIndexEquals(int index, String username) {
+        View categoryRow = getCategoryRow(index);
+        return ((TextView) categoryRow.findViewById(android.R.id.text2)).getText().toString().equals(username);
+    }
+
+    public void clickToggleCategoryCheckmark(int visibleIndex){
+        clickOnCategoryElement(visibleIndex, R.id.btn_user_bucket_select_all);
+    }
+
+    public void clickCategory(int visibleIndex) {
+        clickOnCategoryElement(visibleIndex, android.R.id.text1);
+    }
+
+    private void clickOnCategoryElement(int index, int elementId) {
+        View categoryRow = getCategoryRow(index);
+        solo.clickOnView(categoryRow.findViewById(elementId));
+    }
+
+    private View getCategoryRow(int index) {
+        // wait for list items
+        solo.waitForViewId(R.id.btn_user_bucket_select_all, 5000);
+        return ((ViewGroup) solo.getView(android.R.id.list)).getChildAt(index);
+    }
+
 
     public HomeScreen finish() {
         solo.clickOnView(R.id.finish);

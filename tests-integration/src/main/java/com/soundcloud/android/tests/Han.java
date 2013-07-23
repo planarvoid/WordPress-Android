@@ -17,6 +17,7 @@ import android.test.InstrumentationTestCase;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
@@ -158,6 +159,11 @@ public class Han  {
 
     public List<ListView> getCurrentListViews(){
         return solo.getCurrentViews(ListView.class);
+    }
+
+    public AbsListView getCurrentListView(){
+        final ArrayList<AbsListView> currentListViews = solo.getCurrentViews(AbsListView.class);
+        return currentListViews == null || currentListViews.isEmpty() ? null : currentListViews.get(0);
     }
 
     public GridView getCurrentGridView(){
