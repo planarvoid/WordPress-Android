@@ -289,7 +289,7 @@ public class ApiSyncer extends SyncStrategy {
             }
         } else {
             final Activity newestActivity = mActivitiesStorage.getLatestActivity(c).toBlockingObservable().singleOrDefault(null);
-            Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
+            Request request = new Request(c.request());
             if (newestActivity != null) request.add("uuid[to]", newestActivity.toGUID());
 
             log("activities: performing activity fetch request " + request);
