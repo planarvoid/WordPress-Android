@@ -18,6 +18,10 @@ public class SignUpScreen {
         waiter  = new Waiter(solo);
     }
 
+    public void clickFacebookButton() {
+        solo.clickOnView(R.id.facebook_btn);
+    }
+
     public EditText email() {
         return (EditText) solo.getView(R.id.auto_txt_email_address);
     }
@@ -45,10 +49,15 @@ public class SignUpScreen {
 
     public void acceptTerms(){
         solo.clickOnView(R.id.btn_accept_terms);
+    }
+
+    public void skipInfo(){
         solo.assertText(R.string.authentication_add_info_msg);
         solo.clickOnButtonResId(R.string.btn_skip);
+    }
+
+    public void waitForSuggestedUsers(){
         solo.waitForActivity(SuggestedUsersActivity.class);
         waiter.waitForListContent();
     }
-
 }

@@ -21,18 +21,22 @@ public class SuggestedUsersScreen {
     }
 
     public boolean hasContent(){
+        solo.scrollListToTop(0);
         return solo.getView(R.id.suggested_users_list_header) != null;
     }
 
     public boolean hasFacebookSection(){
+        solo.scrollListToTop(0);
         return solo.searchText(solo.getString(R.string.suggested_users_section_facebook), true);
     }
 
     public boolean hasMusicSection(){
+        solo.scrollListToTop(0);
         return solo.searchText(solo.getString(R.string.suggested_users_section_music), true);
     }
 
     public boolean hasAudioSection(){
+        solo.scrollListToTop(0);
         return solo.searchText(solo.getString(R.string.suggested_users_section_audio), true);
     }
 
@@ -54,6 +58,11 @@ public class SuggestedUsersScreen {
 
     public void clickCategory(int visibleIndex) {
         clickOnCategoryElement(visibleIndex, android.R.id.text1);
+    }
+
+    public void goToFacebook() {
+        solo.clickOnText("Facebook");
+        solo.waitForActivity(SuggestedUsersCategoryActivity.class);
     }
 
     private void clickOnCategoryElement(int index, int elementId) {

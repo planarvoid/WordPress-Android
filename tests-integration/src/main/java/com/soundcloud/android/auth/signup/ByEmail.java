@@ -17,6 +17,8 @@ public class ByEmail extends SignUpTestCase {
 
         signUpScreen.signup();
         signUpScreen.acceptTerms();
+        signUpScreen.skipInfo();
+        signUpScreen.waitForSuggestedUsers();
 
         assert(suggestedUsersScreen.hasContent());
         assert(suggestedUsersScreen.hasMusicSection());
