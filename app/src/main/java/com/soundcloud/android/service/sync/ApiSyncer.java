@@ -288,9 +288,11 @@ public class ApiSyncer extends SyncStrategy {
                 inserted = mActivitiesStorage.insert(c, activities);
             }
         } else {
-            String future_href = mSyncStateManager.getExtraFromUri(uri);
+            final Activity newestActivity = mActivitiesStorage.getLatestActivity(c).toBlockingObservable().singleOrDefault(null);
+            Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
+            if (newestActivity != null) request.add("uuid[to]", newestActivity.toGUID());
 
-            Request request = future_href == null ? c.request() : Request.to(future_href);
+            log("activities: performing activity fetch request " + request);
             activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 
             if (activities.moreResourcesExist()) {

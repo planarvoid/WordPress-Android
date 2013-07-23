@@ -128,6 +128,22 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldSyncSecondTimeWithCorrectRequest() throws Exception {
+        ApiSyncResult result = sync(Content.ME_ACTIVITIES.uri,
+                "e1_activities_1.json",
+                "e1_activities_2.json");
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(0l);
+
+        TestHelper.addResourceResponse(getClass(),
+                "/e1/me/activities?uuid%5Bto%5D=3d22f400-0699-11e2-919a-b494be7979e7&limit=100", "empty_collection.json");
+
+        result = sync(Content.ME_ACTIVITIES.uri);
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(0l);
+    }
+
+    @Test
     public void shouldSyncSounds() throws Exception {
         ApiSyncResult result = syncMeSounds();
         expect(result.success).toBeTrue();
