@@ -1,5 +1,7 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Date;
 import java.util.List;
 
@@ -65,6 +67,7 @@ public class SuggestedTrack extends ScModel {
         return mStreamUrl;
     }
 
+    @JsonProperty("stream_url")
     public void setStreamUrl(String streamUrl) {
         this.mStreamUrl = streamUrl;
     }
@@ -73,6 +76,7 @@ public class SuggestedTrack extends ScModel {
         return mWaveformUrl;
     }
 
+    @JsonProperty("waveform_url")
     public void setWaveformUrl(String waveformUrl) {
         this.mWaveformUrl = waveformUrl;
     }
@@ -81,6 +85,7 @@ public class SuggestedTrack extends ScModel {
         return mTagList;
     }
 
+    @JsonProperty("tag_list")
     public void setTagList(List<String> tagList) {
         this.mTagList = tagList;
     }
@@ -89,6 +94,7 @@ public class SuggestedTrack extends ScModel {
         return mCreatedAt;
     }
 
+    @JsonProperty("created_at")
     public void setCreatedAt(Date createdAt) {
         this.mCreatedAt = createdAt;
     }
