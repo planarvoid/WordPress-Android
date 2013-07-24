@@ -3,7 +3,7 @@ $ 67
   _ 2013-07-24
   ! Maintenance
       * Fixed stuck activity streams
-      - Restored Lockscreen
+      * Restored Lockscreen controls
       - Fixed UserBrowser Details empty screen
 
 $ 64
