@@ -38,7 +38,7 @@ public class SuggestedTracksAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null){
-            convertView = View.inflate(parent.getContext(), R.layout.suggested_track_grid_item, parent);
+            convertView = View.inflate(parent.getContext(), R.layout.suggested_track_grid_item, null);
         }
         return convertView;
     }
