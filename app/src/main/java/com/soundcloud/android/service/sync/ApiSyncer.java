@@ -151,7 +151,7 @@ public class ApiSyncer extends SyncStrategy {
                     if (mResolver.update(uri, null, null, null) > 0) {
                         result.change = ApiSyncResult.CHANGED;
                     }
-                    result.setSyncData(System.currentTimeMillis(), -1, null);
+                    result.setSyncData(System.currentTimeMillis(), -1);
                     break;
                 default:
                     Log.w(TAG, "no remote URI defined for " + c);
@@ -264,7 +264,7 @@ public class ApiSyncer extends SyncStrategy {
 
         ApiSyncResult result = new ApiSyncResult(uri);
         result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
-        result.setSyncData(System.currentTimeMillis(), associations.size(), null);
+        result.setSyncData(System.currentTimeMillis(), associations.size());
         result.success = true;
         return result;
     }
@@ -288,9 +288,11 @@ public class ApiSyncer extends SyncStrategy {
                 inserted = mActivitiesStorage.insert(c, activities);
             }
         } else {
-            String future_href = mSyncStateManager.getExtraFromUri(uri);
+            final Activity newestActivity = mActivitiesStorage.getLatestActivity(c).toBlockingObservable().singleOrDefault(null);
+            Request request = new Request(c.request());
+            if (newestActivity != null) request.add("uuid[to]", newestActivity.toGUID());
 
-            Request request = future_href == null ? c.request() : Request.to(future_href);
+            log("activities: performing activity fetch request " + request);
             activities = Activities.fetchRecent(mApi, request, MAX_LOOKUP_COUNT);
 
             if (activities.moreResourcesExist()) {
@@ -305,7 +307,7 @@ public class ApiSyncer extends SyncStrategy {
             } else {
                 inserted = mActivitiesStorage.insert(c, activities);
             }
-            result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);
+            result.setSyncData(System.currentTimeMillis(), activities.size());
         }
 
         result.change = inserted > 0 ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
@@ -356,7 +358,7 @@ public class ApiSyncer extends SyncStrategy {
                 log("inserted " + inserted + " generic models");
             }
 
-            result.setSyncData(System.currentTimeMillis(), inserted, null);
+            result.setSyncData(System.currentTimeMillis(), inserted);
             result.success = true;
         } else if (Log.isLoggable(TAG, Log.WARN)) {
             Log.w(TAG, "request " + request + " returned " + resp.getStatusLine());
@@ -383,7 +385,7 @@ public class ApiSyncer extends SyncStrategy {
             connectionDAO.deleteAll(storedConnections);
         }
         int inserted = connectionDAO.createCollection(remoteConnections);
-        result.setSyncData(System.currentTimeMillis(), inserted, null);
+        result.setSyncData(System.currentTimeMillis(), inserted);
         result.success = true;
         return result;
     }

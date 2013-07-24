@@ -1,8 +1,9 @@
 $ 67
   % v 2.6.4
-  _ 2013-07-23
+  _ 2013-07-24
   ! Maintenance
-      * Restored Lockscreen
+      * Fixed stuck activity streams
+      * Restored Lockscreen controls
       - Fixed UserBrowser Details empty screen
 
 $ 64

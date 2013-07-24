@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -101,5 +102,28 @@ public class ActivityTest {
             expect(instance).not.toBeNull();
             expect(instance.getClass().isAssignableFrom(t.activityClass)).toBeTrue();
         }
+    }
+
+    @Test
+    public void shouldNotBeEqualWithDifferentUUID() throws Exception {
+        TrackActivity a1 = new TrackActivity();
+        TrackActivity a2 = new TrackActivity();
+        a1.uuid = "12345";
+        a2.uuid = "54321";
+        a1.tags = a2.tags = "abc def";
+        a1.created_at = a2.created_at = Wrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        a1.sharing_note = new SharingNote();
+        expect(a1).not.toEqual(a2);
+    }
+
+    @Test
+    public void shouldBeEqualWithDifferentSharingNotes() throws Exception {
+        TrackActivity a1 = new TrackActivity();
+        TrackActivity a2 = new TrackActivity();
+        a1.uuid = a2.uuid = "12345";
+        a1.tags = a2.tags = "abc def";
+        a1.created_at = a2.created_at = Wrapper.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        a1.sharing_note = new SharingNote();
+        expect(a1).toEqual(a2);
     }
 }
