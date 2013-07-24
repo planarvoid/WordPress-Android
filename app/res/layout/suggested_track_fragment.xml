@@ -7,9 +7,9 @@
               android:layout_gravity="top"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:horizontalSpacing="@dimen/onboarding_suggested_user_item_spacing"
-              android:verticalSpacing="@dimen/onboarding_suggested_user_item_spacing"
-              android:listSelector="@drawable/suggested_user_grid_item_selector"
+              android:horizontalSpacing="@dimen/explore_suggested_track_item_spacing_inside"
+              android:verticalSpacing="@dimen/explore_suggested_track_item_spacing_inside"
+              android:listSelector="@android:color/transparent"
               android:numColumns="@integer/suggested_user_grid_num_columns"/>
 
     <com.soundcloud.android.view.EmptyListView

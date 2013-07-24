@@ -1,6 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.utils.images.ImageSize;
 
 import android.os.Parcel;
 
@@ -146,4 +147,9 @@ public class SuggestedTrack extends ScModel {
             return new SuggestedTrack[size];
         }
     };
+
+    public String getArtworkUrl() {
+        // todo, do we really want to hardcode this to this size??
+        return getUrn().imageUri(ImageSize.T500).toString();
+    }
 }

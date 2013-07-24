@@ -4,21 +4,17 @@
                 android:layout_height="wrap_content">
 
     <ImageView android:id="@+id/suggested_track_image"
-               android:layout_width="match_parent"
-               android:layout_height="@dimen/onboarding_suggested_user_item_height"/>
+               style="@style/ExploreGridItemImageView"/>
 
-    <LinearLayout android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_alignParentLeft="true"
-                  android:layout_alignParentTop="true"
-                  android:orientation="vertical"
-                  android:layout_marginTop="13dp">
+    <LinearLayout style="@style/ExploreGridItemTextHolder">
 
         <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/username"
                                                          style="@style/OnboardSuggestedUserUsernameText"/>
         <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/title"
                                                          style="@style/OnboardSuggestedUserLocationText"/>
     </LinearLayout>
+
+    <ImageView style="@style/ExploreTrackGridItemSelector"/>
 
 </RelativeLayout>
 
