@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class SuggestedTrackTest {
         expect(suggestedTrack.getStreamUrl()).toEqual("https://api.soundcloud.com/tracks/96017719/stream");
         expect(suggestedTrack.getmWaveformUrl()).toEqual("https://w1.sndcdn.com/GXIXy4KWvMRG_m.png");
         expect(suggestedTrack.getTagList()).toContainExactly("daft","punk","cover","chronologic");
-        expect(suggestedTrack.getCreatedAt().toString()).toEqual("Sat Jun 08 18:59:05 CEST 2013");
+        expect(suggestedTrack.getCreatedAt()).toEqual(Wrapper.CloudDateFormat.fromString("2013/06/08 16:59:05 +0000"));
     }
 
     @Test
