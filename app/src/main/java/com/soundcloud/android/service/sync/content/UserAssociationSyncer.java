@@ -89,7 +89,7 @@ public class UserAssociationSyncer extends SyncStrategy {
         List<Long> local = mUserAssociationStorage.getStoredIds(content.uri);
         List<Long> remote = mApi.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
-        result.setSyncData(System.currentTimeMillis(), remote.size(), null);
+        result.setSyncData(System.currentTimeMillis(), remote.size());
 
         if (checkUnchanged(content, result, local, remote)) {
             result.success = true;
