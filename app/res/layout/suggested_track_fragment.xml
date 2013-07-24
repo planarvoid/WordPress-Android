@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <GridView android:id="@+id/gridview"
+              android:layout_gravity="top"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:horizontalSpacing="@dimen/onboarding_suggested_user_item_spacing"
+              android:verticalSpacing="@dimen/onboarding_suggested_user_item_spacing"
+              android:listSelector="@drawable/suggested_user_grid_item_selector"
+              android:numColumns="@integer/suggested_user_grid_num_columns"/>
+
+    <com.soundcloud.android.view.EmptyListView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+</FrameLayout>
+
