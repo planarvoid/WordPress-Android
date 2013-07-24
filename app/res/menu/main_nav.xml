@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/nav_stream"          android:text="@string/side_menu_stream"             android:icon="@drawable/sidebar_stream"         android:layout="@layout/main_menu_dashboard_item"   />
+    <item android:id="@+id/nav_explore"         android:text="@string/side_menu_explore"            android:icon="@drawable/sidebar_explore"/>
     <item android:id="@+id/nav_you"             android:text="@string/side_menu_you"                android:icon="@drawable/sidebar_you"/>
     <item android:id="@+id/nav_sets"            android:text="@string/side_menu_sets"              android:icon="@drawable/ic_set"/>
     <item android:id="@+id/nav_likes"           android:text="@string/side_menu_likes"              android:icon="@drawable/sidebar_likes"/>

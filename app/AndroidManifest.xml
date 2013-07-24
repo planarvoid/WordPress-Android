@@ -140,6 +140,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.landing.ExploreActivity" android:label="@string/side_menu_explore" />
+
         <activity android:name=".activity.landing.News" android:label="@string/side_menu_activity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACTIVITY"/>
