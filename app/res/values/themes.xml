@@ -210,9 +210,20 @@
     <!-- ****** ViewPagerIndicator ****** -->
 
     <style name="Widget.ScTabPageIndicator" parent="Widget.TabPageIndicator">
-        <item name="android:background">@drawable/action_bar_background</item>
+        <item name="android:background">@drawable/explore_tab_indicator</item>
+
+        <item name="android:showDividers">middle</item>
+        <item name="android:divider">@drawable/tab_divider</item>
+        <item name="android:dividerPadding">10dp</item>
+
         <item name="android:textAppearance">@style/TextAppearance.ScTabPageIndicator</item>
-        <item name="footerColor">#ff6600</item>
+
+    </style>
+
+    <style name="TextAppearance.ScTabPageIndicator" parent="Widget">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">#666666</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="TextAppearance.ScTabPageIndicator" parent="TextAppearance.TabPageIndicator">

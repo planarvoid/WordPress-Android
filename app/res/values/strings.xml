@@ -203,4 +203,8 @@
 
     <string name="side_menu_explore">Explore</string>
 
+    <string name="explore_categories">Categories</string>
+    <string name="explore_pop_music">Popular Music</string>
+    <string name="explore_pop_audio">Popular Audio</string>
+
 </resources>

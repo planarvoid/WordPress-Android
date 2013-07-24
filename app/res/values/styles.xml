@@ -1333,5 +1333,9 @@
         <item name="android:layout_marginTop">13dp</item>
     </style>
 
+    <style name="CustomTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:fadingEdge">horizontal</item>
+        <item name="android:fadingEdgeLength">8dp</item>
+    </style>
 
 </resources>
