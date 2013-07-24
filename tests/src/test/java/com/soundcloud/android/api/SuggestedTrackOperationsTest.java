@@ -19,12 +19,12 @@ public class SuggestedTrackOperationsTest {
 
     @Before
     public void setUp(){
-        suggestedTrackOperations = new SuggestedTrackOperations(Robolectric.application);
+        suggestedTrackOperations = new SuggestedTrackOperations();
     }
 
     @Test
     public void shouldReturnDummySuggestedTracks(){
-        List<SuggestedTrack> trackList = Lists.newArrayList(suggestedTrackOperations.getPopMusic().toBlockingObservable().toIterable());
+        List<SuggestedTrack> trackList = Lists.newArrayList(suggestedTrackOperations.getPopMusic(Robolectric.application).toBlockingObservable().toIterable());
         expect(trackList.size()).toBe(8);
         expect(trackList.get(0).getTitle()).toEqual("Let go 2");
         expect(trackList.get(0).getStreamUrl()).toEqual("https://api.soundcloud.com/tracks/62848613/stream");

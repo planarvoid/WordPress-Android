@@ -16,30 +16,29 @@ import rx.util.functions.Func1;
 
 import android.content.Context;
 
-public class SuggestedTrackOperations extends ScheduledOperations {
+import java.io.InputStream;
 
-    Context mApplicationContext;
-    JacksonJsonTransformer mJsonTransformer;
+public class SuggestedTrackOperations extends ScheduledOperations {
 
     /**
      * Temporary until we use RxHttpClient with real endpoints
      */
     @Deprecated
-    public SuggestedTrackOperations(Context context) {
+    public SuggestedTrackOperations() {
         super(ScSchedulers.STORAGE_SCHEDULER);
-        mApplicationContext = context.getApplicationContext();
-        mJsonTransformer = new JacksonJsonTransformer();
     }
 
-    public Observable<SuggestedTrack> getPopMusic() {
+    public Observable<SuggestedTrack> getPopMusic(final Context context) {
         return Observable.create(new Func1<Observer<SuggestedTrack>, Subscription>() {
             @Override
             public Subscription call(Observer<SuggestedTrack> suggestedTrackObserver) {
                 try {
 
-                    final String jsonString = IOUtils.readInputStream(mApplicationContext.getAssets().open("suggested_tracks.json"));
-                    CollectionHolder<SuggestedTrack> suggestedTrackCollectionHolder =
-                            mJsonTransformer.fromJson(jsonString, new TypeToken<CollectionHolder<SuggestedTrack>>() {});
+                    final InputStream dummyEndpointStream = context.getApplicationContext().getAssets().open("suggested_tracks.json");
+                    CollectionHolder<SuggestedTrack> suggestedTrackCollectionHolder = new JacksonJsonTransformer().fromJson(
+                            IOUtils.readInputStream(dummyEndpointStream),
+                            new TypeToken<CollectionHolder<SuggestedTrack>>() {}
+                    );
 
                     RxUtils.emitIterable(suggestedTrackObserver, suggestedTrackCollectionHolder.collection);
 
