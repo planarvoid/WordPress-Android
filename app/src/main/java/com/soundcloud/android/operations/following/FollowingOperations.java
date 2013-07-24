@@ -221,7 +221,7 @@ public class FollowingOperations extends ScheduledOperations {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> observer) {
-                RxUtils.emitCollection(observer, mUserAssociationStorage.getFollowingsNeedingSync());
+                RxUtils.emitIterable(observer, mUserAssociationStorage.getFollowingsNeedingSync());
                 observer.onCompleted();
                 return Subscriptions.empty();
             }
