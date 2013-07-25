@@ -2,12 +2,17 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
@@ -48,5 +53,29 @@ public class AndroidUtilsTest {
         final String[] expected = {"a", "b", "c", "d"};
 
         expect(Arrays.equals(actual, expected)).toBeTrue();
+    }
+
+    @Test
+    public void safeUnregisterReceiverShouldAllowNullReferences() {
+        Context context = mock(Context.class);
+        AndroidUtils.safeUnregisterReceiver(context, null);
+        verify(context, never()).unregisterReceiver(null);
+    }
+
+    @Test
+    public void safeUnregisterReceiverShouldNotThrowWhenReceiverAlreadyUnregistered() {
+        Context context = mock(Context.class);
+        BroadcastReceiver receiver = mock(BroadcastReceiver.class);
+        doThrow(new IllegalArgumentException("Receiver not registered")).when(context).unregisterReceiver(receiver);
+
+        AndroidUtils.safeUnregisterReceiver(context, receiver);
+    }
+
+    @Test
+    public void safeUnregisterReceiverShouldUnregisterReceiver() {
+        Context context = mock(Context.class);
+        BroadcastReceiver receiver = mock(BroadcastReceiver.class);
+        AndroidUtils.safeUnregisterReceiver(context, receiver);
+        verify(context).unregisterReceiver(receiver);
     }
 }
