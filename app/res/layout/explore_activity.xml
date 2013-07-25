@@ -6,7 +6,7 @@
     <FrameLayout android:layout_height="wrap_content"
                  android:layout_width="match_parent"
                  android:background="@color/playerControlBackground">
-        <com.viewpagerindicator.TabPageIndicator
+        <com.viewpagerindicator.FixedWeightTabPageIndicator
                 android:id="@+id/indicator"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"/>
