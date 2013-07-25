@@ -69,12 +69,12 @@ public class SuggestedTracksAdapter extends SpacedGridAdapter {
 
     @Override
     protected int getItemSpacingTopBottom(Resources resources) {
-        return (int) resources.getDimension(R.dimen.explore_suggested_track_item_spacing_outside_top_bottom);
+        return resources.getDimensionPixelSize(R.dimen.explore_suggested_track_item_spacing_outside_top_bottom);
     }
 
     @Override
     protected int getItemSpacingLeftRight(Resources resources) {
-        return (int) resources.getDimension(R.dimen.explore_suggested_track_item_spacing_outside_left_right);
+        return resources.getDimensionPixelSize(R.dimen.explore_suggested_track_item_spacing_outside_left_right);
     }
 
     private static class ItemViewHolder {

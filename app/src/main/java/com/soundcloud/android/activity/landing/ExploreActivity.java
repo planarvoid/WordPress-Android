@@ -20,7 +20,7 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        setContentView(R.layout.explore);
+        setContentView(R.layout.explore_activity);
 
         mExplorePagerAdapter = new ExplorePagerAdapter(getSupportFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -63,7 +63,7 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
                 case 2:
                     return getString(R.string.explore_pop_audio);
             }
-            return null;
+            throw new RuntimeException("Unexpected position for getPageTitle " + position);
 
         }
     }

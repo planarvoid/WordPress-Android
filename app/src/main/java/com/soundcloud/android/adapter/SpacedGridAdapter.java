@@ -7,7 +7,9 @@ import android.widget.BaseAdapter;
 
 public abstract class SpacedGridAdapter extends BaseAdapter {
 
-    private int mGridSpacingLeftRight = Integer.MIN_VALUE, mGridSpacingTopBottom = Integer.MIN_VALUE, mNumColumns = Integer.MIN_VALUE;
+    private int mGridSpacingLeftRight = Integer.MIN_VALUE;
+    private int mGridSpacingTopBottom = Integer.MIN_VALUE;
+    private int mNumColumns = Integer.MIN_VALUE;
 
     @Override
     final public View getView(int position, View convertView, ViewGroup parent) {
@@ -16,10 +18,10 @@ public abstract class SpacedGridAdapter extends BaseAdapter {
         return view;
     }
 
-    abstract protected View getGridItem(int position, View convertView, ViewGroup parent);
-    abstract protected int getNumColumns(Resources resources);
-    abstract protected int getItemSpacingTopBottom(Resources resources);
-    abstract protected int getItemSpacingLeftRight(Resources resources);
+    protected abstract View getGridItem(int position, View convertView, ViewGroup parent);
+    protected abstract int getNumColumns(Resources resources);
+    protected abstract int getItemSpacingTopBottom(Resources resources);
+    protected abstract int getItemSpacingLeftRight(Resources resources);
 
     /**
      * This will configure the edges to have padding that is equivalent to the inner item spacing

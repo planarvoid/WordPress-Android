@@ -43,7 +43,6 @@ public class SuggestedTrackOperations extends ScheduledOperations {
                     RxUtils.emitIterable(suggestedTrackObserver, suggestedTrackCollectionHolder.collection);
 
                     suggestedTrackObserver.onCompleted();
-                    return Subscriptions.empty();
 
                 } catch (Exception e) {
                     e.printStackTrace();

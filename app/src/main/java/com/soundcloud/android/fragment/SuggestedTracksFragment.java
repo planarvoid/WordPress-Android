@@ -45,7 +45,6 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
     }
 
     public SuggestedTracksFragment(SuggestedTrackOperations trackOperations, SuggestedTracksAdapter adapter){
-        super();
         mSuggestedTrackOperations = trackOperations;
         mSuggestedTracksAdapter = adapter;
     }
@@ -81,7 +80,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         if (savedState.has(KEY_OBSERVABLE)){
             observable = savedState.get(KEY_OBSERVABLE);
         } else {
-            observable = mSuggestedTrackOperations.getPopMusic(getActivity()).cache().observeOn(ScSchedulers.UI_SCHEDULER);
+            observable = mSuggestedTrackOperations.getPopMusic(getActivity()).observeOn(ScSchedulers.UI_SCHEDULER);
             savedState.put(KEY_OBSERVABLE, observable);
         }
         loadSuggestedTracks(observable);
@@ -112,6 +111,9 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
                 mEmptyListView.setVisibility(View.VISIBLE);
                 mGridView.setVisibility(View.GONE);
                 break;
+
+            default:
+                throw new RuntimeException("Unexpected display mode " + mode);
         }
     }
 
