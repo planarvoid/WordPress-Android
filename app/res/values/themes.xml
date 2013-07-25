@@ -211,6 +211,7 @@
     <!-- ****** ViewPagerIndicator ****** -->
 
     <style name="Widget.ScTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:background">@drawable/explore_tab_indicator</item>
         <item name="android:showDividers">middle</item>
         <item name="android:divider">@drawable/tab_divider</item>
         <item name="android:dividerPadding">10dp</item>
