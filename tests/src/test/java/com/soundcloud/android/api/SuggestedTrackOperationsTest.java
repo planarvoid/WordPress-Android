@@ -26,7 +26,7 @@ public class SuggestedTrackOperationsTest {
     public void shouldReturnDummySuggestedTracks(){
         List<SuggestedTrack> trackList = Lists.newArrayList(suggestedTrackOperations.getPopMusic(Robolectric.application).toBlockingObservable().toIterable());
         expect(trackList.size()).toBe(8);
-        expect(trackList.get(0).getTitle()).toEqual("Let go 2");
-        expect(trackList.get(0).getStreamUrl()).toEqual("https://api.soundcloud.com/tracks/62848613/stream");
+        expect(trackList.get(0).getTitle()).toEqual("Evolution of Get Lucky [Daft Punk chronologic cover]");
+        expect(trackList.get(0).getStreamUrl()).toEqual("https://api.soundcloud.com/tracks/96017719/stream");
     }
 }
