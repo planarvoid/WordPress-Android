@@ -37,6 +37,7 @@
         <!-- ViewPager -->
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
+        <item name="vpiFixedWeightTabIndicatorStyle">@style/Widget.ScFixedTabPageIndicator</item>
 
         <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
 

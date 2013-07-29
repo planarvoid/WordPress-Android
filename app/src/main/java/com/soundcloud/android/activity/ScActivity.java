@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.landing.ExploreActivity;
 import com.soundcloud.android.activity.landing.FriendFinder;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
@@ -94,6 +95,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                 switch (id) {
                     case R.id.nav_stream:
                         startNavActivity(ScActivity.this, Home.class, menuBundle);
+                        return true;
+                    case R.id.nav_explore:
+                        startNavActivity(ScActivity.this, ExploreActivity.class, menuBundle);
                         return true;
                     case R.id.nav_news:
                         startNavActivity(ScActivity.this, News.class, menuBundle);

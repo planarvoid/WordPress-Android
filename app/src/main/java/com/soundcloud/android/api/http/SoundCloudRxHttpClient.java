@@ -92,7 +92,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
                     Object resource = parseJsonResponse(apiResponse, apiRequest);
                     @SuppressWarnings("unchecked")
                     Collection<ModelType> resources = isRequestedResourceTypeOfCollection(resourceType) ? Collection.class.cast(resource) : Collections.singleton(resource);
-                    RxUtils.emitCollection(observer, resources);
+                    RxUtils.emitIterable(observer, resources);
                 } else if (resourceType != null && !apiResponse.hasResponseBody()) {
                     throw APIRequestException.badResponse(apiRequest, apiResponse, "Response could not be unmarshaled into resource type as response is empty");
                 }

@@ -2,6 +2,8 @@ package com.soundcloud.android.robolectric;
 
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
+import com.soundcloud.android.robolectric.shadows.ShadowSherlockFragment;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -29,5 +31,11 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
 
         // until we have a DI framework we have to set this instance to avoid NPEs
         SoundCloudApplication.instance = Robolectric.application;
+    }
+
+    @Override
+    protected void bindShadowClasses() {
+        Robolectric.bindShadowClass(ScShadowParcel.class);
+        Robolectric.bindShadowClass(ShadowSherlockFragment.class);
     }
 }
