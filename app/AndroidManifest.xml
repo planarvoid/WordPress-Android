@@ -521,6 +521,8 @@
 
         <meta-data android:name="android.app.default_searchable"
                    android:value=".activity.landing.ScSearch"/>
+
+        <meta-data android:name="com.crashlytics.ApiKey" android:value="3ec813b4091b6da31a39af4d414c8b7f816ae817"/>
     </application>
 
 </manifest>

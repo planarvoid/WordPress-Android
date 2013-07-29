@@ -98,10 +98,9 @@
             <version>14.0.1</version>
         </dependency>
         <dependency>
-            <groupId>org.acra</groupId>
-            <artifactId>acra</artifactId>
-            <version>4.3.0-filter</version>
-            <scope>compile</scope>
+            <groupId>com.crashlytics.android</groupId>
+            <artifactId>crashlytics</artifactId>
+            <version>[1.0.2,)</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

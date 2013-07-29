@@ -4,6 +4,7 @@ import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
+import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -27,8 +28,6 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
-import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,13 +41,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
-@ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=878e4d88",
-        formKey= "",
-        checkReportVersion = true,
-        checkReportSender = true)
 public class SoundCloudApplication extends Application implements Tracker {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
@@ -78,7 +71,7 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
 
         if (DALVIK && !EMULATOR) {
-            ACRA.init(this); // don't use ACRA when running unit tests / emulator
+            Crashlytics.start(this);
             mTracker = new ATTracker(this);
         }
         instance = this;
@@ -244,13 +237,10 @@ public class SoundCloudApplication extends Application implements Tracker {
      * @param e      exception, can be null
      * @return       the thread used to submit the msg
      */
+    @Deprecated
     public static Thread handleSilentException(@Nullable String msg, Exception e) {
-        if (EMULATOR || !DALVIK) return null; // acra is disabled on emulator
-        if (msg != null) {
-           Log.w(TAG, "silentException: "+msg, e);
-           ACRA.getErrorReporter().putCustomData("message", msg);
-        }
-        return ACRA.getErrorReporter().handleSilentException(new SilentException(e));
+        Crashlytics.logException(e);
+        return Thread.currentThread();
     }
 
     public static SoundCloudApplication fromContext(@NotNull Context c){
