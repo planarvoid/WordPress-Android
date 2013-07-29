@@ -97,6 +97,9 @@
                         <ruleset>rulesets/java/typeresolution.xml</ruleset>
                         <ruleset>rulesets/java/unusedcode.xml</ruleset>
                     </rulesets>
+                    <includes>
+                        <include>com/soundcloud/android/**/*.java</include>
+                    </includes>
                 </configuration>
                 <executions>
                     <execution>
