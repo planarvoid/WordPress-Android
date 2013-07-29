@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.tests.Han;
@@ -60,6 +61,8 @@ public class SuggestedUsersCategoryScreen {
     }
 
     public void waitForUsers() {
+        solo.waitForActivity(SuggestedUsersCategoryActivity.class);
+        solo.waitForView(solo.getCurrentGridView());
         solo.waitForViewId(R.id.username, 5000);
     }
 }

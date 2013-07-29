@@ -70,11 +70,9 @@ public class LoginScreen {
     public void clickOnContinueButton() {
         solo.clickOnButton(R.string.btn_continue);
         waiter.waitForTextToDisappear("Logging you in");
-
     }
 
     public void loginAs(String username, String password) {
-
         solo.clearEditText(email());
         typeUsername(username);
         typePassword(password);

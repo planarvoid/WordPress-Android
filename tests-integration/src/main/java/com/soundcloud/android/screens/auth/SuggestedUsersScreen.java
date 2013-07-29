@@ -47,9 +47,9 @@ public class SuggestedUsersScreen {
         solo.waitForActivity(SuggestedUsersCategoryActivity.class);
     }
 
-    public boolean subtextAtIndexEquals(int index, String username) {
+    public String subtextAtIndexEquals(int index) {
         View categoryRow = getCategoryRow(index);
-        return ((TextView) categoryRow.findViewById(android.R.id.text2)).getText().toString().equals(username);
+        return ((TextView) categoryRow.findViewById(android.R.id.text2)).getText().toString();
     }
 
     public void clickToggleCategoryCheckmark(int visibleIndex){
@@ -58,6 +58,7 @@ public class SuggestedUsersScreen {
 
     public void clickCategory(int visibleIndex) {
         clickOnCategoryElement(visibleIndex, android.R.id.text1);
+        solo.waitForActivity(SuggestedUsersCategoryActivity.class);
     }
 
     public void goToFacebook() {
@@ -75,7 +76,6 @@ public class SuggestedUsersScreen {
         solo.waitForViewId(R.id.btn_user_bucket_select_all, 5000);
         return ((ViewGroup) solo.getView(android.R.id.list)).getChildAt(index);
     }
-
 
     public HomeScreen finish() {
         solo.clickOnView(R.id.finish);

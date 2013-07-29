@@ -22,9 +22,10 @@ public class TestUser {
     }
 
 
-    public static final TestUser scAccount      = new TestUser("Steven Testowy",  "soundcloudtestuser@gmail.com", "s0undcl0ud");
-    public static final TestUser scTestAccount  = new TestUser("android-testing", "",                             "android-testing");
-    public static final TestUser noGPlusAccount = new TestUser("Steven Testowy",  "soundcloudtestuser@gmail.com", "s0undcl0ud");
-    public static final TestUser GPlusAccount   = new TestUser("scandroidtest",   "sccloudandroid@gmail.com",     "s0undcl0ud");
-    public static final TestUser Facebook       = new TestUser("Mike Smiechowy",  "ssmiechowy@gmail.com",         "passwordyeah");
+    public static final TestUser scAccount      = new TestUser("Steven Testowy",        "soundcloudtestuser@gmail.com", "s0undcl0ud");
+    public static final TestUser scTestAccount  = new TestUser("android-testing",       "",                             "android-testing");
+    public static final TestUser noGPlusAccount = new TestUser("Steven Testowy",        "soundcloudtestuser@gmail.com", "s0undcl0ud");
+    public static final TestUser GPlusAccount   = new TestUser("scandroidtest",         "sccloudandroid@gmail.com",     "s0undcl0ud");
+    public static final TestUser Facebook       = new TestUser("Mike Smiechowy",        "ssmiechowy@gmail.com",         "passwordyeah");
+    public static final TestUser testUser       = new TestUser("Slawomir Smiechowy 2",  "test26-82@wp.pl",              "password");
 }
