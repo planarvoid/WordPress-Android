@@ -7,11 +7,11 @@ import com.soundcloud.android.adapter.SuggestedTracksAdapter;
 import com.soundcloud.android.api.SuggestedTracksOperations;
 import com.soundcloud.android.model.SuggestedTrack;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.RxFragmentObserver;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

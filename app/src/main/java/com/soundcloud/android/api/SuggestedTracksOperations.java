@@ -7,7 +7,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.SuggestedTrack;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
 import rx.Observable;
 import rx.Observer;
