@@ -1,4 +1,4 @@
-package com.soundcloud.android.rx.schedulers;
+package rx.android.schedulers;
 
 import rx.Scheduler;
 import rx.Subscription;

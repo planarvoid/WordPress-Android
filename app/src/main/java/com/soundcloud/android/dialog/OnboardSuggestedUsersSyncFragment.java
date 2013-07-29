@@ -8,7 +8,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.android.RxFragmentObserver;
+import rx.android.RxFragmentObserver;
 import com.soundcloud.android.service.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;

@@ -1,6 +1,6 @@
 package com.soundcloud.android.rx;
 
-import com.soundcloud.android.rx.schedulers.MainThreadScheduler;
+import rx.android.schedulers.MainThreadScheduler;
 import rx.Scheduler;
 import rx.concurrency.Schedulers;
 

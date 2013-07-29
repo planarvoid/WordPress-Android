@@ -1,4 +1,4 @@
-package com.soundcloud.android.rx.android;
+package rx.android;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;

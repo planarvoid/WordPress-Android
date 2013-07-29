@@ -1,4 +1,4 @@
-package com.soundcloud.android.rx.android;
+package rx.android;
 
 import org.jetbrains.annotations.Nullable;
 

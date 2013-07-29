@@ -3,7 +3,7 @@ package com.soundcloud.android.api.http;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.WrapperFactory;
-import static com.soundcloud.android.rx.android.ErrorRaisingObserver.errorRaisingObserver;
+import static rx.android.ErrorRaisingObserver.errorRaisingObserver;
 import static com.soundcloud.api.CloudAPI.InvalidTokenException;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;

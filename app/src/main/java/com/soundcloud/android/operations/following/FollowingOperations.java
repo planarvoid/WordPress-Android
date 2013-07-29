@@ -27,7 +27,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
