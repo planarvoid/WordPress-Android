@@ -7,11 +7,11 @@ import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Objects;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.UriUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 
@@ -77,7 +77,7 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
 
 
     public static class RequestBuilder<ResourceType> {
-        private final String uriPath;
+        private final String mUri;
         private final String mHttpMethod;
         private int mEndpointVersion;
         private TypeToken<ResourceType> mResourceType;
@@ -85,27 +85,27 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
         private final Multimap<String, String> mParameters;
         private Object mContent;
 
-        public RequestBuilder(String builder, String methodName) {
-            uriPath = builder;
+        public RequestBuilder(String uri, String methodName) {
+            mUri = uri;
             mHttpMethod = methodName;
-            mParameters = ArrayListMultimap.create();
+            mParameters = UriUtils.getQueryParameters(uri);
         }
 
-        public static <ResourceType> RequestBuilder<ResourceType> get(String uriPath) {
-            return new RequestBuilder<ResourceType>(uriPath, HttpGet.METHOD_NAME);
+        public static <ResourceType> RequestBuilder<ResourceType> get(String uri) {
+            return new RequestBuilder<ResourceType>(uri, HttpGet.METHOD_NAME);
         }
 
-        public static <ResourceType> RequestBuilder<ResourceType> post(String uriPath) {
-            return new RequestBuilder<ResourceType>(uriPath, HttpPost.METHOD_NAME);
+        public static <ResourceType> RequestBuilder<ResourceType> post(String uri) {
+            return new RequestBuilder<ResourceType>(uri, HttpPost.METHOD_NAME);
         }
 
         public APIRequest<ResourceType> build(){
-            checkArgument(isNotBlank(uriPath), "URI needs to be valid value");
+            checkArgument(isNotBlank(mUri), "URI needs to be valid value");
             checkNotNull(mIsPrivate, "Must specify api mode");
             if(mIsPrivate){
                 checkArgument(mEndpointVersion > 0, "Not a valid api version: %s", mEndpointVersion);
             }
-            return new SoundCloudAPIRequest<ResourceType>(Uri.parse(uriPath), mHttpMethod, mEndpointVersion,
+            return new SoundCloudAPIRequest<ResourceType>(Uri.parse(mUri), mHttpMethod, mEndpointVersion,
                     mResourceType, mIsPrivate, mParameters, mContent);
         }
 
@@ -154,7 +154,7 @@ public class SoundCloudAPIRequest<ResourceType> implements APIRequest<ResourceTy
     @Override
     public String toString() {
         return Objects.toStringHelper(this).omitNullValues()
-                .add("uriPath", mUri.getPath())
+                .add("uri", mUri.toString())
                 .add("httpMethod", mHttpMethod)
                 .add("endPointVersion", mEndpointVersion)
                 .add("isPrivate", mIsPrivate)
