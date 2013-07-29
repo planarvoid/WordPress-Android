@@ -29,38 +29,38 @@ public class VorbisEncoderTest extends AudioTestCase {
 
     private static final boolean PROFILE = false;
 
-    public void testEncodeShortHighQuality() throws Exception {
+    public void ignore_testEncodeShortHighQuality() throws Exception {
         encodeWav(SHORT_MONO_WAV, 5548, EncoderOptions.HI_Q);
     }
 
-    public void testEncodeShortDefaultQuality() throws Exception {
+    public void ignore_testEncodeShortDefaultQuality() throws Exception {
         encodeWav(SHORT_MONO_WAV, 5052, EncoderOptions.DEFAULT);
     }
 
-    public void testEncodeMedHighQuality() throws Exception {
+    public void ignore_testEncodeMedHighQuality() throws Exception {
         encodeWav(MED_STEREO_WAV, 18865, EncoderOptions.HI_Q);
     }
 
-    public void testEncodeMedDefaultQuality() throws Exception {
+    public void ignore_testEncodeMedDefaultQuality() throws Exception {
         encodeWav(MED_STEREO_WAV, 18865, EncoderOptions.DEFAULT);
     }
 
-    public void testEncodeMedLowQuality() throws Exception {
+    public void ignore_testEncodeMedLowQuality() throws Exception {
         encodeWav(MED_STEREO_WAV, 18705, EncoderOptions.LO_Q);
     }
 
-    public void testEncodePartialWav() throws Exception {
+    public void ignore_testEncodePartialWav() throws Exception {
         EncoderOptions opts = new EncoderOptions(1f, 2000, 5500, null, null);
         encodeWav(MED_STEREO_WAV, 3500, opts);
     }
 
-    public void testEncodingWithFadeFilter() throws Exception {
+    public void ignore_testEncodingWithFadeFilter() throws Exception {
         FadeFilter filter = new FadeFilter(AudioConfig.PCM16_44100_1);
         EncoderOptions opts = new EncoderOptions(.5f, 0, -1, null, filter);
         encodeWav(SINE_WAV, 10000, opts);
     }
 
-    public void testEncodeVorbis() throws Exception {
+    public void ignore_testEncodeVorbis() throws Exception {
         FadeFilter filter = new FadeFilter(AudioConfig.PCM16_44100_1);
         final long[] m = new long[1];
         final ProgressListener listener = new ProgressListener() {
@@ -74,12 +74,12 @@ public class VorbisEncoderTest extends AudioTestCase {
         assertEquals(5, m[0]);
     }
 
-    public void testEncodePartialVorbis() throws Exception {
+    public void ignore_testEncodePartialVorbis() throws Exception {
         EncoderOptions opts = new EncoderOptions(.5f, 500, 1500, null, null);
         encodeVorbis(SHORT_TEST_OGG, 1d, opts);
     }
 
-    public void testEncodeAndGuessFileType() throws Exception {
+    public void ignore_testEncodeAndGuessFileType() throws Exception {
         final File ogg = prepareAsset(SHORT_TEST_OGG);
         final File renamed = new File(ogg.getParentFile(), String.valueOf(System.currentTimeMillis()));
         assertTrue(ogg.renameTo(renamed));
@@ -92,7 +92,7 @@ public class VorbisEncoderTest extends AudioTestCase {
     }
 
     @Suppress
-    public void testEncodeHugeWavFile() throws Exception {
+    public void ignore_testEncodeHugeWavFile() throws Exception {
         long space = IOUtils.getSpaceLeft(Environment.getExternalStorageDirectory());
         long encodedSpace = space / 10; // assume 1:10 compression ratio
         long length = space - encodedSpace - (1024 * 1024) /* headroom */;
@@ -112,7 +112,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         VorbisEncoder.encodeWav(wav, out, opts);
     }
 
-    public void testEncodingWithNullFilter() throws Exception {
+    public void ignore_testEncodingWithNullFilter() throws Exception {
         PlaybackFilter filter = new PlaybackFilter() {
             @Override
             public ByteBuffer apply(ByteBuffer buffer, long position, long length) {
@@ -132,14 +132,14 @@ public class VorbisEncoderTest extends AudioTestCase {
         encodeWav(SHORT_MONO_WAV, 5052, opts);
     }
 
-    public void testRelease() throws Exception {
+    public void ignore_testRelease() throws Exception {
         VorbisEncoder enc = createEncoder(externalPath("test.ogg"), AudioConfig.PCM16_44100_1);
         assertEquals(0, enc.getState());
         enc.release();
         assertEquals(-1, enc.getState());
     }
 
-    public void testEncodeAndStartNewStream() throws Exception {
+    public void ignore_testEncodeAndStartNewStream() throws Exception {
         File wav = prepareAsset(SHORT_MONO_WAV);
         InputStream is = new FileInputStream(wav);
         WavHeader h = new WavHeader(is);
@@ -181,11 +181,11 @@ public class VorbisEncoderTest extends AudioTestCase {
     }
 
     @Suppress
-    public void testManyEncodeAndStartNewStream() throws Exception {
+    public void ignore_testManyEncodeAndStartNewStream() throws Exception {
         int failures = 0;
         for (int i = 0; i< 20; i++) {
             try {
-                testEncodeAndStartNewStream();
+                ignore_testEncodeAndStartNewStream();
             } catch (AssertionFailedError e) {
                 log("failed");
                 failures++;
@@ -194,7 +194,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         assertEquals(0, failures);
     }
 
-    public void testExtract() throws Exception {
+    public void ignore_testExtract() throws Exception {
         File ogg = prepareAsset(MED_TEST_OGG);
         File extracted =  externalPath("extracted.ogg");
         File extracted_wav =  externalPath("extracted.wav");
@@ -213,7 +213,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         decoder.release();
     }
 
-    public void testValidate() throws Exception {
+    public void ignore_testValidate() throws Exception {
         assertFalse(VorbisEncoder.validate(new File("/does/not/exist")));
         assertFalse(VorbisEncoder.validate(prepareAsset(SHORT_MONO_WAV)));
         assertTrue(VorbisEncoder.validate(prepareAsset(MED_TEST_OGG)));
@@ -225,7 +225,7 @@ public class VorbisEncoderTest extends AudioTestCase {
 
 
 
-    public void testWrite() throws Exception {
+    public void ignore_testWrite() throws Exception {
         File out = externalPath("testWrite.ogg");
         VorbisEncoder enc = new VorbisEncoder(out, "w", 1l, 44100l, 0.5f);
         ByteBuffer buffer = ByteBuffer.allocateDirect(1024);

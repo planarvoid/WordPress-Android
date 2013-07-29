@@ -15,7 +15,7 @@
                android:gravity="center_vertical" />
     <TextView android:id="@+id/user"
               android:layout_height="wrap_content"
-              style="@style/txt_list_track_user"
+              style="@style/Widget.TextView.Playable.Username"
               android:text="@string/user"
               android:singleLine="true"
               android:ellipsize="end"
@@ -27,7 +27,7 @@
     <TextView android:id="@id/created_at"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              style="@style/txt_list_created_at"
+              style="@style/TextAppearance.List.CreatedAt"
               android:layout_alignTop="@id/icon"
               android:paddingLeft="0dip"
               android:singleLine="true"
@@ -39,7 +39,7 @@
               android:layout_height="wrap_content"
               android:layout_toRightOf="@id/icon"
               android:layout_below="@id/user"
-              style="@style/txt_list_main"
+              style="@style/TextAppearance.List.Main"
               android:textStyle="normal"
               android:text="@string/track" />
 </RelativeLayout>

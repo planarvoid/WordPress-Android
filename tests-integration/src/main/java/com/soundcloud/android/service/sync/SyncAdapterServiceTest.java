@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class SyncAdapterServiceTest extends InstrumentationTestCase {
     private static final String TAG = SyncAdapterServiceTest.class.getSimpleName();
 
-    public void testStartSync() throws Throwable {
+    public void ignore_testStartSync() throws Throwable {
         initAsyncTask(getInstrumentation());
 
         Context context = getInstrumentation().getTargetContext();

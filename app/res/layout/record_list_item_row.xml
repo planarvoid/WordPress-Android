@@ -31,7 +31,7 @@
                   android:orientation="vertical">
 
         <TextView android:id="@id/playable_title"
-                  style="@style/txt_list_main"
+                  style="@style/TextAppearance.List.Main"
                   android:layout_marginRight="3dip"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
                   android:singleLine="true"
                   android:layout_marginRight="5dip"
                   android:paddingRight="0dip"
-                  style="@style/txt_list_sub_secondary"/>
+                  style="@style/TextAppearance.List.Sub.Secondary"/>
 
         <TextView android:id="@id/playable_private_indicator"
                   android:singleLine="true"

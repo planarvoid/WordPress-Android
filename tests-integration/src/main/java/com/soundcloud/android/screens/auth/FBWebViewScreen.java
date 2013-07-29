@@ -27,21 +27,36 @@ public class FBWebViewScreen {
     }
 
     public void typeEmail(String text) {
-        solo.waitForWebElement(By.name("email"));
-        solo.typeTextInWebElement(By.name("email"), text);
+        solo.waitForWebElement(emailField());
+        solo.clearTextInWebElement(emailField());
+        solo.typeTextInWebElement(emailField(), text);
     }
+
     public void typePassword(String text) {
-        solo.waitForWebElement(By.name("pass"));
-        solo.typeTextInWebElement(By.name("pass"), text);
+        solo.waitForWebElement(passwordField());
+        solo.clearTextInWebElement(passwordField());
+        solo.typeTextInWebElement(passwordField(), text);
     }
 
     public void submit() {
-        solo.waitForWebElement(By.name("login"));
-        solo.clickOnWebElement(By.name("login"));
+        solo.waitForWebElement(loginField());
+        solo.clickOnWebElement(loginField());
         if (solo.searchText("Do you want the browser to remember this password?", true)) {
             solo.clickOnText("Never");
         }
 
-        solo.waitForViewId(R.id.root_menu, 5000);
+        solo.waitForViewId(R.id.root_menu, 10000);
+    }
+
+    private By emailField() {
+        return By.name("email");
+    }
+
+    private By passwordField() {
+        return By.name("pass");
+    }
+
+    private By loginField() {
+        return By.name("login");
     }
 }

@@ -166,7 +166,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     public String getArtwork() {
-        if (shouldLoadIcon()){
+        if (shouldLoadArtwork()){
             return artwork_url;
         } else if (user != null && user.shouldLoadIcon()){
             return user.avatar_url;
@@ -175,7 +175,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         }
     }
 
-    public boolean shouldLoadIcon() {
+    public boolean shouldLoadArtwork() {
         return ImageUtils.checkIconShouldLoad(artwork_url);
     }
 

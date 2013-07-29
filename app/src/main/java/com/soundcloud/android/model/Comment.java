@@ -58,6 +58,10 @@ import java.util.Date;
 
 
 public class Comment extends ScResource implements RelatesToUser, RelatesToPlayable {
+
+    public static final String ACTION_CREATE_COMMENT  = "com.soundcloud.android.comment.create";
+    public static final String EXTRA = "comment";
+
     @JsonProperty @JsonView(Views.Mini.class) public Date created_at;
     @JsonProperty @JsonView(Views.Mini.class) public long user_id;
     @JsonProperty @JsonView(Views.Mini.class) public long track_id;

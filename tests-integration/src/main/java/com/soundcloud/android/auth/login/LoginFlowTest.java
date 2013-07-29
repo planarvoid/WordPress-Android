@@ -11,10 +11,10 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.FacebookWebFlow;
 import com.soundcloud.android.activity.auth.Onboard;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.auth.LoginTestCase;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.Waiter;
@@ -37,8 +37,8 @@ public class LoginFlowTest extends LoginTestCase {
 
     @Override
     public void setUp() throws Exception {
-        IntegrationTestHelper.logOut(getInstrumentation());
         super.setUp();
+        IntegrationTestHelper.logOut(getInstrumentation());
 
         recoveryScreen  = new RecoverPasswordScreen(solo);
         menuScreen      = new MenuScreen(solo);
@@ -51,7 +51,7 @@ public class LoginFlowTest extends LoginTestCase {
      * I want to sign in with my SC account
      * So that I can listen to my favourite tracks
      */
-    public void testSCUserLoginFlow() throws Exception {
+    public void testSCUserLoginFlow()  {
         onboardScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
 
@@ -63,7 +63,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to sign in with my G+ credentials
     * So that I don't need to create another SC account
     */
-    public void testGPlusLoginFlow() throws Exception {
+    public void testGPlusLoginFlow()  {
 
         onboardScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
@@ -76,17 +76,15 @@ public class LoginFlowTest extends LoginTestCase {
         solo.assertText(R.string.auth_disclaimer_message);
 
         loginScreen.clickOnContinueButton();
-        //TODO Finish the flow once we fix the g+ sign in
-        //assertEquals(user.login(), menuScreen.getUserName());
+
+        assertEquals(GPlusAccount.getUsername(), menuScreen.getUserName());
     }
 
     /*
     * As a Google account User
-    * I want to be informed that my account doesn't meet SC needs
-    * So that I can set up proper google Plus account
+    * I want to sign in even if I don't have g+ profile
     */
-    public void testGoogleAccountLoginError() throws Exception {
-
+    public void testNoGooglePlusAccountLogin()  {
         onboardScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
         loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
@@ -97,8 +95,7 @@ public class LoginFlowTest extends LoginTestCase {
 
         loginScreen.clickOnContinueButton();
 
-        solo.assertText(R.string.error_google_sign_in_failed, "Error message should be shown");
-        assertNull(getLoggedInUser().username);
+        assertEquals(noGPlusAccount.getUsername(), menuScreen.getUserName());
     }
 
     /*
@@ -167,9 +164,10 @@ public class LoginFlowTest extends LoginTestCase {
      * I want to log out from the app
      * So that I am sure no one can modify my account
      */
-    public void testLoginAndLogout() throws Exception {
+    public void testLoginAndLogout()  {
         onboardScreen.clickLogInButton();
         loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
+        waiter.waitForListContent();
         menuScreen.logout();
 
         assertNull(getLoggedInUser().username);
@@ -184,7 +182,7 @@ public class LoginFlowTest extends LoginTestCase {
     public void testRecoverPassword() throws Throwable {
         onboardScreen.clickLogInButton();
         loginScreen.clickForgotPassword();
-        recoveryScreen.typeEmail("some-email-"+System.currentTimeMillis()+"@baz"+System.currentTimeMillis()+".com");
+        recoveryScreen.typeEmail("some-email-" + System.currentTimeMillis() + "@baz" + System.currentTimeMillis() + ".com");
         recoveryScreen.clickOkButton();
 
         solo.assertDialogClosed();
@@ -196,7 +194,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to be notified if I accidentally tap OK button while recovering my password
     * So that I know what went wrong
     */
-    public void testRecoverPasswordNoInput() throws Exception {
+    public void testRecoverPasswordNoInput()  {
         onboardScreen.clickLogInButton();
         loginScreen.clickForgotPassword();
         loginScreen.clickOkButton();

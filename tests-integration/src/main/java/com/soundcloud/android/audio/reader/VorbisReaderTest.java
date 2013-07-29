@@ -11,13 +11,13 @@ import java.io.IOException;
 @NonUiTest
 public class VorbisReaderTest extends ScAndroidTestCase {
 
-    public void testDuration() throws Exception {
+    public void ignore_testDuration() throws Exception {
         File ogg = prepareAsset(MED_TEST_OGG);
         VorbisReader file = new VorbisReader(ogg);
         assertEquals(18949, file.getDuration());
     }
 
-    public void testSeekAndGetPosion() throws Exception {
+    public void ignore_testSeekAndGetPosion() throws Exception {
         File ogg = prepareAsset(MED_TEST_OGG);
         VorbisReader file = new VorbisReader(ogg);
 
@@ -26,7 +26,7 @@ public class VorbisReaderTest extends ScAndroidTestCase {
         assertEquals(5000, file.getPosition());
     }
 
-    public void testSeekShouldThrowIOExceptionIfInvalidParameter() throws Exception {
+    public void ignore_testSeekShouldThrowIOExceptionIfInvalidParameter() throws Exception {
         File ogg = prepareAsset(MED_TEST_OGG);
         VorbisReader file = new VorbisReader(ogg);
         try {

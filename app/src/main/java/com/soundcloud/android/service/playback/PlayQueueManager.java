@@ -76,6 +76,15 @@ public class PlayQueueManager {
         return currentTrack == null ? -1 : currentTrack.getId();
     }
 
+    public PlayQueueItem getPlayQueueItem(int pos) {
+        if (pos >= 0 && pos < mPlayQueue.size()) {
+            return new PlayQueueItem(mPlayQueue.get(pos), pos);
+        } else {
+            return null;
+        }
+    }
+
+    @Deprecated
     public Track getTrackAt(int pos) {
         if (pos >= 0 && pos < mPlayQueue.size()) {
             return mPlayQueue.get(pos);

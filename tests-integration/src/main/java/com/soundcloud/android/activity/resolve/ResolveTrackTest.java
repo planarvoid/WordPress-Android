@@ -5,7 +5,7 @@ import com.soundcloud.android.activity.ScPlayer;
 
 public abstract class ResolveTrackTest extends ResolveBaseTest {
 
-    public void testResolveUrl() throws Exception {
+    public void ignore_testResolveUrl() throws Exception {
         solo.assertActivity(ScPlayer.class, DEFAULT_WAIT);
 
         solo.assertText("CHE FLUTE");

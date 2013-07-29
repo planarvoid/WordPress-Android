@@ -29,7 +29,7 @@ public class ImageUtilsTest extends ScAndroidTestCase {
         return resized;
     }
 
-    public void testResizeLandscape() throws Exception {
+    public void ignore_testResizeLandscape() throws Exception {
         File resized = resize(IMAGE_LANDSCAPE_JPG);
         BitmapFactory.Options opts = ImageUtils.decode(resized);
         assertEquals(600, opts.outHeight);
@@ -37,7 +37,7 @@ public class ImageUtilsTest extends ScAndroidTestCase {
         assertEquals("image/jpeg", opts.outMimeType);
     }
 
-    public void testResizePortrait() throws Exception {
+    public void ignore_testResizePortrait() throws Exception {
         File resized = resize(IMAGE_PORTRAIT_JPG);
         BitmapFactory.Options opts = ImageUtils.decode(resized);
         assertEquals(800, opts.outHeight);
@@ -47,7 +47,7 @@ public class ImageUtilsTest extends ScAndroidTestCase {
 
     @Suppress
     @FlakyTest // OutOfMemory
-    public void testResizeLargePortrait() throws Exception {
+    public void ignore_testResizeLargePortrait() throws Exception {
         File resized = resize(IMAGE_LARGE_PORTRAIT_JPG);
         BitmapFactory.Options opts = ImageUtils.decode(resized);
         assertEquals(1296, opts.outHeight);
@@ -55,12 +55,12 @@ public class ImageUtilsTest extends ScAndroidTestCase {
         assertEquals("image/jpeg", opts.outMimeType);
     }
 
-    public void testGetExifRotation() throws Exception {
+    public void ignore_testGetExifRotation() throws Exception {
         File file = prepareAsset(IMAGE_LARGE_PORTRAIT_JPG);
         assertEquals(0, ImageUtils.getExifRotation(file));
     }
 
-    public void testDetermineResizeOptionsLargePortrait() throws Exception {
+    public void ignore_testDetermineResizeOptionsLargePortrait() throws Exception {
         File file = prepareAsset(IMAGE_LARGE_PORTRAIT_JPG);
         BitmapFactory.Options options = ImageUtils.determineResizeOptions(file, 800, 800, false);
 
@@ -69,7 +69,7 @@ public class ImageUtilsTest extends ScAndroidTestCase {
         assertEquals(2, options.inSampleSize);
     }
 
-    public void testDetermineResizeOptionsLandscape() throws Exception {
+    public void ignore_testDetermineResizeOptionsLandscape() throws Exception {
         File file = prepareAsset(IMAGE_LANDSCAPE_JPG);
         BitmapFactory.Options options = ImageUtils.determineResizeOptions(file, 800, 800, false);
 
@@ -78,7 +78,7 @@ public class ImageUtilsTest extends ScAndroidTestCase {
         assertEquals(2, options.inSampleSize);
     }
 
-    public void testDetermineResizeOptionsPortrait() throws Exception {
+    public void ignore_testDetermineResizeOptionsPortrait() throws Exception {
         File file = prepareAsset(IMAGE_PORTRAIT_JPG);
         BitmapFactory.Options options = ImageUtils.determineResizeOptions(file, 800, 800, false);
 

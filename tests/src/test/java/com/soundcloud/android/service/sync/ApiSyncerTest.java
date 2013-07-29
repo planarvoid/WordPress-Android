@@ -42,6 +42,7 @@ public class ApiSyncerTest {
     SyncStateManager syncStateManager;
     ActivitiesStorage activitiesStorage;
     PlaylistStorage playlistStorage;
+    long startTime;
 
     @Before
     public void before() {
@@ -50,6 +51,7 @@ public class ApiSyncerTest {
         syncStateManager = new SyncStateManager(resolver);
         activitiesStorage = new ActivitiesStorage();
         playlistStorage = new PlaylistStorage();
+        startTime = System.currentTimeMillis();
     }
 
     @Test
@@ -58,7 +60,7 @@ public class ApiSyncerTest {
         expect(Content.ME).toBeEmpty();
         ApiSyncResult result = sync(Content.ME.uri);
         expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
 
         expect(Content.ME).toHaveCount(1);
         expect(Content.USERS).toHaveCount(1);
@@ -78,7 +80,7 @@ public class ApiSyncerTest {
                 "e1_stream.json",
                 "e1_stream_oldest.json");
         expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(TOTAL_STREAM_SIZE);
         expect(Content.TRACKS).toHaveCount(111);
@@ -120,7 +122,7 @@ public class ApiSyncerTest {
                 "e1_activities_1.json",
                 "e1_activities_2.json");
         expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
 
 
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
@@ -137,10 +139,26 @@ public class ApiSyncerTest {
     }
 
     @Test
+    public void shouldSyncSecondTimeWithCorrectRequest() throws Exception {
+        ApiSyncResult result = sync(Content.ME_ACTIVITIES.uri,
+                "e1_activities_1.json",
+                "e1_activities_2.json");
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(startTime);
+
+        TestHelper.addResourceResponse(getClass(),
+                "/e1/me/activities?uuid%5Bto%5D=3d22f400-0699-11e2-919a-b494be7979e7&limit=100", "empty_collection.json");
+
+        result = sync(Content.ME_ACTIVITIES.uri);
+        expect(result.success).toBeTrue();
+        expect(result.synced_at).toBeGreaterThan(startTime);
+    }
+
+    @Test
     public void shouldSyncSounds() throws Exception {
         ApiSyncResult result = syncMeSounds();
         expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
 
         expect(Content.TRACKS).toHaveCount(48);
         expect(Content.ME_SOUNDS).toHaveCount(50);
@@ -153,7 +171,7 @@ public class ApiSyncerTest {
 
         ApiSyncResult result = sync(Content.ME_LIKES.uri);
         expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
 
         expect(Content.TRACKS).toHaveCount(1);
         expect(Content.PLAYLISTS).toHaveCount(1);
@@ -168,7 +186,7 @@ public class ApiSyncerTest {
 
         ApiSyncResult result = sync(Content.ME_PLAYLISTS.uri);
         expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
 
         expect(Content.TRACKS).toHaveCount(7);
         expect(Content.PLAYLISTS).toHaveCount(3);
@@ -183,14 +201,14 @@ public class ApiSyncerTest {
     public void shouldSyncSoundsAndLikes() throws Exception {
         ApiSyncResult result = syncMeSounds();
         expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
 
         TestHelper.addResourceResponse(getClass(), "/e1/users/" + String.valueOf(USER_ID)
                 + "/likes?limit=200&representation=mini&linked_partitioning=1", "e1_likes_mini.json");
 
         result = sync(Content.ME_LIKES.uri);
         expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
 
         expect(Content.TRACKS).toHaveCount(49); // 48 tracks + from /me/sounds + 1 track from /me/likes
         expect(Content.ME_SOUNDS).toHaveCount(50); // 48 tracks + 2 playlists from /me/sounds
@@ -257,7 +275,7 @@ public class ApiSyncerTest {
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
         ApiSyncResult result = sync(Content.PLAYLIST.forId(2524386l));
         expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.PLAYLISTS).toHaveCount(1);
 
@@ -290,7 +308,7 @@ public class ApiSyncerTest {
 
         result = sync(Content.PLAYLIST.forId(10696200));
         expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(0L);
+        expect(result.synced_at).toBeGreaterThan(startTime);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.TRACKS).toHaveCount(44);
 
@@ -304,7 +322,7 @@ public class ApiSyncerTest {
         TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
         ApiSyncResult result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));
         expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.TRACKS).toHaveCount(3);
     }
@@ -314,7 +332,7 @@ public class ApiSyncerTest {
         TestHelper.addPendingHttpResponse(getClass(), "users.json");
         ApiSyncResult result = sync(Content.USER_LOOKUP.forQuery("308291,792584,1255758"));
         expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.USERS).toHaveCount(3);
     }
@@ -325,7 +343,7 @@ public class ApiSyncerTest {
                 "playlists_compact.json");
         ApiSyncResult result = sync(Content.PLAYLIST_LOOKUP.forQuery("3761799,1"));
         expect(result.success).toBe(true);
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.PLAYLISTS).toHaveCount(2);
     }
@@ -336,7 +354,7 @@ public class ApiSyncerTest {
         ApiSyncResult result = sync(Content.ME_ACTIVITIES.uri);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(result.new_size).toEqual(7);
-        expect(result.synced_at).toBeGreaterThan(0l);
+        expect(result.synced_at).toBeGreaterThan(startTime);
     }
 
     @Test
