@@ -88,6 +88,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static Uri getUri()     { return instance == null ? null : instance.getPlayQueueManager().getUri(); }
     public static State getState() { return state; }
     public static boolean isBuffering() {  return instance != null && instance._isBuffering(); }
+    public static boolean isSeekable() {  return instance != null && instance._isSeekable(); }
 
 
     // public service actions
@@ -836,8 +837,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         return mMediaPlayer != null && !state.isError() ? mLoadPercent : 0;
     }
 
-    /* package */
-    public boolean isSeekable() {
+    /* package */ boolean _isSeekable() {
         return (mMediaPlayer != null
                 && state.isSeekable()
                 && currentTrack != null);

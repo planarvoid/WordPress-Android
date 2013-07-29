@@ -200,13 +200,13 @@ public class TrackTest {
     @Test
     public void testShouldIconLoad() throws Exception {
         Track t = new Track();
-        expect(t.shouldLoadIcon()).toBeFalse();
+        expect(t.shouldLoadArtwork()).toBeFalse();
         t.artwork_url = "";
-        expect(t.shouldLoadIcon()).toBeFalse();
+        expect(t.shouldLoadArtwork()).toBeFalse();
         t.artwork_url = "NULL";
-        expect(t.shouldLoadIcon()).toBeFalse();
+        expect(t.shouldLoadArtwork()).toBeFalse();
         t.artwork_url = "http://foo.com";
-        expect(t.shouldLoadIcon()).toBeTrue();
+        expect(t.shouldLoadArtwork()).toBeTrue();
     }
 
     @Test

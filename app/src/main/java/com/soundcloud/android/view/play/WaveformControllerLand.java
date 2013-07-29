@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.play;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.InputObject;
 
@@ -17,8 +18,11 @@ import android.widget.RelativeLayout;
 import java.lang.ref.WeakReference;
 
 public class WaveformControllerLand extends WaveformController {
+    private final AccountOperations mAccountOperations;
+    private boolean mShouldShowComments;
     private CommentPanel mCommentPanel;
 
+    private static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
     private static final int COMMENT_ANIMATE_DURATION = 500;
     private static final long MAX_AUTO_COMMENT_DISPLAY_TIME = 30000;
 
@@ -28,6 +32,9 @@ public class WaveformControllerLand extends WaveformController {
     public WaveformControllerLand(Context context, AttributeSet attrs) {
         super(context, attrs);
         setStaticTransformationsEnabled(false);
+        mAccountOperations = new AccountOperations(context);
+        mShouldShowComments = mAccountOperations.getAccountDataBoolean(PLAYER_SHOWING_COMMENTS);
+
     }
 
     private static final class CommentHandler extends Handler {
@@ -41,21 +48,12 @@ public class WaveformControllerLand extends WaveformController {
         @Override
         public void handleMessage(Message msg) {
             final WaveformController controller = mRef.get();
-            if (controller == null) {
-                return;
-            }
-            switch (msg.what) {
-                case UI_SHOW_CURRENT_COMMENT:
-                    controller.showCurrentComment(true);
-                    break;
-
-                case UI_ADD_COMMENT:
-                    controller.mPlayer.addNewComment(controller.mAddComment);
-                    break;
-
-                case UI_TOGGLE_COMMENTS:
-                    controller.mPlayer.toggleShowingComments();
-                    break;
+            if (controller != null) {
+                switch (msg.what) {
+                    case UI_SHOW_CURRENT_COMMENT:
+                        controller.showCurrentComment(true);
+                        break;
+                }
             }
         }
     };
@@ -136,17 +134,13 @@ public class WaveformControllerLand extends WaveformController {
 
     protected void showCurrentComment(boolean userTriggered) {
        if (mCurrentShowingComment != null) {
-           if (userTriggered && !mPlayer.shouldShowComments()) {
-               mPlayer.toggleShowingComments();
-           }
-
            cancelAutoCloseComment();
            mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
            mCommentLines.setCurrentComment(mCurrentShowingComment);
 
            if (mCommentPanel == null) {
-               mCommentPanel = new CommentPanel(mPlayer, true);
-               mCommentPanel.setControllers(mPlayer, this);
+               mCommentPanel = new CommentPanel(getContext(), true);
+               mCommentPanel.setListener(this);
                mCommentPanel.interacted = userTriggered;
                mCurrentCommentPanel = mCommentPanel;
                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT,
@@ -257,8 +251,8 @@ public class WaveformControllerLand extends WaveformController {
 
     @Override
     public void closeComment(boolean userTriggered) {
-        if (userTriggered && mCurrentShowingComment == mLastAutoComment && mPlayer.shouldShowComments()) {
-            mPlayer.toggleShowingComments();
+        if (userTriggered && mCurrentShowingComment == mLastAutoComment && mShouldShowComments) {
+            toggleShowingComments();
         }
 
         mCurrentShowingComment = null;
@@ -304,7 +298,7 @@ public class WaveformControllerLand extends WaveformController {
 
      @Override
      protected void autoShowComment(Comment c) {
-        if (mPlayer.shouldShowComments()) {
+         if (mShouldShowComments) {
 
             cancelAutoCloseComment();
             mCurrentShowingComment = c;
@@ -317,5 +311,10 @@ public class WaveformControllerLand extends WaveformController {
                 mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
             }
         }
+    }
+
+    private void toggleShowingComments() {
+        mShouldShowComments = !mShouldShowComments;
+        mAccountOperations.setAccountData(PLAYER_SHOWING_COMMENTS, Boolean.toString(mShouldShowComments));
     }
 }
