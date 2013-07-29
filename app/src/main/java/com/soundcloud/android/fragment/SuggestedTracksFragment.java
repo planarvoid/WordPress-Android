@@ -2,8 +2,9 @@ package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.SuggestedTracksAdapter;
-import com.soundcloud.android.api.SuggestedTrackOperations;
+import com.soundcloud.android.api.SuggestedTracksOperations;
 import com.soundcloud.android.model.SuggestedTrack;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.android.RxFragmentObserver;
@@ -23,33 +24,27 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
     private static final String LOG_TAG         = "suggested_tracks_frag";
 
-    private DisplayMode mMode = DisplayMode.LOADING;
     private Observable<SuggestedTrack> mObservable;
-
-    private enum DisplayMode {
-        LOADING, ERROR, CONTENT
-    }
-
-    private final SuggestedTrackOperations mSuggestedTrackOperations;
     private SuggestedTracksAdapter mSuggestedTracksAdapter;
     private Subscription mSubscription;
     private GridView mGridView;
     private EmptyListView mEmptyListView;
+    private SuggestedTracksOperations mSuggestedTracksOperations;
 
     public SuggestedTracksFragment() {
-        this(new SuggestedTrackOperations(), new SuggestedTracksAdapter());
+        this(new SuggestedTracksAdapter(), new SuggestedTracksOperations());
     }
 
-    public SuggestedTracksFragment(SuggestedTrackOperations trackOperations, SuggestedTracksAdapter adapter){
-        mSuggestedTrackOperations = trackOperations;
+    public SuggestedTracksFragment(SuggestedTracksAdapter adapter, SuggestedTracksOperations suggestedTracksOperations) {
         mSuggestedTracksAdapter = adapter;
+        mSuggestedTracksOperations = suggestedTracksOperations;
         setRetainInstance(true);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mObservable = mSuggestedTrackOperations.getPopMusic(getActivity()).observeOn(ScSchedulers.UI_SCHEDULER).cache();
+        mObservable = mSuggestedTracksOperations.getPopMusic().observeOn(ScSchedulers.UI_SCHEDULER).cache();
     }
 
     @Override
@@ -75,37 +70,13 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         mGridView = (GridView) view.findViewById(R.id.gridview);
         mGridView.setOnItemClickListener(this);
         mGridView.setAdapter(mSuggestedTracksAdapter);
-        loadSuggestedTracks(mObservable);
+        mGridView.setEmptyView(mEmptyListView);
+        loadSuggestedTracks();
     }
 
-    private void loadSuggestedTracks(Observable<?> observable) {
-        setDisplayMode(DisplayMode.LOADING);
-        mSubscription = observable.subscribe(new SuggestedTracksObserver(this));
-    }
-
-    private void setDisplayMode(DisplayMode mode){
-        mMode = mode;
-        switch (mMode){
-            case LOADING:
-                mEmptyListView.setStatus(EmptyListView.Status.WAITING);
-                mEmptyListView.setVisibility(View.VISIBLE);
-                mGridView.setVisibility(View.GONE);
-                break;
-
-            case CONTENT:
-                mGridView.setVisibility(View.VISIBLE);
-                mEmptyListView.setVisibility(View.GONE);
-                break;
-
-            case ERROR:
-                mEmptyListView.setStatus(EmptyListView.Status.ERROR);
-                mEmptyListView.setVisibility(View.VISIBLE);
-                mGridView.setVisibility(View.GONE);
-                break;
-
-            default:
-                throw new RuntimeException("Unexpected display mode " + mode);
-        }
+    private void loadSuggestedTracks() {
+        mEmptyListView.setStatus(EmptyListView.Status.WAITING);
+        mSubscription = mObservable.subscribe(new SuggestedTracksObserver(this));
     }
 
     private static final class SuggestedTracksObserver extends RxFragmentObserver<SuggestedTracksFragment, SuggestedTrack> {
@@ -118,18 +89,19 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         public void onNext(SuggestedTracksFragment fragment, SuggestedTrack suggestedTrack) {
             fragment.mSuggestedTracksAdapter.addSuggestedTrack(suggestedTrack);
             fragment.mSuggestedTracksAdapter.notifyDataSetChanged();
-            fragment.setDisplayMode(DisplayMode.CONTENT);
         }
 
         @Override
         public void onCompleted(SuggestedTracksFragment fragment) {
+            fragment.mEmptyListView.setStatus(EmptyListView.Status.OK);
             Log.d(LOG_TAG, "fragment: onCompleted");
         }
 
         @Override
         public void onError(SuggestedTracksFragment fragment, Exception error) {
+            SoundCloudApplication.handleSilentException(error.getMessage(), error);
             error.printStackTrace();
-            fragment.setDisplayMode(DisplayMode.ERROR);
+            fragment.mEmptyListView.setStatus(EmptyListView.Status.ERROR);
         }
     }
 }

@@ -5,7 +5,6 @@ import static com.soundcloud.android.Expect.expect;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.SuggestedTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,18 +12,18 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SuggestedTrackOperationsTest {
+public class SuggestedTracksOperationsTest {
 
-    private SuggestedTrackOperations suggestedTrackOperations;
+    private SuggestedTracksOperations suggestedTracksOperations;
 
     @Before
     public void setUp(){
-        suggestedTrackOperations = new SuggestedTrackOperations();
+        suggestedTracksOperations = new SuggestedTracksOperations();
     }
 
     @Test
     public void shouldReturnDummySuggestedTracks(){
-        List<SuggestedTrack> trackList = Lists.newArrayList(suggestedTrackOperations.getPopMusic(Robolectric.application).toBlockingObservable().toIterable());
+        List<SuggestedTrack> trackList = Lists.newArrayList(suggestedTracksOperations.getPopMusic().toBlockingObservable().toIterable());
         expect(trackList.size()).toBe(8);
         expect(trackList.get(0).getTitle()).toEqual("Evolution of Get Lucky [Daft Punk chronologic cover]");
         expect(trackList.get(0).getStreamUrl()).toEqual("https://api.soundcloud.com/tracks/96017719/stream");

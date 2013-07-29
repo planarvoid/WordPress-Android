@@ -1,6 +1,7 @@
 package com.soundcloud.android.api;
 
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.SuggestedTrack;
@@ -14,29 +15,30 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
-import android.content.Context;
-
 import java.io.InputStream;
 
-public class SuggestedTrackOperations extends ScheduledOperations {
+public class SuggestedTracksOperations extends ScheduledOperations {
 
     /**
      * Temporary until we use RxHttpClient with real endpoints
      */
-    public SuggestedTrackOperations() {
+    public SuggestedTracksOperations() {
         super(ScSchedulers.API_SCHEDULER);
     }
 
-    public Observable<SuggestedTrack> getPopMusic(final Context context) {
-        return Observable.create(new Func1<Observer<SuggestedTrack>, Subscription>() {
+    public Observable<SuggestedTrack> getPopMusic() {
+        return schedule(Observable.create(new Func1<Observer<SuggestedTrack>, Subscription>() {
             @Override
             public Subscription call(Observer<SuggestedTrack> suggestedTrackObserver) {
                 try {
 
-                    final InputStream dummyEndpointStream = context.getApplicationContext().getAssets().open("suggested_tracks.json");
+                    Thread.sleep(3000);
+
+                    final InputStream dummyEndpointStream = SoundCloudApplication.instance.getAssets().open("suggested_tracks.json");
                     CollectionHolder<SuggestedTrack> suggestedTrackCollectionHolder = new JacksonJsonTransformer().fromJson(
                             IOUtils.readInputStream(dummyEndpointStream),
-                            new TypeToken<CollectionHolder<SuggestedTrack>>() {}
+                            new TypeToken<CollectionHolder<SuggestedTrack>>() {
+                            }
                     );
 
                     RxUtils.emitIterable(suggestedTrackObserver, suggestedTrackCollectionHolder.collection);
@@ -50,6 +52,6 @@ public class SuggestedTrackOperations extends ScheduledOperations {
                 return Subscriptions.empty();
 
             }
-        });
+        }));
     }
 }
