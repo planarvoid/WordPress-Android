@@ -14,14 +14,14 @@ public class RxFragmentObserver<T extends Fragment, R> extends RxFragmentHandler
     }
 
     @Override
-    public final void onCompleted() {
+    public void onCompleted() {
         assertUiThread();
         T fragment = getFragmentForCallback();
         if (fragment != null) onCompleted(fragment);
     }
 
     @Override
-    public final void onError(Exception e) {
+    public void onError(Exception e) {
         if (!(e instanceof IllegalThreadException)) {
             assertUiThread();
         }
@@ -30,7 +30,7 @@ public class RxFragmentObserver<T extends Fragment, R> extends RxFragmentHandler
     }
 
     @Override
-    public final void onNext(R element) {
+    public void onNext(R element) {
         assertUiThread();
         T fragment = getFragmentForCallback();
         if (fragment != null) onNext(fragment, element);

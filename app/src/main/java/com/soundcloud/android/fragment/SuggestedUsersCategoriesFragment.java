@@ -9,9 +9,9 @@ import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.operations.following.FollowingOperations;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.rx.ScSchedulers;
-import rx.android.RxFragmentObserver;
-import com.soundcloud.android.rx.observers.ScObserver;
+import com.soundcloud.android.rx.observers.ScFragmentObserver;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import org.jetbrains.annotations.Nullable;
@@ -189,7 +189,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         }
     }
 
-    private static final class CategoryGroupsObserver extends RxFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {
+    private static final class CategoryGroupsObserver extends ScFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {
 
         public CategoryGroupsObserver(SuggestedUsersCategoriesFragment fragment) {
             super(fragment);
@@ -205,7 +205,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
                 fragment.setDisplayMode(DisplayMode.CONTENT);
             } else if (fragment.shouldShowFacebook()) {
                 new FollowingOperations().addFollowingsBySuggestedUsers(categoryGroup.getAllSuggestedUsers())
-                        .subscribe(new ScObserver<Void>() {});
+                        .subscribe(ScActions.NO_OP);
             }
         }
 
@@ -216,7 +216,6 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
 
         @Override
         public void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
-            error.printStackTrace();
             fragment.setDisplayMode(DisplayMode.ERROR);
         }
     }

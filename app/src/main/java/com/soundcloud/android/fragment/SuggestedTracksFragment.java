@@ -2,16 +2,15 @@ package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.SuggestedTracksAdapter;
 import com.soundcloud.android.api.SuggestedTracksOperations;
 import com.soundcloud.android.model.SuggestedTrack;
 import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.observers.ScFragmentObserver;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.RxFragmentObserver;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -79,7 +78,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         mSubscription = mObservable.subscribe(new SuggestedTracksObserver(this));
     }
 
-    private static final class SuggestedTracksObserver extends RxFragmentObserver<SuggestedTracksFragment, SuggestedTrack> {
+    private static final class SuggestedTracksObserver extends ScFragmentObserver<SuggestedTracksFragment, SuggestedTrack> {
 
         public SuggestedTracksObserver(SuggestedTracksFragment fragment) {
             super(fragment);
@@ -99,8 +98,6 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
         @Override
         public void onError(SuggestedTracksFragment fragment, Exception error) {
-            SoundCloudApplication.handleSilentException(error.getMessage(), error);
-            error.printStackTrace();
             fragment.mEmptyListView.setStatus(EmptyListView.Status.ERROR);
         }
     }
