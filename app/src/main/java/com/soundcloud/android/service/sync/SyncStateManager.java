@@ -25,6 +25,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
@@ -250,7 +251,7 @@ public class SyncStateManager extends ScheduledOperations {
         private final LocalCollection.OnChangeListener mListener;
 
         public ChangeObserver(LocalCollection syncState, LocalCollection.OnChangeListener listener) {
-            super(new Handler());
+            super(new Handler(Looper.getMainLooper()));
             mSyncState = syncState;
             mListener = listener;
         }
