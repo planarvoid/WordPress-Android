@@ -1,6 +1,5 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
@@ -26,6 +25,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
@@ -41,13 +41,17 @@ public class SyncStateManager extends ScheduledOperations {
 
     private final Map<Long, ContentObserver> mContentObservers;
 
-    public SyncStateManager() {
-        this(ScSchedulers.STORAGE_SCHEDULER);
+    public SyncStateManager(Context context) {
+        this(context.getContentResolver());
     }
 
-    public SyncStateManager(Scheduler scheduler) {
+    public SyncStateManager(ContentResolver resolver) {
+        this(ScSchedulers.STORAGE_SCHEDULER, resolver);
+    }
+
+    public SyncStateManager(Scheduler scheduler, ContentResolver resolver) {
         super(scheduler);
-        mResolver = SoundCloudApplication.instance.getContentResolver();
+        mResolver = resolver;
         mLocalCollectionDao = new LocalCollectionDAO(mResolver);
         mContentObservers = new HashMap<Long, ContentObserver>();
     }
@@ -247,7 +251,7 @@ public class SyncStateManager extends ScheduledOperations {
         private final LocalCollection.OnChangeListener mListener;
 
         public ChangeObserver(LocalCollection syncState, LocalCollection.OnChangeListener listener) {
-            super(new Handler());
+            super(new Handler(Looper.getMainLooper()));
             mSyncState = syncState;
             mListener = listener;
         }

@@ -43,7 +43,7 @@ import java.io.IOException;
     private ApiSyncResult mResult;
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI){
-        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(), PreferenceManager.getDefaultSharedPreferences(context));
+        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context), PreferenceManager.getDefaultSharedPreferences(context));
     }
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI,

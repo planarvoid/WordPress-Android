@@ -1,4 +1,4 @@
-package com.soundcloud.android.screens;
+package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.tests.Han;

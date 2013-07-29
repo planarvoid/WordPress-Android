@@ -8,6 +8,7 @@ import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.concurrency.Schedulers;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -28,7 +29,7 @@ public abstract class SyncStrategy {
         mApi = new OldCloudAPI(context);
         mResolver = resolver;
         mContext = context;
-        mSyncStateManager = new SyncStateManager();
+        mSyncStateManager = new SyncStateManager(Schedulers.immediate(), resolver);
     }
 
     @NotNull

@@ -59,7 +59,7 @@ public class ThirdPartySharingTest extends ActivityTestCase<ShareSound> {
     /*
      * Create an empty temp file, send sharing intent, assert upload screen + header is shown, upload.
      */
-    public void testShareWithExistingFile() throws IOException {
+    public void ignore_testShareWithExistingFile() throws IOException {
         File file = File.createTempFile("sharing", ".ogg", Environment.getExternalStorageDirectory());
 
         AssetManager am = ScAndroidTestCase.testAssets(getInstrumentation().getContext());
@@ -100,7 +100,7 @@ public class ThirdPartySharingTest extends ActivityTestCase<ShareSound> {
     /*
      * Share a non existent file
      */
-    public void testSharingWithMissingFile() {
+    public void ignore_testSharingWithMissingFile() {
         getActivity().setIntent(getShareIntent(new File("/hallo/no/file"), "Testing"));
         solo.clickOnText(ShareSound.SHARE);
 
@@ -113,7 +113,7 @@ public class ThirdPartySharingTest extends ActivityTestCase<ShareSound> {
         assertNull(result.intent);
     }
 
-    public void testShareImplicit() {
+    public void ignore_testShareImplicit() {
         solo.clickOnText(ShareSound.SHARE_IMPLICIT);
 
         // make sure intent chooser pops up

@@ -126,7 +126,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mContent = Content.match(mContentUri);
 
             if (mContent.isSyncable()) {
-                mSyncStateManager = new SyncStateManager();
+                mSyncStateManager = new SyncStateManager(activity);
                 mChangeObserver = new ChangeObserver();
             }
         }
@@ -278,10 +278,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     private void stopListening() {
-        getActivity().unregisterReceiver(mPlaybackStatusListener);
-        getActivity().unregisterReceiver(mGeneralIntentListener);
-        if (mContent.shouldListenForPlaylistChanges() && mPlaylistChangedReceiver != null) {
-            getActivity().unregisterReceiver(mPlaylistChangedReceiver);
+        AndroidUtils.safeUnregisterReceiver(getActivity(), mPlaybackStatusListener);
+        AndroidUtils.safeUnregisterReceiver(getActivity(), mGeneralIntentListener);
+        if (mContent.shouldListenForPlaylistChanges()) {
+            AndroidUtils.safeUnregisterReceiver(getActivity(), mPlaylistChangedReceiver);
         }
 
         if (mSyncStateManager != null && mLocalCollection != null) {

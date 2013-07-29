@@ -36,7 +36,7 @@ public class ApiSyncServiceTest {
 
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
-        syncStateManager = new SyncStateManager();
+        syncStateManager = new SyncStateManager(resolver);
         TestHelper.setUserId(USER_ID);
     }
 
@@ -154,7 +154,6 @@ public class ApiSyncServiceTest {
         expect(Content.COLLECTIONS).toHaveCount(1);
         LocalCollection collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
         expect(collection.last_sync_success).toBeGreaterThan(0L);
-        expect(collection.extra).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
     }
 
     @Test
@@ -168,10 +167,9 @@ public class ApiSyncServiceTest {
         expect(Content.COLLECTIONS).toHaveCount(1);
         LocalCollection collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
         expect(collection.last_sync_success).toBeGreaterThan(0L);
-        expect(collection.extra).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
 
         addCannedResponse(SyncAdapterServiceTest.class,
-                "https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde&limit=100"+ CollectionSyncRequestTest.NON_INTERACTIVE,
+                "/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde&limit=100"+ CollectionSyncRequestTest.NON_INTERACTIVE,
                 "activities_empty.json");
 
         // next sync request should go this url
@@ -179,7 +177,6 @@ public class ApiSyncServiceTest {
 
         expect(Content.COLLECTIONS).toHaveCount(1);
         collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
-        expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
     }
 
     @Test

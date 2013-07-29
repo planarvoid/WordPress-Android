@@ -180,8 +180,6 @@ public abstract class Activity extends ScModel implements Parcelable,
         Activity activity = (Activity) o;
 
         if (created_at != null ? !created_at.equals(activity.created_at) : activity.created_at != null) return false;
-        if (sharing_note != null ? !sharing_note.equals(activity.sharing_note) : activity.sharing_note != null)
-            return false;
         if (tags != null ? !tags.equals(activity.tags) : activity.tags != null) return false;
         if (uuid != null ? !uuid.equals(activity.uuid) : activity.uuid != null) return false;
 
@@ -193,7 +191,6 @@ public abstract class Activity extends ScModel implements Parcelable,
         int result = uuid != null ? uuid.hashCode() : 0;
         result = 31 * result + (created_at != null ? created_at.hashCode() : 0);
         result = 31 * result + (tags != null ? tags.hashCode() : 0);
-        result = 31 * result + (sharing_note != null ? sharing_note.hashCode() : 0);
         return result;
     }
 

@@ -7,12 +7,14 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import rx.concurrency.Schedulers;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -62,7 +64,7 @@ public final class IntegrationTestHelper {
             }
             User user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
             assertNotNull("could not get test user", user);
-            assertNotNull("addAccount failed", new AccountOperations(instrumentation.getContext()).addOrReplaceSoundCloudAccount(user, token, SignupVia.NONE));
+            assertNotNull("addAccount failed", new AccountOperations(instrumentation.getTargetContext()).addOrReplaceSoundCloudAccount(user, token, SignupVia.NONE));
             return account;
         } else {
             Log.d(TAG, "already logged in as user "+account);
@@ -124,5 +126,12 @@ public final class IntegrationTestHelper {
                 };
             }
         });
+    }
+
+    public static void unfollowAll() {
+        final FollowingOperations followingOperations = new FollowingOperations(Schedulers.immediate());
+        for (long userId : followingOperations.getFollowedUserIds()){
+            followingOperations.removeFollowing(new User(userId));
+        }
     }
 }

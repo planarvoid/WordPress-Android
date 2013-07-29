@@ -1,33 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
+
+    <!-- ****** Dialogs ****** -->
+
+    <style name="Dialog" parent="android:Theme.Dialog">
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <style name="Theme.FramelessDialog" parent="Theme.ScDialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.AddCommentDialog" parent="Theme.FramelessDialog">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.AddCommentDialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustResize</item>
+    </style>
+
+    <style name="Theme.FullImageDialog" parent="Theme.FramelessDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">5dip</item>
+    </style>
+
+    <!-- ****** ViewPagerIndicator ****** -->
+
+    <style name="Widget.ScTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:background">@drawable/action_bar_background</item>
+        <item name="android:textAppearance">@style/TextAppearance.ScTabPageIndicator</item>
+        <item name="footerColor">#ff6600</item>
+    </style>
+
+
+    <style name="Widget.ScTitlePageIndicator">
+        <item name="android:background">@drawable/action_bar_background</item>
+        <item name="android:textAppearance">@style/TextAppearance.ScTitlePageIndicator</item>
+        <item name="selectedColor">@android:color/black</item>
+        <item name="footerColor">#ff6600</item>
+        <item name="footerIndicatorStyle">triangle</item>
+        <item name="titlePadding">20dp</item>
+        <item name="clipPadding">16dp</item>
+    </style>
+
     <style name="Widget.Light.AutoCompleteTextView" parent="Widget.Sherlock.Light.SearchAutoCompleteTextView">
-        <item name="android:textColor">?textColorPrimaryInverse</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">normal</item>
-        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+        <item name="android:textAppearance">@style/TextAppearance.Light.AutoCompleteTextView</item>
     </style>
+
     <style name="Widget.Light.DropDownItem" parent="Widget.Sherlock.Light.DropDownItem.Spinner">
-        <item name="android:textColor">?textColorPrimaryInverse</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">normal</item>
-        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+        <item name="android:textAppearance">@style/TextAppearance.Light.AutoCompleteTextView</item>
     </style>
 
-    <style name="TextAppearance.ScActionBarTitle" parent="@style/TextAppearance.Sherlock.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/abs__primary_text_holo_dark</item>
-    </style>
+    <style name="Widget.TextView" />
 
-    <style name="txt_list_track_user">
-        <item name="android:textColor">@drawable/txt_list_track_user_states</item>
-        <item name="android:textSize">@dimen/list_txt_sub_size</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">end</item>
-    </style>
 
-    <style name="txt_list_track_reposter" parent="txt_list_track_user">
-        <item name="android:textSize">@dimen/list_txt_sub_2_size</item>
-    </style>
 
     <style name="PlayerActionSeparator">
         <item name="android:background">@drawable/player_track_vert_separator_bg</item>
@@ -414,7 +447,7 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="Player.TrackInfo.Label" parent="txt_list_main">
+    <style name="Player.TrackInfo.Label" parent="TextAppearance.List.Main">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_height">60dip</item>
@@ -521,69 +554,6 @@
         <item name="android:background">@drawable/btn_blue</item>
         <item name="android:textColor">@drawable/txt_btn_blue_states</item>
         <item name="android:shadowColor">#803F6BCE</item>
-    </style>
-    <style name="txt_list_pull">
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/list_txt_pull_size</item>
-    </style>
-
-    <style name="txt_list_pull_sub">
-        <item name="android:textSize">@dimen/list_txt_sub_size</item>
-    </style>
-
-    <style name="txt_list_main_dark">
-        <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
-        <item name="android:textSize">@dimen/list_txt_main_size</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="txt_list_main">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
-        <item name="android:textSize">@dimen/list_txt_main_size</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="txt_list_main_inactive" parent="txt_list_main">
-        <item name="android:textColor">@drawable/txt_list_inactive_states</item>
-    </style>
-    <style name="txt_list_secondary" parent="txt_list_main">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
-    </style>
-    <style name="txt_list_sub">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
-        <item name="android:textSize">@dimen/list_txt_sub_size</item>
-    </style>
-    <style name="txt_list_sub_secondary" parent="txt_list_sub">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
-    </style>
-    <style name="txt_user_list_browser_header">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
-        <item name="android:textSize">@dimen/list_txt_sub_size</item>
-    </style>
-
-    <style name="txt_empty_view">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">italic</item>
-    </style>
-
-    <style name="txt_comment_panel_user">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
-        <item name="android:textSize">@dimen/comment_panel_main_size</item>
-    </style>
-    <style name="txt_comment_panel_timestamp" parent="txt_comment_panel_user">
-        <item name="android:paddingLeft">3dip</item>
-        <item name="android:textColor">#ffe36711</item>
-    </style>
-    <style name="txt_comment_panel_created_at" parent="txt_comment_panel_user">
-        <item name="android:paddingLeft">3dip</item>
-        <item name="android:textSize">@dimen/comment_panel_created_at_size</item>
-    </style>
-    <style name="txt_comment_panel_body">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
-        <item name="android:textSize">@dimen/comment_panel_main_size</item>
-    </style>
-    <style name="txt_list_created_at" parent="txt_list_sub">
-        <item name="android:textColor">@drawable/txt_list_created_at_states</item>
     </style>
 
     <style name="stat_pipe">
@@ -1003,19 +973,20 @@
         <item name="android:layout_height">@dimen/playlist_page_icon_size</item>
     </style>
 
-    <style name="PlayableTitle">
+    <style name="Widget.TextView.Playable" />
+    <style name="Widget.TextView.Playable.Title">
         <item name="android:layout_alignLeft">@+id/playable_user_holder</item>
         <item name="android:layout_toLeftOf">@+id/playable_track_count</item>
         <item name="android:layout_alignWithParentIfMissing">true</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_below">@id/playable_user_holder</item>
-        <item name="android:textAppearance">@style/txt_list_main</item>
+        <item name="android:textAppearance">@style/TextAppearance.List.Main</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="PlayableTrackCount">
+    <style name="Widget.TextView.Playable.TrackCount">
         <item name="android:layout_below">@id/playable_user_holder</item>
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
@@ -1033,6 +1004,18 @@
         <item name="android:visibility">gone</item>
     </style>
 
+    <style name="Widget.TextView.Playable.Username">
+        <item name="android:textAppearance">@style/TextAppearance.Playable.Username</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Widget.TextView.Playable.Reposter" parent="Widget.TextView.Playable.Username">
+        <item name="android:textAppearance">@style/TextAppearance.Playable.Username</item>
+    </style>
+
+    <!-- END Playable styles -->
+
     <style name="Playlist">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:background">@android:color/black</item>
@@ -1049,8 +1032,6 @@
         <item name="android:paddingBottom">8dp</item>
         <item name="android:background">@color/playerControlBackground</item>
     </style>
-
-    <!-- END Playable styles -->
 
     <style name="FloatingPlayer">
         <item name="android:windowBackground">@android:color/transparent</item>

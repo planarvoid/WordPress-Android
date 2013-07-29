@@ -58,7 +58,8 @@ public class FollowingOperations extends ScheduledOperations {
     private final RxHttpClient mRxHttpClient;
 
     public FollowingOperations() {
-        this(new SoundCloudRxHttpClient(), new UserAssociationStorage(), new SyncStateManager(),
+        this(new SoundCloudRxHttpClient(), new UserAssociationStorage(),
+                new SyncStateManager(SoundCloudApplication.instance),
                 FollowStatus.get(), SoundCloudApplication.MODEL_MANAGER);
     }
 
@@ -71,7 +72,7 @@ public class FollowingOperations extends ScheduledOperations {
      */
     public FollowingOperations(Scheduler scheduler) {
         this(new SoundCloudRxHttpClient(scheduler), new UserAssociationStorage(scheduler, SoundCloudApplication.instance.getContentResolver()),
-                new SyncStateManager(scheduler),
+                new SyncStateManager(SoundCloudApplication.instance),
                 FollowStatus.get(), SoundCloudApplication.MODEL_MANAGER);
     }
 

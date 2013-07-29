@@ -1,3 +1,11 @@
+$ 67
+  % v 2.6.4
+  _ 2013-07-24
+  ! Maintenance
+      * Fixed stuck activity streams
+      * Restored Lockscreen controls
+      - Fixed UserBrowser Details empty screen
+
 $ 64
   % v 2.6.3
   _ 2013-07-17

@@ -68,7 +68,7 @@ public class AcceptTerms extends RelativeLayout {
             }
         });
 
-        findViewById(R.id.btn_continue).setOnClickListener(new OnClickListener() {
+        findViewById(R.id.btn_accept_terms).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 getAcceptTermsHandler().onAcceptTerms(mSignupVia, mSignupParams);

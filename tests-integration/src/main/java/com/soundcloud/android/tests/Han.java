@@ -8,6 +8,7 @@ import static junit.framework.Assert.fail;
 import com.jayway.android.robotium.solo.By;
 import com.jayway.android.robotium.solo.Condition;
 import com.jayway.android.robotium.solo.Solo;
+import com.jayway.android.robotium.solo.WebElement;
 import com.soundcloud.android.R;
 
 import android.app.Activity;
@@ -17,9 +18,15 @@ import android.test.InstrumentationTestCase;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.ListView;
+import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -52,6 +59,14 @@ public class Han  {
         clickOnButtonResId(R.string.btn_publish);
     }
 
+    public WebElement getWebElement(By by, int index) {
+        return solo.getWebElement(by, index);
+    }
+
+    public void clearTextInWebElement(By by) {
+        solo.clearTextInWebElement(by);
+    }
+
     public void clickOnText(int resId) {
         clickOnText(getString(resId));
     }
@@ -61,6 +76,7 @@ public class Han  {
     }
 
     public void clickOnView(int resId) {
+        solo.waitForView(resId);
         clickOnView(solo.getCurrentActivity().findViewById(resId));
     }
 
@@ -151,6 +167,29 @@ public class Han  {
         return solo.getCurrentActivity().getString(resId, args);
     }
 
+    public List<ListView> getCurrentListViews(){
+        return solo.getCurrentViews(ListView.class);
+    }
+
+    public AbsListView getCurrentListView(){
+        final ArrayList<AbsListView> currentListViews = solo.getCurrentViews(AbsListView.class);
+        return currentListViews == null || currentListViews.isEmpty() ? null : currentListViews.get(0);
+    }
+
+    public GridView getCurrentGridView(){
+        final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
+        return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
+    }
+
+
+    public ArrayList<TextView> clickInList(int line){
+        return solo.clickInList(line);
+    }
+
+    public ArrayList<TextView> clickInList(int line, int listIndex) {
+        return solo.clickInList(line, listIndex);
+    }
+
     public void swipeLeft() {
         swipe(Solo.LEFT);
         solo.sleep(SWIPE_SLEEP);
@@ -227,6 +266,10 @@ public class Han  {
 
     public void waitForActivity(Class<? extends Activity> name) {
         waitForActivity(name.getSimpleName());
+    }
+
+    public void waitForActivity(Class<? extends Activity> name, int timeout) {
+        solo.waitForActivity(name.getSimpleName(), timeout);
     }
 
     @Deprecated
@@ -327,6 +370,14 @@ public class Han  {
         poseForScreenshotWithKeyValue("name", name);
     }
 
+    public boolean scrollListToTop(int index) {
+        return solo.scrollListToTop(index);
+    }
+
+    public void clickOnActionBarItem(int itemId) {
+        solo.clickOnActionBarItem(itemId);
+    }
+
     private void poseForScreenshotWithKeyValue(String key, String value) {
         poseForScreenshotWithKeyValueString(key + "=" + value);
     }
@@ -364,6 +415,10 @@ public class Han  {
 
     public boolean waitForDialogToOpen(long timeout) {
         return solo.waitForDialogToOpen(timeout);
+    }
+
+    public void takeScreenshot(String name) {
+        solo.takeScreenshot(name);
     }
 
     public boolean waitForCondition(Condition condition, int timeout) {
