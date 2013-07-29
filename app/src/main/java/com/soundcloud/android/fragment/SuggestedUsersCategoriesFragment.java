@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.android.RxFragmentObserver;
+import rx.android.RxFragmentObserver;
 import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;

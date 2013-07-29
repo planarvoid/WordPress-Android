@@ -5,7 +5,7 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;

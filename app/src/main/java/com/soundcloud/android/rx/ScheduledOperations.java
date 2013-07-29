@@ -1,4 +1,4 @@
-package com.soundcloud.android.rx.schedulers;
+package com.soundcloud.android.rx;
 
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;

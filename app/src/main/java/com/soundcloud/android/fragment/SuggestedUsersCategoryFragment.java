@@ -7,7 +7,7 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.android.RxFragmentObserver;
+import rx.android.RxFragmentObserver;
 import com.soundcloud.android.view.GridViewCompat;
 
 import android.annotation.TargetApi;
