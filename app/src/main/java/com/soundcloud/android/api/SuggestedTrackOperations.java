@@ -23,9 +23,8 @@ public class SuggestedTrackOperations extends ScheduledOperations {
     /**
      * Temporary until we use RxHttpClient with real endpoints
      */
-    @Deprecated
     public SuggestedTrackOperations() {
-        super(ScSchedulers.STORAGE_SCHEDULER);
+        super(ScSchedulers.API_SCHEDULER);
     }
 
     public Observable<SuggestedTrack> getPopMusic(final Context context) {

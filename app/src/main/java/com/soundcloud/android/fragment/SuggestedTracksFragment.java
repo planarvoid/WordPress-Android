@@ -10,7 +10,6 @@ import com.soundcloud.android.rx.android.RxFragmentObserver;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 
 import android.os.Bundle;
@@ -22,21 +21,18 @@ import android.widget.GridView;
 
 public class SuggestedTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
-    private static final String KEY_OBSERVABLE  = "observable";
-    private static final String FRAGMENT_TAG    = "suggested_tracks_fragment";
     private static final String LOG_TAG         = "suggested_tracks_frag";
 
     private DisplayMode mMode = DisplayMode.LOADING;
+    private Observable<SuggestedTrack> mObservable;
+
     private enum DisplayMode {
         LOADING, ERROR, CONTENT
     }
 
     private final SuggestedTrackOperations mSuggestedTrackOperations;
     private SuggestedTracksAdapter mSuggestedTracksAdapter;
-
     private Subscription mSubscription;
-    private Observer<SuggestedTrack> mObserver;
-
     private GridView mGridView;
     private EmptyListView mEmptyListView;
 
@@ -47,19 +43,24 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
     public SuggestedTracksFragment(SuggestedTrackOperations trackOperations, SuggestedTracksAdapter adapter){
         mSuggestedTrackOperations = trackOperations;
         mSuggestedTracksAdapter = adapter;
+        setRetainInstance(true);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mObservable = mSuggestedTrackOperations.getPopMusic(getActivity()).observeOn(ScSchedulers.UI_SCHEDULER).cache();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSubscription.unsubscribe();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.suggested_track_fragment, container, false);
-    }
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mGridView = null;
-        mEmptyListView = null;
     }
 
     @Override
@@ -74,22 +75,12 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         mGridView = (GridView) view.findViewById(R.id.gridview);
         mGridView.setOnItemClickListener(this);
         mGridView.setAdapter(mSuggestedTracksAdapter);
-
-        StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
-        Observable<?> observable;
-        if (savedState.has(KEY_OBSERVABLE)){
-            observable = savedState.get(KEY_OBSERVABLE);
-        } else {
-            observable = mSuggestedTrackOperations.getPopMusic(getActivity()).observeOn(ScSchedulers.UI_SCHEDULER);
-            savedState.put(KEY_OBSERVABLE, observable);
-        }
-        loadSuggestedTracks(observable);
+        loadSuggestedTracks(mObservable);
     }
 
     private void loadSuggestedTracks(Observable<?> observable) {
-        if (mObserver == null) mObserver = new SuggestedTracksObserver(this);
-        mSubscription = observable.subscribe(mObserver);
         setDisplayMode(DisplayMode.LOADING);
+        mSubscription = observable.subscribe(new SuggestedTracksObserver(this));
     }
 
     private void setDisplayMode(DisplayMode mode){
