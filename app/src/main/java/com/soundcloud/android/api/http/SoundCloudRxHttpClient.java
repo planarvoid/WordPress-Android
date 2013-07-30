@@ -14,6 +14,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.http.json.JsonTransformer;
+import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -32,6 +33,7 @@ import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -81,6 +83,49 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
                 return mapResponseToModels(apiRequest, apiResponse);
             }
         });
+    }
+
+    @Override
+    public <ModelType> Observable<Observable<ModelType>> fetchPagedModels(final APIRequest apiRequest) {
+        return Observable.create(new Func1<Observer<Observable<ModelType>>, Subscription>() {
+            @Override
+            public Subscription call(final Observer<Observable<ModelType>> observableObserver) {
+                observableObserver.onNext(getNextPage(observableObserver, apiRequest));
+                return Subscriptions.empty();
+            }
+        });
+    }
+
+    private <ModelType> Observable<ModelType> getNextPage(final Observer<Observable<ModelType>> pageObserver, final APIRequest apiRequest) {
+        return schedule(Observable.create(new Func1<Observer<ModelType>, Subscription>() {
+            @Override
+            public Subscription call(Observer<ModelType> itemObserver) {
+                try {
+                    Observable<CollectionHolder<ModelType>> pageRequest = fetchModels(apiRequest);
+                    final CollectionHolder<ModelType> page = pageRequest.toBlockingObservable().last();
+
+                    // emit items
+                    RxUtils.emitIterable(itemObserver, page);
+                    itemObserver.onCompleted();
+
+                    // emit next page or done
+                    if (!TextUtils.isEmpty(page.next_href)) {
+                        // TODO, honor params from initial request
+                        final APIRequest<?> nextRequest =  SoundCloudAPIRequest.RequestBuilder.get(page.getNextHref())
+                                .forPublicAPI()
+                                .forResource(apiRequest.getResourceType()).build();
+                        pageObserver.onNext(getNextPage(pageObserver, nextRequest));
+                    } else {
+                        pageObserver.onCompleted();
+                    }
+                } catch (Exception e) {
+                    itemObserver.onError(e);
+                    pageObserver.onError(e);
+                }
+                return Subscriptions.empty();
+
+            }
+        }));
     }
 
     private <ModelType> Observable<ModelType> mapResponseToModels(final APIRequest apiRequest, final APIResponse apiResponse) {

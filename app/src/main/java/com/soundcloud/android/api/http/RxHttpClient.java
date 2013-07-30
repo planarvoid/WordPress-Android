@@ -20,5 +20,7 @@ public interface RxHttpClient {
      */
     <ModelType> Observable<ModelType> fetchModels(APIRequest apiRequest) throws APIRequestException;
 
-    Observable<APIResponse> fetchResponse(APIRequest apiRequest) throws APIRequestException;;
+    <ModelType> Observable<Observable<ModelType>> fetchPagedModels(APIRequest apiRequest) throws APIRequestException;
+
+    Observable<APIResponse> fetchResponse(APIRequest apiRequest) throws APIRequestException;
 }
