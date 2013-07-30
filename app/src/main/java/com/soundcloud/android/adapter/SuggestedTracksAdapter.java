@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.SuggestedTrack;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 
 import android.content.res.Resources;
@@ -19,10 +19,10 @@ public class SuggestedTracksAdapter extends SpacedGridAdapter {
 
     public static final int INITIAL_LIST_SIZE = 20;
 
-    private List<SuggestedTrack> mSuggestedTracks = Lists.newArrayListWithCapacity(INITIAL_LIST_SIZE);
+    private List<Track> mSuggestedTracks = Lists.newArrayListWithCapacity(INITIAL_LIST_SIZE);
     private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.adapterView(R.drawable.placeholder_cells);
 
-    public void addSuggestedTrack(SuggestedTrack suggestedTrack) {
+    public void addSuggestedTrack(Track suggestedTrack) {
         mSuggestedTracks.add(suggestedTrack);
     }
 
@@ -32,7 +32,7 @@ public class SuggestedTracksAdapter extends SpacedGridAdapter {
     }
 
     @Override
-    public SuggestedTrack getItem(int position) {
+    public Track getItem(int position) {
         return mSuggestedTracks.get(position);
     }
 
@@ -56,10 +56,10 @@ public class SuggestedTracksAdapter extends SpacedGridAdapter {
             viewHolder = (ItemViewHolder) convertView.getTag();
         }
 
-        final SuggestedTrack suggestedTrack = getItem(position);
-        viewHolder.username.setText(suggestedTrack.getUser().getUsername());
-        viewHolder.title.setText(suggestedTrack.getTitle());
-        ImageLoader.getInstance().displayImage(suggestedTrack.getArtworkUrl(), viewHolder.imageView, mDisplayImageOptions);
+        final Track track = getItem(position);
+        viewHolder.username.setText(track.getUser().getUsername());
+        viewHolder.title.setText(track.getTitle());
+        ImageLoader.getInstance().displayImage(track.getArtwork(), viewHolder.imageView, mDisplayImageOptions);
         return convertView;
     }
 

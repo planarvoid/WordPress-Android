@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.SuggestedTracksAdapter;
 import com.soundcloud.android.api.SuggestedTracksOperations;
 import com.soundcloud.android.model.SuggestedTrack;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScFragmentObserver;
 import com.soundcloud.android.utils.Log;
@@ -25,7 +26,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
     private static final String LOG_TAG         = "suggested_tracks_frag";
 
-    private Observable<Observable<SuggestedTrack>> mObservable;
+    private Observable<Observable<Track>> mObservable;
     private Observable<SuggestedTrack> mNextPageObservable;
 
     private SuggestedTracksAdapter mSuggestedTracksAdapter;
@@ -47,7 +48,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mObservable = mSuggestedTracksOperations.getPopMusic().observeOn(ScSchedulers.UI_SCHEDULER).cache();
+        mObservable = mSuggestedTracksOperations.getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER).cache();
     }
 
     @Override
@@ -110,7 +111,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         }
     }
 
-    private static final class SuggestedTrackObserver extends ScFragmentObserver<SuggestedTracksFragment, SuggestedTrack> {
+    private static final class SuggestedTrackObserver extends ScFragmentObserver<SuggestedTracksFragment, Track> {
 
         public SuggestedTrackObserver(SuggestedTracksFragment fragment) {
             super(fragment);
@@ -129,8 +130,8 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         }
 
         @Override
-        public void onNext(SuggestedTracksFragment fragment, SuggestedTrack suggestedTrack) {
-            fragment.mSuggestedTracksAdapter.addSuggestedTrack(suggestedTrack);
+        public void onNext(SuggestedTracksFragment fragment, Track track) {
+            fragment.mSuggestedTracksAdapter.addSuggestedTrack(track);
         }
     }
 }

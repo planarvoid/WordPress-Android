@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.adapter.SuggestedTracksAdapter;
 import com.soundcloud.android.api.SuggestedTracksOperations;
-import com.soundcloud.android.model.SuggestedTrack;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
@@ -39,7 +39,7 @@ public class SuggestedTracksFragmentTest {
     @Mock
     SuggestedTracksAdapter suggestedTracksAdapter;
     @Mock
-    Observable<SuggestedTrack> suggestedTrackObservable;
+    Observable<Track> suggestedTrackObservable;
 
     @Before
     public void setup() {
@@ -51,7 +51,7 @@ public class SuggestedTracksFragmentTest {
 
     @Test
     public void testShowsLoadingState() {
-        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.<Observable<SuggestedTrack>>never());
+        when(suggestedTracksOperations.getSuggestedTracks()).thenReturn(Observable.<Observable<Track>>never());
         suggestedTracksFragment.onCreate(null);
 
         final EmptyListView emptyView = (EmptyListView) initFragmentView().findViewById(R.id.empty);
@@ -60,10 +60,10 @@ public class SuggestedTracksFragmentTest {
 
     @Test
     public void testShowsErrorState() {
-        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.create(new Func1<Observer<Observable<SuggestedTrack>>, Subscription>() {
+        when(suggestedTracksOperations.getSuggestedTracks()).thenReturn(Observable.create(new Func1<Observer<Observable<Track>>, Subscription>() {
             @Override
-            public Subscription call(Observer<Observable<SuggestedTrack>> observableObserver) {
-                observableObserver.onNext(Observable.<SuggestedTrack>error(new Exception()));
+            public Subscription call(Observer<Observable<Track>> observableObserver) {
+                observableObserver.onNext(Observable.<Track>error(new Exception()));
                 observableObserver.onCompleted();
                 return Subscriptions.empty();
             }
@@ -76,10 +76,10 @@ public class SuggestedTracksFragmentTest {
 
     @Test
     public void testShowsEmptyState() {
-        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.create(new Func1<Observer<Observable<SuggestedTrack>>, Subscription>() {
+        when(suggestedTracksOperations.getSuggestedTracks()).thenReturn(Observable.create(new Func1<Observer<Observable<Track>>, Subscription>() {
             @Override
-            public Subscription call(Observer<Observable<SuggestedTrack>> observableObserver) {
-                observableObserver.onNext(Observable.<SuggestedTrack>empty());
+            public Subscription call(Observer<Observable<Track>> observableObserver) {
+                observableObserver.onNext(Observable.<Track>empty());
                 observableObserver.onCompleted();
                 return Subscriptions.empty();
             }
@@ -89,15 +89,15 @@ public class SuggestedTracksFragmentTest {
         final EmptyListView emptyView = (EmptyListView) initFragmentView().findViewById(R.id.empty);
         expect(emptyView.getStatus()).toEqual(EmptyListView.Status.OK);
 
-        verify(suggestedTracksAdapter, never()).addSuggestedTrack(any(SuggestedTrack.class));
+        verify(suggestedTracksAdapter, never()).addSuggestedTrack(any(Track.class));
     }
 
     @Test
     public void testShowsContent() {
-        final SuggestedTrack suggestedTrack = new SuggestedTrack();
-        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.create(new Func1<Observer<Observable<SuggestedTrack>>, Subscription>() {
+        final Track suggestedTrack = new Track();
+        when(suggestedTracksOperations.getSuggestedTracks()).thenReturn(Observable.create(new Func1<Observer<Observable<Track>>, Subscription>() {
             @Override
-            public Subscription call(Observer<Observable<SuggestedTrack>> observableObserver) {
+            public Subscription call(Observer<Observable<Track>> observableObserver) {
                 observableObserver.onNext(Observable.just(suggestedTrack));
                 observableObserver.onCompleted();
                 return Subscriptions.empty();
