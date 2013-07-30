@@ -8,6 +8,8 @@ import android.webkit.WebView;
 
 public class Waiter {
     public Han solo;
+    public final int TIMEOUT = 5000;
+    public final int NETWORK_TIMEOUT = 15000;
 
     public Waiter(Han driver) {
         solo = driver;
@@ -21,7 +23,7 @@ public class Waiter {
                 return !solo.searchText(text, true);
             }
         };
-        return solo.waitForCondition(condition, 5000);
+        return solo.waitForCondition(condition, this.TIMEOUT);
     }
 
     public boolean waitForWebViewToLoad(final WebView webViewToCheck) {
@@ -32,7 +34,7 @@ public class Waiter {
                 return (webViewToCheck.getUrl() != null);
             }
         };
-        return solo.waitForCondition(condition, 5000);
+        return solo.waitForCondition(condition,this.NETWORK_TIMEOUT );
     }
 
     public boolean waitForListContent(){
@@ -44,7 +46,7 @@ public class Waiter {
                     final View view = solo.getView(R.id.list_loading);
                     return view == null || !view.isShown();
                 }
-            }, 15000);
+            }, this.NETWORK_TIMEOUT);
         } else {
             return false;
         }
