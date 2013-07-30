@@ -15,9 +15,13 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
+import android.text.TextUtils;
+
 import java.io.InputStream;
 
 public class SuggestedTracksOperations extends ScheduledOperations {
+
+    int page = 0;
 
     /**
      * Temporary until we use RxHttpClient with real endpoints
@@ -26,24 +30,36 @@ public class SuggestedTracksOperations extends ScheduledOperations {
         super(ScSchedulers.API_SCHEDULER);
     }
 
-    public Observable<SuggestedTrack> getPopMusic() {
+    public Observable<Observable<SuggestedTrack>> getPopMusic() {
+        return Observable.create(new Func1<Observer<Observable<SuggestedTrack>>, Subscription>() {
+            @Override
+            public Subscription call(final Observer<Observable<SuggestedTrack>> observableObserver) {
+                observableObserver.onNext(getPopMusicPage(observableObserver, null));
+                return Subscriptions.empty();
+            }
+        });
+    }
+
+    public Observable<SuggestedTrack> getPopMusicPage(final Observer<Observable<SuggestedTrack>> observableObserver, String next_href) {
         return schedule(Observable.create(new Func1<Observer<SuggestedTrack>, Subscription>() {
             @Override
             public Subscription call(Observer<SuggestedTrack> suggestedTrackObserver) {
                 try {
+                    Thread.sleep(1000);
+                    CollectionHolder<SuggestedTrack> suggestedTrackCollectionHolder = getDummySuggestedTracks(page > 3);
 
-                    Thread.sleep(3000);
-
-                    final InputStream dummyEndpointStream = SoundCloudApplication.instance.getAssets().open("suggested_tracks.json");
-                    CollectionHolder<SuggestedTrack> suggestedTrackCollectionHolder = new JacksonJsonTransformer().fromJson(
-                            IOUtils.readInputStream(dummyEndpointStream),
-                            new TypeToken<CollectionHolder<SuggestedTrack>>() {
-                            }
-                    );
-
-                    RxUtils.emitIterable(suggestedTrackObserver, suggestedTrackCollectionHolder.collection);
-
+                    // emit items
+                    RxUtils.emitIterable(suggestedTrackObserver, suggestedTrackCollectionHolder);
                     suggestedTrackObserver.onCompleted();
+
+                    // emit next page or done
+                    if (!TextUtils.isEmpty(suggestedTrackCollectionHolder.next_href)){
+                        final Observable<SuggestedTrack> popMusicPage = getPopMusicPage(observableObserver, suggestedTrackCollectionHolder.next_href);
+                        observableObserver.onNext(popMusicPage);
+                        page++;
+                    } else {
+                        observableObserver.onCompleted();
+                    }
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -53,5 +69,13 @@ public class SuggestedTracksOperations extends ScheduledOperations {
 
             }
         }));
+    }
+
+    private CollectionHolder<SuggestedTrack> getDummySuggestedTracks(boolean lastPage) throws Exception {
+        final InputStream dummyEndpointStream = SoundCloudApplication.instance.getAssets().open(lastPage ? "suggested_tracks_2.json" : "suggested_tracks.json");
+        return new JacksonJsonTransformer().fromJson(
+                IOUtils.readInputStream(dummyEndpointStream),
+                new TypeToken<CollectionHolder<SuggestedTrack>>() { }
+        );
     }
 }

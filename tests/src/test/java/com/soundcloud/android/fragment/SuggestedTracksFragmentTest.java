@@ -19,6 +19,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import android.R;
 import android.view.LayoutInflater;
@@ -47,7 +51,7 @@ public class SuggestedTracksFragmentTest {
 
     @Test
     public void testShowsLoadingState() {
-        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.<SuggestedTrack>never());
+        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.<Observable<SuggestedTrack>>never());
         suggestedTracksFragment.onCreate(null);
 
         final EmptyListView emptyView = (EmptyListView) initFragmentView().findViewById(R.id.empty);
@@ -56,7 +60,14 @@ public class SuggestedTracksFragmentTest {
 
     @Test
     public void testShowsErrorState() {
-        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.<SuggestedTrack>error(new Exception()));
+        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.create(new Func1<Observer<Observable<SuggestedTrack>>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Observable<SuggestedTrack>> observableObserver) {
+                observableObserver.onNext(Observable.<SuggestedTrack>error(new Exception()));
+                observableObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
         suggestedTracksFragment.onCreate(null);
 
         final EmptyListView emptyView = (EmptyListView) initFragmentView().findViewById(R.id.empty);
@@ -65,7 +76,14 @@ public class SuggestedTracksFragmentTest {
 
     @Test
     public void testShowsEmptyState() {
-        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.<SuggestedTrack>empty());
+        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.create(new Func1<Observer<Observable<SuggestedTrack>>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Observable<SuggestedTrack>> observableObserver) {
+                observableObserver.onNext(Observable.<SuggestedTrack>empty());
+                observableObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
         suggestedTracksFragment.onCreate(null);
 
         final EmptyListView emptyView = (EmptyListView) initFragmentView().findViewById(R.id.empty);
@@ -77,7 +95,14 @@ public class SuggestedTracksFragmentTest {
     @Test
     public void testShowsContent() {
         final SuggestedTrack suggestedTrack = new SuggestedTrack();
-        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.<SuggestedTrack>just(suggestedTrack));
+        when(suggestedTracksOperations.getPopMusic()).thenReturn(Observable.create(new Func1<Observer<Observable<SuggestedTrack>>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Observable<SuggestedTrack>> observableObserver) {
+                observableObserver.onNext(Observable.just(suggestedTrack));
+                observableObserver.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
         suggestedTracksFragment.onCreate(null);
 
         final EmptyListView emptyView = (EmptyListView) initFragmentView().findViewById(R.id.empty);

@@ -2,6 +2,7 @@ package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.SuggestedTracksAdapter;
 import com.soundcloud.android.api.SuggestedTracksOperations;
 import com.soundcloud.android.model.SuggestedTrack;
@@ -18,12 +19,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 public class SuggestedTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
 
     private static final String LOG_TAG         = "suggested_tracks_frag";
 
-    private Observable<SuggestedTrack> mObservable;
+    private Observable<Observable<SuggestedTrack>> mObservable;
+    private Observable<SuggestedTrack> mNextPageObservable;
+
     private SuggestedTracksAdapter mSuggestedTracksAdapter;
     private Subscription mSubscription;
     private GridView mGridView;
@@ -59,6 +63,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        loadNextPage();
     }
 
     @Override
@@ -73,32 +78,59 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         loadSuggestedTracks();
     }
 
-    private void loadSuggestedTracks() {
-        mEmptyListView.setStatus(EmptyListView.Status.WAITING);
-        mSubscription = mObservable.subscribe(new SuggestedTracksObserver(this));
+    private void loadNextPage() {
+        mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(new SuggestedTrackObserver(this));
     }
 
-    private static final class SuggestedTracksObserver extends ScFragmentObserver<SuggestedTracksFragment, SuggestedTrack> {
+    private void loadSuggestedTracks() {
+        mEmptyListView.setStatus(EmptyListView.Status.WAITING);
+        mSubscription = mObservable.subscribe(new GetNextPageObserver(this));
+    }
 
-        public SuggestedTracksObserver(SuggestedTracksFragment fragment) {
+    private static final class GetNextPageObserver extends ScFragmentObserver<SuggestedTracksFragment, Observable<SuggestedTrack>> {
+
+        public GetNextPageObserver(SuggestedTracksFragment fragment) {
             super(fragment);
         }
 
         @Override
-        public void onNext(SuggestedTracksFragment fragment, SuggestedTrack suggestedTrack) {
-            fragment.mSuggestedTracksAdapter.addSuggestedTrack(suggestedTrack);
-            fragment.mSuggestedTracksAdapter.notifyDataSetChanged();
+        public void onNext(final SuggestedTracksFragment fragment, Observable<SuggestedTrack> nextPageObservable) {
+            Toast.makeText(SoundCloudApplication.instance, "More pages to go... ", Toast.LENGTH_SHORT).show();
+            boolean firstPage = (fragment.mNextPageObservable == null);
+            fragment.mNextPageObservable = nextPageObservable;
+            if (firstPage){
+                fragment.loadNextPage();
+            }
+        }
+
+        @Override
+        public void onCompleted() {
+            super.onCompleted();
+            Toast.makeText(SoundCloudApplication.instance, "Done Loading ", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private static final class SuggestedTrackObserver extends ScFragmentObserver<SuggestedTracksFragment, SuggestedTrack> {
+
+        public SuggestedTrackObserver(SuggestedTracksFragment fragment) {
+            super(fragment);
         }
 
         @Override
         public void onCompleted(SuggestedTracksFragment fragment) {
             fragment.mEmptyListView.setStatus(EmptyListView.Status.OK);
+            fragment.mSuggestedTracksAdapter.notifyDataSetChanged();
             Log.d(LOG_TAG, "fragment: onCompleted");
         }
 
         @Override
         public void onError(SuggestedTracksFragment fragment, Exception error) {
             fragment.mEmptyListView.setStatus(EmptyListView.Status.ERROR);
+        }
+
+        @Override
+        public void onNext(SuggestedTracksFragment fragment, SuggestedTrack suggestedTrack) {
+            fragment.mSuggestedTracksAdapter.addSuggestedTrack(suggestedTrack);
         }
     }
 }
