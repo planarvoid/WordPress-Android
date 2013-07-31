@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Deprecated
 public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     protected Content mContent;
     protected Uri mContentUri;

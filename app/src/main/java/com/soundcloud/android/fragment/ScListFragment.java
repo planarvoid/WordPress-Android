@@ -68,6 +68,7 @@ import android.widget.ListView;
 
 import java.lang.ref.WeakReference;
 
+@Deprecated
 public class ScListFragment extends SherlockListFragment implements PullToRefreshBase.OnRefreshListener,
                                                             DetachableResultReceiver.Receiver,
                                                             LocalCollection.OnChangeListener,
