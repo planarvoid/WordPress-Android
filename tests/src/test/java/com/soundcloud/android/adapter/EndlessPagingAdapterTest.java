@@ -36,32 +36,6 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
-    public void shouldLoadNextPage() {
-        adapter.setLoading(false);
-        expect(adapter.shouldLoadNextPage(0, 5, 5)).toBeTrue();
-    }
-
-    @Test
-    public void shouldLoadNextPageWithOnePageLookAhead() {
-        adapter.setLoading(false);
-        expect(adapter.shouldLoadNextPage(0, 5, 2 * 5)).toBeTrue();
-    }
-
-    @Test
-    public void shouldNotLoadNextPageIfAlreadyLoading() {
-        adapter.setLoading(true);
-        expect(adapter.shouldLoadNextPage(0, 5, 5)).toBeFalse();
-    }
-
-    @Test
-    public void shouldNotLoadNextPageIfZeroItems() {
-        adapter.setLoading(true);
-        expect(adapter.shouldLoadNextPage(0, 5, 0)).toBeFalse();
-        adapter.setLoading(false);
-        expect(adapter.shouldLoadNextPage(0, 5, 0)).toBeFalse();
-    }
-
-    @Test
     public void shouldAddItems() {
         expect(adapter.getCount()).toBe(0);
         adapter.addItem(new Track());
@@ -77,9 +51,9 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldAdjustItemCountBasedOnLoadingState() {
-        adapter.setLoading(true);
+        adapter.setDisplayProgressItem(true);
         expect(adapter.getCount()).toBe(1);
-        adapter.setLoading(false);
+        adapter.setDisplayProgressItem(false);
         expect(adapter.getCount()).toBe(0);
     }
 
@@ -119,7 +93,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldCreateProgressView() {
-        adapter.setLoading(true);
+        adapter.setDisplayProgressItem(true);
         View progressView = adapter.getView(0, null, new FrameLayout(Robolectric.application));
         expect(progressView).not.toBeNull();
         expect(progressView.findViewById(R.id.list_loading)).not.toBeNull();
@@ -127,7 +101,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldConvertProgressView() {
-        adapter.setLoading(true);
+        adapter.setDisplayProgressItem(true);
         View convertView = LayoutInflater.from(Robolectric.application).inflate(R.layout.list_loading_item, null);
         View progressView = adapter.getView(0, convertView, new FrameLayout(Robolectric.application));
         expect(progressView).toBe(convertView);

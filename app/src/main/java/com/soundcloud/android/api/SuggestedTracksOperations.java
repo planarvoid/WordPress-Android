@@ -18,6 +18,7 @@ public class SuggestedTracksOperations extends ScheduledOperations {
     public Observable<Observable<Track>> getSuggestedTracks() {
         APIRequest<CollectionHolder<Track>> request = SoundCloudAPIRequest.RequestBuilder.<CollectionHolder<Track>>get(Endpoints.TRACKS + ".json")
                 .addQueryParameters("linked_partitioning", "1")
+                .addQueryParameters("limit", "10")
                 .forPublicAPI()
                 .forResource(new TrackCollectionHolderToken()).build();
         return rxHttpClient.<Track>fetchPagedModels(request);

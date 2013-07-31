@@ -1,7 +1,7 @@
 package com.soundcloud.android.paging;
 
 import com.google.common.base.Preconditions;
-import com.soundcloud.android.fragment.behavior.AdapterViewAware;
+import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
@@ -9,11 +9,12 @@ import rx.Observable;
 import rx.Subscription;
 
 import android.support.v4.app.Fragment;
+import android.widget.AbsListView;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class AdapterViewPager<ModelType, FragmentType extends Fragment & AdapterViewAware<ModelType>> {
+public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingAdapterViewAware<ModelType>> {
 
     @Nonnull
     private final Observable<Observable<ModelType>> mPagesObservable;
@@ -44,6 +45,7 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & Adapter
 
     public void loadNextPage(final FragmentType fragment) {
         Preconditions.checkState(mNextPageObservable != null, "no next page observable, forgot to set it?");
+        fragment.getAdapter().setDisplayProgressItem(true);
         mLoadNextPageSub = mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(new PageItemObserver(fragment));
     }
 
@@ -65,7 +67,7 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & Adapter
         @Override
         public void onCompleted(FragmentType fragment) {
             fragment.getEmptyView().setStatus(EmptyListView.Status.OK);
-            fragment.getAdapter().notifyDataSetChanged();
+            fragment.getAdapter().setDisplayProgressItem(false);
         }
 
         @Override
@@ -90,6 +92,32 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & Adapter
             setNextPageObservable(nextPageObservable);
             if (firstPage) {
                 loadNextPage(fragment);
+            }
+        }
+    }
+
+    public final class PageScrollListener implements AbsListView.OnScrollListener {
+
+        private FragmentType mFragment;
+
+
+        public PageScrollListener(FragmentType fragment) {
+            this.mFragment = fragment;
+        }
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            if (!mFragment.getAdapter().isDisplayProgressItem()) {
+                int lookAheadSize = visibleItemCount * 2;
+                boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
+
+                if (lastItemReached) {
+                    loadNextPage(mFragment);
+                }
             }
         }
     }

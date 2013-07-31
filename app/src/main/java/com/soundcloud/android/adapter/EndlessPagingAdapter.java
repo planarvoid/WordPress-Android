@@ -13,7 +13,7 @@ public abstract class EndlessPagingAdapter<T> extends BaseAdapter implements Ite
 
     private final List<T> mItems;
     private final int mProgressItemLayoutResId;
-    private boolean mIsLoading;
+    private boolean mDisplayProgressItem;
 
 
     public EndlessPagingAdapter(int pageSize, int progressItemLayoutResId) {
@@ -23,7 +23,7 @@ public abstract class EndlessPagingAdapter<T> extends BaseAdapter implements Ite
 
     @Override
     public int getCount() {
-        return mIsLoading ? mItems.size() + 1 : mItems.size();
+        return mDisplayProgressItem ? mItems.size() + 1 : mItems.size();
     }
 
     @Override
@@ -70,22 +70,15 @@ public abstract class EndlessPagingAdapter<T> extends BaseAdapter implements Ite
 
     @Override
     public int getItemViewType(int position) {
-        return mIsLoading && position == mItems.size() ? PROGRESS_ITEM_VIEW_TYPE : super.getItemViewType(position);
+        return mDisplayProgressItem && position == mItems.size() ? PROGRESS_ITEM_VIEW_TYPE : super.getItemViewType(position);
     }
 
-    public void setLoading(boolean loading) {
-        mIsLoading = loading;
+    public void setDisplayProgressItem(boolean showProgressItem) {
+        mDisplayProgressItem = showProgressItem;
         notifyDataSetChanged();
     }
 
-    public boolean shouldLoadNextPage(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-        // if loading, subtract the loading item from total count
-        int lookAheadSize = visibleItemCount * 2;
-        int itemCount = mIsLoading ? totalItemCount - 1 : totalItemCount; // size without the loading spinner
-        boolean lastItemReached = itemCount > 0 && (itemCount - lookAheadSize <= firstVisibleItem);
-
-        return !mIsLoading && lastItemReached;
+    public boolean isDisplayProgressItem() {
+        return mDisplayProgressItem;
     }
-
 }

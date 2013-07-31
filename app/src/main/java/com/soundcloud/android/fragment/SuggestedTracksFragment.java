@@ -2,12 +2,13 @@ package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.ItemAdapter;
+import com.soundcloud.android.adapter.EndlessPagingAdapter;
 import com.soundcloud.android.adapter.SuggestedTracksAdapter;
 import com.soundcloud.android.api.SuggestedTracksOperations;
-import com.soundcloud.android.fragment.behavior.AdapterViewAware;
+import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.paging.AdapterViewPager;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.view.EmptyListView;
 
 import android.os.Bundle;
@@ -17,7 +18,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-public class SuggestedTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener, AdapterViewAware<Track> {
+public class SuggestedTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
+        PagingAdapterViewAware<Track> {
 
     private EmptyListView mEmptyListView;
     private SuggestedTracksAdapter mSuggestedTracksAdapter;
@@ -25,7 +27,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
     public SuggestedTracksFragment() {
         this(new SuggestedTracksAdapter(), new AdapterViewPager<Track, SuggestedTracksFragment>(
-                new SuggestedTracksOperations().getSuggestedTracks()));
+                new SuggestedTracksOperations().getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER)));
     }
 
     public SuggestedTracksFragment(SuggestedTracksAdapter adapter, AdapterViewPager<Track, SuggestedTracksFragment> adapterViewPager) {
@@ -53,6 +55,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
         GridView mGridView = (GridView) view.findViewById(R.id.gridview);
         mGridView.setOnItemClickListener(this);
+        mGridView.setOnScrollListener(mAdapterViewPager.new PageScrollListener(this));
         mGridView.setAdapter(mSuggestedTracksAdapter);
         mGridView.setEmptyView(mEmptyListView);
 
@@ -65,8 +68,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
     }
 
     @Override
-    public ItemAdapter<Track> getAdapter() {
+    public EndlessPagingAdapter<Track> getAdapter() {
         return mSuggestedTracksAdapter;
     }
-
 }
