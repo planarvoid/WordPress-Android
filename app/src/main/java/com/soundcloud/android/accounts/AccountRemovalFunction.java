@@ -9,6 +9,7 @@ import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.CollectionStorage;
+import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -30,6 +31,7 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
     private final Account mSoundCloudAccount;
     private final CollectionStorage mCollectionStorage;
     private final ActivitiesStorage mActivitiesStorage;
+    private final UserAssociationStorage mUserAssociationStorage;
     private final SoundRecorder mSoundRecorder;
     private final AccountManager mAccountManager;
     private final SyncStateManager mSyncStateManager;
@@ -37,12 +39,12 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
     private final C2DMReceiver mC2DMReceiver;
 
     public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context){
-        this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context), new ActivitiesStorage(context),
-                SoundRecorder.getInstance(context), new PlayQueueManager(context), new C2DMReceiver());
+        this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context),new ActivitiesStorage(context),
+                new UserAssociationStorage(), SoundRecorder.getInstance(context), new PlayQueueManager(context), new C2DMReceiver());
     }
 
     AccountRemovalFunction(Account soundCloudAccount, Context context, AccountManager accountManager, SyncStateManager syncStateManager,
-                           CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage,
+                           CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
                            SoundRecorder soundRecorder, PlayQueueManager playQueueManager, C2DMReceiver c2DMReceiver) {
         mSoundCloudAccount = soundCloudAccount;
         mContext = context;
@@ -50,10 +52,13 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
         mSyncStateManager = syncStateManager;
         mCollectionStorage = collectionStorage;
         mActivitiesStorage = activitiesStorage;
+        mUserAssociationStorage = userAssociationStorage;
         mSoundRecorder = soundRecorder;
         mPlayQueueManager = playQueueManager;
         mC2DMReceiver = c2DMReceiver;
     }
+
+
 
     @Override
     public Subscription call(Observer<Void> observer) {
@@ -82,6 +87,8 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
         mSyncStateManager.clear();
         mCollectionStorage.clear();
         mActivitiesStorage.clear(null);
+        mUserAssociationStorage.clear();
+
         mSoundRecorder.reset();
 
         mPlayQueueManager.clearState();
