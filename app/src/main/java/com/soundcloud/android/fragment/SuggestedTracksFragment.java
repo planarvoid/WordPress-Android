@@ -2,17 +2,13 @@ package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.ItemAdapter;
 import com.soundcloud.android.adapter.SuggestedTracksAdapter;
 import com.soundcloud.android.api.SuggestedTracksOperations;
-import com.soundcloud.android.model.SuggestedTrack;
+import com.soundcloud.android.fragment.behavior.AdapterViewAware;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.observers.ScFragmentObserver;
-import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.paging.AdapterViewPager;
 import com.soundcloud.android.view.EmptyListView;
-import rx.Observable;
-import rx.Subscription;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,41 +16,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
-public class SuggestedTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
+public class SuggestedTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener, AdapterViewAware<Track> {
 
-    private static final String LOG_TAG         = "suggested_tracks_frag";
-
-    private Observable<Observable<Track>> mObservable;
-    private Observable<SuggestedTrack> mNextPageObservable;
-
-    private SuggestedTracksAdapter mSuggestedTracksAdapter;
-    private Subscription mSubscription;
-    private GridView mGridView;
     private EmptyListView mEmptyListView;
-    private SuggestedTracksOperations mSuggestedTracksOperations;
+    private SuggestedTracksAdapter mSuggestedTracksAdapter;
+    private AdapterViewPager<Track, SuggestedTracksFragment> mAdapterViewPager;
 
     public SuggestedTracksFragment() {
-        this(new SuggestedTracksAdapter(), new SuggestedTracksOperations());
+        this(new SuggestedTracksAdapter(), new AdapterViewPager<Track, SuggestedTracksFragment>(
+                new SuggestedTracksOperations().getSuggestedTracks()));
     }
 
-    public SuggestedTracksFragment(SuggestedTracksAdapter adapter, SuggestedTracksOperations suggestedTracksOperations) {
+    public SuggestedTracksFragment(SuggestedTracksAdapter adapter, AdapterViewPager<Track, SuggestedTracksFragment> adapterViewPager) {
         mSuggestedTracksAdapter = adapter;
-        mSuggestedTracksOperations = suggestedTracksOperations;
+        mAdapterViewPager = adapterViewPager;
         setRetainInstance(true);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mObservable = mSuggestedTracksOperations.getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER).cache();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mSubscription.unsubscribe();
     }
 
     @Override
@@ -64,7 +41,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        loadNextPage();
+        mAdapterViewPager.loadNextPage(this);
     }
 
     @Override
@@ -72,66 +49,24 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         super.onViewCreated(view, savedInstanceState);
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
-        mGridView = (GridView) view.findViewById(R.id.gridview);
+        mEmptyListView.setStatus(EmptyListView.Status.WAITING);
+
+        GridView mGridView = (GridView) view.findViewById(R.id.gridview);
         mGridView.setOnItemClickListener(this);
         mGridView.setAdapter(mSuggestedTracksAdapter);
         mGridView.setEmptyView(mEmptyListView);
-        loadSuggestedTracks();
+
+        mAdapterViewPager.startLoading(this);
     }
 
-    private void loadNextPage() {
-        mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(new SuggestedTrackObserver(this));
+    @Override
+    public EmptyListView getEmptyView() {
+        return mEmptyListView;
     }
 
-    private void loadSuggestedTracks() {
-        mEmptyListView.setStatus(EmptyListView.Status.WAITING);
-        mSubscription = mObservable.subscribe(new GetNextPageObserver(this));
+    @Override
+    public ItemAdapter<Track> getAdapter() {
+        return mSuggestedTracksAdapter;
     }
 
-    private static final class GetNextPageObserver extends ScFragmentObserver<SuggestedTracksFragment, Observable<SuggestedTrack>> {
-
-        public GetNextPageObserver(SuggestedTracksFragment fragment) {
-            super(fragment);
-        }
-
-        @Override
-        public void onNext(final SuggestedTracksFragment fragment, Observable<SuggestedTrack> nextPageObservable) {
-            Toast.makeText(SoundCloudApplication.instance, "More pages to go... ", Toast.LENGTH_SHORT).show();
-            boolean firstPage = (fragment.mNextPageObservable == null);
-            fragment.mNextPageObservable = nextPageObservable;
-            if (firstPage){
-                fragment.loadNextPage();
-            }
-        }
-
-        @Override
-        public void onCompleted() {
-            super.onCompleted();
-            Toast.makeText(SoundCloudApplication.instance, "Done Loading ", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private static final class SuggestedTrackObserver extends ScFragmentObserver<SuggestedTracksFragment, Track> {
-
-        public SuggestedTrackObserver(SuggestedTracksFragment fragment) {
-            super(fragment);
-        }
-
-        @Override
-        public void onCompleted(SuggestedTracksFragment fragment) {
-            fragment.mEmptyListView.setStatus(EmptyListView.Status.OK);
-            fragment.mSuggestedTracksAdapter.notifyDataSetChanged();
-            Log.d(LOG_TAG, "fragment: onCompleted");
-        }
-
-        @Override
-        public void onError(SuggestedTracksFragment fragment, Exception error) {
-            fragment.mEmptyListView.setStatus(EmptyListView.Status.ERROR);
-        }
-
-        @Override
-        public void onNext(SuggestedTracksFragment fragment, Track track) {
-            fragment.mSuggestedTracksAdapter.addSuggestedTrack(track);
-        }
-    }
 }

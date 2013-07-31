@@ -45,7 +45,7 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
 
         @Override
         public Fragment getItem(int position) {
-            return new SuggestedTracksFragment();
+            return position == 1 ? new SuggestedTracksFragment() : new Fragment();
         }
 
         @Override

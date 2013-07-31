@@ -15,16 +15,12 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class SuggestedTracksAdapter extends SpacedGridAdapter {
+public class SuggestedTracksAdapter extends SpacedGridAdapter implements ItemAdapter<Track> {
 
     public static final int INITIAL_LIST_SIZE = 20;
 
     private List<Track> mSuggestedTracks = Lists.newArrayListWithCapacity(INITIAL_LIST_SIZE);
     private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.adapterView(R.drawable.placeholder_cells);
-
-    public void addSuggestedTrack(Track suggestedTrack) {
-        mSuggestedTracks.add(suggestedTrack);
-    }
 
     @Override
     public int getCount() {
@@ -39,6 +35,11 @@ public class SuggestedTracksAdapter extends SpacedGridAdapter {
     @Override
     public long getItemId(int position) {
         return mSuggestedTracks.get(position).getId();
+    }
+
+    @Override
+    public void addItem(Track item) {
+        mSuggestedTracks.add(item);
     }
 
     @Override
