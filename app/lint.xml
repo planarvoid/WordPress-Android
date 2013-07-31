@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
-     
     <issue id="MissingTranslation">
         <ignore path="res/values/dev.xml" />
         <ignore path="res/values/keys.xml" />
@@ -18,7 +17,7 @@
     <issue id="MissingTranslation" severity="ignore"/>
     <issue id="DuplicateDefinition" severity="warning"/>
     <issue id="Suspicious0dp" severity="warning"/>
-    <issue id="WrongCall" severity="warning"/>
+    <issue id="WrongCall" severity="error"></issue>
 
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
@@ -45,7 +44,7 @@
     <issue id="NewApi" severity="error"/>
     <issue id="InlinedApi" severity="error"/>
 
-    <issue id="UnusedResources">
+    <issue id="UnusedResources" severity="Error">
         <ignore path="res/values/keys.xml"/>
         <ignore path="res/values/sigs.xml"/>
         <ignore path="res/layout/abs__search_view.xml"/> <!-- overrides default abs searchview -->
@@ -144,14 +143,14 @@
       <ignore path="res/values/themes.xml"/>
     </issue>
 
-    <issue id="FloatMath">
+    <issue id="FloatMath" severity="">
         <ignore path="target/classes/com/actionbarsherlock/internal/nineoldandroids/view/animation/AnimatorProxy.class"/>
         <ignore path="target/classes/com/viewpagerindicator/LinePageIndicator.class"/>
         <ignore path="target/classes/com/handmark/pulltorefresh/library/PullToRefreshWebView.class"/>
         <ignore path="target/classes/com/handmark/pulltorefresh/library/PullToRefreshWebView$InternalWebViewSDK9.class"/>
     </issue>
 
-    <issue id="DefaultLocale">
+    <issue id="DefaultLocale" severity="high">
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingButton.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingTextView.class"/>
     </issue>
@@ -171,4 +170,56 @@
     <issue id="ValidFragment">
         <ignore path="src/main/java/com/soundcloud/android/fragment/SuggestedUsersFragment.java"/>
     </issue>
+
+    <!--Looks for usages of "new" for wrapper classes which should use "valueOf" instead-->
+    <issue id="UseValueOf" severity="error"></issue>
+
+    <!--Looks for opportunities to replace HashMaps with the more efficient SparseArray-->
+    <issue id="UseSparseArrays" severity="error"></issue>
+
+    <!--Ensures that Activities, Services and Content Providers are registered in the manifest-->
+    <issue id="Registered" severity="error"></issue>
+
+    <!--Looks for missing recycle() calls on resources-->
+    <issue id="Recycle" severity="error"></issue>
+
+    <!--Looks for overdraw issues (where a view is painted only to be fully painted over)-->
+    <issue id="Overdraw" severity="error"></issue>
+
+    <!--Checks that the manifest specifies a targetSdkVersion that is recent-->
+    <issue id="OldTargetApi" severity="error"></issue>
+
+    <!--Checks whether a root <FrameLayout> can be replaced with a <merge> tag-->
+    <issue id="MergeRootFrame" severity="error"></issue>
+
+    <!--Ensures that all menu items supply a title-->
+    <issue id="MenuTitle" severity="error"></issue>
+
+    <!--Ensures that images are not defined in the density-independent drawable folder-->
+    <issue id="IconLocation" severity="error"></issue>
+
+    <!--Finds duplicated icons under different names-->
+    <issue id="IconDuplicates" severity="error"></issue>
+
+    <!--Finds icons that have identical bitmaps across various configuration parameters-->
+    <issue id="IconDuplicatesConfig" severity="error"></issue>
+
+    <!--Ensures that Handler classes do not hold on to a reference to an outer class-->
+    <issue id="HandlerLeak" severity="error"></issue>
+
+    <!--Suggests replacing android.util.FloatMath calls with java.lang.Math-->
+    <issue id="FloatMath" severity="error"></issue>
+
+    <!--Discovers duplicate definitions of resources-->
+    <issue id="DuplicateDefinition" severity="error"></issue>
+
+    <!--Finds calls to locale-ambiguous String manipulation methods-->
+    <issue id="DefaultLocale" severity="error"></issue>
+
+    <issue id="InconsistentLayout" severity="error"></issue>
+    <issue id="ParcelCreator" severity="error"></issue>
+
+
 </lint>
+
+
