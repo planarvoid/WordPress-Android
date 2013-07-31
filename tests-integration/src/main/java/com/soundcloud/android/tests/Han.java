@@ -51,6 +51,10 @@ public class Han  {
         clickOnText(getString(android.R.string.ok));
     }
 
+    public boolean scrollDown() {
+        return solo.scrollDown();
+    }
+
     public void clickOnDone() {
         clickOnButtonResId(R.string.btn_done);
     }
@@ -368,6 +372,10 @@ public class Han  {
 
     public void poseForScreenshot(String name) {
         poseForScreenshotWithKeyValue("name", name);
+    }
+
+    public boolean scrollUp() {
+        return solo.scrollUp();
     }
 
     public boolean scrollListToTop(int index) {

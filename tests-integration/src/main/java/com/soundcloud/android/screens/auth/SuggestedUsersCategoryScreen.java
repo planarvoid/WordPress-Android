@@ -24,6 +24,9 @@ public class SuggestedUsersCategoryScreen {
     public String followRandomUser(){
         waitForUsers();
         GridViewCompat gridViewCompat = (GridViewCompat) solo.getCurrentGridView();
+        if (gridViewCompat == null) {
+            throw new RuntimeException("No Gridview present when trying to follow random user");
+        }
         ViewGroup viewGroup = (ViewGroup) gridViewCompat.getChildAt((int) (Math.random() * gridViewCompat.getChildCount()));
         TextView textView = (TextView) viewGroup.findViewById(R.id.username);
         solo.clickOnView(textView);
@@ -62,7 +65,7 @@ public class SuggestedUsersCategoryScreen {
 
     public void waitForUsers() {
         solo.waitForActivity(SuggestedUsersCategoryActivity.class);
-        solo.waitForView(solo.getCurrentGridView());
+        solo.waitForViewId(R.id.gridview, 5000);
         solo.waitForViewId(R.id.username, 5000);
     }
 }
