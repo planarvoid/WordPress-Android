@@ -22,7 +22,7 @@ public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
     public void setUp() throws Exception {
         IntegrationTestHelper.loginAs(getInstrumentation(), testUser.getUsername(), testUser.getPassword());
         super.setUp();
-        IntegrationTestHelper.unfollowAll();
+        IntegrationTestHelper.unfollowAll(getInstrumentation().getTargetContext());
         suggestedUsersScreen = new SuggestedUsersScreen(solo);
         suggestedUsersCategoryScreen = new SuggestedUsersCategoryScreen(solo);
         waiter = new Waiter(solo);
@@ -60,7 +60,7 @@ public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
 
     @Override
     public void tearDown() throws Exception {
-        IntegrationTestHelper.unfollowAll();
+        IntegrationTestHelper.unfollowAll(getInstrumentation().getTargetContext());
         IntegrationTestHelper.logOut(getInstrumentation());
         super.tearDown();
     }

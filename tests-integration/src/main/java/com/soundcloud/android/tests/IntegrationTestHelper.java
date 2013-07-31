@@ -8,8 +8,11 @@ import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.operations.following.FollowingOperations;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.observers.ScObserver;
+import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.service.sync.content.UserAssociationSyncer;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -128,10 +131,22 @@ public final class IntegrationTestHelper {
         });
     }
 
-    public static void unfollowAll() {
+    public static void unfollowAll(Context context) {
+        try {
+            new UserAssociationSyncer(context).syncContent(Content.ME_FOLLOWINGS.uri, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         final FollowingOperations followingOperations = new FollowingOperations(Schedulers.immediate());
         for (long userId : followingOperations.getFollowedUserIds()){
             followingOperations.removeFollowing(new User(userId));
+        }
+
+        try {
+            new UserAssociationSyncer(context).syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
