@@ -17,10 +17,11 @@ public class SuggestedTracksOperations extends ScheduledOperations {
 
     public Observable<Observable<Track>> getSuggestedTracks() {
         APIRequest<CollectionHolder<Track>> request = SoundCloudAPIRequest.RequestBuilder.<CollectionHolder<Track>>get(Endpoints.TRACKS + ".json")
-                .addQueryParameters("linked_partitioning","1")
+                .addQueryParameters("linked_partitioning", "1")
                 .forPublicAPI()
-                .forResource(new TypeToken<CollectionHolder<Track>>() {
-                }).build();
+                .forResource(new TrackCollectionHolderToken()).build();
         return rxHttpClient.<Track>fetchPagedModels(request);
     }
+
+    private static class TrackCollectionHolderToken extends TypeToken<CollectionHolder<Track>> {}
 }
