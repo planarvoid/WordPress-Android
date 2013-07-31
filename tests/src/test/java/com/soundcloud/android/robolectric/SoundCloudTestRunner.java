@@ -1,6 +1,8 @@
 package com.soundcloud.android.robolectric;
 
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
 import com.soundcloud.android.robolectric.shadows.ShadowSherlockFragment;
@@ -31,6 +33,8 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
 
         // until we have a DI framework we have to set this instance to avoid NPEs
         SoundCloudApplication.instance = Robolectric.application;
+
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(Robolectric.application));
     }
 
     @Override

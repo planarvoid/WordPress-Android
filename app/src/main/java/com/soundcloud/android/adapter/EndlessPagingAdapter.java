@@ -59,7 +59,7 @@ public abstract class EndlessPagingAdapter<T> extends BaseAdapter implements Ite
         return convertView;
     }
 
-    protected abstract void bindItemView(int position, View convertView);
+    protected abstract void bindItemView(int position, View itemView);
 
     protected abstract View createItemView(int position, ViewGroup parent);
 
