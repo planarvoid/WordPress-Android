@@ -19,11 +19,10 @@ public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
         super(SuggestedUsersActivity.class);
     }
 
-    @Override
     public void setUp() throws Exception {
         IntegrationTestHelper.loginAs(getInstrumentation(), testUser.getUsername(), testUser.getPassword());
-        IntegrationTestHelper.unfollowAll();
         super.setUp();
+        IntegrationTestHelper.unfollowAll();
         suggestedUsersScreen = new SuggestedUsersScreen(solo);
         suggestedUsersCategoryScreen = new SuggestedUsersCategoryScreen(solo);
         waiter = new Waiter(solo);
@@ -35,12 +34,12 @@ public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
     public void testCheckmarkSelection() throws Exception {
         suggestedUsersScreen.clickToggleCategoryCheckmark(1);
         suggestedUsersScreen.clickCategory(1);
-        assertTrue(suggestedUsersCategoryScreen.hasAllUsersSelected());
+        assertEquals(true, suggestedUsersCategoryScreen.hasAllUsersSelected());
 
         solo.goBack();
         suggestedUsersScreen.clickToggleCategoryCheckmark(1);
         suggestedUsersScreen.clickCategory(1);
-        assertTrue(suggestedUsersCategoryScreen.hasNoUsersSelected());
+        assertEquals(true, suggestedUsersCategoryScreen.hasNoUsersSelected());
     }
 
     public void testIndividualUserSelection() throws Exception {
