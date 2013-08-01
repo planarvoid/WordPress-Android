@@ -1,12 +1,13 @@
 package com.soundcloud.android.whoToFollow;
 
-import static com.soundcloud.android.tests.TestUser.testUser;
+import static com.soundcloud.android.tests.TestUser.GPlusAccount;
 
 import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
 import com.soundcloud.android.screens.auth.SuggestedUsersCategoryScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
+import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.Waiter;
 
 public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
@@ -20,9 +21,8 @@ public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
     }
 
     public void setUp() throws Exception {
-        IntegrationTestHelper.loginAs(getInstrumentation(), testUser.getUsername(), testUser.getPassword());
+        IntegrationTestHelper.loginAs(getInstrumentation(), GPlusAccount.getUsername(), GPlusAccount.getPassword());
         super.setUp();
-        IntegrationTestHelper.unfollowAll(getInstrumentation().getTargetContext());
         suggestedUsersScreen = new SuggestedUsersScreen(solo);
         suggestedUsersCategoryScreen = new SuggestedUsersCategoryScreen(solo);
         waiter = new Waiter(solo);
@@ -60,7 +60,7 @@ public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
 
     @Override
     public void tearDown() throws Exception {
-        IntegrationTestHelper.unfollowAll(getInstrumentation().getTargetContext());
+        TestUser.unfollowAll(getInstrumentation().getTargetContext());
         IntegrationTestHelper.logOut(getInstrumentation());
         super.tearDown();
     }
