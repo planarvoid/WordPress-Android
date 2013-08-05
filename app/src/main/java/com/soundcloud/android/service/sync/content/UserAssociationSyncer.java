@@ -19,6 +19,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.observers.ScSuccessObserver;
 import com.soundcloud.android.service.sync.ApiSyncResult;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
@@ -30,7 +31,6 @@ import rx.concurrency.Schedulers;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
