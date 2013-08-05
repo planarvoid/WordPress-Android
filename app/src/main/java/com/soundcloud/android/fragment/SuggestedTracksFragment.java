@@ -1,6 +1,8 @@
 package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EndlessPagingAdapter;
 import com.soundcloud.android.adapter.SuggestedTracksAdapter;
@@ -19,7 +21,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 public class SuggestedTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
-        PagingAdapterViewAware<Track> {
+        PagingAdapterViewAware<Track>, PullToRefreshBase.OnRefreshListener<GridView> {
 
     private EmptyListView mEmptyListView;
     private SuggestedTracksAdapter mSuggestedTracksAdapter;
@@ -53,13 +55,19 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(EmptyListView.Status.WAITING);
 
-        GridView mGridView = (GridView) view.findViewById(R.id.gridview);
-        mGridView.setOnItemClickListener(this);
-        mGridView.setOnScrollListener(mAdapterViewPager.new PageScrollListener(this));
-        mGridView.setAdapter(mSuggestedTracksAdapter);
-        mGridView.setEmptyView(mEmptyListView);
+        PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(R.id.gridview);
+        ptrGridView.setOnRefreshListener(this);
+        GridView gridView = ptrGridView.getRefreshableView();
+        gridView.setOnItemClickListener(this);
+        gridView.setOnScrollListener(mAdapterViewPager.new PageScrollListener(this));
+        gridView.setAdapter(mSuggestedTracksAdapter);
+        gridView.setEmptyView(mEmptyListView);
 
         mAdapterViewPager.startLoading(this);
+    }
+
+    @Override
+    public void onRefresh(PullToRefreshBase<GridView> refreshView) {
     }
 
     @Override
