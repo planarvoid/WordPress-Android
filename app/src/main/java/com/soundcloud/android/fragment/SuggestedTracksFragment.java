@@ -56,21 +56,25 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(EmptyListView.Status.WAITING);
 
+        final PageItemObserver<Track, SuggestedTracksFragment> itemObserver =
+                new PageItemObserver<Track, SuggestedTracksFragment>(this);
+
         PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(R.id.gridview);
         ptrGridView.setOnRefreshListener(this);
         GridView gridView = ptrGridView.getRefreshableView();
         gridView.setOnItemClickListener(this);
-        gridView.setOnScrollListener(mAdapterViewPager.new PageScrollListener(this));
         gridView.setAdapter(mSuggestedTracksAdapter);
         gridView.setEmptyView(mEmptyListView);
 
-        mAdapterViewPager.startLoading(this, new PageItemObserver<Track, SuggestedTracksFragment>(this));
+        // set up endless paging
+        mAdapterViewPager.subscribe(this, itemObserver);
+        gridView.setOnScrollListener(mAdapterViewPager.new PageScrollListener(itemObserver));
     }
 
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
         PageItemObserver<Track, SuggestedTracksFragment> itemObserver = new PageItemObserver<Track, SuggestedTracksFragment>(this);
-        mAdapterViewPager.startLoading(this, itemObserver, new PullToRefreshObserver<SuggestedTracksFragment, Track>(
+        mAdapterViewPager.subscribe(this, new PullToRefreshObserver<SuggestedTracksFragment, Track>(
                 this, R.id.gridview, itemObserver));
     }
 

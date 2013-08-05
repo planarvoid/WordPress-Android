@@ -1,7 +1,10 @@
 package com.soundcloud.android.paging;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.soundcloud.android.adapter.EndlessPagingAdapter;
 import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScFragmentObserver;
@@ -11,6 +14,7 @@ import rx.Subscription;
 
 import android.support.v4.app.Fragment;
 import android.widget.AbsListView;
+import android.widget.ListAdapter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,9 +23,6 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
 
     @Nonnull
     private final Observable<Observable<ModelType>> mPagesObservable;
-
-    private Observer<ModelType> mItemObserver;
-    private Observer<ModelType> mFirstPageItemObserver;
 
     @Nullable
     private Observable<ModelType> mNextPageObservable;
@@ -38,17 +39,10 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
         return mNextPageObservable == null;
     }
 
-    public void startLoading(final FragmentType fragment, final Observer<ModelType> itemObserver) {
-        startLoading(fragment, itemObserver, itemObserver);
-    }
-
-    public void startLoading(final FragmentType fragment,
-                             final Observer<ModelType> itemObserver,
-                             final Observer<ModelType> firstPageItemObserver) {
+    public Subscription subscribe(final FragmentType fragment, final Observer<ModelType> itemObserver) {
         mNextPageObservable = null;
-        mItemObserver = itemObserver;
-        mFirstPageItemObserver = firstPageItemObserver;
-        mPagesSub = mPagesObservable.subscribe(new PageObserver(fragment));
+        mPagesSub = mPagesObservable.subscribe(new PageObserver(fragment, itemObserver));
+        return mPagesSub;
     }
 
     public void unsubscribe() {
@@ -61,15 +55,18 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
     }
 
     @VisibleForTesting
-    protected void loadNextPage(final FragmentType fragment, final Observer<ModelType> itemObserver) {
-        Preconditions.checkState(mNextPageObservable != null, "no next page observable, forgot to set it?");
-        fragment.getAdapter().setDisplayProgressItem(true);
+    protected void loadNextPage(final EndlessPagingAdapter<ModelType> adapter, final Observer<ModelType> itemObserver) {
+        adapter.setDisplayProgressItem(true);
         mLoadNextPageSub = mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(itemObserver);
     }
 
     private final class PageObserver extends ScFragmentObserver<FragmentType, Observable<ModelType>> {
-        public PageObserver(FragmentType fragment) {
+
+        private Observer<ModelType> mItemObserver;
+
+        public PageObserver(FragmentType fragment, Observer<ModelType> itemObserver) {
             super(fragment);
+            mItemObserver = itemObserver;
         }
 
         @Override
@@ -77,18 +74,17 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
             boolean firstPage = isFirstPage();
             mNextPageObservable = nextPageObservable;
             if (firstPage) {
-                loadNextPage(fragment, mFirstPageItemObserver);
+                loadNextPage(fragment.getAdapter(), mItemObserver);
             }
         }
     }
 
     public final class PageScrollListener implements AbsListView.OnScrollListener {
 
-        private FragmentType mFragment;
+        private Observer<ModelType> mItemObserver;
 
-
-        public PageScrollListener(FragmentType fragment) {
-            this.mFragment = fragment;
+        public PageScrollListener(Observer<ModelType> itemObserver) {
+            mItemObserver = itemObserver;
         }
 
         @Override
@@ -97,12 +93,16 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            if (!mFragment.getAdapter().isDisplayProgressItem()) {
+            checkArgument(view.getAdapter() instanceof EndlessPagingAdapter,
+                    "The adapter view using this scroll listener must use an EndlessPagingAdapter");
+
+            EndlessPagingAdapter<ModelType> adapter = (EndlessPagingAdapter) view.getAdapter();
+            if (!adapter.isDisplayProgressItem()) {
                 int lookAheadSize = visibleItemCount * 2;
                 boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
 
                 if (lastItemReached) {
-                    loadNextPage(mFragment, mItemObserver);
+                    loadNextPage(adapter, mItemObserver);
                 }
             }
         }
