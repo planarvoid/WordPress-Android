@@ -38,7 +38,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.suggested_track_fragment, container, false);
+        return inflater.inflate(R.layout.suggested_tracks_fragment, container, false);
     }
 
     @Override

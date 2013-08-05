@@ -24,7 +24,7 @@ public class SuggestedTracksAdapter extends EndlessPagingAdapter<Track> {
 
     @Override
     protected View createItemView(int position, ViewGroup parent) {
-        View itemView = View.inflate(parent.getContext(), R.layout.suggested_track_grid_item, null);
+        View itemView = View.inflate(parent.getContext(), R.layout.suggested_tracks_grid_item, null);
         ItemViewHolder viewHolder = new ItemViewHolder();
         viewHolder.imageView = (ImageView) itemView.findViewById(R.id.suggested_track_image);
         viewHolder.username = (TextView) itemView.findViewById(R.id.username);
