@@ -42,6 +42,11 @@ public abstract class EndlessPagingAdapter<T> extends BaseAdapter implements Ite
     }
 
     @Override
+    public void clear() {
+        mItems.clear();
+    }
+
+    @Override
     public boolean areAllItemsEnabled() {
         return false;
     }
