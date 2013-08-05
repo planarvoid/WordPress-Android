@@ -29,6 +29,7 @@ import com.soundcloud.android.service.sync.content.SyncStrategy;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -40,7 +41,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -360,7 +360,7 @@ public class ApiSyncer extends SyncStrategy {
 
             result.setSyncData(System.currentTimeMillis(), inserted);
             result.success = true;
-        } else if (Log.isLoggable(TAG, Log.WARN)) {
+        } else {
             Log.w(TAG, "request " + request + " returned " + resp.getStatusLine());
         }
         return result;

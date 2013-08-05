@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
+import com.soundcloud.android.utils.Log;
 
 import java.io.IOException;
 
@@ -35,12 +35,10 @@ public abstract class SyncStrategy {
     public abstract ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException;
 
     protected static void log(String message) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, message);
-            }
-        }
+        Log.d(TAG, message);
+    }
 
-        public static class IdHolder extends CollectionHolder<Long> {
-        }
+    public static class IdHolder extends CollectionHolder<Long> {
+    }
 
 }

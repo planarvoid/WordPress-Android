@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 
 import android.content.Context;
@@ -12,7 +13,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -92,7 +92,7 @@ import java.io.IOException;
         }
 
         try {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "syncing " + mContentUri);
+            Log.d(TAG, "syncing " + mContentUri);
             mResult = mApiSyncerFactory.forContentUri(mContext, mContentUri).syncContent(mContentUri, mAction);
             mSyncStateManager.onSyncComplete(mResult, localCollection);
 
@@ -111,10 +111,7 @@ import java.io.IOException;
             Wrapper.setBackgroundMode(false);
         }
 
-
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "executed sync on " + this);
-        }
+        Log.d(TAG, "executed sync on " + this);
         return this;
     }
 
