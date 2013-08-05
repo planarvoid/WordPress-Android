@@ -74,9 +74,8 @@ public class AdapterViewPagerTest {
 
     @Test
     public void loadNextPageShouldTriggerAdapterProgressItem() {
-        adapterViewPager = new AdapterViewPager(Observable.just(Observable.<Track>empty()));
-        adapterViewPager.setNextPageObservable(Observable.never());
-        adapterViewPager.loadNextPage(fragment);
+        adapterViewPager = new AdapterViewPager(Observable.just(Observable.just(new Track())));
+        adapterViewPager.startLoading(fragment);
         verify(suggestedTracksAdapter).setDisplayProgressItem(true);
     }
 

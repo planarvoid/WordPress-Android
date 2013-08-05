@@ -1,5 +1,6 @@
 package com.soundcloud.android.paging;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -39,16 +40,6 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
         mPagesSub = mPagesObservable.subscribe(new PageObserver(fragment));
     }
 
-    public void setNextPageObservable(Observable<ModelType> nextPageObservable) {
-        mNextPageObservable = nextPageObservable;
-    }
-
-    public void loadNextPage(final FragmentType fragment) {
-        Preconditions.checkState(mNextPageObservable != null, "no next page observable, forgot to set it?");
-        fragment.getAdapter().setDisplayProgressItem(true);
-        mLoadNextPageSub = mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(new PageItemObserver(fragment));
-    }
-
     public void unsubscribe() {
         if (mLoadNextPageSub != null) {
             mLoadNextPageSub.unsubscribe();
@@ -56,6 +47,17 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
         if (mPagesSub != null) {
             mPagesSub.unsubscribe();
         }
+    }
+
+    @VisibleForTesting
+    protected void loadNextPage(final FragmentType fragment) {
+        Preconditions.checkState(mNextPageObservable != null, "no next page observable, forgot to set it?");
+        fragment.getAdapter().setDisplayProgressItem(true);
+        mLoadNextPageSub = mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(new PageItemObserver(fragment));
+    }
+
+    private void setNextPageObservable(Observable<ModelType> nextPageObservable) {
+        mNextPageObservable = nextPageObservable;
     }
 
     public final class PageItemObserver extends ScFragmentObserver<FragmentType, ModelType> {
@@ -81,7 +83,7 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
         }
     }
 
-    public final class PageObserver extends ScFragmentObserver<FragmentType, Observable<ModelType>> {
+    private final class PageObserver extends ScFragmentObserver<FragmentType, Observable<ModelType>> {
         public PageObserver(FragmentType fragment) {
             super(fragment);
         }
