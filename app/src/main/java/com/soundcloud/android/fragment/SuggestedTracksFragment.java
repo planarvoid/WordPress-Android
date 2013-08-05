@@ -45,7 +45,6 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mAdapterViewPager.loadNextPage(this);
     }
 
     @Override
