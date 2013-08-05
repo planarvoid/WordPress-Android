@@ -10,7 +10,9 @@ import com.soundcloud.android.api.SuggestedTracksOperations;
 import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.paging.AdapterViewPager;
+import com.soundcloud.android.paging.PageItemObserver;
 import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.observers.PullToRefreshObserver;
 import com.soundcloud.android.view.EmptyListView;
 
 import android.os.Bundle;
@@ -62,11 +64,14 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         gridView.setAdapter(mSuggestedTracksAdapter);
         gridView.setEmptyView(mEmptyListView);
 
-        mAdapterViewPager.startLoading(this);
+        mAdapterViewPager.startLoading(this, new PageItemObserver<Track, SuggestedTracksFragment>(this));
     }
 
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
+        PageItemObserver<Track, SuggestedTracksFragment> itemObserver = new PageItemObserver<Track, SuggestedTracksFragment>(this);
+        mAdapterViewPager.startLoading(this, itemObserver, new PullToRefreshObserver<SuggestedTracksFragment, Track>(
+                this, R.id.gridview, itemObserver));
     }
 
     @Override

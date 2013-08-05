@@ -1,6 +1,8 @@
 package com.soundcloud.android.paging;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -18,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Observer;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -49,7 +52,7 @@ public class AdapterViewPagerTest {
     public void testShowsErrorState() {
         adapterViewPager = new AdapterViewPager(Observable.just(Observable.<Track>error(new Exception())));
 
-        adapterViewPager.startLoading(fragment);
+        adapterViewPager.startLoading(fragment, new PageItemObserver(fragment));
         verify(emptyListView).setStatus(EmptyListView.Status.ERROR);
     }
 
@@ -57,7 +60,7 @@ public class AdapterViewPagerTest {
     public void testShowsEmptyState() {
         adapterViewPager = new AdapterViewPager(Observable.just(Observable.<Track>empty()));
 
-        adapterViewPager.startLoading(fragment);
+        adapterViewPager.startLoading(fragment, new PageItemObserver(fragment));
         verify(emptyListView).setStatus(EmptyListView.Status.OK);
         verify(suggestedTracksAdapter, never()).addItem(any(Track.class));
     }
@@ -67,7 +70,7 @@ public class AdapterViewPagerTest {
         final Track track = new Track();
         adapterViewPager = new AdapterViewPager(Observable.just(Observable.just(track)));
 
-        adapterViewPager.startLoading(fragment);
+        adapterViewPager.startLoading(fragment, new PageItemObserver(fragment));
         verify(emptyListView).setStatus(EmptyListView.Status.OK);
         verify(suggestedTracksAdapter, times(1)).addItem(track);
     }
@@ -75,14 +78,14 @@ public class AdapterViewPagerTest {
     @Test
     public void loadNextPageShouldTriggerAdapterProgressItem() {
         adapterViewPager = new AdapterViewPager(Observable.just(Observable.just(new Track())));
-        adapterViewPager.startLoading(fragment);
+        adapterViewPager.startLoading(fragment, new PageItemObserver(fragment));
         verify(suggestedTracksAdapter).setDisplayProgressItem(true);
     }
 
     @Test
     public void pageItemObserverShouldHideAdapterProgressItemAfterCompletion() {
         adapterViewPager = new AdapterViewPager(Observable.just(Observable.<Track>empty()));
-        AdapterViewPager.PageItemObserver observer = adapterViewPager.new PageItemObserver(fragment);
+        PageItemObserver observer = new PageItemObserver(fragment);
         observer.onCompleted(fragment);
         verify(suggestedTracksAdapter).setDisplayProgressItem(false);
     }
@@ -94,16 +97,17 @@ public class AdapterViewPagerTest {
         when(suggestedTracksAdapter.isDisplayProgressItem()).thenReturn(true);
 
         listener.onScroll(null, 0, 5, 5);
-        verify(adapterViewPager, never()).loadNextPage(any(Fragment.class));
+        verify(adapterViewPager, never()).loadNextPage(any(Fragment.class), any(Observer.class));
     }
 
+    //TODO: this should be in another test case
     @Test
     public void pageScrollListenerShouldTriggerNextPageLoad() {
         AdapterViewPager adapterViewPager = mock(AdapterViewPager.class);
         AdapterViewPager.PageScrollListener listener = adapterViewPager.new PageScrollListener(fragment);
 
         listener.onScroll(null, 0, 5, 5);
-        verify(adapterViewPager).loadNextPage(fragment);
+        verify(adapterViewPager).loadNextPage(refEq(fragment), any(Observer.class));
     }
 
     @Test
@@ -112,7 +116,7 @@ public class AdapterViewPagerTest {
         AdapterViewPager.PageScrollListener listener = adapterViewPager.new PageScrollListener(fragment);
 
         listener.onScroll(null, 0, 5, 2 * 5);
-        verify(adapterViewPager).loadNextPage(fragment);
+        verify(adapterViewPager).loadNextPage(refEq(fragment), any(Observer.class));
     }
 
     @Test
@@ -121,7 +125,7 @@ public class AdapterViewPagerTest {
         AdapterViewPager.PageScrollListener listener = adapterViewPager.new PageScrollListener(fragment);
 
         listener.onScroll(null, 0, 0, 0);
-        verify(adapterViewPager, never()).loadNextPage(any(Fragment.class));
+        verify(adapterViewPager, never()).loadNextPage(any(Fragment.class), any(Observer.class));
     }
 
 }

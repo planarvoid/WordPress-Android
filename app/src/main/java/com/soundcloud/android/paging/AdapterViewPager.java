@@ -5,8 +5,8 @@ import com.google.common.base.Preconditions;
 import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScFragmentObserver;
-import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
 
 import android.support.v4.app.Fragment;
@@ -20,9 +20,11 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
     @Nonnull
     private final Observable<Observable<ModelType>> mPagesObservable;
 
+    private Observer<ModelType> mItemObserver;
+    private Observer<ModelType> mFirstPageItemObserver;
+
     @Nullable
     private Observable<ModelType> mNextPageObservable;
-
     @Nullable
     private Subscription mLoadNextPageSub;
     @Nullable
@@ -36,7 +38,16 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
         return mNextPageObservable == null;
     }
 
-    public void startLoading(final FragmentType fragment) {
+    public void startLoading(final FragmentType fragment, final Observer<ModelType> itemObserver) {
+        startLoading(fragment, itemObserver, itemObserver);
+    }
+
+    public void startLoading(final FragmentType fragment,
+                             final Observer<ModelType> itemObserver,
+                             final Observer<ModelType> firstPageItemObserver) {
+        mNextPageObservable = null;
+        mItemObserver = itemObserver;
+        mFirstPageItemObserver = firstPageItemObserver;
         mPagesSub = mPagesObservable.subscribe(new PageObserver(fragment));
     }
 
@@ -50,37 +61,10 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
     }
 
     @VisibleForTesting
-    protected void loadNextPage(final FragmentType fragment) {
+    protected void loadNextPage(final FragmentType fragment, final Observer<ModelType> itemObserver) {
         Preconditions.checkState(mNextPageObservable != null, "no next page observable, forgot to set it?");
         fragment.getAdapter().setDisplayProgressItem(true);
-        mLoadNextPageSub = mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(new PageItemObserver(fragment));
-    }
-
-    private void setNextPageObservable(Observable<ModelType> nextPageObservable) {
-        mNextPageObservable = nextPageObservable;
-    }
-
-    public final class PageItemObserver extends ScFragmentObserver<FragmentType, ModelType> {
-
-        public PageItemObserver(FragmentType fragment) {
-            super(fragment);
-        }
-
-        @Override
-        public void onCompleted(FragmentType fragment) {
-            fragment.getEmptyView().setStatus(EmptyListView.Status.OK);
-            fragment.getAdapter().setDisplayProgressItem(false);
-        }
-
-        @Override
-        public void onError(FragmentType fragment, Exception error) {
-            fragment.getEmptyView().setStatus(EmptyListView.Status.ERROR);
-        }
-
-        @Override
-        public void onNext(FragmentType fragment, ModelType item) {
-            fragment.getAdapter().addItem(item);
-        }
+        mLoadNextPageSub = mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(itemObserver);
     }
 
     private final class PageObserver extends ScFragmentObserver<FragmentType, Observable<ModelType>> {
@@ -91,9 +75,9 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
         @Override
         public void onNext(final FragmentType fragment, Observable<ModelType> nextPageObservable) {
             boolean firstPage = isFirstPage();
-            setNextPageObservable(nextPageObservable);
+            mNextPageObservable = nextPageObservable;
             if (firstPage) {
-                loadNextPage(fragment);
+                loadNextPage(fragment, mFirstPageItemObserver);
             }
         }
     }
@@ -118,7 +102,7 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
                 boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
 
                 if (lastItemReached) {
-                    loadNextPage(mFragment);
+                    loadNextPage(mFragment, mItemObserver);
                 }
             }
         }
