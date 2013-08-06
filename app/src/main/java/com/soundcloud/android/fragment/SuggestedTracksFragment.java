@@ -31,6 +31,8 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
     private AdapterViewPager<Track, SuggestedTracksFragment> mAdapterViewPager;
     private PageItemObserver<Track,SuggestedTracksFragment> mItemObserver;
 
+    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+
     public SuggestedTracksFragment() {
         this(new SuggestedTracksAdapter(), new AdapterViewPager<Track, SuggestedTracksFragment>(
                 new SuggestedTracksOperations().getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER)));
@@ -63,7 +65,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         super.onViewCreated(view, savedInstanceState);
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
-        mEmptyListView.setStatus(EmptyListView.Status.WAITING);
+        mEmptyListView.setStatus(mEmptyViewStatus);
 
         PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(mGridViewId);
         ptrGridView.setOnRefreshListener(this);
@@ -84,8 +86,9 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
     }
 
     @Override
-    public EmptyListView getEmptyView() {
-        return mEmptyListView;
+    public void setEmptyViewStatus(int status) {
+        mEmptyViewStatus = status;
+        mEmptyListView.setStatus(status);
     }
 
     @Override

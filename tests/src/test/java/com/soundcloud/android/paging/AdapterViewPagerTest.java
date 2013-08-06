@@ -13,7 +13,6 @@ import com.soundcloud.android.adapter.SuggestedTracksAdapter;
 import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.EmptyListView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,8 +39,6 @@ public class AdapterViewPagerTest {
     @Mock
     private Observable<Track> suggestedTrackObservable;
     @Mock
-    private EmptyListView emptyListView;
-    @Mock
     private Observer itemObserver;
 
     @Before
@@ -50,7 +47,6 @@ public class AdapterViewPagerTest {
         when(fragment.isAdded()).thenReturn(true);
         when(fragment.getActivity()).thenReturn(new FragmentActivity());
         when(((PagingAdapterViewAware<Track>) fragment).getAdapter()).thenReturn(adapter);
-        when(((PagingAdapterViewAware<Track>) fragment).getEmptyView()).thenReturn(emptyListView);
         when(fragmentLayout.getAdapter()).thenReturn(adapter);
         when(fragment.getView()).thenReturn(fragmentLayout);
     }

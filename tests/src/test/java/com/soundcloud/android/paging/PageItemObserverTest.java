@@ -27,15 +27,12 @@ public class PageItemObserverTest {
 
     @Mock
     private EndlessPagingAdapter adapter;
-    @Mock
-    private EmptyListView emptyListView;
 
     @Before
     public void setUp() throws Exception {
         fragment = mock(Fragment.class, withSettings().extraInterfaces(PagingAdapterViewAware.class));
         when(fragment.isAdded()).thenReturn(true);
         when(((PagingAdapterViewAware) fragment).getAdapter()).thenReturn(adapter);
-        when(((PagingAdapterViewAware) fragment).getEmptyView()).thenReturn(emptyListView);
 
         observer = new PageItemObserver(fragment);
     }
@@ -43,14 +40,14 @@ public class PageItemObserverTest {
     @Test
     public void testShowsErrorState() {
         observer.onError(fragment, new Exception());
-        verify(emptyListView).setStatus(EmptyListView.Status.ERROR);
+        verify((PagingAdapterViewAware) fragment).setEmptyViewStatus(EmptyListView.Status.ERROR);
         verify(adapter).setDisplayProgressItem(false);
     }
 
     @Test
     public void testShowsEmptyState() {
         observer.onCompleted(fragment);
-        verify(emptyListView).setStatus(EmptyListView.Status.OK);
+        verify((PagingAdapterViewAware) fragment).setEmptyViewStatus(EmptyListView.Status.OK);
         verify(adapter, never()).addItem(anyObject());
         verify(adapter).setDisplayProgressItem(false);
     }
@@ -60,7 +57,7 @@ public class PageItemObserverTest {
         observer.onNext(fragment, 1);
         observer.onCompleted(fragment);
 
-        verify(emptyListView).setStatus(EmptyListView.Status.OK);
+        verify((PagingAdapterViewAware) fragment).setEmptyViewStatus(EmptyListView.Status.OK);
         verify(adapter, times(1)).addItem(1);
     }
 }

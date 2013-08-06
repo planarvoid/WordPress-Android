@@ -15,13 +15,13 @@ public class PageItemObserver<ModelType, FragmentType extends Fragment & PagingA
 
     @Override
     public void onCompleted(FragmentType fragment) {
-        fragment.getEmptyView().setStatus(EmptyListView.Status.OK);
+        fragment.setEmptyViewStatus(EmptyListView.Status.OK);
         fragment.getAdapter().setDisplayProgressItem(false);
     }
 
     @Override
     public void onError(FragmentType fragment, Exception error) {
-        fragment.getEmptyView().setStatus(EmptyListView.Status.ERROR);
+        fragment.setEmptyViewStatus(EmptyListView.Status.ERROR);
         fragment.getAdapter().setDisplayProgressItem(false);
     }
 
