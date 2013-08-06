@@ -68,9 +68,11 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         ptrGridView.setOnRefreshListener(this);
         GridView gridView = ptrGridView.getRefreshableView();
         gridView.setOnItemClickListener(this);
-        gridView.setOnScrollListener(mAdapterViewPager.new PageScrollListener(mItemObserver));
         gridView.setAdapter(mSuggestedTracksAdapter);
         gridView.setEmptyView(mEmptyListView);
+
+        // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
+        gridView.setOnScrollListener(mAdapterViewPager.new PageScrollListener(mItemObserver));
     }
 
     @Override
