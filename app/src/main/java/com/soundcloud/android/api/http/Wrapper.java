@@ -170,23 +170,23 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Override @SuppressWarnings("unchecked")
     public <T extends ScResource> T read(Request request) throws NotFoundException, IOException {
-        return (T) getMapper().readValue(getInputStream(get(request)), ScResource.class);
+        return (T) getMapper().readValue(getInputStream(get(request), request), ScResource.class);
     }
 
     @Override @SuppressWarnings("unchecked")
     public <T extends ScResource> T update(Request request) throws NotFoundException, IOException {
-        return (T) getMapper().readValue(getInputStream(put(request)), ScResource.class);
+        return (T) getMapper().readValue(getInputStream(put(request), request), ScResource.class);
     }
 
     @Override @SuppressWarnings("unchecked")
     public <T extends ScResource> T create(Request request) throws IOException {
-        return (T) getMapper().readValue(getInputStream(post(request)), ScResource.class);
+        return (T) getMapper().readValue(getInputStream(post(request), request), ScResource.class);
     }
 
     @Override @SuppressWarnings("unchecked")
     @NotNull
     public <T extends ScResource> List<T> readList(Request request) throws IOException {
-        InputStream is = getInputStream(get(request));
+        InputStream is = getInputStream(get(request), request);
 
         JsonParser parser = getMapper().getFactory().createParser(is);
         JsonToken t = parser.getCurrentToken();
@@ -241,7 +241,8 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         C holder = null;
         do {
             Request r = holder == null ? request : Request.to(holder.next_href);
-            holder = getMapper().readValue(getInputStream(get(r.with(LINKED_PARTITIONING, "1"))), ch);
+            r = r.with(LINKED_PARTITIONING, "1");
+            holder = getMapper().readValue(getInputStream(get(r), r), ch);
             if (holder == null) throw new IOException("invalid data");
 
             if (holder.collection != null) {
@@ -255,7 +256,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Override @SuppressWarnings("unchecked")
     public <T extends ScResource> ScResource.ScResourceHolder<T> readCollection(Request req) throws IOException {
-        return getMapper().readValue(getInputStream(get(req)), ScResource.ScResourceHolder.class);
+        return getMapper().readValue(getInputStream(get(req), req), ScResource.ScResourceHolder.class);
     }
 
     @Override
@@ -278,7 +279,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         }
     }
 
-    private InputStream getInputStream(HttpResponse response) throws IOException, NotFoundException {
+    private InputStream getInputStream(HttpResponse response, Request originalRequest) throws IOException, NotFoundException {
         final int code = response.getStatusLine().getStatusCode();
         switch (code) {
             case HttpStatus.SC_UNAUTHORIZED:
@@ -289,7 +290,9 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
                 throw new NotFoundException();
             default:
                 if (!isStatusCodeOk(code)) {
-                    throw new IOException("Invalid response: " + response.getStatusLine());
+                    final IOException ioException = new IOException("Invalid response for request: " + originalRequest + " " + response.getStatusLine());
+                    SoundCloudApplication.handleSilentException("Get InputStream failed", ioException);
+                    throw ioException;
                 }
         }
         return response.getEntity().getContent();

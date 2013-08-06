@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playable;
@@ -228,7 +229,11 @@ public class Activities extends CollectionHolder<Activity> {
                 throw new CloudAPI.InvalidTokenException(status, response.getStatusLine().getReasonPhrase());
 
             // sync will get retried later
-            default: throw new IOException(response.getStatusLine().toString());
+            default: {
+                final IOException ioException = new IOException(response.getStatusLine().toString());
+                SoundCloudApplication.handleSilentException("Activities fetchRecent failed " + request, ioException);
+                throw ioException;
+            }
         }
     }
 
@@ -245,7 +250,9 @@ public class Activities extends CollectionHolder<Activity> {
                 throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
                         response.getStatusLine().getReasonPhrase());
             } else {
-                throw new IOException(response.getStatusLine().toString());
+                final IOException ioException = new IOException(response.getStatusLine().toString());
+                SoundCloudApplication.handleSilentException("Activities fetch failed " + request, ioException);
+                throw ioException;
             }
         }
     }
