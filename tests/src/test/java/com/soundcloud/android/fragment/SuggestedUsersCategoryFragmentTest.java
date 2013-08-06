@@ -49,7 +49,7 @@ public class SuggestedUsersCategoryFragmentTest {
     public void setup() throws CreateModelException {
 
         when(followingOperations.observeOn(any(Scheduler.class))).thenReturn(followingOperations);
-        when(fragmentView.findViewById(R.id.gridview)).thenReturn(gridView);
+        when(fragmentView.findViewById(R.id.suggested_users_grid)).thenReturn(gridView);
 
         Category category = new Category("category1");
         suggestedUsers = TestHelper.createSuggestedUsers(3);

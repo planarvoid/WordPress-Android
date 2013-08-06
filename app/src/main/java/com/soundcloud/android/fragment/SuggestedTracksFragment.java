@@ -59,7 +59,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         final PageItemObserver<Track, SuggestedTracksFragment> itemObserver =
                 new PageItemObserver<Track, SuggestedTracksFragment>(this);
 
-        PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(R.id.gridview);
+        PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(R.id.suggested_tracks_grid);
         ptrGridView.setOnRefreshListener(this);
         GridView gridView = ptrGridView.getRefreshableView();
         gridView.setOnItemClickListener(this);

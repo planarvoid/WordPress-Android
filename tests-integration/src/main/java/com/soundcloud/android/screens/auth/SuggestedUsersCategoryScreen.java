@@ -65,7 +65,7 @@ public class SuggestedUsersCategoryScreen {
 
     public void waitForUsers() {
         solo.waitForActivity(SuggestedUsersCategoryActivity.class);
-        solo.waitForViewId(R.id.gridview, 10000);
+        solo.waitForViewId(R.id.suggested_users_grid, 10000);
         solo.waitForViewId(R.id.username, 10000);
     }
 }

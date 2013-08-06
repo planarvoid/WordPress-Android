@@ -4,7 +4,7 @@
              android:layout_height="match_parent">
 
     <com.handmark.pulltorefresh.library.PullToRefreshGridView
-            android:id="@+id/gridview"
+            android:id="@+id/suggested_tracks_grid"
             android:layout_gravity="top"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

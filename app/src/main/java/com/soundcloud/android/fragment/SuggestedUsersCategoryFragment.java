@@ -62,7 +62,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mAdapterView = (GridViewCompat) view.findViewById(R.id.gridview);
+        mAdapterView = (GridViewCompat) view.findViewById(R.id.suggested_users_grid);
         mAdapterView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
         mAdapterView.setOnItemClickListener(this);
         mAdapterView.setAdapter(mAdapter);
