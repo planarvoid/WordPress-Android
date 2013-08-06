@@ -28,6 +28,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
     private EmptyListView mEmptyListView;
     private SuggestedTracksAdapter mSuggestedTracksAdapter;
     private AdapterViewPager<Track, SuggestedTracksFragment> mAdapterViewPager;
+    private PageItemObserver<Track,SuggestedTracksFragment> mItemObserver;
 
     public SuggestedTracksFragment() {
         this(new SuggestedTracksAdapter(), new AdapterViewPager<Track, SuggestedTracksFragment>(
@@ -38,6 +39,13 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         mSuggestedTracksAdapter = adapter;
         mAdapterViewPager = adapterViewPager;
         setRetainInstance(true);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mItemObserver = new PageItemObserver<Track, SuggestedTracksFragment>(this);
+        mAdapterViewPager.subscribe(this, mItemObserver);
     }
 
     @Override
@@ -56,19 +64,13 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(EmptyListView.Status.WAITING);
 
-        final PageItemObserver<Track, SuggestedTracksFragment> itemObserver =
-                new PageItemObserver<Track, SuggestedTracksFragment>(this);
-
         PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(R.id.suggested_tracks_grid);
         ptrGridView.setOnRefreshListener(this);
         GridView gridView = ptrGridView.getRefreshableView();
         gridView.setOnItemClickListener(this);
+        gridView.setOnScrollListener(mAdapterViewPager.new PageScrollListener(mItemObserver));
         gridView.setAdapter(mSuggestedTracksAdapter);
         gridView.setEmptyView(mEmptyListView);
-
-        // set up endless paging
-        mAdapterViewPager.subscribe(this, itemObserver);
-        gridView.setOnScrollListener(mAdapterViewPager.new PageScrollListener(itemObserver));
     }
 
     @Override
