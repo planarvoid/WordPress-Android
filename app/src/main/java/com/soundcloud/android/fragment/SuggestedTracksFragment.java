@@ -25,6 +25,7 @@ import android.widget.GridView;
 public class SuggestedTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
         PagingAdapterViewAware<Track>, PullToRefreshBase.OnRefreshListener<GridView> {
 
+    private final int mGridViewId = R.id.suggested_tracks_grid;
     private EmptyListView mEmptyListView;
     private SuggestedTracksAdapter mSuggestedTracksAdapter;
     private AdapterViewPager<Track, SuggestedTracksFragment> mAdapterViewPager;
@@ -64,7 +65,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(EmptyListView.Status.WAITING);
 
-        PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(R.id.suggested_tracks_grid);
+        PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(mGridViewId);
         ptrGridView.setOnRefreshListener(this);
         GridView gridView = ptrGridView.getRefreshableView();
         gridView.setOnItemClickListener(this);
@@ -79,7 +80,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
         PageItemObserver<Track, SuggestedTracksFragment> itemObserver = new PageItemObserver<Track, SuggestedTracksFragment>(this);
         mAdapterViewPager.subscribe(this, new PullToRefreshObserver<SuggestedTracksFragment, Track>(
-                this, R.id.gridview, itemObserver));
+                this, mGridViewId, itemObserver));
     }
 
     @Override
