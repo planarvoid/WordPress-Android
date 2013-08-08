@@ -5,8 +5,8 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EndlessPagingAdapter;
-import com.soundcloud.android.adapter.SuggestedTracksAdapter;
-import com.soundcloud.android.api.SuggestedTracksOperations;
+import com.soundcloud.android.adapter.TrackExploreAdapter;
+import com.soundcloud.android.api.ExploreTrackOperations;
 import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.paging.AdapterViewPager;
@@ -22,24 +22,24 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-public class SuggestedTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
+public class TrackExploreFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
         PagingAdapterViewAware<Track>, PullToRefreshBase.OnRefreshListener<GridView> {
 
     private final int mGridViewId = R.id.suggested_tracks_grid;
     private EmptyListView mEmptyListView;
-    private SuggestedTracksAdapter mSuggestedTracksAdapter;
-    private AdapterViewPager<Track, SuggestedTracksFragment> mAdapterViewPager;
-    private PageItemObserver<Track,SuggestedTracksFragment> mItemObserver;
+    private TrackExploreAdapter mTrackExploreAdapter;
+    private AdapterViewPager<Track, TrackExploreFragment> mAdapterViewPager;
+    private PageItemObserver<Track,TrackExploreFragment> mItemObserver;
 
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
-    public SuggestedTracksFragment() {
-        this(new SuggestedTracksAdapter(), new AdapterViewPager<Track, SuggestedTracksFragment>(
-                new SuggestedTracksOperations().getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER)));
+    public TrackExploreFragment() {
+        this(new TrackExploreAdapter(), new AdapterViewPager<Track, TrackExploreFragment>(
+                new ExploreTrackOperations().getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER)));
     }
 
-    public SuggestedTracksFragment(SuggestedTracksAdapter adapter, AdapterViewPager<Track, SuggestedTracksFragment> adapterViewPager) {
-        mSuggestedTracksAdapter = adapter;
+    public TrackExploreFragment(TrackExploreAdapter adapter, AdapterViewPager<Track, TrackExploreFragment> adapterViewPager) {
+        mTrackExploreAdapter = adapter;
         mAdapterViewPager = adapterViewPager;
         setRetainInstance(true);
     }
@@ -47,7 +47,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mItemObserver = new PageItemObserver<Track, SuggestedTracksFragment>(this);
+        mItemObserver = new PageItemObserver<Track, TrackExploreFragment>(this);
         mAdapterViewPager.subscribe(this, mItemObserver);
     }
 
@@ -71,7 +71,7 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
         ptrGridView.setOnRefreshListener(this);
         GridView gridView = ptrGridView.getRefreshableView();
         gridView.setOnItemClickListener(this);
-        gridView.setAdapter(mSuggestedTracksAdapter);
+        gridView.setAdapter(mTrackExploreAdapter);
         gridView.setEmptyView(mEmptyListView);
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
@@ -80,8 +80,8 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
-        PageItemObserver<Track, SuggestedTracksFragment> itemObserver = new PageItemObserver<Track, SuggestedTracksFragment>(this);
-        mAdapterViewPager.subscribe(this, new PullToRefreshObserver<SuggestedTracksFragment, Track>(
+        PageItemObserver<Track, TrackExploreFragment> itemObserver = new PageItemObserver<Track, TrackExploreFragment>(this);
+        mAdapterViewPager.subscribe(this, new PullToRefreshObserver<TrackExploreFragment, Track>(
                 this, mGridViewId, itemObserver));
     }
 
@@ -93,6 +93,6 @@ public class SuggestedTracksFragment extends SherlockFragment implements Adapter
 
     @Override
     public EndlessPagingAdapter<Track> getAdapter() {
-        return mSuggestedTracksAdapter;
+        return mTrackExploreAdapter;
     }
 }

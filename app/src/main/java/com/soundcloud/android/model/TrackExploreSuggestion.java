@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class SuggestedTrack extends ScModel {
+public class TrackExploreSuggestion extends ScModel {
 
     private String          mTitle;
     private String          mGenre;
@@ -21,9 +21,9 @@ public class SuggestedTrack extends ScModel {
     private List<String>    mTagList;
     private Date            mCreatedAt;
 
-    public SuggestedTrack() { /* for Deserialization */ }
+    public TrackExploreSuggestion() { /* for Deserialization */ }
 
-    public SuggestedTrack(Parcel in) {
+    public TrackExploreSuggestion(Parcel in) {
         super(in);
         this.mTitle = in.readString();
         this.mGenre = in.readString();
@@ -38,7 +38,7 @@ public class SuggestedTrack extends ScModel {
 
     }
 
-    public SuggestedTrack(String urn) {
+    public TrackExploreSuggestion(String urn) {
         super(urn);
     }
 
@@ -138,13 +138,13 @@ public class SuggestedTrack extends ScModel {
         dest.writeSerializable(this.mCreatedAt);
     }
 
-    public static Creator<SuggestedTrack> CREATOR = new Creator<SuggestedTrack>() {
-        public SuggestedTrack createFromParcel(Parcel source) {
-            return new SuggestedTrack(source);
+    public static Creator<TrackExploreSuggestion> CREATOR = new Creator<TrackExploreSuggestion>() {
+        public TrackExploreSuggestion createFromParcel(Parcel source) {
+            return new TrackExploreSuggestion(source);
         }
 
-        public SuggestedTrack[] newArray(int size) {
-            return new SuggestedTrack[size];
+        public TrackExploreSuggestion[] newArray(int size) {
+            return new TrackExploreSuggestion[size];
         }
     };
 

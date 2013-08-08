@@ -9,7 +9,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 
-public class SuggestedTracksOperations extends ScheduledOperations {
+public class ExploreTrackOperations extends ScheduledOperations {
 
 
     private SoundCloudRxHttpClient rxHttpClient = new SoundCloudRxHttpClient();

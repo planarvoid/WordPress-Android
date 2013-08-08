@@ -19,13 +19,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SuggestedTracksAdapterTest {
+public class TrackExploreAdapterTest {
 
-    private SuggestedTracksAdapter adapter;
+    private TrackExploreAdapter adapter;
 
     @Test
     public void shouldCreateItemView() {
-        adapter = new SuggestedTracksAdapter();
+        adapter = new TrackExploreAdapter();
         View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
@@ -36,12 +36,12 @@ public class SuggestedTracksAdapterTest {
 
     @Test
     public void shouldBindItemView() throws CreateModelException {
-        adapter = new SuggestedTracksAdapter();
+        adapter = new TrackExploreAdapter();
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         adapter.addItem(track);
 
         View itemView = mock(View.class);
-        SuggestedTracksAdapter.ItemViewHolder viewHolder = mock(SuggestedTracksAdapter.ItemViewHolder.class);
+        TrackExploreAdapter.ItemViewHolder viewHolder = mock(TrackExploreAdapter.ItemViewHolder.class);
         viewHolder.imageView = new ImageView(Robolectric.application);
         viewHolder.title = new TextView(Robolectric.application);
         viewHolder.username = new TextView(Robolectric.application);
