@@ -3,7 +3,7 @@ package com.soundcloud.android.activity.landing;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ExploreTrackCategoriesFragment;
-import com.soundcloud.android.fragment.TrackExploreFragment;
+import com.soundcloud.android.fragment.ExploreTracksFragment;
 import com.viewpagerindicator.TabPageIndicator;
 
 import android.os.Bundle;
@@ -50,7 +50,7 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
                 case 0:
                     return new ExploreTrackCategoriesFragment();
                 case 1:
-                    return new TrackExploreFragment();
+                    return new ExploreTracksFragment();
                 case 2:
                     return new Fragment();
             }

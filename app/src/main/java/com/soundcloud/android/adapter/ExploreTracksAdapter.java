@@ -12,13 +12,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class TrackExploreAdapter extends EndlessPagingAdapter<Track> {
+public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
 
     public static final int INITIAL_LIST_SIZE = 20;
 
     private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.adapterView(R.drawable.placeholder_cells);
 
-    public TrackExploreAdapter() {
+    public ExploreTracksAdapter() {
         super(INITIAL_LIST_SIZE, R.layout.list_loading_item);
     }
 
