@@ -1,16 +1,17 @@
 package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ExploreTracksCategoriesAdapter;
 import com.soundcloud.android.adapter.ItemAdapter;
 import com.soundcloud.android.api.ExploreTrackOperations;
 import com.soundcloud.android.fragment.behavior.AdapterViewAware;
-import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ItemObserver;
+import com.soundcloud.android.rx.observers.PullToRefreshObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 
@@ -22,13 +23,15 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class ExploreTrackCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
-        AdapterViewAware<ExploreTracksCategory> {
+        AdapterViewAware<ExploreTracksCategory>, PullToRefreshBase.OnRefreshListener<ListView> {
+
 
     private final Observable<ExploreTracksCategory> mCategoriesObservable;
     private ExploreTracksCategoriesAdapter mCategoriesAdapter;
     private ItemObserver mItemObserver;
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;
+    private int mListViewID = R.id.suggested_tracks_categories_list;
 
     public ExploreTrackCategoriesFragment() {
         this(new ExploreTracksCategoriesAdapter(),
@@ -65,10 +68,11 @@ public class ExploreTrackCategoriesFragment extends SherlockFragment implements 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
 
-        PullToRefreshListView pullToRefreshListView = (PullToRefreshListView) view.findViewById(R.id.suggested_tracks_categories_list);
+        PullToRefreshListView pullToRefreshListView = (PullToRefreshListView) view.findViewById(mListViewID);
         pullToRefreshListView.setOnItemClickListener(this);
         pullToRefreshListView.setAdapter(mCategoriesAdapter);
         pullToRefreshListView.setEmptyView(mEmptyListView);
+        pullToRefreshListView.setOnRefreshListener(this);
     }
 
     @Override
@@ -80,5 +84,13 @@ public class ExploreTrackCategoriesFragment extends SherlockFragment implements 
     @Override
     public ItemAdapter<ExploreTracksCategory> getAdapter() {
         return mCategoriesAdapter;
+    }
+
+    @Override
+    public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+        ItemObserver<ExploreTracksCategory, ExploreTrackCategoriesFragment> itemObserver =
+                new ItemObserver<ExploreTracksCategory, ExploreTrackCategoriesFragment>(this);
+        mCategoriesObservable.subscribe(new PullToRefreshObserver<ExploreTrackCategoriesFragment, ExploreTracksCategory>(
+                        this, mListViewID, itemObserver));
     }
 }
