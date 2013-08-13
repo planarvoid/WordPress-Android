@@ -6,7 +6,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ExploreTracksCategoriesAdapter;
 import com.soundcloud.android.adapter.ItemAdapter;
-import com.soundcloud.android.api.ExploreTrackOperations;
+import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.fragment.behavior.AdapterViewAware;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -22,7 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class ExploreTrackCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
+public class ExploreTracksCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
         AdapterViewAware<ExploreTracksCategory>, PullToRefreshBase.OnRefreshListener<ListView> {
 
 
@@ -33,13 +33,13 @@ public class ExploreTrackCategoriesFragment extends SherlockFragment implements 
     private int mEmptyViewStatus;
     private int mListViewID = R.id.suggested_tracks_categories_list;
 
-    public ExploreTrackCategoriesFragment() {
+    public ExploreTracksCategoriesFragment() {
         this(new ExploreTracksCategoriesAdapter(),
-                new ExploreTrackOperations().getCategories().observeOn(ScSchedulers.UI_SCHEDULER));
+                new ExploreTracksOperations().getCategories().observeOn(ScSchedulers.UI_SCHEDULER));
     }
 
-    public ExploreTrackCategoriesFragment(ExploreTracksCategoriesAdapter trackExploreAdapter,
-                                          Observable<ExploreTracksCategory> exploreTracksCategoriesObservable) {
+    public ExploreTracksCategoriesFragment(ExploreTracksCategoriesAdapter trackExploreAdapter,
+                                           Observable<ExploreTracksCategory> exploreTracksCategoriesObservable) {
         mCategoriesAdapter = trackExploreAdapter;
         mCategoriesObservable = exploreTracksCategoriesObservable;
         setRetainInstance(true);
@@ -48,7 +48,7 @@ public class ExploreTrackCategoriesFragment extends SherlockFragment implements 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mItemObserver = new ItemObserver<ExploreTracksCategory, ExploreTrackCategoriesFragment>(this);
+        mItemObserver = new ItemObserver<ExploreTracksCategory, ExploreTracksCategoriesFragment>(this);
         mCategoriesObservable.subscribe(mItemObserver);
     }
 
@@ -88,9 +88,9 @@ public class ExploreTrackCategoriesFragment extends SherlockFragment implements 
 
     @Override
     public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-        ItemObserver<ExploreTracksCategory, ExploreTrackCategoriesFragment> itemObserver =
-                new ItemObserver<ExploreTracksCategory, ExploreTrackCategoriesFragment>(this);
-        mCategoriesObservable.subscribe(new PullToRefreshObserver<ExploreTrackCategoriesFragment, ExploreTracksCategory>(
+        ItemObserver<ExploreTracksCategory, ExploreTracksCategoriesFragment> itemObserver =
+                new ItemObserver<ExploreTracksCategory, ExploreTracksCategoriesFragment>(this);
+        mCategoriesObservable.subscribe(new PullToRefreshObserver<ExploreTracksCategoriesFragment, ExploreTracksCategory>(
                         this, mListViewID, itemObserver));
     }
 }

@@ -2,7 +2,7 @@ package com.soundcloud.android.activity.landing;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.fragment.ExploreTrackCategoriesFragment;
+import com.soundcloud.android.fragment.ExploreTracksCategoriesFragment;
 import com.soundcloud.android.fragment.ExploreTracksFragment;
 import com.viewpagerindicator.TabPageIndicator;
 
@@ -48,7 +48,7 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new ExploreTrackCategoriesFragment();
+                    return new ExploreTracksCategoriesFragment();
                 case 1:
                     return new ExploreTracksFragment();
                 case 2:

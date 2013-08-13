@@ -6,7 +6,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EndlessPagingAdapter;
 import com.soundcloud.android.adapter.ExploreTracksAdapter;
-import com.soundcloud.android.api.ExploreTrackOperations;
+import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.paging.AdapterViewPager;
@@ -35,7 +35,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
     public ExploreTracksFragment() {
         this(new ExploreTracksAdapter(), new AdapterViewPager<Track, ExploreTracksFragment>(
-                new ExploreTrackOperations().getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER)));
+                new ExploreTracksOperations().getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER)));
     }
 
     public ExploreTracksFragment(ExploreTracksAdapter adapter, AdapterViewPager<Track, ExploreTracksFragment> adapterViewPager) {

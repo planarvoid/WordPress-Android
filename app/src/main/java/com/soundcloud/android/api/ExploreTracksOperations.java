@@ -21,7 +21,7 @@ import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
-public class ExploreTrackOperations extends ScheduledOperations {
+public class ExploreTracksOperations extends ScheduledOperations {
 
 
     private SoundCloudRxHttpClient rxHttpClient = new SoundCloudRxHttpClient();
