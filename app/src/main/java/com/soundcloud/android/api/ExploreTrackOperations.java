@@ -11,6 +11,7 @@ import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
 import rx.Observable;
@@ -25,23 +26,25 @@ public class ExploreTrackOperations extends ScheduledOperations {
     private SoundCloudRxHttpClient rxHttpClient = new SoundCloudRxHttpClient();
 
     public Observable<ExploreTracksCategories> getCategories() {
+
         return schedule(Observable.create(new Func1<Observer<ExploreTracksCategories>, Subscription>() {
             @Override
-            public Subscription call(Observer<ExploreTracksCategories> suggestedTrackObserver) {
+            public Subscription call(Observer<ExploreTracksCategories> categoryObserver) {
                 try {
+                    Thread.sleep(2000);
                     final String jsonString = IOUtils.readInputStream(SoundCloudApplication.instance.getAssets().open("suggested_tracks_categories.json"));
                     ExploreTracksCategories trackExploreCategories = new JacksonJsonTransformer().fromJson(
                             jsonString, new TypeToken<ExploreTracksCategories>() {
                     });
-                    suggestedTrackObserver.onNext(trackExploreCategories);
-                    suggestedTrackObserver.onCompleted();
+                    categoryObserver.onNext(trackExploreCategories);
+                    categoryObserver.onCompleted();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    suggestedTrackObserver.onError(e);
+                    categoryObserver.onError(e);
                 }
                 return Subscriptions.empty();
             }
-        }));
+        }).subscribeOn(ScSchedulers.API_SCHEDULER));
     }
 
     public Observable<Observable<Track>> getSuggestedTracks() {
