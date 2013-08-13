@@ -18,15 +18,15 @@ import android.widget.TextView;
 @RunWith(SoundCloudTestRunner.class)
 public class ScAdapterTest {
 
-    private ScAdapter<Track, TextView> adapter = new ScAdapter<Track, TextView>(10) {
+    private ScAdapter<Track> adapter = new ScAdapter<Track>(10) {
         @Override
         protected TextView createItemView(int position, ViewGroup parent) {
             return new TextView(parent.getContext());
         }
 
         @Override
-        protected void bindItemView(int position, TextView itemView) {
-            itemView.setText(getItem(position).getTitle());
+        protected void bindItemView(int position, View itemView) {
+            ((TextView) itemView).setText(getItem(position).getTitle());
         }
     };
 

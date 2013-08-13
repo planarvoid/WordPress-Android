@@ -7,7 +7,7 @@ import android.widget.BaseAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ScAdapter<ModelType, ViewType extends View> extends BaseAdapter implements ItemAdapter<ModelType> {
+public abstract class ScAdapter<ModelType> extends BaseAdapter implements ItemAdapter<ModelType> {
 
     protected final List<ModelType> mItems;
 
@@ -43,11 +43,11 @@ public abstract class ScAdapter<ModelType, ViewType extends View> extends BaseAd
         if (convertView == null) {
             convertView = createItemView(position, parent);
         }
-        bindItemView(position, (ViewType) convertView);
+        bindItemView(position, convertView);
         return convertView;
     }
 
-    protected abstract ViewType createItemView(int position, ViewGroup parent);
-    protected abstract void bindItemView(int position, ViewType itemView);
+    protected abstract View createItemView(int position, ViewGroup parent);
+    protected abstract void bindItemView(int position, View itemView);
 
 }

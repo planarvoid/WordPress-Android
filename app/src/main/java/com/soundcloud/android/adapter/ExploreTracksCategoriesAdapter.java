@@ -7,11 +7,12 @@ import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.view.adapter.ExploreTracksCategoryRow;
 
 import android.util.SparseIntArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 
-public class ExploreTracksCategoriesAdapter extends ScAdapter<ExploreTracksCategory, ExploreTracksCategoryRow> {
+public class ExploreTracksCategoriesAdapter extends ScAdapter<ExploreTracksCategory> {
 
     @VisibleForTesting
     protected static final int VIEW_TYPE_DEFAULT = 0;
@@ -22,7 +23,7 @@ public class ExploreTracksCategoriesAdapter extends ScAdapter<ExploreTracksCateg
 
     private final SparseIntArray mListPositionsToSectionTitleResIds;
 
-    protected ExploreTracksCategoriesAdapter() {
+    public ExploreTracksCategoriesAdapter() {
         this(new SparseIntArray());
     }
 
@@ -59,19 +60,20 @@ public class ExploreTracksCategoriesAdapter extends ScAdapter<ExploreTracksCateg
 
     @Override
     protected ExploreTracksCategoryRow createItemView(int position, ViewGroup parent) {
-        return (ExploreTracksCategoryRow) View.inflate(parent.getContext(), R.layout.suggested_users_category_list_item, null);
+        return (ExploreTracksCategoryRow) LayoutInflater.from(parent.getContext()).inflate(R.layout.explore_tracks_category_item, null);
     }
 
     @Override
-    protected void bindItemView(int position, ExploreTracksCategoryRow itemView) {
-        itemView.setDisplayName(getItem(position).getDisplayName(itemView.getContext()));
+    protected void bindItemView(int position, View itemView) {
+        ExploreTracksCategoryRow row = (ExploreTracksCategoryRow) itemView;
+        row.setDisplayName(getItem(position).getDisplayName(itemView.getContext()));
 
         // set section header
         int resId = mListPositionsToSectionTitleResIds.get(position, -1);
         if (resId != -1) {
-            itemView.showSectionHeader(itemView.getResources().getString(resId));
+            row.showSectionHeader(itemView.getResources().getString(resId));
         } else {
-            itemView.hideSectionHeader();
+            row.hideSectionHeader();
         }
     }
 

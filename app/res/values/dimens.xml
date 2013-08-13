@@ -124,7 +124,7 @@
     <dimen name="explore_suggested_track_item_height">180dp</dimen>
     <dimen name="explore_suggested_track_item_spacing_inside">10dp</dimen>
 
-    <dimen name="explore_suggested_track_category_text_size">32sp</dimen>
+    <dimen name="explore_suggested_track_category_text_size">24sp</dimen>
 
     <dimen name="empty_message_margin_left_right">20dp</dimen>
 </resources>

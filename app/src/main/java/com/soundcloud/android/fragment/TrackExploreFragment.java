@@ -10,7 +10,7 @@ import com.soundcloud.android.api.ExploreTrackOperations;
 import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.paging.AdapterViewPager;
-import com.soundcloud.android.paging.PageItemObserver;
+import com.soundcloud.android.rx.observers.PageItemObserver;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.PullToRefreshObserver;
 import com.soundcloud.android.view.EmptyListView;

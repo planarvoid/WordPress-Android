@@ -11,7 +11,7 @@ import android.support.v4.app.Fragment;
 /**
  * An observer to be used with a pull-to-refresh widget. It ensures that all items are
  * successfully retrieved (it's a {@link BufferingObserver}) before clearing out the adapter,
- * and then forwards calls to an underlying overserver such as a {@link com.soundcloud.android.paging.PageItemObserver}.
+ * and then forwards calls to an underlying overserver such as a {@link PageItemObserver}.
  *
  * @param <FragmentType>
  * @param <ModelType>

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.withSettings;
 import com.soundcloud.android.adapter.EndlessPagingAdapter;
 import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.observers.PageItemObserver;
 import com.soundcloud.android.view.EmptyListView;
 import org.junit.Before;
 import org.junit.Test;

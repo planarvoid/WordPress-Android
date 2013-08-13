@@ -2,7 +2,7 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
           android:id="@+id/list_section_header"
           style="?android:attr/listSeparatorTextViewStyle"
-          android:layout_marginTop="15dp"
+          android:paddingTop="15dp"
           android:paddingLeft="15dp"
           android:paddingRight="15dp"
           android:visibility="gone"

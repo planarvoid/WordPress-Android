@@ -25,7 +25,7 @@ public class ExploreTrackOperations extends ScheduledOperations {
     private SoundCloudRxHttpClient rxHttpClient = new SoundCloudRxHttpClient();
 
     public Observable<ExploreTracksCategories> getCategories() {
-        return Observable.create(new Func1<Observer<ExploreTracksCategories>, Subscription>() {
+        return schedule(Observable.create(new Func1<Observer<ExploreTracksCategories>, Subscription>() {
             @Override
             public Subscription call(Observer<ExploreTracksCategories> suggestedTrackObserver) {
                 try {
@@ -35,16 +35,14 @@ public class ExploreTrackOperations extends ScheduledOperations {
                     });
                     suggestedTrackObserver.onNext(trackExploreCategories);
                     suggestedTrackObserver.onCompleted();
-                    return Subscriptions.empty();
-
                 } catch (Exception e) {
                     e.printStackTrace();
                     suggestedTrackObserver.onError(e);
                 }
                 return Subscriptions.empty();
-
             }
-        });        }
+        }));
+    }
 
     public Observable<Observable<Track>> getSuggestedTracks() {
         APIRequest<CollectionHolder<Track>> request = SoundCloudAPIRequest.RequestBuilder.<CollectionHolder<Track>>get("/users/skrillex/tracks.json")

@@ -7,7 +7,7 @@ import android.widget.BaseAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class EndlessPagingAdapter<T> extends ScAdapter<T, View> {
+public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> {
 
     private static final int PROGRESS_ITEM_VIEW_TYPE = 1;
     private final int mProgressItemLayoutResId;
