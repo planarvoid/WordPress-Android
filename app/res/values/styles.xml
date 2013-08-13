@@ -171,6 +171,13 @@
         <item name="android:paddingBottom">0dp</item>
     </style>
 
+    <style name="ExploreTracksCategoryText">
+        <item name="android:textColor">@drawable/txt_list_explore_category_states</item>
+        <item name="android:textSize">@dimen/explore_suggested_track_category_text_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
     <style name="BlackOverlayText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

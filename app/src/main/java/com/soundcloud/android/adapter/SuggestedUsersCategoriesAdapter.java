@@ -229,7 +229,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private ItemViewHolder getItemViewHolder(View convertView) {
         ItemViewHolder viewHolder = new ItemViewHolder();
         convertView.setTag(viewHolder);
-        viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.suggested_users_list_header);
+        viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.list_section_header);
         return viewHolder;
     }
 

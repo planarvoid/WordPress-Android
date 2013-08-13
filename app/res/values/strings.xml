@@ -207,4 +207,7 @@
     <string name="explore_pop_music">Popular Music</string>
     <string name="explore_pop_audio">Popular Audio</string>
 
+    <string name="explore_category_header_music">Music</string>
+    <string name="explore_category_header_audio">Audio</string>
+
 </resources>
