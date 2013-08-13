@@ -35,7 +35,8 @@ public class ExploreTracksCategory {
         this.mLinks = links;
     }
 
-    public String getDisplayName(Context context){
-        return mKey + " (tmp)";
+    public String getDisplayName(Context context) {
+        int resId = context.getResources().getIdentifier("explore_category_" + mKey, "string", context.getPackageName());
+        return resId == 0 ? mKey.replace("_", " ") : context.getString(resId);
     }
 }

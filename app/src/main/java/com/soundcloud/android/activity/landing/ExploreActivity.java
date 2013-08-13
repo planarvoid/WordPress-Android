@@ -68,9 +68,9 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
                 case 0:
                     return getString(R.string.explore_categories);
                 case 1:
-                    return getString(R.string.explore_pop_music);
+                    return getString(R.string.explore_category_popular_music);
                 case 2:
-                    return getString(R.string.explore_pop_audio);
+                    return getString(R.string.explore_category_popular_audio);
             }
             throw new RuntimeException("Unexpected position for getPageTitle " + position);
 
