@@ -15,6 +15,7 @@ public class ItemObserver<ModelType, FragmentType extends Fragment & AdapterView
     @Override
     public void onCompleted(FragmentType fragment) {
         fragment.setEmptyViewStatus(EmptyListView.Status.OK);
+        fragment.getAdapter().notifyDataSetChanged();
     }
 
     @Override

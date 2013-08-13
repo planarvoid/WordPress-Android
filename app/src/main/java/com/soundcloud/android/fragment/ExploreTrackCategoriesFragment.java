@@ -8,6 +8,7 @@ import com.soundcloud.android.adapter.ItemAdapter;
 import com.soundcloud.android.api.ExploreTrackOperations;
 import com.soundcloud.android.fragment.behavior.AdapterViewAware;
 import com.soundcloud.android.model.ExploreTracksCategories;
+import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ItemObserver;
 import com.soundcloud.android.view.EmptyListView;
@@ -21,11 +22,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class ExploreTrackCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
-        AdapterViewAware<ExploreTracksCategories> {
+        AdapterViewAware<ExploreTracksCategory> {
 
-    private final Observable<ExploreTracksCategories> mCategoriesObservable;
+    private final Observable<ExploreTracksCategory> mCategoriesObservable;
     private ExploreTracksCategoriesAdapter mCategoriesAdapter;
-    private ExploreTracksCategoryObserver mItemObserver;
+    private ItemObserver mItemObserver;
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;
 
@@ -35,7 +36,7 @@ public class ExploreTrackCategoriesFragment extends SherlockFragment implements 
     }
 
     public ExploreTrackCategoriesFragment(ExploreTracksCategoriesAdapter trackExploreAdapter,
-                                          Observable<ExploreTracksCategories> exploreTracksCategoriesObservable) {
+                                          Observable<ExploreTracksCategory> exploreTracksCategoriesObservable) {
         mCategoriesAdapter = trackExploreAdapter;
         mCategoriesObservable = exploreTracksCategoriesObservable;
         setRetainInstance(true);
@@ -44,7 +45,7 @@ public class ExploreTrackCategoriesFragment extends SherlockFragment implements 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mItemObserver = new ExploreTracksCategoryObserver(this);
+        mItemObserver = new ItemObserver<ExploreTracksCategory, ExploreTrackCategoriesFragment>(this);
         mCategoriesObservable.subscribe(mItemObserver);
     }
 
@@ -77,25 +78,7 @@ public class ExploreTrackCategoriesFragment extends SherlockFragment implements 
     }
 
     @Override
-    public ItemAdapter<ExploreTracksCategories> getAdapter() {
-        return null;
-    }
-
-    private class ExploreTracksCategoryObserver extends ItemObserver<ExploreTracksCategories, ExploreTrackCategoriesFragment> {
-
-        public ExploreTracksCategoryObserver(ExploreTrackCategoriesFragment fragment) {
-            super(fragment);
-        }
-
-        @Override
-        public void onNext(ExploreTrackCategoriesFragment fragment, ExploreTracksCategories item) {
-            fragment.mCategoriesAdapter.setExploreTracksCategories(item);
-        }
-
-        @Override
-        public void onCompleted(ExploreTrackCategoriesFragment fragment) {
-            super.onCompleted(fragment);
-            fragment.mCategoriesAdapter.notifyDataSetChanged();
-        }
+    public ItemAdapter<ExploreTracksCategory> getAdapter() {
+        return mCategoriesAdapter;
     }
 }

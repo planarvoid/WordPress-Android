@@ -9,6 +9,7 @@ import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
+import com.soundcloud.android.model.ExploreTracksCategorySection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -25,19 +26,29 @@ public class ExploreTrackOperations extends ScheduledOperations {
 
     private SoundCloudRxHttpClient rxHttpClient = new SoundCloudRxHttpClient();
 
-    public Observable<ExploreTracksCategories> getCategories() {
+    public Observable<ExploreTracksCategory> getCategories() {
 
-        return schedule(Observable.create(new Func1<Observer<ExploreTracksCategories>, Subscription>() {
+        return schedule(Observable.create(new Func1<Observer<ExploreTracksCategory>, Subscription>() {
             @Override
-            public Subscription call(Observer<ExploreTracksCategories> categoryObserver) {
+            public Subscription call(Observer<ExploreTracksCategory> categoryObserver) {
                 try {
                     Thread.sleep(2000);
                     final String jsonString = IOUtils.readInputStream(SoundCloudApplication.instance.getAssets().open("suggested_tracks_categories.json"));
                     ExploreTracksCategories trackExploreCategories = new JacksonJsonTransformer().fromJson(
                             jsonString, new TypeToken<ExploreTracksCategories>() {
                     });
-                    categoryObserver.onNext(trackExploreCategories);
+
+                    for (ExploreTracksCategory category : trackExploreCategories.getMusic()){
+                        category.setSection(ExploreTracksCategorySection.MUSIC);
+                        categoryObserver.onNext(category);
+                    }
+
+                    for (ExploreTracksCategory category : trackExploreCategories.getAudio()) {
+                        category.setSection(ExploreTracksCategorySection.AUDIO);
+                        categoryObserver.onNext(category);
+                    }
                     categoryObserver.onCompleted();
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     categoryObserver.onError(e);
