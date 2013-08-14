@@ -1,5 +1,6 @@
 package com.soundcloud.android.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.APIRequest;
@@ -7,11 +8,9 @@ import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ExploreTracksCategorySection;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
@@ -20,6 +19,8 @@ import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
+
+import java.util.List;
 
 public class ExploreTracksOperations extends ScheduledOperations {
 
@@ -38,12 +39,12 @@ public class ExploreTracksOperations extends ScheduledOperations {
                             jsonString, new TypeToken<ExploreTracksCategories>() {
                     });
 
-                    for (ExploreTracksCategory category : trackExploreCategories.getMusic()){
+                    for (ExploreTracksCategory category : trackExploreCategories.mMusic){
                         category.setSection(ExploreTracksCategorySection.MUSIC);
                         categoryObserver.onNext(category);
                     }
 
-                    for (ExploreTracksCategory category : trackExploreCategories.getAudio()) {
+                    for (ExploreTracksCategory category : trackExploreCategories.mAudio) {
                         category.setSection(ExploreTracksCategorySection.AUDIO);
                         categoryObserver.onNext(category);
                     }
@@ -68,4 +69,20 @@ public class ExploreTracksOperations extends ScheduledOperations {
     }
 
     private static class TrackCollectionHolderToken extends TypeToken<CollectionHolder<Track>> {}
+
+    private static class ExploreTracksCategories {
+
+        private List<ExploreTracksCategory> mMusic;
+        private List<ExploreTracksCategory> mAudio;
+
+        @JsonProperty("audio")
+        public void setAudio(List<ExploreTracksCategory> audio) {
+            this.mAudio = audio;
+        }
+
+        @JsonProperty("music")
+        public void setMusic(List<ExploreTracksCategory> music) {
+            this.mMusic = music;
+        }
+    }
 }

@@ -27,7 +27,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
 
 
     private final Observable<ExploreTracksCategory> mCategoriesObservable;
-    private ExploreTracksCategoriesAdapter mCategoriesAdapter;
+    private final ExploreTracksCategoriesAdapter mCategoriesAdapter;
     private ItemObserver mItemObserver;
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;

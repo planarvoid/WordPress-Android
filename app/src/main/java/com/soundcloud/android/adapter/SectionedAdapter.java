@@ -11,9 +11,9 @@ import android.view.View;
 public abstract class SectionedAdapter<ModelType extends InSection> extends ScAdapter<ModelType> {
 
     @VisibleForTesting
-    protected static final int VIEW_TYPE_DEFAULT = 0;
-    @VisibleForTesting
-    protected static final int VIEW_TYPE_SECTION = 1;
+    public enum ViewTypes {
+        DEFAULT, SECTION
+    }
 
     private static final int INITIAL_LIST_CAPACITY = 30;
 
@@ -31,12 +31,13 @@ public abstract class SectionedAdapter<ModelType extends InSection> extends ScAd
 
     @Override
     public int getItemViewType(int position) {
-        return mListPositionsToSections.get(position, null) == null ? VIEW_TYPE_DEFAULT : VIEW_TYPE_SECTION;
+        return mListPositionsToSections.get(position, null) == null ?
+                ViewTypes.DEFAULT.ordinal() : ViewTypes.SECTION.ordinal();
     }
 
     @Override
     public int getViewTypeCount() {
-        return 2;
+        return ViewTypes.values().length;
     }
 
     @Override
@@ -59,12 +60,12 @@ public abstract class SectionedAdapter<ModelType extends InSection> extends ScAd
     @Override
     protected void bindItemView(int position, View itemView) {
         if (itemView instanceof SectionedListRow){
-            // set section header
-            Titled section = mListPositionsToSections.get(position, null);
+            final Titled section = mListPositionsToSections.get(position, null);
+            final SectionedListRow sectionedListRow = (SectionedListRow) itemView;
             if (section != null) {
-                ((SectionedListRow) itemView).showSectionHeaderWithText(section.getTitle(itemView.getResources()));
+                sectionedListRow.showSectionHeaderWithText(section.getTitle(itemView.getResources()));
             } else {
-                ((SectionedListRow) itemView).hideSectionHeader();
+                sectionedListRow.hideSectionHeader();
             }
         } else {
             throw new IllegalArgumentException("Cannot use a sectioned adapter without a row type that impelements SectionedListRow");

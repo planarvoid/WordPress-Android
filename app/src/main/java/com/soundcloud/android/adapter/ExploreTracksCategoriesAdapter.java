@@ -20,7 +20,6 @@ public class ExploreTracksCategoriesAdapter extends SectionedAdapter<ExploreTrac
     @Override
     protected void bindItemView(int position, View itemView) {
         super.bindItemView(position, itemView);
-        ExploreTracksCategoryRow row = (ExploreTracksCategoryRow) itemView;
-        row.setDisplayName(getItem(position).getDisplayName(itemView.getContext()));
+        ((ExploreTracksCategoryRow) itemView).setDisplayName(getItem(position).getDisplayName(itemView.getContext()));
     }
 }

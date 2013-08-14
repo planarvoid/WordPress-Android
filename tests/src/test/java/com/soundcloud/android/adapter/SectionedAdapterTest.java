@@ -45,9 +45,9 @@ public class SectionedAdapterTest {
         adapter.addItem(createSectionedItem(section1));
         adapter.addItem(createSectionedItem(section2));
 
-        expect(adapter.getItemViewType(0)).toEqual(ExploreTracksCategoriesAdapter.VIEW_TYPE_SECTION);
-        expect(adapter.getItemViewType(1)).toEqual(ExploreTracksCategoriesAdapter.VIEW_TYPE_DEFAULT);
-        expect(adapter.getItemViewType(2)).toEqual(ExploreTracksCategoriesAdapter.VIEW_TYPE_SECTION);
+        expect(adapter.getItemViewType(0)).toEqual(SectionedAdapter.ViewTypes.SECTION.ordinal());
+        expect(adapter.getItemViewType(1)).toEqual(SectionedAdapter.ViewTypes.DEFAULT.ordinal());
+        expect(adapter.getItemViewType(2)).toEqual(SectionedAdapter.ViewTypes.SECTION.ordinal());
     }
 
     @Test

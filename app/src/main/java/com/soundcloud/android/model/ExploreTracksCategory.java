@@ -39,6 +39,7 @@ public class ExploreTracksCategory implements InSection {
     }
 
     public String getDisplayName(Context context) {
+        // TODO cache name?
         int resId = context.getResources().getIdentifier("explore_category_" + mKey, "string", context.getPackageName());
         return resId == 0 ? mKey.replace("_", " ") : context.getString(resId);
     }
