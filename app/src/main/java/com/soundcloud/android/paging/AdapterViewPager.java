@@ -54,6 +54,11 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
         }
     }
 
+    protected void loadNextPage(final EndlessPagingAdapter<ModelType> adapter, final Observer<ModelType> itemObserver) {
+        loadNextPage(adapter, itemObserver, true);
+
+    }
+
     @VisibleForTesting
     protected void loadNextPage(final EndlessPagingAdapter<ModelType> adapter, final Observer<ModelType> itemObserver, boolean displayProgressRow) {
         adapter.setDisplayProgressItem(displayProgressRow);
@@ -102,7 +107,7 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
                 boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
 
                 if (lastItemReached) {
-                    loadNextPage(adapter, mItemObserver, true);
+                    loadNextPage(adapter, mItemObserver);
                 }
             }
         }
