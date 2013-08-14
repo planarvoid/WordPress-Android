@@ -7,6 +7,7 @@ import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.view.GridViewCompat;
 import com.soundcloud.android.view.SuggestedUserItemLayout;
+import com.soundcloud.android.view.adapter.GridSpacer;
 
 import android.annotation.TargetApi;
 import android.content.res.Resources;
@@ -14,18 +15,18 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.util.List;
 
-public class SuggestedUsersAdapter extends SpacedGridAdapter {
+public class SuggestedUsersAdapter extends BaseAdapter {
 
     private final List<SuggestedUser> mSuggestedUsers;
-
     private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.adapterView(R.drawable.placeholder_cells);
-
+    private GridSpacer mGridSpacer;
 
     public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers) {
         mSuggestedUsers = suggestedUsers;
@@ -48,17 +49,11 @@ public class SuggestedUsersAdapter extends SpacedGridAdapter {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridviewcompat getCheckedItemPositions
     @Override
-    protected View getGridItem(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, ViewGroup parent) {
         ItemViewHolder viewHolder;
         if (convertView == null) {
             convertView = View.inflate(parent.getContext(), R.layout.suggested_user_grid_item,null);
-            viewHolder = new ItemViewHolder();
-            viewHolder.imageView = (ImageView) convertView.findViewById(R.id.suggested_user_image);
-            viewHolder.username = (TextView) convertView.findViewById(R.id.username);
-            viewHolder.location = (TextView) convertView.findViewById(R.id.location);
-            viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.toggle_btn_follow);
-            viewHolder.toggleFollow.setFocusable(false);
-            viewHolder.toggleFollow.setClickable(false);
+            viewHolder = getItemViewHolder(convertView);
             convertView.setTag(viewHolder);
         }else {
             viewHolder = (ItemViewHolder) convertView.getTag();
@@ -69,7 +64,25 @@ public class SuggestedUsersAdapter extends SpacedGridAdapter {
             ((SuggestedUserItemLayout) convertView).setChecked(checked);
         }
 
-        final SuggestedUser suggestedUser = getItem(position);
+        configureViewHolder(getItem(position), viewHolder);
+        getGridSpacer(convertView.getResources()).configureItemPadding(convertView, position, getCount());
+
+        return convertView;
+    }
+
+    private ItemViewHolder getItemViewHolder(View convertView) {
+        ItemViewHolder viewHolder;
+        viewHolder = new ItemViewHolder();
+        viewHolder.imageView = (ImageView) convertView.findViewById(R.id.suggested_user_image);
+        viewHolder.username = (TextView) convertView.findViewById(R.id.username);
+        viewHolder.location = (TextView) convertView.findViewById(R.id.location);
+        viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.toggle_btn_follow);
+        viewHolder.toggleFollow.setFocusable(false);
+        viewHolder.toggleFollow.setClickable(false);
+        return viewHolder;
+    }
+
+    private void configureViewHolder(SuggestedUser suggestedUser, ItemViewHolder viewHolder) {
         viewHolder.username.setText(suggestedUser.getUsername());
         final String location = suggestedUser.getLocation();
         if (TextUtils.isEmpty(location)) {
@@ -78,23 +91,21 @@ public class SuggestedUsersAdapter extends SpacedGridAdapter {
             viewHolder.location.setText(location);
             viewHolder.location.setVisibility(View.VISIBLE);
         }
-
         ImageLoader.getInstance().displayImage(suggestedUser.getAvatarUrl(), viewHolder.imageView, mDisplayImageOptions);
-        return convertView;
     }
 
-    protected int getNumColumns(Resources resources) {
-        return resources.getInteger(R.integer.suggested_user_grid_num_columns);
-    }
-
-    @Override
-    protected int getItemSpacingTopBottom(Resources resources) {
-        return (int) resources.getDimension(R.dimen.onboarding_suggested_user_item_spacing);
-    }
-
-    @Override
-    protected int getItemSpacingLeftRight(Resources resources) {
-        return (int) resources.getDimension(R.dimen.onboarding_suggested_user_item_spacing);
+    /**
+     * Lazy Grid Spacer initialization as it needs resources for configuration
+     */
+    private GridSpacer getGridSpacer(Resources resources){
+        if (mGridSpacer == null) {
+            mGridSpacer = new GridSpacer(
+                    resources.getDimensionPixelSize(R.dimen.onboarding_suggested_user_item_spacing),
+                    resources.getDimensionPixelSize(R.dimen.onboarding_suggested_user_item_spacing),
+                    resources.getInteger(R.integer.suggested_user_grid_num_columns)
+            );
+        }
+        return mGridSpacer;
     }
 
     private static class ItemViewHolder {
