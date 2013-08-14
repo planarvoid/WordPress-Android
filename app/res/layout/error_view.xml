@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:gravity="center"
-              android:background="@color/error_view_bg"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<com.soundcloud.android.view.ErrorView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@color/error_view_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <ImageView android:id="@+id/img_error"
                android:layout_height="0dp"
@@ -17,14 +18,17 @@
 
         <TextView android:id="@+id/server_error"
                   android:text="@string/error_soundcloud_no_response"
+                  android:visibility="gone"
                   style="@style/txt_empty_error_message"/>
 
         <TextView android:id="@+id/client_error_1"
                   android:text="@string/error_no_internet"
+                  android:visibility="gone"
                   style="@style/txt_empty_error_message"/>
 
         <TextView android:id="@+id/client_error_2"
                   android:text="@string/error_connect_and_try_again"
+                  android:visibility="gone"
                   style="@style/txt_empty_error_sub_message"/>
 
         <Button android:layout_width="wrap_content"
@@ -36,4 +40,4 @@
 
     </LinearLayout>
 
-</LinearLayout>
+</com.soundcloud.android.view.ErrorView>

@@ -1,7 +1,6 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
@@ -11,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +31,7 @@ public class EmptyListView extends RelativeLayout {
     private TextView mTxtMessage;
     private TextView mTxtLink;
     @Nullable private ImageView mImage;
-    @Nullable private View mErrorView;
+    @Nullable private ErrorView mErrorView;
     protected Button mBtnAction;
 
     private int     mMessageResource, mImageResource;
@@ -130,7 +128,7 @@ public class EmptyListView extends RelativeLayout {
 
     private void showError(int responseCode){
         if (mErrorView == null) {
-            mErrorView = View.inflate(getContext(), R.layout.empty_list_error, null);
+            mErrorView = (ErrorView) LayoutInflater.from(getContext()).inflate(R.layout.error_view, null);
             final RelativeLayout.LayoutParams params =
                 new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             mEmptyViewHolder.addView(mErrorView, params);
@@ -138,20 +136,14 @@ public class EmptyListView extends RelativeLayout {
         } else {
             mErrorView.setVisibility(View.VISIBLE);
         }
-        if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
+        if (mEmptyLayout != null) {
+            mEmptyLayout.setVisibility(View.GONE);
+        }
 
-
-        final ImageView imageView = (ImageView) mErrorView.findViewById(R.id.img_error);
         if (Wrapper.isStatusCodeServerError(responseCode)){
-            imageView.setImageResource(R.drawable.error_message_soundcloud);
-            mErrorView.findViewById(R.id.server_error).setVisibility(View.VISIBLE);
-            mErrorView.findViewById(R.id.client_error_1).setVisibility(View.GONE);
-            mErrorView.findViewById(R.id.client_error_2).setVisibility(View.GONE);
+            mErrorView.setServerErrorState();
         } else {
-            imageView.setImageResource(R.drawable.error_message_internet);
-            mErrorView.findViewById(R.id.server_error).setVisibility(View.GONE);
-            mErrorView.findViewById(R.id.client_error_1).setVisibility(View.VISIBLE);
-            mErrorView.findViewById(R.id.client_error_2).setVisibility(View.VISIBLE);
+            mErrorView.setClientErrorState();
         }
     }
 
