@@ -15,12 +15,17 @@
 
     <LinearLayout style="@style/emptyCollectionContentHolder">
 
-        <TextView android:gravity="center_horizontal"
-                  android:id="@+id/txt_message"
-                  android:text="@string/tour_finish_message"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  style="@style/txt_empty_collection_message"/>
+        <TextView android:id="@+id/server_error"
+                  android:text="@string/error_soundcloud_no_response"
+                  style="@style/txt_empty_error_message"/>
+
+        <TextView android:id="@+id/client_error_1"
+                  android:text="@string/error_no_internet"
+                  style="@style/txt_empty_error_message"/>
+
+        <TextView android:id="@+id/client_error_2"
+                  android:text="@string/error_connect_and_try_again"
+                  style="@style/txt_empty_error_sub_message"/>
 
         <Button android:layout_width="wrap_content"
 

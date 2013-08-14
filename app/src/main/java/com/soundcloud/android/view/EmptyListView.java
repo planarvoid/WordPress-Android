@@ -144,22 +144,14 @@ public class EmptyListView extends RelativeLayout {
         final ImageView imageView = (ImageView) mErrorView.findViewById(R.id.img_error);
         if (Wrapper.isStatusCodeServerError(responseCode)){
             imageView.setImageResource(R.drawable.error_message_soundcloud);
+            mErrorView.findViewById(R.id.server_error).setVisibility(View.VISIBLE);
+            mErrorView.findViewById(R.id.client_error_1).setVisibility(View.GONE);
+            mErrorView.findViewById(R.id.client_error_2).setVisibility(View.GONE);
         } else {
             imageView.setImageResource(R.drawable.error_message_internet);
-        }
-
-        final TextView errorTextView = (TextView) mErrorView.findViewById(R.id.txt_message);
-        if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
-            errorTextView.setText(R.string.error_soundcloud_is_down);
-        } else if (Wrapper.isStatusCodeError(responseCode)) {
-            errorTextView.setText(R.string.error_soundcloud_server_problems);
-        } else if (responseCode == Status.CONNECTION_ERROR) {
-            errorTextView.setText(R.string.no_internet_connection);
-        } else if (responseCode == Status.ERROR) {
-            errorTextView.setText("");
-        } else {
-            errorTextView.setText("");
-            Log.w(SoundCloudApplication.TAG,"Unhandled response code: " + responseCode);
+            mErrorView.findViewById(R.id.server_error).setVisibility(View.GONE);
+            mErrorView.findViewById(R.id.client_error_1).setVisibility(View.VISIBLE);
+            mErrorView.findViewById(R.id.client_error_2).setVisibility(View.VISIBLE);
         }
     }
 
