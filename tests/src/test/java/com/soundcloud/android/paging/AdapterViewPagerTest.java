@@ -4,6 +4,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -53,9 +54,18 @@ public class AdapterViewPagerTest {
     }
 
     @Test
-    public void loadNextPageShouldTriggerAdapterProgressItem() {
+    public void loadNextPageShouldNotTriggerAdapterProgressItemOnFirstLoad() {
         adapterViewPager = new AdapterViewPager(Observable.just(Observable.just(new Track())));
         adapterViewPager.subscribe(fragment, new PageItemObserver(fragment));
+        verify(adapter, times(2)).setDisplayProgressItem(false);
+    }
+
+    @Test
+    public void loadNextPageShouldTriggerAdapterProgressItemOnSusequentLoad() {
+        adapterViewPager = new AdapterViewPager(Observable.from(Observable.just(new Track()), Observable.just(new Track())));
+        adapterViewPager.subscribe(fragment, new PageItemObserver(fragment));
+        AdapterViewPager.PageScrollListener listener = adapterViewPager.new PageScrollListener(itemObserver);
+        listener.onScroll(fragmentLayout, 0, 5, 5);
         verify(adapter).setDisplayProgressItem(true);
     }
 
