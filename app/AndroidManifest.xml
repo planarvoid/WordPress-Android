@@ -141,6 +141,7 @@
         </activity>
 
         <activity android:name=".activity.landing.ExploreActivity" android:label="@string/side_menu_explore" />
+        <activity android:name=".activity.ExploreTracksCategoryActivity" />
 
         <activity android:name=".activity.landing.News" android:label="@string/side_menu_activity">
             <intent-filter>

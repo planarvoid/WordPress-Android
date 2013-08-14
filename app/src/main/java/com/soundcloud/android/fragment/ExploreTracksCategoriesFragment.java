@@ -4,10 +4,13 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ExploreTracksCategoryActivity;
+import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.adapter.ExploreTracksCategoriesAdapter;
 import com.soundcloud.android.adapter.ItemAdapter;
 import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.fragment.behavior.AdapterViewAware;
+import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ItemObserver;
@@ -15,6 +18,7 @@ import com.soundcloud.android.rx.observers.PullToRefreshObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +63,9 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        final Intent intent = new Intent(getActivity(), ExploreTracksCategoryActivity.class);
+        intent.putExtra(ExploreTracksCategory.EXTRA, mCategoriesAdapter.getItem(position));
+        startActivity(intent);
     }
 
     @Override
