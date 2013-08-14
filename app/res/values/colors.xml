@@ -96,5 +96,6 @@
     <color name="txt_description_color">#FF666666</color>
 
     <color name="dialog_list_txt_disabled">#777</color>
+    <color name="error_view_bg">#EFEFEF</color>
 
 </resources>

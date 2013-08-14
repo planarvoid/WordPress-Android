@@ -131,23 +131,30 @@ public class EmptyListView extends RelativeLayout {
     private void showError(int responseCode){
         if (mErrorView == null) {
             mErrorView = View.inflate(getContext(), R.layout.empty_list_error, null);
-            mEmptyViewHolder.addView(mErrorView);
+            final RelativeLayout.LayoutParams params =
+                new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            mEmptyViewHolder.addView(mErrorView, params);
+
         } else {
             mErrorView.setVisibility(View.VISIBLE);
         }
         if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
 
 
+        final ImageView imageView = (ImageView) mErrorView.findViewById(R.id.img_error);
+        if (Wrapper.isStatusCodeServerError(responseCode)){
+            imageView.setImageResource(R.drawable.error_message_soundcloud);
+        } else {
+            imageView.setImageResource(R.drawable.error_message_internet);
+        }
+
         final TextView errorTextView = (TextView) mErrorView.findViewById(R.id.txt_message);
         if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
             errorTextView.setText(R.string.error_soundcloud_is_down);
-
         } else if (Wrapper.isStatusCodeError(responseCode)) {
             errorTextView.setText(R.string.error_soundcloud_server_problems);
-
         } else if (responseCode == Status.CONNECTION_ERROR) {
             errorTextView.setText(R.string.no_internet_connection);
-
         } else if (responseCode == Status.ERROR) {
             errorTextView.setText("");
         } else {

@@ -513,19 +513,6 @@
         <item name="android:textSize">20sp</item>
     </style>
 
-
-    <style name="btn_follow">
-        <item name="android:background">@drawable/btn_grey</item>
-        <item name="android:text">@string/btn_follow</item>
-        <item name="android:layout_height">20dip</item>
-    </style>
-
-    <style name="btn_following">
-        <item name="android:background">@drawable/btn_blue</item>
-        <item name="android:text">@string/btn_following</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
     <style name="btn_default" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:background">@drawable/btn_grey</item>
@@ -1141,7 +1128,8 @@
         <item name="android:textSize">12sp</item>
     </style>
     <style name="btn_empty_collection" parent="txt_empty_collection_message">
-        <item name="android:background">@drawable/btn_default_states</item>
+        <item name="android:background">@drawable/btn_blue</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:paddingLeft">30dp</item>
         <item name="android:paddingRight">30dp</item>
         <item name="android:singleLine">false</item>
