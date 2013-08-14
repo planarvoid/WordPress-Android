@@ -123,6 +123,8 @@
 
     <dimen name="explore_suggested_track_item_height">180dp</dimen>
     <dimen name="explore_suggested_track_item_spacing_inside">10dp</dimen>
+    <dimen name="explore_suggested_track_item_spacing_outside_left_right">16dp</dimen>
+    <dimen name="explore_suggested_track_item_spacing_outside_top_bottom">10dp</dimen>
 
     <dimen name="explore_suggested_track_category_text_size">24sp</dimen>
 
