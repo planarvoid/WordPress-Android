@@ -55,8 +55,8 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
     }
 
     @VisibleForTesting
-    protected void loadNextPage(final EndlessPagingAdapter<ModelType> adapter, final Observer<ModelType> itemObserver) {
-        adapter.setDisplayProgressItem(true);
+    protected void loadNextPage(final EndlessPagingAdapter<ModelType> adapter, final Observer<ModelType> itemObserver, boolean displayProgressRow) {
+        adapter.setDisplayProgressItem(displayProgressRow);
         mLoadNextPageSub = mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(itemObserver);
     }
 
@@ -74,7 +74,7 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
             boolean firstPage = isFirstPage();
             mNextPageObservable = nextPageObservable;
             if (firstPage) {
-                loadNextPage(fragment.getAdapter(), mItemObserver);
+                loadNextPage(fragment.getAdapter(), mItemObserver, false);
             }
         }
     }
@@ -102,7 +102,7 @@ public class AdapterViewPager<ModelType, FragmentType extends Fragment & PagingA
                 boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
 
                 if (lastItemReached) {
-                    loadNextPage(adapter, mItemObserver);
+                    loadNextPage(adapter, mItemObserver, true);
                 }
             }
         }
