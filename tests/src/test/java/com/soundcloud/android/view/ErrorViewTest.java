@@ -46,4 +46,20 @@ public class ErrorViewTest {
         expect(errorView.findViewById(R.id.client_error_2).getVisibility()).toEqual(View.VISIBLE);
     }
 
+    @Test
+    public void shouldHideRetryButtonIfNoListener() {
+        errorView.setOnRetryListener(null);
+        expect(errorView.findViewById(R.id.btn_retry).getVisibility()).toEqual(View.GONE);
+    }
+
+    @Test
+    public void shouldShowRetryButtonIfListener() {
+        errorView.setOnRetryListener(new EmptyListView.RetryListener() {
+            @Override
+            public void onEmptyViewRetry() {
+            }
+        });
+        expect(errorView.findViewById(R.id.btn_retry).getVisibility()).toEqual(View.VISIBLE);
+    }
+
 }

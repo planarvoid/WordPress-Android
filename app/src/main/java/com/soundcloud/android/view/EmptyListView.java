@@ -40,6 +40,7 @@ public class EmptyListView extends RelativeLayout {
     private ActionListener mButtonActionListener;
     private ActionListener mImageActionListener;
     protected int mMode;
+    private RetryListener mRetryListener;
 
     public interface Status extends HttpStatus {
         int WAITING = -1;
@@ -132,6 +133,8 @@ public class EmptyListView extends RelativeLayout {
             final RelativeLayout.LayoutParams params =
                 new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             mEmptyViewHolder.addView(mErrorView, params);
+
+            mErrorView.setOnRetryListener(mRetryListener);
 
         } else {
             mErrorView.setVisibility(View.VISIBLE);
@@ -305,6 +308,18 @@ public class EmptyListView extends RelativeLayout {
     public EmptyListView setImageActionListener(ActionListener listener){
         mImageActionListener = listener;
         return this;
+    }
+
+    public EmptyListView setOnRetryListener(RetryListener listener) {
+        mRetryListener = listener;
+        if (mErrorView != null) {
+            mErrorView.setOnRetryListener(listener);
+        }
+        return this;
+    }
+
+    public interface RetryListener {
+        void onEmptyViewRetry();
     }
 
     public interface ActionListener {

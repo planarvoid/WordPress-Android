@@ -73,7 +73,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
                                                             DetachableResultReceiver.Receiver,
                                                             LocalCollection.OnChangeListener,
                                                             CollectionTask.Callback,
-                                                            AbsListView.OnScrollListener {
+                                                            AbsListView.OnScrollListener,
+                                                            EmptyListView.RetryListener {
     private static final int CONNECTIVITY_MSG = 0;
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
@@ -161,6 +162,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mEmptyListView = createEmptyView();
         }
         mEmptyListView.setStatus(mStatusCode);
+        mEmptyListView.setOnRetryListener(this);
         mListView.setEmptyView(mEmptyListView);
 
         configurePullToRefreshState();
@@ -180,6 +182,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         root.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
         return root;
+    }
+
+    @Override
+    public void onEmptyViewRetry() {
+        refresh(true);
     }
 
     protected EmptyListView createEmptyView() {
