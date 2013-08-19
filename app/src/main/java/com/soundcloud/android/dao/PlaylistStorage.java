@@ -188,6 +188,11 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
 
         }
         if (itemsCursor != null) itemsCursor.close();
+
+        final TrackDAO trackDAO = new TrackDAO(mResolver);
+        for (Playlist p : playlists){
+            p.tracks = trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(p.getId()));
+        }
         return playlists;
     }
 
