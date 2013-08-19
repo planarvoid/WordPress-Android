@@ -3,6 +3,7 @@ package com.soundcloud.android.provider;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.api.Request;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,5 +44,12 @@ public class ContentTest {
     public void shouldBuildQuery() throws Exception {
         expect(Content.ME_ACTIVITIES.withQuery("a", "1", "b", "2"))
                 .toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/activities/all/own?a=1&b=2");
+    }
+
+    @Test
+    public void shouldCreateRequestWithQueryCopy() throws Exception {
+        Request request = Content.TRACK_SEARCH.request(Content.TRACK_SEARCH.uri.buildUpon().appendQueryParameter("tag","tagValue").build());
+        expect(request.getParams().size()).toBe(1);
+        expect(request.getParams().get("tag")).toEqual("tagValue");
     }
 }
