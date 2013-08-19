@@ -19,18 +19,16 @@ public class TracksByTag extends ScActivity {
         setContentView(R.layout.tracks_by_tag);
 
         Intent i = getIntent();
-
-
         if (savedInstanceState == null) {
-            Uri contentUri = Content.TRACKS.uri;
+            Uri contentUri = Content.TRACK_SEARCH.uri;
             if (i.hasExtra("tag")) {
                 setTitle(getString(R.string.list_header_tracks_by_tag, i.getStringExtra("tag")));
-                contentUri = contentUri.buildUpon().appendQueryParameter("tags",i.getStringExtra("tag")).build();
-            }else if (i.hasExtra("genre")) {
+                contentUri = contentUri.buildUpon().appendQueryParameter("filter.tag", i.getStringExtra("tag")).build();
+            } else if (i.hasExtra("genre")) {
                 setTitle(getString(R.string.list_header_tracks_by_genre, i.getStringExtra("genre")));
-                contentUri = contentUri.buildUpon().appendQueryParameter("genres",i.getStringExtra("genre")).build();
+                contentUri = contentUri.buildUpon().appendQueryParameter("filter.genre", i.getStringExtra("genre")).build();
             }
-            getSupportFragmentManager().beginTransaction().add(R.id.listHolder,ScListFragment.newInstance(contentUri)).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.listHolder, ScListFragment.newInstance(contentUri)).commit();
         }
     }
 
