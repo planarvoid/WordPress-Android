@@ -210,28 +210,4 @@
     <string name="explore_category_popular_music">Popular Music</string>
     <string name="explore_category_popular_audio">Popular Audio</string>
 
-    <string name="explore_category_classical">Classical</string>
-    <string name="explore_category_country">Country</string>
-    <string name="explore_category_electronic">Electronic</string>
-    <string name="explore_category_hiphop_and_rap">Hip-Hop and Rap</string>
-    <string name="explore_category_jazz_and_blues">Jazz and Blues</string>
-    <string name="explore_category_metal">Metal</string>
-    <string name="explore_category_pop">Pop</string>
-    <string name="explore_category_rock">Rock</string>
-    <string name="explore_category_rnb_and_soul">R&amp;B and Soul</string>
-    <string name="explore_category_reggae">Reggae</string>
-    <string name="explore_category_folk_and_world">Folk and World</string>
-
-    <string name="explore_category_audiobooks">Audiobooks</string>
-    <string name="explore_category_business">Business</string>
-    <string name="explore_category_comedy">Comedy</string>
-    <string name="explore_category_arts_and_entertainment">Arts &amp; Entertainment</string>
-    <string name="explore_category_learning">Learning</string>
-    <string name="explore_category_news">News &amp; Politics</string>
-    <string name="explore_category_religion_and_spirituality">Religion &amp; Spirituality</string>
-    <string name="explore_category_science">Science</string>
-    <string name="explore_category_sports">Sports</string>
-    <string name="explore_category_storytelling">Storytelling</string>
-    <string name="explore_category_technology">Technology</string>
-
 </resources>
