@@ -28,7 +28,7 @@ public class ExploreTracksOperationsTest {
         ArrayList<ExploreTracksCategory> categories = Lists.newArrayList(categoriesObservable.toBlockingObservable().toIterable());
 
         expect(categories.size()).toEqual(24);
-        expect(categories.get(0).getKey()).toEqual("popular_music");
+        expect(categories.get(0).getTitle()).toEqual("popular_music");
         expect(categories.get(0).getLinks().get("suggested_tracks").getHref()).toEqual("http://localhost:9090/suggestions/tracks/categories/popular_music");
     }
 

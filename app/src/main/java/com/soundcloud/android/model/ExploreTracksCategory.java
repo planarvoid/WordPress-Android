@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.behavior.InSection;
 import com.soundcloud.android.model.behavior.Titled;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -17,29 +16,29 @@ public class ExploreTracksCategory implements InSection, Parcelable  {
 
     public static final String EXTRA = "category";
 
-    private String mKey;
+    private String mTitle;
     private Map<String, Link> mLinks = Collections.emptyMap();
     private ExploreTracksCategorySection mSection;
 
     public ExploreTracksCategory(){ /* For Deserialization */ }
 
-    public ExploreTracksCategory(String key) {
-        this.mKey = key;
+    public ExploreTracksCategory(String title) {
+        this.mTitle = title;
     }
 
     public ExploreTracksCategory(Parcel in) {
         Bundle b = in.readBundle(Link.class.getClassLoader());
-        mKey = b.getString("key");
+        mTitle = b.getString("title");
         mLinks = (Map<String, Link>) b.getSerializable("links");
         mSection = ExploreTracksCategorySection.values()[b.getInt("section")];
     }
 
-    public String getKey() {
-        return mKey;
+    public String getTitle() {
+        return mTitle;
     }
 
-    public void setKey(String key) {
-        this.mKey = key;
+    public void setTitle(String title) {
+        this.mTitle = title;
     }
 
     @JsonProperty("_links")
@@ -49,12 +48,6 @@ public class ExploreTracksCategory implements InSection, Parcelable  {
 
     public void setLinks(Map<String, Link> links) {
         this.mLinks = links;
-    }
-
-    public String getDisplayName(Context context) {
-        // TODO cache name?
-        int resId = context.getResources().getIdentifier("explore_category_" + mKey, "string", context.getPackageName());
-        return resId == 0 ? mKey.replace("_", " ") : context.getString(resId);
     }
 
     public Titled getSection() {
@@ -75,7 +68,7 @@ public class ExploreTracksCategory implements InSection, Parcelable  {
         // use a bundle to avoid typing problems with the map
         Bundle b = new Bundle();
         b.setClassLoader(Link.class.getClassLoader());
-        b.putString("key", mKey);
+        b.putString("title", mTitle);
         b.putSerializable("links", (Serializable) mLinks);
         b.putInt("section", mSection.ordinal());
         dest.writeBundle(b);
