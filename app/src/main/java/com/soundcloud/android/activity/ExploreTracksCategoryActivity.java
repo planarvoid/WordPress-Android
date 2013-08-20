@@ -2,7 +2,6 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.fragment.ExploreTracksFragment;
-import com.soundcloud.android.model.ExploreTracksCategory;
 
 import android.os.Bundle;
 
@@ -15,19 +14,15 @@ public class ExploreTracksCategoryActivity extends ScActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.frame_layout_holder);
-        if (!getIntent().hasExtra(ExploreTracksCategory.EXTRA)) {
-            finish();
+        if (savedInstanceState == null) {
+            mCategoryFragment = new ExploreTracksFragment();
+            mCategoryFragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.holder, mCategoryFragment)
+                    .commit();
         } else {
-            if (savedInstanceState == null) {
-                mCategoryFragment = new ExploreTracksFragment();
-                mCategoryFragment.setArguments(getIntent().getExtras());
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .add(R.id.holder, mCategoryFragment)
-                        .commit();
-            } else {
-                mCategoryFragment = (ExploreTracksFragment) getSupportFragmentManager().findFragmentById(R.id.holder);
-            }
+            mCategoryFragment = (ExploreTracksFragment) getSupportFragmentManager().findFragmentById(R.id.holder);
         }
     }
 
