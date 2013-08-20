@@ -2,18 +2,14 @@ package com.soundcloud.android.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ExploreTracksCategorySection;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
-import com.soundcloud.android.utils.IOUtils;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -28,35 +24,32 @@ public class ExploreTracksOperations extends ScheduledOperations {
     private SoundCloudRxHttpClient rxHttpClient = new SoundCloudRxHttpClient();
 
     public Observable<ExploreTracksCategory> getCategories() {
+        APIRequest<ExploreTracksCategories> request = SoundCloudAPIRequest.RequestBuilder.<ExploreTracksCategories>get(APIEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
+                .forPrivateAPI(1)
+                .forResource(new ExploreTracksCategoriesToken()).build();
+        Observable<ExploreTracksCategories> categoriesObservable = rxHttpClient.fetchModels(request);
 
-        return schedule(Observable.create(new Func1<Observer<ExploreTracksCategory>, Subscription>() {
+        return categoriesObservable.mapMany(new Func1<ExploreTracksCategories, Observable<ExploreTracksCategory>>() {
             @Override
-            public Subscription call(Observer<ExploreTracksCategory> categoryObserver) {
-                try {
-                    Thread.sleep(2000);
-                    final String jsonString = IOUtils.readInputStream(SoundCloudApplication.instance.getAssets().open("suggested_tracks_categories.json"));
-                    ExploreTracksCategories trackExploreCategories = new JacksonJsonTransformer().fromJson(
-                            jsonString, new TypeToken<ExploreTracksCategories>() {
-                    });
+            public Observable<ExploreTracksCategory> call(final ExploreTracksCategories exploreTracksCategories) {
+                return Observable.create(new Func1<Observer<ExploreTracksCategory>, Subscription>() {
+                    @Override
+                    public Subscription call(Observer<ExploreTracksCategory> exploreTracksCategoryObserver) {
+                        for (ExploreTracksCategory category : exploreTracksCategories.mMusic) {
+                            category.setSection(ExploreTracksCategorySection.MUSIC);
+                            exploreTracksCategoryObserver.onNext(category);
+                        }
 
-                    for (ExploreTracksCategory category : trackExploreCategories.mMusic){
-                        category.setSection(ExploreTracksCategorySection.MUSIC);
-                        categoryObserver.onNext(category);
+                        for (ExploreTracksCategory category : exploreTracksCategories.mAudio) {
+                            category.setSection(ExploreTracksCategorySection.AUDIO);
+                            exploreTracksCategoryObserver.onNext(category);
+                        }
+                        exploreTracksCategoryObserver.onCompleted();
+                        return Subscriptions.empty();
                     }
-
-                    for (ExploreTracksCategory category : trackExploreCategories.mAudio) {
-                        category.setSection(ExploreTracksCategorySection.AUDIO);
-                        categoryObserver.onNext(category);
-                    }
-                    categoryObserver.onCompleted();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    categoryObserver.onError(e);
-                }
-                return Subscriptions.empty();
+                });
             }
-        }).subscribeOn(ScSchedulers.API_SCHEDULER));
+        });
     }
 
     public Observable<Observable<Track>> getSuggestedTracks() {
@@ -69,6 +62,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
     }
 
     private static class TrackCollectionHolderToken extends TypeToken<CollectionHolder<Track>> {}
+    private static class ExploreTracksCategoriesToken extends TypeToken<ExploreTracksCategories> {}
 
     private static class ExploreTracksCategories {
 
