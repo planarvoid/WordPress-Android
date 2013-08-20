@@ -7,22 +7,17 @@ import android.os.Bundle;
 
 public class ExploreTracksCategoryActivity extends ScActivity {
 
-    private ExploreTracksFragment mCategoryFragment;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.frame_layout_holder);
         if (savedInstanceState == null) {
-            mCategoryFragment = new ExploreTracksFragment();
-            mCategoryFragment.setArguments(getIntent().getExtras());
+            ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
+            exploreTracksFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.holder, mCategoryFragment)
+                    .add(android.R.id.content, exploreTracksFragment)
                     .commit();
-        } else {
-            mCategoryFragment = (ExploreTracksFragment) getSupportFragmentManager().findFragmentById(R.id.holder);
         }
     }
 
