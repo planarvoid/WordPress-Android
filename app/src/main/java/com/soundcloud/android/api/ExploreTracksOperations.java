@@ -21,13 +21,21 @@ import java.util.List;
 public class ExploreTracksOperations extends ScheduledOperations {
 
 
-    private SoundCloudRxHttpClient rxHttpClient = new SoundCloudRxHttpClient();
+    private SoundCloudRxHttpClient mRxHttpClient;
+
+    public ExploreTracksOperations(){
+        this(new SoundCloudRxHttpClient());
+    }
+
+    public ExploreTracksOperations(SoundCloudRxHttpClient rxHttpClient) {
+        mRxHttpClient = rxHttpClient;
+    }
 
     public Observable<ExploreTracksCategory> getCategories() {
         APIRequest<ExploreTracksCategories> request = SoundCloudAPIRequest.RequestBuilder.<ExploreTracksCategories>get(APIEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
                 .forPrivateAPI(1)
                 .forResource(new ExploreTracksCategoriesToken()).build();
-        Observable<ExploreTracksCategories> categoriesObservable = rxHttpClient.fetchModels(request);
+        Observable<ExploreTracksCategories> categoriesObservable = mRxHttpClient.fetchModels(request);
 
         return categoriesObservable.mapMany(new Func1<ExploreTracksCategories, Observable<ExploreTracksCategory>>() {
             @Override
@@ -35,14 +43,18 @@ public class ExploreTracksOperations extends ScheduledOperations {
                 return Observable.create(new Func1<Observer<ExploreTracksCategory>, Subscription>() {
                     @Override
                     public Subscription call(Observer<ExploreTracksCategory> exploreTracksCategoryObserver) {
-                        for (ExploreTracksCategory category : exploreTracksCategories.mMusic) {
-                            category.setSection(ExploreTracksCategorySection.MUSIC);
-                            exploreTracksCategoryObserver.onNext(category);
+                        if (exploreTracksCategories.mMusic != null){
+                            for (ExploreTracksCategory category : exploreTracksCategories.mMusic) {
+                                category.setSection(ExploreTracksCategorySection.MUSIC);
+                                exploreTracksCategoryObserver.onNext(category);
+                            }
                         }
 
-                        for (ExploreTracksCategory category : exploreTracksCategories.mAudio) {
-                            category.setSection(ExploreTracksCategorySection.AUDIO);
-                            exploreTracksCategoryObserver.onNext(category);
+                        if (exploreTracksCategories.mAudio != null){
+                            for (ExploreTracksCategory category : exploreTracksCategories.mAudio) {
+                                category.setSection(ExploreTracksCategorySection.AUDIO);
+                                exploreTracksCategoryObserver.onNext(category);
+                            }
                         }
                         exploreTracksCategoryObserver.onCompleted();
                         return Subscriptions.empty();
@@ -58,13 +70,13 @@ public class ExploreTracksOperations extends ScheduledOperations {
                 .addQueryParameters("limit", "10")
                 .forPublicAPI()
                 .forResource(new TrackCollectionHolderToken()).build();
-        return rxHttpClient.<Track>fetchPagedModels(request);
+        return mRxHttpClient.<Track>fetchPagedModels(request);
     }
 
     private static class TrackCollectionHolderToken extends TypeToken<CollectionHolder<Track>> {}
     private static class ExploreTracksCategoriesToken extends TypeToken<ExploreTracksCategories> {}
 
-    private static class ExploreTracksCategories {
+    protected static class ExploreTracksCategories {
 
         private List<ExploreTracksCategory> mMusic;
         private List<ExploreTracksCategory> mAudio;
