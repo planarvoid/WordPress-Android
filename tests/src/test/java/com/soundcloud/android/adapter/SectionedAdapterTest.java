@@ -4,19 +4,20 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.model.behavior.InSection;
-import com.soundcloud.android.model.behavior.Titled;
+import com.google.common.collect.Lists;
+import com.soundcloud.android.R;
+import com.soundcloud.android.model.Section;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.adapter.behavior.SectionedListRow;
-import com.tobedevoured.modelcitizen.CreateModelException;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,7 @@ public class SectionedAdapterTest {
     private SectionedAdapter adapter;
 
     @Before
-    public void setup() throws CreateModelException {
+    public void setup() {
         adapter = new SectionedAdapter() {
             @Override
             protected View createItemView(int position, ViewGroup parent) {
@@ -38,12 +39,8 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldSetSectionViewTypes() {
-        Titled section1 = getTitledObject("section1");
-        Titled section2 = getTitledObject("section2");
-
-        adapter.addItem(createSectionedItem(section1));
-        adapter.addItem(createSectionedItem(section1));
-        adapter.addItem(createSectionedItem(section2));
+        adapter.onNext(new Section(R.string.explore_category_header_audio, Lists.newArrayList(1,2)));
+        adapter.onNext(new Section(R.string.explore_category_header_music, Lists.newArrayList(1)));
 
         expect(adapter.getItemViewType(0)).toEqual(SectionedAdapter.ViewTypes.SECTION.ordinal());
         expect(adapter.getItemViewType(1)).toEqual(SectionedAdapter.ViewTypes.DEFAULT.ordinal());
@@ -52,46 +49,27 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldSetSectionHeaderOnViews() {
-        Titled section1 = getTitledObject("section1");
-        Titled section2 = getTitledObject("section2");
+        adapter.onNext(new Section(R.string.explore_category_header_audio, Lists.newArrayList(1,2)));
+        adapter.onNext(new Section(R.string.explore_category_header_music, Lists.newArrayList(1)));
 
-        adapter.addItem(createSectionedItem(section1));
-        adapter.addItem(createSectionedItem(section1));
-        adapter.addItem(createSectionedItem(section2));
+        SectionedTestListRow sectionedRow = Mockito.mock(SectionedTestListRow.class);
+        when(sectionedRow.getResources()).thenReturn(Robolectric.application.getResources());
 
-        SectionedTestListRow sectionedRow1 = Mockito.mock(SectionedTestListRow.class);
-        adapter.bindItemView(0, sectionedRow1);
-        verify(sectionedRow1).showSectionHeaderWithText("section1");
+        adapter.bindItemView(0, sectionedRow);
+        verify(sectionedRow).showSectionHeaderWithText("Audio");
 
-        SectionedTestListRow sectionedRow2 = Mockito.mock(SectionedTestListRow.class);
-        adapter.bindItemView(1, sectionedRow2);
-        verify(sectionedRow2).hideSectionHeader();
-        verify(sectionedRow2, never()).showSectionHeaderWithText(anyString());
+        adapter.bindItemView(2, sectionedRow);
+        verify(sectionedRow).showSectionHeaderWithText("Music");
 
-        SectionedTestListRow sectionedRow3 = Mockito.mock(SectionedTestListRow.class);
-        adapter.bindItemView(2, sectionedRow3);
-        verify(sectionedRow3).showSectionHeaderWithText("section2");
+        SectionedTestListRow sectionedRowNoHeader = Mockito.mock(SectionedTestListRow.class);
+        when(sectionedRowNoHeader.getResources()).thenReturn(Robolectric.application.getResources());
+
+        adapter.bindItemView(1, sectionedRowNoHeader);
+        verify(sectionedRowNoHeader).hideSectionHeader();
+        verify(sectionedRowNoHeader, never()).showSectionHeaderWithText(anyString());
     }
 
-    private InSection createSectionedItem(final Titled section) {
-        return new InSection() {
-            @Override
-            public Titled getSection() {
-                return section;
-            }
-        };
-    }
-
-    private Titled getTitledObject(final String sectionText) {
-        return new Titled() {
-            @Override
-            public String getTitle(Resources resources) {
-                return sectionText;
-            }
-        };
-    }
-
-    private static class SectionedTestListRow extends View implements SectionedListRow{
+    private static class SectionedTestListRow extends View implements SectionedListRow {
 
         public SectionedTestListRow(Context context, AttributeSet attrs) {
             super(context, attrs);

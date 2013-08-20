@@ -1,14 +1,14 @@
 package com.soundcloud.android.adapter;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.model.behavior.InSection;
-import com.soundcloud.android.model.behavior.Titled;
+import com.soundcloud.android.model.Section;
 import com.soundcloud.android.view.adapter.behavior.SectionedListRow;
+import rx.Observer;
 
 import android.util.SparseArray;
 import android.view.View;
 
-public abstract class SectionedAdapter<ModelType extends InSection> extends ScAdapter<ModelType> {
+public abstract class SectionedAdapter<ModelType> extends ScAdapter<ModelType> implements Observer<Section<ModelType>> {
 
     @VisibleForTesting
     public enum ViewTypes {
@@ -17,14 +17,14 @@ public abstract class SectionedAdapter<ModelType extends InSection> extends ScAd
 
     private static final int INITIAL_LIST_CAPACITY = 30;
 
-    private final SparseArray<Titled> mListPositionsToSections;
-    private Titled mCurrentSection;
+    private final SparseArray<Section<ModelType>> mListPositionsToSections;
+
 
     public SectionedAdapter() {
-        this(new SparseArray<Titled>());
+        this(new SparseArray<Section<ModelType>>());
     }
 
-    protected SectionedAdapter(SparseArray<Titled> listPositionsToSections){
+    protected SectionedAdapter(SparseArray<Section<ModelType>> listPositionsToSections){
         super(INITIAL_LIST_CAPACITY);
         mListPositionsToSections = listPositionsToSections;
     }
@@ -44,31 +44,38 @@ public abstract class SectionedAdapter<ModelType extends InSection> extends ScAd
     public void clear() {
         super.clear();
         mListPositionsToSections.clear();
-        mCurrentSection = null;
     }
-
-    @Override
-    public void addItem(ModelType item) {
-        super.addItem(item);
-        if (item.getSection() != mCurrentSection){
-            mCurrentSection = item.getSection();
-            mListPositionsToSections.put(mItems.size() - 1, mCurrentSection);
-        }
-    }
-
 
     @Override
     protected void bindItemView(int position, View itemView) {
         if (itemView instanceof SectionedListRow){
-            final Titled section = mListPositionsToSections.get(position, null);
+            final Section section = mListPositionsToSections.get(position, null);
             final SectionedListRow sectionedListRow = (SectionedListRow) itemView;
             if (section != null) {
-                sectionedListRow.showSectionHeaderWithText(section.getTitle(itemView.getResources()));
+                sectionedListRow.showSectionHeaderWithText(itemView.getResources().getString(section.getTitleId()));
             } else {
                 sectionedListRow.hideSectionHeader();
             }
         } else {
             throw new IllegalArgumentException("Cannot use a sectioned adapter without a row type that impelements SectionedListRow");
+        }
+    }
+
+    @Override
+    public void onCompleted() {
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onError(Exception error) {
+
+    }
+
+    @Override
+    public void onNext(Section<ModelType> section) {
+        mListPositionsToSections.put(mItems.size(), section);
+        for (ModelType item : section.getItems()){
+            addItem(item);
         }
     }
 

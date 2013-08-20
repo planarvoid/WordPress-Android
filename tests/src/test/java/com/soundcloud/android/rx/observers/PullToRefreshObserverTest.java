@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.soundcloud.android.adapter.ItemAdapter;
+import com.soundcloud.android.adapter.ScAdapter;
 import com.soundcloud.android.fragment.behavior.AdapterViewAware;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -30,7 +30,7 @@ public class PullToRefreshObserverTest {
     @Mock
     private PullToRefreshBase pullToRefreshView;
     @Mock
-    private ItemAdapter adapter;
+    private ScAdapter adapter;
 
     private PullToRefreshObserver pullToRefreshObserver;
 
@@ -44,7 +44,7 @@ public class PullToRefreshObserverTest {
         when(fragment.getView()).thenReturn(fragmentLayout);
         when(fragmentLayout.findViewById(pullToRefreshViewId)).thenReturn(pullToRefreshView);
 
-        pullToRefreshObserver = new PullToRefreshObserver(fragment, pullToRefreshViewId, wrappedObserver);
+        pullToRefreshObserver = new PullToRefreshObserver(fragment, pullToRefreshViewId, adapter, wrappedObserver);
     }
 
     @Test

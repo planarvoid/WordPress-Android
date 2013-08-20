@@ -82,7 +82,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
         PageItemObserver<Track, ExploreTracksFragment> itemObserver = new PageItemObserver<Track, ExploreTracksFragment>(this);
         mAdapterViewPager.subscribe(this, new PullToRefreshObserver<ExploreTracksFragment, Track>(
-                this, mGridViewId, itemObserver));
+                this, mGridViewId, mExploreTracksAdapter, itemObserver));
     }
 
     @Override

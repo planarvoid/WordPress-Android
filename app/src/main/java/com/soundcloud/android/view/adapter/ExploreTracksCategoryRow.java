@@ -24,11 +24,11 @@ public class ExploreTracksCategoryRow extends LinearLayout implements SectionedL
     }
 
     @Override
-        protected void onFinishInflate() {
-            super.onFinishInflate();
-            categoryTitle = (TextView) findViewById(android.R.id.text1);
-            sectionHeader = (TextView) findViewById(R.id.list_section_header);
-        }
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        categoryTitle = (TextView) findViewById(android.R.id.text1);
+        sectionHeader = (TextView) findViewById(R.id.list_section_header);
+    }
 
     @Override
     public void showSectionHeaderWithText(String text) {

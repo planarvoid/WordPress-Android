@@ -1,8 +1,6 @@
 package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.model.behavior.InSection;
-import com.soundcloud.android.model.behavior.Titled;
 
 import android.os.Bundle;
 import android.os.Parcel;
@@ -12,13 +10,12 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-public class ExploreTracksCategory implements InSection, Parcelable  {
+public class ExploreTracksCategory implements Parcelable  {
 
     public static final String EXTRA = "category";
 
     private String mTitle;
     private Map<String, Link> mLinks = Collections.emptyMap();
-    private ExploreTracksCategorySection mSection;
 
     public ExploreTracksCategory(){ /* For Deserialization */ }
 
@@ -30,7 +27,6 @@ public class ExploreTracksCategory implements InSection, Parcelable  {
         Bundle b = in.readBundle(Link.class.getClassLoader());
         mTitle = b.getString("title");
         mLinks = (Map<String, Link>) b.getSerializable("links");
-        mSection = ExploreTracksCategorySection.values()[b.getInt("section")];
     }
 
     public String getTitle() {
@@ -50,14 +46,6 @@ public class ExploreTracksCategory implements InSection, Parcelable  {
         this.mLinks = links;
     }
 
-    public Titled getSection() {
-        return mSection;
-    }
-
-    public void setSection(ExploreTracksCategorySection section) {
-        this.mSection = section;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -70,7 +58,6 @@ public class ExploreTracksCategory implements InSection, Parcelable  {
         b.setClassLoader(Link.class.getClassLoader());
         b.putString("title", mTitle);
         b.putSerializable("links", (Serializable) mLinks);
-        b.putInt("section", mSection.ordinal());
         dest.writeBundle(b);
     }
 
