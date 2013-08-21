@@ -1,6 +1,7 @@
 package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -114,9 +115,30 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
+    public void shouldSubscribeToFirstPageWithSpecificObserver() {
+        ItemObserver specificObserver = Mockito.mock(ItemObserver.class);
+        createAdapter(Observable.just(pageObservable));
+        adapter.subscribeWithObserver(specificObserver);
+        verify(pageObservable).subscribe(specificObserver);
+        verify(pageObservable, never()).subscribe(itemObserver);
+    }
+
+    @Test
     public void pageScrollListenerShouldTriggerNextPageLoad() {
         createAdapter(Observable.from(Observable.just(new Track()), pageObservable));
-        adapter.subscribe(itemObserver);
+        adapter.subscribe();
+        adapter.onScroll(absListView, 0, 5, 5);
+        verify(pageObservable).subscribe(itemObserver);
+    }
+
+    @Test
+    public void secondPageShouldUseTheDefaultItemObserver() {
+        ItemObserver specificObserver = Mockito.mock(ItemObserver.class);
+        createAdapter(Observable.from(pageObservable, pageObservable));
+
+        adapter.subscribeWithObserver(specificObserver);
+        verify(pageObservable).subscribe(specificObserver);
+
         adapter.onScroll(absListView, 0, 5, 5);
         verify(pageObservable).subscribe(itemObserver);
     }
@@ -124,7 +146,7 @@ public class EndlessPagingAdapterTest {
     @Test
     public void pageScrollListenerShouldLoadNextPageWithOnePageLookAhead() {
         createAdapter(Observable.from(Observable.just(new Track()), pageObservable));
-        adapter.subscribe(itemObserver);
+        adapter.subscribe();
         adapter.onScroll(absListView, 0, 5, 2 * 5);
         verify(pageObservable).subscribe(itemObserver);
     }
@@ -133,7 +155,7 @@ public class EndlessPagingAdapterTest {
     public void pageScrollListenerShouldNotDoAnythingIfAlreadyLoading() {
         final Observable pageObservable = Mockito.mock(Observable.class);
         createAdapter(Observable.from(Observable.just(new Track()), pageObservable));
-        adapter.subscribe(itemObserver);
+        adapter.subscribe();
         adapter.setNewAppendState(EndlessPagingAdapter.AppendState.LOADING);
         adapter.onScroll(absListView, 0, 5, 5);
         verifyZeroInteractions(pageObservable);
@@ -143,7 +165,7 @@ public class EndlessPagingAdapterTest {
     public void pageScrollListenerShouldNotDoAnythingIfLastAppendWasError() {
         final Observable pageObservable = Mockito.mock(Observable.class);
         createAdapter(Observable.from(Observable.just(new Track()), pageObservable));
-        adapter.subscribe(itemObserver);
+        adapter.subscribe();
         adapter.setNewAppendState(EndlessPagingAdapter.AppendState.ERROR);
         adapter.onScroll(absListView, 0, 5, 5);
         verifyZeroInteractions(pageObservable);
@@ -174,5 +196,6 @@ public class EndlessPagingAdapterTest {
             }
         };
         when(((AdapterViewAware) fragment).getAdapterObserver()).thenReturn(adapter);
+        adapter.setDefaultItemObserver(itemObserver);
     }
 }

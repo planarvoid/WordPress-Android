@@ -44,7 +44,8 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mItemObserver = new ItemObserver<Track, ExploreTracksFragment>(this);
-        mExploreTracksAdapter.subscribe(mItemObserver);
+        mExploreTracksAdapter.setDefaultItemObserver(mItemObserver);
+        mExploreTracksAdapter.subscribe();
     }
 
     @Override
@@ -76,9 +77,8 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
-        ItemObserver<Track, ExploreTracksFragment> itemObserver = new ItemObserver<Track, ExploreTracksFragment>(this);
-        mExploreTracksAdapter.subscribe(new PullToRefreshObserver<ExploreTracksFragment, Track>(
-                this, mGridViewId, mExploreTracksAdapter, itemObserver));
+        mExploreTracksAdapter.subscribeWithObserver(new PullToRefreshObserver<ExploreTracksFragment, Track>(
+                this, mGridViewId, mExploreTracksAdapter, mItemObserver));
     }
 
     @Override

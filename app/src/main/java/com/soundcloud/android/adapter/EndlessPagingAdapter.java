@@ -96,18 +96,12 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         notifyDataSetChanged();
     }
 
-    public boolean isFirstPage() {
-        return mNextPageObservable == null;
+    public Subscription subscribe() {
+        return subscribeWithObserver(mItemObserver);
     }
 
-    public Subscription subscribe(final Observer<T> itemObserver) {
-        mItemObserver = itemObserver;
-        return mPagingObservable.subscribe(new PageObserver());
-    }
-
-    public Subscription loadNextPage() {
-        setNewAppendState(AppendState.LOADING);
-        return mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(mItemObserver);
+    public Subscription subscribeWithObserver(final Observer<T> firstPageObserver) {
+        return mPagingObservable.subscribe(new PagingObserver(firstPageObserver));
     }
 
     @Override
@@ -126,6 +120,11 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         }
     }
 
+    private Subscription loadNextPage() {
+        setNewAppendState(AppendState.LOADING);
+        return mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(mItemObserver);
+    }
+
     public void onCompleted(){
         notifyDataSetChanged();
         setNewAppendState(AppendState.IDLE);
@@ -139,15 +138,20 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         addItem(item);
     }
 
+    private final class PagingObserver implements Action1<Observable<T>> {
+        private Observer<T> firstPageObserver;
 
-    private final class PageObserver implements Action1<Observable<T>> {
+        public PagingObserver(Observer<T> firstPageObserver) {
+            this.firstPageObserver = firstPageObserver;
+        }
 
         @Override
         public void call(Observable<T> nextPageObservable) {
-            boolean wasFirstPage = isFirstPage();
-            EndlessPagingAdapter.this.mNextPageObservable = nextPageObservable;
-            if (wasFirstPage) {
-                loadNextPage();
+            if (firstPageObserver != null){
+                nextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(firstPageObserver);
+                firstPageObserver = null;
+            } else {
+                EndlessPagingAdapter.this.mNextPageObservable = nextPageObservable;
             }
         }
     }
