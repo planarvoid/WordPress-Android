@@ -1,0 +1,203 @@
+{
+    "music": [
+        {
+            "title": "popular_music",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/popular_music"
+                }
+            }
+        },
+        {
+            "title": "classical",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/classical"
+                }
+            }
+        },
+        {
+            "title": "country",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/country"
+                }
+            }
+        },
+        {
+            "title": "electronic",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/electronic"
+                }
+            }
+        },
+        {
+            "title": "hiphop_and_rap",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/hiphop_and_rap"
+                }
+            }
+        },
+        {
+            "title": "jazz_and_blues",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/jazz_and_blues"
+                }
+            }
+        },
+        {
+            "title": "metal",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/metal"
+                }
+            }
+        },
+        {
+            "title": "pop",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/pop"
+                }
+            }
+        },
+        {
+            "title": "rnb_and_soul",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/rnb_and_soul"
+                }
+            }
+        },
+        {
+            "title": "reggae",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/reggae"
+                }
+            }
+        },
+        {
+            "title": "rock",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/rock"
+                }
+            }
+        },
+        {
+            "title": "folk_and_world",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/folk_and_world"
+                }
+            }
+        }
+    ],
+    "audio": [
+        {
+            "title": "popular_audio",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/popular_audio"
+                }
+            }
+        },
+        {
+            "title": "audiobooks",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/audiobooks"
+                }
+            }
+        },
+        {
+            "title": "business",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/business"
+                }
+            }
+        },
+        {
+            "title": "comedy",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/comedy"
+                }
+            }
+        },
+        {
+            "title": "arts_and_entertainment",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/arts_and_entertainment"
+                }
+            }
+        },
+        {
+            "title": "learning",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/learning"
+                }
+            }
+        },
+        {
+            "title": "news",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/news"
+                }
+            }
+        },
+        {
+            "title": "religion_and_spirituality",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/religion_and_spirituality"
+                }
+            }
+        },
+        {
+            "title": "science",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/science"
+                }
+            }
+        },
+        {
+            "title": "sports",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/sports"
+                }
+            }
+        },
+        {
+            "title": "storytelling",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/storytelling"
+                }
+            }
+        },
+        {
+            "title": "technology",
+            "_links": {
+                "suggested_tracks": {
+                    "href": "http://localhost:9090/suggestions/tracks/categories/technology"
+                }
+            }
+        }
+    ],
+    "_links": {
+        "self": {
+            "href": "http://localhost:9090/suggestions/tracks/categories"
+        }
+    }
+}

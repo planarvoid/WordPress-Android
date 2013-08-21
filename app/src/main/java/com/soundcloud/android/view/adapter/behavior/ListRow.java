@@ -1,4 +1,4 @@
-package com.soundcloud.android.view.adapter;
+package com.soundcloud.android.view.adapter.behavior;
 
 import android.database.Cursor;
 import android.os.Parcelable;

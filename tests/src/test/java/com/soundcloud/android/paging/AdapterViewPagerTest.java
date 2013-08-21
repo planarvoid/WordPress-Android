@@ -10,10 +10,11 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import com.soundcloud.android.adapter.EndlessPagingAdapter;
-import com.soundcloud.android.adapter.TrackExploreAdapter;
+import com.soundcloud.android.adapter.ExploreTracksAdapter;
 import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.observers.PageItemObserver;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +37,7 @@ public class AdapterViewPagerTest {
     @Mock
     private Observable observable;
     @Mock
-    private TrackExploreAdapter adapter;
+    private ExploreTracksAdapter adapter;
     @Mock
     private Observable<Track> suggestedTrackObservable;
     @Mock

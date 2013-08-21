@@ -6,19 +6,22 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
+import com.soundcloud.android.view.adapter.GridSpacer;
 
+import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class TrackExploreAdapter extends EndlessPagingAdapter<Track> {
+public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
 
     public static final int INITIAL_LIST_SIZE = 20;
 
     private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.adapterView(R.drawable.placeholder_cells);
+    private GridSpacer mGridSpacer;
 
-    public TrackExploreAdapter() {
+    public ExploreTracksAdapter() {
         super(INITIAL_LIST_SIZE, R.layout.list_loading_item);
     }
 
@@ -41,6 +44,21 @@ public class TrackExploreAdapter extends EndlessPagingAdapter<Track> {
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());
         ImageLoader.getInstance().displayImage(track.getArtwork(), viewHolder.imageView, mDisplayImageOptions);
+        getGridSpacer(itemView.getResources()).configureItemPadding(itemView, position, getCount());
+    }
+
+    /**
+     * Lazy Grid Spacer initialization as it needs resources for configuration
+     */
+    private GridSpacer getGridSpacer(Resources resources) {
+        if (mGridSpacer == null) {
+            mGridSpacer = new GridSpacer(
+                    resources.getDimensionPixelSize(R.dimen.explore_suggested_track_item_spacing_outside_left_right),
+                    resources.getDimensionPixelSize(R.dimen.explore_suggested_track_item_spacing_outside_top_bottom),
+                    resources.getInteger(R.integer.suggested_user_grid_num_columns)
+            );
+        }
+        return mGridSpacer;
     }
 
     @VisibleForTesting

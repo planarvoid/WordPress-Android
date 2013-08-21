@@ -22,7 +22,7 @@ public class SuggestedUsersScreen {
 
     public boolean hasContent(){
         solo.scrollListToTop(0);
-        return solo.getView(R.id.suggested_users_list_header) != null;
+        return solo.getView(R.id.list_section_header) != null;
     }
 
     public boolean hasFacebookSection(){

@@ -2,7 +2,8 @@ package com.soundcloud.android.activity.landing;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.fragment.TrackExploreFragment;
+import com.soundcloud.android.fragment.ExploreTracksCategoriesFragment;
+import com.soundcloud.android.fragment.ExploreTracksFragment;
 import com.viewpagerindicator.TabPageIndicator;
 
 import android.os.Bundle;
@@ -45,7 +46,15 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
 
         @Override
         public Fragment getItem(int position) {
-            return position == 1 ? new TrackExploreFragment() : new Fragment();
+            switch (position) {
+                case 0:
+                    return new ExploreTracksCategoriesFragment();
+                case 1:
+                    return new ExploreTracksFragment();
+                case 2:
+                    return new Fragment();
+            }
+            throw new RuntimeException("Unexpected position for getItem " + position);
         }
 
         @Override
@@ -59,9 +68,9 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
                 case 0:
                     return getString(R.string.explore_categories);
                 case 1:
-                    return getString(R.string.explore_pop_music);
+                    return getString(R.string.explore_category_popular_music);
                 case 2:
-                    return getString(R.string.explore_pop_audio);
+                    return getString(R.string.explore_category_popular_audio);
             }
             throw new RuntimeException("Unexpected position for getPageTitle " + position);
 

@@ -98,4 +98,6 @@
     <color name="dialog_list_txt_disabled">#777</color>
     <color name="error_view_bg">#EFEFEF</color>
 
+    <color name="list_txt_explore">#FF333333</color>
+
 </resources>

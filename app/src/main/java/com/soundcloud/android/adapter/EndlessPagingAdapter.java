@@ -7,43 +7,20 @@ import android.widget.BaseAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class EndlessPagingAdapter<T> extends BaseAdapter implements ItemAdapter<T> {
+public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> {
 
     private static final int PROGRESS_ITEM_VIEW_TYPE = 1;
-
-    private final List<T> mItems;
     private final int mProgressItemLayoutResId;
     private boolean mDisplayProgressItem;
 
-
     public EndlessPagingAdapter(int pageSize, int progressItemLayoutResId) {
-        mItems = new ArrayList<T>(pageSize);
+        super(pageSize);
         mProgressItemLayoutResId = progressItemLayoutResId;
     }
 
     @Override
     public int getCount() {
         return mDisplayProgressItem ? mItems.size() + 1 : mItems.size();
-    }
-
-    @Override
-    public T getItem(int position) {
-        return mItems.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public void addItem(T item) {
-        mItems.add(item);
-    }
-
-    @Override
-    public void clear() {
-        mItems.clear();
     }
 
     @Override
@@ -55,18 +32,11 @@ public abstract class EndlessPagingAdapter<T> extends BaseAdapter implements Ite
     public View getView(int position, View convertView, ViewGroup parent) {
         if (getItemViewType(position) == PROGRESS_ITEM_VIEW_TYPE) {
             return convertView != null ? convertView : View.inflate(parent.getContext(), mProgressItemLayoutResId, null);
-        } else if (convertView == null) {
-            convertView = createItemView(position, parent);
+        } else {
+            return super.getView(position, convertView, parent);
         }
-
-        bindItemView(position, convertView);
-
-        return convertView;
     }
 
-    protected abstract void bindItemView(int position, View itemView);
-
-    protected abstract View createItemView(int position, ViewGroup parent);
 
     @Override
     public int getViewTypeCount() {

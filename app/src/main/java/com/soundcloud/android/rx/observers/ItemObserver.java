@@ -1,28 +1,26 @@
-package com.soundcloud.android.paging;
+package com.soundcloud.android.rx.observers;
 
-import com.soundcloud.android.fragment.behavior.PagingAdapterViewAware;
-import com.soundcloud.android.rx.observers.ScFragmentObserver;
+import com.soundcloud.android.fragment.behavior.AdapterViewAware;
 import com.soundcloud.android.view.EmptyListView;
 
 import android.support.v4.app.Fragment;
 
-public class PageItemObserver<ModelType, FragmentType extends Fragment & PagingAdapterViewAware<ModelType>>
+public class ItemObserver<ModelType, FragmentType extends Fragment & AdapterViewAware<ModelType>>
         extends ScFragmentObserver<FragmentType, ModelType> {
 
-    public PageItemObserver(FragmentType fragment) {
+    public ItemObserver(FragmentType fragment) {
         super(fragment);
     }
 
     @Override
     public void onCompleted(FragmentType fragment) {
         fragment.setEmptyViewStatus(EmptyListView.Status.OK);
-        fragment.getAdapter().setDisplayProgressItem(false);
+        fragment.getAdapter().notifyDataSetChanged();
     }
 
     @Override
     public void onError(FragmentType fragment, Exception error) {
         fragment.setEmptyViewStatus(EmptyListView.Status.ERROR);
-        fragment.getAdapter().setDisplayProgressItem(false);
     }
 
     @Override

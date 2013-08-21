@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TrackExploreSuggestion extends ScModel {
+public class ExploreTracksSuggestion extends ScModel {
 
     private String          mTitle;
     private String          mGenre;
@@ -21,9 +21,9 @@ public class TrackExploreSuggestion extends ScModel {
     private List<String>    mTagList;
     private Date            mCreatedAt;
 
-    public TrackExploreSuggestion() { /* for Deserialization */ }
+    public ExploreTracksSuggestion() { /* for Deserialization */ }
 
-    public TrackExploreSuggestion(Parcel in) {
+    public ExploreTracksSuggestion(Parcel in) {
         super(in);
         this.mTitle = in.readString();
         this.mGenre = in.readString();
@@ -38,7 +38,7 @@ public class TrackExploreSuggestion extends ScModel {
 
     }
 
-    public TrackExploreSuggestion(String urn) {
+    public ExploreTracksSuggestion(String urn) {
         super(urn);
     }
 
@@ -138,13 +138,13 @@ public class TrackExploreSuggestion extends ScModel {
         dest.writeSerializable(this.mCreatedAt);
     }
 
-    public static Creator<TrackExploreSuggestion> CREATOR = new Creator<TrackExploreSuggestion>() {
-        public TrackExploreSuggestion createFromParcel(Parcel source) {
-            return new TrackExploreSuggestion(source);
+    public static Creator<ExploreTracksSuggestion> CREATOR = new Creator<ExploreTracksSuggestion>() {
+        public ExploreTracksSuggestion createFromParcel(Parcel source) {
+            return new ExploreTracksSuggestion(source);
         }
 
-        public TrackExploreSuggestion[] newArray(int size) {
-            return new TrackExploreSuggestion[size];
+        public ExploreTracksSuggestion[] newArray(int size) {
+            return new ExploreTracksSuggestion[size];
         }
     };
 

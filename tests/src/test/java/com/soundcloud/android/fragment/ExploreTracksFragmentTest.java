@@ -2,7 +2,7 @@ package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.TrackExploreAdapter;
+import com.soundcloud.android.adapter.ExploreTracksAdapter;
 import com.soundcloud.android.paging.AdapterViewPager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -15,18 +15,18 @@ import org.mockito.Mock;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
-public class TrackExploreFragmentTest {
+public class ExploreTracksFragmentTest {
 
-    private TrackExploreFragment fragment;
+    private ExploreTracksFragment fragment;
 
     @Mock
-    private TrackExploreAdapter adapter;
+    private ExploreTracksAdapter adapter;
     @Mock
     private AdapterViewPager adapterViewPager;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new TrackExploreFragment(adapter, adapterViewPager);
+        fragment = new ExploreTracksFragment(adapter, adapterViewPager);
         SherlockFragmentActivity fragmentActivity = new SherlockFragmentActivity();
         Robolectric.shadowOf(fragment).setActivity(fragmentActivity);
     }

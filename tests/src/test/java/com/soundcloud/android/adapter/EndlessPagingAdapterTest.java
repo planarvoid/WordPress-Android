@@ -36,20 +36,6 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
-    public void shouldAddItems() {
-        expect(adapter.getCount()).toBe(0);
-        adapter.addItem(new Track());
-        expect(adapter.getCount()).toBe(1);
-    }
-
-    @Test
-    public void shouldGetItem() {
-        Track item = new Track();
-        adapter.addItem(item);
-        expect(adapter.getItem(0)).toBe(item);
-    }
-
-    @Test
     public void shouldAdjustItemCountBasedOnLoadingState() {
         adapter.setDisplayProgressItem(true);
         expect(adapter.getCount()).toBe(1);
@@ -58,37 +44,8 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
-    public void shouldDefaultToIdentityForItemIdFunction() {
-        expect(adapter.getItemId(1)).toBe(1L);
-    }
-
-    @Test
     public void shouldReportTwoDifferentItemViewTypes() {
         expect(adapter.getViewTypeCount()).toBe(2);
-    }
-
-    @Test
-    public void shouldCreateAndBindNewItemView() {
-        Track item = new Track();
-        item.setTitle("New track");
-        adapter.addItem(item);
-
-        View itemView = adapter.getView(0, null, new FrameLayout(Robolectric.application));
-        expect(itemView).not.toBeNull();
-        expect(((TextView) itemView).getText()).toEqual("New track");
-    }
-
-    @Test
-    public void shouldConvertItemView() {
-        Track item = new Track();
-        item.setTitle("New track");
-        adapter.addItem(item);
-
-        TextView convertView = new TextView(Robolectric.application);
-        convertView.setText("Old track");
-        View itemView = adapter.getView(0, convertView, new FrameLayout(Robolectric.application));
-        expect(itemView).toBe(convertView);
-        expect(((TextView) itemView).getText()).toEqual("New track");
     }
 
     @Test
