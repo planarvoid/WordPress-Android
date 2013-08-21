@@ -21,15 +21,18 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
     private Observer<T> mItemObserver;
 
     private AppendState mAppendState = AppendState.IDLE;
+
     protected enum AppendState {
-        IDLE, LOADING, ERROR
+        IDLE, LOADING, ERROR;
     }
-
-
     public EndlessPagingAdapter(Observable<Observable<T>> pageEmittingObservable, int pageSize) {
         super(pageSize);
         mPagingObservable = pageEmittingObservable;
         mProgressItemLayoutResId = R.layout.list_loading_item;
+    }
+
+    public void setDefaultItemObserver(Observer<T> itemObserver) {
+        mItemObserver = itemObserver;
     }
 
     @Override
@@ -78,7 +81,6 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
                 throw new IllegalStateException("Unexpected idle state with progress row");
         }
     }
-
 
     @Override
     public int getViewTypeCount() {
