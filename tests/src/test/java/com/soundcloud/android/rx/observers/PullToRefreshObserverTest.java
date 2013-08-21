@@ -14,6 +14,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observer;
 import rx.android.RxFragmentObserver;
 
 import android.support.v4.app.Fragment;
@@ -30,6 +31,8 @@ public class PullToRefreshObserverTest {
     @Mock
     private PullToRefreshBase pullToRefreshView;
     @Mock
+    private Observer observer;
+    @Mock
     private ScAdapter adapter;
 
     private PullToRefreshObserver pullToRefreshObserver;
@@ -38,7 +41,7 @@ public class PullToRefreshObserverTest {
     public void setUp() throws Exception {
         fragment = mock(Fragment.class, withSettings().extraInterfaces(AdapterViewAware.class));
         when(fragment.isAdded()).thenReturn(true);
-        when(((AdapterViewAware) fragment).getAdapter()).thenReturn(adapter);
+        when(((AdapterViewAware) fragment).getAdapterObserver()).thenReturn(observer);
 
         View fragmentLayout = mock(View.class);
         when(fragment.getView()).thenReturn(fragmentLayout);

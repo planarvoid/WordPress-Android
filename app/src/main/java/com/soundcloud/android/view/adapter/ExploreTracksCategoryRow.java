@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 public class ExploreTracksCategoryRow extends LinearLayout implements SectionedListRow {
 
-    public TextView categoryTitle, sectionHeader;
+    private TextView categoryTitle, sectionHeader;
 
     @SuppressWarnings("unused")
     public ExploreTracksCategoryRow(Context context, AttributeSet attrs) {

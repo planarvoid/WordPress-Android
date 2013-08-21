@@ -1,10 +1,10 @@
 package com.soundcloud.android.fragment.behavior;
 
-import com.soundcloud.android.adapter.ItemAdapter;
+import rx.Observer;
 
 public interface AdapterViewAware<ModelType> {
 
     void setEmptyViewStatus(int status);
-    ItemAdapter<ModelType> getAdapter();
+    Observer<ModelType> getAdapterObserver();
 
 }

@@ -6,7 +6,6 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ExploreTracksCategoryActivity;
 import com.soundcloud.android.adapter.ExploreTracksCategoriesAdapter;
-import com.soundcloud.android.adapter.ItemAdapter;
 import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.fragment.behavior.AdapterViewAware;
 import com.soundcloud.android.model.ExploreTracksCategories;
@@ -14,10 +13,11 @@ import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ExploreTracksCategorySection;
 import com.soundcloud.android.model.Section;
 import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.observers.ItemObserver;
 import com.soundcloud.android.rx.observers.PullToRefreshObserver;
-import com.soundcloud.android.rx.observers.ScFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
+import rx.Observer;
 import rx.util.functions.Func1;
 
 import android.content.Intent;
@@ -29,7 +29,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class ExploreTracksCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
-        AdapterViewAware<ExploreTracksCategory>, PullToRefreshBase.OnRefreshListener<ListView> {
+        AdapterViewAware<Section<ExploreTracksCategory>>, PullToRefreshBase.OnRefreshListener<ListView> {
 
 
     private final Observable<Section<ExploreTracksCategory>> mCategoriesObservable;
@@ -101,7 +101,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     }
 
     @Override
-    public ItemAdapter<ExploreTracksCategory> getAdapter() {
+    public Observer<Section<ExploreTracksCategory>> getAdapterObserver() {
         return mCategoriesAdapter;
     }
 
@@ -110,33 +110,5 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
         mCategoriesObservable.subscribe(new PullToRefreshObserver<ExploreTracksCategoriesFragment, Section<ExploreTracksCategory>>(
                         this, mListViewID, mCategoriesAdapter, mItemObserver));
     }
-
-
-    public static class ItemObserver
-            extends ScFragmentObserver<ExploreTracksCategoriesFragment, Section<ExploreTracksCategory>> {
-
-        public ItemObserver(ExploreTracksCategoriesFragment fragment) {
-            super(fragment);
-        }
-
-        @Override
-        public void onNext(ExploreTracksCategoriesFragment fragment, Section<ExploreTracksCategory> item) {
-            fragment.mCategoriesAdapter.onNext(item);
-        }
-
-        @Override
-        public void onCompleted(ExploreTracksCategoriesFragment fragment) {
-            fragment.setEmptyViewStatus(EmptyListView.Status.OK);
-            fragment.mCategoriesAdapter.onCompleted();
-        }
-
-        @Override
-        public void onError(ExploreTracksCategoriesFragment fragment, Exception error) {
-            fragment.setEmptyViewStatus(EmptyListView.Status.ERROR);
-            fragment.mCategoriesAdapter.onError(error);
-        }
-    }
-
-
 
 }

@@ -25,7 +25,7 @@ public class ExploreTracksAdapterTest {
 
     @Test
     public void shouldCreateItemView() {
-        adapter = new ExploreTracksAdapter();
+        adapter = new ExploreTracksAdapter(null);
         View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
@@ -36,7 +36,7 @@ public class ExploreTracksAdapterTest {
 
     @Test
     public void shouldBindItemView() throws CreateModelException {
-        adapter = new ExploreTracksAdapter();
+        adapter = new ExploreTracksAdapter(null);
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         adapter.addItem(track);
 
