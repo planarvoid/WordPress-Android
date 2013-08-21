@@ -95,7 +95,9 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     @Override
     public void setEmptyViewStatus(int status) {
         mEmptyViewStatus = status;
-        mEmptyListView.setStatus(status);
+        if (mEmptyListView != null) {
+            mEmptyListView.setStatus(status);
+        }
     }
 
     @Override
