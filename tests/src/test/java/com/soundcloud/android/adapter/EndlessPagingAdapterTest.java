@@ -57,13 +57,29 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
-    public void shouldAdjustItemCountBasedOnLoadingState() {
+    public void appendRowShouldNotBeEnabledWhenLoading() {
+        createAdapter();
+        adapter.setNewAppendState(EndlessPagingAdapter.AppendState.LOADING);
+        expect(adapter.isEnabled(0)).toBeFalse();
+    }
+
+    @Test
+    public void appendRowShouldBeEnabledWhenInErrorState() {
+        createAdapter();
+        adapter.setNewAppendState(EndlessPagingAdapter.AppendState.ERROR);
+        expect(adapter.isEnabled(0)).toBeTrue();
+    }
+
+    @Test
+    public void shouldAdjustItemCountBasedOnAppendState() {
         createAdapter();
         adapter.addItem(new Track()); // populate to override empty count behavior
-        adapter.setDisplayProgressItem(true);
+        adapter.setNewAppendState(EndlessPagingAdapter.AppendState.LOADING);
         expect(adapter.getCount()).toBe(2);
-        adapter.setDisplayProgressItem(false);
+        adapter.setNewAppendState(EndlessPagingAdapter.AppendState.IDLE);
         expect(adapter.getCount()).toBe(1);
+        adapter.setNewAppendState(EndlessPagingAdapter.AppendState.ERROR);
+        expect(adapter.getCount()).toBe(2);
     }
 
     @Test
@@ -75,7 +91,7 @@ public class EndlessPagingAdapterTest {
     @Test
     public void shouldCreateProgressView() {
         createAdapter();
-        adapter.setDisplayProgressItem(true);
+        adapter.setNewAppendState(EndlessPagingAdapter.AppendState.LOADING);
         View progressView = adapter.getView(0, null, new FrameLayout(Robolectric.application));
         expect(progressView).not.toBeNull();
         expect(progressView.findViewById(R.id.list_loading)).not.toBeNull();
@@ -84,16 +100,16 @@ public class EndlessPagingAdapterTest {
     @Test
     public void shouldConvertProgressView() {
         createAdapter();
-        adapter.setDisplayProgressItem(true);
+        adapter.setNewAppendState(EndlessPagingAdapter.AppendState.LOADING);
         View convertView = LayoutInflater.from(Robolectric.application).inflate(R.layout.list_loading_item, null);
         View progressView = adapter.getView(0, convertView, new FrameLayout(Robolectric.application));
         expect(progressView).toBe(convertView);
     }
 
     @Test
-    public void countShouldBeIfLoadingAndNoItems() {
+    public void countShouldBeZeroIfLoadingAndNoItems() {
         createAdapter();
-        adapter.setDisplayProgressItem(true);
+        adapter.setNewAppendState(EndlessPagingAdapter.AppendState.LOADING);
         expect(adapter.getCount()).toBe(0);
     }
 
@@ -118,7 +134,17 @@ public class EndlessPagingAdapterTest {
         final Observable pageObservable = Mockito.mock(Observable.class);
         createAdapter(Observable.from(Observable.just(new Track()), pageObservable));
         adapter.subscribe(itemObserver);
-        adapter.setDisplayProgressItem(true);
+        adapter.setNewAppendState(EndlessPagingAdapter.AppendState.LOADING);
+        adapter.onScroll(absListView, 0, 5, 5);
+        verifyZeroInteractions(pageObservable);
+    }
+
+    @Test
+    public void pageScrollListenerShouldNotDoAnythingIfLastAppendWasError() {
+        final Observable pageObservable = Mockito.mock(Observable.class);
+        createAdapter(Observable.from(Observable.just(new Track()), pageObservable));
+        adapter.subscribe(itemObserver);
+        adapter.setNewAppendState(EndlessPagingAdapter.AppendState.ERROR);
         adapter.onScroll(absListView, 0, 5, 5);
         verifyZeroInteractions(pageObservable);
     }
@@ -136,7 +162,7 @@ public class EndlessPagingAdapterTest {
     }
 
     private void createAdapter(Observable pageEmittingObservable){
-        adapter = new EndlessPagingAdapter<Track>(pageEmittingObservable, 10, R.layout.list_loading_item) {
+        adapter = new EndlessPagingAdapter<Track>(pageEmittingObservable, 10) {
             @Override
             protected void bindItemView(int position, View itemView) {
                 ((TextView) itemView).setText(getItem(position).getTitle());

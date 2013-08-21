@@ -7,6 +7,15 @@
     <ProgressBar android:id="@+id/list_loading"
                  android:indeterminateOnly="true"
                  android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_centerInParent="true"/>
+                 android:layout_height="?android:attr/listPreferredItemHeight"
+                 android:layout_centerInParent="true"
+                 android:gravity="center"/>
+    <TextView android:id="@+id/txt_list_loading_retry"
+              android:layout_width="wrap_content"
+              android:layout_height="?android:attr/listPreferredItemHeight"
+              style="@style/txt_empty_collection_message"
+              android:layout_centerInParent="true"
+              android:gravity="center"
+              android:text="@string/appending_failed"
+              android:visibility="gone"/>
 </RelativeLayout>
