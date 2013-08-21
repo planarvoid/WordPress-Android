@@ -9,7 +9,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.player.PlayerTrackPagerAdapter;
-import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
 import com.soundcloud.android.model.Comment;
@@ -46,6 +45,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 
+import javax.annotation.CheckForNull;
 import java.lang.ref.WeakReference;
 
 public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener {
@@ -62,7 +62,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private boolean mActivityPaused, mChangeTrackFast, mIgnoreServiceQueue;
     private PlayerTrackPager mTrackPager;
     private TransportBar mTransportBar;
-    private @Nullable CloudPlaybackService mPlaybackService;
+    private @CheckForNull CloudPlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1;
     private AndroidCloudAPI mAndroidCloudAPI;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
@@ -366,12 +366,13 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private final View.OnClickListener mPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
+            final CloudPlaybackService playbackService = mPlaybackService;
             final PlayQueueManager playQueueManager = getPlaylistManager();
-            if (mPlaybackService != null && playQueueManager != null) {
+            if (playbackService != null && playQueueManager != null) {
                 if (getCurrentDisplayedTrackPosition() != playQueueManager.getPosition()) {
-                    mPlaybackService.setQueuePosition(getCurrentDisplayedTrackPosition());
+                    playbackService.setQueuePosition(getCurrentDisplayedTrackPosition());
                 } else {
-                    mPlaybackService.togglePlayback();
+                    playbackService.togglePlayback();
                 }
             } else {
                 startService(new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION));
@@ -386,9 +387,11 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
             final PlayQueueManager playQueueManager = getPlaylistManager();
-            if (mPlaybackService != null && playQueueManager != null) {
+            final CloudPlaybackService playbackService = mPlaybackService;
+
+            if (playbackService != null && playQueueManager != null) {
                 final int playPosition = playQueueManager.getPosition();
-                if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
+                if (playbackService.getProgress() < 2000 && playPosition > 0) {
 
                     final Track currentTrack = CloudPlaybackService.getCurrentTrack();
                     if (currentTrack != null) {
@@ -399,15 +402,15 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                         mChangeTrackFast = true;
                         mTrackPager.prev();
                     } else {
-                        mPlaybackService.setQueuePosition(playPosition - 1);
+                        playbackService.setQueuePosition(playPosition - 1);
                         refreshTrackPager();
                     }
 
                 } else if (CloudPlaybackService.isSeekable()) {
-                    mPlaybackService.seek(0, true);
+                    playbackService.seek(0, true);
 
                 } else {
-                    mPlaybackService.restartTrack();
+                    playbackService.restartTrack();
                 }
             } else {
                 startService(new Intent(CloudPlaybackService.PREVIOUS_ACTION));
@@ -417,28 +420,30 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private final View.OnClickListener mNextListener = new View.OnClickListener() {
         public void onClick(View v) {
-                mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
+            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
-                final Track currentTrack = CloudPlaybackService.getCurrentTrack();
-                if (currentTrack != null) {
-                    track(Media.fromTrack(currentTrack), Media.Action.Forward);
-                }
+            final Track currentTrack = CloudPlaybackService.getCurrentTrack();
+            if (currentTrack != null) {
+                track(Media.fromTrack(currentTrack), Media.Action.Forward);
+            }
 
-                final PlayQueueManager playQueueManager = getPlaylistManager();
-                if (mPlaybackService != null && playQueueManager != null) {
-                    final int playPosition = playQueueManager.getPosition();
-                    if (playQueueManager.length() > playPosition + 1) {
-                        if (getCurrentDisplayedTrackPosition() == playPosition) {
-                            mChangeTrackFast = true;
-                            mTrackPager.next();
-                        } else {
-                            mPlaybackService.setQueuePosition(playPosition + 1);
-                            refreshTrackPager();
-                        }
+            final PlayQueueManager playQueueManager = getPlaylistManager();
+            final CloudPlaybackService playbackService = mPlaybackService;
+
+            if (playbackService != null && playQueueManager != null) {
+                final int playPosition = playQueueManager.getPosition();
+                if (playQueueManager.length() > playPosition + 1) {
+                    if (getCurrentDisplayedTrackPosition() == playPosition) {
+                        mChangeTrackFast = true;
+                        mTrackPager.next();
+                    } else {
+                        playbackService.setQueuePosition(playPosition + 1);
+                        refreshTrackPager();
                     }
-                } else {
-                    startService(new Intent(CloudPlaybackService.NEXT_ACTION));
                 }
+            } else {
+                startService(new Intent(CloudPlaybackService.NEXT_ACTION));
+            }
 
         }
     };
