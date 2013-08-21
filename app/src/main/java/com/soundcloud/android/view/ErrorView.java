@@ -20,10 +20,6 @@ public class ErrorView extends LinearLayout {
         super(context, attrs);
     }
 
-    public ErrorView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
-
     public void setOnRetryListener(final EmptyListView.RetryListener retryListener) {
         final View btnRetry = findViewById(R.id.btn_retry);
         if (retryListener != null){

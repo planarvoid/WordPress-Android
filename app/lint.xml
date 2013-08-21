@@ -63,6 +63,9 @@
         <ignore path="src/main/java/com/soundcloud/android/fragment/SuggestedUsersCategoryFragment.java"/>
         <ignore path="src/main/java/com/soundcloud/android/fragment/SuggestedTracksFragment.java"/>
         <ignore path="src/main/java/com/soundcloud/android/dialog/OnboardSuggestedUsersSyncFragment.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/fragment/ExploreTracksCategoriesFragment.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/fragment/ExploreTracksFragment.java"/>
+
     </issue>
 
     <issue id="MergeRootFrame">

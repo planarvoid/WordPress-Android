@@ -18,11 +18,6 @@ public class ExploreTracksCategoryRow extends LinearLayout implements SectionedL
         super(context, attrs);
     }
 
-    @SuppressWarnings("unused")
-    public ExploreTracksCategoryRow(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
-
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
