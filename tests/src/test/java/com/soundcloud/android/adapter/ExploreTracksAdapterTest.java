@@ -41,6 +41,7 @@ public class ExploreTracksAdapterTest {
         adapter.addItem(track);
 
         View itemView = mock(View.class);
+        when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
         ExploreTracksAdapter.ItemViewHolder viewHolder = mock(ExploreTracksAdapter.ItemViewHolder.class);
         viewHolder.imageView = new ImageView(Robolectric.application);
         viewHolder.title = new TextView(Robolectric.application);
