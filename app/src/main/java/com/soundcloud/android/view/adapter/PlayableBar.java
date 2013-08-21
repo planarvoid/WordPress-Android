@@ -11,13 +11,14 @@ import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.view.StatsView;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
+
+import javax.annotation.CheckForNull;
 
 /**
  * An icon layout specialized for {@link Playable}s (tracks / playlists). It takes care of displaying playable specific
@@ -30,8 +31,8 @@ public class PlayableBar extends IconLayout {
     protected TextView mUser;
     protected TextView mCreatedAt;
     // these two views don't exist for playlists
-    protected @Nullable StatsView mStatsView;
-    protected @Nullable TextView mPrivateIndicator;
+    protected @CheckForNull StatsView mStatsView;
+    protected @CheckForNull TextView mPrivateIndicator;
 
     public PlayableBar(Context context) {
         this(context, null);
@@ -81,31 +82,31 @@ public class PlayableBar extends IconLayout {
         if (mStatsView != null) {
             mStatsView.updateWithPlayable(playable, isListViewRow());
         }
-
-        if (mPrivateIndicator != null) {
-            setupPrivateIndicator(playable);
-        }
+        setupPrivateIndicator(playable);
     }
 
     private void setupPrivateIndicator(Playable playable) {
-        if (playable.isPrivate()) {
-            if (playable.shared_to_count <= 0) {
-                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
-                mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
-            } else if (playable.shared_to_count == 1){
-                mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
-                mPrivateIndicator.setText(playable.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
-            } else {
-                if (playable.shared_to_count < 8){
+        // Todo : Get rid of inheritance mess here. There should either be a private indicator or not
+        if (mPrivateIndicator != null){
+            if (playable.isPrivate()) {
+                if (playable.shared_to_count <= 0) {
                     mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
+                    mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
+                } else if (playable.shared_to_count == 1){
+                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
+                    mPrivateIndicator.setText(playable.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
                 } else {
-                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray_states);
+                    if (playable.shared_to_count < 8){
+                        mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
+                    } else {
+                        mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray_states);
+                    }
+                    mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_with_x_people, playable.shared_to_count));
                 }
-                mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_with_x_people, playable.shared_to_count));
+                mPrivateIndicator.setVisibility(View.VISIBLE);
+            } else {
+                mPrivateIndicator.setVisibility(View.GONE);
             }
-            mPrivateIndicator.setVisibility(View.VISIBLE);
-        } else {
-            mPrivateIndicator.setVisibility(View.GONE);
         }
     }
 

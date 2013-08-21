@@ -1,7 +1,5 @@
 package com.soundcloud.android.view;
 
-import org.jetbrains.annotations.Nullable;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -15,7 +13,7 @@ import android.widget.ToggleButton;
 public class CustomToggleButton extends ToggleButton {
 
     private class CustomToggleButtonDrawable extends StateListDrawable {
-        @Nullable private Drawable  mBackground;
+        private Drawable  mBackground;
 
         public CustomToggleButtonDrawable(Drawable background) {
             mBackground = background;
