@@ -289,7 +289,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
         @Override
         public boolean equals(Object object) {
-            return false;
+            return object.equals(object);
         }
     }
 }
