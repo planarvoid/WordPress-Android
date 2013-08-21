@@ -15,6 +15,9 @@ import android.provider.BaseColumns;
 
 import java.util.List;
 
+@edu.umd.cs.findbugs.annotations.SuppressWarnings(
+        value="EQ_DOESNT_OVERRIDE_EQUALS",
+        justification="Subclasses can sufficiently use the ID/URN for equals implementation")
 public class ScModel implements Parcelable, Identifiable {
 
     public static final String EXTRA_ID = "id";
