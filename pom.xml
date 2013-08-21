@@ -17,7 +17,7 @@
     </organization>
 
     <properties>
-        <release.type>androiddebugkey</release.type>
+        <build.type>debug</build.type>
         <keystore.alias>androiddebugkey</keystore.alias>
         <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
         <keystore.password>android</keystore.password>
@@ -25,6 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <androidApiLevel>16</androidApiLevel>
         <source.version>1.6</source.version>
+        <build.useDevProperties>true</build.useDevProperties>
     </properties>
 
     <build>

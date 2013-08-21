@@ -134,7 +134,7 @@
                             </sign>
 
                             <zipalign>
-                                <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-${release.type}.apk</outputApk>
+                                <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-${build.type}.apk</outputApk>
                             </zipalign>
                         </configuration>
                         <executions>

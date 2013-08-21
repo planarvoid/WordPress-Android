@@ -48,7 +48,6 @@
                  android:hardwareAccelerated="true"
                  android:allowBackup="true"
                  android:name="SoundCloudApplication">
-        <meta-data android:name="LOCALYTICS_APP_KEY" android:value="50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8"/>
 
         <activity android:name=".activity.Launch"
                   android:noHistory="true"

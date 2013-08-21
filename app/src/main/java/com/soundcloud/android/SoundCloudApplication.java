@@ -1,9 +1,17 @@
 package com.soundcloud.android;
 
-import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
-import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
-import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
-
+import android.accounts.Account;
+import android.annotation.TargetApi;
+import android.app.ActivityManager;
+import android.app.Application;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.os.StrictMode;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import com.localytics.android.LocalyticsSession;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -32,17 +40,9 @@ import org.acra.annotation.ReportsCrashes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.accounts.Account;
-import android.annotation.TargetApi;
-import android.app.ActivityManager;
-import android.app.Application;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
-import android.os.StrictMode;
-import android.preference.PreferenceManager;
-import android.util.Log;
+import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
+import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
+import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=e594a3cc",
@@ -300,4 +300,11 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
     }
 
+    @Override
+    public void onTerminate() {
+        LocalyticsSession localyticsSession = new LocalyticsSession(this);
+        localyticsSession.close();
+        localyticsSession.upload();
+        super.onTerminate();
+    }
 }
