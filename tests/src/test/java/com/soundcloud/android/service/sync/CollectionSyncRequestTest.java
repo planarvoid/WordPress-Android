@@ -3,6 +3,8 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -115,14 +117,13 @@ public class CollectionSyncRequestTest {
 
         final IOException ioException = new IOException();
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenThrow(ioException);
-
-        when(sharedPreferencesEditor.putString(RESULT_PREF_KEY, ioException.toString())).thenReturn(sharedPreferencesEditor);
+        when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
 
         collectionSyncRequest.onQueued();
         collectionSyncRequest.execute();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
-        verify(sharedPreferencesEditor).putString(RESULT_PREF_KEY, ioException.toString());
+        verify(sharedPreferencesEditor).putString(eq(RESULT_PREF_KEY), contains(ioException.getClass().getSimpleName()));
         verify(sharedPreferencesEditor).commit();
     }
 
