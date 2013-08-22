@@ -49,6 +49,11 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        loadTrackSuggestions();
+    }
+
+    private void loadTrackSuggestions() {
+        setEmptyViewStatus(EmptyListView.Status.WAITING);
         mExploreTracksAdapter.subscribe();
     }
 
@@ -67,6 +72,12 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
+        mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
+            @Override
+            public void onEmptyViewRetry() {
+                loadTrackSuggestions();
+            }
+        });
 
         PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(mGridViewId);
         ptrGridView.setOnRefreshListener(this);
@@ -88,6 +99,8 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     @Override
     public void setEmptyViewStatus(int status) {
         mEmptyViewStatus = status;
-        mEmptyListView.setStatus(status);
+        if (mEmptyListView != null) {
+            mEmptyListView.setStatus(status);
+        }
     }
 }
