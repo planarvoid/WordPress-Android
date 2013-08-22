@@ -13,7 +13,7 @@
                android:layout_marginTop="5dp"
                android:scaleType="fitXY"/>
 
-    <LinearLayout style="@style/emptyCollectionContentHolder">
+    <LinearLayout style="@style/emptyCollectionErrorContentHolder">
 
         <TextView android:id="@+id/server_error"
                   android:text="@string/error_soundcloud_no_response"
