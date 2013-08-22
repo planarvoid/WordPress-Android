@@ -161,7 +161,7 @@ public class PlayerTrackDetails extends RelativeLayout {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(getContext(), TracksByTag.class);
-                    intent.putExtra("genre", track.genre);
+                    intent.putExtra(TracksByTag.EXTRA_GENRE, track.genre);
                     getContext().startActivity(intent);
                 }
             });
@@ -175,7 +175,7 @@ public class PlayerTrackDetails extends RelativeLayout {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(getContext(), TracksByTag.class);
-                        intent.putExtra("tag", t);
+                        intent.putExtra(TracksByTag.EXTRA_TAG, t);
                         getContext().startActivity(intent);
                     }
                 });
