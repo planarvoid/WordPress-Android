@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.CollectionHolder;
@@ -219,7 +220,7 @@ public class Activities extends CollectionHolder<Activity> {
                 return a;
             }
         } else {
-            return handleUnexpectedResponse(response);
+            return handleUnexpectedResponse(remote, response);
         }
     }
 
@@ -229,11 +230,11 @@ public class Activities extends CollectionHolder<Activity> {
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             return api.getMapper().readValue(response.getEntity().getContent(), Activities.class);
         } else {
-            return handleUnexpectedResponse(response);
+            return handleUnexpectedResponse(request, response);
         }
     }
 
-    private static Activities handleUnexpectedResponse(HttpResponse response) throws IOException {
+    private static Activities handleUnexpectedResponse(Request request, HttpResponse response) throws IOException {
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
             return EMPTY;
@@ -241,7 +242,9 @@ public class Activities extends CollectionHolder<Activity> {
             throw new CloudAPI.InvalidTokenException(response.getStatusLine().getStatusCode(),
                     response.getStatusLine().getReasonPhrase());
         } else {
-            throw new IOException(response.getStatusLine().toString());
+            final IOException ioException = new IOException(response.getStatusLine().toString());
+            SoundCloudApplication.handleSilentException("Activities fetchRecent failed " + request, ioException);
+            throw ioException;
         }
     }
 
