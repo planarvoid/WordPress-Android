@@ -31,7 +31,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 @RunWith(SoundCloudTestRunner.class)
 public class EndlessPagingAdapterTest {
@@ -46,7 +45,8 @@ public class EndlessPagingAdapterTest {
     private Observable pageObservable;
     @Mock
     private ListFragmentObserver observer;
-
+    @Mock
+    private View rowView;
     private EndlessPagingAdapter<Track> adapter;
 
 
@@ -102,17 +102,37 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
-    public void shouldCreateProgressView() {
+    public void shouldCreateItemRow() {
+        createAdapter(Observable.from(Observable.just(new Track(1))));
+        adapter.subscribe();
+        View itemView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
+        expect(itemView).toBe(rowView);
+    }
+
+    @Test
+    public void shouldCreateProgressRow() {
         createAdapter(Observable.from(Observable.just(new Track(1)), Observable.never()));
         adapter.subscribe();
         adapter.loadNextPage();
         View progressView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
         expect(progressView).not.toBeNull();
-        expect(progressView.findViewById(R.id.list_loading)).not.toBeNull();
+        expect(progressView.findViewById(R.id.list_loading).getVisibility()).toBe(View.VISIBLE);
+        expect(progressView.findViewById(R.id.txt_list_loading_retry).getVisibility()).toBe(View.GONE);
     }
 
     @Test
-    public void shouldConvertProgressView() {
+    public void shouldCreateErrorRow() {
+        createAdapter(Observable.from(Observable.just(new Track(1)), Observable.error(new Exception())));
+        adapter.subscribe();
+        adapter.loadNextPage();
+        View progressView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
+        expect(progressView).not.toBeNull();
+        expect(progressView.findViewById(R.id.list_loading).getVisibility()).toBe(View.GONE);
+        expect(progressView.findViewById(R.id.txt_list_loading_retry).getVisibility()).toBe(View.VISIBLE);
+    }
+
+    @Test
+    public void shouldConvertProgressRow() {
         createAdapter(Observable.from(Observable.just(new Track(1)), Observable.never()));
         adapter.subscribe();
         adapter.loadNextPage();
@@ -205,12 +225,12 @@ public class EndlessPagingAdapterTest {
         adapter = new EndlessPagingAdapter<Track>(pageEmittingObservable, observer, 10) {
             @Override
             protected void bindItemView(int position, View itemView) {
-                ((TextView) itemView).setText(getItem(position).getTitle());
+
             }
 
             @Override
             protected View createItemView(int position, ViewGroup parent) {
-                return new TextView(parent.getContext());
+                return rowView;
             }
         };
     }

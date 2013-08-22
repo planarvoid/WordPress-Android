@@ -17,10 +17,11 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+import org.mockito.Mock;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -28,15 +29,60 @@ import android.view.ViewGroup;
 public class SectionedAdapterTest {
 
     private SectionedAdapter adapter;
+    @Mock
+    private ListFragmentObserver listFragmentObserver;
 
     @Before
     public void setup() {
-        adapter = new SectionedAdapter(mock(ListFragmentObserver.class)) {
+        adapter = new SectionedAdapter(listFragmentObserver) {
             @Override
             protected View createItemView(int position, ViewGroup parent) {
                 return null;
             }
         };
+    }
+
+    @Test
+    public void onNextShouldCallThroughToFragmentObserver(){
+        final Section section = mock(Section.class);
+        adapter.onNext(section);
+        verify(listFragmentObserver).onNext(section);
+    }
+
+    @Test
+    public void onCompleteShouldCallThroughToFragmentObserver(){
+        adapter.onCompleted();
+        verify(listFragmentObserver).onCompleted();
+    }
+
+    @Test
+    public void onErrorShouldCallThroughToFragmentObserver(){
+        final Exception error = mock(Exception.class);
+        adapter.onError(error);
+        verify(listFragmentObserver).onError(error);
+    }
+
+    @Test
+    public void shouldClearSectionsArrayOnClear(){
+        final SparseArray listPositionsToSections = mock(SparseArray.class);
+        adapter = new SectionedAdapter(listPositionsToSections, listFragmentObserver) {
+            @Override
+            protected View createItemView(int position, ViewGroup parent) {
+                return null;
+            }
+        };
+        adapter.clear();
+        verify(listPositionsToSections).clear();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowIllegalArgumentExceptionIfNotBindingToSectionedListRow(){
+        adapter.bindItemView(0, new View(Robolectric.application));
+    }
+
+    @Test
+    public void getViewTypeCountShouldReturnViewTypesCount(){
+        expect(adapter.getViewTypeCount()).toBe(SectionedAdapter.ViewTypes.values().length);
     }
 
     @Test
