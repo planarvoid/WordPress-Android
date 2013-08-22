@@ -1,14 +1,15 @@
 package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.LocalBinder;
@@ -16,6 +17,8 @@ import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import com.xtremelabs.robolectric.util.Scheduler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -187,12 +190,14 @@ public class UploadServiceTest {
 
         svc.upload(recording);
 
-        Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
+        RecordingStorage recordings = new RecordingStorage();
+
+        Recording updated = recordings.getRecordingByUri(recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADING);
 
         getUploadScheduler().unPause();
 
-        updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
+        updated = recordings.getRecordingByUri(recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
     }
 
@@ -204,7 +209,7 @@ public class UploadServiceTest {
 
         svc.upload(recording);
 
-        Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
+        Recording updated = new RecordingStorage().getRecordingByUri(recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.ERROR);
     }
 
@@ -221,7 +226,7 @@ public class UploadServiceTest {
         expect(upload.isUploaded()).toBeTrue();
         expect(upload.resized_artwork_path).toEqual(upload.artwork_path);
 
-        Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), upload.toUri());
+        Recording updated = new RecordingStorage().getRecordingByUri(upload.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
     }
 
@@ -273,10 +278,12 @@ public class UploadServiceTest {
     public void shouldCheckForStuckRecordingsOnStartup() throws Exception {
         Recording stuck = TestApplication.getValidRecording();
         stuck.upload_status = Recording.Status.UPLOADING;
-        stuck.insert(svc.getContentResolver());
+
+        RecordingStorage recordings = new RecordingStorage();
+        recordings.create(stuck).toBlockingObservable().last();
 
         UploadService service = startService();
-        Recording r = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), stuck.toUri());
+        Recording r = recordings.getRecordingByUri(stuck.toUri());
         expect(r.upload_status).toEqual(Recording.Status.NOT_YET_UPLOADED);
 //        expect(shadowOf(service).isStoppedBySelf()).toBeTrue();
     }
@@ -312,22 +319,22 @@ public class UploadServiceTest {
 
     private void mockSuccessfullTrackCreation() throws IOException {
         // track upload
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
+        Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpPost.METHOD_NAME, "/tracks"), new TestHttpResponse(201,
                 TestHelper.resourceAsBytes(getClass(), "track_processing.json")));
 
         // transcoding polling
-        Robolectric.addHttpResponseRule("GET", "/tracks/12345", new TestHttpResponse(200,
+        Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, "/tracks/12345"), new TestHttpResponse(200,
                 TestHelper.resourceAsBytes(getClass(), "track_finished.json")));
     }
 
 
     private void mockFailedTrackCreation() throws IOException {
         // track upload
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
+        Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpPost.METHOD_NAME, "/tracks"), new TestHttpResponse(201,
                 TestHelper.resourceAsBytes(getClass(), "track_processing.json")));
 
         // transcoding polling
-        Robolectric.addHttpResponseRule("GET", "/tracks/12345", new TestHttpResponse(200,
+        Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, "/tracks/12345"), new TestHttpResponse(200,
                 TestHelper.resourceAsBytes(getClass(), "track_failed.json")));
     }
 }

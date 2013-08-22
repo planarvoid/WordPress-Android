@@ -62,19 +62,19 @@ public class StreamStorageTest {
 
     @Test
     public void testSetDataShouldNotStoreIfContentLengthZero() throws IOException {
-        expect(storage.storeData(item.url, ByteBuffer.allocate(0), 0)).toBeFalse();
+        expect(storage.storeData(item.getUrl(), ByteBuffer.allocate(0), 0)).toBeFalse();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetDataShouldNotStoreIfDataNull() throws IOException {
-        storage.storeData(item.url, null, 0);
+        storage.storeData(item.getUrl(), null, 0);
     }
 
     @Test
     public void shouldStoreData() throws Exception {
         expect(storage.storeMetadata(item)).toBeTrue();
-        expect(storage.storeData(item.url, ByteBuffer.wrap(new byte[]{1, 2, 3}), 0)).toBeTrue();
-        ByteBuffer data = storage.getChunkData(item.url, 0);
+        expect(storage.storeData(item.getUrl(), ByteBuffer.wrap(new byte[]{1, 2, 3}), 0)).toBeTrue();
+        ByteBuffer data = storage.getChunkData(item.getUrl(), 0);
         expect(data).not.toBeNull();
         expect(data.limit()).toEqual(storage.chunkSize);
         expect(data.get()).toEqual((byte) 1);
@@ -86,7 +86,7 @@ public class StreamStorageTest {
     public void shouldNotStoreDataWhenSDCardNotAvailable() throws Exception {
         TestHelper.disableSDCard();
         expect(storage.storeMetadata(item)).toBeTrue();
-        expect(storage.storeData(item.url, ByteBuffer.wrap(new byte[]{1, 2, 3}), 0)).toBeFalse();
+        expect(storage.storeData(item.getUrl(), ByteBuffer.wrap(new byte[]{1, 2, 3}), 0)).toBeFalse();
     }
 
     @Test
@@ -119,11 +119,11 @@ public class StreamStorageTest {
         expect(storage.storeMetadata(item)).toBeTrue();
         final int writing = sampleChunkIndexes.size() - 1;
         for (int i = 0; i < writing; i++) {
-            storage.storeData(item.url, sampleBuffers.get(i), i);
+            storage.storeData(item.getUrl(), sampleBuffers.get(i), i);
         }
 
         for (int i = 0; i < writing; i++) {
-            expect(storage.getChunkData(item.url, i)).not.toBeNull();
+            expect(storage.getChunkData(item.getUrl(), i)).not.toBeNull();
         }
     }
 
@@ -135,17 +135,17 @@ public class StreamStorageTest {
         expect(storage.storeMetadata(item)).toBeTrue();
         final int writing = sampleChunkIndexes.size() - 1;
         for (int i = 0; i < writing; i++) {
-            storage.storeData(item.url, sampleBuffers.get(sampleChunkIndexes.get(i)), sampleChunkIndexes.get(i));
+            storage.storeData(item.getUrl(), sampleBuffers.get(sampleChunkIndexes.get(i)), sampleChunkIndexes.get(i));
         }
 
         for (int i = 0; i < writing; i++) {
-            expect(storage.getChunkData(item.url, sampleChunkIndexes.get(i))).not.toBeNull();
+            expect(storage.getChunkData(item.getUrl(), sampleChunkIndexes.get(i))).not.toBeNull();
         }
     }
 
     @Test(expected = FileNotFoundException.class)
     public void shouldThrowFileNotFoundExceptionIfChunkIsNotAvailable() throws Exception {
-        storage.getChunkData(item.url, 0);
+        storage.getChunkData(item.getUrl(), 0);
     }
 
 
@@ -155,15 +155,15 @@ public class StreamStorageTest {
 
         expect(storage.storeMetadata(item)).toBeTrue();
         for (int i = 0; i < sampleChunkIndexes.size(); i++) {
-            storage.storeData(item.url, sampleBuffers.get(i), i);
+            storage.storeData(item.getUrl(), sampleBuffers.get(i), i);
         }
 
         for (int i = 0; i < sampleChunkIndexes.size(); i++) {
-            expect(storage.getChunkData(item.url, i)).not.toBeNull();
+            expect(storage.getChunkData(item.getUrl(), i)).not.toBeNull();
         }
 
         try {
-            storage.getChunkData(item.url, sampleChunkIndexes.size());
+            storage.getChunkData(item.getUrl(), sampleChunkIndexes.size());
             fail("expected IO exception");
         } catch (IOException e) { /* expected */ }
     }
@@ -175,11 +175,11 @@ public class StreamStorageTest {
 
         expect(storage.storeMetadata(item)).toBeTrue();
         for (int i : sampleChunkIndexes) {
-            storage.storeData(item.url, sampleBuffers.get(i), i);
+            storage.storeData(item.getUrl(), sampleBuffers.get(i), i);
         }
 
         for (int i : sampleChunkIndexes) {
-            expect(storage.getChunkData(item.url, i)).not.toBeNull();
+            expect(storage.getChunkData(item.getUrl(), i)).not.toBeNull();
         }
     }
 
@@ -190,17 +190,17 @@ public class StreamStorageTest {
 
         expect(storage.storeMetadata(item)).toBeTrue();
         for (int i : sampleChunkIndexes) {
-            storage.storeData(item.url, sampleBuffers.get(i), i);
+            storage.storeData(item.getUrl(), sampleBuffers.get(i), i);
         }
 
         expect(item.numberOfChunks(storage.chunkSize)).toBe(chunks);
 
-        File assembled = storage.completeFileForUrl(item.url.toString());
+        File assembled = storage.completeFileForUrl(item.streamItemUrl());
         expect(assembled.exists()).toBeTrue();
         expect(assembled.length()).toEqual(item.getContentLength());
 
         // make sure index file is gone
-        expect(storage.incompleteFileForUrl(item.url.toString()).exists()).toBeFalse();
+        expect(storage.incompleteFileForUrl(item.streamItemUrl()).exists()).toBeFalse();
         String original = IOUtils.md5(getClass().getResourceAsStream("fred.mp3"));
         expect(IOUtils.md5(new FileInputStream(assembled))).toEqual(original);
     }
@@ -210,19 +210,19 @@ public class StreamStorageTest {
         setupChunkArray();
         Collections.shuffle(sampleChunkIndexes);
 
-        StreamItem wrongEtag = new StreamItem(item.url.toString(), item.getContentLength(), "deadbeef");
+        StreamItem wrongEtag = new StreamItem(item.streamItemUrl(), item.getContentLength(), "deadbeef");
 
         expect(storage.storeMetadata(wrongEtag)).toBeTrue();
         for (int i : sampleChunkIndexes) {
-            storage.storeData(wrongEtag.url, sampleBuffers.get(i), i);
+            storage.storeData(wrongEtag.getUrl(), sampleBuffers.get(i), i);
         }
-        File assembled = storage.completeFileForUrl(wrongEtag.url.toString());
+        File assembled = storage.completeFileForUrl(wrongEtag.streamItemUrl());
         expect(assembled.exists()).toBeFalse();
     }
 
     @Test
     public void shouldReturnMissingIndexes() throws Exception {
-        Index index = storage.getMissingChunksForItem(item.url.toString(), item.chunkRange(storage.chunkSize));
+        Index index = storage.getMissingChunksForItem(item.streamItemUrl(), item.chunkRange(storage.chunkSize));
         expect(index.size()).toEqual(51);
     }
 }

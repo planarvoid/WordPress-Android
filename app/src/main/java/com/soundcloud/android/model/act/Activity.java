@@ -1,27 +1,33 @@
 
 package com.soundcloud.android.model.act;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.text.TextUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.api.http.Wrapper;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
-import com.soundcloud.android.model.Refreshable;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.SharingNote;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,7 +53,13 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CommentActivity.class, name = "comment")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class Activity extends ScModel implements Parcelable, Refreshable, Comparable<Activity>, PlayableHolder {
+public abstract class Activity extends ScModel implements Parcelable,
+        Refreshable,
+        Comparable<Activity>,
+        PlayableHolder,
+        Identifiable,
+        Persisted {
+
     @JsonProperty public String uuid;
     @JsonProperty public Date created_at;
     @JsonProperty public String tags;
@@ -71,7 +83,7 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     }
 
     public Activity(Cursor c) {
-        id = c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID));
+        mID = c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID));
         uuid = c.getString(c.getColumnIndex(DBHelper.ActivityView.UUID));
         tags = c.getString(c.getColumnIndex(DBHelper.ActivityView.TAGS));
         created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));
@@ -97,14 +109,9 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
     }
 
-    @Override
-    public void resolve(Context context) {
-        refreshTimeSinceCreated(context);
-    }
-
     public String getDateString() {
         return created_at == null ? null :
-                AndroidCloudAPI.CloudDateFormat.formatDate(created_at.getTime());
+                Wrapper.CloudDateFormat.formatDate(created_at.getTime());
     }
 
     public UUID toUUID() {
@@ -148,13 +155,21 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
             cv.put(DBHelper.Activities.CREATED_AT, created_at.getTime());
         }
 
-        if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().id);
+        if (getUser() != null) cv.put(DBHelper.Activities.USER_ID, getUser().getId());
 
         if (getPlayable() != null){
-            cv.put(DBHelper.Activities.SOUND_ID, getPlayable().id);
+            cv.put(DBHelper.Activities.SOUND_ID, getPlayable().getId());
             cv.put(DBHelper.Activities.SOUND_TYPE, getType().isPlaylistActivity() ? Playable.DB_TYPE_PLAYLIST : Playable.DB_TYPE_TRACK);
         }
         return cv;
+    }
+
+    @Override
+    public void putFullContentValues(@NotNull BulkInsertMap destination) {
+    }
+
+    @Override
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
     }
 
     @Override
@@ -165,8 +180,6 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         Activity activity = (Activity) o;
 
         if (created_at != null ? !created_at.equals(activity.created_at) : activity.created_at != null) return false;
-        if (sharing_note != null ? !sharing_note.equals(activity.sharing_note) : activity.sharing_note != null)
-            return false;
         if (tags != null ? !tags.equals(activity.tags) : activity.tags != null) return false;
         if (uuid != null ? !uuid.equals(activity.uuid) : activity.uuid != null) return false;
 
@@ -178,7 +191,6 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
         int result = uuid != null ? uuid.hashCode() : 0;
         result = 31 * result + (created_at != null ? created_at.hashCode() : 0);
         result = 31 * result + (tags != null ? tags.hashCode() : 0);
-        result = 31 * result + (sharing_note != null ? sharing_note.hashCode() : 0);
         return result;
     }
 
@@ -189,12 +201,12 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
 
     @Override
     public boolean isStale() {
-        final ScResource r = getRefreshableResource();
+        final Refreshable r = getRefreshableResource();
         if (equals(r)) {
             // no lookups possible on activity, though they would solve deletion problems
             throw new IllegalArgumentException("Do not return the activity itself as the refreshable object");
         } else {
-            return r instanceof Refreshable && ((Refreshable) r).isStale();
+            return r != null && r.isStale();
         }
     }
 
@@ -208,8 +220,8 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
 
     public abstract Type        getType();
     public abstract User        getUser();
+    @Deprecated
     public abstract void        cacheDependencies();
-
 
     public List<ScResource> getDependentModels() {
         List<ScResource> models = new ArrayList<ScResource>();
@@ -297,5 +309,15 @@ public abstract class Activity extends ScModel implements Parcelable, Refreshabl
     @Override
     public boolean isIncomplete() {
         return false;
+    }
+
+    @Override
+    public Uri toUri() {
+        return null;
+    }
+
+    @Override
+    public Uri getBulkInsertUri() {
+        return Content.ME_ALL_ACTIVITIES.uri;
     }
 }

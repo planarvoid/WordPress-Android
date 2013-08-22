@@ -1,12 +1,14 @@
 package com.soundcloud.android.view;
 
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
+import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -16,10 +18,8 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.database.ContentObserver;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.SparseIntArray;
 import android.util.Xml;
@@ -172,13 +172,13 @@ public class MainMenu extends LinearLayout {
     private static class SimpleListMenuItem {
         final int id;
         final CharSequence text;
-        final Drawable icon;
+        final int icon;
         final int layoutId;
 
         public SimpleListMenuItem(TypedArray a) {
             id = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
             text = a.getText(R.styleable.SimpleMenu_android_text);
-            icon = a.getDrawable(R.styleable.SimpleMenu_android_icon);
+            icon = a.getResourceId(R.styleable.SimpleMenu_android_icon, R.drawable.sidebar_you);
             layoutId = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
         }
     }
@@ -188,10 +188,8 @@ public class MainMenu extends LinearLayout {
         private final List<SimpleListMenuItem> mMenuItems;
         private final SparseIntArray mLayouts;
         private int mOffsetRight;
-        private final Context mContext;
 
         public MenuAdapter(Context context) {
-            mContext = context;
             inflater = LayoutInflater.from(context);
             mMenuItems = new ArrayList<SimpleListMenuItem>();
             mLayouts = new SparseIntArray();
@@ -245,6 +243,7 @@ public class MainMenu extends LinearLayout {
         public View getView(int position, View convertView, ViewGroup parent) {
             final SimpleListMenuItem menuItem = mMenuItems.get(position);
             final ViewHolder holder;
+            final Context context = parent.getContext();
 
             if (convertView == null) {
                 final int layout_id = mMenuItems.get(position).layoutId;
@@ -260,7 +259,7 @@ public class MainMenu extends LinearLayout {
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-
+            convertView.setId(menuItem.id); // used for testing
             switch (menuItem.id) {
                 case (R.id.nav_stream):
                     final int streamCount = ContentStats.count(Content.ME_SOUND_STREAM);
@@ -284,23 +283,23 @@ public class MainMenu extends LinearLayout {
                     if (holder.counter != null) holder.counter.setVisibility(View.GONE);
             }
 
-            boolean setDefaultImage = true;
             if (menuItem.id == R.id.nav_you) {
-                final User u = SoundCloudApplication.fromContext(mContext).getLoggedInUser();
+                final User u = SoundCloudApplication.fromContext(context).getLoggedInUser();
                 if (u != null) {
                     holder.text.setText(u.username);
-                    final String listAvatarUri = u.getListAvatarUri(mContext);
-                    setDefaultImage = TextUtils.isEmpty(listAvatarUri) ||
-                                      ImageLoader.get(mContext).bind(this, holder.image, listAvatarUri) != ImageLoader.BindResult.OK;
+                    final String listAvatarUri = u.getListAvatarUri(context);
+                    if (ImageUtils.checkIconShouldLoad(listAvatarUri)){
+                        ImageLoader.getInstance().displayImage(listAvatarUri, holder.image,
+                                ImageOptionsFactory.placeholder(menuItem.icon));
+                    } else {
+                        holder.image.setImageResource(menuItem.icon);
+                    }
                 } else {
                     holder.text.setText(menuItem.text);
                 }
             } else {
+                holder.image.setImageResource(menuItem.icon);
                 holder.text.setText(menuItem.text);
-            }
-
-            if (setDefaultImage) {
-                holder.image.setImageDrawable(menuItem.icon);
             }
 
             if (mOffsetRight > 0){

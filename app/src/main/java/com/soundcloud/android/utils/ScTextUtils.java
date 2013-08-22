@@ -1,8 +1,13 @@
 package com.soundcloud.android.utils;
 
+import static com.google.common.base.Strings.nullToEmpty;
+
+import com.google.common.base.Strings;
 import com.soundcloud.android.R;
 
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -10,6 +15,7 @@ import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
@@ -17,18 +23,28 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Locale;
-import java.util.Random;
 import java.util.regex.Pattern;
 
 public class ScTextUtils {
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
-            "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
+            "\\A([a-z0-9_\\-][a-z0-9_\\-\\+\\.]{0,62})?[a-z0-9_\\-]@(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)+[a-z]{2,}\\Z"
     );
 
     private ScTextUtils() {
+    }
+
+    public static boolean isBlank(String string){
+        return Strings.isNullOrEmpty(nullToEmpty(string).trim());
+    }
+
+    public static boolean isNotBlank(String string){
+        return !isBlank(string);
+    }
+
+    public static String safeToString(Object object){
+        return object == null ? "" : object.toString();
     }
 
     /**
@@ -58,13 +74,15 @@ public class ScTextUtils {
     /**
      * Adapted from the {@link android.text.util.Linkify} class. Changes the
      * first instance of {@code link} into a clickable link attached to the given listener
+     *
      * @param view the textview
      * @param link the link to set, or null to use the whole text
      * @param listener the listener
      * @param underline underline the text
+     * @param highlight highlight the clickable text on state change
      * @return true if the link was added
      */
-    public static boolean clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline) {
+    public static boolean clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline, boolean highlight) {
         CharSequence text = view.getText();
         String string = text.toString();
         ClickSpan span = new ClickSpan(listener, underline);
@@ -89,6 +107,8 @@ public class ScTextUtils {
         if (!(m instanceof LinkMovementMethod)) {
             view.setMovementMethod(LinkMovementMethod.getInstance());
         }
+
+        if (!highlight) view.setHighlightColor(Color.TRANSPARENT); // it will highlight by default
         return true;
     }
 
@@ -162,7 +182,19 @@ public class ScTextUtils {
     }
 
     public static boolean isEmail(CharSequence string) {
-        return !TextUtils.isEmpty(string) && EMAIL_ADDRESS_PATTERN.matcher(string).matches();
+        return !TextUtils.isEmpty(string) && EMAIL_ADDRESS_PATTERN.matcher(string.toString().toLowerCase()).matches();
+    }
+
+    public static String getLocation(String city, String country) {
+        if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
+            return city + ", " + country;
+        } else if (!TextUtils.isEmpty(city)) {
+            return city;
+        } else if (!TextUtils.isEmpty(country)) {
+            return country;
+        } else {
+            return "";
+        }
     }
 
     public static class ClickSpan extends ClickableSpan {
@@ -190,49 +222,24 @@ public class ScTextUtils {
         }
     }
 
-    /**
-     * Based on
-     * <a href="http://truelicense.java.net/apidocs/de/schlichtherle/util/ObfuscatedString.html">
-     *  ObfuscatedString
-     * </a>
-     * @param obfuscated the obfuscated array
-     * @return unobfuscated string
-     */
-    public static String deobfuscate(long[] obfuscated) {
-        final int length = obfuscated.length;
-        // The original UTF8 encoded string was probably not a multiple
-        // of eight bytes long and is thus actually shorter than this array.
-        final byte[] encoded = new byte[8 * (length - 1)];
-        // Obtain the seed and initialize a new PRNG with it.
-        final long seed = obfuscated[0];
-        final Random prng = new Random(seed);
+    public static abstract class TextValidator implements TextWatcher {
+        private TextView textView;
 
-        // De-obfuscate.
-        for (int i = 1; i < length; i++) {
-            final long key = prng.nextLong();
-            long l = obfuscated[i] ^ key;
-            final int end = Math.min(encoded.length, 8 * (i - 1) + 8);
-            for (int i1 = 8 * (i - 1); i1 < end; i1++) {
-                encoded[i1] = (byte) l;
-                l >>= 8;
-            }
+        public TextValidator(TextView textView) {
+            this.textView = textView;
         }
 
-        // Decode the UTF-8 encoded byte array into a string.
-        // This will create null characters at the end of the decoded string
-        // in case the original UTF8 encoded string was not a multiple of
-        // eight bytes long.
-        final String decoded;
-        try {
-            decoded = new String(encoded,
-                    new String(new char[]{'\u0055', '\u0054', '\u0046', '\u0038'}) /* UTF8 */);
-        } catch (UnsupportedEncodingException ex) {
-            throw new AssertionError(ex); // UTF-8 is always supported
+        public abstract void validate(TextView textView, String text);
+
+        @Override
+        final public void afterTextChanged(Editable s) {
+            validate(textView, textView.getText().toString());
         }
 
-        // Cut off trailing null characters in case the original UTF8 encoded
-        // string was not a multiple of eight bytes long.
-        final int i = decoded.indexOf(0);
-        return -1 == i ? decoded : decoded.substring(0, i);
+        @Override
+        final public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* Don't care */ }
+
+        @Override
+        final public void onTextChanged(CharSequence s, int start, int before, int count) { /* Don't care */ }
     }
 }

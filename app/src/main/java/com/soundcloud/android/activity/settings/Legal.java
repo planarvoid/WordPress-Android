@@ -25,4 +25,8 @@ public class Legal extends SherlockPreferenceActivity implements ActionBarContro
     public int getMenuResourceId() {
         return R.menu.main;
     }
+
+    @Override
+    public void onHomePressed() {
+    }
 }

@@ -1,20 +1,24 @@
 package com.soundcloud.android.adapter;
 
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.act.TrackActivity;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.view.adapter.IconLayout;
-import com.soundcloud.api.Endpoints;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import android.content.Context;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -26,14 +30,14 @@ public class ScBaseAdapterTest {
 
     @Before
     public void setup() throws Exception {
-        adapter = new ScBaseAdapter<User>(DefaultTestRunner.application, Content.USER.uri) {
+        adapter = new ScBaseAdapter<User>(Content.USER.uri) {
             @Override
-            protected IconLayout createRow(int position) {
+            protected IconLayout createRow(Context context, int position) {
                 return null;
             }
 
             @Override
-            public int handleListItemClick(int position, long id) {
+            public int handleListItemClick(Context context, int position, long id) {
                 return ItemClickResults.IGNORE;
             }
         };
@@ -63,7 +67,7 @@ public class ScBaseAdapterTest {
             }
 
             @Override
-            public ScResource getRefreshableResource() {
+            public Refreshable getRefreshableResource() {
                 return new Track(2);
             }
         });
@@ -97,6 +101,35 @@ public class ScBaseAdapterTest {
         // should not appear, not refreshable
         staleModels.add(new Shortcut());
 
-        adapter.checkForStaleItems(staleModels);
+        adapter.checkForStaleItems(Robolectric.application, staleModels);
+    }
+
+    @Test
+    public void shouldRequestNextPage() {
+        adapter.setIsLoadingData(false);
+
+        expect(adapter.shouldRequestNextPage(0, 5, 5)).toBeTrue();
+    }
+
+    @Test
+    public void shouldRequestNextPageWithOnePageLookAhead() {
+        adapter.setIsLoadingData(false);
+
+        expect(adapter.shouldRequestNextPage(0, 5, 2 * 5)).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotRequestNextPageIfAlreadyLoading() {
+        adapter.setIsLoadingData(true);
+
+        expect(adapter.shouldRequestNextPage(0, 5, 5)).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotRequestNextPageIfZeroItems() {
+        adapter.setIsLoadingData(true);
+        expect(adapter.shouldRequestNextPage(0, 5, 0)).toBeFalse();
+        adapter.setIsLoadingData(false);
+        expect(adapter.shouldRequestNextPage(0, 5, 0)).toBeFalse();
     }
 }

@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -18,6 +17,7 @@ public class WebViewActivity extends Activity {
             setContentView(R.layout.web_view);
             WebView view = (WebView) findViewById(R.id.webview);
             view.getSettings().setJavaScriptEnabled(true);
+            view.getSettings().setDomStorageEnabled(true);
             view.getSettings().setBlockNetworkImage(false);
             view.getSettings().setLoadsImagesAutomatically(true);
             view.setWebViewClient(new WebViewClient() {

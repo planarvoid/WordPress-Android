@@ -1,25 +1,26 @@
 
 package com.soundcloud.android.view.adapter;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserHolder;
+import com.soundcloud.android.operations.following.FollowingOperations;
+import com.soundcloud.android.rx.observers.ScObserver;
+import com.soundcloud.android.service.sync.SyncInitiator;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.EventAware;
 import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.view.adapter.behavior.ListRow;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Handler;
-import android.os.Message;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -37,11 +38,14 @@ public class UserlistRow extends IconLayout implements ListRow {
     private View mVrStats;
     private RelativeLayout mFollowBtnHolder;
     private ToggleButton mFollowBtn;
+    private AccountOperations mAccountOperations;
+    private FollowingOperations mFollowingOperations;
 
 
     public UserlistRow(Context context) {
         super(context);
-
+        mFollowingOperations = new FollowingOperations();
+        mAccountOperations = new AccountOperations(context);
         mUsername = (TextView) findViewById(R.id.username);
         mTracks = (TextView) findViewById(R.id.tracks);
         mFollowers = (TextView) findViewById(R.id.followers);
@@ -81,9 +85,8 @@ public class UserlistRow extends IconLayout implements ListRow {
 
     @Override
     public void display(int position, Parcelable p) {
-        if (!(p instanceof User || p instanceof Friend)) throw new IllegalArgumentException("Not a valid user");
-
-        mUser = p instanceof Friend ? ((Friend) p).user : (User) p;
+        checkArgument(p instanceof UserHolder, "Not a valid user holder: " + p);
+        mUser = ((UserHolder) p).getUser();
 
         loadIcon();
         if (mUser != null) {
@@ -101,9 +104,9 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     private void setFollowingStatus(boolean enabled) {
-        final boolean following = FollowStatus.get(getContext()).isFollowing(mUser);
+        final boolean following = mFollowingOperations.isFollowing(mUser);
         mFollowBtn.setEnabled(enabled);
-        if (mUser.id == getCurrentUserId()) {
+        if (mUser.getId() == getCurrentUserId()) {
             mFollowBtn.setVisibility(View.INVISIBLE);
         } else {
             mFollowBtn.setVisibility(View.VISIBLE);
@@ -130,18 +133,17 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     private void toggleFollowing(final User user) {
-        SoundCloudApplication app = SoundCloudApplication.fromContext(getContext());
-        if (app != null) {
-            FollowStatus.get(getContext()).toggleFollowing(user, app, new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    if (msg.what == 1) {
-                        setFollowingStatus(true);
-                    }
-                }
-            });
-            setFollowingStatus(false);
-        }
+        mFollowingOperations.toggleFollowing(user).subscribe(new ScObserver<Void>() {
+            @Override
+            public void onCompleted() {
+                SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                setFollowingStatus(true);
+            }
+        });
     }
 
     @Override

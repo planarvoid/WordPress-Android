@@ -20,7 +20,7 @@ public class DeleteRegIdTaskTest  {
         addHttpResponseRule("DELETE", "https://api.soundcloud.com/me/devices/1234",
                 new TestHttpResponse(200, ""));
 
-        expect(new DeleteRegIdTask(DefaultTestRunner.application, null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
+        expect(new DeleteRegIdTask(DefaultTestRunner.application.getCloudAPI(), null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
                 .toBeTrue();
 
     }
@@ -32,7 +32,7 @@ public class DeleteRegIdTaskTest  {
                         .method("DELETE")
                         .path("me/devices/1234"), new IOException("boom")));
 
-        expect(new DeleteRegIdTask(DefaultTestRunner.application, null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
+        expect(new DeleteRegIdTask(DefaultTestRunner.application.getCloudAPI(), null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
                 .toBeFalse();
     }
 
@@ -40,7 +40,7 @@ public class DeleteRegIdTaskTest  {
     public void nonOkResponseShouldBeFailure() throws Exception {
         addHttpResponseRule("DELETE", "https://api.soundcloud.com/me/devices/1234",
                 new TestHttpResponse(402, ""));
-        expect(new DeleteRegIdTask(DefaultTestRunner.application, null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
+        expect(new DeleteRegIdTask(DefaultTestRunner.application.getCloudAPI(), null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
                 .toBeFalse();
     }
 
@@ -48,7 +48,7 @@ public class DeleteRegIdTaskTest  {
     public void forbiddenResponseShouldBeTreatedAsSuccess() throws Exception {
         addHttpResponseRule("DELETE", "https://api.soundcloud.com/me/devices/1234",
                 new TestHttpResponse(403, ""));
-        expect(new DeleteRegIdTask(DefaultTestRunner.application, null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
+        expect(new DeleteRegIdTask(DefaultTestRunner.application.getCloudAPI(), null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
                 .toBeTrue();
     }
 
@@ -57,7 +57,7 @@ public class DeleteRegIdTaskTest  {
     public void notFoundResponseShouldBeSuccess() throws Exception {
         addHttpResponseRule("DELETE", "https://api.soundcloud.com/me/devices/1234",
                 new TestHttpResponse(404, ""));
-        expect(new DeleteRegIdTask(DefaultTestRunner.application, null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
+        expect(new DeleteRegIdTask(DefaultTestRunner.application.getCloudAPI(), null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
                 .toBeTrue();
     }
 }

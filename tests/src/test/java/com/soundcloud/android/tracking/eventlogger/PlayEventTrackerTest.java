@@ -2,7 +2,10 @@ package com.soundcloud.android.tracking.eventlogger;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -39,7 +42,7 @@ public class PlayEventTrackerTest {
 
         Track track = new Track();
         track.duration = 123;
-        track.id = 10;
+        track.setId(10);
 
         tracker.trackEvent(track, Action.PLAY, 1l, "originUrl", "level");
         tracker.trackEvent(new Track(), Action.STOP, 2l, "originUrl", "level");

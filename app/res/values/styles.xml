@@ -1,20 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <style name="TextAppearance.ScActionBarTitle" parent="@style/TextAppearance.Sherlock.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/abs__primary_text_holo_dark</item>
+
+    <!-- ****** Dialogs ****** -->
+
+    <style name="Dialog" parent="android:Theme.Dialog">
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
     </style>
 
-    <style name="txt_list_track_user">
-        <item name="android:textColor">@drawable/txt_list_track_user_states</item>
-        <item name="android:textSize">@dimen/list_txt_sub_size</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">end</item>
+    <style name="Theme.FramelessDialog" parent="Theme.ScDialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
-    <style name="txt_list_track_reposter" parent="txt_list_track_user">
-        <item name="android:textSize">@dimen/list_txt_sub_2_size</item>
+    <style name="Theme.AddCommentDialog" parent="Theme.FramelessDialog">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.AddCommentDialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustResize</item>
     </style>
+
+    <style name="Theme.FullImageDialog" parent="Theme.FramelessDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">5dip</item>
+    </style>
+
+    <!-- ****** ViewPagerIndicator ****** -->
+
+    <style name="Widget.ScTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:background">@drawable/explore_tab_indicator</item>
+        <item name="android:showDividers">middle</item>
+        <item name="android:divider">@drawable/tab_divider</item>
+        <item name="android:dividerPadding">10dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.ScTabPageIndicator</item>
+        <item name="android:fadingEdge">horizontal</item>
+        <item name="android:fadingEdgeLength">8dp</item>
+    </style>
+
+    <style name="Widget.ScFixedTabPageIndicator" parent="Widget.ScTabPageIndicator">
+        <item name="tabWeight">.5</item>
+    </style>
+
+
+    <style name="Widget.ScTitlePageIndicator">
+        <item name="android:background">@drawable/action_bar_background</item>
+        <item name="android:textSize">13sp</item>
+        <item name="selectedColor">@android:color/black</item>
+        <item name="android:textColor">#666666</item>
+        <item name="footerColor">#ff6600</item>
+        <item name="footerIndicatorStyle">triangle</item>
+        <item name="titlePadding">20dp</item>
+        <item name="clipPadding">16dp</item>
+    </style>
+
+    <style name="Widget.Light.AutoCompleteTextView" parent="Widget.Sherlock.Light.SearchAutoCompleteTextView">
+        <item name="android:textAppearance">@style/TextAppearance.Light.AutoCompleteTextView</item>
+    </style>
+
+    <style name="Widget.Light.DropDownItem" parent="Widget.Sherlock.Light.DropDownItem.Spinner">
+        <item name="android:textAppearance">@style/TextAppearance.Light.AutoCompleteTextView</item>
+    </style>
+
+    <style name="Widget.TextView" />
+
+
 
     <style name="PlayerActionSeparator">
         <item name="android:background">@drawable/player_track_vert_separator_bg</item>
@@ -63,7 +118,7 @@
     </style>
 
     <style name="PlayerAction.Button.Share">
-        <item name="android:src">@drawable/stats_share</item>
+        <item name="android:src">@drawable/ic_share</item>
         <item name="android:background">@drawable/btn_default_darker_states</item>
     </style>
 
@@ -95,14 +150,70 @@
         <item name="android:textOff">@string/btn_follow</item>
     </style>
 
+    <style name="OnboardSuggestedUserCategoryText">
+        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textSize">@dimen/list_txt_main_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="OnboardSuggestedUserCategoryUsernamesText">
+        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textSize">@dimen/list_txt_sub_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="OnboardActionButtonStyle" parent="Widget.Sherlock.ActionButton">
+        <item name="android:paddingLeft">20dip</item>
+        <item name="android:paddingRight">20dip</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+    </style>
+
+    <style name="ExploreTracksCategoryText">
+        <item name="android:textColor">@drawable/txt_list_explore_category_states</item>
+        <item name="android:textSize">@dimen/explore_suggested_track_category_text_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="BlackOverlayText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">9dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">1dp</item>
+
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:antialias">true</item>
+
+        <item name="jagged_background">#CC000000</item>
+        <item name="custom_font">fonts/Interstate-Light.ttf</item>
+    </style>
+
+    <style name="OnboardSuggestedUserText" parent="BlackOverlayText">
+        <item name="android:layout_marginLeft">13dp</item>
+    </style>
+    <style name="OnboardSuggestedUserUsernameText" parent="OnboardSuggestedUserText">
+        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+    </style>
+    <style name="OnboardSuggestedUserLocationText" parent="OnboardSuggestedUserText">
+        <item name="android:textColor">#CCCCCC</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <style name="Tour"/>
     <style name="Tour.Button">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/tour_buttons_height</item>
         <item name="android:layout_weight">1</item>
 
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">15dp</item>
         <item name="android:paddingTop">6dp</item>
         <item name="android:paddingBottom">6dp</item>
 
@@ -114,49 +225,40 @@
         <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
-    <style name="Tour.LeftButton" parent="Tour.Button">
-        <item name="android:background">@drawable/next_button_white_left</item>
-        <!--
-            We use negative margin to pull the left and right button closer to each other
-            so their outlines are on top of each other.
-
-            This makes it look like they share a separator instead of having two outlines
-            next to each other.
-        -->
-        <item name="android:layout_marginRight">-1dp</item>
-    </style>
-    <style name="Tour.RightButton" parent="Tour.Button">
-        <item name="android:background">@drawable/next_button_white_right</item>
-        <item name="android:layout_marginLeft">-1dp</item>
+    <style name="Tour.BottomButton" parent="Tour.Button">
+        <item name="android:minWidth">100dp</item>
     </style>
 
-    <style name="Tour.FacebookButton" parent="Tour.Button">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_weight">0</item>
+    <style name="Tour.TermsButton" parent="Tour.Button">
+        <item name="android:minWidth">100dp</item>
+    </style>
 
+    <style name="Tour.SignupButton" parent="Tour.BottomButton">
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:background">@drawable/next_button_orange</item>
         <item name="android:textColor">#FFFFFFFF</item>
-        <item name="android:background">@drawable/next_button_blue</item>
-        <item name="android:drawableLeft">@drawable/facebook_button_logo</item>
-        <item name="android:drawablePadding">10dp</item>
-        <item name="android:gravity">left|center_vertical</item>
-        <item name="android:focusableInTouchMode">true</item>
     </style>
 
-    <style name="Tour.CallToAction.Base">
-        <item name="android:layout_width">fill_parent</item>
+    <style name="Tour.SocialButton" parent="Tour.Button">
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">250dp</item>
+        <item name="android:maxWidth">500dp</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:paddingLeft">43dp</item>
+    </style>
 
-        <item name="android:paddingLeft">5sp</item>
-        <item name="android:paddingRight">9sp</item>
-        <item name="android:paddingTop">0sp</item>
-        <item name="android:paddingBottom">1sp</item>
+    <style name="Tour.FacebookButton" parent="Tour.SocialButton">
+        <item name="android:background">@drawable/btn_facebook</item>
+    </style>
 
-        <item name="android:textColor">#FFFFFF</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:antialias">true</item>
+    <style name="Tour.GooglePlusButton" parent="Tour.SocialButton">
+        <item name="android:background">@drawable/btn_google_plus</item>
+    </style>
 
-        <item name="jagged_background">#CC000000</item>
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
+    <style name="Tour.CallToAction.Base" parent="BlackOverlayText">
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="Tour.CallToAction" parent="Tour.CallToAction.Base">
@@ -202,33 +304,52 @@
     <style name="SignUp.ScrollView.Base">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_centerInParent">true</item>
     </style>
 
     <style name="SignUp.ScrollView" parent="SignUp.ScrollView.Base">
 
     </style>
 
+    <style name="SignUp.Content.Stub">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
     <style name="SignUp.Content.Base">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">10dp</item>
-
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_centerInParent">true</item>
         <item name="android:orientation">vertical</item>
     </style>
 
     <style name="SignUp.Content" parent="SignUp.Content.Base">
     </style>
 
+    <style name="SignUp.TermsText">
+        <item name="android:gravity">center</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+        <item name="android:textColorLink">@drawable/txt_blue_states</item>
+    </style>
+
+    <style name="SignUp.TermsMessage" parent="SignUp.TermsText">
+        <item name="android:layout_margin">10dp</item>
+    </style>
+
     <style name="SignUp.Info">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
 
-        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginTop">15dp</item>
         <item name="android:layout_marginBottom">10dp</item>
 
-        <item name="android:textColor">@android:color/white</item>
         <item name="android:gravity">center</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColorLink">@drawable/txt_blue_states</item>
     </style>
 
     <style name="SignUp.Header" parent="SignUp.Info">
@@ -242,9 +363,7 @@
 
     </style>
 
-    <style name="SignUp.LabelRow">
-        <item name="android:layout_margin">5dp</item>
-    </style>
+    <style name="SignUp.LabelRow" />
 
     <style name="SignUp.SeparatorRow">
         <item name="android:background">@color/signup_separator</item>
@@ -259,10 +378,10 @@
 
     <style name="SignUp.Label">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">@dimen/signup_label_height</item>
         <item name="android:layout_weight">0</item>
 
-        <item name="android:padding">4dp</item>
+        <item name="android:padding">@dimen/signup_label_padding</item>
         <item name="android:layout_margin">4dp</item>
 
         <item name="android:singleLine">true</item>
@@ -271,8 +390,6 @@
         <item name="android:textSize">16sp</item>
 
         <item name="android:background">@null</item>
-
-        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
     </style>
 
     <style name="SignUp.AddImageLabel">
@@ -288,15 +405,11 @@
         <item name="android:textColor">@drawable/txt_list_secondary_states</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
-
-        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
     </style>
 
     <style name="SignUp.MultiLineInfoLabel" parent="SignUp.Label">
         <item name="android:singleLine">false</item>
         <item name="android:lines">2</item>
-
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
     <style name="SignUp.TextEntry" parent="SignUp.Label">
@@ -304,7 +417,6 @@
         <item name="android:layout_weight">1</item>
         <item name="android:imeOptions">actionNext</item>
         <item name="android:cursorVisible">true</item>
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
     <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">
@@ -351,7 +463,7 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="Player.TrackInfo.Label" parent="txt_list_main">
+    <style name="Player.TrackInfo.Label" parent="TextAppearance.List.Main">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_height">60dip</item>
@@ -360,9 +472,6 @@
 
         <item name="android:paddingLeft">6dip</item>
         <item name="android:paddingRight">12dip</item>
-
-        <item name="android:drawableRight">@drawable/arrow_states</item>
-        <item name="android:drawablePadding">15dip</item>
     </style>
 
     <style name="Player.TrackInfo.Separator">
@@ -371,7 +480,6 @@
         <item name="android:layout_alignWithParentIfMissing">true</item>
         <item name="android:background">?android:attr/listDivider</item>
     </style>
-
 
     <!-- Standard animations for a non-full-screen window or activity. -->
     <style name="Animation"/>
@@ -412,19 +520,6 @@
         <item name="android:textSize">20sp</item>
     </style>
 
-
-    <style name="btn_follow">
-        <item name="android:background">@drawable/btn_grey</item>
-        <item name="android:text">@string/btn_follow</item>
-        <item name="android:layout_height">20dip</item>
-    </style>
-
-    <style name="btn_following">
-        <item name="android:background">@drawable/btn_blue</item>
-        <item name="android:text">@string/btn_following</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
     <style name="btn_default" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:background">@drawable/btn_grey</item>
@@ -462,69 +557,6 @@
         <item name="android:background">@drawable/btn_blue</item>
         <item name="android:textColor">@drawable/txt_btn_blue_states</item>
         <item name="android:shadowColor">#803F6BCE</item>
-    </style>
-    <style name="txt_list_pull">
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/list_txt_pull_size</item>
-    </style>
-
-    <style name="txt_list_pull_sub">
-        <item name="android:textSize">@dimen/list_txt_sub_size</item>
-    </style>
-
-    <style name="txt_list_main_dark">
-        <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
-        <item name="android:textSize">@dimen/list_txt_main_size</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="txt_list_main">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
-        <item name="android:textSize">@dimen/list_txt_main_size</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="txt_list_main_inactive" parent="txt_list_main">
-        <item name="android:textColor">@drawable/txt_list_inactive_states</item>
-    </style>
-    <style name="txt_list_secondary" parent="txt_list_main">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
-    </style>
-    <style name="txt_list_sub">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
-        <item name="android:textSize">@dimen/list_txt_sub_size</item>
-    </style>
-    <style name="txt_list_sub_secondary" parent="txt_list_sub">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
-    </style>
-    <style name="txt_user_list_browser_header">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
-        <item name="android:textSize">@dimen/list_txt_sub_size</item>
-    </style>
-
-    <style name="txt_empty_view">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">italic</item>
-    </style>
-
-    <style name="txt_comment_panel_user">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
-        <item name="android:textSize">@dimen/comment_panel_main_size</item>
-    </style>
-    <style name="txt_comment_panel_timestamp" parent="txt_comment_panel_user">
-        <item name="android:paddingLeft">3dip</item>
-        <item name="android:textColor">#ffe36711</item>
-    </style>
-    <style name="txt_comment_panel_created_at" parent="txt_comment_panel_user">
-        <item name="android:paddingLeft">3dip</item>
-        <item name="android:textSize">@dimen/comment_panel_created_at_size</item>
-    </style>
-    <style name="txt_comment_panel_body">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
-        <item name="android:textSize">@dimen/comment_panel_main_size</item>
-    </style>
-    <style name="txt_list_created_at" parent="txt_list_sub">
-        <item name="android:textColor">@drawable/txt_list_created_at_states</item>
     </style>
 
     <style name="stat_pipe">
@@ -944,19 +976,20 @@
         <item name="android:layout_height">@dimen/playlist_page_icon_size</item>
     </style>
 
-    <style name="PlayableTitle">
+    <style name="Widget.TextView.Playable" />
+    <style name="Widget.TextView.Playable.Title">
         <item name="android:layout_alignLeft">@+id/playable_user_holder</item>
         <item name="android:layout_toLeftOf">@+id/playable_track_count</item>
         <item name="android:layout_alignWithParentIfMissing">true</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_below">@id/playable_user_holder</item>
-        <item name="android:textAppearance">@style/txt_list_main</item>
+        <item name="android:textAppearance">@style/TextAppearance.List.Main</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="PlayableTrackCount">
+    <style name="Widget.TextView.Playable.TrackCount">
         <item name="android:layout_below">@id/playable_user_holder</item>
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
@@ -974,6 +1007,18 @@
         <item name="android:visibility">gone</item>
     </style>
 
+    <style name="Widget.TextView.Playable.Username">
+        <item name="android:textAppearance">@style/TextAppearance.Playable.Username</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Widget.TextView.Playable.Reposter" parent="Widget.TextView.Playable.Username">
+        <item name="android:textAppearance">@style/TextAppearance.Playable.Username</item>
+    </style>
+
+    <!-- END Playable styles -->
+
     <style name="Playlist">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:background">@android:color/black</item>
@@ -990,8 +1035,6 @@
         <item name="android:paddingBottom">8dp</item>
         <item name="android:background">@color/playerControlBackground</item>
     </style>
-
-    <!-- END Playable styles -->
 
     <style name="FloatingPlayer">
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -1082,21 +1125,34 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textColorLink">@drawable/txt_gray_states</item>
         <item name="android:layout_marginTop">15dp</item>
-        <item name="android:layout_marginBottom">15dp</item>
-        <item name="android:layout_marginLeft">15dp</item>
-        <item name="android:layout_marginRight">15dp</item>
+        <item name="android:layout_marginLeft">@dimen/empty_message_margin_left_right</item>
+        <item name="android:layout_marginRight">@dimen/empty_message_margin_left_right</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="txt_empty_error_message" parent="txt_empty_collection_message">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="txt_empty_error_sub_message" parent="txt_empty_collection_message">
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:textSize">19sp</item>
     </style>
 
     <style name="txt_empty_collection_link" parent="txt_empty_collection_message">
         <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
         <item name="android:textSize">12sp</item>
     </style>
     <style name="btn_empty_collection" parent="txt_empty_collection_message">
-        <item name="android:background">@drawable/btn_default_states</item>
+        <item name="android:background">@drawable/btn_blue</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:paddingLeft">30dp</item>
         <item name="android:paddingRight">30dp</item>
         <item name="android:singleLine">false</item>
-        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginTop">15dp</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:layout_marginLeft">10dp</item>
         <item name="android:layout_marginRight">10dp</item>
@@ -1164,8 +1220,11 @@
     <style name="side_menu_item_icon">
         <item name="android:layout_height">33dp</item>
         <item name="android:layout_width">33dp</item>
-
         <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
+    <style name="side_menu_item_type_icon" parent="side_menu_item_icon">
         <item name="android:scaleType">centerInside</item>
     </style>
 
@@ -1209,52 +1268,73 @@
         <item name="android:textColor">@color/light_gray_text</item>
     </style>
 
-    <style name="Animations" />
-
-    <!-- PopDownMenu -->
-    <style name="Animations.PopDownMenu"/>
-
-    <style name="Animations.PopDownMenu.Center">
-        <item name="@android:windowEnterAnimation">@anim/grow_from_top</item>
-        <item name="@android:windowExitAnimation">@anim/shrink_from_bottom</item>
+    <style name="SuggestedUserToggleButton">
+        <item name="android:background">@null</item>-->
+        <item name="android:button">@drawable/btn_check_round</item>-->
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:focusable">false</item>
+        <item name="android:text">@null</item>
+        <item name="android:textOff">@null</item>
+        <item name="android:textOn">@null</item>
+    </style>
+    <style name="emptyCollectionContentHolderBase">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
     </style>
 
-    <style name="Animations.PopDownMenu.Left">
-        <item name="@android:windowEnterAnimation">@anim/grow_from_topleft_to_bottomright</item>
-        <item name="@android:windowExitAnimation">@anim/shrink_from_bottomright_to_topleft</item>
+    <style name="TourOverlayTextHolderLayout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:tag">parallax</item>
+        <item name="android:layout_marginBottom">@dimen/tour_bottom_bar_height</item>
+        <item name="android:layout_alignParentBottom">true</item>
+    </style>
+    <style name="FullImageDialogImageViewBase">
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:layout_margin">10dip</item>
+    </style>
+    <style name="FullImageDialogImageView" parent="FullImageDialogImageViewBase">
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">fill_parent</item>
     </style>
 
-    <style name="Animations.PopDownMenu.Right">
-        <item name="@android:windowEnterAnimation">@anim/grow_from_topright_to_bottomleft</item>
-        <item name="@android:windowExitAnimation">@anim/shrink_from_bottomleft_to_topright</item>
+    <style name="ExploreTrackGridItemSelector">
+        <item name="android:background">@drawable/suggested_track_grid_item_selector</item>
+        <item name="android:layout_alignTop">@id/suggested_track_image</item>
+        <item name="android:layout_alignBottom">@id/suggested_track_image</item>
+        <item name="android:layout_alignLeft">@id/suggested_track_image</item>
+        <item name="android:layout_alignRight">@id/suggested_track_image</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+    <style name="ExploreGridItemImageView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/explore_suggested_track_item_height</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+    <style name="ExploreGridItemTextHolder">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_marginTop">13dp</item>
     </style>
 
-    <style name="Animations.PopDownMenu.Reflect">
-        <item name="@android:windowEnterAnimation">@anim/pump_top</item>
-        <item name="@android:windowExitAnimation">@anim/disappear</item>
+    <style name="CustomTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:fadingEdge">horizontal</item>
+        <item name="android:fadingEdgeLength">8dp</item>
     </style>
 
-    <!-- PopUpMenu -->
-    <style name="Animations.PopUpMenu"/>
-
-    <style name="Animations.PopUpMenu.Center">
-        <item name="@android:windowEnterAnimation">@anim/grow_from_bottom</item>
-        <item name="@android:windowExitAnimation">@anim/shrink_from_top</item>
-    </style>
-
-    <style name="Animations.PopUpMenu.Left">
-        <item name="@android:windowEnterAnimation">@anim/grow_from_bottomleft_to_topright</item>
-        <item name="@android:windowExitAnimation">@anim/shrink_from_topright_to_bottomleft</item>
-    </style>
-
-    <style name="Animations.PopUpMenu.Right">
-        <item name="@android:windowEnterAnimation">@anim/grow_from_bottomright_to_topleft</item>
-        <item name="@android:windowExitAnimation">@anim/shrink_from_topleft_to_bottomright</item>
-    </style>
-
-    <style name="Animations.PopUpMenu.Reflect">
-        <item name="@android:windowEnterAnimation">@anim/pump_bottom</item>
-        <item name="@android:windowExitAnimation">@anim/disappear</item>
+    <style name="emptyCollectionContentHolder" parent="emptyCollectionContentHolderBase">
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
 </resources>

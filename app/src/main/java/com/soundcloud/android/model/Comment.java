@@ -4,12 +4,16 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.Consts;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.behavior.RelatesToPlayable;
+import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
+import com.soundcloud.android.utils.images.ImageSize;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -53,7 +57,11 @@ import java.util.Date;
  */
 
 
-public class Comment extends ScResource {
+public class Comment extends ScResource implements RelatesToUser, RelatesToPlayable {
+
+    public static final String ACTION_CREATE_COMMENT  = "com.soundcloud.android.comment.create";
+    public static final String EXTRA = "comment";
+
     @JsonProperty @JsonView(Views.Mini.class) public Date created_at;
     @JsonProperty @JsonView(Views.Mini.class) public long user_id;
     @JsonProperty @JsonView(Views.Mini.class) public long track_id;
@@ -68,7 +76,9 @@ public class Comment extends ScResource {
     public String reply_to_username;
     public int xPos = -1;
     public boolean topLevelComment = false;
-    public @Nullable Bitmap avatar;
+
+    // keep the ignore or jackson will try to write this value on Samsung S4 (or perhaps more devices)
+    @JsonIgnore @Nullable public Bitmap avatar;
 
     public Comment nextComment; //pointer to the next comment at this timestamp
 
@@ -76,7 +86,7 @@ public class Comment extends ScResource {
     }
 
     @Override
-    public void putDependencyValues(BulkInsertMap destination) {
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
         if (user != null) {
             user.putFullContentValues(destination);
         }
@@ -87,7 +97,7 @@ public class Comment extends ScResource {
 
     @Override
     public Uri toUri() {
-       return Content.COMMENTS.forId(id);
+       return Content.COMMENTS.forId(mID);
     }
 
 
@@ -98,7 +108,7 @@ public class Comment extends ScResource {
 
     public Comment(Cursor c, boolean view) {
         if (view) {
-            id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID));
+            mID = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID));
             track_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
             user_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
             user = User.fromActivityView(c);
@@ -106,7 +116,7 @@ public class Comment extends ScResource {
             timestamp = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_TIMESTAMP));
             created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_CREATED_AT)));
         } else {
-            id = c.getLong(c.getColumnIndex(DBHelper.Comments._ID));
+            mID = c.getLong(c.getColumnIndex(DBHelper.Comments._ID));
             track_id = c.getLong(c.getColumnIndex(DBHelper.Comments.TRACK_ID));
             user_id = c.getLong(c.getColumnIndex(DBHelper.Comments.USER_ID));
             body = c.getString(c.getColumnIndex(DBHelper.Comments.BODY));
@@ -122,9 +132,8 @@ public class Comment extends ScResource {
     }
 
     public void prefetchAvatar(Context c) {
-        if (shouldLoadIcon()) {
-            ImageLoader.get(c).prefetch(Consts.GraphicSize.formatUriForList(c, user.avatar_url));
-        }
+        ImageLoader.getInstance().loadImage(
+                ImageSize.formatUriForList(c, user.getAvatarUrl()), ImageOptionsFactory.prefetch(), null);
     }
 
     @Override
@@ -174,10 +183,10 @@ public class Comment extends ScResource {
                                 long replyToId,
                                 String replyToUsername){
         Comment comment = new Comment();
-        comment.track_id = track.id;
+        comment.track_id = track.mID;
         comment.track = track;
         comment.user = user;
-        comment.user_id = user.id;
+        comment.user_id = user.mID;
         comment.timestamp = timestamp;
         comment.created_at = new Date(); // not actually used?
         comment.body = body;

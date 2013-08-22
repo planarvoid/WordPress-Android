@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_height="fill_parent"
+              android:gravity="fill_horizontal"
+              android:layout_width="fill_parent"
+              android:layout_weight="1">
+    <include layout="@layout/action_bar_common"/>
+    <RelativeLayout android:layout_height="fill_parent"
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/action_bar_item_selector"
+                    android:id="@id/waveform_holder"
+
+                    android:contentDescription="@string/accessibility_action_bar_waveform">
+        <com.soundcloud.android.view.NowPlayingIndicator android:id="@+id/waveform_progress"
+                                                         android:layout_width="62dp"
+                                                         android:layout_height="20dp"
+                                                         android:layout_centerVertical="true"
+                                                         android:layout_marginLeft="13dp"
+                                                         android:layout_marginRight="11dp"
+                                                         style="@android:style/Widget.ProgressBar.Horizontal"/>
+    </RelativeLayout>
+</RelativeLayout>

@@ -59,8 +59,10 @@
     <dimen name="share_progress_icon_height">67px</dimen>
 
     <dimen name="tour_bottom_bar_height">80dp</dimen>
-    <dimen name="tour_bottom_radio_height">30dp</dimen>
-    <dimen name="tour_bottom_buttons_height">50dp</dimen>
+    <dimen name="tour_bottom_radio_height">32dp</dimen>
+    <dimen name="tour_buttons_height">48dp</dimen>
+
+    <dimen name="tour_logo_dimension">110dp</dimen>
 
     <dimen name="rec_header_you_button_width">40dp</dimen>
 
@@ -111,4 +113,20 @@
 
     <dimen name="user_page_icon_size">67dp</dimen>
     <dimen name="playlist_page_icon_size">80dp</dimen>
+
+    <dimen name="signup_label_height">32dp</dimen><!-- ic_done_dark_sm drawable + padding -->
+    <dimen name="signup_label_padding">4dp</dimen>
+    <dimen name="signup_done_drawable_padding">7dp</dimen>
+
+    <dimen name="onboarding_suggested_user_item_height">108dp</dimen>
+    <dimen name="onboarding_suggested_user_item_spacing">16dp</dimen>
+
+    <dimen name="explore_suggested_track_item_height">180dp</dimen>
+    <dimen name="explore_suggested_track_item_spacing_inside">10dp</dimen>
+    <dimen name="explore_suggested_track_item_spacing_outside_left_right">16dp</dimen>
+    <dimen name="explore_suggested_track_item_spacing_outside_top_bottom">10dp</dimen>
+
+    <dimen name="explore_suggested_track_category_text_size">24sp</dimen>
+
+    <dimen name="empty_message_margin_left_right">20dp</dimen>
 </resources>

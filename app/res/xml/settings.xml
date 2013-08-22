@@ -90,6 +90,10 @@
                     android:targetPackage="com.soundcloud.android"
                     android:targetClass="com.soundcloud.android.activity.settings.Legal"/>
         </PreferenceScreen>
+
+        <Preference
+                android:title="@string/version"
+                android:key="version"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:key="extras" android:title="@string/pref_dev_extras">

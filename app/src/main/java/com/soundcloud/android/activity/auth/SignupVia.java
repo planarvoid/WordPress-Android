@@ -7,6 +7,7 @@ public enum SignupVia {
     API("api"),
     FACEBOOK_SSO("facebook:access-token"),
     FACEBOOK_WEBFLOW("facebook:web-flow"),
+    GOOGLE_PLUS("google_plus:access-token"),
     NONE("none"); //TODO: this means log-in; should be renamed to something more expressive
 
     public static final String EXTRA = "signed_up";
@@ -15,6 +16,10 @@ public enum SignupVia {
 
     private SignupVia(String name) {
         this.name = name;
+    }
+
+    public String getSignupIdentifier(){
+        return name;
     }
 
     public static SignupVia fromIntent(Intent intent) {
@@ -35,5 +40,9 @@ public enum SignupVia {
 
     public boolean isFacebook()  {
         return this == FACEBOOK_SSO || this == FACEBOOK_WEBFLOW;
+    }
+
+    public boolean isNonFacebookSignup()  {
+        return this == API || this == GOOGLE_PLUS;
     }
 }

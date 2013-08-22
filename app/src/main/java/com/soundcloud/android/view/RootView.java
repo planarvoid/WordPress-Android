@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import static java.lang.Math.max;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.landing.ScLandingPage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,11 +17,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.SystemClock;
 import android.support.v4.view.ViewCompat;
 import android.util.SparseArray;
 import android.view.MotionEvent;
@@ -67,7 +65,7 @@ public class RootView extends ViewGroup {
     private static final String STATE_KEY               = "state_key";
     private static final String BLOCK_KEY               = "block_key";
 
-    private boolean mIsBlocked;
+    private boolean mIsBlocked, mShouldTrackGestures;
     private MainMenu mMenu;
     private ViewGroup mContent;
     private View mBlocker;
@@ -115,16 +113,6 @@ public class RootView extends ViewGroup {
         public void onMenuClosed();
 
         /**
-         * Invoked when the user starts dragging/flinging the menu's handle.
-         */
-        public void onScrollStarted();
-
-        /**
-         * Invoked when the user stops dragging/flinging the menu's handle.
-         */
-        public void onScrollEnded();
-
-        /**
          * Invoked when the user clicks the blocked view
          */
         public void onBlockerClick();
@@ -152,6 +140,7 @@ public class RootView extends ViewGroup {
             }
         });
         mIsBlocked = false;
+        mShouldTrackGestures = context instanceof ScLandingPage;
 
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -182,7 +171,7 @@ public class RootView extends ViewGroup {
 
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
-        mExpandedState = COLLAPSED_FULL_CLOSED;
+        if (mExpandedState == 0) mExpandedState = COLLAPSED_FULL_CLOSED;
         mActivePointerId = INVALID_POINTER;
         setAlwaysDrawnWithCacheEnabled(false);
     }
@@ -525,7 +514,7 @@ public class RootView extends ViewGroup {
 
             case MotionEvent.ACTION_DOWN: {
                 final int x = (int) ev.getX();
-                if (!checkShouldTrack(x) || mIsBlocked) {
+                if (!mShouldTrackGestures || mIsBlocked || !checkShouldTrack(x)) {
                     mIsBeingDragged = false;
                     recycleVelocityTracker();
                     break;
@@ -582,11 +571,6 @@ public class RootView extends ViewGroup {
         final int left = mContent.getLeft();
         mTouchDelta = eventX - left;
         prepareTracking(left);
-
-        // Must be called after prepareContent()
-        if (mOnMenuStateListener != null) {
-            mOnMenuStateListener.onScrollStarted();
-        }
 
         return true;
     }
@@ -645,7 +629,6 @@ public class RootView extends ViewGroup {
                 * will be false if being flinged.
                 */
                 if (!mScroller.isFinished()) {
-                    onScrollComplete();
                     mScroller.abortAnimation();
                 }
 
@@ -726,7 +709,6 @@ public class RootView extends ViewGroup {
             }
         }
 
-        if (mOnMenuStateListener != null) mOnMenuStateListener.onScrollStarted();
         mScroller.startScroll(position, 0, motion, 0, ANIMATION_DURATION);
         mAnimating = true;
         ViewCompat.postInvalidateOnAnimation(this);
@@ -736,10 +718,7 @@ public class RootView extends ViewGroup {
 
 
     private void prepareTracking(int position) {
-        if (mAnimating) {
-            mAnimating = false;
-            onScrollComplete();
-        }
+        mAnimating = false;
         mIsBeingDragged = true;
         mVelocityTracker = VelocityTracker.obtain();
         moveContent(isExpanded() ? position : 0);
@@ -869,7 +848,6 @@ public class RootView extends ViewGroup {
 
         mContent.setVisibility(View.VISIBLE);
         mMenu.setVisibility(View.GONE);
-        onScrollComplete();
 
         mExpandedState = COLLAPSED_FULL_CLOSED;
         if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuClosed();
@@ -882,14 +860,8 @@ public class RootView extends ViewGroup {
         mContent.setVisibility(View.GONE);
         invalidate();
 
-        onScrollComplete();
-
         mExpandedState = EXPANDED_LEFT;
         if (mOnMenuStateListener != null) mOnMenuStateListener.onMenuOpenLeft();
-    }
-
-    private void onScrollComplete() {
-        if (mOnMenuStateListener != null) mOnMenuStateListener.onScrollEnded();
     }
 
     /**

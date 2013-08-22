@@ -2,7 +2,6 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -10,11 +9,8 @@ import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 
 import java.util.Date;
@@ -100,7 +96,7 @@ public class TrackTest {
     @Test
     public void shouldBuildContentValuesWithContent() throws Exception{
         Track t = new Track();
-        t.id = 1000;
+        t.mID = 1000;
         ContentValues v = t.buildContentValues();
         expect(v).not.toBeNull();
         expect(v.getAsLong(DBHelper.Sounds._ID)).toEqual(1000L);
@@ -109,7 +105,7 @@ public class TrackTest {
     @Test
     public void shouldBuildContentValuesWithNoLastUpdated() throws Exception{
         Track t = new Track();
-        t.id = 1000;
+        t.mID = 1000;
         ContentValues v = t.buildContentValues();
         expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.created_at = new Date(System.currentTimeMillis());
@@ -137,7 +133,7 @@ public class TrackTest {
     @Test
     public void shouldGetTrackFromIntentParcelable() throws Exception {
         Track t  = new Track();
-        t.id = 0;
+        t.mID = 0;
         t.permalink = "permalink";
         Intent i = new Intent();
         i.putExtra("track", t);
@@ -147,10 +143,10 @@ public class TrackTest {
     @Test
     public void shouldGetTrackFromIntentTrackCache() throws Exception {
         Track t  = new Track();
-        t.id = 0;
+        t.mID = 0;
         t.permalink = "permalink";
         Intent i = new Intent();
-        i.putExtra("track_id", t.id);
+        i.putExtra("track_id", t.mID);
         SoundCloudApplication.MODEL_MANAGER.cache(t);
         expect(Track.fromIntent(i)).toEqual(t);
     }
@@ -204,13 +200,13 @@ public class TrackTest {
     @Test
     public void testShouldIconLoad() throws Exception {
         Track t = new Track();
-        expect(t.shouldLoadIcon()).toBeFalse();
+        expect(t.shouldLoadArtwork()).toBeFalse();
         t.artwork_url = "";
-        expect(t.shouldLoadIcon()).toBeFalse();
+        expect(t.shouldLoadArtwork()).toBeFalse();
         t.artwork_url = "NULL";
-        expect(t.shouldLoadIcon()).toBeFalse();
+        expect(t.shouldLoadArtwork()).toBeFalse();
         t.artwork_url = "http://foo.com";
-        expect(t.shouldLoadIcon()).toBeTrue();
+        expect(t.shouldLoadArtwork()).toBeTrue();
     }
 
     @Test
@@ -238,30 +234,6 @@ public class TrackTest {
         expect(t.userTrackPermalink()).toEqual("user/foo");
     }
 
-    @Test
-    public void shouldPersistAndLoadCorrectly() throws Exception {
-
-        DefaultTestRunner.application.setCurrentUserId(100L);
-        final ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
-
-        Track t = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("track.json"),
-                Track.class);
-
-        Uri uri = SoundCloudApplication.MODEL_MANAGER.write(t);
-        expect(uri).not.toBeNull();
-
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        expect(cursor).not.toBeNull();
-        expect(cursor.getCount()).toEqual(1);
-        expect(cursor.moveToFirst()).toBeTrue();
-
-        Track t2 = new Track(cursor);
-        compareTracks(t, t2);
-        expect(t2.last_updated).toBeGreaterThan(t.last_updated);
-        expect(t2.sharing).toEqual(t.sharing);
-        expect(t2.state).toEqual(t.state);
-    }
 
     @Test
     public void shouldParcelAndUnparcelCorrectly() throws Exception {
@@ -285,7 +257,7 @@ public class TrackTest {
     }
 
     private void compareTracks(Track t, Track t2) {
-        expect(t2.id).toEqual(t.id);
+        expect(t2.mID).toEqual(t.mID);
         expect(t2.title).toEqual(t.title);
         expect(t2.permalink).toEqual(t.permalink);
         expect(t2.duration).toBeGreaterThan(0);

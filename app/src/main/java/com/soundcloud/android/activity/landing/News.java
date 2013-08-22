@@ -15,6 +15,7 @@ public class News extends ScActivity implements ScLandingPage{
 
         if (state == null) {
             getSupportFragmentManager().beginTransaction()
+                    //.add(mRootView.getContentHolderId(), ActivitiesFragment.create(Content.ME_ACTIVITIES)).commit();
                     .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
         }
     }

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="tour_logo_dimension">80dp</dimen>
+</resources>

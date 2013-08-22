@@ -7,12 +7,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Objects;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.LoadCommentsTask;
@@ -23,9 +25,7 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -34,7 +34,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.FloatMath;
-import android.util.Log;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -123,7 +122,7 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     public Uri toUri() {
-        return Content.TRACKS.forId(id);
+        return Content.TRACKS.forId(mID);
     }
 
     @JsonIgnore
@@ -195,32 +194,6 @@ public class Track extends Playable implements PlayableHolder {
         */
 
         dest.writeBundle(b);
-    }
-
-    public static Track fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
-        long id = -1l;
-        try { // check the cache first
-            id = Long.parseLong(uri.getLastPathSegment());
-            final Track t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(id);
-            if (t != null) return t;
-
-        } catch (NumberFormatException e) {
-            Log.e(UserBrowser.class.getSimpleName(), "Unexpected Track uri: " + uri.toString());
-        }
-
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        try {
-
-            if (cursor != null && cursor.moveToFirst()) {
-                return SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor);
-            } else if (createDummy && id >= 0) {
-                return SoundCloudApplication.MODEL_MANAGER.cache(new Track(id));
-            } else {
-                return null;
-            }
-        } finally {
-            if (cursor != null) cursor.close();
-        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown=true)
@@ -367,29 +340,22 @@ public class Track extends Playable implements PlayableHolder {
         return Content.TRACKS.uri;
     }
 
-    @Override
-    public void resolve(Context context) {
-
-        refreshTimeSinceCreated(context);
-        refreshListArtworkUri(context);
-    }
-
     public void setAppFields(Track t) {
         comments = t.comments;
     }
 
-    private boolean isCompleteTrack(){
+    public boolean isCompleteTrack(){
         return state != null && created_at != null && duration > 0;
     }
 
     // TODO, THIS SUCKS
     public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.Listener<Track> listener) {
         if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
-            load_info_task = new FetchTrackTask(api, id);
+            load_info_task = new FetchTrackTask(api, mID);
         }
         load_info_task.addListener(listener);
         if (AndroidUtils.isTaskPending(load_info_task)) {
-            load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, id));
+            load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mID));
         }
         return load_info_task;
     }
@@ -482,15 +448,15 @@ public class Track extends Playable implements PlayableHolder {
 
     @Override
     public String toString() {
-        return "Track{" +
-                "id="+id+
-                ", title='" + title + "'" +
-                ", permalink_url='" + permalink_url + "'" +
-                ", artwork_url='" + artwork_url + "'" +
-                ", duration=" + duration +
-                ", state=" + state +
-                ", user=" + user +
-                '}';
+        return Objects.toStringHelper(this)
+                .add("id", mID)
+                .add("title", title)
+                .add("permalink_url", permalink_url)
+                .add("artwork_url", artwork_url)
+                .add("duration", duration)
+                .add("state", state)
+                .add("user", user)
+                .toString();
     }
 
     public @Nullable URL getWaveformDataURL() {
@@ -511,7 +477,7 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return this;
     }
 
@@ -527,10 +493,6 @@ public class Track extends Playable implements PlayableHolder {
 
     public Intent getPlayIntent() {
         return new Intent(Actions.PLAY).putExtra(EXTRA, this);
-    }
-
-    public void setUpdated() {
-        last_updated = System.currentTimeMillis();
     }
 
     public Track updateFrom(Track updatedItem, CacheUpdateMode cacheUpdateMode) {

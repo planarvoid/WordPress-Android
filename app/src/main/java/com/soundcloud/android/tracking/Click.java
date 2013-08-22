@@ -9,12 +9,15 @@ import com.at.ATParams;
  */
 public enum Click implements Event {
 
-    Login_with_facebook("Login_main", "Login_with_facebook", Type.action,     Level2.Entry),
-    Login              ("Login_main", "Login",               Type.navigation, Level2.Entry),
-    Login_Login_done   ("Login",      "Login_done",          Type.navigation, Level2.Entry),
+    Login_with_facebook     ("Login_main", "Login_with_facebook", Type.action,     Level2.Entry),
+    Login_with_googleplus   ("Login_main", "Login_with_google",   Type.action,     Level2.Entry),
+    Login                   ("Login_main", "Login",               Type.navigation, Level2.Entry),
+    Login_Login_done        ("Login",      "Login_done",          Type.navigation, Level2.Entry),
 
     Signup_Signup             ("Signup", "Signup",              Type.navigation, Level2.Entry),
     Signup_Signup_terms       ("Signup", "Signup_terms",        Type.navigation, Level2.Entry),
+    Signup_Signup_privacy     ("Signup", "Signup_privacy",      Type.navigation, Level2.Entry),
+    Signup_Signup_cookies     ("Signup", "Signup_cookies",      Type.navigation, Level2.Entry),
     Signup_Signup_done        ("Signup", "Signup_done",         Type.navigation, Level2.Entry),
     Signup_Signup_details_next("Signup", "Signup_details_next", Type.navigation, Level2.Entry),
     Signup_Signup_details_skip("Signup", "Signup_details_skip", Type.navigation, Level2.Entry),

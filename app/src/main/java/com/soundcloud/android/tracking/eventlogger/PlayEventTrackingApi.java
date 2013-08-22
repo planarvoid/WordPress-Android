@@ -1,6 +1,10 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.*;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.ACTION;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOUND_DURATION;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOUND_URN;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.TIMESTAMP;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.USER_URN;
 
 import com.integralblue.httpresponsecache.compat.Charsets;
 import org.apache.http.HttpStatus;

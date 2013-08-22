@@ -1,14 +1,15 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.TextView;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.SoftReference;
 import java.util.Hashtable;

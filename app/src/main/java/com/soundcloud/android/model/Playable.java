@@ -4,13 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.model.behavior.Refreshable;
+import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +29,7 @@ import android.text.TextUtils;
 
 import java.util.Date;
 
-public abstract class Playable extends ScResource implements PlayableHolder, Refreshable, Parcelable {
+public abstract class Playable extends ScResource implements PlayableHolder, RelatesToUser, Refreshable, Parcelable {
     public static final int DB_TYPE_TRACK    = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
 
@@ -90,9 +93,9 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
         final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID);
         if (trackIdIdx == -1) {
-            id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView._ID));
+            mID = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView._ID));
         } else {
-            id = cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
+            mID = cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
         }
         permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.PERMALINK));
         duration = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DURATION));
@@ -126,8 +129,16 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
             user_repost = cursor.getInt(repostIdx) == 1;
         }
 
-        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor);
+        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromSoundViewCursor(cursor);
 
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override
@@ -140,9 +151,13 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         return user == null || user.isIncomplete();
     }
 
-    @Override @JsonIgnore
+    @Override @Nullable @JsonIgnore
     public User getUser() {
         return user;
+    }
+
+    public void setUser(@Nullable User user) {
+        this.user = user;
     }
 
     @Override @JsonIgnore
@@ -151,7 +166,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     }
 
     public String getArtwork() {
-        if (shouldLoadIcon()){
+        if (shouldLoadArtwork()){
             return artwork_url;
         } else if (user != null && user.shouldLoadIcon()){
             return user.avatar_url;
@@ -160,7 +175,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         }
     }
 
-    public boolean shouldLoadIcon() {
+    public boolean shouldLoadArtwork() {
         return ImageUtils.checkIconShouldLoad(artwork_url);
     }
 
@@ -177,7 +192,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     public void refreshListArtworkUri(Context context) {
         final String iconUrl = getArtwork();
-        mArtworkUri = TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForList(context, iconUrl);
+        mArtworkUri = TextUtils.isEmpty(iconUrl) ? null : ImageSize.formatUriForList(context, iconUrl);
     }
 
     public String getListArtworkUrl(Context context) {
@@ -187,7 +202,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     public String getPlayerArtworkUri(Context context) {
         final String iconUrl = getArtwork();
-        return TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForPlayer(context, iconUrl);
+        return TextUtils.isEmpty(iconUrl) ? null : ImageSize.formatUriForPlayer(context, iconUrl);
     }
 
     @Override
@@ -199,7 +214,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     public Bundle getBundle() {
         Bundle b = new Bundle();
-        b.putLong("id", id);
+        b.putLong("id", mID);
         b.putString("title", title);
         b.putParcelable("user", user);
         b.putString("uri", uri);
@@ -237,7 +252,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     }
 
     public void readFromBundle(Bundle b) {
-        id = b.getLong("id");
+        mID = b.getLong("id");
         title = b.getString("title");
         user = b.getParcelable("user");
         uri = b.getString("uri");
@@ -285,7 +300,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         if (user_id != 0) {
             cv.put(DBHelper.Sounds.USER_ID, user_id);
         } else if (user != null && user.isSaved()) {
-            cv.put(DBHelper.Sounds.USER_ID, user.id);
+            cv.put(DBHelper.Sounds.USER_ID, user.mID);
         }
         if (created_at != null) cv.put(DBHelper.Sounds.CREATED_AT, created_at.getTime());
         if (tag_list != null) cv.put(DBHelper.Sounds.TAG_LIST, tag_list);
@@ -302,7 +317,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     }
 
     public Playable updateFrom(Playable updatedItem, CacheUpdateMode cacheUpdateMode) {
-        id = updatedItem.id;
+        mID = updatedItem.mID;
         title = updatedItem.title;
         permalink = updatedItem.permalink;
 
@@ -350,7 +365,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
     }
 
     public long getUserId() {
-        return user != null ? user.id : user_id;
+        return user != null ? user.mID : user_id;
     }
 
     public abstract int getTypeId();
@@ -371,6 +386,14 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
 
     public String getAvatarUrl() {
         return user == null ? null : user.avatar_url;
+    }
+
+    public boolean isLikesCountSet() {
+        return likes_count > NOT_SET;
+    }
+
+    public boolean isRepostCountSet(){
+        return reposts_count > NOT_SET;
     }
 
     public @Nullable Intent getShareIntent() {
@@ -399,7 +422,15 @@ public abstract class Playable extends ScResource implements PlayableHolder, Ref
         return user != null ? user.username : "";
     }
 
-    public static boolean isTrackCursor(Cursor cursor){
+    public static Playable fromCursor(Cursor cursor) {
+        if (isTrackCursor(cursor)) {
+            return new Track(cursor);
+        } else {
+            return new Playlist(cursor);
+        }
+    }
+
+    protected static boolean isTrackCursor(Cursor cursor){
         return cursor.getInt(cursor.getColumnIndex(DBHelper.Sounds._TYPE)) == DB_TYPE_TRACK;
     }
 }

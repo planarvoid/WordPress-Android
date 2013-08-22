@@ -3,7 +3,6 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addCannedResponse;
-import static com.soundcloud.android.robolectric.TestHelper.addIdResponse;
 
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
@@ -31,11 +30,14 @@ import java.util.LinkedHashMap;
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncServiceTest {
     ContentResolver resolver;
+    SyncStateManager syncStateManager;
+
     static final long USER_ID = 100L;
 
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        syncStateManager = new SyncStateManager(resolver);
+        TestHelper.setUserId(USER_ID);
     }
 
     @After public void after() {
@@ -45,7 +47,7 @@ public class ApiSyncServiceTest {
     @Test
     public void shouldProvideFeedbackViaResultReceiver() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-        Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri);
+        Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_SOUNDS.uri);
 
         final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<Integer, Bundle>();
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler(Looper.myLooper())) {
@@ -55,10 +57,7 @@ public class ApiSyncServiceTest {
             }
         });
 
-        addIdResponse("/me/tracks/ids?linked_partitioning=1"+ CollectionSyncRequestTest.NON_INTERACTIVE, 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3"+ CollectionSyncRequestTest.NON_INTERACTIVE,
-                "tracks.json");
-
+        TestHelper.addPendingHttpResponse(getClass(), "me_sounds_mini.json");
         svc.onStart(intent, 0);
 
         expect(received.size()).toBe(1);
@@ -83,13 +82,24 @@ public class ApiSyncServiceTest {
     }
 
     @Test
+    public void shouldNotEnqueueSameIntentTwice() throws Exception {
+        final Intent syncIntent = new Intent(ApiSyncService.ACTION_PUSH);
+        syncIntent.setData(Content.ME_FOLLOWINGS.uri);
+
+        ApiSyncService svc = new ApiSyncService();
+        svc.enqueueRequest(new SyncIntent(DefaultTestRunner.application, syncIntent));
+        svc.enqueueRequest(new SyncIntent(DefaultTestRunner.application, syncIntent));
+        expect(svc.mPendingRequests.size()).toBe(1);
+    }
+
+    @Test
     public void shouldHandleComplexQueueSituation() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         Context context = DefaultTestRunner.application;
 
         Intent intent = new Intent(Intent.ACTION_SYNC);
         ArrayList<Uri> urisToSync = new ArrayList<Uri>();
-        urisToSync.add(Content.ME_TRACKS.uri);
+        urisToSync.add(Content.ME_SOUNDS.uri);
         urisToSync.add(Content.ME_LIKES.uri);
         urisToSync.add(Content.ME_FOLLOWERS.uri);
 
@@ -108,12 +118,12 @@ public class ApiSyncServiceTest {
         expect(svc.mPendingRequests.size()).toBe(4);
 
         // make sure favorites is queued on front
-        expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_LIKES.uri);
-        expect(svc.mPendingRequests.get(1).contentUri).toBe(Content.ME_TRACKS.uri);
+        expect(svc.mPendingRequests.peek().getContentUri()).toBe(Content.ME_LIKES.uri);
+        expect(svc.mPendingRequests.get(1).getContentUri()).toBe(Content.ME_SOUNDS.uri);
 
         SyncIntent request4 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
         svc.enqueueRequest(request4);
-        expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_FOLLOWINGS.uri);
+        expect(svc.mPendingRequests.peek().getContentUri()).toBe(Content.ME_FOLLOWINGS.uri);
 
         // make sure all requests can be executed
         Robolectric.setDefaultHttpResponse(404, "");
@@ -127,7 +137,7 @@ public class ApiSyncServiceTest {
         svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));
         svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FOLLOWINGS.uri, null, false));
 
-        ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_LIKES.uri);
+        ApiSyncResult result = new ApiSyncResult(Content.ME_LIKES.uri);
         result.success = true;
 
         svc.onUriSyncResult(new CollectionSyncRequest(context, Content.ME_LIKES.uri, null, false));
@@ -142,10 +152,8 @@ public class ApiSyncServiceTest {
                 "e1_stream_oldest.json");
 
         expect(Content.COLLECTIONS).toHaveCount(1);
-        LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
-        expect(collection).not.toBeNull();
+        LocalCollection collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
         expect(collection.last_sync_success).toBeGreaterThan(0L);
-        expect(collection.extra).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
     }
 
     @Test
@@ -157,22 +165,18 @@ public class ApiSyncServiceTest {
                 "e1_stream_2_oldest.json");
 
         expect(Content.COLLECTIONS).toHaveCount(1);
-        LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
-
-        expect(collection).not.toBeNull();
+        LocalCollection collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
         expect(collection.last_sync_success).toBeGreaterThan(0L);
-        expect(collection.extra).toEqual("https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde");
 
         addCannedResponse(SyncAdapterServiceTest.class,
-                "https://api.soundcloud.com/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde&limit=100"+ CollectionSyncRequestTest.NON_INTERACTIVE,
+                "/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde&limit=100"+ CollectionSyncRequestTest.NON_INTERACTIVE,
                 "activities_empty.json");
 
         // next sync request should go this url
         sync(svc, Content.ME_SOUND_STREAM);
 
         expect(Content.COLLECTIONS).toHaveCount(1);
-        collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
-        expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
+        collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
     }
 
     @Test
@@ -210,9 +214,8 @@ public class ApiSyncServiceTest {
     @Test
     public void shouldClearSyncStatuses() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
         svc.onDestroy();
-        expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri, resolver, true).sync_state).toBe(LocalCollection.SyncState.IDLE);
+        expect(syncStateManager.fromContent(Content.ME_SOUNDS).sync_state).toEqual(LocalCollection.SyncState.IDLE);
     }
 
     private void addResourceResponse(String url, String resource) throws IOException {

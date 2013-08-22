@@ -1,27 +1,25 @@
 package com.soundcloud.android.model;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.text.TextUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.AndroidCloudAPI;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
+import android.text.TextUtils;
+
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-import static com.soundcloud.android.model.ScModelManager.validateResponse;
+import java.util.ListIterator;
 
 
 /**
@@ -31,7 +29,12 @@ import static com.soundcloud.android.model.ScModelManager.validateResponse;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CollectionHolder<T> implements Iterable<T> {
-    public static final String LINKED_PARTITIONING = "linked_partitioning";
+    private static final Predicate UNKNOWN_RESOURCE_PREDICATE = new Predicate() {
+        @Override
+        public boolean apply(@Nullable Object resource) {
+            return resource instanceof UnknownResource;
+        }
+    };
 
     @JsonProperty
     @JsonView(Views.Mini.class)
@@ -45,29 +48,33 @@ public class CollectionHolder<T> implements Iterable<T> {
     }
 
     public CollectionHolder(List<T> collection){
-        this.collection = collection;
+        this.collection = Lists.newArrayList(collection);
     }
 
     /** @noinspection unchecked*/
     @Override
     public Iterator<T> iterator() {
-        return collection != null ?  collection.iterator() : (Iterator<T>) Collections.EMPTY_LIST.iterator();
+        return collection.iterator();
+    }
+
+    public boolean add(T item) {
+        return collection.add(item);
     }
 
     public T get(int index) {
         return collection.get(index);
     }
 
-    public void add(T e) {
-        collection.add(e);
+    public List<T> getCollection(){
+        return Collections.unmodifiableList(collection);
     }
 
-    public boolean hasMore() {
+    public boolean moreResourcesExist() {
         return !TextUtils.isEmpty(next_href);
     }
 
     public Request getNextRequest() {
-        if (!hasMore()) {
+        if (!moreResourcesExist()) {
             throw new IllegalStateException("next_href is null");
         } else {
             return new Request(URI.create(next_href));
@@ -75,11 +82,7 @@ public class CollectionHolder<T> implements Iterable<T> {
     }
 
     public boolean isEmpty() {
-        return size() == 0;
-    }
-
-    public int insert(ContentResolver resolver) {
-        return 0;
+        return collection.isEmpty();
     }
 
     public String getCursor() {
@@ -94,6 +97,15 @@ public class CollectionHolder<T> implements Iterable<T> {
         return null;
     }
 
+    public void removeUnknownResources(){
+        Collection<T> unknownResources = Collections2.filter(collection, UNKNOWN_RESOURCE_PREDICATE);
+        collection.removeAll(unknownResources);
+    }
+
+    public String getNextHref(){
+        return TextUtils.isEmpty(next_href) ? null : next_href;
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "{" +
@@ -106,40 +118,5 @@ public class CollectionHolder<T> implements Iterable<T> {
         return collection != null ? collection.size() : 0;
     }
 
-    public void resolve(Context context) {
-        for (T m : this) {
-            if (m instanceof ScModel) {
-                ((ScModel)m).resolve(context);
-            }
-        }
-    }
-
-    public @NotNull static <T, C extends CollectionHolder<T>> C fetchAllResourcesHolder(AndroidCloudAPI api,
-                                                Request request,
-                                                Class<C> ch) throws IOException {
-        List<T> objects = new ArrayList<T>();
-        C holder = null;
-        do {
-            Request r = holder == null ? request : Request.to(holder.next_href);
-            HttpResponse resp = validateResponse(api.get(r.with(LINKED_PARTITIONING, "1")));
-            holder = api.getMapper().readValue(resp.getEntity().getContent(), ch);
-            if (holder == null) throw new IOException("invalid data");
-
-            if (holder.collection != null) {
-                objects.addAll(holder.collection);
-            }
-        } while (holder.next_href != null);
-
-        holder.collection = objects;
-        return holder;
-    }
-
-    public static <T, C extends CollectionHolder<T>> List<T> fetchAllResources(AndroidCloudAPI api,
-                                                Request request,
-                                                Class<C> ch) throws IOException {
-
-        C holder = fetchAllResourcesHolder(api, request, ch);
-        return holder.collection;
-    }
 }
 

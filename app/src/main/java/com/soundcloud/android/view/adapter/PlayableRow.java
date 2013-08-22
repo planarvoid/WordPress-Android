@@ -1,22 +1,20 @@
 package com.soundcloud.android.view.adapter;
 
-import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.PlayableHolder;
+import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.RepostActivity;
+import com.soundcloud.android.model.behavior.Repost;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.model.act.PlaylistRepostActivity;
-import com.soundcloud.android.model.act.TrackRepostActivity;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.view.adapter.behavior.ListRow;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -70,7 +68,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
     @Override
     public void display(int position, Parcelable p) {
-        if (!(p instanceof PlayableHolder)) throw new IllegalArgumentException("Not a valid track " + p);
+        checkArgument(p instanceof PlayableHolder, "Not a valid playable holder: " + p);
 
         super.display((PlayableHolder) p);
 
@@ -104,8 +102,8 @@ public class PlayableRow extends PlayableBar implements ListRow {
     private void setupReposter() {
         mReposter.setVisibility(View.GONE);
 
-        if (mPlayableHolder instanceof RepostActivity) {
-            mReposter.setText(((RepostActivity) mPlayableHolder).getReposter().username);
+        if (mPlayableHolder instanceof Repost) {
+            mReposter.setText(((Repost) mPlayableHolder).getReposter().username);
             mReposter.setVisibility(View.VISIBLE);
 
         } else if (mPlayableHolder instanceof SoundAssociation) {
@@ -114,13 +112,13 @@ public class PlayableRow extends PlayableBar implements ListRow {
                 mReposter.setVisibility(View.VISIBLE);
                 User reposter = null;
 
-                if (sa.user == null)  {
+                if (sa.owner == null)  {
                     // currently active user
                     if (getContext() instanceof UserBrowser) {
                         reposter = ((UserBrowser)getContext()).getUser();
                     }
                 }
-                if (reposter !=  null && reposter.id != SoundCloudApplication.getUserId()) {
+                if (reposter !=  null && reposter.getId() != SoundCloudApplication.getUserId()) {
                     mReposter.setText(reposter.username);
                 }
             }
@@ -139,7 +137,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
     }
 
     protected void setTitle(boolean pressed) {
-        if (mPlayableHolder.getPlayable().id == CloudPlaybackService.getCurrentTrackId()) {
+        if (mPlayableHolder.getPlayable().getId() == CloudPlaybackService.getCurrentTrackId()) {
             if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
 
             mSpanBuilder.clear();

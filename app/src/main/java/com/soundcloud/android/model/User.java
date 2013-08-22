@@ -9,18 +9,18 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
-import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -30,16 +30,13 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
-
-import java.util.EnumSet;
-import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
-public class User extends ScResource implements Refreshable {
-    public static final String EXTRA = "user";
+public class User extends ScResource implements UserHolder {
+    public static final int     TYPE = 0;
+    public static final String  EXTRA = "user";
 
     @Nullable @JsonView(Views.Mini.class) public String username;
     @Nullable @JsonView(Views.Mini.class) public String uri;
@@ -48,8 +45,8 @@ public class User extends ScResource implements Refreshable {
     @Nullable @JsonView(Views.Mini.class) public String permalink_url;
     @Nullable public String full_name;
     @Nullable public String description;
-    @Nullable public String city;
-    @Nullable public String country;
+    @Nullable private String city;
+    @Nullable private String country;
 
     @Nullable public String plan;      // free|lite|solo|pro|pro plus
 
@@ -81,31 +78,15 @@ public class User extends ScResource implements Refreshable {
         super(id);
     }
 
-    public static User fromUri(Uri uri, ContentResolver resolver, boolean createDummy) {
-        long id = -1l;
-        try {
-            //check the cache first
-            id = Long.parseLong(uri.getLastPathSegment());
-            final User u = SoundCloudApplication.MODEL_MANAGER.getCachedUser(id);
-            if (u != null) return u;
+    public User(String urn) {
+        super(urn);
+    }
 
-        } catch (NumberFormatException e) {
-            Log.e(UserBrowser.class.getSimpleName(), "Unexpected User uri: " + uri.toString());
-        }
-
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        try {
-            if (cursor != null && cursor.moveToFirst()) {
-                return SoundCloudApplication.MODEL_MANAGER.getUserFromCursor(cursor);
-            } else if (createDummy && id >= 0) {
-                return new User(id);
-            } else {
-                return null;
-            }
-
-        } finally {
-            if (cursor != null) cursor.close();
-        }
+    public User(SuggestedUser suggestedUser){
+        setUrn(suggestedUser.getUrn());
+        setUsername(suggestedUser.getUsername());
+        setCity(suggestedUser.getCity());
+        setCountry(suggestedUser.getCountry());
     }
 
     public User(Parcel in) {
@@ -131,7 +112,7 @@ public class User extends ScResource implements Refreshable {
         model.followings_count = bundle.getInt("followings_count");
         model.public_likes_count = bundle.getInt("public_likes_count");
         model.private_tracks_count = bundle.getInt("private_tracks_count");
-        model.id = bundle.getLong("id");
+        model.mID = bundle.getLong("id");
     }
 
     public User(Cursor cursor) {
@@ -139,7 +120,7 @@ public class User extends ScResource implements Refreshable {
     }
 
     public User updateFromCursor(Cursor cursor) {
-        id = cursor.getLong(cursor.getColumnIndex(Users._ID));
+        mID = cursor.getLong(cursor.getColumnIndex(Users._ID));
         permalink = cursor.getString(cursor.getColumnIndex(Users.PERMALINK));
         permalink_url = cursor.getString(cursor.getColumnIndex(Users.PERMALINK_URL));
         username = cursor.getString(cursor.getColumnIndex(Users.USERNAME));
@@ -170,7 +151,7 @@ public class User extends ScResource implements Refreshable {
 
     public static User fromActivityView(Cursor c) {
         User u = new User();
-        u.id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
+        u.mID = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
         u.username = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_USERNAME));
         u.permalink = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_PERMALINK));
         u.avatar_url = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_AVATAR_URL));
@@ -210,7 +191,7 @@ public class User extends ScResource implements Refreshable {
         if (private_tracks_count != NOT_SET) cv.put(Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
         if (primary_email_confirmed != null) cv.put(Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
 
-        if (id != -1 && id == SoundCloudApplication.getUserId()) {
+        if (mID != -1 && mID == SoundCloudApplication.getUserId()) {
             if (description != null) cv.put(Users.DESCRIPTION, description);
         }
         cv.put(Users.LAST_UPDATED, System.currentTimeMillis());
@@ -220,7 +201,7 @@ public class User extends ScResource implements Refreshable {
     @Override
     public String toString() {
         return "User[" +
-                "id=" + id +
+                "id=" + mID +
                 ", username='" + username + '\'' +
                 ", track_count='" + track_count + '\'' +
                 ", discogs_name='" + discogs_name + '\'' +
@@ -246,22 +227,21 @@ public class User extends ScResource implements Refreshable {
 
     @Override
     public Uri toUri() {
-        return Content.USERS.forId(id);
+        return Content.USERS.forId(mID);
     }
 
-
-    public String getLocation() {
-        if (!TextUtils.isEmpty(city) && !TextUtils.isEmpty(country)) {
-            return city + ", " + country;
-        } else if (!TextUtils.isEmpty(city)) {
-            return city;
-        } else if (!TextUtils.isEmpty(country)) {
-            return country;
-        } else {
-            return "";
-        }
+    @Nullable
+    public String getUsername() {
+        return username;
     }
 
+    public void setUsername(@Nullable String username) {
+        this.username = username;
+    }
+
+    public String getPermalink(){
+        return permalink;
+    }
     public String getDisplayName() {
         if (!TextUtils.isEmpty(username)){
             return username;
@@ -272,9 +252,9 @@ public class User extends ScResource implements Refreshable {
         }
     }
 
-    public static User fromTrackView(Cursor cursor) {
+    public static User fromSoundView(Cursor cursor) {
         User u = new User();
-        u.id = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
+        u.mID = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
         u.username = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USERNAME));
         u.permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USER_PERMALINK));
         u.avatar_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.USER_AVATAR_URL));
@@ -295,27 +275,70 @@ public class User extends ScResource implements Refreshable {
         return new Intent(Actions.USER_BROWSER).putExtra(UserBrowser.EXTRA_USER, this);
     }
 
+    public boolean addAFollower() {
+        if (isFollowersCountSet()) {
+            followers_count++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean removeAFollower() {
+        if (isFollowersCountSet()){
+            followers_count--;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @NotNull
+    @Override
+    public User getUser() {
+        return this;
+    }
+
+    @Nullable
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(@Nullable String city) {
+        this.city = city;
+    }
+
+    @Nullable
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(@Nullable String country) {
+        this.country = country;
+    }
+
+    public String getLocation() {
+        return ScTextUtils.getLocation(city, country);
+    }
+
     public static interface DataKeys {
-        String USERNAME        = "currentUsername";
-        String USER_ID         = "currentUserId";
-        String USER_PERMALINK  = "currentUserPermalink";
-        String SIGNUP          = "signup";
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
         String SEEN_CREATE_AUTOSAVE           = "seenCreateAutoSave";
-        String ACCESS_TOKEN  = "access_token";
-        String REFRESH_TOKEN = "refresh_token";
-        String SCOPE         = "scope";
-        String EXPIRES_IN    = "expires_in";
+
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return this;
+    }
+
+    public String getAvatarUrl(){
+        return shouldLoadIcon() ? avatar_url : null;
     }
 
     public void refreshListAvatarUri(Context context) {
         final String iconUrl = avatar_url;
-        _list_avatar_uri = shouldLoadIcon() ? Consts.GraphicSize.formatUriForList(context, iconUrl) : null;
+        _list_avatar_uri = shouldLoadIcon() ? ImageSize.formatUriForList(context, iconUrl) : null;
     }
 
     public String getListAvatarUri(Context context){
@@ -330,11 +353,11 @@ public class User extends ScResource implements Refreshable {
 
     @Override
     public boolean isIncomplete() {
-        return id <= 0;
+        return mID <= 0;
     }
 
     public User updateFrom(User user, CacheUpdateMode cacheUpdateMode) {
-        this.id = user.id;
+        this.mID = user.mID;
         this.username = user.username;
 
         if (user.avatar_url != null) this.avatar_url = user.avatar_url;
@@ -358,10 +381,6 @@ public class User extends ScResource implements Refreshable {
         return this;
     }
 
-    public void resolve(Context context) {
-        refreshListAvatarUri(context);
-    }
-
     public void setAppFields(User u) {
         user_follower = u.user_follower;
         user_following = u.user_following;
@@ -371,40 +390,17 @@ public class User extends ScResource implements Refreshable {
         return ImageUtils.checkIconShouldLoad(avatar_url);
     }
 
-    public Plan getPlan() {
-        return Plan.fromApi(plan);
+    public boolean isFollowersCountSet() {
+        return followers_count > NOT_SET;
     }
 
-    public static void clearLoggedInUserFromStorage(Context context) {
-        final ContentResolver resolver = context.getContentResolver();
-        // TODO move to model
-        for (Content c : EnumSet.of(
-                Content.ME_SOUNDS,
-                Content.ME_LIKES,
-                Content.ME_FOLLOWINGS,
-                Content.ME_FOLLOWERS)) {
-            resolver.delete(Content.COLLECTIONS.uri,
-                DBHelper.Collections.URI + " = ?", new String[]{ c.uri.toString() });
-        }
-        Activities.clear(null, resolver);
-        PlayQueueManager.clearState(context);
-        FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
-        Search.clearState(resolver, SoundCloudApplication.getUserId());
+    public Plan getPlan() {
+        return Plan.fromApi(plan);
     }
 
     @Override
     public Uri getBulkInsertUri() {
         return Content.USERS.uri;
-    }
-
-    @Override @JsonIgnore
-    public User getUser() {
-        return this;
-    }
-
-    @Override @JsonIgnore
-    public Track getPlayable() {
-        return null;
     }
 
     @Override
@@ -448,7 +444,7 @@ public class User extends ScResource implements Refreshable {
         bundle.putInt("followings_count", model.followings_count);
         bundle.putInt("public_likes_count", model.public_likes_count);
         bundle.putInt("private_tracks_count", model.private_tracks_count);
-        bundle.putLong("id", model.id);
+        bundle.putLong("id", model.mID);
         out.writeBundle(bundle);
     }
 }

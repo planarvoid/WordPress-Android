@@ -1,9 +1,9 @@
 package com.soundcloud.android.c2dm;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.SyncAdapterService;
@@ -52,9 +52,12 @@ public class C2DMReceiver extends BroadcastReceiver {
     public static final String SC_URI                  = "uri";
 
     private PowerManager.WakeLock mWakeLock;
+    private AccountOperations mAccountOperations;
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        mAccountOperations = new AccountOperations(context);
+
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceive(" + intent + ")");
 
         if (mWakeLock == null) {
@@ -76,7 +79,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 // actual c2dm message
                 onReceiveMessage(context, intent);
             } else if (intent.getAction().equals(Actions.ACCOUNT_ADDED)) {
-                onAccountAdded(context, intent.<User>getParcelableExtra(User.EXTRA));
+                onAccountAdded(context, intent.getLongExtra(User.EXTRA_ID, -1L));
             } else {
                 Log.w(TAG, "unhandled intent: "+intent);
             }
@@ -85,19 +88,18 @@ public class C2DMReceiver extends BroadcastReceiver {
         }
     }
 
-    private void onAccountAdded(Context context, User user) {
-        if (user != null) {
-            register(context, user);
+    private void onAccountAdded(Context context, long userId) {
+        if (userId > 0) {
+            register(context);
         }
     }
 
-    public static synchronized void register(Context context, User user) {
+    public static synchronized void register(Context context) {
         if (!isEnabled()) return;
-        final PowerManager.WakeLock lock = makeLock(context);
         final String regId = getRegistrationData(context, PREF_REG_ID);
 
         if (regId == null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "registering " + user + " for c2dm");
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "registering for c2dm");
             setRegistrationData(context, PREF_REG_LAST_TRY,
                     String.valueOf(System.currentTimeMillis()));
 
@@ -126,7 +128,7 @@ public class C2DMReceiver extends BroadcastReceiver {
 //        processDeletionQueue(context, lock);
     }
 
-    public static synchronized void unregister(Context context) {
+    public synchronized void unregister(Context context) {
         if (!isEnabled()) return;
 
         clearRegistrationData(context);
@@ -161,7 +163,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sendRegId("+regId+")");
 
         final PowerManager.WakeLock lock = makeLock(context);
-        return new SendRegIdTask((AndroidCloudAPI) context.getApplicationContext()) {
+        return new SendRegIdTask(new OldCloudAPI(context)) {
 
             @Override
             protected void onPreExecute() {
@@ -227,20 +229,18 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private void onReceiveMessage(Context context, Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceiveMessage(" + intent + ")");
-        final Account account = SoundCloudApplication.fromContext(context).getAccount();
 
-        if (account == null) {
-            Log.w(TAG, "push event received but no account registered - ignoring");
-        } else {
+        if (mAccountOperations.soundCloudAccountExists()) {
+            Account account = mAccountOperations.getSoundCloudAccount();
             final PushEvent event = PushEvent.fromIntent(intent);
             switch (event) {
                 case LIKE:
                 case COMMENT:
                 case FOLLOWER:
                     Bundle extras = new Bundle();
-                    extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, event.type);
+                    extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, event.type);
                     if (intent.getExtras().containsKey(C2DMReceiver.SC_URI)){
-                        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT_URI, intent.getExtras().getString(C2DMReceiver.SC_URI));
+                        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT_URI, intent.getExtras().getString(C2DMReceiver.SC_URI));
                     }
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requesting sync (event="+event+")");
 
@@ -256,7 +256,10 @@ public class C2DMReceiver extends BroadcastReceiver {
                     // other types not handled yet
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "unhandled event "+event);
             }
+        }  else {
+            Log.w(TAG, "push event received but no account registered - ignoring");
         }
+
     }
 
     /* package */ static String getRegistrationData(Context context, String key) {
@@ -320,7 +323,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         if (url != null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "deleting " + url);
 
-            new DeleteRegIdTask((AndroidCloudAPI) context.getApplicationContext(), lock) {
+            new DeleteRegIdTask(new OldCloudAPI(context), lock) {
                 @Override protected void onPostExecute(Boolean success) {
                     super.onPostExecute(success);
                     if (success) {

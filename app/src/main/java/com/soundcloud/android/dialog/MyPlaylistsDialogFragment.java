@@ -1,8 +1,8 @@
 package com.soundcloud.android.dialog;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -33,22 +33,21 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String KEY_TRACK_ID = "TRACK_ID";
-    public static final String KEY_TRACK_TITLE = "TRACK_TITLE";
-
-    public static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
+    private static final String KEY_TRACK_TITLE   = "TRACK_TITLE";
+    private static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
 
     private static final int LOADER_ID = 1;
     private static final int NEW_PLAYLIST_ITEM = -1;
 
     private MyPlaylistsAdapter mAdapter;
+    private AccountOperations accountOperations;
 
     public static MyPlaylistsDialogFragment from(Track track) {
-
         Bundle b = new Bundle();
-        b.putLong(KEY_TRACK_ID, track.id);
+        b.putLong(KEY_TRACK_ID, track.getId());
         b.putString(KEY_TRACK_TITLE, track.title);
 
         MyPlaylistsDialogFragment fragment = new MyPlaylistsDialogFragment();
@@ -58,10 +57,9 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+        accountOperations = new AccountOperations(getActivity());
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         mAdapter = new MyPlaylistsAdapter(getActivity());
-
 
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_add_to_set, null);
         final ListView listView = (ListView) dialogView.findViewById(android.R.id.list);
@@ -94,7 +92,6 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
         getSherlockActivity().getSupportLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
 
         return builder.create();
-
     }
 
     private void onAddTrackToSet(long playlistId, View view) {
@@ -105,13 +102,12 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
             return;
         }
 
-        Playlist.addTrackToPlaylist(
-                getActivity().getContentResolver(), playlist, getArguments().getLong(KEY_TRACK_ID));
+        getPlaylistStorage().addTrackToPlaylist(playlist, getArguments().getLong(KEY_TRACK_ID));
 
         // tell the service to update the playlist
         final SoundCloudApplication soundCloudApplication = SoundCloudApplication.fromContext(getActivity());
         if (soundCloudApplication != null) {
-            ContentResolver.requestSync(soundCloudApplication.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
+            ContentResolver.requestSync(accountOperations.getSoundCloudAccount(), ScContentProvider.AUTHORITY, new Bundle());
         }
 
         final TextView txtTrackCount = (TextView) view.findViewById(R.id.trackCount);
@@ -218,7 +214,6 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-
             if (convertView == null) {
                 convertView = View.inflate(mContext, R.layout.pick_set_row, null);
             }
@@ -254,7 +249,4 @@ public class MyPlaylistsDialogFragment extends SherlockDialogFragment implements
             notifyDataSetChanged();
         }
     }
-
-
-
 }

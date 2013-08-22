@@ -5,16 +5,16 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.model.act.Activity;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.api.Params;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +52,7 @@ public class Playlist extends Playable {
 
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
-    @JsonView(Views.Full.class) @Nullable public List<Track> tracks;
+    @JsonView(Views.Full.class) public List<Track> tracks = new LinkedList<Track>();
     @JsonView(Views.Full.class) private int track_count;
     public boolean removed;
 
@@ -79,6 +80,21 @@ public class Playlist extends Playable {
         return fromBundle(intent.getExtras());
     }
 
+    /**
+     * Helper to instantiate a playlist the given user created locally. This playlist will have a negative timestamp
+     * to indicate that it hasn't been synced to the API yet.
+     */
+    public static Playlist newUserPlaylist(User user, String title, boolean isPrivate, @NotNull List<Track> tracks) {
+        Playlist playlist = new Playlist(-System.currentTimeMillis());
+        playlist.user = user;
+        playlist.title = title;
+        playlist.sharing = isPrivate ? Sharing.PRIVATE : Sharing.PUBLIC;
+        playlist.created_at = new Date();
+        playlist.tracks = tracks;
+        playlist.track_count = tracks.size();
+        return playlist;
+    }
+
     public Playlist() {
         super();
     }
@@ -95,6 +111,9 @@ public class Playlist extends Playable {
         tracks_uri = b.getString("tracks_uri");
         track_count = b.getInt("track_count");
         tracks = b.getParcelableArrayList("tracks");
+        if (tracks == null) {
+            tracks = new LinkedList<Track>();
+        }
     }
 
     public Playlist(Cursor cursor) {
@@ -132,12 +151,12 @@ public class Playlist extends Playable {
     @Override
     public String toString() {
         return "Playlist{" +
-                "id=" + id +
+                "id=" + mID +
                 ", title='" + title + "'" +
                 ", permalink_url='" + permalink_url + "'" +
                 ", duration=" + duration +
                 ", user=" + user +
-                ", track_count=" + (track_count == -1 ? (tracks != null ? tracks.size() : "-1") : track_count) +
+                ", track_count=" + (track_count == -1 ? tracks.size() : track_count) +
                 ", tracks_uri='" + tracks_uri + '\'' +
                 '}';
     }
@@ -155,45 +174,35 @@ public class Playlist extends Playable {
     }
 
     @Override
-    public ScResource getRefreshableResource() {
+    public Refreshable getRefreshableResource() {
         return this;
     }
 
     @Override
     public void putDependencyValues(BulkInsertMap destMap) {
         super.putDependencyValues(destMap);
-        if (tracks != null) {
-            int i = 0;
-            for (Track t : tracks) {
-                t.putFullContentValues(destMap);
+        int i = 0;
+        for (Track t : tracks) {
+            t.putFullContentValues(destMap);
 
-                // add to relationship table
-                ContentValues cv = new ContentValues();
-                cv.put(DBHelper.PlaylistTracks.TRACK_ID,t.id);
-                cv.put(DBHelper.PlaylistTracks.POSITION,i);
-                destMap.add(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(id)), cv);
-                i++;
-            }
+            // add to relationship table
+            ContentValues cv = new ContentValues();
+            cv.put(DBHelper.PlaylistTracks.TRACK_ID, t.mID);
+            cv.put(DBHelper.PlaylistTracks.POSITION, i);
+            destMap.add(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(mID)), cv);
+            i++;
         }
     }
 
     @Override
     public Uri toUri() {
-        return Content.PLAYLISTS.forQuery(String.valueOf(id));
+        return Content.PLAYLISTS.forQuery(String.valueOf(mID));
     }
 
 
     @Override
     public int getTypeId() {
         return DB_TYPE_PLAYLIST;
-    }
-
-    public Uri insertAsMyPlaylist(ContentResolver resolver){
-        insert(resolver);
-
-        // association so it appears in ME_SOUNDS, ME_PLAYLISTS, etc.
-        return new SoundAssociation(this, new Date(System.currentTimeMillis()), SoundAssociation.Type.PLAYLIST)
-                .insert(resolver, Content.ME_PLAYLISTS.uri);
     }
 
     @Override
@@ -213,39 +222,8 @@ public class Playlist extends Playable {
         }
     };
 
-    // Local i.e. unpushed playlists are currently identified by having a negative timestamp
-    public static boolean hasLocalPlaylists(ContentResolver resolver) {
-        Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
-                new String[]{DBHelper.SoundView._ID}, DBHelper.SoundView._ID + " < 0",
-                null, null);
-
-        boolean hasPlaylists = false;
-        if (itemsCursor != null) {
-            hasPlaylists = itemsCursor.getCount() > 0;
-            itemsCursor.close();
-        }
-        return hasPlaylists;
-    }
-
-    // Local i.e. unpushed playlists are currently identified by having a negative timestamp
-    public static List<Playlist> getLocalPlaylists(ContentResolver resolver) {
-        Cursor itemsCursor = resolver.query(Content.PLAYLISTS.uri,
-                null, DBHelper.SoundView._ID + " < 0",
-                null, DBHelper.SoundView._ID + " DESC");
-
-        List<Playlist> playlists = new ArrayList<Playlist>();
-        if (itemsCursor != null) {
-            while (itemsCursor.moveToNext()) {
-                playlists.add(SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(itemsCursor));
-            }
-
-        }
-        if (itemsCursor != null) itemsCursor.close();
-        return playlists;
-    }
-
     public boolean isLocal() {
-        return id < 0;
+        return mID < 0;
     }
 
     @JsonRootName("playlist")
@@ -259,17 +237,15 @@ public class Playlist extends Playable {
             this.title = p.title;
             this.sharing =  p.sharing == Sharing.PRIVATE ? Params.Track.PRIVATE : Params.Track.PUBLIC;
 
-            if (p.tracks != null){
-                // convert to ScModel as we only want to serialize the id
-                this.tracks = new ArrayList<ScModel>();
-                for (Track t : p.tracks){
-                    tracks.add(new ScModel(t.id));
-                }
+            // convert to ScModel as we only want to serialize the id
+            this.tracks = new ArrayList<ScModel>();
+            for (Track t : p.tracks) {
+                tracks.add(new ScModel(t.mID));
             }
         }
 
-        public String toJson(ObjectMapper mapper) throws JsonProcessingException {
-            return mapper.writeValueAsString(this);
+        public String toJson() throws JsonProcessingException {
+            return new ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true).writeValueAsString(this);
         }
     }
 
@@ -284,61 +260,9 @@ public class Playlist extends Playable {
             }
         }
 
-        public String toJson(ObjectMapper mapper) throws IOException {
-            return mapper.writeValueAsString(this);
+        public String toJson() throws IOException {
+            return new ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true).writeValueAsString(this);
         }
-    }
-
-    public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId){
-        return addTrackToPlaylist(resolver, playlist, trackId,System.currentTimeMillis());
-    }
-
-    public static Uri addTrackToPlaylist(ContentResolver resolver, Playlist playlist, long trackId, long time){
-        playlist.setTrackCount(playlist.getTrackCount() + 1);
-
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.PlaylistTracks.PLAYLIST_ID, playlist.id);
-        cv.put(DBHelper.PlaylistTracks.TRACK_ID, trackId);
-        cv.put(DBHelper.PlaylistTracks.ADDED_AT, time);
-        cv.put(DBHelper.PlaylistTracks.POSITION, playlist.getTrackCount());
-        return resolver.insert(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlist.id)), cv);
-    }
-
-    /**
-     * delete any caching, and mark any local instances as removed
-     * {@link com.soundcloud.android.activity.track.PlaylistActivity#onPlaylistChanged()}
-     * @param resolver
-     * @param playlistUri
-     */
-    public static void removePlaylist(ContentResolver resolver, Uri playlistUri) {
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(playlistUri);
-        if (p != null) {
-            p.removed = true;
-            SoundCloudApplication.MODEL_MANAGER.removeFromCache(p.toUri());
-        }
-        Playlist.removePlaylistFromDb(resolver, UriUtils.getLastSegmentAsLong(playlistUri));
-    }
-
-    public static int removePlaylistFromDb(ContentResolver resolver, long playlistId){
-
-        final String playlistIdString = String.valueOf(playlistId);
-        int deleted = resolver.delete(Content.PLAYLIST.forQuery(playlistIdString), null, null);
-        deleted += resolver.delete(Content.PLAYLIST_TRACKS.forQuery(playlistIdString), null, null);
-
-        // delete from collections
-        String where = DBHelper.CollectionItems.ITEM_ID + " = " + playlistId + " AND "
-                + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + Playable.DB_TYPE_PLAYLIST;
-
-        deleted += resolver.delete(Content.ME_PLAYLISTS.uri, where, null);
-        deleted += resolver.delete(Content.ME_SOUNDS.uri, where, null);
-        deleted += resolver.delete(Content.ME_LIKES.uri, where, null);
-
-        // delete from activities
-        where = DBHelper.Activities.SOUND_ID + " = " + playlistId + " AND " +
-                DBHelper.ActivityView.TYPE + " IN ( " + Activity.getDbPlaylistTypesForQuery() + " ) ";
-        deleted += resolver.delete(Content.ME_ALL_ACTIVITIES.uri, where, null);
-
-        return deleted;
     }
 
     @Override
@@ -352,14 +276,13 @@ public class Playlist extends Playable {
 
 
     public int getTrackCount() {
-        return  tracks == null ? track_count : Math.max(tracks.size(), track_count);
+        return Math.max(tracks.size(), track_count);
     }
 
     @JsonProperty("track_count")
     public void setTrackCount(int count) {
         track_count = count;
     }
-
 
     /**
      * Change listening. Playlist IDs are mutable, so we listen on the actual instance instead of content uri's

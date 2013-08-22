@@ -1,8 +1,7 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import android.content.Intent;
-import android.database.Cursor;
-import com.soundcloud.android.model.ScResource;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackTest;
 import com.soundcloud.android.provider.Content;
@@ -17,11 +16,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import scala.actors.threadpool.Arrays;
 
+import android.content.Intent;
+import android.database.Cursor;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-
-import static com.soundcloud.android.Expect.expect;
 
 @Ignore // TODO: fix the problem with Robolectric's multi-database handling
 @RunWith(DefaultTestRunner.class)
@@ -35,17 +35,21 @@ public class PlayEventTrackerIntegrationTest {
     @BeforeClass
     public static void setupFixtures() throws IOException {
         currentTrack = TestHelper.readJson(Track.class, TrackTest.class, "track.json");
-        currentTrack.id = 1;
+        currentTrack.setId(1);
         nextTrack = TestHelper.readJson(Track.class, TrackTest.class, "track.json");
-        nextTrack.id = 2;
+        nextTrack.setId(2);
     }
 
     @Before
     public void setup() {
-        DefaultTestRunner.application.setCurrentUserId(1);
+        TestHelper.setUserId(1);
+        List<Track> tracks = Arrays.asList(new Track[] { currentTrack, nextTrack });
 
-        List<Track> tracks = Arrays.asList(new Object[]{currentTrack, nextTrack});
-        expect(DefaultTestRunner.application.MODEL_MANAGER.writeCollection(tracks, Content.ME_LIKES.uri, 1, ScResource.CacheUpdateMode.FULL)).toBeGreaterThan(0);
+//        SoundCloudDB.insertCollection(DefaultTestRunner.application.getContentResolver(),
+//                tracks,
+//                Content.ME_LIKES.uri,
+//                1);
+//
         expect(Content.ME_LIKES).toHaveCount(2);
 
         service = new CloudPlaybackService();
@@ -63,7 +67,7 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test
     public void shouldTrackPlayEventForFirstTrack() {
-        DefaultTestRunner.application.setCurrentUserId(456);
+        TestHelper.setUserId(456);
 
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
 
@@ -78,7 +82,7 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test
     public void shouldTrackPlayEventForLoggedOutUser() {
-        DefaultTestRunner.application.setCurrentUserId(-1);
+        TestHelper.setUserId(-1);
 
         startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
 
@@ -191,7 +195,7 @@ public class PlayEventTrackerIntegrationTest {
         expect(action).toEqual(expectedAction);
 
         String soundUrn = cursor.getString(cursor.getColumnIndex(PlayEventTracker.TrackingEvents.SOUND_URN));
-        expect(soundUrn).toEqual("soundcloud:sounds:" + track.id);
+        expect(soundUrn).toEqual("soundcloud:sounds:" + track.getId());
 
         long duration = cursor.getLong(cursor.getColumnIndex(PlayEventTracker.TrackingEvents.SOUND_DURATION));
         expect(duration).toEqual(Long.valueOf(track.duration));

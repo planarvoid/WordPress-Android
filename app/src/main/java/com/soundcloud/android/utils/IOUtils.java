@@ -2,12 +2,15 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.annotation.TargetApi;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.Consts;
 import org.apache.http.HttpHost;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -38,6 +41,8 @@ import java.net.HttpURLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public final class IOUtils {
@@ -401,10 +406,21 @@ public final class IOUtils {
         }
     }
 
-    public static void close(Closeable file) {
-        if (file != null) {
+    /**
+     * Closes a cursor. These cannot use the {@link this#close(java.io.Closeable)}
+     * function as cursors do not implement Closeable pre-honecomb
+     * @param cursor
+     */
+    public static void close(Cursor cursor) {
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
+
+    public static void close(Closeable closeable) {
+        if (closeable != null) {
             try {
-                file.close();
+                closeable.close();
             } catch (IOException ignored) {
             }
         }
@@ -463,21 +479,6 @@ public final class IOUtils {
         }
     }
 
-    public static boolean isStatusCodeOk(int code) {
-        return code >= 200 && code < 400;
-    }
-
-    public static boolean isStatusCodeError(int code) {
-        return code >= 400 && code < 600;
-    }
-
-    public static boolean isStatusCodeClientError(int code) {
-        return code >= 400 && code < 500;
-    }
-
-    public static boolean isStatusCodeServerError(int code) {
-        return code >= 500 && code < 600;
-    }
 
     /**
      * some phones have really low transfer rates when the screen is turned off, so request a full
@@ -493,5 +494,22 @@ public final class IOUtils {
                         WifiManager.WIFI_MODE_FULL_HIGH_PERF : WifiManager.WIFI_MODE_FULL,
                         tag
                 );
+    }
+
+    public static List<String> parseError(ObjectReader reader, InputStream is) throws IOException {
+        List<String> errorList = new ArrayList<String>();
+        try {
+            final JsonNode node = reader.readTree(is);
+            final JsonNode errors = node.path("errors").path("error");
+            final JsonNode error  = node.path("error");
+            if (error.isTextual()) errorList.add(error.asText());
+            else if (errors.isTextual()) errorList.add(errors.asText());
+            else if (node.path("errors").isArray())
+                for (JsonNode n : node.path("errors")) errorList.add(n.path("error_message").asText());
+            else for (JsonNode s : errors) errorList.add(s.asText());
+        } catch (JsonParseException e) {
+            Log.e(TAG,"Error parsing json response: ", e);
+        }
+        return errorList;
     }
 }

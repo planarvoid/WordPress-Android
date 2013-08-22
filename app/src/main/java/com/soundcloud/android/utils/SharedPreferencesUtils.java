@@ -3,7 +3,6 @@ package com.soundcloud.android.utils;
 import android.content.SharedPreferences;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 
 import java.lang.reflect.InvocationTargetException;

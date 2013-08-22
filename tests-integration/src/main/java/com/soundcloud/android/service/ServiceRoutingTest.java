@@ -9,7 +9,7 @@ import android.test.InstrumentationTestCase;
 
 public class ServiceRoutingTest extends InstrumentationTestCase {
 
-    public void testServicePlayIntent() {
+    public void ignore_testServicePlayIntent() {
         ComponentName name =
                 getInstrumentation().getTargetContext().startService(new Intent(CloudPlaybackService.PLAY_ACTION,
                         Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/tracks")));
@@ -18,7 +18,7 @@ public class ServiceRoutingTest extends InstrumentationTestCase {
         assertEquals(CloudPlaybackService.class.getName(), name.getClassName());
     }
 
-    public void testActionIntents() {
+    public void ignore_testActionIntents() {
         for (String action : new String[]{
                 CloudPlaybackService.TOGGLEPAUSE_ACTION,
                 CloudPlaybackService.PAUSE_ACTION,

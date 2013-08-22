@@ -1,16 +1,29 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
-import static com.soundcloud.android.service.playback.State.*;
+import static com.soundcloud.android.service.playback.State.COMPLETED;
+import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
+import static com.soundcloud.android.service.playback.State.ERROR;
+import static com.soundcloud.android.service.playback.State.ERROR_RETRYING;
+import static com.soundcloud.android.service.playback.State.PAUSED;
+import static com.soundcloud.android.service.playback.State.PAUSED_FOCUS_LOST;
+import static com.soundcloud.android.service.playback.State.PAUSED_FOR_BUFFERING;
+import static com.soundcloud.android.service.playback.State.PLAYING;
+import static com.soundcloud.android.service.playback.State.PREPARED;
+import static com.soundcloud.android.service.playback.State.PREPARING;
+import static com.soundcloud.android.service.playback.State.STOPPED;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -28,7 +41,7 @@ import com.soundcloud.android.tracking.eventlogger.PlayEventTrackingApi;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.play.NotificationPlaybackRemoteViews;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,8 +64,10 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.View;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class CloudPlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
@@ -65,7 +80,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     // static convenience accessors
     public static @Nullable Track getCurrentTrack()  { return currentTrack; }
-    public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.id; }
+    public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.getId(); }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
     public static @Nullable PlayQueueManager getPlaylistManager() { return instance == null ? null : instance.getPlayQueueManager(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
@@ -73,6 +88,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static Uri getUri()     { return instance == null ? null : instance.getPlayQueueManager().getUri(); }
     public static State getState() { return state; }
     public static boolean isBuffering() {  return instance != null && instance._isBuffering(); }
+    public static boolean isSeekable() {  return instance != null && instance._isSeekable(); }
 
 
     // public service actions
@@ -167,6 +183,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     // for play duration tracking
     private PlayEventTracker mPlayEventTracker;
+    private AndroidCloudAPI oldCloudAPI;
 
     public PlayEventTracker getPlayEventTracker() {
         return mPlayEventTracker;
@@ -195,11 +212,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void onCreate() {
         super.onCreate();
-        mPlayQueueManager = new PlayQueueManager(this, SoundCloudApplication.getUserId());
+        mPlayQueueManager = new PlayQueueManager(this);
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
-
+        oldCloudAPI = new OldCloudAPI(this);
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(PLAY_ACTION);
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
@@ -310,7 +327,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             if (state.isSupposedToBePlaying()) pause();
             currentTrack = mPlayQueueManager.getCurrentTrack();
             if (currentTrack != null) {
-                mResumeTrackId = currentTrack.id;
+                mResumeTrackId = currentTrack.getId();
                 return true;
             }
         }
@@ -394,25 +411,23 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (mFocus.isTrackChangeSupported()) {
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap cached = ImageLoader.get(this).getBitmap(artworkUri, null, Options.dontLoadRemote());
-                if (cached != null) {
-                    // use a copy of the bitmap because it is going to get recycled afterwards
-                    try {
-                        mFocus.onTrackChanged(track, cached.copy(Bitmap.Config.ARGB_8888, false));
-                    } catch (OutOfMemoryError e) {
-                        mFocus.onTrackChanged(track, null);
-                        System.gc();
-                        // retry?
-                    }
-                } else {
-                    mFocus.onTrackChanged(track, null);
-                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
-                        public void onImageLoaded(Bitmap loadedBmp, String uri) {
-                            if (track.equals(currentTrack)) onTrackChanged(track);
+                ImageLoader.getInstance().loadImage(artworkUri, new SimpleImageLoadingListener(){
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        super.onLoadingComplete(imageUri, view, loadedImage);
+                        if (track == currentTrack){
+                            // use a copy of the bitmap because it is going to get recycled afterwards
+                            try {
+                                mFocus.onTrackChanged(track, loadedImage.copy(Bitmap.Config.ARGB_8888, false));
+                            } catch (OutOfMemoryError e) {
+                                mFocus.onTrackChanged(track, null);
+                                System.gc();
+                                // retry?
+                            }
                         }
-                        public void onImageError(String uri, Throwable error) {}
-                    });
-                }
+
+                    }
+                });
             }
         }
     }
@@ -450,9 +465,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 if (track.isStreamable()) {
                     onStreamableTrack(track);
                 } else if (track.load_info_task == null || !AndroidUtils.isTaskFinished(track.load_info_task)) {
-                    track.refreshInfoAsync(getApp(),mInfoListener);
+                    track.refreshInfoAsync(oldCloudAPI,mInfoListener);
                 } else {
-                    onUnstreamableTrack(track.id);
+                    onUnstreamableTrack(track.getId());
                 }
             }
         } else {
@@ -478,17 +493,18 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
         @Override
         public void onSuccess(Track track) {
-            track.setUpdated();
-            track = SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(track, ScResource.CacheUpdateMode.FULL);
+            // TODO
+            // this used to write the track back to storage - this should happen as
+            // part of the sync/task
             sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_UPDATED)
-                                        .putExtra(CloudPlaybackService.BroadcastExtras.id, track.id));
+                                        .putExtra(CloudPlaybackService.BroadcastExtras.id, track.getId()));
 
             if (track.equals(currentTrack) && (!isPlaying() && state.isSupposedToBePlaying())){
                 // we were waiting on this track
                 if (track.isStreamable()) {
                     onStreamableTrack(track);
                 } else {
-                    onUnstreamableTrack(track.id);
+                    onUnstreamableTrack(track.getId());
                 }
             }
         }
@@ -510,12 +526,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     private void onStreamableTrack(Track track){
-        if (getCurrentTrackId() != track.id) return;
+        if (getCurrentTrackId() != track.getId()) return;
 
         new Thread() {
             @Override
             public void run() {
-                SoundCloudApplication.MODEL_MANAGER.markTrackAsPlayed(currentTrack);
+                new TrackStorage().markTrackAsPlayed(currentTrack);
             }
         }.start();
         startTrack(track);
@@ -741,34 +757,31 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (!Consts.SdkSwitches.useRichNotifications) {
             notification.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
-            final NotificationPlaybackRemoteViews view = new NotificationPlaybackRemoteViews(getPackageName());
+            final NotificationPlaybackRemoteViews playbackRemoteViews = new NotificationPlaybackRemoteViews(getPackageName());
 
-            view.setNotification(track, state.isSupposedToBePlaying());
-            view.linkButtonsNotification(this);
-            view.setPlaybackStatus(state.isSupposedToBePlaying());
+            playbackRemoteViews.setNotification(track, state.isSupposedToBePlaying());
+            playbackRemoteViews.linkButtonsNotification(this);
+            playbackRemoteViews.setPlaybackStatus(state.isSupposedToBePlaying());
+            notification.contentView = playbackRemoteViews;
+            notification.contentIntent = pi;
 
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap cachedBmp = ImageLoader.get(this).getBitmap(artworkUri, null, Options.dontLoadRemote());
-                if (cachedBmp != null) {
-                    view.setIcon(cachedBmp);
-                } else {
-                    view.clearIcon();
-                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
-                        @Override public void onImageLoaded(Bitmap bitmap, String uri) {
-                            //noinspection ObjectEquality
-                            if (currentTrack == track) {
-                                view.setIcon(bitmap);
-                                startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
-                            }
+                playbackRemoteViews.clearIcon();
+                ImageLoader.getInstance().loadImage(artworkUri, new SimpleImageLoadingListener() {
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        super.onLoadingComplete(imageUri, view, loadedImage);
+                        if (currentTrack == track) {
+                            playbackRemoteViews.setIcon(loadedImage);
+                            startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
                         }
-                    });
-                }
+                    }
+                });
+
             } else {
-                view.clearIcon();
+                playbackRemoteViews.clearIcon();
             }
-            notification.contentView = view;
-            notification.contentIntent = pi;
         }
         startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
         status = notification;
@@ -808,7 +821,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     /* package */
     public long getProgress() {
 
-        if (currentTrack != null && mResumeTrackId == currentTrack.id) {
+        if (currentTrack != null && mResumeTrackId == currentTrack.getId()) {
             return mResumeTime; // either -1 or a valid resume time
         } else if (mWaitingForSeek && mSeekPos > 0) {
             return mSeekPos;
@@ -824,8 +837,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         return mMediaPlayer != null && !state.isError() ? mLoadPercent : 0;
     }
 
-    /* package */
-    public boolean isSeekable() {
+    /* package */ boolean _isSeekable() {
         return (mMediaPlayer != null
                 && state.isSeekable()
                 && currentTrack != null);
@@ -918,7 +930,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     private long getTrackId() {
-        return currentTrack == null ? -1 : currentTrack.id;
+        return currentTrack == null ? -1 : currentTrack.getId();
     }
 
     private String getTrackName() {
@@ -953,27 +965,36 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         return (SoundCloudApplication) getApplication();
     }
 
-    private final Handler mDelayedStopHandler = new Handler() {
+    private static final class DelayedStopHandler extends Handler {
+        private WeakReference<CloudPlaybackService> serviceRef;
+
+        private DelayedStopHandler(CloudPlaybackService service) {
+            serviceRef = new WeakReference<CloudPlaybackService>(service);
+        }
+
         @Override
         public void handleMessage(Message msg) {
+            CloudPlaybackService service = serviceRef.get();
             // Check again to make sure nothing is playing right now
-            if (!state.isSupposedToBePlaying()
+            if (service != null && !state.isSupposedToBePlaying()
                     && state != PAUSED_FOCUS_LOST
-                    && !mServiceInUse
-                    && !mPlayerHandler.hasMessages(TRACK_ENDED)) {
+                    && !service.mServiceInUse
+                    && !service.mPlayerHandler.hasMessages(TRACK_ENDED)) {
 
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "DelayedStopHandler: stopping service");
                 }
 
                 if (state != STOPPED) {
-                    saveQueue();
+                    service.saveQueue();
                 }
 
-                stopSelf(mServiceStartId);
+                service.stopSelf(service.mServiceStartId);
             }
         }
-    };
+    }
+
+    private final Handler mDelayedStopHandler = new DelayedStopHandler(this);
 
     private final BroadcastReceiver mNoisyReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) {
@@ -1027,7 +1048,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 stop();
             } else if (LOAD_TRACK_INFO.equals(action)) {
                 final Track t = Track.fromIntent(intent);
-                t.refreshInfoAsync(getApp(), mInfoListener);
+                t.refreshInfoAsync(oldCloudAPI, mInfoListener);
 
             } else if (PLAYQUEUE_CHANGED.equals(action)) {
                 if (state == EMPTY_PLAYLIST) {
@@ -1074,32 +1095,44 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    private final Handler mPlayerHandler = new Handler() {
+    private static final class PlayerHandler extends Handler {
         private static final float DUCK_VOLUME = 0.1f;
+
+        private WeakReference<CloudPlaybackService> serviceRef;
         private float mCurrentVolume = 1.0f;
+
+        private PlayerHandler(CloudPlaybackService service) {
+            this.serviceRef = new WeakReference<CloudPlaybackService>(service);
+        }
 
         @Override
         public void handleMessage(Message msg) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "handleMessage("+msg.what+", state="+state+")");
+            final CloudPlaybackService service = serviceRef.get();
+            if (service == null) {
+                return;
             }
+
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "handleMessage(" + msg.what + ", state=" + state + ")");
+            }
+
             switch (msg.what) {
                 case CHECK_BUFFERING:
-                    if (!state.equals(State.PAUSED_FOR_BUFFERING)){
-                        notifyChange(BUFFERING_COMPLETE);
+                    if (!state.equals(State.PAUSED_FOR_BUFFERING)) {
+                        service.notifyChange(BUFFERING_COMPLETE);
                     }
                     break;
 
                 case NOTIFY_META_CHANGED:
-                    notifyChange(META_CHANGED);
+                    service.notifyChange(META_CHANGED);
                     break;
                 case FADE_IN:
                     removeMessages(FADE_OUT);
 
                     if (!state.isSupposedToBePlaying()) {
                         mCurrentVolume = 0f;
-                        setVolume(0f);
-                        play();
+                        service.setVolume(0f);
+                        service.play();
                         sendEmptyMessageDelayed(FADE_IN, 10);
                     } else {
                         mCurrentVolume += FADE_CHANGE;
@@ -1108,41 +1141,41 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         } else {
                             mCurrentVolume = 1.0f;
                         }
-                        setVolume(mCurrentVolume);
+                        service.setVolume(mCurrentVolume);
                     }
                     break;
                 case FADE_OUT:
                     removeMessages(FADE_IN);
-                    if (isPlaying())  {
+                    if (service.isPlaying()) {
                         mCurrentVolume -= FADE_CHANGE;
                         if (mCurrentVolume > 0f) {
                             sendEmptyMessageDelayed(FADE_OUT, 10);
                         } else {
-                            if (mMediaPlayer != null) mMediaPlayer.pause();
+                            if (service != null && service.mMediaPlayer != null) service.mMediaPlayer.pause();
                             mCurrentVolume = 0f;
                             state = PAUSED_FOCUS_LOST;
                         }
-                        setVolume(mCurrentVolume);
+                        service.setVolume(mCurrentVolume);
                     } else {
-                        setVolume(0f);
+                        service.setVolume(0f);
                     }
                     break;
                 case DUCK:
                     removeMessages(FADE_IN);
                     removeMessages(FADE_OUT);
-                    setVolume(DUCK_VOLUME);
+                    service.setVolume(DUCK_VOLUME);
                     break;
                 case SERVER_DIED:
-                    if (state == PLAYING && mAutoAdvance) next();
+                    if (state == PLAYING && service.mAutoAdvance) service.next();
                     break;
                 case TRACK_ENDED:
-                    if (!mAutoAdvance || !next()) {
-                        notifyChange(PLAYBACK_COMPLETE);
-                        gotoIdleState(COMPLETED);
+                    if (!service.mAutoAdvance || !service.next()) {
+                        service.notifyChange(PLAYBACK_COMPLETE);
+                        service.gotoIdleState(COMPLETED);
                     }
                     break;
                 case CLEAR_LAST_SEEK:
-                    mSeekPos = -1;
+                    service.mSeekPos = -1;
                     break;
                 case CHECK_TRACK_EVENT:
                     if (currentTrack != null) {
@@ -1150,20 +1183,22 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                             int refresh = Media.refresh(currentTrack.duration);
                             if (refresh > 0) {
                                 long now = System.currentTimeMillis();
-                                if (now - mLastRefresh > refresh) {
-                                    track(Media.fromTrack(currentTrack), Media.Action.Refresh);
-                                    mLastRefresh = now;
+                                if (now - service.mLastRefresh > refresh) {
+                                    service.track(Media.fromTrack(currentTrack), Media.Action.Refresh);
+                                    service.mLastRefresh = now;
                                 }
                             }
                         }
-                        mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
+                        sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
                     } else {
-                        mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
+                        removeMessages(CHECK_TRACK_EVENT);
                     }
                     break;
             }
         }
-    };
+    }
+
+    private final Handler mPlayerHandler = new PlayerHandler(this);
 
     final MediaPlayer.OnInfoListener infolistener = new MediaPlayer.OnInfoListener() {
         @Override

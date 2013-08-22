@@ -1,6 +1,8 @@
 package com.soundcloud.android.fragment;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
@@ -9,6 +11,7 @@ import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -53,6 +56,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
+    private SyncStateManager mSyncStateManager;
+
     public static PlaylistTracksFragment create(Uri playlistUri) {
         Bundle args = new Bundle();
         args.putParcelable(Playlist.EXTRA_URI, playlistUri);
@@ -73,6 +78,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
             Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
             getActivity().finish();
         } else {
+            mSyncStateManager = new SyncStateManager(getActivity());
             mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
             getLoaderManager().initLoader(TRACK_LIST_LOADER, null, this);
             mDetachableReceiver.setReceiver(this);
@@ -89,6 +95,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mListView = (ScListView) layout.findViewById(R.id.list);
         mListView.setOnRefreshListener(this);
         mListView.setOnItemClickListener(this);
+        mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true));
 
         View mInfoHeader = View.inflate(getActivity(), R.layout.playlist_header, null);
         mInfoHeaderText = (TextView) mInfoHeader.findViewById(android.R.id.text1);
@@ -120,13 +127,13 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onStart() {
         super.onStart();
         // observe changes to the local collection to update the last updated timestamp
-        mLocalCollection.startObservingSelf(getActivity().getContentResolver(), this);
+        mSyncStateManager.addChangeListener(mLocalCollection, this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mLocalCollection.stopObservingSelf();
+        mSyncStateManager.removeChangeListener(mLocalCollection);
     }
 
     @Override
@@ -140,7 +147,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(), Content.PLAYLIST_TRACKS.forQuery(String.valueOf(mPlaylist.id)),
+        return new CursorLoader(getActivity(), Content.PLAYLIST_TRACKS.forQuery(String.valueOf(mPlaylist.getId())),
                 null, null, null, null);
     }
 
@@ -193,21 +200,20 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     }
 
     @Override
-    public void onLocalCollectionChanged() {
-        setListLastUpdated();
+    public void onLocalCollectionChanged(LocalCollection localCollection) {
+        mLocalCollection = localCollection;
     }
 
     public void refresh() {
         if (isAdded()) {
             mLocalCollection = getLocalCollection();
-            if (mLocalCollection != null) {
-                getLoaderManager().restartLoader(TRACK_LIST_LOADER, null, this);
-            }
+            getLoaderManager().restartLoader(TRACK_LIST_LOADER, null, this);
         }
     }
 
-    private @Nullable LocalCollection getLocalCollection() {
-        return mPlaylist == null ? null : LocalCollection.fromContentUri(mPlaylist.toUri(), getActivity().getContentResolver(), true);
+    @Nullable
+    private LocalCollection getLocalCollection() {
+        return mPlaylist == null ? null : new SyncStateManager(getActivity()).fromContent(mPlaylist.toUri());
     }
 
     public void scrollToPosition(int position) {
@@ -228,7 +234,6 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
             syncPlaylist();
             return true;
         } else {
-            setListLastUpdated();
             return false;
         }
     }
@@ -236,17 +241,11 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
         if (isAdded() && mLocalCollection.isIdle()) {
-            if (mListView != null) mListView.setRefreshing(false);
+            if (mListView != null && isInLayout()) mListView.setRefreshing(false);
             activity.startService(new Intent(activity, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
                     .setData(mPlaylist.toUri()));
-        }
-    }
-
-    private void setListLastUpdated() {
-        if (mListView != null && mLocalCollection.last_sync_success > 0) {
-            mListView.setLastUpdated(mLocalCollection.last_sync_success);
         }
     }
 

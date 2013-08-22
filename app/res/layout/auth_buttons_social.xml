@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <Button android:id="@+id/google_plus_btn"
+            style="@style/Tour.GooglePlusButton"
+            android:text="@string/authentication_log_in_with_google"
+            android:layout_margin="10dp"/>
+    <Button android:id="@+id/facebook_btn"
+            style="@style/Tour.FacebookButton"
+            android:text="@string/authentication_log_in_with_facebook"
+            android:layout_width="wrap_content"
+            android:layout_margin="10dp"/>
+</merge>

@@ -5,8 +5,10 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
 import com.soundcloud.android.robolectric.shadows.ShadowMediaPlayer;
 import com.soundcloud.android.robolectric.shadows.ShadowNativeAmplitudeAnalyzer;
+import com.soundcloud.android.robolectric.shadows.ShadowSCAccountManager;
 import com.soundcloud.android.robolectric.shadows.ShadowVorbisEncoder;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
@@ -29,6 +31,7 @@ import java.lang.reflect.Method;
  *     \@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
  * </code>.
  */
+@Deprecated
 public class DefaultTestRunner extends RobolectricTestRunner {
     public static TestApplication application;
 
@@ -84,6 +87,8 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         Robolectric.bindShadowClass(ShadowVorbisEncoder.class);
         Robolectric.bindShadowClass(ShadowNativeAmplitudeAnalyzer.class);
         Robolectric.bindShadowClass(ShadowMediaPlayer.class);
+        Robolectric.bindShadowClass(ShadowSCAccountManager.class);
+        Robolectric.bindShadowClass(ScShadowParcel.class);
     }
 
     public static class FileDatabaseMap extends SQLiteMap {

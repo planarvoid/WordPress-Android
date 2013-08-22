@@ -14,14 +14,14 @@
             android:layout_toRightOf="@id/icon">
 
         <TextView android:id="@+id/playable_user"
-                  style="@style/txt_list_track_user"
+                  style="@style/Widget.TextView.Playable.Username"
                   android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
                   android:layout_marginRight="3dp"/>
 
         <!-- this is only visible when this layout is used in a ListView -->
         <TextView android:id="@+id/playable_reposter"
-                  style="@style/txt_list_track_reposter"
+                  style="@style/Widget.TextView.Playable.Reposter"
                   android:visibility="gone"
                   android:layout_height="wrap_content"
                   android:drawableLeft="@drawable/ic_repost_states"
@@ -36,7 +36,7 @@
     </RelativeLayout>
 
     <TextView android:id="@+id/playable_created_at"
-              style="@style/txt_list_created_at"
+              style="@style/TextAppearance.List.CreatedAt"
               android:layout_width="53dp"
               android:layout_height="wrap_content"
               android:layout_alignTop="@id/icon"

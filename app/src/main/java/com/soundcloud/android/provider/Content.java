@@ -1,6 +1,10 @@
 package com.soundcloud.android.provider;
 
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FRIEND;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.LIKE;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.REPOST;
 
 import com.soundcloud.android.TempEndpoints;
 import com.soundcloud.android.model.Comment;
@@ -15,6 +19,7 @@ import com.soundcloud.android.model.Shortcut;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.api.Endpoints;
@@ -32,11 +37,10 @@ import java.util.Map;
 
 public enum Content  {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
-    @Deprecated ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
     ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
-    ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, User.class, FOLLOWING, Table.COLLECTION_ITEMS),
-    ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
-    ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
+    ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, UserAssociation.class, FOLLOWING, Table.USER_ASSOCIATIONS),
+    ME_FOLLOWING("me/followings/#", null, 104, UserAssociation.class, -1, null),
+    ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, UserAssociation.class, FOLLOWER, Table.USER_ASSOCIATIONS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
     ME_LIKES("me/likes", TempEndpoints.e1.USER_LIKES, 107, SoundAssociation.class, LIKE, Table.COLLECTION_ITEMS),
     ME_LIKE("me/likes/#", null, 108, Track.class, LIKE, null),
@@ -65,10 +69,9 @@ public enum Content  {
     ME_ACTIVITIES("me/activities/all/own", TempEndpoints.e1.MY_ACTIVITIES, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
-    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND, Table.COLLECTION_ITEMS),
+    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND, Table.USER_ASSOCIATIONS),
 
-    SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, User.class, SUGGESTED_USER, null),
-
+    SUGGESTED_USERS("users/suggested", Endpoints.SUGGESTED_USERS, 190, User.class, -1, null),
 
     SOUNDS("sounds", null, 200, Playable.class, -1, Table.SOUNDS),
 
@@ -84,7 +87,6 @@ public enum Content  {
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", Endpoints.USER_DETAILS, 302, User.class, -1, Table.USERS),
-    @Deprecated USER_TRACKS("users/#/tracks", Endpoints.USER_TRACKS, 303, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.SOUNDS),
     USER_SOUNDS("users/#/sounds", TempEndpoints.e1.USER_SOUNDS, 311, SoundAssociation.class, -1, Table.COLLECTION_ITEMS),
     USER_LIKES("users/#/likes", TempEndpoints.e1.USER_LIKES, 304, Track.class, LIKE, null),
     USER_FOLLOWERS("users/#/followers", Endpoints.USER_FOLLOWERS, 305, User.class, FOLLOWER, null),
@@ -116,19 +118,14 @@ public enum Content  {
     COLLECTION_ITEMS("collection_items", null, 1004, null, -1, Table.COLLECTION_ITEMS),
     COLLECTION_ITEM("collection_items/#", null, 1005, null, -1, Table.COLLECTION_ITEMS),
 
+    USER_ASSOCIATIONS("user_associations", null, 1010, null, -1, Table.USER_ASSOCIATIONS),
+
     RECORDINGS("recordings", null, 1100, Recording.class, -1, Table.RECORDINGS),
     RECORDING("recordings/#", null, 1101, Recording.class, -1, Table.RECORDINGS),
 
     TRACK_PLAYS("track_plays", null, 1300, null, -1, Table.TRACK_METADATA),
     TRACK_PLAYS_ITEM("track_plays/#", null, 1301, null, -1, Table.TRACK_METADATA),
     TRACK_METADATA("track_metadata", null, 1302, null, -1, Table.TRACK_METADATA),
-
-    SEARCHES("searches", null, 1400, null, -1, Table.SEARCHES),
-    SEARCHES_ITEM("searches/#", null, 1401, null, -1, Table.SEARCHES),
-    SEARCHES_TRACKS("searches/tracks", null, 1402, Track.class, -1, null),
-    SEARCHES_USERS("searches/users", null, 1403, User.class, -1, null),
-    SEARCHES_TRACK("searches/tracks/*", null, 1404, Track.class, ScContentProvider.CollectionItemTypes.SEARCH, null),
-    SEARCHES_USER("searches/users/*", null, 1405, User.class, ScContentProvider.CollectionItemTypes.SEARCH, null),
 
     SEARCH("search", null, 1500, ScResource.class, -1, null),
     SEARCH_ITEM("search/*", null, 1501, ScResource.class, -1, null),
@@ -162,6 +159,7 @@ public enum Content  {
         this.table = table;
     }
 
+    /** one of {@link com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes} */
     public final int collectionType;
     public final int id;
     public final
@@ -184,6 +182,24 @@ public enum Content  {
             Content.ME_SOUND_STREAM
     );
 
+
+    public static final EnumSet<Content> ID_BASED = EnumSet.of(
+            Content.ME_FOLLOWINGS,
+            Content.ME_FOLLOWERS,
+            Content.ME_FRIENDS
+    );
+
+    public static final EnumSet<Content> LISTEN_FOR_PLAYLIST_CHANGES = EnumSet.of(
+            Content.ME_SOUND_STREAM,
+            Content.ME_ACTIVITIES,
+            Content.ME_SOUNDS,
+            Content.USER_SOUNDS,
+            Content.ME_LIKES,
+            Content.USER_LIKES,
+            Content.ME_PLAYLISTS,
+            Content.USER_PLAYLISTS
+    );
+
     static {
         for (Content c : Content.values()) {
             if (c.id >= 0 && c.uri != null) {
@@ -195,7 +211,7 @@ public enum Content  {
     }
 
     public boolean isSyncable() {
-        return id < SYNCABLE_CEILING;
+        return id < SYNCABLE_CEILING && id > 0;
     }
 
     public boolean isCollectionItem() {
@@ -207,7 +223,7 @@ public enum Content  {
     }
 
     public boolean isMine() {
-        return id < MINE_CEILING;
+        return id < MINE_CEILING && id > 0;
     }
 
     public Uri.Builder buildUpon() {
@@ -280,6 +296,10 @@ public enum Content  {
         return remoteUri != null;
     }
 
+    public boolean shouldListenForPlaylistChanges() {
+        return LISTEN_FOR_PLAYLIST_CHANGES.contains(this);
+    }
+
     @Override
     public String toString() {
         return "Content." + name();
@@ -308,13 +328,22 @@ public enum Content  {
         return sUris.get(uri);
     }
 
+    public boolean isUserBased(){
+        return User.class.equals(modelType) || UserAssociation.class.equals(modelType);
+    }
+
     public boolean isStale(long lastSync) {
         // do not auto refresh users when the list opens, because users are always changing
-        if (modelType == User.class) return lastSync <= 0;
+        if (isUserBased()) return lastSync <= 0;
         final long staleTime = (modelType == Track.class) ? SyncConfig.TRACK_STALE_TIME :
                 (modelType == Activity.class) ? SyncConfig.ACTIVITY_STALE_TIME :
                         SyncConfig.DEFAULT_STALE_TIME;
 
         return System.currentTimeMillis() - lastSync > staleTime;
+    }
+
+    @Nullable
+    public Class<? extends ScModel> getModelType() {
+        return modelType;
     }
 }

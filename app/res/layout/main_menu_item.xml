@@ -3,7 +3,7 @@
               style="@style/side_menu_item">
 
     <ImageView android:id="@+id/main_menu_item_icon"
-               style="@style/side_menu_item_icon" />
+               style="@style/side_menu_item_type_icon" />
 
     <TextView android:id="@+id/main_menu_item_text"
               style="@style/side_menu_item_text"

@@ -1,5 +1,13 @@
 package com.soundcloud.android.view.play;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -11,15 +19,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 
 public class CommentPanel extends RelativeLayout {
 
@@ -34,9 +33,6 @@ public class CommentPanel extends RelativeLayout {
     private final ImageButton mBtnClose;
     protected final TextView mTxtComment;
 
-    private WaveformController mController;
-    private ScPlayer mPlayer;
-
     /* package */ boolean interacted, closing;
 
     private final String at_timestamp;
@@ -47,6 +43,12 @@ public class CommentPanel extends RelativeLayout {
     private final int mPlayheadArrowWidth;
     private final int mPlayheadArrowHeight;
 
+    private CommentPanelListener mListener;
+
+    public interface CommentPanelListener {
+        void onNextCommentInThread();
+        void onCloseComment();
+    }
 
     public CommentPanel(Context context, boolean isLandscape) {
         super(context);
@@ -70,9 +72,9 @@ public class CommentPanel extends RelativeLayout {
         mIcon.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mPlayer, UserBrowser.class);
+                Intent intent = new Intent(getContext(), UserBrowser.class);
                 intent.putExtra("user", mComment.user);
-                mPlayer.startActivity(intent);
+                getContext().startActivity(intent);
             }
 
         });
@@ -93,15 +95,18 @@ public class CommentPanel extends RelativeLayout {
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                    mPlayer.addNewComment(
-                            Comment.build(
-                                mComment.track,
-                                mPlayer.getApp().getLoggedInUser(),
-                                mComment.timestamp,
-                                "",
-                                mComment.id,
-                                mComment.user.username));
+                if (mComment != null && mComment.track != null) {
+                    Intent intent = new Intent(Comment.ACTION_CREATE_COMMENT)
+                            .putExtra(Comment.EXTRA, Comment.build(
+                                    mComment.track,
+                                    SoundCloudApplication.fromContext(getContext()).getLoggedInUser(),
+                                    mComment.timestamp,
+                                    "",
+                                    mComment.getId(),
+                                    mComment.user.username));
+                    getContext().sendBroadcast(intent);
 
+                }
                 return true;
             }
         });
@@ -109,7 +114,7 @@ public class CommentPanel extends RelativeLayout {
         mTxtReadOn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mController.nextCommentInThread();
+                mListener.onNextCommentInThread();
             }
 
         });
@@ -119,9 +124,9 @@ public class CommentPanel extends RelativeLayout {
         mTxtUsername.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mPlayer, UserBrowser.class);
+                Intent intent = new Intent(getContext(), UserBrowser.class);
                 intent.putExtra("user", mComment.user);
-                mPlayer.startActivity(intent);
+                getContext().startActivity(intent);
             }
 
         });
@@ -130,7 +135,7 @@ public class CommentPanel extends RelativeLayout {
             mBtnClose.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mController.closeComment(true);
+                    mListener.onCloseComment();
                 }
             });
 
@@ -144,9 +149,9 @@ public class CommentPanel extends RelativeLayout {
         interacted = false;
     }
 
-    protected void setControllers(ScPlayer player, WaveformController controller) {
-        mPlayer = player;
-        mController = controller;
+
+    public void setListener(CommentPanelListener commentPanelListener) {
+        mListener = commentPanelListener;
     }
 
     protected void showComment(final Comment current) {
@@ -172,22 +177,11 @@ public class CommentPanel extends RelativeLayout {
         }
 
         if (!mComment.shouldLoadIcon()) {
-            ImageLoader.get(getContext()).unbind(mIcon);
+            ImageLoader.getInstance().cancelDisplayTask(mIcon);
             return;
         }
 
-        ImageLoader.get(getContext()).bind(mIcon,
-                Consts.GraphicSize.formatUriForList(getContext(), mComment.user.avatar_url),
-                new ImageLoader.Callback() {
-                    @Override
-                    public void onImageLoaded(ImageView view, String url) {
-                    }
-
-                    @Override
-                    public void onImageError(ImageView view, String url, Throwable error) {
-                    }
-                });
-
+        ImageLoader.getInstance().displayImage(mComment.user.avatar_url, mIcon);
         mPlayheadOffset = mComment.xPos;
     }
 

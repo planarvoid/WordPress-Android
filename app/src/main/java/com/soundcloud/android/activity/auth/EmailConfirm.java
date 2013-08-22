@@ -6,15 +6,15 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
@@ -28,10 +28,14 @@ import java.io.IOException;
 public class EmailConfirm extends ScActivity {
     public static final String PREF_LAST_REMINDED = "confirmation_last_reminded";
     public static final int REMIND_PERIOD = 86400 * 1000 * 7; // 1 week
+    private AccountOperations mAccountOperations;
+    private AndroidCloudAPI mAndroidCloudAPI;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAccountOperations = new AccountOperations(this);
+        mAndroidCloudAPI = new OldCloudAPI(this);
         final long lastReminded = getLastReminded();
 
         if (lastReminded > 0 && System.currentTimeMillis() - lastReminded < REMIND_PERIOD) {
@@ -43,7 +47,7 @@ public class EmailConfirm extends ScActivity {
                 @Override
                 public void onClick(View v) {
                     setResult(RESULT_OK, new Intent(Actions.RESEND));
-                    new ResendConfirmationTask((AndroidCloudAPI) getApplication()).execute((Void)null);
+                    new ResendConfirmationTask(mAndroidCloudAPI).execute((Void)null);
                     finish();
                 }
             });
@@ -71,16 +75,16 @@ public class EmailConfirm extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getApp().track(getClass());
+        getApp().track(EmailConfirm.class);
     }
 
     private void updateLastReminded() {
-        getApp().setAccountData(PREF_LAST_REMINDED, System.currentTimeMillis() + "");
+        mAccountOperations.setAccountData(PREF_LAST_REMINDED, System.currentTimeMillis() + "");
     }
 
     // XXX this check should happen earlier
     private long getLastReminded() {
-        return getApp().getAccountDataLong(PREF_LAST_REMINDED);
+        return mAccountOperations.getAccountDataLong(PREF_LAST_REMINDED);
     }
 
     static class ResendConfirmationTask extends AsyncApiTask<Void, Void, Boolean> {

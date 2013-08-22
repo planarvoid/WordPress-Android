@@ -1,9 +1,12 @@
 package com.soundcloud.android.activity.auth;
 
+import static android.content.SharedPreferences.Editor;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
@@ -39,15 +42,15 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Date;
 
 /**
  * Facebook SSO based login. Most of this code is taken from the
  * <a href="https://github.com/facebook/facebook-android-sdk/">Facebook Android SDK </a>
  */
-public class FacebookSSO extends AbstractLoginActivity {
+public class FacebookSSO extends FacebookBaseActivity {
     private static final String TAG = FacebookSSO.class.getSimpleName();
-
     /* package */ static final String FB_PERMISSION_EXTRA = "scope";
     private static final String FB_CLIENT_ID_EXTRA = "client_id";
     private static final String TOKEN = "access_token";
@@ -67,10 +70,13 @@ public class FacebookSSO extends AbstractLoginActivity {
     private static final String COM_FACEBOOK_APPLICATION = "com.facebook.application.";
     public static final String ACCESS_DENIED = "access_denied";
     public static final String ACCESS_DENIED_EXCEPTION = "OAuthAccessDeniedException";
+    private Bundle mLoginBundle;
+    private TokenInformationGenerator tokenInformationGenerator;
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        tokenInformationGenerator = new TokenInformationGenerator(new OldCloudAPI(this));
         Intent auth = getAuthIntent(this, DEFAULT_PERMISSIONS);
         if (validateAppSignatureForIntent(auth)) {
             startActivityForResult(auth, 0);
@@ -78,6 +84,19 @@ public class FacebookSSO extends AbstractLoginActivity {
             setResult(RESULT_OK,
                     new Intent().putExtra("error", "fb app not installed or sig invalid"));
             finish();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        /**
+         * Workaround for https://code.google.com/p/android/issues/detail?id=17787
+         * Login fragment has to be shown on or after onResume
+         */
+        if (mLoginBundle != null){
+            login(mLoginBundle);
+            mLoginBundle = null;
         }
     }
 
@@ -90,10 +109,8 @@ public class FacebookSSO extends AbstractLoginActivity {
                     Log.d(TAG, "got token: "+token);
                 }
                 token.store(this);
-
-                Bundle bundle = new Bundle();
-                bundle.putString(EXTENSION_GRANT_TYPE_EXTRA, CloudAPI.FACEBOOK_GRANT_TYPE + token.accessToken);
-                login(bundle);
+                // save login bundle for login in onResume
+                mLoginBundle = tokenInformationGenerator.getGrantBundle(CloudAPI.FACEBOOK_GRANT_TYPE, token.accessToken);
 
             } catch (SSOException e) {
                 Log.w(TAG, "error getting Facebook token", e);
@@ -118,7 +135,7 @@ public class FacebookSSO extends AbstractLoginActivity {
                 !intent.getAction().startsWith(COM_FACEBOOK_APPLICATION)) {
             return false;
         } else {
-            if (intent.getAction().equals(COM_FACEBOOK_APPLICATION + getFacebookAppId(SoundCloudApplication.instance))) {
+            if (intent.getAction().equals(COM_FACEBOOK_APPLICATION + getFacebookAppId(context))) {
                 // fb deeplink intent, contains short-lived token which can be extended ?
                 FBToken token = FBToken.fromIntent(intent);
                 if (token != null) {
@@ -157,7 +174,7 @@ public class FacebookSSO extends AbstractLoginActivity {
     }
 
     /* package */ static Intent getAuthIntent(Context context, String... permissions) {
-        final String applicationId = getFacebookAppId(SoundCloudApplication.instance);
+        final String applicationId = getFacebookAppId(context);
         Intent intent = new Intent();
         intent.setClassName(FB_PACKAGE, "com.facebook.katana.ProxyAuth");
         intent.putExtra(FB_CLIENT_ID_EXTRA, applicationId);
@@ -167,34 +184,43 @@ public class FacebookSSO extends AbstractLoginActivity {
         return intent;
     }
 
+    private static final class ExtendTokenHandler extends Handler {
+        private WeakReference<Context> mContextRef;
+
+        private ExtendTokenHandler(Context context) {
+            this.mContextRef = new WeakReference<Context>(context);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final Context context = mContextRef.get();
+            String aToken = msg.getData().getString(TOKEN);
+            long expiresAt = msg.getData().getLong(EXPIRES) * 1000L;
+            if (context != null && aToken != null) {
+                FBToken extendedToken = new FBToken(aToken, expiresAt);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "token refreshed via service: " + aToken + " ===> " + extendedToken);
+                }
+
+                if (!extendedToken.isExpired() && !extendedToken.isShortLived()) {
+                    extendedToken.store(context);
+                    extendedToken.sendToBackend(context);
+                } else {
+                    // either expired or short-lived, no point sending back to back-end
+                    Log.w(TAG, "not a valid token: " + extendedToken);
+                }
+            } else {
+                Log.w(TAG, "token is null or context expired");
+            }
+        }
+    }
+
     /* package */ static boolean extendAccessToken(final FBToken token, final Context context) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "extendAccessToken("+token+")");
         return token.accessToken != null &&
                 validateServiceIntent(context, getRefreshIntent()) &&
                 context.bindService(getRefreshIntent(), new ServiceConnection() {
-                    private final Messenger messenger = new Messenger(new Handler() {
-                        @Override
-                        public void handleMessage(Message msg) {
-                            String aToken = msg.getData().getString(TOKEN);
-                            long expiresAt = msg.getData().getLong(EXPIRES) * 1000L;
-                            if (aToken != null) {
-                                FBToken extendedToken = new FBToken(aToken, expiresAt);
-                                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                    Log.d(TAG, "token refreshed via service: " + token + " ===> " + extendedToken);
-                                }
-
-                                if (!extendedToken.isExpired() && !extendedToken.isShortLived()) {
-                                    extendedToken.store(context);
-                                    extendedToken.sendToBackend(context);
-                                } else {
-                                    // either expired or short-lived, no point sending back to back-end
-                                    Log.w(TAG, "not a valid token: " + extendedToken);
-                                }
-                            } else {
-                                Log.w(TAG, "token is null");
-                            }
-                        }
-                    });
+                    private final Messenger messenger = new Messenger(new ExtendTokenHandler(context));
                     private Messenger sender;
 
                     @Override
@@ -231,8 +257,8 @@ public class FacebookSSO extends AbstractLoginActivity {
         }
     }
 
-    private static String getFacebookAppId(AndroidCloudAPI api) {
-        return api.getContext().getString(R.string.production_facebook_app_id);
+    private static String getFacebookAppId(Context context) {
+        return context.getString(R.string.production_facebook_app_id);
     }
 
     private static boolean validateAppSignatureForPackage(Context context, String packageName) {
@@ -332,10 +358,12 @@ public class FacebookSSO extends AbstractLoginActivity {
 
         public boolean store(Context context) {
             // also store in account manager
-            Account acc = SoundCloudApplication.fromContext(context).getAccount();
-            if (acc !=  null) {
+            AccountOperations accountOperations = new AccountOperations(context);
+
+            if (accountOperations.soundCloudAccountExists()) {
+                Account account = accountOperations.getSoundCloudAccount();
                 AccountManager accountManager = AccountManager.get(context);
-                accountManager.setAuthToken(acc, TOKEN_TYPE, accessToken);
+                accountManager.setAuthToken(account, TOKEN_TYPE, accessToken);
             }
 
             SharedPreferences prefs = context.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE);
@@ -347,7 +375,7 @@ public class FacebookSSO extends AbstractLoginActivity {
         }
 
         public AsyncTask<?, ?, Boolean> sendToBackend(Context context) {
-            return new PostTokenTask((AndroidCloudAPI) context.getApplicationContext()).execute(this);
+            return new PostTokenTask(new OldCloudAPI(context)).execute(this);
         }
 
         public static @NotNull FBToken load(Context context) {
@@ -372,7 +400,9 @@ public class FacebookSSO extends AbstractLoginActivity {
 
         public static void clear(Context context) {
             SharedPreferences prefs = context.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE);
-            prefs.edit().clear().commit();
+            Editor editor = prefs.edit();
+            editor.clear();
+            editor.commit();
         }
 
         public @Nullable static FBToken fromIntent(@NotNull Intent intent) {

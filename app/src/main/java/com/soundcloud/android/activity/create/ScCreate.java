@@ -1,19 +1,19 @@
 package com.soundcloud.android.activity.create;
 
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.audio.PlaybackStream;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -54,7 +54,7 @@ import java.util.Date;
 import java.util.List;
 
 @Tracking(page = Page.Record_main)
-public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
+public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, ScLandingPage {
 
     public static final int REQUEST_UPLOAD_SOUND  = 1;
 
@@ -78,6 +78,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private ButtonBar mButtonBar;
     private boolean mActive, mHasEditControlGroup, mSeenSavedMessage;
     private List<Recording> mUnsavedRecordings;
+    private AccountOperations mAccountOperations;
 
     private ProgressBar mGeneratingWaveformProgressBar;
 
@@ -103,7 +104,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.sc_create);
-
+        mAccountOperations = new AccountOperations(this);
         mRecorder = SoundRecorder.getInstance(this);
         mTxtInstructions = (TextView) findViewById(R.id.txt_instructions);
         mTxtRecordMessage = (RecordMessageView) findViewById(R.id.txt_record_message);
@@ -346,9 +347,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         track(Click.Record_Main_Record_Pause, mTxtRecordMessage.getCurrentSuggestionKey());
                         mRecorder.stopRecording();
                         // XXX use prefs
-                        if (getApp().getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {
+                        if (mAccountOperations.getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {
                             showToast(R.string.create_autosave_message);
-                            getApp().setAccountData(User.DataKeys.SEEN_CREATE_AUTOSAVE, true);
+                            mAccountOperations.setAccountData(User.DataKeys.SEEN_CREATE_AUTOSAVE, Boolean.TRUE.toString());
                         }
                         break;
                 }
@@ -425,7 +426,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             newState = CreateState.RECORD;
         } else {
 
-            Recording recording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId());
+            Recording recording = Recording.fromIntent(intent, this, getCurrentUserId());
             if (recording != null){
 
                 // failsafe, if they try to play an uploading recording
@@ -465,8 +466,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         Recording.clearRecordingFromIntent(intent);
 
         if (newState == CreateState.IDLE_RECORD) {
-            mUnsavedRecordings = Recording.getUnsavedRecordings(
-                    getContentResolver(),
+            RecordingStorage recordings = new RecordingStorage();
+            mUnsavedRecordings = recordings.getUnsavedRecordings(
                     SoundRecorder.RECORD_DIR,
                     mRecorder.getRecording(),
                     getCurrentUserId());
@@ -882,96 +883,124 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     @Override public Dialog onCreateDialog(int which) {
         switch (which) {
             case Consts.Dialogs.DIALOG_UNSAVED_RECORDING:
-                final List<Recording> recordings = mUnsavedRecordings;
+                return createUnsavedRecordingDialog();
 
-                if (recordings == null || recordings.isEmpty()) return null;
-                final CharSequence[] fileIds = new CharSequence[recordings.size()];
-                final boolean[] checked = new boolean[recordings.size()];
-                for (int i=0; i < recordings.size(); i++) {
-                    fileIds[i] = new Date(recordings.get(i).lastModified()).toLocaleString() + ", " + recordings.get(i).formattedDuration();
-                    checked[i] = true;
-                }
-
-                return new AlertDialog.Builder(this)
-                        .setTitle(R.string.dialog_unsaved_recordings_message)
-                        .setMultiChoiceItems(fileIds, checked,
-                            new DialogInterface.OnMultiChoiceClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton, boolean isChecked) {
-                                    checked[whichButton] = isChecked;
-                                }
-                            })
-                        .setPositiveButton(R.string.btn_save,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    for (int i = 0; i < recordings.size(); i++) {
-                                        if (checked[i]) {
-                                            DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                                            recordings.get(i).insert(getContentResolver());
-                                        } else {
-                                            recordings.get(i).delete(null);
-                                        }
-                                    }
-                                    mUnsavedRecordings = null;
-                                }
-                            })
-                        .create();
             case Consts.Dialogs.DIALOG_DISCARD_RECORDING:
-                return new AlertDialog.Builder(this)
-                        .setTitle(null)
-                        .setMessage(R.string.dialog_reset_recording_message)
-                        .setPositiveButton(android.R.string.yes,
-                            new DialogInterface.OnClickListener() {
-                                @Override public void onClick(DialogInterface dialog, int whichButton) {
-                                    reset(true);
-                                }
-                        })
-                        .setNegativeButton(android.R.string.no, null)
-                        .create();
+                return createDiscardRecordingDialog();
 
             case Consts.Dialogs.DIALOG_REVERT_RECORDING:
-                return new AlertDialog.Builder(this)
-                        .setTitle(null)
-                        .setMessage(R.string.dialog_revert_recording_message)
-                        .setPositiveButton(android.R.string.yes,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        track(Click.Record_Edit_Revert_To_Original);
-                                        mRecorder.revertFile();
-                                        updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
-                                    }
-                                })
-                        .setNegativeButton(android.R.string.no, null)
-                        .create();
+                return createRevertRecordingDialog();
 
             case Consts.Dialogs.DIALOG_DELETE_RECORDING:
-                return new AlertDialog.Builder(this)
-                        .setTitle(null)
-                        .setMessage(R.string.dialog_confirm_delete_recording_message)
-                        .setPositiveButton(android.R.string.yes,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
-                                        reset(true);
-                                    }
-                                })
-                        .setNegativeButton(android.R.string.no, null)
-                        .create();
+                return createDeleteRecordingDialog();
 
             case Consts.Dialogs.DIALOG_INSTALL_PROCESSOR:
-                return new AlertDialog.Builder(this)
-                        .setTitle(null)
-                        .setMessage(R.string.dialog_install_processor)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, null)
-                        .create();
+                return createInstallProcessorDialog();
+
             default:
                 return null;
         }
+    }
+
+    private Dialog createInstallProcessorDialog() {
+        return new AlertDialog.Builder(this)
+                .setTitle(null)
+                .setMessage(R.string.dialog_install_processor)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .create();
+    }
+
+    private Dialog createDeleteRecordingDialog() {
+        return new AlertDialog.Builder(this)
+                .setTitle(null)
+                .setMessage(R.string.dialog_confirm_delete_recording_message)
+                .setPositiveButton(android.R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
+                                reset(true);
+                            }
+                        })
+                .setNegativeButton(android.R.string.no, null)
+                .create();
+    }
+
+    private Dialog createRevertRecordingDialog() {
+        return new AlertDialog.Builder(this)
+                .setTitle(null)
+                .setMessage(R.string.dialog_revert_recording_message)
+                .setPositiveButton(android.R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                track(Click.Record_Edit_Revert_To_Original);
+                                mRecorder.revertFile();
+                                updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
+                            }
+                        })
+                .setNegativeButton(android.R.string.no, null)
+                .create();
+    }
+
+    private Dialog createDiscardRecordingDialog() {
+        return new AlertDialog.Builder(this)
+                .setTitle(null)
+                .setMessage(R.string.dialog_reset_recording_message)
+                .setPositiveButton(android.R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                reset(true);
+                            }
+                        })
+                .setNegativeButton(android.R.string.no, null)
+                .create();
+    }
+
+    private Dialog createUnsavedRecordingDialog() {
+        final List<Recording> recordings = mUnsavedRecordings;
+
+        if (recordings == null || recordings.isEmpty()) return null;
+        final CharSequence[] fileIds = new CharSequence[recordings.size()];
+        final boolean[] checked = new boolean[recordings.size()];
+        for (int i=0; i < recordings.size(); i++) {
+            fileIds[i] = new Date(recordings.get(i).lastModified()).toLocaleString() + ", " + recordings.get(i).formattedDuration();
+            checked[i] = true;
+        }
+
+        return new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_unsaved_recordings_message)
+                .setMultiChoiceItems(fileIds, checked,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton, boolean isChecked) {
+                                checked[whichButton] = isChecked;
+                            }
+                        })
+                .setPositiveButton(R.string.btn_save,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                onSaveRecordingButtonClicked(recordings, checked);
+                            }
+                        })
+                .create();
+    }
+
+    private void onSaveRecordingButtonClicked(List<Recording> recordings, boolean[] checked) {
+        RecordingStorage storage = new RecordingStorage();
+        for (int i = 0; i < recordings.size(); i++) {
+            if (checked[i]) {
+                DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
+                storage.create(recordings.get(i)).subscribe(ScActions.NO_OP);
+            } else {
+                storage.delete(recordings.get(i)).subscribe(ScActions.NO_OP);
+            }
+        }
+        mUnsavedRecordings = null;
     }
 
     /* package, for testing */ CreateState getState() { return mCurrentState; }

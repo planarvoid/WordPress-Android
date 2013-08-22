@@ -1,8 +1,8 @@
 package com.soundcloud.android.task.collection;
 
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.api.Request;
 
 import android.net.Uri;
@@ -11,7 +11,7 @@ public class CollectionParams<T extends ScModel> {
     public Class<T> loadModel;
     public Uri contentUri;
     public boolean isRefresh;
-    public Request request;
+    private Request request;
     public boolean refreshPageItems;
     public int startIndex;
     public int maxToLoad;
@@ -27,9 +27,9 @@ public class CollectionParams<T extends ScModel> {
 
         Uri.Builder b = contentUri.buildUpon();
         if (startIndex > 0) {
-            b.appendQueryParameter("offset", String.valueOf(startIndex));
+            b.appendQueryParameter(ScContentProvider.Parameter.OFFSET, String.valueOf(startIndex));
         }
-        b.appendQueryParameter("limit", String.valueOf(maxToLoad));
+        b.appendQueryParameter(ScContentProvider.Parameter.LIMIT, String.valueOf(maxToLoad));
         return b.build();
     }
 
@@ -45,5 +45,17 @@ public class CollectionParams<T extends ScModel> {
                 ", maxToLoad=" + maxToLoad +
                 ", timestamp=" + timestamp +
                 '}';
+    }
+
+    public Request getRequest() {
+        return request;
+    }
+
+    public void setRequest(Request request) {
+        this.request = request;
+    }
+
+    public boolean isRefresh() {
+        return isRefresh;
     }
 }

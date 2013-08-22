@@ -1,27 +1,23 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -35,15 +31,16 @@ public class EmptyListView extends RelativeLayout {
     private TextView mTxtMessage;
     private TextView mTxtLink;
     @Nullable private ImageView mImage;
-    @Nullable private View mErrorView;
+    @Nullable private ErrorView mErrorView;
     protected Button mBtnAction;
 
-    private int     mMessageResource, mLinkResource, mImageResource, mActionTextResource;
-    private String  mMessage;
+    private int     mMessageResource, mImageResource;
+    private String  mMessage, mSecondaryText, mActionText;
 
     private ActionListener mButtonActionListener;
     private ActionListener mImageActionListener;
     protected int mMode;
+    private RetryListener mRetryListener;
 
     public interface Status extends HttpStatus {
         int WAITING = -1;
@@ -52,39 +49,41 @@ public class EmptyListView extends RelativeLayout {
         int OK = SC_OK; //generic OK
     }
 
-    public EmptyListView(final Context context, final Intent... intents) {
+    public EmptyListView(final Context context) {
         super(context);
-        setActionListener(context, intents);
         init();
     }
 
     public EmptyListView(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        setActionListener(context);
         init();
     }
 
-    public EmptyListView setActionListener(final Context context, final Intent... intents) {
-        if (intents.length > 0) {
-            setButtonActionListener(new ActionListener() {
-                @Override
-                public void onAction() {
-                    context.startActivity(intents[0]);
+    public EmptyListView setButtonActions(@Nullable final Intent primaryAction, @Nullable final Intent secondaryAction) {
+        setActionListener(new ActionListener() {
+            @Override
+            public void onAction() {
+                if (primaryAction != null) {
+                    getContext().startActivity(primaryAction);
                 }
-                @Override
-                public void onSecondaryAction() {
-                    if (intents.length > 1) {
-                        context.startActivity(intents[1]);
-                    }
+            }
+
+            @Override
+            public void onSecondaryAction() {
+                if (secondaryAction != null) {
+                    getContext().startActivity(secondaryAction);
                 }
-            });
-        }
+            }
+        });
         return this;
     }
 
     private void init(){
         ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.empty_list, this);
+
+        final Animation animationIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in_med);
+        setLayoutAnimation(new LayoutAnimationController(animationIn));
 
         mEmptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
         mProgressBar = (ProgressBar) findViewById(R.id.list_loading);
@@ -106,7 +105,7 @@ public class EmptyListView extends RelativeLayout {
                 if (mErrorView != null) mErrorView.setVisibility(View.GONE);
                 return true;
 
-            } else if (IOUtils.isStatusCodeOk(code))  {
+            } else if (Wrapper.isStatusCodeOk(code))  {
                 // at rest, no error
                 mProgressBar.setVisibility(View.GONE);
                 showEmptyLayout();
@@ -124,31 +123,30 @@ public class EmptyListView extends RelativeLayout {
         return true;
     }
 
+    public int getStatus() {
+        return mMode;
+    }
+
     private void showError(int responseCode){
         if (mErrorView == null) {
-            mErrorView = View.inflate(getContext(), R.layout.empty_list_error, null);
-            mEmptyViewHolder.addView(mErrorView);
+            mErrorView = (ErrorView) LayoutInflater.from(getContext()).inflate(R.layout.error_view, null);
+            final RelativeLayout.LayoutParams params =
+                new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            mEmptyViewHolder.addView(mErrorView, params);
+
+            mErrorView.setOnRetryListener(mRetryListener);
+
         } else {
             mErrorView.setVisibility(View.VISIBLE);
         }
-        if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
+        if (mEmptyLayout != null) {
+            mEmptyLayout.setVisibility(View.GONE);
+        }
 
-
-        final TextView errorTextView = (TextView) mErrorView.findViewById(R.id.txt_message);
-        if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
-            errorTextView.setText(R.string.error_soundcloud_is_down);
-
-        } else if (IOUtils.isStatusCodeError(responseCode)) {
-            errorTextView.setText(R.string.error_soundcloud_server_problems);
-
-        } else if (responseCode == Status.CONNECTION_ERROR) {
-            errorTextView.setText(R.string.no_internet_connection);
-
-        } else if (responseCode == Status.ERROR) {
-            errorTextView.setText("");
+        if (Wrapper.isStatusCodeServerError(responseCode)){
+            mErrorView.setServerErrorState();
         } else {
-            errorTextView.setText("");
-            Log.w(SoundCloudApplication.TAG,"Unhandled response code: " + responseCode);
+            mErrorView.setClientErrorState();
         }
     }
 
@@ -192,8 +190,8 @@ public class EmptyListView extends RelativeLayout {
             } else {
                 setMessageText(mMessage);
             }
-            setSecondaryText(mLinkResource);
-            setActionText(mActionTextResource);
+            setSecondaryText(mSecondaryText);
+            setActionText(mActionText);
 
 
         } else {
@@ -249,11 +247,11 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setSecondaryText(int secondaryTextId) {
-        mLinkResource = secondaryTextId;
+    public EmptyListView setSecondaryText(String secondaryText) {
+        mSecondaryText = secondaryText;
         if (mTxtLink != null) {
-            if (secondaryTextId > 0) {
-                mTxtLink.setText(secondaryTextId);
+            if (secondaryText != null) {
+                mTxtLink.setText(secondaryText);
                 mTxtLink.setVisibility(View.VISIBLE);
                 ScTextUtils.clickify(mTxtLink, mTxtLink.getText().toString(), new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override
@@ -262,7 +260,7 @@ public class EmptyListView extends RelativeLayout {
                             mButtonActionListener.onSecondaryAction();
                         }
                     }
-                }, true);
+                }, true, false);
             } else {
                 mTxtLink.setVisibility(View.GONE);
             }
@@ -270,12 +268,12 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setActionText(int textId){
-        mActionTextResource = textId;
-        if (mBtnAction != null){
-            if (textId > 0){
+    public EmptyListView setActionText(@Nullable String actionText){
+        mActionText = actionText;
+        if (mBtnAction != null) {
+            if (actionText != null) {
                 mBtnAction.setVisibility(View.VISIBLE);
-                mBtnAction.setText(textId);
+                mBtnAction.setText(actionText);
             } else {
                 mBtnAction.setVisibility(View.INVISIBLE);
             }
@@ -283,8 +281,27 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    public EmptyListView setButtonActionListener(ActionListener listener){
+    public EmptyListView setActionListener(ActionListener listener){
         mButtonActionListener = listener;
+        return this;
+    }
+
+    public EmptyListView setImageActions(@Nullable final Intent primaryAction, @Nullable final Intent secondaryAction) {
+        setImageActionListener(new ActionListener() {
+            @Override
+            public void onAction() {
+                if (primaryAction != null) {
+                    getContext().startActivity(primaryAction);
+                }
+            }
+
+            @Override
+            public void onSecondaryAction() {
+                if (secondaryAction != null) {
+                    getContext().startActivity(secondaryAction);
+                }
+            }
+        });
         return this;
     }
 
@@ -293,78 +310,21 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
+    public EmptyListView setOnRetryListener(RetryListener listener) {
+        mRetryListener = listener;
+        if (mErrorView != null) {
+            mErrorView.setOnRetryListener(listener);
+        }
+        return this;
+    }
+
+    public interface RetryListener {
+        void onEmptyViewRetry();
+    }
+
     public interface ActionListener {
         void onAction();
         void onSecondaryAction();
-    }
-
-    public static EmptyListView fromContent(final Context context, final Content content) {
-        switch (content) {
-            case ME_SOUND_STREAM:
-                return new EmptyListView(context).setMessageText(R.string.list_empty_stream_message)
-                                        .setImage(R.drawable.empty_follow)
-                                        .setActionText(R.string.list_empty_stream_action)
-                                        .setSecondaryText(R.string.list_empty_stream_secondary)
-                                        .setButtonActionListener(new EmptyListView.ActionListener() {
-                                            @Override
-                                            public void onAction() {
-                                                context.startActivity(new Intent(Actions.WHO_TO_FOLLOW));
-                                            }
-
-                                            @Override
-                                            public void onSecondaryAction() {
-                                                context.startActivity(new Intent(Actions.FRIEND_FINDER));
-                                            }
-                                        });
-            case ME_ACTIVITIES:
-                User loggedInUser = SoundCloudApplication.fromContext(context).getLoggedInUser();
-                if (loggedInUser == null || loggedInUser.track_count > 0) {
-                                   return new EmptyListView(context).setMessageText(R.string.list_empty_activity_message)
-                                           .setImage(R.drawable.empty_share)
-                                           .setActionText(R.string.list_empty_activity_action)
-                                           .setSecondaryText(R.string.list_empty_activity_secondary)
-                                           .setButtonActionListener(new EmptyListView.ActionListener() {
-                                               @Override
-                                               public void onAction() {
-                                                   context.startActivity(new Intent(Actions.YOUR_SOUNDS));
-                                               }
-
-                                               @Override
-                                               public void onSecondaryAction() {
-                                                   goTo101s(context);
-                                               }
-                                           });
-                               } else {
-                                   final EmptyListView.ActionListener record = new EmptyListView.ActionListener() {
-                                       @Override
-                                       public void onAction() {
-                                           context.startActivity(new Intent(Actions.RECORD));
-                                       }
-
-                                       @Override
-                                       public void onSecondaryAction() {
-                                           goTo101s(context);
-                                       }
-                                   };
-
-                                   return new EmptyListView(context).setMessageText(R.string.list_empty_activity_nosounds_message)
-                                           .setImage(R.drawable.empty_rec)
-                                           .setActionText(R.string.list_empty_activity_nosounds_action)
-                                           .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
-                                           .setButtonActionListener(record)
-                                           .setImageActionListener(record);
-                               }
-
-            case ME_FRIENDS:
-                return new FriendFinderEmptyCollection(context);
-
-            default:
-                return new EmptyListView(context);
-        }
-    }
-
-    private static void goTo101s(Context context){
-        context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101")));
     }
 
 }

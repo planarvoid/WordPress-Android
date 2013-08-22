@@ -2,13 +2,14 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.service.sync.ApiSyncer.TAG;
 
+import com.soundcloud.android.utils.Log;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,16 +64,16 @@ import java.util.Set;
             // if this is a different instance of the same sync request, share the result
             for (CollectionSyncRequest instance : requestsRemaining){
                 if (instance.equals(request) && instance != request){
-                    instance.result = request.result;
+                    instance.setmResult(request.getResult());
                 }
             }
             requestsRemaining.remove(request);
 
-            resultData.putBoolean(request.contentUri.toString(), isUIRequest ?
-                    request.result.change != ApiSyncer.Result.UNCHANGED : request.result.change == ApiSyncer.Result.CHANGED);
+            resultData.putBoolean(request.getContentUri().toString(), isUIRequest ?
+                    request.getResult().change != ApiSyncResult.UNCHANGED : request.getResult().change == ApiSyncResult.CHANGED);
 
-            if (!request.result.success) {
-                ApiSyncService.appendSyncStats(request.result.syncResult, syncAdapterResult);
+            if (!request.getResult().success) {
+                ApiSyncService.appendSyncStats(request.getResult().syncResult, syncAdapterResult);
             }
         }
 
@@ -80,7 +81,7 @@ import java.util.Set;
             finish();
             return true;
         } else {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requests remaining: "+request);
+            Log.d(TAG, "requests remaining: "+request);
             return false;
         }
     }
@@ -99,10 +100,8 @@ import java.util.Set;
 
     private boolean isSuccess() {
         for (CollectionSyncRequest r : collectionSyncRequests) {
-            if (!r.result.success) {
-                if (Log.isLoggable(TAG, Log.WARN)) {
-                    Log.w(TAG, "collection sync request "+r+" not successful");
-                }
+            if (!r.getResult().success) {
+                Log.w(TAG, "collection sync request "+r+" not successful");
                 return false;
             }
         }

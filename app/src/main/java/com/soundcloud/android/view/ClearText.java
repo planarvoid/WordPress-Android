@@ -1,5 +1,9 @@
 package com.soundcloud.android.view;
 
+import static com.soundcloud.android.view.CustomFontLoader.applyCustomFont;
+
+import com.soundcloud.android.R;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
@@ -9,9 +13,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
-import com.soundcloud.android.R;
-
-import static com.soundcloud.android.view.CustomFontLoader.applyCustomFont;
 
 public class ClearText extends EditText{
 

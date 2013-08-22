@@ -3,7 +3,6 @@ package com.soundcloud.android.service.record;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;

@@ -57,16 +57,16 @@ public class PushEventTest {
     @Test
     public void shouldGetEventFromExtrasSyncAdapter() throws Exception {
         Bundle extras = new Bundle();
-        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, "like");
+        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, "like");
         expect(PushEvent.fromExtras(extras)).toEqual(PushEvent.LIKE);
 
-        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, "follower");
+        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, "follower");
         expect(PushEvent.fromExtras(extras)).toEqual(PushEvent.FOLLOWER);
 
-        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, "comment");
+        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, "comment");
         expect(PushEvent.fromExtras(extras)).toEqual(PushEvent.COMMENT);
 
-        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, "bla");
+        extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, "bla");
         expect(PushEvent.fromExtras(extras)).toEqual(PushEvent.UNKNOWN);
 
         expect(PushEvent.fromExtras(new Bundle())).toEqual(PushEvent.NONE);

@@ -63,7 +63,7 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
                     stream.getPlaybackFilter());
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "encoding from source " + in.getAbsolutePath());
-            tmp = File.createTempFile("encoder-" + mRecording.id, ".ogg", out.getParentFile());
+            tmp = File.createTempFile("encoder-" + mRecording.getId(), ".ogg", out.getParentFile());
             broadcast(UploadService.PROCESSING_STARTED);
             long now = System.currentTimeMillis();
             VorbisEncoder.encodeFile(in, tmp, options);

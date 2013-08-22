@@ -12,8 +12,8 @@ import com.soundcloud.android.audio.TrimPreview;
 import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.tracking.Event;
@@ -136,8 +136,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
         return instance;
     }
-
-    public SoundRecorder(Context context, AudioConfig config) {
+    protected SoundRecorder(Context context, AudioConfig config) {
         mContext = context;
         mConfig = config;
         mState = State.IDLE;
@@ -206,7 +205,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         if (mRecording != null) {
-            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
+            if (deleteRecording) new RecordingStorage().delete(mRecording);
             mRecording = null;
         }
     }
@@ -216,7 +215,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     public void setRecording(Recording recording) {
-        if (mRecording == null || recording.id != mRecording.id) {
+        if (mRecording == null || recording.getId() != mRecording.getId()) {
 
             if (isActive()) reset();
             mRecording = recording;
@@ -440,13 +439,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     private void previewTrim(TrimPreview trimPreview) {
         final boolean startThread = !(isPlaying() || mState.isTrimming());
+
         if (startThread) {
+            mState = State.TRIMMING; //keep both state setters to avoid race condition in tests
             startPlaybackThread(trimPreview);
         } else {
             mPlaybackThread.addPreview(trimPreview);
             if (isPlaying()) broadcast(PLAYBACK_STOPPED);
+            mState = State.TRIMMING;
         }
-        mState = State.TRIMMING;
     }
 
     private void startPlaybackThread() {
@@ -485,9 +486,12 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
 
             mRecording.setPlaybackStream(mPlaybackStream);
-            final Uri uri = mRecording.insert(mContext.getContentResolver(),false);
+
+            new RecordingStorage().createFromBaseValues(mRecording);
+
+            final Uri uri = mRecording.toUri();
             if (uri != null) {
-                mRecording.id = Long.parseLong(uri.getLastPathSegment());
+                mRecording.setId(Long.parseLong(uri.getLastPathSegment()));
                 return mRecording;
             }
         }
@@ -575,7 +579,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
             }
         }
 
-        private void previewTrim(PlaybackStream playbackStream) throws IOException {
+        private void playTrimPreviews(PlaybackStream playbackStream) throws IOException {
             TrimPreview preview;
             while ((preview = previewQueue.poll()) != null) {
                 final FadeFilter fadeFilter = preview.getFadeFilter();
@@ -633,7 +637,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                     do {
                         switch (mState) {
                             case TRIMMING:
-                                previewTrim(mPlaybackStream);
+                                playTrimPreviews(mPlaybackStream);
                                 break;
                             case SEEKING:
                                 if (mPlaybackStream == null) break;

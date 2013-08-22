@@ -1,7 +1,7 @@
 package com.soundcloud.android.view.create;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;

@@ -77,7 +77,7 @@ public class StreamStorage {
 
         mItems.put(item.urlHash, item);
         try {
-            File indexFile = incompleteIndexFileForUrl(item.url.toString());
+            File indexFile = incompleteIndexFileForUrl(item.streamItemUrl());
             if (indexFile.exists() && !indexFile.delete()) Log.w(LOG_TAG, "could not delete "+indexFile);
             item.toIndexFile(indexFile);
             return true;
@@ -459,7 +459,7 @@ public class StreamStorage {
             !existing.etag().equals(item.etag())) {
 
             Log.w(LOG_TAG, "eTag don't match, removing cached data");
-            removeAllDataForItem(item.url.toString());
+            removeAllDataForItem(item.streamItemUrl());
         }
     }
 

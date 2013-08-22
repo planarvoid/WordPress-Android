@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.PlayUtils;
 
@@ -60,6 +59,6 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
                 content = Content.TRACK_COMMENTS;
                 break;
         }
-        return content.forId(mPlayable.id);
+        return content.forId(mPlayable.getId());
     }
 }

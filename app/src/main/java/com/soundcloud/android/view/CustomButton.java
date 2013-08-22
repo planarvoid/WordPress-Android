@@ -1,12 +1,13 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.R;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.text.Html;
 import android.util.AttributeSet;
 import android.widget.Button;
-import com.soundcloud.android.R;
 
 public class CustomButton extends Button {
     public CustomButton(Context context) {

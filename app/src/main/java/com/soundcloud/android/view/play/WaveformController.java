@@ -1,18 +1,20 @@
 package com.soundcloud.android.view.play;
 
 
-import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
@@ -30,11 +32,12 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class WaveformController extends TouchLayout {
+public class WaveformController extends TouchLayout implements CommentPanel.CommentPanelListener {
     private static final String TAG = WaveformController.class.getSimpleName();
 
     protected static final long CLOSE_COMMENT_DELAY = 5000;
@@ -50,7 +53,6 @@ public class WaveformController extends TouchLayout {
     protected @Nullable WaveformCommentLines mCommentLines;
     protected PlayerTime mCurrentTimeDisplay;
 
-    protected @NotNull ScPlayer mPlayer;
     protected @Nullable Track mTrack;
     protected int mQueuePosition;
 
@@ -70,13 +72,13 @@ public class WaveformController extends TouchLayout {
     private float mSeekPercent;
 
     protected final Handler mHandler = new Handler();
+    private Handler mTouchHandler = new TouchHandler(this);
 
     private static final int MAX_WAVEFORM_RETRIES = 2;
 
     private static final int UI_UPDATE_SEEK = 1;
     private static final int UI_SEND_SEEK   = 2;
     private static final int UI_UPDATE_COMMENT_POSITION = 3;
-    protected static final int UI_ADD_COMMENT = 4;
     protected static final int UI_UPDATE_COMMENT = 5;
     protected static final int UI_CLEAR_SEEK = 6;
     // used by landscape
@@ -91,7 +93,6 @@ public class WaveformController extends TouchLayout {
 
     protected int mode = TOUCH_MODE_NONE;
 
-    private @Nullable PlayerTrackView mPlayerTrackView;
     protected boolean mShowComment;
     private static final long MIN_COMMENT_DISPLAY_TIME = 2000;
 
@@ -103,13 +104,18 @@ public class WaveformController extends TouchLayout {
     private int mTouchSlop;
     private int mWaveformColor;
 
+    private WaveformListener mListener;
+
+    public interface WaveformListener {
+        long sendSeek(float seekPosition);
+        long setSeekMarker(int queuePosition, float seekPosition);
+    }
+
 
     public WaveformController(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         setWillNotDraw(false);
-
-        mPlayer = (ScPlayer) context;
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -123,7 +129,7 @@ public class WaveformController extends TouchLayout {
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mCurrentTimeDisplay = (PlayerTime) findViewById(R.id.currenttime);
 
-        mWaveformColor = mPlayer.getResources().getColor(R.color.playerControlBackground);
+        mWaveformColor = context.getResources().getColor(R.color.playerControlBackground);
         mOverlay = findViewById(R.id.progress_overlay);
         mOverlay.setBackgroundColor(OVERLAY_BG_COLOR);
 
@@ -131,7 +137,7 @@ public class WaveformController extends TouchLayout {
         mPlayerAvatarBar = (PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
         mPlayerAvatarBar.setIsLandscape(isLandscape());
 
-        mCommentLines = new WaveformCommentLines(mPlayer, null);
+        mCommentLines = new WaveformCommentLines(context, null);
         mWaveformHolder.addView(mCommentLines);
 
         mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
@@ -145,6 +151,20 @@ public class WaveformController extends TouchLayout {
 
     public void setOnScreen(boolean onScreen){
         mOnScreen = onScreen;
+    }
+
+    public void setListener(WaveformListener listener){
+        mListener = listener;
+    }
+
+    @Override
+    public void onNextCommentInThread() {
+        nextCommentInThread();
+    }
+
+    @Override
+    public void onCloseComment() {
+        closeComment(true);
     }
 
     protected boolean isLandscape(){
@@ -227,7 +247,7 @@ public class WaveformController extends TouchLayout {
         resetCommentDisplay();
 
          //only performed on activity stop
-         if (mPlayerAvatarBar != null && killLoading) mPlayerAvatarBar.onStop();
+         if (mPlayerAvatarBar != null && killLoading) mPlayerAvatarBar.stopAvatarLoading();
     }
 
     public void resetCommentDisplay(){
@@ -322,9 +342,8 @@ public class WaveformController extends TouchLayout {
             final Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null) {
                 if (mLastAutoComment != last && pos - last.timestamp < 2000) {
-                    if (mPlayerTrackView != null
-                            && mPlayerTrackView.waveformVisible()
-                            && (mCurrentShowingComment == null ||
+                    // todo, isShown expensive?? it traverses up the hierarchy
+                    if (isShown() && (mCurrentShowingComment == null ||
                                     (mCurrentShowingComment == mLastAutoComment &&
                                     last.timestamp - mLastAutoComment.timestamp > MIN_COMMENT_DISPLAY_TIME))) {
                         mHandler.post(new Runnable() {
@@ -394,7 +413,7 @@ public class WaveformController extends TouchLayout {
     public void updateTrack(@Nullable Track track, int queuePosition, boolean visibleNow) {
         mQueuePosition = queuePosition;
         if (track == null || (mTrack != null
-                && mTrack.id == track.id
+                && mTrack.getId() == track.getId()
                 && mWaveformState != WaveformState.ERROR
                 && mDuration == mTrack.duration)) {
             return;
@@ -407,6 +426,8 @@ public class WaveformController extends TouchLayout {
 
         if (changed) {
             hideWaiting();
+            clearTrackComments();
+            setProgress(0);
             stopSmoothProgress();
             determineProgressInterval();
         }
@@ -451,8 +472,8 @@ public class WaveformController extends TouchLayout {
             mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
             mCommentLines.setCurrentComment(mCurrentShowingComment);
 
-            CommentPanel commentPanel = new CommentPanel(mPlayer, false);
-            commentPanel.setControllers(mPlayer, this);
+            CommentPanel commentPanel = new CommentPanel(getContext(), false);
+            commentPanel.setListener(this);
             commentPanel.showComment(mCurrentShowingComment);
             commentPanel.interacted = userTriggered;
             mCurrentCommentPanel = commentPanel;
@@ -653,13 +674,12 @@ public class WaveformController extends TouchLayout {
         if (mode == TOUCH_MODE_COMMENT_DRAG) {
             mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
             queueUnique(UI_UPDATE_COMMENT_POSITION);
-        } else if (input.view == mPlayerTouchBar && mPlayer.isSeekable()) {
+
+        } else if (input.view == mPlayerTouchBar && CloudPlaybackService.isSeekable()) {
             mode = TOUCH_MODE_SEEK_DRAG;
-            if (mPlayer.isSeekable()) {
-                mLastAutoComment = null; //reset auto comment in case they seek backward
-                mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
-                queueUnique(UI_UPDATE_SEEK);
-            }
+            mLastAutoComment = null; //reset auto comment in case they seek backward
+            mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+            queueUnique(UI_UPDATE_SEEK);
         }
     }
 
@@ -697,14 +717,15 @@ public class WaveformController extends TouchLayout {
         switch (mode) {
             case TOUCH_MODE_COMMENT_DRAG:
                 if (isOnTouchBar(input.y)) {
-                    mAddComment = Comment.build(
+                    Comment comment = Comment.build(
                             mTrack,
-                            mPlayer.getApp().getLoggedInUser(),
+                            SoundCloudApplication.fromContext(getContext()).getLoggedInUser(),
                             stampFromPosition(input.x),
                             "",
                             0,
                             "");
-                    queueUnique(UI_ADD_COMMENT);
+                    getContext().sendBroadcast(new Intent(Comment.ACTION_CREATE_COMMENT)
+                            .putExtra(Comment.EXTRA, comment));
                 } else return;
 
                 break;
@@ -736,56 +757,6 @@ public class WaveformController extends TouchLayout {
         if (!mTouchHandler.hasMessages(what)) mTouchHandler.sendEmptyMessage(what);
     }
 
-    Handler mTouchHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case UI_UPDATE_SEEK:
-                    long seekTime = mPlayer.setSeekMarker(mQueuePosition, mSeekPercent);
-                    if (seekTime == -1){
-                        // the seek did not work, abort
-                        mode = TOUCH_MODE_NONE;
-                    } else {
-                        mPlayerTouchBar.setSeekPosition((int) (mSeekPercent * getWidth()), mPlayerTouchBar.getHeight(), false);
-                        mCurrentTimeDisplay.setCurrentTime(seekTime, false);
-                    }
-
-                    mWaveformHolder.invalidate();
-                    break;
-
-                case UI_SEND_SEEK:
-                    if (mPlayer.isSeekable()){
-                        mPlayer.sendSeek(mSeekPercent);
-                    }
-                    mPlayerTouchBar.clearSeek();
-                    break;
-
-                case UI_CLEAR_SEEK:
-                    setProgressInternal(lastTrackTime + System.currentTimeMillis() - lastProgressTimestamp);
-                    mPlayerTouchBar.clearSeek();
-                    break;
-
-                case UI_UPDATE_COMMENT_POSITION:
-                    mCurrentTimeDisplay.setByPercent(mSeekPercent, true);
-                    mPlayerTouchBar.setSeekPosition((int) (mSeekPercent * getWidth()), mPlayerTouchBar.getHeight(), true);
-                    break;
-
-                case UI_ADD_COMMENT:
-                    mPlayer.addNewComment(mAddComment);
-                    mPlayerTrackView.setCommentMode(false);
-                    break;
-
-                case UI_UPDATE_COMMENT:
-                    if (mShowComment) {
-                        showCurrentComment(true);
-                    } else {
-                        closeComment(false);
-                    }
-                    break;
-            }
-        }
-    };
-
     public void onDestroy() {
         super.onDestroy();
 
@@ -813,17 +784,78 @@ public class WaveformController extends TouchLayout {
         mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
     }
 
-    public void setPlayerTrackView(PlayerTrackView playerTrackView) {
-        mPlayerTrackView = playerTrackView;
-    }
-
     public void onDataConnected() {
-        if (mWaveformState == WaveformController.WaveformState.ERROR) {
+        if (mWaveformState == WaveformState.ERROR) {
             updateTrack(mTrack, mQueuePosition, mOnScreen);
         }
     }
 
     public enum WaveformState {
         OK, LOADING, ERROR
+    }
+
+
+    private void processTouchMessage(int what){
+        final float seekPercent = mSeekPercent;
+        final PlayerTouchBar touchBar = mPlayerTouchBar;
+
+        switch (what) {
+            case UI_UPDATE_SEEK:
+                if (mListener != null) {
+                    long seekTime = mListener.setSeekMarker(mQueuePosition, seekPercent);
+                    if (seekTime == -1) {
+                        // the seek did not work, abort
+                        mode = TOUCH_MODE_NONE;
+                    } else {
+                        mPlayerTouchBar.setSeekPosition((int) (seekPercent * getWidth()), mPlayerTouchBar.getHeight(), false);
+                        mCurrentTimeDisplay.setCurrentTime(seekTime, false);
+                    }
+                    mWaveformHolder.invalidate();
+                }
+                break;
+
+            case UI_SEND_SEEK:
+                if (mListener != null) {
+                    mListener.sendSeek(seekPercent);
+                }
+                mPlayerTouchBar.clearSeek();
+                break;
+
+            case UI_CLEAR_SEEK:
+                long progress = lastTrackTime + System.currentTimeMillis() - lastProgressTimestamp;
+                setProgressInternal(progress);
+                touchBar.clearSeek();
+                break;
+
+            case UI_UPDATE_COMMENT_POSITION:
+                mCurrentTimeDisplay.setByPercent(seekPercent, true);
+                touchBar.setSeekPosition((int) (seekPercent * getWidth()), touchBar.getHeight(), true);
+                break;
+
+            case UI_UPDATE_COMMENT:
+                if (mShowComment) {
+                    showCurrentComment(true);
+                } else {
+                    closeComment(false);
+                }
+                break;
+        }
+    }
+
+
+    private static final class TouchHandler extends Handler {
+        private WeakReference<WaveformController> mRef;
+
+        private TouchHandler(WaveformController controller) {
+            this.mRef = new WeakReference<WaveformController>(controller);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final WaveformController controller = mRef.get();
+            if (controller != null) {
+                controller.processTouchMessage(msg.what);
+            }
+        }
     }
 }

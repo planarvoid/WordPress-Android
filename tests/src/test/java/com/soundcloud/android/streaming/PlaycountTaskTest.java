@@ -1,6 +1,8 @@
 package com.soundcloud.android.streaming;
 
 
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
@@ -9,8 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-
-import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
 public class PlaycountTaskTest {
@@ -24,7 +24,7 @@ public class PlaycountTaskTest {
                         .path("tracks/12345/stream"), new TestHttpResponse(302, ""));
 
         StreamItem item = new StreamItem("https://api.soundcloud.com/tracks/12345/stream");
-        PlaycountTask t = new PlaycountTask(item, DefaultTestRunner.application, false);
+        PlaycountTask t = new PlaycountTask(item, DefaultTestRunner.application.getCloudAPI(), false);
         expect(t.execute().getBoolean("success", false)).toBeTrue();
     }
 
@@ -37,7 +37,7 @@ public class PlaycountTaskTest {
                         .path("tracks/12345/stream"), new TestHttpResponse(503, ""));
 
         StreamItem item = new StreamItem("https://api.soundcloud.com/tracks/12345/stream");
-        new PlaycountTask(item, DefaultTestRunner.application, false).execute();
+        new PlaycountTask(item, DefaultTestRunner.application.getCloudAPI(), false).execute();
     }
 
     @Test
@@ -49,7 +49,7 @@ public class PlaycountTaskTest {
                         .path("tracks/12345/plays"), new TestHttpResponse(202, ""));
 
         StreamItem item = new StreamItem("https://api.soundcloud.com/tracks/12345/stream");
-        PlaycountTask t = new PlaycountTask(item, DefaultTestRunner.application, true);
+        PlaycountTask t = new PlaycountTask(item, DefaultTestRunner.application.getCloudAPI(), true);
         expect(t.execute().getBoolean("success", false)).toBeTrue();
     }
 
@@ -62,14 +62,14 @@ public class PlaycountTaskTest {
                         .path("tracks/12345/plays"), new TestHttpResponse(503, ""));
 
         StreamItem item = new StreamItem("https://api.soundcloud.com/tracks/12345/stream");
-        new PlaycountTask(item, DefaultTestRunner.application, true).execute();
+        new PlaycountTask(item, DefaultTestRunner.application.getCloudAPI(), true).execute();
     }
 
     @Test
     public void shouldNotLogIfItemIsUnavailable() throws Exception {
         StreamItem item = new StreamItem("https://api.soundcloud.com/tracks/12345/stream");
         item.markUnavailable(404);
-        PlaycountTask t = new PlaycountTask(item, DefaultTestRunner.application, true);
+        PlaycountTask t = new PlaycountTask(item, DefaultTestRunner.application.getCloudAPI(), true);
         expect(t.execute().getBoolean("success", false)).toBeFalse();
     }
 }

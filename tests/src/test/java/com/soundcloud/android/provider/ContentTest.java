@@ -2,18 +2,9 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import scala.remote;
-
-import android.content.ContentResolver;
-import android.content.ContentValues;
-
-import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class ContentTest {

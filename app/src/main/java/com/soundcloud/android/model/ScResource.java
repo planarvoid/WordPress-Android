@@ -3,12 +3,12 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.soundcloud.android.model.behavior.Identifiable;
+import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.net.Uri;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -24,7 +24,9 @@ import android.net.Uri;
         @JsonSubTypes.Type(value = Connection.class, name = "connection"),
         @JsonSubTypes.Type(value = Like.class, name = "like"),
         @JsonSubTypes.Type(value = Friend.class, name = "friend")})
-public abstract class ScResource extends ScModel {
+public abstract class ScResource
+        extends ScModel
+        implements Identifiable, Persisted {
 
     @JsonIgnore
     public long last_updated = NOT_SET;
@@ -36,8 +38,12 @@ public abstract class ScResource extends ScModel {
         super(id);
     }
 
-    public void setLastUpdated(long time) {
-        last_updated = time;
+    public ScResource(String urn) {
+        super(urn);
+    }
+
+    public void setUpdated() {
+        last_updated = System.currentTimeMillis();
     }
 
     public enum CacheUpdateMode {
@@ -54,19 +60,19 @@ public abstract class ScResource extends ScModel {
         if (!(o instanceof ScResource)) return false;
 
         ScResource resourceBase = (ScResource) o;
-        return id == resourceBase.id;
+        return mID == resourceBase.mID;
     }
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        return (int) (mID ^ (mID >>> 32));
     }
 
     /**
      * @return whether this object has been saved to the database.
      */
     public boolean isSaved() {
-        return id > NOT_SET;
+        return mID > NOT_SET;
     }
 
     /**
@@ -88,60 +94,9 @@ public abstract class ScResource extends ScModel {
         destination.add(getBulkInsertUri(), buildContentValues());
     }
 
-    /**
-     * Insert to this objects uri field
-     * @param contentResolver
-     * @return
-     */
-    public Uri insert(ContentResolver contentResolver) {
-        return insert(contentResolver,toUri());
-    }
-
-    /**
-     * insert to a specific URI, e.g. ME_LIKES.uri
-     * @param contentResolver
-     * @param uri
-     * @return
-     */
-    public Uri insert(ContentResolver contentResolver, Uri uri) {
-        insertDependencies(contentResolver);
-        return contentResolver.insert(uri, buildContentValues());
-    }
-
-    protected void insertDependencies(ContentResolver contentResolver) {
-        final BulkInsertMap dependencies = new BulkInsertMap();
-        putDependencyValues(dependencies);
-        dependencies.insert(contentResolver);
-    }
-
-    public abstract Uri toUri();
-
-    public abstract Uri getBulkInsertUri();
-
-    public abstract User getUser();
-
-    public abstract Playable getPlayable();
-
     public Intent getViewIntent(){
         return null;
     }
 
-    public static class ScResourceHolder extends CollectionHolder<ScResource> {
-
-        /**
-         * Insert the collection resources using a given URI along with dependencies
-         * @param resolver
-         * @param contentUri
-         * @return the total resources inserted, including dependencies
-         */
-        public int insert(ContentResolver resolver, @NotNull Uri contentUri) {
-            BulkInsertMap map = new BulkInsertMap();
-            for (ScResource r : this) {
-                r.putDependencyValues(map);
-                map.add(contentUri, r.buildContentValues());
-            }
-            return map.insert(resolver);
-        }
-    }
-
+    public static class ScResourceHolder<T extends ScResource> extends CollectionHolder<T> {}
 }

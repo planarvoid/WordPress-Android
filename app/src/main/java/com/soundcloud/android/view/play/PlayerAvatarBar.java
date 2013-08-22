@@ -1,22 +1,31 @@
 package com.soundcloud.android.view.play;
 
-import android.content.Context;
-import android.graphics.*;
-import android.os.Handler;
-import android.os.Message;
-import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.ImageLoader.BitmapCallback;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Message;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PlayerAvatarBar extends View {
     private static final String TAG = "PlayerCommentBar";
@@ -43,8 +52,6 @@ public class PlayerAvatarBar extends View {
     private Paint mActiveImagePaint;
     private Paint mActiveLinePaint;
 
-    private Consts.GraphicSize mTargetSize;
-
     private Thread mAvatarRefreshThread;
 
     private @Nullable Bitmap mCanvasBmp;
@@ -53,24 +60,26 @@ public class PlayerAvatarBar extends View {
     private Bitmap mDefaultAvatar;
 
     private ImageLoader mBitmapLoader;
-    private Consts.GraphicSize mAvatarGraphicsSize;
+    private ImageSize mAvatarGraphicsSize;
 
-    private Context mContext;
+    private Set<ImageView> mAvatarLoadingViews;
+
     private boolean mLandscape;
 
     public PlayerAvatarBar(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
-        mContext = context;
-        mBitmapLoader = ImageLoader.get(context.getApplicationContext());
+        mBitmapLoader = ImageLoader.getInstance();
 
-        if (ImageUtils.isScreenXL(mContext)) {
-            mAvatarGraphicsSize= Consts.GraphicSize.LARGE;
+        if (ImageUtils.isScreenXL(context)) {
+            mAvatarGraphicsSize= ImageSize.LARGE;
         } else {
-            mAvatarGraphicsSize = mContext.getResources().getDisplayMetrics().density > 1 ?
-                    Consts.GraphicSize.BADGE :
-                    Consts.GraphicSize.SMALL;
+            mAvatarGraphicsSize = context.getResources().getDisplayMetrics().density > 1 ?
+                    ImageSize.BADGE :
+                    ImageSize.SMALL;
         }
+
+        mAvatarLoadingViews = new HashSet<ImageView>(Consts.MAX_COMMENTS_TO_LOAD);
 
         mImagePaint = new Paint();
         mImagePaint.setAntiAlias(false);
@@ -91,11 +100,9 @@ public class PlayerAvatarBar extends View {
         mBgMatrix = new Matrix();
         mActiveMatrix = new Matrix();
 
-        if (ImageUtils.isScreenXL(mContext)) {
-            mTargetSize = Consts.GraphicSize.LARGE;
+        if (ImageUtils.isScreenXL(context)) {
             mAvatarWidth = (int) (AVATAR_WIDTH_LARGE * mDensity);
         } else {
-            mTargetSize = Consts.GraphicSize.BADGE;
             mAvatarWidth = (int) (AVATAR_WIDTH * mDensity);
         }
     }
@@ -104,23 +111,24 @@ public class PlayerAvatarBar extends View {
         return mAvatarWidth;
     }
 
-    public void onStop(){
-        if (mCurrentComments != null) {
-            for (Comment c : mCurrentComments) {
-                if (!TextUtils.isEmpty(c.user.avatar_url)){
-                    mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
-                }
-            }
+    public void stopAvatarLoading(){
+        for (ImageView imageView : mAvatarLoadingViews) {
+            mBitmapLoader.cancelDisplayTask(imageView);
         }
+        mAvatarLoadingViews.clear();
     }
 
     public void clearTrackData(){
         mUIHandler.removeMessages(REFRESH_AVATARS);
         mUIHandler.removeMessages(AVATARS_REFRESHED);
 
+        if (mAvatarRefreshThread != null){
+            mAvatarRefreshThread.interrupt();
+            mAvatarRefreshThread = null;
+        }
+
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
-                mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
                 c.avatar = null;
             }
         }
@@ -132,14 +140,13 @@ public class PlayerAvatarBar extends View {
         if (mCanvasBmp != null) mCanvasBmp.recycle();
         if (mNextCanvasBmp != null) mNextCanvasBmp.recycle();
 
-        mCanvasBmp = mNextCanvasBmp = null;
+        mCanvasBmp = null;
 
         invalidate();
 
     }
 
     public void setTrackData(long duration, List<Comment> newItems){
-        ImageLoader.get(mContext).clearErrors();
         mDuration = duration;
         mCurrentComments = newItems;
         for (Comment c : newItems){
@@ -157,10 +164,16 @@ public class PlayerAvatarBar extends View {
     private void loadAvatar(final Comment c){
         if (c == null || !c.shouldLoadIcon()) return;
 
-        ImageLoader.get(mContext).getBitmap(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new BitmapCallback() {
+        mBitmapLoader.loadImage(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new SimpleImageLoadingListener() {
             @Override
-            public void onImageLoaded(Bitmap bitmap, String uri) {
-                c.avatar = bitmap;
+            public void onLoadingStarted(String imageUri, View view) {
+                mAvatarLoadingViews.add((ImageView) view);
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                mAvatarLoadingViews.remove(view);
+                c.avatar = loadedImage;
                 if (c.topLevelComment) {
                     if (!mUIHandler.hasMessages(REFRESH_AVATARS)) {
                         Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
@@ -168,18 +181,13 @@ public class PlayerAvatarBar extends View {
                     }
                 }
             }
-
-            @Override
-            public void onImageError(String uri, Throwable error) {
-                Log.i(TAG, "Avatar Loading Error " + uri + " " + error.toString());
-            }
-        }, new ImageLoader.Options());
+        });
     }
 
     private void refreshDefaultAvatar() {
         if (mAvatarWidth > 0 && (mDefaultAvatar == null || mDefaultAvatar.isRecycled())) {
-            mDefaultAvatar = BitmapFactory.decodeResource(mContext.getResources(),
-                    ImageUtils.isScreenXL(mContext) ? R.drawable.avatar_badge_large : R.drawable.avatar_badge);
+            mDefaultAvatar = BitmapFactory.decodeResource(getContext().getResources(),
+                    ImageUtils.isScreenXL(getContext()) ? R.drawable.avatar_badge_large : R.drawable.avatar_badge);
             mDefaultAvatarScale = ((float) mAvatarWidth) / mDefaultAvatar.getHeight();
         }
     }
@@ -192,9 +200,9 @@ public class PlayerAvatarBar extends View {
 
             float mDensity = getContext().getResources().getDisplayMetrics().density;
             if (mDensity > 1) {
-                mAvatarWidth = ImageUtils.isScreenXL(mContext) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : getHeight() ;
+                mAvatarWidth = ImageUtils.isScreenXL(getContext()) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : getHeight() ;
             } else {
-                mAvatarWidth = ImageUtils.isScreenXL(mContext)? AVATAR_WIDTH_LARGE : getHeight();
+                mAvatarWidth = ImageUtils.isScreenXL(getContext())? AVATAR_WIDTH_LARGE : getHeight();
             }
             refreshDefaultAvatar();
 
@@ -234,6 +242,7 @@ public class PlayerAvatarBar extends View {
 
                     if (Thread.currentThread().isInterrupted()) {
                         mNextCanvasBmp.recycle();
+                        mNextCanvasBmp = null;
                     } else {
                         if (!mUIHandler.hasMessages(AVATARS_REFRESHED)) {
                             Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);

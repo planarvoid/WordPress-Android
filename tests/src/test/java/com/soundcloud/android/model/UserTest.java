@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,18 +19,18 @@ public class UserTest {
     public void testLocation() throws Exception {
         User u = new User();
         expect(u.getLocation()).toEqual("");
-        u.city = "Berlin";
+        u.setCity("Berlin");
         expect(u.getLocation()).toEqual("Berlin");
-        u.country = "Germany";
+        u.setCountry("Germany");
         expect(u.getLocation()).toEqual("Berlin, Germany");
-        u.city = null;
+        u.setCity(null);
         expect(u.getLocation()).toEqual("Germany");
     }
 
     @Test
     public void testBuildContentValues() throws Exception {
         User u = new User();
-        u.id = 1000L;
+        u.mID = 1000L;
         ContentValues cv = u.buildContentValues();
         expect(cv.getAsLong(DBHelper.Users._ID)).toEqual(1000L);
     }
@@ -79,7 +80,7 @@ public class UserTest {
     @Test
     public void shouldBeParcelable() throws Exception {
         User user = new User();
-        user.id = 1;
+        user.mID = 1;
         user.username = "peter";
         user.uri = "http://peter.com";
         user.avatar_url = "http://avatar.com";
@@ -87,8 +88,8 @@ public class UserTest {
         user.permalink_url = "http://peter.com";
         user.full_name = "Peter Test";
         user.description = "Peter Test";
-        user.city = "Test City";
-        user.country = "Test Country";
+        user.setCity("Test City");
+        user.setCountry("Test Country");
         user.plan = "solo";
         user.website = "http://blog.peter.com/";
         user.website_title = "Peters World";
@@ -106,7 +107,7 @@ public class UserTest {
 
         User u = new User(p);
 
-        expect(u.id).toEqual(user.id);
+        expect(u.mID).toEqual(user.mID);
         expect(u.username).toEqual(user.username);
         expect(u.uri).toEqual(user.uri);
         expect(u.avatar_url).toEqual(user.avatar_url);
@@ -114,8 +115,8 @@ public class UserTest {
         expect(u.permalink_url).toEqual(user.permalink_url);
         expect(u.full_name).toEqual(user.full_name);
         expect(u.description).toEqual(user.description);
-        expect(u.city).toEqual(user.city);
-        expect(u.country).toEqual(user.country);
+        expect(u.getCity()).toEqual(user.getCity());
+        expect(u.getCountry()).toEqual(user.getCountry());
         expect(u.plan).toEqual(user.plan);
         expect(u.website).toEqual(user.website);
         expect(u.website_title).toEqual(user.website_title);
@@ -132,7 +133,7 @@ public class UserTest {
     public void shouldDeserializeUser() throws Exception {
         User u = TestHelper.readJson(User.class, "/com/soundcloud/android/model/user.json");
 
-        expect(u.id).not.toBeNull();
+        expect(u.mID).not.toBeNull();
         expect(u.username).not.toBeNull();
         expect(u.uri).not.toBeNull();
         expect(u.avatar_url).not.toBeNull();
@@ -140,8 +141,8 @@ public class UserTest {
         expect(u.permalink_url).not.toBeNull();
         expect(u.full_name).not.toBeNull();
         expect(u.description).not.toBeNull();
-        expect(u.city).not.toBeNull();
-        expect(u.country).not.toBeNull();
+        expect(u.getCity()).not.toBeNull();
+        expect(u.getCountry()).not.toBeNull();
         expect(u.website).not.toBeNull();
         expect(u.website_title).not.toBeNull();
         expect(u.track_count).not.toBeNull();
@@ -149,5 +150,48 @@ public class UserTest {
         expect(u.followings_count).not.toBeNull();
         expect(u.public_likes_count).not.toBeNull();
         expect(u.private_tracks_count).not.toBeNull();
+    }
+
+    @Test
+    public void shouldNotIncreaseFollowerCountIfNotSet() throws Exception {
+        User u = new User();
+        u.followers_count = User.NOT_SET;
+        expect(u.addAFollower()).toBeFalse();
+        expect(u.followers_count).toEqual(User.NOT_SET);
+    }
+
+    @Test
+    public void shouldIncreaseFollowerCountIfSet() throws Exception {
+        User u = new User();
+        u.followers_count = 1;
+        expect(u.addAFollower()).toBeTrue();
+        expect(u.followers_count).toEqual(2);
+    }
+
+    @Test
+    public void shouldNotDecreaseFollowerCountIfNotSet() throws Exception {
+        User u = new User();
+        u.followers_count = User.NOT_SET;
+        expect(u.removeAFollower()).toBeFalse();
+        expect(u.followers_count).toEqual(User.NOT_SET);
+    }
+
+    @Test
+    public void shouldDecreaseFollowerCountIfSet() throws Exception {
+        User u = new User();
+        u.followers_count = 1;
+        expect(u.removeAFollower()).toBeTrue();
+        expect(u.followers_count).toEqual(0);
+    }
+
+    @Test
+    public void shouldCreateUserFromSuggestedUser() throws CreateModelException {
+        SuggestedUser suggestedUser = TestHelper.getModelFactory().createModel(SuggestedUser.class);
+        User user = new User(suggestedUser);
+        expect(user.getId()).toEqual(suggestedUser.getId());
+        expect(user.getUrn()).toEqual(suggestedUser.getUrn());
+        expect(user.getUsername()).toEqual(suggestedUser.getUsername());
+        expect(user.getCity()).toEqual(suggestedUser.getCity());
+        expect(user.getCountry()).toEqual(suggestedUser.getCountry());
     }
 }

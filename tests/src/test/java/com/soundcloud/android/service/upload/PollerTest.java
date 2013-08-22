@@ -3,8 +3,7 @@ package com.soundcloud.android.service.upload;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -38,7 +37,7 @@ public class PollerTest {
 
     @Before
     public void before() {
-        DefaultTestRunner.application.setCurrentUserId(USER_ID);
+        TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(Robolectric.application);
         lbm.registerReceiver(receiver, UploadService.getIntentFilter());
@@ -101,18 +100,17 @@ public class PollerTest {
     private void addProcessingTrackAndRunPoll(long id) {
         Track t = new Track();
         t.user = new User();
-        t.user.id = USER_ID;
-        t.id = id;
+        t.user.setId(USER_ID);
+        t.setId(id);
         t.state = Track.State.PROCESSING;
         t.setUpdated();
-        SoundCloudApplication.MODEL_MANAGER.cacheAndWrite(t, ScResource.CacheUpdateMode.FULL);
-
+        TestHelper.insertWithDependencies(t);
 
         HandlerThread ht = new HandlerThread("poll");
         ht.start();
 
         Scheduler scheduler = Robolectric.shadowOf(ht.getLooper()).getScheduler();
-        new Poller(ht.getLooper(), DefaultTestRunner.application, id, Content.ME_TRACKS.uri, 1).start();
+        new Poller(ht.getLooper(), new OldCloudAPI(DefaultTestRunner.application), id, Content.SOUNDS.uri, 1).start();
 
         // make sure all messages have been consumed
         do {
@@ -121,22 +119,22 @@ public class PollerTest {
     }
 
     private void expectLocalTracksStreamable(long id) {
-        Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(id);
-        expect(track).not.toBeNull();
-        expect(track.state.isStreamable()).toBeTrue();
-
-        track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
+        Track track = getTrack(id);
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeTrue();
     }
 
     private void expectLocalTracksNotStreamable(long id) {
-        Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(id);
+        Track track = getTrack(id);
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeFalse();
+    }
 
-        track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        expect(track).not.toBeNull();
-        expect(track.state.isStreamable()).toBeFalse();
+    private Track getTrack(long id) {
+        try {
+            return TestHelper.loadLocalContent(Content.TRACKS.forId(id), Track.class).get(0);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
     }
 }

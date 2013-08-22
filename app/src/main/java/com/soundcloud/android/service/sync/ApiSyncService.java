@@ -1,16 +1,19 @@
 package com.soundcloud.android.service.sync;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.ParallelAsyncTask;
+import com.soundcloud.android.utils.Log;
 
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -19,7 +22,8 @@ import java.util.List;
 public class ApiSyncService extends Service {
     public static final String LOG_TAG = ApiSyncer.class.getSimpleName();
 
-    public static final String ACTION_APPEND = "com.soundcloud.android.sync.action.APPEND";
+    public static final String ACTION_APPEND    = "com.soundcloud.android.sync.action.APPEND";
+    public static final String ACTION_PUSH      = "com.soundcloud.android.sync.action.PUSH";
 
     public static final String EXTRA_SYNC_URIS       = "com.soundcloud.android.sync.extra.SYNC_URIS";
     public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
@@ -33,16 +37,25 @@ public class ApiSyncService extends Service {
     public static final int STATUS_APPEND_FINISHED = 0x5;
 
     public static final int MAX_TASK_LIMIT = 3;
+
     private int mActiveTaskCount;
+    private Handler mServiceHandler = new Handler();
 
     /* package */ final List<SyncIntent> mSyncIntents = new ArrayList<SyncIntent>();
     /* package */ final LinkedList<CollectionSyncRequest> mPendingRequests = new LinkedList<CollectionSyncRequest>();
     /* package */ final List<CollectionSyncRequest> mRunningRequests = new ArrayList<CollectionSyncRequest>();
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // We have to make sure the follow cache is instantiated on the UI thread, or the syncer could cause a crash
+        // TODO, remove this once we get rid of FollowStatus
+        FollowingOperations.init();
+    }
 
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "startListening("+intent+")");
+        Log.d(LOG_TAG, "startListening("+intent+")");
         if (intent != null){
             enqueueRequest(new SyncIntent(this, intent));
         }
@@ -51,7 +64,7 @@ public class ApiSyncService extends Service {
 
     @Override
     public void onDestroy() {
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "onDestroy()");
+        Log.d(LOG_TAG, "onDestroy()");
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.SYNC_STATE,LocalCollection.SyncState.IDLE);
         getContentResolver().update(Content.COLLECTIONS.uri, cv, null, null);
@@ -112,13 +125,18 @@ public class ApiSyncService extends Service {
     }
 
     private class ApiTask extends ParallelAsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
+        private SyncPoller mSyncPoller;
+
         @Override
         protected void onPreExecute() {
             mActiveTaskCount++;
         }
 
         @Override
-        protected Void doInBackground(CollectionSyncRequest... tasks) {
+        protected Void doInBackground(final CollectionSyncRequest... tasks) {
+            mSyncPoller = new SyncPoller(mServiceHandler, Thread.currentThread(), Lists.newArrayList(tasks));
+            mSyncPoller.schedule();
+
             for (CollectionSyncRequest task : tasks) {
                 publishProgress(task.execute());
             }
@@ -134,6 +152,7 @@ public class ApiSyncService extends Service {
 
         @Override
         protected void onPostExecute(Void result) {
+            mSyncPoller.stop();
             mActiveTaskCount--;
             flushSyncRequests();
         }

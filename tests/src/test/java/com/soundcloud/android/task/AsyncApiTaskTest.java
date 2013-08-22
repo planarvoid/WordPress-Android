@@ -3,7 +3,9 @@ package com.soundcloud.android.task;
 import static com.soundcloud.android.Expect.expect;
 
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.utils.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -15,8 +17,8 @@ import java.util.List;
 @RunWith(DefaultTestRunner.class)
 public class AsyncApiTaskTest {
     private List<String> parse(String input) throws IOException {
-        ObjectReader reader = DefaultTestRunner.application.getMapper().reader();
-        return AsyncApiTask.parseError(reader, new ByteArrayInputStream(input.getBytes()));
+        ObjectReader reader = Wrapper.buildObjectMapper().reader();
+        return IOUtils.parseError(reader, new ByteArrayInputStream(input.getBytes()));
     }
 
     @Test

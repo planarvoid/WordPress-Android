@@ -1,13 +1,12 @@
 package com.soundcloud.android.view.adapter;
 
+import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
+
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.ScBaseAdapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-
-import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 public class LikeActivityRow extends ActivityRow {
 

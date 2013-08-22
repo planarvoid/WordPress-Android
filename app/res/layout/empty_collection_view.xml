@@ -2,20 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:layout_centerInParent="true"
               android:orientation="vertical"
-              android:gravity="center_horizontal">
+              android:gravity="center">
 
     <ImageView android:layout_height="0dp"
                android:layout_width="fill_parent"
                android:layout_weight="1"
                android:id="@+id/img_1"
+               android:layout_marginTop="5dp"
                android:scaleType="centerInside"/>
-    <LinearLayout android:layout_height="0dp"
-                  android:layout_width="fill_parent"
-                  android:layout_weight="1"
-                  android:orientation="vertical"
-                  android:gravity="center">
+
+    <LinearLayout style="@style/emptyCollectionContentHolder">
 
         <TextView android:gravity="center_horizontal"
                   android:id="@+id/txt_message"

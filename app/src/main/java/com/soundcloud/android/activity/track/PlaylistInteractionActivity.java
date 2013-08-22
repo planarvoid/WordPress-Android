@@ -1,13 +1,10 @@
 package com.soundcloud.android.activity.track;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.utils.PlayUtils;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -42,6 +39,6 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
     @Override
     protected Uri getContentUri() {
         Content content = mInteraction == Activity.Type.PLAYLIST_LIKE ? Content.PLAYLIST_LIKERS : Content.PLAYLIST_REPOSTERS;
-        return content.forQuery(String.valueOf(mPlayable.id));
+        return content.forQuery(String.valueOf(mPlayable.getId()));
     }
 }

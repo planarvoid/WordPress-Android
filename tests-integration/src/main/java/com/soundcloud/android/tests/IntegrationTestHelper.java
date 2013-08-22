@@ -1,14 +1,14 @@
 package com.soundcloud.android.tests;
 
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -27,6 +27,7 @@ import java.io.IOException;
 public final class IntegrationTestHelper {
     public static final String USERNAME = "android-testing";
     public static final String PASSWORD = "android-testing";
+    public static final Integer TIMEOUT = 1000;
 
     private IntegrationTestHelper() {}
     private static final String TAG = IntegrationTestHelper.class.getSimpleName();
@@ -36,8 +37,8 @@ public final class IntegrationTestHelper {
     }
 
     public static Account loginAs(final Instrumentation instrumentation,
-                               final String username,
-                               final String password) throws Exception {
+                                  final String username,
+                                  final String password) throws Exception {
 
 
         final Account account = getAccount(instrumentation.getTargetContext());
@@ -51,7 +52,7 @@ public final class IntegrationTestHelper {
         } else if (account == null) {
             Log.d(TAG, "logging in");
             Context context = instrumentation.getTargetContext();
-            AndroidCloudAPI.Wrapper wrapper = AndroidCloudAPI.Wrapper.create(context, null);
+            Wrapper wrapper = new Wrapper(context);
             Token token;
             try {
                 token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
@@ -61,7 +62,7 @@ public final class IntegrationTestHelper {
             }
             User user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
             assertNotNull("could not get test user", user);
-            assertNotNull("addAccount failed", SoundCloudApplication.addAccount(context, user, token, SignupVia.NONE));
+            assertNotNull("addAccount failed", new AccountOperations(instrumentation.getTargetContext()).addOrReplaceSoundCloudAccount(user, token, SignupVia.NONE));
             return account;
         } else {
             Log.d(TAG, "already logged in as user "+account);
@@ -76,9 +77,7 @@ public final class IntegrationTestHelper {
     public static boolean logOut(Context context) throws Exception {
         Account account = getAccount(context);
         if (account != null) {
-            assertTrue(AccountManager.get(context).removeAccount(account, null, null).getResult());
-            SoundCloudApplication app = (SoundCloudApplication) context.getApplicationContext();
-            app.onAccountRemoved(account);
+            new AccountOperations(context).removeSoundCloudAccount().subscribe(new ScObserver<Void>() {});
             return true;
         } else {
             return false;
@@ -126,4 +125,5 @@ public final class IntegrationTestHelper {
             }
         });
     }
+
 }

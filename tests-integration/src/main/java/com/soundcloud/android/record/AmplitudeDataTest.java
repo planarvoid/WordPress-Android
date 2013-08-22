@@ -9,7 +9,7 @@ import java.util.Arrays;
 @NonUiTest
 public class AmplitudeDataTest extends ScAndroidTestCase {
 
-    public void testStoreAndReadAmplitudeData() throws Exception {
+    public void ignore_testStoreAndReadAmplitudeData() throws Exception {
         AmplitudeData data = new AmplitudeData();
         data.add(1f);
         data.add(2f);

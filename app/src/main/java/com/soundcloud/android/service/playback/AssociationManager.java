@@ -1,15 +1,18 @@
 package com.soundcloud.android.service.playback;
 
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.dao.SoundAssociationStorage;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.event.Event;
 import com.soundcloud.android.task.AddAssociationTask;
 import com.soundcloud.android.task.AssociatedSoundTask;
 import com.soundcloud.android.task.RemoveAssociationTask;
@@ -17,19 +20,22 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 
 public class AssociationManager {
     private Context mContext;
     private ScModelManager mModelManager;
+    private SoundAssociationStorage mSoundAssocStorage;
+    private AndroidCloudAPI mOldCloudAPI;
 
     public AssociationManager(Context context) {
-        this(context,SoundCloudApplication.MODEL_MANAGER);
+        this(context, SoundCloudApplication.MODEL_MANAGER);
     }
 
     public AssociationManager(Context context, ScModelManager modelManager) {
         mContext = context;
         mModelManager = modelManager;
+        mSoundAssocStorage = new SoundAssociationStorage();
+        mOldCloudAPI = new OldCloudAPI(context);
     }
 
     void setLike(@Nullable Playable playable, boolean likeAdded) {
@@ -53,7 +59,7 @@ public class AssociationManager {
      * @param listener the callback for the API call
      */
     private void pushToRemote(Playable playable, Content content, boolean added, AssociatedSoundTask.AssociatedListener listener) {
-        AssociatedSoundTask task = added ? new AddAssociationTask(getApp(), playable) : new RemoveAssociationTask(getApp(), playable);
+        AssociatedSoundTask task = added ? new AddAssociationTask(mOldCloudAPI, playable) : new RemoveAssociationTask(mOldCloudAPI, playable);
         task.setOnAssociatedListener(listener);
         // resolve the playable content URI to its API endpoint
         String contentPath = playable.toUri().getPath();
@@ -71,10 +77,8 @@ public class AssociationManager {
     }
 
     private void onAssociationChanged(Playable playable) {
-        mModelManager.cacheAndWrite(playable, ScResource.CacheUpdateMode.NONE);
-
         Intent intent = new Intent(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
-                .putExtra(CloudPlaybackService.BroadcastExtras.id, playable.id)
+                .putExtra(CloudPlaybackService.BroadcastExtras.id, playable.getId())
                 .putExtra(CloudPlaybackService.BroadcastExtras.isRepost, playable.user_repost)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isLike, playable.user_like)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, CloudPlaybackService.getState().isSupposedToBePlaying());
@@ -91,15 +95,18 @@ public class AssociationManager {
         @Override
         public void onNewStatus(Playable playable, boolean isAssociated, boolean changed) {
             playable = (Playable) mModelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
-            if (changed && playable.likes_count > ScModel.NOT_SET) {
+            if (changed) {
                 if (isAssociated) {
-                    playable.likes_count += 1;
+                    if (playable.isLikesCountSet()) playable.likes_count += 1;
+                    mSoundAssocStorage.addLike(playable);
                 } else {
-                    playable.likes_count -= 1;
+                    if (playable.isLikesCountSet()) playable.likes_count -= 1;
+                    mSoundAssocStorage.removeLike(playable);
                 }
             }
             onLikeStatusSet(playable, isAssociated);
-            updateLocalState(playable, Content.ME_LIKES.uri, isAssociated);
+
+            Event.LIKE_CHANGED.fire(playable);
         }
     };
 
@@ -107,39 +114,28 @@ public class AssociationManager {
         @Override
         public void onNewStatus(Playable playable, boolean isAssociated, boolean changed) {
             playable = (Playable) mModelManager.cache(playable, ScResource.CacheUpdateMode.NONE);
-            if (changed && playable.reposts_count > ScModel.NOT_SET) {
+            if (changed) {
                 if (isAssociated) {
-                    playable.reposts_count += 1;
+                    if (playable.isRepostCountSet()) playable.reposts_count += 1;
+                    mSoundAssocStorage.addRepost(playable);
                 } else {
-                    playable.reposts_count -= 1;
+                    if (playable.isRepostCountSet()) playable.reposts_count -= 1;
+                    mSoundAssocStorage.removeRepost(playable);
+
+                    // quick and dirty way to remove reposts from
+                    Activity.Type activityType = (playable instanceof Track) ? Activity.Type.TRACK_REPOST :
+                            Activity.Type.PLAYLIST_REPOST;
+
+                    mContext.getContentResolver().delete(Content.ME_SOUND_STREAM.uri,
+                            DBHelper.Activities.USER_ID + " = ? AND " + DBHelper.Activities.SOUND_ID + " = ? AND " +
+                                    DBHelper.ActivityView.TYPE + " = ?",
+                            new String[]{String.valueOf(SoundCloudApplication.getUserId()),
+                                    String.valueOf(playable.getId()), String.valueOf(activityType)});
                 }
             }
             onRepostStatusSet(playable, isAssociated);
-            updateLocalState(playable, Content.ME_REPOSTS.uri, isAssociated);
+
+            Event.REPOST_CHANGED.fire(playable);
         }
     };
-
-    private void updateLocalState(Playable playable, Uri uri, boolean isAssociated) {
-        if (isAssociated) {
-            mContext.getContentResolver().insert(uri, playable.buildContentValues());
-        } else {
-            mContext.getContentResolver().delete(uri, "item_id = ? AND " +
-                    DBHelper.CollectionItems.RESOURCE_TYPE + " = ?", new String[]{
-                    String.valueOf(playable.id), String.valueOf(playable.getTypeId())
-            });
-
-            // quick and dirty way to remove reposts from
-            if (uri.equals(Content.ME_REPOSTS.uri)){
-
-                Activity.Type activityType = (playable instanceof Track) ? Activity.Type.TRACK_REPOST :
-                        Activity.Type.PLAYLIST_REPOST;
-
-                mContext.getContentResolver().delete(Content.ME_SOUND_STREAM.uri,
-                        DBHelper.Activities.USER_ID + " = ? AND " + DBHelper.Activities.SOUND_ID + " = ? AND " +
-                                DBHelper.ActivityView.TYPE + " = ?",
-                        new String[]{String.valueOf(SoundCloudApplication.getUserId()),
-                                String.valueOf(playable.id), String.valueOf(activityType)});
-            }
-        }
-    }
 }

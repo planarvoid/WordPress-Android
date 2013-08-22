@@ -1,7 +1,8 @@
 package com.soundcloud.android.robolectric;
 
-import android.database.Cursor;
 import com.pivotallabs.greatexpectations.matchers.ObjectMatcher;
+
+import android.database.Cursor;
 
 public class CursorMatcher<T extends Cursor, M extends CursorMatcher<T, M>> extends ObjectMatcher<T, M> {
 
@@ -35,6 +36,17 @@ public class CursorMatcher<T extends Cursor, M extends CursorMatcher<T, M>> exte
         if (idx < 0) return false;
 
         int i = actual.getInt(idx);
+        if (i != value) {
+            failureMessage = "column "+name +": "+value +"!="+i;
+            return false;
+        } else return true;
+    }
+
+    public boolean toHaveColumn(String name, long value) {
+        int idx = checkColumn(name);
+        if (idx < 0) return false;
+
+        long i = actual.getLong(idx);
         if (i != value) {
             failureMessage = "column "+name +": "+value +"!="+i;
             return false;

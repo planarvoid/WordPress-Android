@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.BaseColumns;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -173,7 +174,7 @@ public class TableTest {
     }
 
     @Test
-    public void shouldUpsertContentValues() throws Exception {
+    public void upsertShouldInsertContentValues() throws Exception {
         SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
 
         ContentValues[] values = new ContentValues[3];
@@ -191,6 +192,28 @@ public class TableTest {
         values[2] = contentValues;
 
         expect(Table.RECORDINGS.upsert(db,values)).toBe(2);
+        Cursor cursor = db.rawQuery("select _id from " + Table.RECORDINGS.name, null);
+        expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor).toHaveColumn(BaseColumns._ID, 1);
+        expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor).toHaveColumn(BaseColumns._ID, 2);
+    }
+
+    @Test
+    public void upsertShouldUpdateContentValues() throws Exception {
+        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBHelper.Recordings._ID, 1l);
+        contentValues.put(DBHelper.Recordings.DURATION, 32);
+
+        expect(Table.RECORDINGS.upsert(db, new ContentValues[]{contentValues})).toBe(1);
+
+        contentValues.put(DBHelper.Recordings.DURATION, 4000);
+        expect(Table.RECORDINGS.upsert(db, new ContentValues[]{contentValues})).toBe(1);
+        Cursor cursor = db.rawQuery("select duration from " + Table.RECORDINGS.name, null);
+        expect(cursor.moveToNext()).toBeTrue();
+        expect(cursor).toHaveColumn(DBHelper.Recordings.DURATION, 4000);
     }
 
     @Test

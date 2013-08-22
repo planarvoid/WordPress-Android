@@ -4,25 +4,25 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Creation;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.behavior.Creation;
+import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.ReturnData;
 import com.soundcloud.android.task.collection.UpdateCollectionTask;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.view.adapter.ListRow;
-import com.soundcloud.android.view.quickaction.QuickAction;
+import com.soundcloud.android.view.adapter.behavior.ListRow;
 import com.soundcloud.api.Endpoints;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.view.View;
@@ -35,8 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter implements IScAdapter {
-    protected Context mContext;
+@Deprecated
+public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     protected Content mContent;
     protected Uri mContentUri;
     @NotNull protected List<T> mData = new ArrayList<T>();
@@ -46,11 +46,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     private View mProgressView;
 
     @SuppressWarnings("unchecked")
-    public ScBaseAdapter(Context context, Uri uri) {
-        mContext = context;
+    public ScBaseAdapter(Uri uri) {
         mContent = Content.match(uri);
         mContentUri = uri;
-        mProgressView = View.inflate(context, R.layout.list_loading_item, null);
     }
 
     public int getItemCount() {
@@ -83,6 +81,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return mData.get(location);
     }
 
+    public T getLastItem() {
+        return getItem(getItemCount() - 1);
+    }
+
     public @NotNull List<T> getItems() {
         return mData;
     }
@@ -108,9 +110,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public long getItemId(int position) {
         if (position >= mData.size()) return AdapterView.INVALID_ROW_ID;
 
-        Object o = getItem(position);
-        if (o instanceof ScModel && ((ScModel) o).getListItemId() != -1) {
-            return ((ScModel) o).getListItemId();
+        final T item = getItem(position);
+        if (item.getListItemId() != -1) {
+            return item.getListItemId();
         }
         return position;
     }
@@ -119,12 +121,15 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public View getView(int index, View row, ViewGroup parent) {
 
         if (isPositionOfProgressElement(index)) {
+            if (mProgressView == null) {
+                mProgressView = View.inflate(parent.getContext().getApplicationContext(), R.layout.list_loading_item, null);
+            }
             return mProgressView;
         }
 
         View rowView;
         if (row == null) {
-            rowView = createRow(index);
+            rowView = createRow(parent.getContext(), index);
         } else {
             rowView = row;
         }
@@ -135,41 +140,34 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return rowView;
     }
 
-    protected abstract View createRow(int position);
+    protected abstract View createRow(Context context, int position);
 
     public void clearData() {
         mData.clear();
         mPage = 0;
     }
 
-    // not used?
-    public void onDestroy() {
-    }
-
     // needed?
-    @Override
     public Content getContent() {
         return mContent;
     }
 
-    @Override
-    public QuickAction getQuickActionMenu() {
-        return null;
-    }
-
+    /**
+     * @return true if there's no data in the adapter, and we're not currently loading data
+     */
     public boolean needsItems() {
         return getCount() == 0;
     }
 
 
-    public void onResume() {
-        refreshCreationStamps();
+    public void onResume(ScActivity activity) {
+        refreshCreationStamps(activity);
     }
 
-    public void refreshCreationStamps() {
+    public void refreshCreationStamps(@NotNull Activity activity) {
         for (ScModel resource : mData) {
             if (resource instanceof Creation) {
-                ((Creation) resource).refreshTimeSinceCreated(mContext);
+                ((Creation) resource).refreshTimeSinceCreated(activity);
             }
         }
     }
@@ -177,14 +175,24 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
     public boolean shouldRequestNextPage(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
         // if loading, subtract the loading item from total count
-        boolean lastItemReached = ((mIsLoadingData ? totalItemCount - 1 : totalItemCount) > 0)
-                && (totalItemCount - visibleItemCount * 2 < firstVisibleItem);
+        int lookAheadSize = visibleItemCount * 2;
+        int itemCount = mIsLoadingData ? totalItemCount - 1 : totalItemCount; // size without the loading spinner
+        boolean lastItemReached = itemCount > 0 && (itemCount - lookAheadSize <= firstVisibleItem);
 
         return !mIsLoadingData && lastItemReached;
     }
 
-    public void addItems(CollectionHolder<T> newItems) {
-        mData.addAll(newItems.collection);
+    public void insertItem(T item) {
+        int indexOfItem = mData.indexOf(item);
+        if (indexOfItem  >= 0) {
+            mData.set(indexOfItem, item);
+        } else {
+            mData.add(item);
+        }
+    }
+
+    public void addItems(List<T> newItems) {
+        mData.addAll(newItems);
     }
 
     public CollectionParams getParams(boolean refresh) {
@@ -197,7 +205,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         return params;
     }
 
-    public void handleTaskReturnData(ReturnData<T> data) {
+    public void handleTaskReturnData(ReturnData<T> data, @Nullable Activity activity) {
         if (data.success) {
             if (data.wasRefresh) {
                 onSuccessfulRefresh();
@@ -210,13 +218,16 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
                 // prefetch playable artwork
                 for (ScModel model : data.newItems){
                     if (model instanceof PlayableHolder){
-                        final String artworkUrl = Consts.GraphicSize.formatUriForList(mContext, ((PlayableHolder) model).getPlayable().getArtwork());
+                        final String artworkUrl = Consts.ImageSize.formatUriForList(mContext, ((PlayableHolder) model).getPlayable().getArtwork());
                         if (!TextUtils.isEmpty(artworkUrl)) ImageLoader.get(mContext).prefetch(artworkUrl);
                     }
                 }
             }
             */
-            checkForStaleItems(mData);
+
+            if (activity != null) {
+                checkForStaleItems(activity, mData);
+            }
         }
         setIsLoadingData(false);
     }
@@ -225,10 +236,10 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         clearData();
     }
 
-    protected void checkForStaleItems(List<? extends ScModel> items) {
+    protected void checkForStaleItems(@NotNull Context context, List<? extends ScModel> items) {
         if (items.isEmpty()) return;
 
-        final boolean onWifi = IOUtils.isWifiConnected(mContext);
+        final boolean onWifi = IOUtils.isWifiConnected(context);
         Set<Long> trackUpdates = new HashSet<Long>();
         Set<Long> userUpdates = new HashSet<Long>();
         Set<Long> playlistUpdates = new HashSet<Long>();
@@ -237,18 +248,18 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
             if (newItem instanceof Refreshable) {
                 Refreshable refreshable = (Refreshable) newItem;
                 if (refreshable.isIncomplete() || (onWifi && refreshable.isStale())) {
-                    ScResource resource = refreshable.getRefreshableResource();
+                    Refreshable resource = refreshable.getRefreshableResource();
                     if (resource instanceof Track) {
-                        trackUpdates.add(resource.id);
+                        trackUpdates.add(((Track) resource).getId());
                     } else if (resource instanceof User) {
-                        userUpdates.add(resource.id);
+                        userUpdates.add(((User) resource).getId());
                     } else if (resource instanceof Playlist) {
-                        playlistUpdates.add(resource.id);
+                        playlistUpdates.add(((Playlist) resource).getId());
                     }
                 }
             }
         }
-        final AndroidCloudAPI api = SoundCloudApplication.fromContext(mContext);
+        final AndroidCloudAPI api = new OldCloudAPI(context);
         if (!trackUpdates.isEmpty()) {
             UpdateCollectionTask task = new UpdateCollectionTask(api, Endpoints.TRACKS, trackUpdates);
             task.setAdapter(this);
@@ -268,7 +279,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter imple
         }
     }
 
-    public abstract int handleListItemClick(int position, long id);
+    public abstract int handleListItemClick(Context context, int position, long id);
 
     public interface ItemClickResults {
         int IGNORE = 0;

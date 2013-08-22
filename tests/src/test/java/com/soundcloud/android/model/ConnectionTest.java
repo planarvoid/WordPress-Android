@@ -2,10 +2,6 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -13,13 +9,8 @@ import com.soundcloud.android.service.sync.ApiSyncerTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.Parcel;
-
-import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
 public class ConnectionTest {
@@ -27,7 +18,7 @@ public class ConnectionTest {
 
     @Test
     public void shouldPersistConnections() throws Exception {
-        DefaultTestRunner.application.setCurrentUserId(100L);
+        TestHelper.setUserId(100L);
 
         Connection[] connections = TestHelper.getObjectMapper()
                 .readValue(ApiSyncerTest.class.getResourceAsStream("connections.json"), Connection[].class);
@@ -41,13 +32,13 @@ public class ConnectionTest {
         }
         expect(DefaultTestRunner.application.getContentResolver().bulkInsert(Content.ME_CONNECTIONS.uri, values)).toEqual(connections.length);
 
-        final Cursor cursor = DefaultTestRunner.application.getContentResolver().query(Content.ME_CONNECTIONS.forId(c.id), null, null, null, null);
+        final Cursor cursor = DefaultTestRunner.application.getContentResolver().query(Content.ME_CONNECTIONS.forId(c.mID), null, null, null, null);
         expect(cursor.moveToFirst()).toBeTrue();
         compareConnection(new Connection(cursor), c);
     }
 
     private void compareConnection(Connection connection1, Connection connection2) {
-        expect(connection2.id).toEqual(connection1.id);
+        expect(connection2.mID).toEqual(connection1.mID);
         expect(connection2.service).toEqual(connection1.service);
         expect(connection2.type).toEqual(connection1.type);
         expect(connection2.created_at).toEqual(connection1.created_at);

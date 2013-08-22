@@ -29,7 +29,7 @@ public abstract class AssociatedSoundTask extends AsyncTask<String, String, Bool
     @Override
     protected Boolean doInBackground(String... params) {
         try {
-            return isAssociated(executeResponse(Request.to(params[0], playable.id)));
+            return isAssociated(executeResponse(Request.to(params[0], playable.getId())));
         } catch (IOException e) {
             return isAssociated(HttpStatus.SC_NOT_MODIFIED);
         }

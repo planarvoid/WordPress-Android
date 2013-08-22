@@ -1,10 +1,10 @@
 package com.soundcloud.android.adapter;
 
 import static android.os.Process.THREAD_PRIORITY_DEFAULT;
-import static com.soundcloud.android.Consts.GraphicSize;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.SearchSuggestions;
@@ -13,7 +13,9 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -48,6 +50,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -56,12 +59,11 @@ import java.util.regex.Pattern;
 public class SuggestionsAdapter extends CursorAdapter implements DetachableResultReceiver.Receiver {
     private final ContentResolver mContentResolver;
     private final Context mContext;
-    private final AndroidCloudAPI mApi;
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    private ImageLoader mImageLoader;
-    private Handler handler = new Handler();
+    private final DisplayImageOptions mUserDisplayBitmapOptions = ImageOptionsFactory.adapterView(R.drawable.no_user_cover);
+    private final DisplayImageOptions mSoundDisplayBitmapOptions = ImageOptionsFactory.adapterView(R.drawable.no_sound_cover);
 
     private final static int TYPE_SEARCH_ITEM = 0;
     private final static int TYPE_TRACK  = 1;
@@ -83,7 +85,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             HIGHLIGHTS
     };
 
+    //FIXME: ported this over to use static handler classes, but why not use AsyncTask instead?
     private SuggestionsHandler mSuggestionsHandler;
+    private Handler mNewSuggestionsHandler = new Handler();
     private HandlerThread mSuggestionsHandlerThread;
     private String mCurrentConstraint;
     private Pattern mCurrentPattern;
@@ -95,12 +99,10 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         super(context, null, 0);
         mContentResolver = context.getContentResolver();
         mContext = context;
-        mImageLoader = ImageLoader.get(mContext);
-        mApi = api;
 
         mSuggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
         mSuggestionsHandlerThread.start();
-        mSuggestionsHandler = new SuggestionsHandler(mSuggestionsHandlerThread.getLooper());
+        mSuggestionsHandler = new SuggestionsHandler(this, api, mSuggestionsHandlerThread.getLooper());
     }
 
     public void onDestroy() {
@@ -131,6 +133,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     public Uri getItemIntentData(int position) {
         Cursor cursor = (Cursor) getItem(position);
         final String data = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA));
+        cursor.close();
         return Uri.parse(data);
     }
 
@@ -166,48 +169,21 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         }
     }
 
+    // this is called from a background thread
+    private void onRemoteSuggestions(final CharSequence constraint,
+                                     final @NotNull SearchSuggestions suggestions) {
+        mNewSuggestionsHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                // make sure we are still relevant
+                if (constraint.equals(mCurrentConstraint)) {
+                    mRemoteSuggestions = suggestions;
+                    swapCursor(getMixedCursor());
 
-    private final class SuggestionsHandler extends Handler {
-        public SuggestionsHandler(Looper looper) {
-            super(looper);
-        }
-        @Override
-        public void handleMessage(Message msg) {
-            final CharSequence constraint = (CharSequence) msg.obj;
-            try {
-                HttpResponse resp = mApi.get(Request.to("/search/suggest").with(
-                        "q", constraint,
-                        "highlight_mode", "offsets",
-                        "limit", MAX_REMOTE));
-
-                if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(),
-                            SearchSuggestions.class);
-                    onRemoteSuggestions(constraint, searchSuggestions);
-                    return;
-                } else {
-                    Log.w(TAG, "invalid status code returned: " + resp.getStatusLine());
+                    prefetchResults(mRemoteSuggestions);
                 }
-            } catch (IOException e) {
-                Log.w(TAG, "error fetching suggestions", e);
             }
-            onRemoteSuggestions(constraint, SearchSuggestions.EMPTY);
-        }
-
-        private void onRemoteSuggestions(final CharSequence constraint, final @NotNull SearchSuggestions suggestions) {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    // make sure we are still relevant
-                    if (constraint.equals(mCurrentConstraint)) {
-                        mRemoteSuggestions = suggestions;
-                        swapCursor(getMixedCursor());
-
-                        prefetchResults(mRemoteSuggestions);
-                    }
-                }
-            });
-        }
+        });
     }
 
     private void prefetchResults(SearchSuggestions suggestions) {
@@ -290,7 +266,14 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private Cursor withHeader(Cursor c1) {
-        return new MergeCursor(new Cursor[] { createHeader(mCurrentConstraint), c1 });
+        return new MergeCursor(new Cursor[] { createHeader(mCurrentConstraint), c1 }) {
+            // for full screen IMEs (e.g. in landscape mode), not the view will be used but the toString method to
+            // show results on the keyboard word completion list
+            @Override
+            public String toString() {
+                return getString(getColumnIndex(DBHelper.Suggestions.COLUMN_TEXT1));
+            }
+        };
     }
 
     private MatrixCursor createHeader(String constraint) {
@@ -347,8 +330,15 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             tag.iv_search_type.setVisibility(View.VISIBLE);
 
             boolean isUser = rowType == TYPE_USER;
-            setIcon(tag, GraphicSize.formatUriForList(mContext,
-                    cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL))), isUser);
+
+            final String iconUri = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL));
+            if (ImageUtils.checkIconShouldLoad(iconUri)){
+                ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(mContext, iconUri),
+                        tag.iv_icon, isUser ? mUserDisplayBitmapOptions : mSoundDisplayBitmapOptions);
+            } else {
+                tag.iv_icon.setImageResource(isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
+            }
+
 
             if (isUser) {
                 tag.iv_search_type.setImageResource(R.drawable.ic_search_user);
@@ -358,19 +348,6 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
         }
         return view;
-    }
-
-    private void setIcon(SearchTag tag, String iconUri, boolean isUser) {
-        if (ImageUtils.checkIconShouldLoad(iconUri)) {
-            ImageLoader.BindResult result = mImageLoader.bind(tag.iv_icon,
-                    GraphicSize.formatUriForSearchSuggestionsList(mContext, iconUri),
-                    null
-            );
-            if (result == ImageLoader.BindResult.OK) return;
-        } else {
-            mImageLoader.unbind(tag.iv_icon);
-        }
-        tag.iv_icon.setImageResource(isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
     }
 
     static class SearchTag {
@@ -411,6 +388,44 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             spanned.setSpan(new ForegroundColorSpan(Color.WHITE),
                     start, end,
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+    }
+
+    private static final class SuggestionsHandler extends Handler {
+        private WeakReference<SuggestionsAdapter> mAdapterRef;
+        private AndroidCloudAPI mApi;
+
+
+        public SuggestionsHandler(SuggestionsAdapter adapter, AndroidCloudAPI api, Looper looper) {
+            super(looper);
+            mAdapterRef = new WeakReference<SuggestionsAdapter>(adapter);
+            mApi = api;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final SuggestionsAdapter adapter = mAdapterRef.get();
+            if (adapter == null) {
+                return;
+            }
+            final CharSequence constraint = (CharSequence) msg.obj;
+            try {
+                HttpResponse resp = mApi.get(Request.to("/search/suggest").with(
+                        "q", constraint,
+                        "highlight_mode", "offsets",
+                        "limit", MAX_REMOTE));
+
+                if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    final SearchSuggestions searchSuggestions = mApi.getMapper().readValue(resp.getEntity().getContent(), SearchSuggestions.class);
+                    adapter.onRemoteSuggestions(constraint, searchSuggestions);
+                    return;
+                } else {
+                    Log.w(TAG, "invalid status code returned: " + resp.getStatusLine());
+                }
+            } catch (IOException e) {
+                Log.w(TAG, "error fetching suggestions", e);
+            }
+            adapter.onRemoteSuggestions(constraint, SearchSuggestions.EMPTY);
         }
     }
 

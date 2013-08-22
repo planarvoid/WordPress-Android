@@ -1,9 +1,46 @@
-$ 61
-  % v current
-  _ 2013-04-23
+$ 67
+  % v 2.6.4
+  _ 2013-07-24
+  ! Maintenance
+      * Fixed stuck activity streams
+      * Restored Lockscreen controls
+      - Fixed UserBrowser Details empty screen
+
+$ 64
+  % v 2.6.3
+  _ 2013-07-17
+  ! Onboarding v2
+      * Updated new-user flow to suggest genres to follow and integrate Facebook interests.
+      * Fixed activity loading on samsung galaxy s4
+
+$ 63
+  % v 2.6.2
+  _ 2013-06-07
     ! Maintenance
-    * Smoother RootView animations
-    * Fixed some loading / pull to refresh bugs
+    * Fixed device default notification styling
+    * Restored lockscreen player
+    - Fixed occasional false empty screens after logout/login
+    - Made playback debugging available in non-dialer devices
+    - Fixed cancelable auth dialogs
+
+$ 62
+  % v 2.6.1
+  _ 2013-05-13
+    ! Maintenance
+    * App stability and crash fixes for larger accounts
+    - Upgraded Pull To Refresh library
+    - Fixed player touch crash
+
+$ 61
+  % v 2.6.0
+  _ 2013-05-08
+    ! Google Plus
+    * Added support for Google+ sign in
+    * Numerous bug fixes and memory optimizations
+    - Added Google Plus Sign in
+    - Storage layer refactor
+    - Smoother RootView animations
+    - Fixed some loading / pull to refresh bugs
     - Fixed loading of my sounds with local recordings
     - Fixed automatic refreshing of my sounds after upload
     - Fixed playlist creation for foreign characters

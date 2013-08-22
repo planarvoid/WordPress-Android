@@ -1,11 +1,13 @@
 package com.soundcloud.android.view;
 
-import static com.soundcloud.android.service.playback.CloudPlaybackService.*;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.ADD_LIKE_ACTION;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.ADD_REPOST_ACTION;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.REMOVE_LIKE_ACTION;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.REMOVE_REPOST_ACTION;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +15,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.accessibility.AccessibilityManager;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 

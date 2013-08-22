@@ -24,7 +24,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
      * Record something, move trim handles, playback trimmed version.
      */
     @FlakyTest
-    public void testEditAndTrim() {
+    public void ignore_testEditAndTrim() {
         record(RECORDING_TIME);
         gotoEditMode();
 
@@ -42,7 +42,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
     /**
      * Trim and append. Make sure the trimmed version of the uploaded file gets transcoded properly.
      */
-    public void testEditAndTrimAndAppendAndUpload() {
+    public void ignore_testEditAndTrimAndAppendAndUpload() {
 
         record(RECORDING_TIME);
         gotoEditMode();
@@ -67,7 +67,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
     /*
      * Record something, enable fading and upload. Make sure transcoding works.
      */
-    public void testFadingAndUpload() throws Exception {
+    public void ignore_testFadingAndUpload() throws Exception {
         record(RECORDING_TIME);
         gotoEditMode();
         assertTrue(toggleFade());
@@ -82,7 +82,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
     }
 
 
-    public void testTrimAndUpload() throws Exception {
+    public void ignore_testTrimAndUpload() throws Exception {
         record(10000);
 
         gotoEditMode();
@@ -97,7 +97,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
-    public void testTrimAndFadeAndUpload() throws Exception {
+    public void ignore_testTrimAndFadeAndUpload() throws Exception {
         record(10000);
 
         gotoEditMode();
@@ -115,7 +115,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
     }
 
     @Suppress
-    public void testEditModesGetPersisted() {
+    public void ignore_testEditModesGetPersisted() {
         record(RECORDING_TIME);
         gotoEditMode();
 

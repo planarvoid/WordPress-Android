@@ -1,6 +1,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -8,10 +9,9 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 
@@ -19,11 +19,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
-    private SoundCloudApplication app;
+    private Context context;
     private IOException exception;
+    private AndroidCloudAPI oldCloudAPI;
 
-    public AddCommentTask(SoundCloudApplication app) {
-        this.app = app;
+    public AddCommentTask(Context context, AndroidCloudAPI oldCloudAPI) {
+        this.context = context;
+        this.oldCloudAPI = oldCloudAPI;
     }
 
     @Override
@@ -31,7 +33,7 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
         final Comment comment = comments[0];
 
         if (comment.track_id <= 0 && comment.track != null) {
-            comment.track_id = comment.track.id;
+            comment.track_id = comment.track.getId();
         }
 
         if (comment.track_id > 0) {
@@ -42,12 +44,9 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
             if (comment.reply_to_id > 0) request.add(Params.Comment.REPLY_TO, comment.reply_to_id);
 
             try {
-                final HttpResponse response = app.post(request);
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                    Comment created  = app.getMapper().readValue(response.getEntity().getContent(), Comment.class);
-                    publishProgress(comment, created);
-                    return created;
-                } // else fall-through
+                Comment created = oldCloudAPI.create(request);
+                publishProgress(comment, created);
+                return created;
             } catch (IOException e) {
                 exception = e;
             }
@@ -81,10 +80,10 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
             } else {
                 t.comment_count--;
                 if (exception != null) {
-                    app.sendBroadcast(new Intent(Actions.CONNECTION_ERROR));
+                    context.sendBroadcast(new Intent(Actions.CONNECTION_ERROR));
                 }
             }
-            app.sendBroadcast(new Intent(Playable.COMMENTS_UPDATED).putExtra("id", t.id));
+            context.sendBroadcast(new Intent(Playable.COMMENTS_UPDATED).putExtra("id", t.getId()));
         }
     }
 }

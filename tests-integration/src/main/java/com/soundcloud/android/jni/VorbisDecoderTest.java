@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 @NonUiTest
 public class VorbisDecoderTest extends AudioTestCase {
 
-    public void testDecodeToFile() throws Exception {
+    public void ignore_testDecodeToFile() throws Exception {
         File wav = decode(MED_TEST_OGG);
         assertTrue("file does not exist", wav.exists());
 
@@ -27,7 +27,7 @@ public class VorbisDecoderTest extends AudioTestCase {
         checkAudioFile(wav, 18786);
     }
 
-    public void testDecodeBuffer() throws Exception {
+    public void ignore_testDecodeBuffer() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
 
         ByteBuffer bb = ByteBuffer.allocateDirect(4096);
@@ -41,7 +41,7 @@ public class VorbisDecoderTest extends AudioTestCase {
         decoder.release();
     }
 
-    public void testPcmSeek() throws Exception {
+    public void ignore_testPcmSeek() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
         assertEquals(0, decoder.pcmSeek(44100 * 10));
 
@@ -57,7 +57,7 @@ public class VorbisDecoderTest extends AudioTestCase {
     }
 
 
-    public void testTimeSeek() throws Exception {
+    public void ignore_testTimeSeek() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
         assertEquals(0, decoder.timeSeek(10d));
 
@@ -72,7 +72,7 @@ public class VorbisDecoderTest extends AudioTestCase {
         decoder.release();
     }
 
-    public void testTimeTell() throws Exception {
+    public void ignore_testTimeTell() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
         assertEquals(0, decoder.timeSeek(10d));
         assertEquals(10d, decoder.timeTell());
@@ -91,7 +91,7 @@ public class VorbisDecoderTest extends AudioTestCase {
     }
 
 
-    public void testGetInfo() throws Exception {
+    public void ignore_testGetInfo() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
         VorbisInfo info = decoder.getInfo();
 
@@ -105,14 +105,14 @@ public class VorbisDecoderTest extends AudioTestCase {
         decoder.release();
     }
 
-    public void testRelease() throws Exception {
+    public void ignore_testRelease() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
         assertEquals(0, decoder.getState());
         decoder.release();
         assertEquals(-1, decoder.getState());
     }
 
-    public void testRaisesExceptionOnInitialisationError() throws Exception {
+    public void ignore_testRaisesExceptionOnInitialisationError() throws Exception {
         try {
             new VorbisDecoder(prepareAsset(MED_STEREO_WAV));
             fail("decoder did not throw exception with bad data");
@@ -122,7 +122,7 @@ public class VorbisDecoderTest extends AudioTestCase {
     }
 
     @Suppress
-    public void testShouldDecodeChainedOggFiles() throws Exception {
+    public void ignore_testShouldDecodeChainedOggFiles() throws Exception {
         VorbisDecoder dec = new VorbisDecoder(prepareAsset(CHAINED_OGG));
         VorbisInfo info = dec.getInfo();
 
@@ -143,7 +143,7 @@ public class VorbisDecoderTest extends AudioTestCase {
     }
 
     @Suppress
-    public void testTimeTellShouldNotJump() throws Exception {
+    public void ignore_testTimeTellShouldNotJump() throws Exception {
         VorbisDecoder dec = new VorbisDecoder(prepareAsset(TRIMMED_RECORDING));
         ByteBuffer bb = ByteBuffer.allocateDirect(4096);
         int n;

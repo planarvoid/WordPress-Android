@@ -1,6 +1,8 @@
 package com.soundcloud.android.streaming;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.utils.BatteryListener;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -13,6 +15,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,88 +57,20 @@ public class StreamLoader {
 
     static final int LOW_PRIO = 0;
     static final int HI_PRIO = 1;
+    private AndroidCloudAPI mOldCloudAPI;
 
     public StreamLoader(SoundCloudApplication context, final StreamStorage storage) {
         mContext = context;
         mStorage = storage;
-
+        mOldCloudAPI = new OldCloudAPI(mContext);
         HandlerThread resultThread = new HandlerThread("streaming-result");
         resultThread.start();
 
         final Looper resultLooper = resultThread.getLooper();
-        mResultHandler = new Handler(resultLooper) {
-            @Override
-            public void handleMessage(Message msg) {
-                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
-                    Log.d(LOG_TAG, "result of message:" + msg.obj);
-
-                if (msg.obj instanceof HeadTask) {
-                    HeadTask t = (HeadTask) msg.obj;
-                    mHeadTasks.remove(t.item);
-                    if (t.item.isAvailable()) {
-                        storage.storeMetadata(t.item);
-                    } else {
-                        // item not available, cancel futures
-                        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-                            Log.d(LOG_TAG, "canceling load of item "+t.item);
-                        }
-
-                        for (StreamFuture f : new ArrayList<StreamFuture>(mPlayerCallbacks)) {
-                            if (f.item.equals(t.item)) {
-                                if (f.cancel(true)) {
-                                    mPlayerCallbacks.remove(f);
-                                }
-                            }
-                        }
-                    }
-                } else if (msg.obj instanceof DataTask) {
-                    DataTask t = (DataTask) msg.obj;
-                    if (msg.peekData() == null || !msg.getData().containsKey("success")) {
-                        // some failure, re-add item to queue, will be retried next time
-                        mHighPriorityQ.addItem(t.item, t.chunkRange.toIndex());
-                    } else {
-                        // for responsiveness, try to fulfill callbacks directly before storing buffer
-                        for (Iterator<StreamFuture> it = mPlayerCallbacks.iterator(); it.hasNext(); ) {
-                            StreamFuture cb = it.next();
-                            if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
-                                cb.setByteBuffer(t.buffer.asReadOnlyBuffer());
-                                it.remove();
-                            }
-                        }
-                        try {
-                            mStorage.storeData(t.item.url.toString(), t.buffer, t.chunkRange.start);
-                            fulfillPlayerCallbacks();
-                        } catch (IOException e) {
-                            Log.e(LOG_TAG, "exception storing data", e);
-                        }
-                    }
-                }
-                processQueues();
-            }
-        };
+        mResultHandler = new ResultHandler(this, resultLooper);
 
         // setup connectivity listening
-        mConnHandler = new Handler(resultLooper) {
-            @Override
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case CONNECTIVITY_MSG:
-                        NetworkConnectivityListener.State previous =
-                                NetworkConnectivityListener.State.values()[msg.arg1];
-                        NetworkConnectivityListener.State current =
-                                NetworkConnectivityListener.State.values()[msg.arg2];
-
-                        if (current == NetworkConnectivityListener.State.CONNECTED &&
-                            previous == NetworkConnectivityListener.State.NOT_CONNECTED) {
-
-                            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
-                                Log.d(LOG_TAG, "reconnected, processing queues");
-                            processQueues();
-                            break;
-                        }
-                }
-            }
-        };
+        mConnHandler = new ConnectivityHandler(this, resultLooper);
 
         mConnectivityListener = new NetworkConnectivityListener()
                 .registerHandler(mConnHandler, CONNECTIVITY_MSG)
@@ -153,14 +88,7 @@ public class StreamLoader {
 
         mHeadHandler = new StreamHandler(context, headThread.getLooper(), mResultHandler, MAX_RETRIES);
 
-        mPlaycountHandler = new Handler(resultLooper) {
-            @Override
-            public void handleMessage(Message msg) {
-                String url = msg.obj.toString();
-                mItemsNeedingPlaycountRequests.add(mStorage.getMetadata(url));
-                processQueues();
-            }
-        };
+        mPlaycountHandler = new PlaycountHandler(this, resultLooper);
     }
 
     public StreamFuture getDataForUrl(URL url, Range range) throws IOException {
@@ -300,7 +228,7 @@ public class StreamLoader {
             StreamItem item = future.item;
             Range chunkRange = future.byteRange.chunkRange(mStorage.chunkSize);
 
-            Index missingIndexes = mStorage.getMissingChunksForItem(item.url.toString(), chunkRange);
+            Index missingIndexes = mStorage.getMissingChunksForItem(item.streamItemUrl(), chunkRange);
             if (missingIndexes.isEmpty()) {
                 fulfilledCallbacks.add(future);
             } else {
@@ -311,7 +239,7 @@ public class StreamLoader {
 
         for (StreamFuture sf : fulfilledCallbacks) {
             try {
-                sf.setByteBuffer(mStorage.fetchStoredDataForUrl(sf.item.url.toString(), sf.byteRange));
+                sf.setByteBuffer(mStorage.fetchStoredDataForUrl(sf.item.streamItemUrl(), sf.byteRange));
                 mPlayerCallbacks.remove(sf);
             } catch (IOException e) {
                 Log.w(LOG_TAG, e);
@@ -345,7 +273,7 @@ public class StreamLoader {
     }
 
     private PlaycountTask startPlaycountTask(StreamItem item, int prio) {
-        PlaycountTask task = new PlaycountTask(item, mContext, true);
+        PlaycountTask task = new PlaycountTask(item, mOldCloudAPI, true);
         mHeadHandler.sendMessage(mHeadHandler.obtainMessage(prio, task));
         return task;
     }
@@ -356,7 +284,7 @@ public class StreamLoader {
                 synchronized (mHeadTasks) {
                     if (!mHeadTasks.contains(item)) {
                         mHeadTasks.add(item);
-                        HeadTask ht = new HeadTask(item, mContext, true);
+                        HeadTask ht = new HeadTask(item, mOldCloudAPI, true);
                         Message msg = mHeadHandler.obtainMessage(prio, ht);
                         mHeadHandler.sendMessage(msg);
                         return ht;
@@ -376,5 +304,121 @@ public class StreamLoader {
 
     /* package */ void setForceOnline(boolean b) {
         mForceOnline = b;
+    }
+
+    private static final class ResultHandler extends Handler {
+
+        private WeakReference<StreamLoader> mLoaderRef;
+
+        private ResultHandler(StreamLoader loader, Looper looper) {
+            super(looper);
+            this.mLoaderRef = new WeakReference<StreamLoader>(loader);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final StreamLoader loader = mLoaderRef.get();
+            if (loader == null) {
+                return;
+            }
+
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
+                Log.d(LOG_TAG, "result of message:" + msg.obj);
+            }
+
+            if (msg.obj instanceof HeadTask) {
+                HeadTask t = (HeadTask) msg.obj;
+                loader.mHeadTasks.remove(t.item);
+                if (t.item.isAvailable()) {
+                    loader.mStorage.storeMetadata(t.item);
+                } else {
+                    // item not available, cancel futures
+                    if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
+                        Log.d(LOG_TAG, "canceling load of item "+t.item);
+                    }
+
+                    for (StreamFuture f : new ArrayList<StreamFuture>(loader.mPlayerCallbacks)) {
+                        if (f.item.equals(t.item)) {
+                            if (f.cancel(true)) {
+                                loader.mPlayerCallbacks.remove(f);
+                            }
+                        }
+                    }
+                }
+            } else if (msg.obj instanceof DataTask) {
+                DataTask t = (DataTask) msg.obj;
+                if (msg.peekData() == null || !msg.getData().containsKey("success")) {
+                    // some failure, re-add item to queue, will be retried next time
+                    loader.mHighPriorityQ.addItem(t.item, t.chunkRange.toIndex());
+                } else {
+                    // for responsiveness, try to fulfill callbacks directly before storing buffer
+                    for (Iterator<StreamFuture> it = loader.mPlayerCallbacks.iterator(); it.hasNext(); ) {
+                        StreamFuture cb = it.next();
+                        if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
+                            cb.setByteBuffer(t.buffer.asReadOnlyBuffer());
+                            it.remove();
+                        }
+                    }
+                    try {
+                        loader.mStorage.storeData(t.item.streamItemUrl(), t.buffer, t.chunkRange.start);
+                        loader.fulfillPlayerCallbacks();
+                    } catch (IOException e) {
+                        Log.e(LOG_TAG, "exception storing data", e);
+                    }
+                }
+            }
+            loader.processQueues();
+        }
+
+    }
+
+    private static final class ConnectivityHandler extends Handler {
+        private WeakReference<StreamLoader> mLoaderRef;
+
+        private ConnectivityHandler(StreamLoader loader, Looper looper) {
+            super(looper);
+            this.mLoaderRef = new WeakReference<StreamLoader>(loader);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final StreamLoader loader = mLoaderRef.get();
+            switch (msg.what) {
+                case CONNECTIVITY_MSG:
+                    NetworkConnectivityListener.State previous =
+                            NetworkConnectivityListener.State.values()[msg.arg1];
+                    NetworkConnectivityListener.State current =
+                            NetworkConnectivityListener.State.values()[msg.arg2];
+
+                    if (loader != null && current == NetworkConnectivityListener.State.CONNECTED &&
+                            previous == NetworkConnectivityListener.State.NOT_CONNECTED) {
+
+                        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
+                            Log.d(LOG_TAG, "reconnected, processing queues");
+                        }
+                        loader.processQueues();
+                        break;
+                    }
+            }
+        }
+    }
+
+    private static final class PlaycountHandler extends Handler {
+        private WeakReference<StreamLoader> mLoaderRef;
+
+        private PlaycountHandler(StreamLoader loader, Looper looper) {
+            super(looper);
+            this.mLoaderRef = new WeakReference<StreamLoader>(loader);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final StreamLoader loader = mLoaderRef.get();
+            if (loader != null) {
+                String url = msg.obj.toString();
+                loader.mItemsNeedingPlaycountRequests.add(loader.mStorage.getMetadata(url));
+                loader.processQueues();
+            }
+        }
     }
 }

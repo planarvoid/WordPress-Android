@@ -5,18 +5,21 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.audio.PlaybackStream;
+import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 import com.soundcloud.android.view.create.AccessList;
 import com.soundcloud.android.view.create.ConnectionList;
@@ -54,17 +57,21 @@ public class ScUpload extends ScActivity {
     private RecordingMetaData mRecordingMetadata;
     private boolean mUploading;
 
+    private RecordingStorage mStorage;
+    private AndroidCloudAPI mOldCloudAPI;
 
     private static final int REC_ANOTHER = 0, POST = 1;
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-
+        mOldCloudAPI = new OldCloudAPI(this);
         setTitle(R.string.share);
 
+        mStorage = new RecordingStorage();
+
         final Intent intent = getIntent();
-        if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId())) != null) {
+        if (intent != null && (mRecording = Recording.fromIntent(intent, this, getCurrentUserId())) != null) {
             setContentView(mRecording.isPrivateMessage() ? R.layout.sc_message_upload : R.layout.sc_upload);
             mRecordingMetadata.setRecording(mRecording, false);
 
@@ -107,7 +114,7 @@ public class ScUpload extends ScActivity {
                 track(Click.Record_Share_Record_Another);
 
                 if (mRecording.external_upload){
-                    mRecording.delete(getContentResolver());
+                    mStorage.delete(mRecording).subscribe(ScActions.NO_OP);
                 } else {
                     setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
                 }
@@ -159,7 +166,7 @@ public class ScUpload extends ScActivity {
             });
 
             mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
-            mConnectionList.setAdapter(new ConnectionList.Adapter(this.getApp()));
+            mConnectionList.setAdapter(new ConnectionList.Adapter(mOldCloudAPI));
 
             mAccessList = (AccessList) findViewById(R.id.accessList);
             mAccessList.registerDataSetObserver(new DataSetObserver() {
@@ -193,7 +200,7 @@ public class ScUpload extends ScActivity {
         if (!mRecording.isPrivateMessage()) {
             mConnectionList.getAdapter().loadIfNecessary(this);
         }
-        track(getClass(), getApp().getLoggedInUser());
+        track(ScUpload.class, getApp().getLoggedInUser());
     }
 
     @Override
@@ -209,7 +216,7 @@ public class ScUpload extends ScActivity {
     private void saveRecording() {
         mapToRecording(mRecording);
         if (mRecording != null) {
-            mRecording.insert(getContentResolver());
+            mStorage.create(mRecording).subscribe(ScActions.NO_OP);
         }
     }
 

@@ -2,26 +2,14 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.api.Params;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -41,7 +29,7 @@ public class PlaylistTest {
 
     @Test
     public void shouldParcelAndUnparcelCorrectly() throws Exception {
-        Playlist playlist = AndroidCloudAPI.Wrapper.buildObjectMapper().readValue(
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 
@@ -54,36 +42,37 @@ public class PlaylistTest {
 
     @Test
     public void shouldProvideCreateJson() throws Exception {
-        Playlist playlist = AndroidCloudAPI.Wrapper.buildObjectMapper().readValue(
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 
         //create mode
         Playlist.ApiCreateObject createObject = new Playlist.ApiCreateObject(playlist);
-        expect(createObject.toJson(DefaultTestRunner.application.getMapper()))
+
+        expect(createObject.toJson())
                 .toEqual("{\"playlist\":{\"title\":\"PA600QT Demos\",\"sharing\":\"public\",\"tracks\":[{\"id\":61363002},{\"id\":61363003},{\"id\":61363004},{\"id\":61363005},{\"id\":61363006},{\"id\":61363007},{\"id\":61363008},{\"id\":61363009},{\"id\":61363011},{\"id\":61363012},{\"id\":61363013},{\"id\":61363014},{\"id\":61363016},{\"id\":61363017}]}}");
 
     }
 
     @Test
     public void shouldProvideUpdateJson() throws Exception {
-        Playlist playlist = AndroidCloudAPI.Wrapper.buildObjectMapper().readValue(
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
                 Playlist.class);
 
         List<Long> toAdd = new ArrayList<Long>();
         for (Track t : playlist.tracks){
-            toAdd.add(t.id);
+            toAdd.add(t.mID);
         }
 
         // update tracks mode
         Playlist.ApiUpdateObject updateObject = new Playlist.ApiUpdateObject(toAdd);
-        expect(updateObject.toJson(DefaultTestRunner.application.getMapper()))
+        expect(updateObject.toJson())
                 .toEqual("{\"playlist\":{\"tracks\":[{\"id\":61363002},{\"id\":61363003},{\"id\":61363004},{\"id\":61363005},{\"id\":61363006},{\"id\":61363007},{\"id\":61363008},{\"id\":61363009},{\"id\":61363011},{\"id\":61363012},{\"id\":61363013},{\"id\":61363014},{\"id\":61363016},{\"id\":61363017}]}}");
     }
 
     private void comparePlaylists(Playlist playlist, Playlist playlist1) {
-        expect(playlist1.id).toEqual(playlist.id);
+        expect(playlist1.mID).toEqual(playlist.mID);
         expect(playlist1.title).toEqual(playlist.title);
         expect(playlist1.permalink).toEqual(playlist.permalink);
         expect(playlist1.duration).toBeGreaterThan(0);

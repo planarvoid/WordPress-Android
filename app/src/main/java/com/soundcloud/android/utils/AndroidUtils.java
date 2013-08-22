@@ -7,6 +7,7 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -24,9 +25,13 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
+
 
 /**
  * Android related utility functions.
@@ -226,35 +231,76 @@ public final class AndroidUtils {
         }
     }
 
-    public static String suggestEmail(Context context) {
-        Map<String, Integer> counts = new HashMap<String, Integer>();
-        Account[] accounts = AccountManager.get(context).getAccounts();
-        for (Account account : accounts) {
-            if (ScTextUtils.isEmail(account.name)) {
-                if (counts.get(account.name) == null) {
-                    counts.put(account.name, 1);
-                } else {
-                    counts.put(account.name, counts.get(account.name) + 1);
-                }
-            }
-        }
-        if (counts.isEmpty()) {
-            return null;
-        } else {
-            int max = 0;
-            String candidate = null;
-            for (Map.Entry<String, Integer> e : counts.entrySet()) {
-                if (e.getValue() > max) {
-                    max = e.getValue();
-                    candidate = e.getKey();
-                }
-            }
-            return candidate;
-        }
-    }
-
     public static boolean accessibilityFeaturesAvailable(Context context) {
         AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
         return accessibilityManager != null && accessibilityManager.isEnabled();
+    }
+
+    /**
+     * Returns emails from the account manager paired and sorted by their frequency of usage
+     *
+     * @param context
+     * @return
+     */
+    public static String[] listEmails(Context context){
+        HashMap<String,Integer> map = new HashMap<String,Integer>();
+        Account[] accounts = AccountManager.get(context).getAccounts();
+        for (Account account : accounts) {
+            if (ScTextUtils.isEmail(account.name)) {
+                if (map.get(account.name) == null) {
+                    map.put(account.name, 1);
+                } else {
+                    map.put(account.name, map.get(account.name) + 1);
+                }
+            }
+        }
+        return returnKeysSortedByValue(map);
+    }
+
+    /* package */ static String[] returnKeysSortedByValue(HashMap<String, Integer> map) {
+        TreeMap<String, Integer> sortedMap = new TreeMap<String, Integer>(new MapValueComparator(map));
+        sortedMap.putAll(map);
+        return sortedMap.keySet().toArray(new String[map.size()]);
+    }
+
+    public static String[] getAccountsByType(Context context, String accountType) {
+        Account[] accounts = AccountManager.get(context).getAccountsByType(accountType);
+        final String[] names = new String[accounts.length];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = accounts[i].name;
+        }
+        return names;
+    }
+
+    /**
+     * Idempotent version of {@link Context#unregisterReceiver(android.content.BroadcastReceiver)} which allows null
+     * references and recovers from "receiver not registered" errors.
+     *
+     * @param context  the context from which to unregister
+     * @param receiver the receiver to unregister
+     */
+    public static void safeUnregisterReceiver(final Context context, @Nullable final BroadcastReceiver receiver) {
+        if (receiver != null) {
+            try {
+                context.unregisterReceiver(receiver);
+            } catch (IllegalArgumentException receiverAlreadyUnregistered) {
+                receiverAlreadyUnregistered.printStackTrace();
+            }
+        }
+    }
+
+    private static class MapValueComparator implements Comparator<String> {
+        Map<String, Integer> map;
+        public MapValueComparator(Map<String, Integer> map) {
+            this.map = map;
+        }
+
+        public int compare(String a, String b) {
+            if (map.get(a) >= map.get(b)) {
+                return -1;
+            } else {
+                return 1;
+            } // returning 0 would merge keys
+        }
     }
 }

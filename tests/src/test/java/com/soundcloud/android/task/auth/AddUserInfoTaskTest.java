@@ -9,10 +9,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.util.Pair;
-
 import java.io.File;
-import java.util.Arrays;
 
 @RunWith(DefaultTestRunner.class)
 public class AddUserInfoTaskTest  {
@@ -20,38 +17,38 @@ public class AddUserInfoTaskTest  {
     public void shouldWorkWithNullFile() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "me.json");
 
-        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application);
         User user = new User();
-        User result = task.doInBackground(Pair.create(user, (File)null));
-        expect(result.username).toEqual("testing");
+        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, user, null);
+        AuthTaskResult result = task.doInBackground();
+        expect(result.getUser().username).toEqual("testing");
     }
 
     @Test
     public void shouldWorkWithNonexistentFile() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "me.json");
-        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application);
         User user = new User();
-        User result = task.doInBackground(Pair.create(user, new File("/tmp/bla")));
-        expect(result.username).toEqual("testing");
+        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, user, new File("/tmp/bla"));
+        AuthTaskResult result = task.doInBackground();
+        expect(result.getUser().username).toEqual("testing");
     }
 
     @Test
     public void shouldWorkWithFile() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "me.json");
-        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application);
         User user = new User();
         File tmp = File.createTempFile("test", "tmp");
-        User result = task.doInBackground(Pair.create(user, tmp));
-        expect(result.username).toEqual("testing");
+        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, user, tmp);
+        AuthTaskResult result = task.doInBackground();
+        expect(result.getUser().username).toEqual("testing");
     }
 
     @Test
     public void shouldHandleBadEntity() throws Exception {
         Robolectric.addPendingHttpResponse(422, "{\"errors\":{\"error\":\"Failz\"}}");
-        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application);
         User user = new User();
-        User result = task.doInBackground(Pair.create(user, (File)null));
-        expect(result).toBeNull();
-        expect(task.getErrors()).toEqual(Arrays.asList("Failz"));
+        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, user, null);
+        AuthTaskResult result = task.doInBackground();
+        expect(result.getUser()).toBeNull();
+        expect(result.getErrors()[0]).toEqual("Failz");
     }
 }

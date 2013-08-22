@@ -1,16 +1,14 @@
 package com.soundcloud.android.c2dm;
 
+import static com.soundcloud.android.Expect.expect;
+
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import org.apache.http.HttpStatus;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import com.xtremelabs.robolectric.Robolectric;
-
-import static com.soundcloud.android.Expect.expect;
 
 import java.io.IOException;
 
@@ -19,7 +17,7 @@ public class SendRegIdTaskTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldCheckNumberOfParameters() throws Exception {
-        new SendRegIdTask(DefaultTestRunner.application).doInBackground("reg_id", "com.soundcloud.android");
+        new SendRegIdTask(DefaultTestRunner.application.getCloudAPI()).doInBackground("reg_id", "com.soundcloud.android");
     }
 
     @Test
@@ -29,14 +27,14 @@ public class SendRegIdTaskTest {
         Robolectric.addPendingHttpResponse(HttpStatus.SC_CREATED, "",
                 new BasicHeader("Location", location));
 
-        expect(new SendRegIdTask(DefaultTestRunner.application)
+        expect(new SendRegIdTask(DefaultTestRunner.application.getCloudAPI())
                 .doInBackground("reg_id", "com.soundcloud.android", "some_id")).toEqual(location);
     }
 
     @Test
     public void testExecuteFailure() throws Exception {
         Robolectric.addPendingHttpResponse(HttpStatus.SC_FORBIDDEN, "");
-        expect(new SendRegIdTask(DefaultTestRunner.application).doInBackground("reg_id", "com.soundcloud.android", "some_id")).toBeNull();
+        expect(new SendRegIdTask(DefaultTestRunner.application.getCloudAPI()).doInBackground("reg_id", "com.soundcloud.android", "some_id")).toBeNull();
     }
 
     @Test
@@ -46,7 +44,7 @@ public class SendRegIdTaskTest {
                         .method("POST")
                         .path("me/devices"), new IOException("boom")));
 
-        expect(new SendRegIdTask(DefaultTestRunner.application)
+        expect(new SendRegIdTask(DefaultTestRunner.application.getCloudAPI())
                 .doInBackground("reg_id", "com.soundcloud.android", "some_id")).toBeNull();
     }
 }

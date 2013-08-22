@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity.track;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
@@ -10,7 +9,8 @@ import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
@@ -112,7 +112,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
             public void onClick(View v) {
                 final String artwork = mPlaylist.getArtwork();
                 if (ImageUtils.checkIconShouldLoad(artwork)) {
-                    new FullImageDialog(PlaylistActivity.this, Consts.GraphicSize.CROP.formatUri(artwork)).show();
+                    new FullImageDialog(PlaylistActivity.this, ImageSize.CROP.formatUri(artwork)).show();
                 }
 
             }

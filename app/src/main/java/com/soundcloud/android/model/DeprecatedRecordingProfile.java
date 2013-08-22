@@ -76,7 +76,7 @@ public enum DeprecatedRecordingProfile {
     }
 
     /**
-     * Rename files, return CV for a bulk insert
+     * Rename files, return CV for a bulk create
      */
     public static ContentValues migrate(Recording r) {
         final DeprecatedRecordingProfile profile = DeprecatedRecordingProfile.getProfile(r.audio_path);
@@ -90,7 +90,7 @@ public enum DeprecatedRecordingProfile {
 
                 // return content values for bulk migration
                 ContentValues cv = new ContentValues();
-                cv.put(DBHelper.Recordings._ID, r.id);
+                cv.put(DBHelper.Recordings._ID, r.mID);
                 cv.put(DBHelper.Recordings.EXTERNAL_UPLOAD, r.external_upload);
                 cv.put(DBHelper.Recordings.AUDIO_PATH, r.audio_path.getAbsolutePath());
                 return cv;

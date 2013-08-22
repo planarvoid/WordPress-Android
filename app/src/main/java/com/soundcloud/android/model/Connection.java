@@ -8,7 +8,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -28,7 +27,6 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     private boolean active = true;
     private Service _service;
 
-    public long id;
     public String type;
     public Date created_at;
     public String display_name;
@@ -46,7 +44,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     }
 
     public Connection(Cursor c){
-        id = c.getLong(c.getColumnIndex(DBHelper.Connections._ID));
+        mID = c.getLong(c.getColumnIndex(DBHelper.Connections._ID));
         service = c.getString(c.getColumnIndex(DBHelper.Connections.SERVICE));
         _service = Service.fromString(service);
         type = c.getString(c.getColumnIndex(DBHelper.Connections.TYPE));
@@ -79,7 +77,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     @Override
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Connections._ID, id);
+        cv.put(DBHelper.Connections._ID, mID);
         cv.put(DBHelper.Connections.USER_ID, SoundCloudApplication.getUserId()); // not sure if we should infer the user id here
         cv.put(DBHelper.Connections.SERVICE, service);
         cv.put(DBHelper.Connections.TYPE, type);
@@ -98,23 +96,13 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     }
 
     @Override
-    public User getUser() {
-        return null;
-    }
-
-    @Override
-    public Playable getPlayable() {
-        return null;
-    }
-
-    @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(id);
+        dest.writeLong(mID);
         dest.writeLong(created_at == null ? 0 : created_at.getTime());
         dest.writeString(display_name);
         dest.writeInt(post_publish ? 1 : 0);
@@ -128,7 +116,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
         @Override
         public Connection createFromParcel(Parcel source) {
             Connection connection = new Connection();
-            connection.id = source.readLong();
+            connection.mID = source.readLong();
             connection.created_at = new Date(source.readLong());
             connection.display_name = source.readString();
             connection.post_publish = source.readInt() == 1;
@@ -150,7 +138,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     public String toString() {
         return "Connection{" +
                 "active=" + active +
-                ", id=" + id +
+                ", id=" + mID +
                 ", created_at=" + created_at +
                 ", display_name='" + display_name + '\'' +
                 ", post_publish=" + post_publish +
@@ -230,7 +218,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
 
         Connection that = (Connection) o;
 
-        if (id != that.id) return false;
+        if (mID != that.mID) return false;
         if (display_name != null ? !display_name.equals(that.display_name) : that.display_name != null) return false;
         if (service != null ? !service.equals(that.service) : that.service != null) return false;
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
@@ -241,7 +229,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (int) (id ^ (id >>> 32));
+        result = 31 * result + (int) (mID ^ (mID >>> 32));
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (display_name != null ? display_name.hashCode() : 0);
         result = 31 * result + (service != null ? service.hashCode() : 0);
@@ -250,7 +238,7 @@ public class Connection extends ScResource implements Comparable<Connection>, Pa
 
     @Override
     public Uri toUri() {
-        return Content.ME_CONNECTIONS.forId(id);
+        return Content.ME_CONNECTIONS.forId(mID);
     }
 
 }

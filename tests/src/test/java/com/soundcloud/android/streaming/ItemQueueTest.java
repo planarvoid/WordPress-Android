@@ -1,11 +1,10 @@
 package com.soundcloud.android.streaming;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import static com.soundcloud.android.Expect.expect;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(DefaultTestRunner.class)
 public class ItemQueueTest {

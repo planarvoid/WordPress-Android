@@ -1,19 +1,18 @@
 package com.soundcloud.android.service.sync;
 
-import static com.soundcloud.android.imageloader.ImageLoader.Options;
-
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -22,7 +21,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.RemoteViews;
+import android.support.v4.app.NotificationCompat;
+import android.view.View;
 
 import java.util.List;
 
@@ -150,33 +150,31 @@ class NotificationMessage {
                                                   final int id,
                                                   final String artworkUri) {
 
-        if (!Consts.SdkSwitches.useRichNotifications || !ImageUtils.checkIconShouldLoad(artworkUri)) {
+        final String largeIcon = ImageSize.formatUriForNotificationLargeIcon(context, artworkUri);
+        if (!Consts.SdkSwitches.useRichNotifications || !ImageUtils.checkIconShouldLoad(largeIcon)) {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    ImageLoader.getInstance().loadImage(largeIcon, new SimpleImageLoadingListener() {
+                        @Override
+                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                            showDashboardNotification(context, ticker, intent, title, message, id, null);
+                        }
 
-            final Bitmap bmp = ImageLoader.get(context).getBitmap(artworkUri, null, Options.dontLoadRemote());
-            if (bmp != null){
-                showDashboardNotification(context, ticker, intent, title, message, id, bmp);
-            } else {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ImageLoader.get(context).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
-                            public void onImageLoaded(Bitmap loadedBmp, String uri) {
-                                showDashboardNotification(context, ticker, intent, title, message, id, loadedBmp);
-                            }
+                        @Override
+                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            showDashboardNotification(context, ticker, intent, title, message, id, loadedImage);
+                        }
+                    });
 
-                            public void onImageError(String uri, Throwable error) {
-                                showDashboardNotification(context, ticker, intent, title, message, id, null);
-                            }
-                        });
-                    }
-                });
-            }
+                }
+            });
         }
     }
 
-    /* package */ static void showDashboardNotification(Context context,
+     /* package */ static void showDashboardNotification(Context context,
                                                   CharSequence ticker,
                                                   Intent intent,
                                                   CharSequence title,
@@ -184,28 +182,18 @@ class NotificationMessage {
                                                   int id,
                                                   Bitmap bmp) {
 
-        final NotificationManager nm = (NotificationManager)
-                context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-        final PendingIntent pi = PendingIntent.getActivity(context.getApplicationContext(), 0, intent,
+        final PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
-        final Notification n = new Notification(R.drawable.ic_notification_cloud, ticker, System.currentTimeMillis());
-        n.contentIntent = pi;
-        n.flags = Notification.FLAG_AUTO_CANCEL;
-
-        if (bmp == null){
-            n.setLatestEventInfo(context.getApplicationContext(), title, message, pi);
-        } else {
-            final RemoteViews notificationView = new RemoteViews(context.getPackageName(), R.layout.dashboard_notification_v11);
-                        notificationView.setTextViewText(R.id.title_txt, title);
-                        notificationView.setTextViewText(R.id.content_txt, message);
-
-            notificationView.setImageViewBitmap(R.id.icon,bmp);
-            n.contentView = notificationView;
-        }
-        nm.notify(id, n);
+         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+         builder.setSmallIcon(R.drawable.ic_notification_cloud);
+         builder.setContentIntent(pendingIntent);
+         builder.setAutoCancel(true);
+         builder.setTicker(ticker);
+         builder.setContentTitle(title);
+         builder.setContentText(message);
+         if (bmp != null) builder.setLargeIcon(bmp);
+         ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(id, builder.build());
     }
 
     /* package */ static Intent createNotificationIntent(String action){

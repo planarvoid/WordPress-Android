@@ -2,10 +2,8 @@ package com.soundcloud.android.task;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -14,7 +12,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,27 +42,7 @@ public abstract class AsyncApiTask<Params, Progress, Result>
     }
 
     protected void extractErrors(HttpResponse resp) throws IOException {
-        mErrors.addAll(parseError(mApi.getMapper().reader(), resp.getEntity().getContent()));
-    }
-
-    static List<String> parseError(ObjectReader reader, InputStream is) throws IOException {
-        List<String> errorList = new ArrayList<String>();
-        try {
-            JsonNode node = reader.readTree(is);
-            //{"errors":{"error":["Email has already been taken","Email is already taken."]}}
-            //{"errors":{"error":"Username has already been taken"}}
-            //{"error":"Unknown Email Address"}
-            //{"errors":[{"error_message":"Username is too short (minimum is 3 characters)"}]}
-            JsonNode errors = node.path("errors").path("error");
-            JsonNode error  = node.path("error");
-            if (error.isTextual()) errorList.add(error.asText());
-            else if (errors.isTextual()) errorList.add(errors.asText());
-            else if (node.path("errors").isArray())
-                for (JsonNode n : node.path("errors")) errorList.add(n.path("error_message").asText());
-            else for (JsonNode s : errors) errorList.add(s.asText());
-        } catch (JsonParseException ignored) {
-        }
-        return errorList;
+        mErrors.addAll(IOUtils.parseError(mApi.getMapper().reader(), resp.getEntity().getContent()));
     }
 
     protected String getFirstError() {

@@ -13,7 +13,7 @@ public class ModelCache<V extends ScModel> extends LruCache<Long, V> {
     }
 
     public V put(V resource) {
-        return resource != null ? put(resource.id, resource) : null;
+        return resource != null ? put(resource.getId(), resource) : null;
     }
 
     @Override
