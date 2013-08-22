@@ -52,7 +52,7 @@ public class Playlist extends Playable {
 
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
-    @JsonView(Views.Full.class) public List<Track> tracks = new LinkedList<Track>();
+    @JsonView(Views.Full.class) public List<Track> tracks = new ArrayList<Track>();
     @JsonView(Views.Full.class) private int track_count;
     public boolean removed;
 
