@@ -13,24 +13,27 @@ import android.view.View;
 
 public class TracksByTag extends ScActivity {
 
+    public static final String EXTRA_TAG = "tag";
+    private static final String FILTER_TAG = "filter.tag";
+    private static final String FILTER_GENRE = "filter.genre";
+    public static final String EXTRA_GENRE = "genre";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tracks_by_tag);
 
         Intent i = getIntent();
-
-
         if (savedInstanceState == null) {
-            Uri contentUri = Content.TRACKS.uri;
+            Uri contentUri = Content.TRACK_SEARCH.uri;
             if (i.hasExtra("tag")) {
-                setTitle(getString(R.string.list_header_tracks_by_tag, i.getStringExtra("tag")));
-                contentUri = contentUri.buildUpon().appendQueryParameter("tags",i.getStringExtra("tag")).build();
-            }else if (i.hasExtra("genre")) {
-                setTitle(getString(R.string.list_header_tracks_by_genre, i.getStringExtra("genre")));
-                contentUri = contentUri.buildUpon().appendQueryParameter("genres",i.getStringExtra("genre")).build();
+                setTitle(getString(R.string.list_header_tracks_by_tag, i.getStringExtra(EXTRA_TAG)));
+                contentUri = contentUri.buildUpon().appendQueryParameter(FILTER_TAG, i.getStringExtra(EXTRA_TAG)).build();
+            } else if (i.hasExtra("genre")) {
+                setTitle(getString(R.string.list_header_tracks_by_genre, i.getStringExtra(EXTRA_GENRE)));
+                contentUri = contentUri.buildUpon().appendQueryParameter(FILTER_GENRE, i.getStringExtra(EXTRA_GENRE)).build();
             }
-            getSupportFragmentManager().beginTransaction().add(R.id.listHolder,ScListFragment.newInstance(contentUri)).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.listHolder, ScListFragment.newInstance(contentUri)).commit();
         }
     }
 
