@@ -58,7 +58,6 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         if (getItemViewType(position) == APPEND_ITEM_VIEW_TYPE) {
             if (convertView == null) {
                 convertView = View.inflate(parent.getContext(), mProgressItemLayoutResId, null);
-                convertView.setBackgroundResource(R.drawable.list_selector_background);
             }
             configureAppendingLayout(convertView);
             return convertView;
@@ -68,15 +67,24 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         }
     }
 
-    private void configureAppendingLayout(View appendingLayout) {
+    private void configureAppendingLayout(final View appendingLayout) {
         switch (mAppendState) {
             case LOADING:
+                appendingLayout.setBackgroundResource(android.R.color.transparent);
                 appendingLayout.findViewById(R.id.list_loading).setVisibility(View.VISIBLE);
                 appendingLayout.findViewById(R.id.txt_list_loading_retry).setVisibility(View.GONE);
+                appendingLayout.setOnClickListener(null);
                 break;
             case ERROR:
+                appendingLayout.setBackgroundResource(R.drawable.list_selector_background);
                 appendingLayout.findViewById(R.id.list_loading).setVisibility(View.GONE);
                 appendingLayout.findViewById(R.id.txt_list_loading_retry).setVisibility(View.VISIBLE);
+                appendingLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        loadNextPage();
+                    }
+                });
                 break;
             default:
                 throw new IllegalStateException("Unexpected idle state with progress row");

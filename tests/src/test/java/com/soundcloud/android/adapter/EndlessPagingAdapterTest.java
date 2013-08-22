@@ -2,6 +2,7 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -125,10 +126,10 @@ public class EndlessPagingAdapterTest {
         createAdapter(Observable.from(Observable.just(new Track(1)), Observable.error(new Exception())));
         adapter.subscribe();
         adapter.loadNextPage();
-        View progressView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
-        expect(progressView).not.toBeNull();
-        expect(progressView.findViewById(R.id.list_loading).getVisibility()).toBe(View.GONE);
-        expect(progressView.findViewById(R.id.txt_list_loading_retry).getVisibility()).toBe(View.VISIBLE);
+        View errorView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
+        expect(errorView).not.toBeNull();
+        expect(errorView.findViewById(R.id.list_loading).getVisibility()).toBe(View.GONE);
+        expect(errorView.findViewById(R.id.txt_list_loading_retry).getVisibility()).toBe(View.VISIBLE);
     }
 
     @Test
@@ -151,11 +152,27 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldSubscribeToFirstPageWithSpecificObserver() {
-        ListFragmentObserver specificObserver = Mockito.mock(ListFragmentObserver.class);
+        ListFragmentObserver specificObserver = mock(ListFragmentObserver.class);
         createAdapter(Observable.just(pageObservable));
         adapter.subscribe(specificObserver);
         verify(pageObservable).subscribe(specificObserver);
         verify(pageObservable, never()).subscribe(adapter);
+    }
+
+    @Test
+    public void shouldRetryRequestWhenClickingOnErrorRow() {
+        Observable retriedPage = mock(Observable.class);
+        when(retriedPage.observeOn(any(Scheduler.class))).thenReturn(retriedPage);
+        createAdapter(Observable.from(Observable.just(new Track(1)), retriedPage));
+
+        adapter.subscribe();
+        adapter.loadNextPage();
+        adapter.onError(new Exception());
+
+        View errorView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
+        errorView.performClick();
+
+        verify(retriedPage, times(2)).subscribe(any(Observer.class));
     }
 
     @Test
@@ -170,7 +187,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void secondPageShouldUseTheDefaultItemObserver() {
-        ListFragmentObserver specificObserver = Mockito.mock(ListFragmentObserver.class);
+        ListFragmentObserver specificObserver = mock(ListFragmentObserver.class);
         createAdapter(Observable.from(pageObservable, pageObservable));
 
         adapter.subscribe(specificObserver);
@@ -190,7 +207,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldNotDoAnythingIfAlreadyLoading() {
-        final Observable pageObservable = Mockito.mock(Observable.class);
+        final Observable pageObservable = mock(Observable.class);
         when(pageObservable.observeOn(any(Scheduler.class))).thenReturn(pageObservable);
         createAdapter(Observable.from(Observable.just(1), pageObservable));
         adapter.subscribe();
@@ -201,7 +218,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldNotDoAnythingIfLastAppendWasError() {
-        final Observable pageObservable = Mockito.mock(Observable.class);
+        final Observable pageObservable = mock(Observable.class);
         when(pageObservable.observeOn(any(Scheduler.class))).thenReturn(pageObservable);
         createAdapter(Observable.from(Observable.error(new Exception()), pageObservable));
         adapter.subscribe();
@@ -211,7 +228,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldNotLoadNextPageIfZeroItems() {
-        final Observable pageObservable = Mockito.mock(Observable.class);
+        final Observable pageObservable = mock(Observable.class);
         createAdapter(Observable.from(pageObservable));
         adapter.onScroll(absListView, 0, 0, 0);
         verifyZeroInteractions(pageObservable);
