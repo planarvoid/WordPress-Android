@@ -11,7 +11,7 @@ import android.view.View;
 public abstract class SectionedAdapter<ModelType> extends ScAdapter<ModelType> implements Observer<Section<ModelType>> {
 
     @VisibleForTesting
-    public enum ViewTypes {
+    protected enum ViewTypes {
         DEFAULT, SECTION
     }
 

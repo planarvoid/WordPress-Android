@@ -36,8 +36,11 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
 
     @Override
     public int getCount() {
-        return mItems.isEmpty() ? 0 :
-                mAppendState == AppendState.IDLE ? mItems.size() : mItems.size() + 1;
+        if (mItems.isEmpty()) {
+            return 0;
+        } else {
+            return mAppendState == AppendState.IDLE ? mItems.size() : mItems.size() + 1;
+        }
     }
 
     @Override
