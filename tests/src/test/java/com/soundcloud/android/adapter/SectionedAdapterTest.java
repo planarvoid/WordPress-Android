@@ -2,6 +2,7 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,6 +11,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Section;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.adapter.behavior.SectionedListRow;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -29,7 +31,7 @@ public class SectionedAdapterTest {
 
     @Before
     public void setup() {
-        adapter = new SectionedAdapter() {
+        adapter = new SectionedAdapter(mock(ListFragmentObserver.class)) {
             @Override
             protected View createItemView(int position, ViewGroup parent) {
                 return null;
@@ -52,7 +54,7 @@ public class SectionedAdapterTest {
         adapter.onNext(new Section(R.string.explore_category_header_audio, Lists.newArrayList(1,2)));
         adapter.onNext(new Section(R.string.explore_category_header_music, Lists.newArrayList(1)));
 
-        SectionedTestListRow sectionedRow = Mockito.mock(SectionedTestListRow.class);
+        SectionedTestListRow sectionedRow = mock(SectionedTestListRow.class);
         when(sectionedRow.getResources()).thenReturn(Robolectric.application.getResources());
 
         adapter.bindItemView(0, sectionedRow);
@@ -61,7 +63,7 @@ public class SectionedAdapterTest {
         adapter.bindItemView(2, sectionedRow);
         verify(sectionedRow).showSectionHeaderWithText("Music");
 
-        SectionedTestListRow sectionedRowNoHeader = Mockito.mock(SectionedTestListRow.class);
+        SectionedTestListRow sectionedRowNoHeader = mock(SectionedTestListRow.class);
         when(sectionedRowNoHeader.getResources()).thenReturn(Robolectric.application.getResources());
 
         adapter.bindItemView(1, sectionedRowNoHeader);

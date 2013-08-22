@@ -4,7 +4,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ExploreTracksAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.observers.ItemObserver;
+import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -26,7 +26,7 @@ public class ExploreTracksFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = new ExploreTracksFragment(adapter, mock(ItemObserver.class));
+        fragment = new ExploreTracksFragment(adapter);
         SherlockFragmentActivity fragmentActivity = new SherlockFragmentActivity();
         Robolectric.shadowOf(fragment).setActivity(fragmentActivity);
     }

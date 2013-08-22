@@ -9,11 +9,11 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.fragment.behavior.AdapterViewAware;
+import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.observers.ItemObserver;
+import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,15 +37,16 @@ import android.widget.TextView;
 public class EndlessPagingAdapterTest {
 
     @Mock
-    Observable pageEmittingObservable;
-    @Mock(extraInterfaces = AdapterViewAware.class)
+    private Observable pageEmittingObservable;
+    @Mock(extraInterfaces = EmptyViewAware.class)
     private Fragment fragment;
     @Mock
     private AbsListView absListView;
     @Mock
     private Observable pageObservable;
+    @Mock
+    private ListFragmentObserver observer;
 
-    private ItemObserver itemObserver;
     private EndlessPagingAdapter<Track> adapter;
 
 
@@ -53,7 +54,6 @@ public class EndlessPagingAdapterTest {
     public void setup(){
         when(fragment.isAdded()).thenReturn(true);
         when (pageObservable.observeOn(ScSchedulers.UI_SCHEDULER)).thenReturn(pageObservable);
-        itemObserver = new ItemObserver(fragment);
     }
 
     @Test
@@ -131,31 +131,33 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldSubscribeToFirstPageWithSpecificObserver() {
-        ItemObserver specificObserver = Mockito.mock(ItemObserver.class);
+        ListFragmentObserver specificObserver = Mockito.mock(ListFragmentObserver.class);
         createAdapter(Observable.just(pageObservable));
         adapter.subscribe(specificObserver);
         verify(pageObservable).subscribe(specificObserver);
-        verify(pageObservable, never()).subscribe(itemObserver);
+        verify(pageObservable, never()).subscribe(adapter);
     }
 
     @Test
     public void pageScrollListenerShouldTriggerNextPageLoad() {
-        createAdapter(Observable.from(Observable.just(new Track()), pageObservable));
+        Track track = new Track();
+        createAdapter(Observable.from(Observable.just(track), pageObservable));
         adapter.subscribe();
         adapter.onScroll(absListView, 0, 5, 5);
-        verify(pageObservable).subscribe(itemObserver);
+        verify(pageObservable).subscribe(adapter);
+        verify(observer).onNext(track);
     }
 
     @Test
     public void secondPageShouldUseTheDefaultItemObserver() {
-        ItemObserver specificObserver = Mockito.mock(ItemObserver.class);
+        ListFragmentObserver specificObserver = Mockito.mock(ListFragmentObserver.class);
         createAdapter(Observable.from(pageObservable, pageObservable));
 
         adapter.subscribe(specificObserver);
         verify(pageObservable).subscribe(specificObserver);
 
         adapter.onScroll(absListView, 0, 5, 5);
-        verify(pageObservable).subscribe(itemObserver);
+        verify(pageObservable).subscribe(adapter);
     }
 
     @Test
@@ -163,7 +165,7 @@ public class EndlessPagingAdapterTest {
         createAdapter(Observable.from(Observable.just(new Track()), pageObservable));
         adapter.subscribe();
         adapter.onScroll(absListView, 0, 5, 2 * 5);
-        verify(pageObservable).subscribe(itemObserver);
+        verify(pageObservable).subscribe(adapter);
     }
 
     @Test
@@ -200,7 +202,7 @@ public class EndlessPagingAdapterTest {
     }
 
     private void createAdapter(Observable pageEmittingObservable){
-        adapter = new EndlessPagingAdapter<Track>(pageEmittingObservable, itemObserver, 10) {
+        adapter = new EndlessPagingAdapter<Track>(pageEmittingObservable, observer, 10) {
             @Override
             protected void bindItemView(int position, View itemView) {
                 ((TextView) itemView).setText(getItem(position).getTitle());
@@ -211,6 +213,5 @@ public class EndlessPagingAdapterTest {
                 return new TextView(parent.getContext());
             }
         };
-        when(((AdapterViewAware) fragment).getAdapterObserver()).thenReturn(adapter);
     }
 }

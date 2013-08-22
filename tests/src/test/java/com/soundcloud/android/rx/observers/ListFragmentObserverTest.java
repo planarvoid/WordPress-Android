@@ -1,14 +1,11 @@
 package com.soundcloud.android.rx.observers;
 
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
-import com.soundcloud.android.fragment.behavior.AdapterViewAware;
+import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyListView;
 import org.junit.Before;
@@ -20,9 +17,9 @@ import rx.Observer;
 import android.support.v4.app.Fragment;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ItemObserverTest {
+public class ListFragmentObserverTest {
 
-    private ItemObserver observer;
+    private ListFragmentObserver observer;
     private Fragment fragment;
 
     @Mock
@@ -30,27 +27,23 @@ public class ItemObserverTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = mock(Fragment.class, withSettings().extraInterfaces(AdapterViewAware.class));
+        fragment = mock(Fragment.class, withSettings().extraInterfaces(EmptyViewAware.class));
         when(fragment.isAdded()).thenReturn(true);
-        when(((AdapterViewAware) fragment).getAdapterObserver()).thenReturn(wrappedObserver);
 
-        observer = new ItemObserver(fragment);
+        observer = new ListFragmentObserver(fragment);
     }
 
     @Test
     public void testShowsErrorState() {
         final Exception error = new Exception();
         observer.onError(fragment, error);
-        verify((AdapterViewAware) fragment).setEmptyViewStatus(EmptyListView.Status.ERROR);
-        verify(wrappedObserver).onError(error);
+        verify((EmptyViewAware) fragment).setEmptyViewStatus(EmptyListView.Status.ERROR);
     }
 
     @Test
     public void testShowsEmptyState() {
         observer.onCompleted(fragment);
-        verify((AdapterViewAware) fragment).setEmptyViewStatus(EmptyListView.Status.OK);
-        verify(wrappedObserver, never()).onNext(anyObject());
-        verify(wrappedObserver).onCompleted();
+        verify((EmptyViewAware) fragment).setEmptyViewStatus(EmptyListView.Status.OK);
     }
 
     @Test
@@ -58,7 +51,6 @@ public class ItemObserverTest {
         observer.onNext(fragment, 1);
         observer.onCompleted(fragment);
 
-        verify((AdapterViewAware) fragment).setEmptyViewStatus(EmptyListView.Status.OK);
-        verify(wrappedObserver, times(1)).onNext(1);
+        verify((EmptyViewAware) fragment).setEmptyViewStatus(EmptyListView.Status.OK);
     }
 }

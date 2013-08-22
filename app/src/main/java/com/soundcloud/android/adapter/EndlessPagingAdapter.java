@@ -19,7 +19,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
 
     private final Observable<Observable<T>> mPagingObservable;
     private Observable<T> mNextPageObservable;
-    private Observer<T> mItemObserver;
+    private Observer<T> mDelegateObserver;
 
     private AppendState mAppendState = AppendState.IDLE;
 
@@ -27,10 +27,10 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         IDLE, LOADING, ERROR;
     }
 
-    public EndlessPagingAdapter(Observable<Observable<T>> pageEmittingObservable, Observer<T> itemObserver, int pageSize) {
+    public EndlessPagingAdapter(Observable<Observable<T>> pageEmittingObservable, Observer<T> delegateObserver, int pageSize) {
         super(pageSize);
         mPagingObservable = pageEmittingObservable;
-        mItemObserver = itemObserver;
+        mDelegateObserver = delegateObserver;
         mProgressItemLayoutResId = R.layout.list_loading_item;
     }
 
@@ -53,7 +53,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (getItemViewType(position) == APPEND_ITEM_VIEW_TYPE) {
-            if (convertView == null){
+            if (convertView == null) {
                 convertView = View.inflate(parent.getContext(), mProgressItemLayoutResId, null);
                 convertView.setBackgroundResource(R.drawable.list_selector_background);
             }
@@ -66,7 +66,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
     }
 
     private void configureAppendingLayout(View appendingLayout) {
-        switch (mAppendState){
+        switch (mAppendState) {
             case LOADING:
                 appendingLayout.findViewById(R.id.list_loading).setVisibility(View.VISIBLE);
                 appendingLayout.findViewById(R.id.txt_list_loading_retry).setVisibility(View.GONE);
@@ -97,7 +97,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
     }
 
     public Subscription subscribe() {
-        return subscribe(mItemObserver);
+        return subscribe(this);
     }
 
     public Subscription subscribe(final Observer<T> itemObserver) {
@@ -107,7 +107,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
     public Subscription loadNextPage() {
         if (mNextPageObservable != null) {
             setNewAppendState(AppendState.LOADING);
-            return mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(mItemObserver);
+            return mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(this);
         } else {
             return Subscriptions.empty();
         }
@@ -129,17 +129,20 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         }
     }
 
-    public void onCompleted(){
+    public void onCompleted() {
         notifyDataSetChanged();
         setNewAppendState(AppendState.IDLE);
+        mDelegateObserver.onCompleted();
     }
 
-    public void onError(Exception e){
+    public void onError(Exception e) {
         setNewAppendState(AppendState.ERROR);
+        mDelegateObserver.onError(e);
     }
 
-    public void onNext(T item){
+    public void onNext(T item) {
         addItem(item);
+        mDelegateObserver.onNext(item);
     }
 
     private final class PagingObserver implements Action1<Observable<T>> {

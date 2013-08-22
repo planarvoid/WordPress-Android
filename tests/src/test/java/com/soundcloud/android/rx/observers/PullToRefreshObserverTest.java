@@ -7,7 +7,7 @@ import static org.mockito.Mockito.withSettings;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.adapter.ScAdapter;
-import com.soundcloud.android.fragment.behavior.AdapterViewAware;
+import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observer;
-import rx.android.RxFragmentObserver;
 
 import android.support.v4.app.Fragment;
 import android.view.View;
@@ -23,11 +22,8 @@ import android.view.View;
 @RunWith(SoundCloudTestRunner.class)
 public class PullToRefreshObserverTest {
 
-    private final int pullToRefreshViewId = 1;
-    private Fragment fragment;
-
     @Mock
-    private RxFragmentObserver wrappedObserver;
+    private Observer wrappedObserver;
     @Mock
     private PullToRefreshBase pullToRefreshView;
     @Mock
@@ -39,12 +35,13 @@ public class PullToRefreshObserverTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = mock(Fragment.class, withSettings().extraInterfaces(AdapterViewAware.class));
+        Fragment fragment = mock(Fragment.class, withSettings().extraInterfaces(EmptyViewAware.class));
         when(fragment.isAdded()).thenReturn(true);
-        when(((AdapterViewAware) fragment).getAdapterObserver()).thenReturn(observer);
 
         View fragmentLayout = mock(View.class);
         when(fragment.getView()).thenReturn(fragmentLayout);
+
+        int pullToRefreshViewId = 1;
         when(fragmentLayout.findViewById(pullToRefreshViewId)).thenReturn(pullToRefreshView);
 
         pullToRefreshObserver = new PullToRefreshObserver(fragment, pullToRefreshViewId, adapter, wrappedObserver);
@@ -62,8 +59,8 @@ public class PullToRefreshObserverTest {
         pullToRefreshObserver.onNext(1);
         pullToRefreshObserver.onCompleted();
 
-        verify(wrappedObserver).onNext(fragment, 1);
-        verify(wrappedObserver).onCompleted(fragment);
+        verify(wrappedObserver).onNext(1);
+        verify(wrappedObserver).onCompleted();
     }
 
     @Ignore("onRefreshComplete is final and not mockable")
@@ -71,7 +68,7 @@ public class PullToRefreshObserverTest {
     public void shouldHidePullToRefreshSpinnerOnCompletion() {
         pullToRefreshObserver.onCompleted();
 
-        verify(wrappedObserver).onCompleted(fragment);
+        verify(wrappedObserver).onCompleted();
         verify(pullToRefreshView).onRefreshComplete();
     }
 
@@ -81,7 +78,7 @@ public class PullToRefreshObserverTest {
         Exception e = new Exception();
         pullToRefreshObserver.onError(e);
 
-        verify(wrappedObserver).onError(fragment, e);
+        verify(wrappedObserver).onError(e);
         verify(pullToRefreshView).onRefreshComplete();
     }
 
