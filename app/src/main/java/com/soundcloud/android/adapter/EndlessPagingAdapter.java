@@ -5,6 +5,7 @@ import com.soundcloud.android.rx.ScSchedulers;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
 
 import android.view.View;
@@ -25,14 +26,12 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
     protected enum AppendState {
         IDLE, LOADING, ERROR;
     }
-    public EndlessPagingAdapter(Observable<Observable<T>> pageEmittingObservable, int pageSize) {
+
+    public EndlessPagingAdapter(Observable<Observable<T>> pageEmittingObservable, Observer<T> itemObserver, int pageSize) {
         super(pageSize);
         mPagingObservable = pageEmittingObservable;
-        mProgressItemLayoutResId = R.layout.list_loading_item;
-    }
-
-    public void setDefaultItemObserver(Observer<T> itemObserver) {
         mItemObserver = itemObserver;
+        mProgressItemLayoutResId = R.layout.list_loading_item;
     }
 
     @Override
@@ -47,8 +46,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
     }
 
     @Override
-    public boolean isEnabled(int position)
-    {
+    public boolean isEnabled(int position) {
         return getItemViewType(position) != APPEND_ITEM_VIEW_TYPE || mAppendState == AppendState.ERROR;
     }
 
@@ -82,6 +80,11 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         }
     }
 
+    private void setNewAppendState(AppendState newState) {
+        mAppendState = newState;
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getViewTypeCount() {
         return 2;
@@ -93,17 +96,21 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
                 : super.getItemViewType(position);
     }
 
-    public void setNewAppendState(AppendState newState) {
-        mAppendState = newState;
-        notifyDataSetChanged();
-    }
-
     public Subscription subscribe() {
-        return subscribeWithObserver(mItemObserver);
+        return subscribe(mItemObserver);
     }
 
-    public Subscription subscribeWithObserver(final Observer<T> firstPageObserver) {
-        return mPagingObservable.subscribe(new PagingObserver(firstPageObserver));
+    public Subscription subscribe(final Observer<T> itemObserver) {
+        return mPagingObservable.subscribe(new PagingObserver(itemObserver));
+    }
+
+    public Subscription loadNextPage() {
+        if (mNextPageObservable != null) {
+            setNewAppendState(AppendState.LOADING);
+            return mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(mItemObserver);
+        } else {
+            return Subscriptions.empty();
+        }
     }
 
     @Override
@@ -120,11 +127,6 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
                 loadNextPage();
             }
         }
-    }
-
-    private Subscription loadNextPage() {
-        setNewAppendState(AppendState.LOADING);
-        return mNextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(mItemObserver);
     }
 
     public void onCompleted(){
@@ -149,7 +151,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
 
         @Override
         public void call(Observable<T> nextPageObservable) {
-            if (firstPageObserver != null){
+            if (firstPageObserver != null) {
                 nextPageObservable.observeOn(ScSchedulers.UI_SCHEDULER).subscribe(firstPageObserver);
                 firstPageObserver = null;
             } else {

@@ -12,6 +12,7 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ItemObserver;
 import com.soundcloud.android.rx.observers.PullToRefreshObserver;
 import com.soundcloud.android.view.EmptyListView;
+import rx.Observable;
 import rx.Observer;
 
 import android.os.Bundle;
@@ -27,24 +28,30 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     private final int mGridViewId = R.id.suggested_tracks_grid;
     private EmptyListView mEmptyListView;
     private ExploreTracksAdapter mExploreTracksAdapter;
-    private ItemObserver<Track,ExploreTracksFragment> mItemObserver;
+    private ItemObserver<Track, ExploreTracksFragment> mItemObserver;
 
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
     public ExploreTracksFragment() {
-        this(new ExploreTracksAdapter(new ExploreTracksOperations().getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER)));
+        Observable<Observable<Track>> pagingObservable = new ExploreTracksOperations().getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER);
+        ItemObserver<Track, ExploreTracksFragment> itemObserver = new ItemObserver<Track, ExploreTracksFragment>(this);
+        ExploreTracksAdapter adapter = new ExploreTracksAdapter(pagingObservable, itemObserver);
+        init(adapter, itemObserver);
     }
 
-    public ExploreTracksFragment(ExploreTracksAdapter adapter) {
+    public ExploreTracksFragment(ExploreTracksAdapter adapter, ItemObserver<Track, ExploreTracksFragment> itemObserver) {
+        init(adapter, itemObserver);
+    }
+
+    private void init(ExploreTracksAdapter adapter, ItemObserver<Track, ExploreTracksFragment> itemObserver) {
         mExploreTracksAdapter = adapter;
+        mItemObserver = itemObserver;
         setRetainInstance(true);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mItemObserver = new ItemObserver<Track, ExploreTracksFragment>(this);
-        mExploreTracksAdapter.setDefaultItemObserver(mItemObserver);
         mExploreTracksAdapter.subscribe();
     }
 
@@ -77,7 +84,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
-        mExploreTracksAdapter.subscribeWithObserver(new PullToRefreshObserver<ExploreTracksFragment, Track>(
+        mExploreTracksAdapter.subscribe(new PullToRefreshObserver<ExploreTracksFragment, Track>(
                 this, mGridViewId, mExploreTracksAdapter, mItemObserver));
     }
 
