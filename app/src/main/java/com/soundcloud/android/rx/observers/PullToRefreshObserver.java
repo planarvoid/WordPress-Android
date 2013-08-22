@@ -2,7 +2,7 @@ package com.soundcloud.android.rx.observers;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.adapter.ItemAdapter;
-import com.soundcloud.android.adapter.ScAdapter;
+import rx.Observer;
 import rx.android.BufferingObserver;
 import rx.android.RxFragmentObserver;
 
@@ -11,7 +11,7 @@ import android.support.v4.app.Fragment;
 /**
  * An observer to be used with a pull-to-refresh widget. It ensures that all items are
  * successfully retrieved (it's a {@link BufferingObserver}) before clearing out the adapter,
- * and then forwards calls to an underlying overserver such as a {@link PageItemObserver}.
+ * and then forwards calls to an underlying overserver.
  *
  * @param <FragmentType>
  * @param <ModelType>
@@ -21,7 +21,7 @@ public class PullToRefreshObserver<FragmentType extends Fragment, ModelType>
 
     private ItemAdapter<?> mAdapter;
 
-    public PullToRefreshObserver(FragmentType fragment, int ptrViewId, ScAdapter<?> adapter, RxFragmentObserver<FragmentType, ModelType> delegate) {
+    public PullToRefreshObserver(FragmentType fragment, int ptrViewId, ItemAdapter<?> adapter, Observer<ModelType> delegate) {
         super(new InnerObserver<FragmentType, ModelType>(fragment, ptrViewId, delegate));
         mAdapter = adapter;
     }
@@ -38,9 +38,9 @@ public class PullToRefreshObserver<FragmentType extends Fragment, ModelType>
             extends RxFragmentObserver<FragmentType, ModelType> {
 
         private final int mPtrViewId;
-        private RxFragmentObserver<FragmentType, ModelType> mDelegate;
+        private Observer<ModelType> mDelegate;
 
-        public InnerObserver(FragmentType fragment, int ptrViewId, RxFragmentObserver<FragmentType, ModelType> delegate) {
+        public InnerObserver(FragmentType fragment, int ptrViewId, Observer<ModelType> delegate) {
             super(fragment);
             mPtrViewId = ptrViewId;
             mDelegate = delegate;
@@ -48,18 +48,18 @@ public class PullToRefreshObserver<FragmentType extends Fragment, ModelType>
 
         @Override
         public void onNext(FragmentType fragment, ModelType item) {
-            mDelegate.onNext(fragment, item);
+            mDelegate.onNext(item);
         }
 
         @Override
         public void onCompleted(FragmentType fragment) {
-            mDelegate.onCompleted(fragment);
+            mDelegate.onCompleted();
             findPullToRefreshView(fragment).onRefreshComplete();
         }
 
         @Override
         public void onError(FragmentType fragment, Exception error) {
-            mDelegate.onError(fragment, error);
+            mDelegate.onError(error);
             findPullToRefreshView(fragment).onRefreshComplete();
         }
 

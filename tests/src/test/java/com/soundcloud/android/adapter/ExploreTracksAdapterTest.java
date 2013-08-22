@@ -8,10 +8,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import rx.Observable;
 
 import android.view.View;
 import android.widget.FrameLayout;
@@ -25,7 +27,7 @@ public class ExploreTracksAdapterTest {
 
     @Test
     public void shouldCreateItemView() {
-        adapter = new ExploreTracksAdapter();
+        adapter = new ExploreTracksAdapter(mock(Observable.class), mock(ListFragmentObserver.class));
         View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
@@ -36,7 +38,7 @@ public class ExploreTracksAdapterTest {
 
     @Test
     public void shouldBindItemView() throws CreateModelException {
-        adapter = new ExploreTracksAdapter();
+        adapter = new ExploreTracksAdapter(mock(Observable.class), mock(ListFragmentObserver.class));
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         adapter.addItem(track);
 
