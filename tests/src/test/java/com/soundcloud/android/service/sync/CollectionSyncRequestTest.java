@@ -13,6 +13,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.service.sync.content.SyncStrategy;
@@ -39,17 +40,19 @@ public class CollectionSyncRequestTest {
     CollectionSyncRequest collectionSyncRequest;
 
     @Mock
-    ApiSyncerFactory apiSyncerFactory;
+    private ApiSyncerFactory apiSyncerFactory;
     @Mock
-    SyncStateManager syncStateManager;
+    private SyncStateManager syncStateManager;
     @Mock
-    SyncStrategy syncStrategy;
+    private SyncStrategy syncStrategy;
     @Mock
-    LocalCollection localCollection;
+    private LocalCollection localCollection;
     @Mock
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
     @Mock
-    SharedPreferences.Editor sharedPreferencesEditor;
+    private SharedPreferences.Editor sharedPreferencesEditor;
+    @Mock
+    private ApplicationProperties applicationProperties;
 
     static final String NON_INTERACTIVE =
             "&" + URLEncoder.encode(Wrapper.BACKGROUND_PARAMETER) + "=1";
@@ -59,7 +62,8 @@ public class CollectionSyncRequestTest {
     public void setup() {
         initMocks(this);
         collectionSyncRequest = new CollectionSyncRequest(Robolectric.application,
-                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager, sharedPreferences);
+                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager,
+                sharedPreferences, applicationProperties);
     }
 
     @Test

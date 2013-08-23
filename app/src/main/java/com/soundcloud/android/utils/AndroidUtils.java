@@ -1,7 +1,5 @@
 package com.soundcloud.android.utils;
 
-import static android.content.pm.PackageManager.GET_SIGNATURES;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -26,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -159,23 +156,6 @@ public final class AndroidUtils {
             } else return null;
         } catch (PackageManager.NameNotFoundException ignored) {
             throw new RuntimeException(ignored);
-        }
-    }
-
-    public static boolean appSignedBy(Context context, String... keys) {
-        try {
-            PackageInfo info = context.getPackageManager().getPackageInfo(
-                    context.getPackageName(),
-                    GET_SIGNATURES);
-            if (info != null && info.signatures != null) {
-                final String sig =  info.signatures[0].toCharsString();
-                Arrays.sort(keys);
-                return Arrays.binarySearch(keys, sig) > -1;
-            } else {
-                return false;
-            }
-        } catch (PackageManager.NameNotFoundException ignored) {
-            return false;
         }
     }
 

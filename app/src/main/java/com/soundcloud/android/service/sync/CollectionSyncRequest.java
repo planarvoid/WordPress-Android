@@ -1,5 +1,10 @@
 package com.soundcloud.android.service.sync;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
@@ -7,14 +12,9 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.utils.ExceptionUtils;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.preference.PreferenceManager;
 
 import java.io.IOException;
 
@@ -40,16 +40,19 @@ import java.io.IOException;
     private final SyncStateManager mSyncStateManager;
     private ApiSyncerFactory mApiSyncerFactory;
     private SharedPreferences mSharedPreferences;
+    private ApplicationProperties mApplicationProperties;
 
     private LocalCollection localCollection;
     private ApiSyncResult mResult;
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI){
-        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context), PreferenceManager.getDefaultSharedPreferences(context));
+        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context),
+                PreferenceManager.getDefaultSharedPreferences(context), new ApplicationProperties(context.getResources()));
     }
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI,
-                                 ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager, SharedPreferences sharedPreferences) {
+                                 ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager,
+                                 SharedPreferences sharedPreferences, ApplicationProperties applicationProperties) {
         mContext = context;
         mContentUri = contentUri;
         mAction = action;
@@ -60,6 +63,7 @@ import java.io.IOException;
         mSyncStateManager = syncStateManager;
         mApiSyncerFactory = apiSyncerFactory;
         mSharedPreferences = sharedPreferences;
+        mApplicationProperties = applicationProperties;
     }
 
     public void onQueued() {
@@ -148,7 +152,7 @@ import java.io.IOException;
         /**
          * Firehose beta exceptions for sync debugging purposes. we may want to turn this off
          */
-        if (SoundCloudApplication.BETA_MODE && mIsUi){
+        if (mApplicationProperties.isBetaBuildRunningOnDalvik() && mIsUi){
             SoundCloudApplication.handleSilentException("Problem while syncing", e);
         }
     }

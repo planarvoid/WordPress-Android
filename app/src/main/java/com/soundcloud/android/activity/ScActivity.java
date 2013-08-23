@@ -1,37 +1,5 @@
 package com.soundcloud.android.activity;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.create.ScCreate;
-import com.soundcloud.android.activity.landing.ExploreActivity;
-import com.soundcloud.android.activity.landing.FriendFinder;
-import com.soundcloud.android.activity.landing.Home;
-import com.soundcloud.android.activity.landing.News;
-import com.soundcloud.android.activity.landing.ScLandingPage;
-import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
-import com.soundcloud.android.activity.landing.WhoToFollowActivity;
-import com.soundcloud.android.activity.landing.You;
-import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.api.OldCloudAPI;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.tracking.Event;
-import com.soundcloud.android.tracking.Tracker;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.NetworkConnectivityListener;
-import com.soundcloud.android.view.AddCommentDialog;
-import com.soundcloud.android.view.MainMenu;
-import com.soundcloud.android.view.RootView;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -52,6 +20,36 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.landing.ExploreActivity;
+import com.soundcloud.android.activity.landing.FriendFinder;
+import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.landing.News;
+import com.soundcloud.android.activity.landing.ScLandingPage;
+import com.soundcloud.android.activity.landing.WhoToFollowActivity;
+import com.soundcloud.android.activity.landing.You;
+import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.tracking.Event;
+import com.soundcloud.android.tracking.Tracker;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.NetworkConnectivityListener;
+import com.soundcloud.android.view.AddCommentDialog;
+import com.soundcloud.android.view.MainMenu;
+import com.soundcloud.android.view.RootView;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 
@@ -122,9 +120,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startNavActivity(ScActivity.this, FriendFinder.class, menuBundle);
                         return true;
                     case R.id.nav_suggested_users:
-                        final Class<? extends Activity> destination = SoundCloudApplication.DEV_MODE ?
-                                SuggestedUsersActivity.class : WhoToFollowActivity.class;
-                        startNavActivity(ScActivity.this, destination, menuBundle);
+                        startNavActivity(ScActivity.this, WhoToFollowActivity.class, menuBundle);
                         return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));

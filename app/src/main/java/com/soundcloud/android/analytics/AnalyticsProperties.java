@@ -1,12 +1,12 @@
-package com.soundcloud.android.properties;
+package com.soundcloud.android.analytics;
 
 
 import android.content.res.Resources;
+import com.google.common.base.Objects;
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.ScTextUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
+import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 
 public class AnalyticsProperties {
     private final String localyticsAppKey;
@@ -14,21 +14,25 @@ public class AnalyticsProperties {
 
     public AnalyticsProperties(Resources resources) {
         analyticsEnabled = resources.getBoolean(R.bool.analytics_enabled);
-        if (analyticsEnabled) {
-            localyticsAppKey = resources.getString(R.string.localytics_app_key);
-            checkArgument(ScTextUtils.isNotBlank(localyticsAppKey));
-        } else {
-            localyticsAppKey = ScTextUtils.EMPTY_STRING;
-        }
+        localyticsAppKey = resources.getString(R.string.localytics_app_key);
+        checkArgument(isNotBlank(localyticsAppKey), "Localytics keys must be provided");
     }
 
     public String getLocalyticsAppKey() {
-        checkState(analyticsEnabled, "Analytics is not enabled");
         return localyticsAppKey;
     }
 
     public boolean isAnalyticsDisabled() {
         return !analyticsEnabled;
+    }
+
+    public boolean isAnalyticsEnabled() {
+        return analyticsEnabled;
+    }
+
+    @Override
+    public String toString(){
+        return Objects.toStringHelper(this).add("analyticsEnabled", analyticsEnabled).toString();
     }
 
 }

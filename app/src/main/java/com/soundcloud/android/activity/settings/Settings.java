@@ -1,28 +1,5 @@
 package com.soundcloud.android.activity.settings;
 
-import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.ActionBarController;
-import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.observers.ScObserver;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ChangeLog;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
-import org.jetbrains.annotations.NotNull;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -39,8 +16,31 @@ import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.activity.ActionBarController;
+import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.observers.ScObserver;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ChangeLog;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+
+import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 @Tracking(page = Page.Settings_main)
 public class Settings extends SherlockPreferenceActivity implements ActionBarController.ActionBarOwner {
@@ -64,14 +64,13 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     private int mClicksToDebug = CLICKS_TO_DEBUG_MODE;
 
     private ProgressDialog mDeleteDialog;
-    private AccountOperations mAccountOperations;
+    private ApplicationProperties mApplicationProperties;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        mAccountOperations = new AccountOperations(this);
         addPreferencesFromResource(R.xml.settings);
-
+        mApplicationProperties = new ApplicationProperties(getResources());
         PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
         if (AlarmClock.isFeatureEnabled(this)) {
             AlarmClock.get(getApplicationContext()).addPrefs(this, extras);
@@ -222,10 +221,10 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
         }
 
 
-        if (!SoundCloudApplication.DEV_MODE) {
-            getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
-        } else {
+        if (mApplicationProperties.isDevBuildRunningOnDalvik()) {
             DevSettings.setup(this, getApp());
+        } else {
+            getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
         }
     }
 

@@ -25,7 +25,6 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <skip>${build.useDevProperties}</skip>
                             <target>
                                 <copy file="${basedir}/properties/app_properties_${build.type}.xml"
                                       tofile="${basedir}/res/values/app_properties.xml"
@@ -115,6 +114,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <skip>${build.skipAspectWeaving}</skip>
                     <showWeaveInfo>true</showWeaveInfo>
                     <verbose>true</verbose>
                     <argumentFileName>aspectj_output.log</argumentFileName>
@@ -323,10 +323,10 @@
         <profile>
             <id>beta</id>
             <properties>
-                <build.useDevProperties>false</build.useDevProperties>
+                <build.type>beta</build.type>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>beta-key</keystore.alias>
-                <build.type>beta</build.type>
             </properties>
 
             <build>
@@ -351,10 +351,22 @@
         <profile>
             <id>release</id>
             <properties>
-                <build.useDevProperties>false</build.useDevProperties>
+                <build.type>release</build.type>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>jons keystore</keystore.alias>
-                <build.type>market</build.type>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>debug</id>
+            <properties>
+                <build.type>debug</build.type>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <keystore.alias>androiddebugkey</keystore.alias>
+                <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
+                <keystore.password>android</keystore.password>
+                <keystore.keypass>android</keystore.keypass>
             </properties>
         </profile>
 

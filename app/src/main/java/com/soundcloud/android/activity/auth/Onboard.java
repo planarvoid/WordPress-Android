@@ -1,31 +1,5 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.Consts.RequestCodes;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.AnimUtils.hideView;
-import static com.soundcloud.android.utils.AnimUtils.showView;
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
-
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.OldCloudAPI;
-import com.soundcloud.android.dao.UserStorage;
-import com.soundcloud.android.dialog.auth.AddUserInfoTaskFragment;
-import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
-import com.soundcloud.android.dialog.auth.LoginTaskFragment;
-import com.soundcloud.android.dialog.auth.SignupTaskFragment;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.auth.AuthTask;
-import com.soundcloud.android.task.auth.AuthTaskResult;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.view.tour.TourLayout;
-import net.hockeyapp.android.UpdateManager;
-import org.jetbrains.annotations.Nullable;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -44,11 +18,37 @@ import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.dao.UserStorage;
+import com.soundcloud.android.dialog.auth.AddUserInfoTaskFragment;
+import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
+import com.soundcloud.android.dialog.auth.LoginTaskFragment;
+import com.soundcloud.android.dialog.auth.SignupTaskFragment;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.task.auth.AuthTask;
+import com.soundcloud.android.task.auth.AuthTaskResult;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.view.tour.TourLayout;
+import net.hockeyapp.android.UpdateManager;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.soundcloud.android.Consts.RequestCodes;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.AnimUtils.hideView;
+import static com.soundcloud.android.utils.AnimUtils.showView;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 
 public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler, AcceptTerms.AcceptTermsHandler {
@@ -91,6 +91,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle, mAcceptTermsBundle;
 
     private AndroidCloudAPI mOldCloudAPI;
+    private ApplicationProperties mApplicationProperties;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -109,7 +110,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         mTourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
         mTourPages.add(new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2));
         mTourPages.add(new TourLayout(this, R.layout.tour_page_3, R.drawable.tour_image_3));
-
+        mApplicationProperties = new ApplicationProperties(getResources());
         // randomize for variety
         Collections.shuffle(mTourPages);
 
@@ -175,7 +176,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             public void onClick(View v) {
                 app.track(Click.Signup_Signup);
 
-                if (!SoundCloudApplication.DEV_MODE && SignupLog.shouldThrottleSignup()) {
+                if (!mApplicationProperties.isDevBuildRunningOnDalvik() && SignupLog.shouldThrottleSignup()) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
                     finish();
                 } else {
@@ -184,7 +185,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
         });
 
-        if (SoundCloudApplication.BETA_MODE) {
+        if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
             UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
 

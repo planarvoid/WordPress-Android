@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 import static com.google.common.base.Strings.nullToEmpty;
 
 public class ScTextUtils {
-    public static final String EMPTY_STRING = "";
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
             "\\A([a-z0-9_\\-][a-z0-9_\\-\\+\\.]{0,62})?[a-z0-9_\\-]@(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)+[a-z]{2,}\\Z"
     );

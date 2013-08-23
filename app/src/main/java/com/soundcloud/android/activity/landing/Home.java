@@ -1,7 +1,9 @@
 package com.soundcloud.android.activity.landing;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -13,6 +15,7 @@ import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.auth.AuthenticatorService;
 import com.soundcloud.android.task.fetch.FetchUserTask;
@@ -22,10 +25,7 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import net.hockeyapp.android.UpdateManager;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Home extends ScActivity implements ScLandingPage {
     public static final String EXTRA_ONBOARDING_USERS_RESULT  = "onboarding_users_result";
@@ -33,12 +33,14 @@ public class Home extends ScActivity implements ScLandingPage {
     private AccountOperations mAccountOperations;
 
     private AndroidCloudAPI oldCloudAPI;
+    private ApplicationProperties mApplicationProperties;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         oldCloudAPI = new OldCloudAPI(this);
         mAccountOperations = new AccountOperations(this);
+        mApplicationProperties = new ApplicationProperties(getResources());
         setTitle(getString(R.string.side_menu_stream));
         final SoundCloudApplication app = getApp();
         if (mAccountOperations.soundCloudAccountExists()) {
@@ -51,7 +53,7 @@ public class Home extends ScActivity implements ScLandingPage {
                 getSupportFragmentManager().beginTransaction()
                         .add(mRootView.getContentHolderId(), ScListFragment.newInstance(build))
                         .commit();
-                if (SoundCloudApplication.BETA_MODE) {
+                if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
                     ChangeLog changeLog = new ChangeLog(this);
                     if (changeLog.isFirstRun()) {
                         changeLog.getDialog(true).show();
@@ -67,7 +69,7 @@ public class Home extends ScActivity implements ScLandingPage {
                 checkEmailConfirmed();
             }
 
-            if (SoundCloudApplication.BETA_MODE) {
+            if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
                 Log.d(TAG, "checking for beta updates");
                 UpdateManager.register(this, getString(R.string.hockey_app_id));
             }
