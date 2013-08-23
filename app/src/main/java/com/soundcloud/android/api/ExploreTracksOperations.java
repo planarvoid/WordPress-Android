@@ -31,9 +31,9 @@ public class ExploreTracksOperations extends ScheduledOperations {
     }
 
     public Observable<Observable<Track>> getSuggestedTracks() {
-        APIRequest<CollectionHolder<Track>> request = SoundCloudAPIRequest.RequestBuilder.<CollectionHolder<Track>>get("/users/skrillex/tracks.json")
+        APIRequest<CollectionHolder<Track>> request = SoundCloudAPIRequest.RequestBuilder.<CollectionHolder<Track>>get("/users/ghostly/tracks.json")
                 .addQueryParameters("linked_partitioning", "1")
-                .addQueryParameters("limit", "10")
+                .addQueryParameters("limit", "15")
                 .forPublicAPI()
                 .forResource(new TrackCollectionHolderToken()).build();
         return mRxHttpClient.<Track>fetchPagedModels(request);
