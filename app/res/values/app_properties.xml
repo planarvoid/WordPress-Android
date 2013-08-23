@@ -1,3 +1,8 @@
+<!--
+This is a template only for development (copy of the debug property file) so that the ids can be referenced in code.
+This file will be replaced at build time with the appropriate file from the properties directory
+when a profile is specified (beta or release)
+-->
 <resources>
     <string name="build_type">debug</string>
     <string name="localytics_app_key">50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8</string>
