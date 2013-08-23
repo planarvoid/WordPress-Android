@@ -118,7 +118,9 @@ public class MainMenu extends LinearLayout {
                 if (eventType == XmlPullParser.START_TAG) {
                     if ("item".equals(parser.getName())) {
                         SimpleListMenuItem menuItem = new SimpleListMenuItem(getContext().obtainStyledAttributes(attrs, R.styleable.SimpleMenu));
-                        mMenuAdapter.addItem(menuItem);
+                        if (menuItem.isEnabled) {
+                            mMenuAdapter.addItem(menuItem);
+                        }
                     }
                 }
                 eventType = parser.next();
@@ -174,12 +176,14 @@ public class MainMenu extends LinearLayout {
         final CharSequence text;
         final int icon;
         final int layoutId;
+        final boolean isEnabled;
 
         public SimpleListMenuItem(TypedArray a) {
             id = a.getResourceId(R.styleable.SimpleMenu_android_id, 0);
             text = a.getText(R.styleable.SimpleMenu_android_text);
             icon = a.getResourceId(R.styleable.SimpleMenu_android_icon, R.drawable.sidebar_you);
             layoutId = a.getResourceId(R.styleable.SimpleMenu_android_layout, 0);
+            isEnabled = a.getBoolean(R.styleable.SimpleMenu_android_enabled, true);
         }
     }
 
