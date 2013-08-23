@@ -8,9 +8,9 @@
 
     <LinearLayout style="@style/ExploreGridItemTextHolder">
 
-        <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/username"
-                                                         style="@style/OnboardSuggestedUserUsernameText"/>
         <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/title"
+                                                         style="@style/OnboardSuggestedUserUsernameText"/>
+        <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/username"
                                                          style="@style/OnboardSuggestedUserLocationText"/>
     </LinearLayout>
 
