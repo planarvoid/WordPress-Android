@@ -6,6 +6,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
+import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.view.adapter.GridSpacer;
 import rx.Observable;
 import rx.Observer;
@@ -45,7 +46,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
         final Track track = getItem(position);
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());
-        ImageLoader.getInstance().displayImage(track.getArtwork(), viewHolder.imageView, mDisplayImageOptions);
+        ImageLoader.getInstance().displayImage(ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtwork()), viewHolder.imageView, mDisplayImageOptions);
         getGridSpacer(itemView.getResources()).configureItemPadding(itemView, position, getCount());
     }
 
