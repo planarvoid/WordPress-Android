@@ -19,7 +19,7 @@ public class SuggestedUserImageView extends OptimisedImageView {
     protected boolean setFrame(int l, int t, int r, int b)
     {
         Matrix matrix = getImageMatrix();
-        float scaleFactor = getWidth()/(float)getDrawable().getIntrinsicWidth();
+        float scaleFactor = (r-l)/(float)getDrawable().getIntrinsicWidth();
         matrix.setScale(scaleFactor, scaleFactor, 0, 0);
         matrix.postTranslate(0, -(b-t)/6);
         setImageMatrix(matrix);
