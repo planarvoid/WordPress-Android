@@ -1,9 +1,7 @@
 package com.soundcloud.android.activity.landing;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -25,7 +23,10 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import net.hockeyapp.android.UpdateManager;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
 
 public class Home extends ScActivity implements ScLandingPage {
     public static final String EXTRA_ONBOARDING_USERS_RESULT  = "onboarding_users_result";

@@ -1,23 +1,11 @@
 package com.soundcloud.android.activity.auth;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.animation.Animation;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import static com.soundcloud.android.Consts.RequestCodes;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.AnimUtils.hideView;
+import static com.soundcloud.android.utils.AnimUtils.showView;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
+
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
@@ -39,16 +27,29 @@ import com.soundcloud.android.view.tour.TourLayout;
 import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.animation.Animation;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.soundcloud.android.Consts.RequestCodes;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.AnimUtils.hideView;
-import static com.soundcloud.android.utils.AnimUtils.showView;
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 
 public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler, AcceptTerms.AcceptTermsHandler {

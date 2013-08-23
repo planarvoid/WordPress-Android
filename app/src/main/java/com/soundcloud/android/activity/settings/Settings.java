@@ -1,21 +1,8 @@
 package com.soundcloud.android.activity.settings;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.preference.Preference;
-import android.preference.PreferenceGroup;
-import android.preference.PreferenceManager;
+import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -37,10 +24,24 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.preference.Preference;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceManager;
 
-import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
+import java.io.File;
 
 @Tracking(page = Page.Settings_main)
 public class Settings extends SherlockPreferenceActivity implements ActionBarController.ActionBarOwner {
