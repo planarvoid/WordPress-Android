@@ -1,15 +1,9 @@
 package com.soundcloud.android;
 
-import android.accounts.Account;
-import android.annotation.TargetApi;
-import android.app.ActivityManager;
-import android.app.Application;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
-import android.os.StrictMode;
-import android.preference.PreferenceManager;
+import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
+import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
+import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
+
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -42,9 +36,16 @@ import org.acra.annotation.ReportsCrashes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
-import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
-import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
+import android.accounts.Account;
+import android.annotation.TargetApi;
+import android.app.ActivityManager;
+import android.app.Application;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.os.StrictMode;
+import android.preference.PreferenceManager;
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=e594a3cc",

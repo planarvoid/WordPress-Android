@@ -1,6 +1,12 @@
 package com.soundcloud.android.streaming;
 
 
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.utils.BufferUtils.readToByteBuffer;
+import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
+import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static org.mockito.Mockito.mock;
+
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.BufferUtils;
@@ -30,12 +36,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.utils.BufferUtils.readToByteBuffer;
-import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
-import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static org.mockito.Mockito.mock;
 
 @RunWith(DefaultTestRunner.class)
 public class StreamLoaderTest {

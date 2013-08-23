@@ -1,20 +1,21 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.preference.PreferenceManager;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.utils.ExceptionUtils;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.utils.ExceptionUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 
 import java.io.IOException;
 

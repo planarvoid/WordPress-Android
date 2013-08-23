@@ -1,9 +1,7 @@
 package com.soundcloud.android.streaming;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.util.Log;
+import static com.soundcloud.android.utils.IOUtils.mkdirs;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.settings.Settings;
@@ -12,6 +10,11 @@ import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.NotNull;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,8 +34,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();

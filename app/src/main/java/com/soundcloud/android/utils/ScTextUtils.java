@@ -1,5 +1,10 @@
 package com.soundcloud.android.utils;
 
+import static com.google.common.base.Strings.nullToEmpty;
+
+import com.google.common.base.Strings;
+import com.soundcloud.android.R;
+
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.Editable;
@@ -16,15 +21,11 @@ import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.TextView;
-import com.google.common.base.Strings;
-import com.soundcloud.android.R;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
 import java.util.regex.Pattern;
-
-import static com.google.common.base.Strings.nullToEmpty;
 
 public class ScTextUtils {
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(

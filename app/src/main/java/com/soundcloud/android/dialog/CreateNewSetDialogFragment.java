@@ -1,19 +1,5 @@
 package com.soundcloud.android.dialog;
 
-import android.accounts.Account;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -29,6 +15,21 @@ import com.soundcloud.android.service.sync.SyncStateManager;
 import rx.Observable;
 import rx.util.functions.Action1;
 import rx.util.functions.Func1;
+
+import android.accounts.Account;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.ContentResolver;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 

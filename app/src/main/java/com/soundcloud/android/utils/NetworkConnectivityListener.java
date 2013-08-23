@@ -1,5 +1,8 @@
 package com.soundcloud.android.utils;
 
+import com.soundcloud.android.properties.ApplicationProperties;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +12,6 @@ import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import com.soundcloud.android.properties.ApplicationProperties;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;

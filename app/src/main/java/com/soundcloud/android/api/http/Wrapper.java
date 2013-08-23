@@ -1,14 +1,5 @@
 package com.soundcloud.android.api.http;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.SSLCertificateSocketFactory;
-import android.net.SSLSessionCache;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.util.Log;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -35,6 +26,16 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.SSLCertificateSocketFactory;
+import android.net.SSLSessionCache;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
+import android.util.Log;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
