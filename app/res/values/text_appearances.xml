@@ -108,4 +108,12 @@
         <item name="android:textSize">@dimen/comment_panel_main_size</item>
     </style>
 
+
+    <style name="TextAppearance.ExploreTrackBottom">
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">#7FFFFFFF</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
 </resources>

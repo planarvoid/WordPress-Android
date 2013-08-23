@@ -195,13 +195,10 @@
         <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
-    <style name="OnboardSuggestedUserText" parent="BlackOverlayText">
-        <item name="android:layout_marginLeft">13dp</item>
-    </style>
-    <style name="OnboardSuggestedUserUsernameText" parent="OnboardSuggestedUserText">
+    <style name="BlackOverlayText.Regular">
         <item name="custom_font">fonts/Interstate-Regular.ttf</item>
     </style>
-    <style name="OnboardSuggestedUserLocationText" parent="OnboardSuggestedUserText">
+    <style name="BlackOverlayText.RegularSubtext">
         <item name="android:textColor">#CCCCCC</item>
         <item name="android:textSize">14sp</item>
         <item name="custom_font">fonts/Interstate-Regular.ttf</item>
@@ -1308,12 +1305,8 @@
 
     <style name="ExploreTrackGridItemSelector">
         <item name="android:background">@drawable/suggested_track_grid_item_selector</item>
-        <item name="android:layout_alignTop">@id/suggested_track_image</item>
-        <item name="android:layout_alignBottom">@id/suggested_track_image</item>
-        <item name="android:layout_alignLeft">@id/suggested_track_image</item>
-        <item name="android:layout_alignRight">@id/suggested_track_image</item>
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
     </style>
     <style name="ExploreGridItemImageView">
         <item name="android:layout_width">match_parent</item>
@@ -1326,7 +1319,6 @@
         <item name="android:layout_alignParentLeft">true</item>
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:layout_marginTop">13dp</item>
     </style>
 
     <style name="CustomTabPageIndicator" parent="Widget.TabPageIndicator">
@@ -1341,6 +1333,24 @@
     <style name="emptyCollectionErrorContentHolder" parent="emptyCollectionContentHolderBase">
         <item name="android:layout_height">0dp</item>
         <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="ExploreTrackBottom">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:drawablePadding">5dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.ExploreTrackBottom</item>
+    </style>
+
+    <style name="ExploreTrackGenre" parent="ExploreTrackBottom">
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:drawableLeft">@drawable/mini_tag</item>
+    </style>
+
+    <style name="ExploreTrackPlaycount" parent="ExploreTrackBottom">
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:drawableLeft">@drawable/stats_plays_white_50</item>
     </style>
 
 </resources>
