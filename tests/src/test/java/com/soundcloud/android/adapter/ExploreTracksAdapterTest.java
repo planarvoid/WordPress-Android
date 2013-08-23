@@ -48,6 +48,8 @@ public class ExploreTracksAdapterTest {
         viewHolder.imageView = new ImageView(Robolectric.application);
         viewHolder.title = new TextView(Robolectric.application);
         viewHolder.username = new TextView(Robolectric.application);
+        viewHolder.genre = new TextView(Robolectric.application);
+        viewHolder.playcount = new TextView(Robolectric.application);
         when(itemView.getTag()).thenReturn(viewHolder);
 
         adapter.bindItemView(0, itemView);
