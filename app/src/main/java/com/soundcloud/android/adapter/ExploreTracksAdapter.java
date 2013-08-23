@@ -6,6 +6,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
+import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.view.adapter.GridSpacer;
 import rx.Observable;
 import rx.Observer;
@@ -34,6 +35,8 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
         viewHolder.imageView = (ImageView) itemView.findViewById(R.id.suggested_track_image);
         viewHolder.username = (TextView) itemView.findViewById(R.id.username);
         viewHolder.title = (TextView) itemView.findViewById(R.id.title);
+        viewHolder.genre = (TextView) itemView.findViewById(R.id.genre);
+        viewHolder.playcount = (TextView) itemView.findViewById(R.id.playcount);
         itemView.setTag(viewHolder);
 
         return itemView;
@@ -45,7 +48,9 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
         final Track track = getItem(position);
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());
-        ImageLoader.getInstance().displayImage(track.getArtwork(), viewHolder.imageView, mDisplayImageOptions);
+        viewHolder.genre.setText(track.genre);
+        viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, track.playback_count));
+        ImageLoader.getInstance().displayImage(ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtwork()), viewHolder.imageView, mDisplayImageOptions);
         getGridSpacer(itemView.getResources()).configureItemPadding(itemView, position, getCount());
     }
 
@@ -66,6 +71,6 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
     @VisibleForTesting
     static class ItemViewHolder {
         public ImageView imageView;
-        public TextView username, title;
+        public TextView username, title, genre, playcount;
     }
 }

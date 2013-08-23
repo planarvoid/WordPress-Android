@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-    <ImageView android:id="@+id/suggested_track_image"
+    <com.soundcloud.android.view.SuggestedTracksImageView android:id="@+id/suggested_track_image"
                style="@style/ExploreGridItemImageView"/>
 
-    <LinearLayout style="@style/ExploreGridItemTextHolder">
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="13dp">
 
-        <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/username"
-                                                         style="@style/OnboardSuggestedUserUsernameText"/>
-        <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/title"
-                                                         style="@style/OnboardSuggestedUserLocationText"/>
-    </LinearLayout>
+        <LinearLayout style="@style/ExploreGridItemTextHolder">
+
+            <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/title"
+                                                             style="@style/BlackOverlayText.Regular"/>
+            <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/username"
+                                                             style="@style/BlackOverlayText.RegularSubtext"/>
+        </LinearLayout>
+
+        <TextView android:id="@+id/genre"
+                  style="@style/ExploreTrackGenre"/>
+
+        <TextView android:id="@+id/playcount"
+                  style="@style/ExploreTrackPlaycount"/>
+
+    </RelativeLayout>
 
     <ImageView style="@style/ExploreTrackGridItemSelector"/>
 
-</RelativeLayout>
+</FrameLayout>
 

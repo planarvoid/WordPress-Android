@@ -215,4 +215,6 @@
     <string name="error_connect_and_try_again">Connect and try again.</string>
 
     <string name="appending_failed">Loading failed, click to try again.</string>
+
+    <string name="playcount">%s plays</string>
 </resources>
