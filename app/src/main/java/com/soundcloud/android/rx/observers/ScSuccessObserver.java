@@ -16,7 +16,7 @@ public class ScSuccessObserver<T> extends ScObserver<T> {
     }
 
     @Override
-    public void onError(Exception e) {
+    public void onError(Throwable e) {
         Log.e(TAG, "Problem occured when trying execute success observer", e);
     }
 

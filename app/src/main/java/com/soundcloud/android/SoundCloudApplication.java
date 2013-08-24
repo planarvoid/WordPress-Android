@@ -244,7 +244,7 @@ public class SoundCloudApplication extends Application implements Tracker {
      * @param e      exception, can be null
      * @return       the thread used to submit the msg
      */
-    public static Thread handleSilentException(@Nullable String msg, Exception e) {
+    public static Thread handleSilentException(@Nullable String msg, Throwable e) {
         if (EMULATOR || !DALVIK) return null; // acra is disabled on emulator
         if (msg != null) {
            Log.w(TAG, "silentException: "+msg, e);

@@ -315,7 +315,7 @@ public class UserBrowser extends ScActivity implements
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onError(Throwable e) {
                 mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
             }
         });

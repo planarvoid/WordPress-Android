@@ -359,7 +359,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
                 }
 
                 @Override
-                public void onError(Exception e) {
+                public void onError(Throwable e) {
                     progressDialog.dismiss();
                     new AlertDialog.Builder(mActivityContext)
                             .setIcon(android.R.drawable.ic_dialog_alert)

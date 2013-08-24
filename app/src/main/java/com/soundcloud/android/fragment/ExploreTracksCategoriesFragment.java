@@ -12,11 +12,11 @@ import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ExploreTracksCategorySection;
 import com.soundcloud.android.model.Section;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.rx.observers.PullToRefreshObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
+import rx.android.concurrency.AndroidSchedulers;
 import rx.util.functions.Func1;
 
 import android.content.Intent;
@@ -42,7 +42,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
                 new ListFragmentObserver<Section<ExploreTracksCategory>, ExploreTracksCategoriesFragment>(this);
 
         init(new ExploreTracksCategoriesAdapter(observer),
-                new ExploreTracksOperations().getCategories().observeOn(ScSchedulers.UI_SCHEDULER));
+                new ExploreTracksOperations().getCategories().observeOn(AndroidSchedulers.mainThread()));
     }
 
     protected ExploreTracksCategoriesFragment(ExploreTracksCategoriesAdapter adapter,

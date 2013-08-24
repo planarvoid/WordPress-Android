@@ -9,12 +9,12 @@ import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.rx.observers.PullToRefreshObserver;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
+import rx.android.concurrency.AndroidSchedulers;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -33,7 +33,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
     public ExploreTracksFragment() {
-        Observable<Observable<Track>> observable = new ExploreTracksOperations().getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER);
+        Observable<Observable<Track>> observable = new ExploreTracksOperations().getSuggestedTracks().observeOn(AndroidSchedulers.mainThread());
         ListFragmentObserver<Track, ExploreTracksFragment> observer = new ListFragmentObserver<Track, ExploreTracksFragment>(this);
         ExploreTracksAdapter adapter = new ExploreTracksAdapter(observable, observer);
         init(adapter);

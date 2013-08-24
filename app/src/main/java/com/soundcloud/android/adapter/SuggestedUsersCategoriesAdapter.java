@@ -7,9 +7,9 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.operations.following.FollowingOperations;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.view.SingleLineCollectionTextView;
+import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -87,7 +87,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowingOperations followingOperations) {
-        mFollowingOperations = followingOperations.observeOn(ScSchedulers.UI_SCHEDULER);
+        mFollowingOperations = followingOperations.observeOn(AndroidSchedulers.mainThread());
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new SparseArray<Section>();
@@ -269,7 +269,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         }
 
         @Override
-        public void onError(Exception e) {
+        public void onError(Throwable e) {
             notifyDataSetChanged();
         }
     };

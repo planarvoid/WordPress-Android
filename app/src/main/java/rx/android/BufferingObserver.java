@@ -38,8 +38,8 @@ public class BufferingObserver<T> implements Observer<T> {
     }
 
     @Override
-    public void onError(Exception e) {
-        wrapped.onError(e);
+    public void onError(Throwable error) {
+        wrapped.onError(error);
     }
 
     @Override

@@ -225,7 +225,7 @@ public class UserAssociationSyncer extends SyncStrategy {
         }
 
         @Override
-        public void onError(Exception e) {
+        public void onError(Throwable e) {
             if (e instanceof APIRequestException && ((APIRequestException) e).response().responseCodeisForbidden()) {
                 /*
                  Tokens were expired. Delete the user associations and followings from memory.

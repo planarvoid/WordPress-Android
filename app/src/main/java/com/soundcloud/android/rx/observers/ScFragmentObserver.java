@@ -11,7 +11,7 @@ public class ScFragmentObserver<T extends Fragment, R> extends RxFragmentObserve
     }
 
     @Override
-    public void onError(Exception error) {
+    public void onError(Throwable error) {
         SoundCloudApplication.handleSilentException(error.getMessage(), error);
         error.printStackTrace();
         super.onError(error);

@@ -69,7 +69,7 @@ public abstract class SectionedAdapter<ModelType> extends ScAdapter<ModelType> i
     }
 
     @Override
-    public void onError(Exception error) {
+    public void onError(Throwable error) {
         mDelegateObserver.onError(error);
     }
 

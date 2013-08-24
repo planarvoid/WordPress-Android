@@ -6,9 +6,9 @@ import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.operations.following.FollowingOperations;
-import com.soundcloud.android.rx.ScSchedulers;
-import rx.android.RxFragmentObserver;
 import com.soundcloud.android.view.GridViewCompat;
+import rx.android.RxFragmentObserver;
+import rx.android.concurrency.AndroidSchedulers;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -33,7 +33,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
     }
 
     public SuggestedUsersCategoryFragment(FollowingOperations followingOperations) {
-        mFollowingOperations = followingOperations.observeOn(ScSchedulers.UI_SCHEDULER);
+        mFollowingOperations = followingOperations.observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -104,7 +104,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         }
 
         @Override
-        public void onError(SuggestedUsersCategoryFragment fragment, Exception error) {
+        public void onError(SuggestedUsersCategoryFragment fragment, Throwable error) {
             error.printStackTrace();
             fragment.mAdapter.notifyDataSetChanged();
         }
@@ -116,7 +116,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         }
 
         @Override
-        public void onError(SuggestedUsersCategoryFragment fragment, Exception error) {
+        public void onError(SuggestedUsersCategoryFragment fragment, Throwable error) {
             error.printStackTrace();
             fragment.mAdapter.notifyDataSetChanged();
         }

@@ -21,12 +21,12 @@ public class RxFragmentObserver<T extends Fragment, R> extends RxFragmentHandler
     }
 
     @Override
-    public void onError(Exception e) {
-        if (!(e instanceof IllegalThreadException)) {
+    public void onError(Throwable error) {
+        if (!(error instanceof IllegalThreadException)) {
             assertUiThread();
         }
         T fragment = getFragmentForCallback();
-        if (fragment != null) onError(fragment, e);
+        if (fragment != null) onError(fragment, error);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class RxFragmentObserver<T extends Fragment, R> extends RxFragmentHandler
     }
 
     @Override
-    public void onError(T fragment, Exception error) {
+    public void onError(T fragment, Throwable error) {
     }
 
     @Override

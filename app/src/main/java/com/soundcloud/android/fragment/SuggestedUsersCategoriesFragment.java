@@ -10,7 +10,6 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScActions;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScFragmentObserver;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
@@ -18,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Intent;
 import android.graphics.drawable.StateListDrawable;
@@ -129,7 +129,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
     private Observable<CategoryGroup> createCategoriesObservable() {
         final Observable<CategoryGroup> categoryGroups = shouldShowFacebook() ?
                 mSuggestions.getCategoryGroups() : mSuggestions.getMusicAndSoundsSuggestions();
-        return categoryGroups.cache().observeOn(ScSchedulers.UI_SCHEDULER);
+        return categoryGroups.cache().observeOn(AndroidSchedulers.mainThread());
     }
 
     private void refresh() {
@@ -215,7 +215,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         }
 
         @Override
-        public void onError(SuggestedUsersCategoriesFragment fragment, Exception error) {
+        public void onError(SuggestedUsersCategoriesFragment fragment, Throwable error) {
             fragment.setDisplayMode(DisplayMode.ERROR);
         }
     }
