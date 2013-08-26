@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.adapter.player.PlayerTrackPagerAdapter;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import org.jetbrains.annotations.Nullable;
 
@@ -7,12 +8,8 @@ import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.widget.FrameLayout;
-
-import java.util.LinkedList;
 
 public class PlayerTrackPager extends ViewPager {
-    private LinkedList<FrameLayout> mViews = new LinkedList<FrameLayout>();
     private @Nullable OnTrackPageListener mTrackPagerScrollListener;
     private int mScrollState = SCROLL_STATE_IDLE;
 
@@ -37,11 +34,11 @@ public class PlayerTrackPager extends ViewPager {
                 PlayerTrackView trackView;
                 if (position == getCurrentItem() && positionOffset > 0 && mPartialScreen != position + 1) {
                     mPartialScreen = position + 1;
-                    trackView = getTrackViewAt(mPartialScreen);
+                    trackView = getAdapter().getPlayerTrackViewByPosition(mPartialScreen);
                     if (trackView != null) trackView.setOnScreen(true);
                 } else if (position == getCurrentItem() - 1 && mPartialScreen != position) {
                     mPartialScreen = position;
-                    trackView = getTrackViewAt(mPartialScreen);
+                    trackView = getAdapter().getPlayerTrackViewByPosition(mPartialScreen);
                     if (trackView != null) trackView.setOnScreen(true);
                 }
             }
@@ -59,6 +56,20 @@ public class PlayerTrackPager extends ViewPager {
         });
     }
 
+    @Override
+    public void setAdapter(PagerAdapter adapter) {
+        if (adapter instanceof PlayerTrackPagerAdapter){
+            super.setAdapter(adapter);
+        } else {
+            throw new IllegalArgumentException("PlayerTrackPager can only be used with PlayerTrackPagerAdapter");
+        }
+    }
+
+    @Override
+    public PlayerTrackPagerAdapter getAdapter() {
+        return (PlayerTrackPagerAdapter) super.getAdapter();
+    }
+
     public void refreshAdapter() {
         // set to null first as it will force item reinstantiation of objects
         final PagerAdapter adapter = getAdapter();
@@ -70,32 +81,28 @@ public class PlayerTrackPager extends ViewPager {
         mTrackPagerScrollListener = listener;
     }
 
-    public void prev() {
+    public boolean prev() {
         final int currentItem = getCurrentItem();
         if (currentItem > 0) {
             setCurrentItem(currentItem - 1, true);
+            return true;
+        } else {
+            return false;
         }
     }
 
-    public void next() {
+    public boolean next() {
         final int currentItem = getCurrentItem();
-        if (currentItem < mViews.size() - 1) {
+        final PlayerTrackPagerAdapter adapter = getAdapter();
+        if (adapter != null && currentItem < adapter.getCount() - 1) {
             setCurrentItem(currentItem + 1, true);
+            return true;
+        } else {
+            return false;
         }
     }
 
     public boolean isScrolling() {
         return mScrollState != SCROLL_STATE_IDLE;
     }
-
-    private FrameLayout wrapPlayerTrackView(PlayerTrackView ptv) {
-        FrameLayout frameLayout = new FrameLayout(this.getContext());
-        frameLayout.addView(ptv);
-        return frameLayout;
-    }
-
-    private @Nullable PlayerTrackView getTrackViewAt(int i){
-        return mViews.size() > i && i >= 0 ? (PlayerTrackView) mViews.get(i).getChildAt(0) : null;
-    }
-
    }
