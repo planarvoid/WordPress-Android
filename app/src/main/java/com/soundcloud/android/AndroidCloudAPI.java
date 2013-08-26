@@ -1,11 +1,13 @@
 package com.soundcloud.android;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Objects;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
+import org.apache.http.StatusLine;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -89,6 +91,27 @@ public interface AndroidCloudAPI extends CloudAPI {
     class NotFoundException extends IOException {
         public NotFoundException() {
             super();
+        }
+    }
+
+    class BadResponseException extends IOException {
+        private Request request;
+        private StatusLine statusLine;
+
+        public BadResponseException(Request request, StatusLine statusLine) {
+            super();
+            this.request = request;
+            this.statusLine = statusLine;
+        }
+
+        public int getStatusCode() {
+            return statusLine.getStatusCode();
+        }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(getClass())
+                    .add("response_status", statusLine).add("request", request).toString();
         }
     }
 }
