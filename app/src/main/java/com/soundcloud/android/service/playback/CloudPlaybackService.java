@@ -82,7 +82,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static @Nullable Track getCurrentTrack()  { return currentTrack; }
     public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.getId(); }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
-    public static @Nullable PlayQueueManager getPlaylistManager() { return instance == null ? null : instance.getPlayQueueManager(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
     public static Uri getUri()     { return instance == null ? null : instance.getPlayQueueManager().getUri(); }
@@ -212,7 +211,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void onCreate() {
         super.onCreate();
-        mPlayQueueManager = new PlayQueueManager(this);
+        mPlayQueueManager = PlayQueueManager.get(this);
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));

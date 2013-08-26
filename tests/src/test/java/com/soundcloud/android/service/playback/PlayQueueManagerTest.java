@@ -31,7 +31,8 @@ public class PlayQueueManagerTest {
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
-        pm = new PlayQueueManager(Robolectric.application, USER_ID);
+
+        pm = PlayQueueManager.get(Robolectric.application, USER_ID);
         TestHelper.setUserId(USER_ID);
     }
 

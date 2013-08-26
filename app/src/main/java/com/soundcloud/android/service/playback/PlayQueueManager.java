@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.playback;
 
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.PlayQueueManagerStore;
@@ -36,11 +37,21 @@ public class PlayQueueManager {
     private long mUserId;
     private AsyncTask mLoadTask;
 
-    public PlayQueueManager(Context context) {
-        this(context, ((SoundCloudApplication)context.getApplicationContext()).getLoggedInUsersId());
+    private static PlayQueueManager instance;
+
+    public static PlayQueueManager get(Context context){
+        return get(context, SoundCloudApplication.getUserId());
     }
 
-    public PlayQueueManager(Context context, long userId) {
+    public static PlayQueueManager get(Context context, long userId){
+        if (instance == null){
+            instance = new PlayQueueManager(context, userId);
+        }
+        return instance;
+    }
+
+    @VisibleForTesting
+    protected PlayQueueManager(Context context, long userId) {
         mContext = context;
         mUserId = userId;
         mPlayQueueDAO = new PlayQueueManagerStore();
@@ -287,7 +298,7 @@ public class PlayQueueManager {
     }
 
     public static void onPlaylistUriChanged(Context context, Uri oldUri, Uri newUri) {
-        onPlaylistUriChanged(CloudPlaybackService.getPlaylistManager(),context,oldUri,newUri);
+        onPlaylistUriChanged(PlayQueueManager.get(context),context,oldUri,newUri);
     }
 
     public static void onPlaylistUriChanged(PlayQueueManager playQueueManager, Context context, Uri oldUri, Uri newUri) {

@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.play;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -70,6 +71,7 @@ public class TransportBar extends LinearLayout{
     }
 
     public void setNextEnabled(boolean b) {
+        Log.i("asdf", "Set Next Enabled " + b);
         mNextEnabled = b;
         mNextHolder.invalidate();
     }

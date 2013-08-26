@@ -1,14 +1,10 @@
 package com.soundcloud.android.adapter.player;
 
-import static com.soundcloud.android.view.play.PlayerTrackView.PlayerTrackViewListener;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.adapter.BasePagerAdapter;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.view.play.PlayerTrackView;
@@ -25,6 +21,10 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     private final BiMap<PlayerTrackView, Integer> mPlayerViewsById = HashBiMap.create(3);
     private Track mPlaceholderTrack;
+
+    public PlayerTrackPagerAdapter(PlayQueueManager playQueueManager) {
+        this.mPlayQueueManager = playQueueManager;
+    }
 
     public Set<PlayerTrackView> getPlayerTrackViews() {
         return mPlayerViewsById.keySet();
@@ -61,18 +61,12 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         mPlaceholderTrack = displayTrack;
     }
 
-    private PlayQueueManager getPlayQueueManager(){
-        if (mPlayQueueManager == null) mPlayQueueManager = CloudPlaybackService.getPlaylistManager();
-        return mPlayQueueManager;
-    }
-
     @Override
     public int getCount() {
         if (mPlaceholderTrack != null){
             return 1;
         } else {
-            final PlayQueueManager playQueueManager = getPlayQueueManager();
-            return playQueueManager == null ? 0 : playQueueManager.length();
+            return mPlayQueueManager.length();
         }
     }
 
@@ -88,8 +82,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         if (position == 0 && mPlaceholderTrack != null){
             return new PlayQueueItem(mPlaceholderTrack, 0);
         } else {
-            final PlayQueueManager playQueueManager = getPlayQueueManager();
-            return playQueueManager == null ? null : mPlayQueueManager.getPlayQueueItem(position);
+            return mPlayQueueManager.getPlayQueueItem(position);
         }
     }
 

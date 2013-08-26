@@ -88,8 +88,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
             if (playlistChanged) refresh();
 
             if (getIntent().getBooleanExtra(EXTRA_SCROLL_TO_PLAYING_TRACK, false)) {
-                PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
-                if (playQueueManager != null) mFragment.scrollToPosition(playQueueManager.getPosition());
+                mFragment.scrollToPosition(PlayQueueManager.get(this).getPosition());
             }
         } else {
             Toast.makeText(this, R.string.playlist_removed, Toast.LENGTH_SHORT).show();
