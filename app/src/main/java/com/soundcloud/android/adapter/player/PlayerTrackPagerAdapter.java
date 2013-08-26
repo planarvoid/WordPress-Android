@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter.player;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.R;
@@ -9,6 +10,7 @@ import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.view.play.PlayerTrackView;
 
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,7 +19,7 @@ import java.util.Set;
 public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     private PlayQueueManager mPlayQueueManager;
-    private int mCommentingPosition;
+    private int mCommentingPosition = -1;
 
     private final BiMap<PlayerTrackView, Integer> mPlayerViewsById = HashBiMap.create(3);
     private Track mPlaceholderTrack;
@@ -54,7 +56,14 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     public void setCommentingPosition(int commentingPosition, boolean animated) {
         mCommentingPosition = commentingPosition;
-        getPlayerTrackViewByPosition(commentingPosition).setCommentMode(true, animated);
+        PlayerTrackView commentingView = getPlayerTrackViewByPosition(commentingPosition);
+        for (PlayerTrackView ptv : getPlayerTrackViews()) {
+            if (ptv != commentingView){
+                ptv.setCommentMode(false);
+            } else {
+                ptv.setCommentMode(true, animated);
+            }
+        }
     }
 
     public void setPlaceholderTrack(Track displayTrack) {
@@ -90,7 +99,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     protected View getView(PlayQueueItem dataItem, View convertView, ViewGroup parent) {
         PlayerTrackView playerTrackView;
         if (convertView == null) {
-            playerTrackView = (PlayerTrackView) View.inflate(parent.getContext(), R.layout.player_track_view, null);
+            playerTrackView = createPlayerTrackView(parent.getContext());
         } else {
             playerTrackView = (PlayerTrackView) convertView;
         }
@@ -104,6 +113,11 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         playerTrackView.setCommentMode(mCommentingPosition == dataItem.getPlayQueuePosition());
         playerTrackView.setOnScreen(true);
         return playerTrackView;
+    }
+
+    @VisibleForTesting
+    protected PlayerTrackView createPlayerTrackView(Context context) {
+        return (PlayerTrackView) View.inflate(context, R.layout.player_track_view, null);
     }
 
     public PlayerTrackView getPlayerTrackViewById(long id){

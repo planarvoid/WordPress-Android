@@ -119,7 +119,6 @@
                                         <argument>-digestalg</argument>
                                         <argument>SHA1</argument>
                                     </arguments>
-                                    <skip>true</skip>
                                 </configuration>
                             </execution>
                         </executions>
