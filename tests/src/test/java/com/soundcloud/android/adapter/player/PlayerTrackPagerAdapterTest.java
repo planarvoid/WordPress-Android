@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -30,6 +31,8 @@ public class PlayerTrackPagerAdapterTest {
     PlayQueueManager playQueueManager;
     @Mock
     PlayerTrackView playerTrackView;
+    @Mock
+    EmptyListView emptyListView;
 
     @Before
     public void setUp() throws Exception {
@@ -38,6 +41,11 @@ public class PlayerTrackPagerAdapterTest {
             @Override
             protected PlayerTrackView createPlayerTrackView(Context context) {
                 return playerTrackView;
+            }
+
+            @Override
+            protected EmptyListView createEmptyListView(Context context) {
+                return emptyListView;
             }
         };
     }
@@ -194,6 +202,59 @@ public class PlayerTrackPagerAdapterTest {
 
         expect(adapter.getCommentingPosition()).toBe(1);
     }
+
+    @Test
+    public void shouldReturnExtraItemWhenQueueFetching() throws Exception {
+        when(playQueueManager.length()).thenReturn(1);
+        when(playQueueManager.isFetchingRelated()).thenReturn(true);
+        expect(adapter.getCount()).toBe(2);
+    }
+
+    @Test
+    public void shouldReturnExtraItemWhenLastQueueFetchFailed() throws Exception {
+        when(playQueueManager.length()).thenReturn(1);
+        when(playQueueManager.lastRelatedFetchFailed()).thenReturn(true);
+        expect(adapter.getCount()).toBe(2);
+    }
+
+    @Test
+    public void shouldReturnEmptyViewWhenTrackIsNull() throws Exception {
+        final ViewGroup parent = Mockito.mock(ViewGroup.class);
+        final PlayQueueItem playQueueItem = new PlayQueueItem(0);
+
+        expect(adapter.getView(playQueueItem, null, parent)).toBe(emptyListView);
+        verifyZeroInteractions(playerTrackView);
+    }
+
+    @Test
+    public void shouldConvertEmptyViewWhenTrackIsNull() throws Exception {
+        final ViewGroup parent = Mockito.mock(ViewGroup.class);
+        final PlayQueueItem playQueueItem = new PlayQueueItem(0);
+        final EmptyListView convertView = Mockito.mock(EmptyListView.class);
+
+        expect(adapter.getView(playQueueItem, convertView, parent)).toBe(convertView);
+        verifyZeroInteractions(playerTrackView);
+    }
+
+    @Test
+    public void shouldSetWaitingStateOnEmptyView() throws Exception {
+        final ViewGroup parent = Mockito.mock(ViewGroup.class);
+        final PlayQueueItem playQueueItem = new PlayQueueItem(0);
+        when(playQueueManager.isFetchingRelated()).thenReturn(true);
+
+        expect(adapter.getView(playQueueItem, null, parent)).toBe(emptyListView);
+        verify(emptyListView).setStatus(EmptyListView.Status.WAITING);
+    }
+
+    @Test
+    public void shouldSetUnknownErrorStateOnEmptyView() throws Exception {
+        final ViewGroup parent = Mockito.mock(ViewGroup.class);
+        final PlayQueueItem playQueueItem = new PlayQueueItem(0);
+
+        expect(adapter.getView(playQueueItem, null, parent)).toBe(emptyListView);
+        verify(emptyListView).setStatus(EmptyListView.Status.ERROR);
+    }
+
 
     private void add2PlayerTrackViews(PlayerTrackView trackView1, PlayerTrackView trackView2) {
         final ViewGroup parent = Mockito.mock(ViewGroup.class);

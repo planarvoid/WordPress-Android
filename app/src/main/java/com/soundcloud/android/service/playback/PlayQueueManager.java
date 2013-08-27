@@ -222,6 +222,14 @@ public class PlayQueueManager {
         }
     }
 
+    public boolean isFetchingRelated() {
+        return true;
+    }
+
+    public boolean lastRelatedFetchFailed() {
+        return false;
+    }
+
     private AsyncTask loadCursor(final Uri uri, final int position) {
         return new ParallelAsyncTask<Uri,Void,List<Track>>() {
             @Override protected List<Track> doInBackground(Uri... params) {

@@ -8,9 +8,11 @@ import com.soundcloud.android.adapter.BasePagerAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.play.PlayerTrackView;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -75,8 +77,12 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         if (mPlaceholderTrack != null){
             return 1;
         } else {
-            return mPlayQueueManager.length();
+            return shouldDisplayExtraItem() ? mPlayQueueManager.length() + 1 : mPlayQueueManager.length();
         }
+    }
+
+    private boolean shouldDisplayExtraItem() {
+        return mPlayQueueManager.isFetchingRelated() || mPlayQueueManager.lastRelatedFetchFailed();
     }
 
     public void clearCommentingPosition(boolean animated) {
@@ -91,33 +97,60 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         if (position == 0 && mPlaceholderTrack != null){
             return new PlayQueueItem(mPlaceholderTrack, 0);
         } else {
-            return mPlayQueueManager.getPlayQueueItem(position);
+            if (position >= mPlayQueueManager.length()){
+                return PlayQueueItem.EMPTY;
+            } else {
+                return mPlayQueueManager.getPlayQueueItem(position);
+            }
         }
     }
 
     @Override
     protected View getView(PlayQueueItem dataItem, View convertView, ViewGroup parent) {
-        PlayerTrackView playerTrackView;
-        if (convertView == null) {
-            playerTrackView = createPlayerTrackView(parent.getContext());
+        if (dataItem == PlayQueueItem.EMPTY){
+            if (convertView == null){
+                convertView = createEmptyListView(parent.getContext());
+            }
+            setEmptyViewStatus((EmptyListView) convertView);
+            return convertView;
+
         } else {
-            playerTrackView = (PlayerTrackView) convertView;
+            PlayerTrackView playerTrackView;
+            if (convertView == null) {
+                playerTrackView = createPlayerTrackView(parent.getContext());
+            } else {
+                playerTrackView = (PlayerTrackView) convertView;
+            }
+
+            mPlayerViewsById.forcePut(playerTrackView, dataItem.getPlayQueuePosition());
+
+            //TODO consolidate these calls
+            playerTrackView.setPlayQueueItem(dataItem);
+            playerTrackView.setCommentMode(mCommentingPosition == dataItem.getPlayQueuePosition());
+            playerTrackView.setOnScreen(true);
+            return playerTrackView;
         }
+    }
 
-
-        mPlayerViewsById.forcePut(playerTrackView, dataItem.getPlayQueuePosition());
-
-        //TODO consolidate these calls
-
-        playerTrackView.setPlayQueueItem(dataItem);
-        playerTrackView.setCommentMode(mCommentingPosition == dataItem.getPlayQueuePosition());
-        playerTrackView.setOnScreen(true);
-        return playerTrackView;
+    private void setEmptyViewStatus(EmptyListView emptyListView) {
+        if (mPlayQueueManager.isFetchingRelated()){
+            emptyListView.setStatus(EmptyListView.Status.WAITING);
+        } else {
+            emptyListView.setStatus(EmptyListView.Status.ERROR);
+        }
     }
 
     @VisibleForTesting
     protected PlayerTrackView createPlayerTrackView(Context context) {
         return (PlayerTrackView) View.inflate(context, R.layout.player_track_view, null);
+    }
+
+    @VisibleForTesting
+    protected EmptyListView createEmptyListView(Context context) {
+        final EmptyListView emptyListView = new EmptyListView(context);
+        // TODO, change the activity background to white and remove this
+        emptyListView.setBackgroundColor(Color.WHITE);
+        return emptyListView;
     }
 
     public PlayerTrackView getPlayerTrackViewById(long id){
