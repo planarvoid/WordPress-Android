@@ -384,7 +384,7 @@ public class SoundCloudRxHttpClientTest {
         pageObservable.subscribe(userObserver);
 
         verify(userObserver).onError(any(APIRequestException.class));
-        verify(observer).onError(any(APIRequestException.class));
+        verify(observer, never()).onError(any(APIRequestException.class));
 
     }
 }

@@ -3,6 +3,8 @@ package com.soundcloud.android.fragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ExploreTracksCategoryActivity;
 import com.soundcloud.android.adapter.ExploreTracksCategoriesAdapter;
@@ -94,6 +96,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
         pullToRefreshListView.setAdapter(mCategoriesAdapter);
         pullToRefreshListView.setEmptyView(mEmptyListView);
         pullToRefreshListView.setOnRefreshListener(this);
+        pullToRefreshListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true));
     }
 
     @Override
