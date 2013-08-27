@@ -29,6 +29,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
+import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
@@ -67,9 +68,13 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         return schedule(Observable.create(new Func1<Observer<APIResponse>, Subscription>() {
             @Override
             public Subscription call(Observer<APIResponse> observer) {
-                observer.onNext(executeRequest(apiRequest));
-                observer.onCompleted();
-                return Subscriptions.empty();
+                BooleanSubscription subscription = new BooleanSubscription();
+                final APIResponse response = executeRequest(apiRequest);
+                if (!subscription.isUnsubscribed()) {
+                    observer.onNext(response);
+                    observer.onCompleted();
+                }
+                return subscription;
             }
 
         }));
