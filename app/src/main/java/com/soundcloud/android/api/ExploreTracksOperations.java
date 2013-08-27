@@ -39,6 +39,15 @@ public class ExploreTracksOperations extends ScheduledOperations {
         return mRxHttpClient.<Track>fetchPagedModels(request);
     }
 
+    public Observable<Track> getRelatedTracks(Track seedTrack) {
+        APIRequest<CollectionHolder<Track>> request = SoundCloudAPIRequest.RequestBuilder.<CollectionHolder<Track>>get("/users/skrillex/tracks.json")
+                .addQueryParameters("linked_partitioning", "1")
+                .addQueryParameters("limit", "15")
+                .forPublicAPI()
+                .forResource(new TrackCollectionHolderToken()).build();
+        return mRxHttpClient.<Track>fetchModels(request);
+    }
+
     private static class TrackCollectionHolderToken extends TypeToken<CollectionHolder<Track>> {}
     private static class ExploreTracksCategoriesToken extends TypeToken<ExploreTracksCategories> {}
 
