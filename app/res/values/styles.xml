@@ -1137,16 +1137,23 @@
         <item name="android:layout_marginBottom">10dp</item>
         <item name="android:textSize">12sp</item>
     </style>
-    <style name="btn_empty_collection" parent="txt_empty_collection_message">
-        <item name="android:background">@drawable/btn_blue</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:paddingLeft">30dp</item>
-        <item name="android:paddingRight">30dp</item>
+    <style name="btn_empty_collection">
+        <item name="android:textColor">#ff666666</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:singleLine">false</item>
+        <item name="android:background">@drawable/btn_default_states</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">15dp</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:layout_marginLeft">10dp</item>
         <item name="android:layout_marginRight">10dp</item>
+        <item name="android:paddingLeft">30dp</item>
+        <item name="android:paddingRight">30dp</item>
+    </style>
+    <style name="btn_empty_collection_retry" parent="btn_empty_collection">
+        <item name="android:background">@drawable/btn_blue</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="txt_tour_title" parent="txt_tour_start">
