@@ -34,7 +34,7 @@
                 android:id="@+id/btn_retry"
                 android:layout_height="wrap_content"
                 android:text="@string/retry"
-                style="@style/btn_empty_collection"/>
+                style="@style/btn_empty_collection_retry"/>
 
     </LinearLayout>
 
