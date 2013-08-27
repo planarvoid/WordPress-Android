@@ -3,6 +3,8 @@ package com.soundcloud.android.fragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ExploreTracksAdapter;
 import com.soundcloud.android.api.ExploreTracksOperations;
@@ -90,7 +92,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         gridView.setEmptyView(mEmptyListView);
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
-        gridView.setOnScrollListener(mExploreTracksAdapter);
+        gridView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true, mExploreTracksAdapter));
     }
 
     @Override
