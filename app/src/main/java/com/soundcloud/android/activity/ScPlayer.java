@@ -117,7 +117,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         if (playQueueManager != null) {
             if (playQueueManager.getPosition() != getCurrentDisplayedTrackPosition() // different track
                     && !mHandler.hasMessages(SEND_CURRENT_QUEUE_POSITION) // not already changing
-                    && (mChangeTrackFast || CloudPlaybackService.getState().isSupposedToBePlaying()) // responding to transport click or already playing
+                    && (mChangeTrackFast || CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()) // responding to transport click or already playing
                     ) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
@@ -465,7 +465,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             final PlayerTrackView ptv = getTrackView(playlistManager.getPosition());
             if (ptv != null) {
                 ptv.setProgress(progress, CloudPlaybackService.getLoadingPercent(),
-                        SMOOTH_PROGRESS && CloudPlaybackService.getState() == State.PLAYING);
+                        SMOOTH_PROGRESS && CloudPlaybackService.getPlaybackState() == State.PLAYING);
             }
         } else return  REFRESH_DELAY;
 
@@ -473,7 +473,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         // return the number of milliseconds until the next full second, so
         // the counter can be updated at just the right time
-        return !CloudPlaybackService.getState().isSupposedToBePlaying() ? REFRESH_DELAY : remaining;
+        return !CloudPlaybackService.getPlaybackState().isSupposedToBePlaying() ? REFRESH_DELAY : remaining;
     }
 
     private static final class PlayerHandler extends Handler {
@@ -569,7 +569,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         }
         setPlaybackState();
         long next = refreshNow();
-        if (CloudPlaybackService.getState().isSupposedToBePlaying()){
+        if (CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()){
             queueNextRefresh(next);
         }
     }
@@ -607,7 +607,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private void setPlaybackState() {
-        final boolean showPlayState = CloudPlaybackService.getState().isSupposedToBePlaying();
+        final boolean showPlayState = CloudPlaybackService.getPlaybackState().isSupposedToBePlaying();
 
         if (showPlayState) {
             long next = refreshNow();

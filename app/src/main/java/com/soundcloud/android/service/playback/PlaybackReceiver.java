@@ -52,11 +52,9 @@ class PlaybackReceiver extends BroadcastReceiver {
         } else if (Broadcasts.UPDATE_WIDGET_ACTION.equals(action)) {
             // Someone asked us to executeRefreshTask a set of specific widgets,
             // probably because they were just added.
-            int[] appWidgetIds = intent
-                    .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-
-            mPlaybackService.getAppWidgetProvider().performUpdate(context, appWidgetIds,
-                    new Intent(Broadcasts.PLAYSTATE_CHANGED));
+            final int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+            final PlayerAppWidgetProvider appWidgetProvider = mPlaybackService.getAppWidgetProvider();
+            appWidgetProvider.performUpdate(context, appWidgetIds,new Intent(Broadcasts.PLAYSTATE_CHANGED));
 
         } else if (Actions.ADD_LIKE_ACTION.equals(action)) {
             setLikeStatus(intent.getData(), true);
@@ -70,7 +68,6 @@ class PlaybackReceiver extends BroadcastReceiver {
             handlePlayAction(intent);
         } else if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
-
             mPlayQueueManager.clear();
 
         } else if (Actions.STOP_ACTION.equals(action)) {
@@ -78,18 +75,17 @@ class PlaybackReceiver extends BroadcastReceiver {
                 mPlaybackService.saveProgressAndStop();
             }
 
+        } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
+            if (mPlaybackService.getState() == EMPTY_PLAYLIST) {
+                mPlaybackService.openCurrent();
+            }
         } else if (Actions.LOAD_TRACK_INFO.equals(action)) {
             final Track t = Track.fromIntent(intent);
             if (t != null){
                 t.refreshInfoAsync(mPlaybackService.getOldCloudApi(), mPlaybackService.getInfoListener());
             }
 
-        } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
-            if (mPlaybackService.getState() == EMPTY_PLAYLIST) {
-                mPlaybackService.openCurrent();
-            }
         }
-
     }
 
     public void setLikeStatus(@NotNull Uri playableUri, boolean like) {

@@ -123,7 +123,7 @@ public class NowPlayingIndicator extends ProgressBar {
         if (mTrack != null && mTrack.duration > 0 && getWidth() > 0){
             mRefreshDelay = mTrack.duration / getWidth();
             setProgress((int) CloudPlaybackService.getCurrentProgress());
-            if (CloudPlaybackService.getState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
+            if (CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
         }
     }
 
@@ -262,7 +262,7 @@ public class NowPlayingIndicator extends ProgressBar {
               }
 
             } else if (action.equals(Broadcasts.SEEK_COMPLETE) || action.equals(Broadcasts.SEEKING)) {
-                if (CloudPlaybackService.getState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
+                if (CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
             }
         }
     };

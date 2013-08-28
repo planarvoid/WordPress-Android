@@ -1,9 +1,12 @@
 package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
@@ -17,8 +20,11 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import android.appwidget.AppWidgetManager;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 
@@ -33,11 +39,14 @@ public class PlaybackReceiverTest {
     private @Mock AssociationManager associationManager;
     private @Mock PlayQueueManager playQueueManager;
     private @Mock AudioManager audioManager;
+    private @Mock PlayerAppWidgetProvider playerAppWidgetProvider;
 
     @Before
     public void setup() {
         SoundCloudApplication.MODEL_MANAGER.clear();
         playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager);
+
+        when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);
     }
 
     @Test
@@ -62,6 +71,19 @@ public class PlaybackReceiverTest {
     public void pauseActionShouldCallNextOnService() {
         playbackReceiver.onReceive(Robolectric.application, new Intent(CloudPlaybackService.Actions.PAUSE_ACTION));
         verify(playbackService).pause();
+    }
+
+    @Test
+    public void updateAppWidgetProviderActionShouldCallUpdateOnAppWidgetProviderWithPlaystateChangedAction(){
+        Intent intent = new Intent(CloudPlaybackService.Broadcasts.UPDATE_WIDGET_ACTION);
+        final int[] ids = {1, 2, 3};
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(playerAppWidgetProvider).performUpdate(any(Context.class), eq(ids), intentCaptor.capture());
+        expect(intentCaptor.getValue().getAction()).toBe(CloudPlaybackService.Broadcasts.PLAYSTATE_CHANGED);
     }
 
     @Test
@@ -236,4 +258,43 @@ public class PlaybackReceiverTest {
 
         verify(associationManager).setRepost(isA(Playlist.class), eq(false));
     }
+
+    @Test
+    public void shouldCallResetAllOnServiceAndClearPlayqueueOnResetAllAction(){
+        Intent intent = new Intent(CloudPlaybackService.Actions.RESET_ALL);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verify(playbackService).resetAll();
+        verify(playQueueManager).clear();
+    }
+
+    @Test
+    public void shouldCallSaveProgressAndStopOnStopActionIfPlaying(){
+        when(playbackService.getState()).thenReturn(State.PLAYING);
+        Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verify(playbackService).saveProgressAndStop();
+    }
+
+    @Test
+    public void shouldNotCallSaveProgressAndStopOnStopActionIfNotPlaying(){
+        when(playbackService.getState()).thenReturn(State.STOPPED);
+        Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verify(playbackService, never()).saveProgressAndStop();
+    }
+
+    @Test
+    public void shouldOpenCurrentIfPlayQueueChangedFromEmptyPlaylist(){
+        when(playbackService.getState()).thenReturn(State.EMPTY_PLAYLIST);
+        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verify(playbackService, never()).saveProgressAndStop();
+    }
+
+    /*
+    } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
+            if (mPlaybackService.getState() == EMPTY_PLAYLIST) {
+                mPlaybackService.openCurrent();
+            }
+     */
 }

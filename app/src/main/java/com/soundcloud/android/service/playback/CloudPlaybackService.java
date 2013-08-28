@@ -83,7 +83,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
     public static Uri getUri()     { return instance == null ? null : instance.getPlayQueueManager().getUri(); }
-    public static State getState() { return state; }
+    public static State getPlaybackState() { return state; }
     public static boolean isBuffering() {  return instance != null && instance._isBuffering(); }
     public static boolean isSeekable() {  return instance != null && instance._isSeekable(); }
 
@@ -364,6 +364,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             }
         }
         mTransientFocusLoss = isTransient;
+    }
+
+    State getState() {
+        return state;
     }
 
     public PlayerAppWidgetProvider getAppWidgetProvider() {
