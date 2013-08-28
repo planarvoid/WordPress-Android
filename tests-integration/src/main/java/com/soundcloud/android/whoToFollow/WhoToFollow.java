@@ -47,7 +47,7 @@ public class WhoToFollow extends ActivityTestCase<Onboard> {
     public void testIndividualUserSelection() throws Exception {
         createNewUser();
         suggestedUsersScreen.clickCategory(1);
-        String followed = suggestedUsersCategoryScreen.followRandomUser();
+        String followed = suggestedUsersCategoryScreen.followUser(2);
         solo.goBack();
         assertEquals(followed, suggestedUsersScreen.subtextAtIndexEquals(1));
     }
