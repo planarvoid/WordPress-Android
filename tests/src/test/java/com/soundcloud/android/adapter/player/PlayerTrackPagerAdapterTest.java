@@ -40,7 +40,7 @@ public class PlayerTrackPagerAdapterTest {
         // TODO remove the override when we move to Robolectric 2
         adapter = new PlayerTrackPagerAdapter(playQueueManager) {
             @Override
-            protected PlayerTrackView createPlayerTrackView(Context context) {
+            protected PlayerTrackView createPlayerQueueView(Context context) {
                 return playerTrackView;
             }
 
