@@ -220,16 +220,16 @@ public class PlayerTrackPagerAdapterTest {
     @Test
     public void shouldReturnEmptyViewWhenTrackIsNull() throws Exception {
         final ViewGroup parent = Mockito.mock(ViewGroup.class);
-        final PlayQueueItem playQueueItem = new PlayQueueItem(0);
+        final PlayQueueItem playQueueItem = PlayQueueItem.EMPTY;
 
         expect(adapter.getView(playQueueItem, null, parent)).toBe(emptyListView);
         verifyZeroInteractions(playerTrackView);
     }
 
     @Test
-    public void shouldConvertEmptyViewWhenTrackIsNull() throws Exception {
+    public void shouldConvertEmptyViewWhenPlayqueueItemIsEmpty() throws Exception {
         final ViewGroup parent = Mockito.mock(ViewGroup.class);
-        final PlayQueueItem playQueueItem = new PlayQueueItem(0);
+        final PlayQueueItem playQueueItem = PlayQueueItem.EMPTY;
         final EmptyListView convertView = Mockito.mock(EmptyListView.class);
 
         expect(adapter.getView(playQueueItem, convertView, parent)).toBe(convertView);
@@ -239,7 +239,7 @@ public class PlayerTrackPagerAdapterTest {
     @Test
     public void shouldSetWaitingStateOnEmptyView() throws Exception {
         final ViewGroup parent = Mockito.mock(ViewGroup.class);
-        final PlayQueueItem playQueueItem = new PlayQueueItem(0);
+        final PlayQueueItem playQueueItem = PlayQueueItem.EMPTY;
         when(playQueueManager.isFetchingRelated()).thenReturn(true);
 
         expect(adapter.getView(playQueueItem, null, parent)).toBe(emptyListView);
@@ -249,7 +249,7 @@ public class PlayerTrackPagerAdapterTest {
     @Test
     public void shouldSetUnknownErrorStateOnEmptyView() throws Exception {
         final ViewGroup parent = Mockito.mock(ViewGroup.class);
-        final PlayQueueItem playQueueItem = new PlayQueueItem(0);
+        final PlayQueueItem playQueueItem = PlayQueueItem.EMPTY;
 
         expect(adapter.getView(playQueueItem, null, parent)).toBe(emptyListView);
         verify(emptyListView).setStatus(EmptyListView.Status.ERROR);
