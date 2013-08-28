@@ -1,9 +1,11 @@
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.getCurrentTrackId;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.RootView;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +42,7 @@ public class NowPlayingActionBarController extends ActionBarController {
         mNowPlaying.resume();
         startListening();
 
-        if (CloudPlaybackService.getCurrentTrackId() < 0) {
+        if (getCurrentTrackId() < 0) {
             mNowPlayingHolder.setVisibility(View.GONE);
         } else {
             mNowPlayingHolder.setVisibility(View.VISIBLE);
@@ -68,10 +70,10 @@ public class NowPlayingActionBarController extends ActionBarController {
         if (!mListening) {
             mListening = true;
             IntentFilter f = new IntentFilter();
-            f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
-            f.addAction(CloudPlaybackService.META_CHANGED);
-            f.addAction(CloudPlaybackService.SEEK_COMPLETE);
-            f.addAction(CloudPlaybackService.SEEKING);
+            f.addAction(Broadcasts.PLAYSTATE_CHANGED);
+            f.addAction(Broadcasts.META_CHANGED);
+            f.addAction(Broadcasts.SEEK_COMPLETE);
+            f.addAction(Broadcasts.SEEKING);
             mOwner.getActivity().registerReceiver(mStatusListener, new IntentFilter(f));
         }
     }
@@ -88,7 +90,7 @@ public class NowPlayingActionBarController extends ActionBarController {
         public void onReceive(Context context, Intent intent) {
             mNowPlaying.getStatusListener().onReceive(context, intent);
 
-            if (intent.getAction().equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+            if (intent.getAction().equals(Broadcasts.PLAYSTATE_CHANGED)) {
                 mOwner.invalidateOptionsMenu();
             }
         }

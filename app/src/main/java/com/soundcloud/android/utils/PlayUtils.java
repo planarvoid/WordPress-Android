@@ -53,7 +53,7 @@ public final class PlayUtils {
 
             context.startActivity(intent);
         } else {
-            intent.setAction(CloudPlaybackService.PLAY_ACTION);
+            intent.setAction(CloudPlaybackService.Actions.PLAY_ACTION);
 
             context.startService(intent);
         }

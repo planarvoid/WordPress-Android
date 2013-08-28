@@ -42,7 +42,7 @@ public class CloudPlaybackServiceTest {
     public void shouldCacheAndLoadTrackOnQueueViaParcelable() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
 
-        Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
 
@@ -57,7 +57,7 @@ public class CloudPlaybackServiceTest {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         SoundCloudApplication.MODEL_MANAGER.cache(track);
 
-        Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.trackId, track.getId());
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
 
@@ -68,7 +68,7 @@ public class CloudPlaybackServiceTest {
 
     @Test
     public void shouldLoadUriOnQueue() throws CreateModelException {
-        Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
         intent.setData(Content.ME_LIKES.uri);
@@ -82,7 +82,7 @@ public class CloudPlaybackServiceTest {
     public void shouldLoadUriOnQueueWithInitalPlaylist() throws CreateModelException {
         CloudPlaybackService.playlistXfer = Lists.newArrayList(TestHelper.getModelFactory().createModel(Track.class));
 
-        Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
         intent.setData(Content.ME_LIKES.uri);
@@ -97,7 +97,7 @@ public class CloudPlaybackServiceTest {
         final ArrayList<Track> transferList = Lists.newArrayList(TestHelper.getModelFactory().createModel(Track.class));
         CloudPlaybackService.playlistXfer = transferList;
 
-        Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
         intent.putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
@@ -112,7 +112,7 @@ public class CloudPlaybackServiceTest {
         Track track = TestHelper.readJson(Track.class, "/com/soundcloud/android/model/track.json");
         SoundCloudApplication.MODEL_MANAGER.cache(track);
 
-        Intent intent = new Intent(CloudPlaybackService.ADD_LIKE_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.ADD_LIKE_ACTION);
         intent.setData(track.toUri());
 
         service.onStartCommand(intent, 0, 0);
@@ -125,7 +125,7 @@ public class CloudPlaybackServiceTest {
         Track track = TestHelper.readJson(Track.class, "/com/soundcloud/android/model/track.json");
         SoundCloudApplication.MODEL_MANAGER.cache(track);
 
-        Intent intent = new Intent(CloudPlaybackService.REMOVE_LIKE_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_LIKE_ACTION);
         intent.setData(track.toUri());
 
         service.onStartCommand(intent, 0, 0);
@@ -138,7 +138,7 @@ public class CloudPlaybackServiceTest {
         Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
-        Intent intent = new Intent(CloudPlaybackService.ADD_LIKE_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.ADD_LIKE_ACTION);
         intent.setData(playlist.toUri());
 
         service.onStartCommand(intent, 0, 0);
@@ -151,7 +151,7 @@ public class CloudPlaybackServiceTest {
         Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
-        Intent intent = new Intent(CloudPlaybackService.REMOVE_LIKE_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_LIKE_ACTION);
         intent.setData(playlist.toUri());
 
         service.onStartCommand(intent, 0, 0);
@@ -164,7 +164,7 @@ public class CloudPlaybackServiceTest {
         Track track = TestHelper.readJson(Track.class, "/com/soundcloud/android/model/track.json");
         SoundCloudApplication.MODEL_MANAGER.cache(track);
 
-        Intent intent = new Intent(CloudPlaybackService.ADD_REPOST_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.ADD_REPOST_ACTION);
         intent.setData(track.toUri());
 
         service.onStartCommand(intent, 0, 0);
@@ -177,7 +177,7 @@ public class CloudPlaybackServiceTest {
         Track track = TestHelper.readJson(Track.class, "/com/soundcloud/android/model/track.json");
         SoundCloudApplication.MODEL_MANAGER.cache(track);
 
-        Intent intent = new Intent(CloudPlaybackService.REMOVE_REPOST_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_REPOST_ACTION);
         intent.setData(track.toUri());
 
         service.onStartCommand(intent, 0, 0);
@@ -190,7 +190,7 @@ public class CloudPlaybackServiceTest {
         Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
-        Intent intent = new Intent(CloudPlaybackService.ADD_REPOST_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.ADD_REPOST_ACTION);
         intent.setData(playlist.toUri());
 
         service.onStartCommand(intent, 0, 0);
@@ -203,7 +203,7 @@ public class CloudPlaybackServiceTest {
         Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
-        Intent intent = new Intent(CloudPlaybackService.REMOVE_REPOST_ACTION);
+        Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_REPOST_ACTION);
         intent.setData(playlist.toUri());
 
         service.onStartCommand(intent, 0, 0);

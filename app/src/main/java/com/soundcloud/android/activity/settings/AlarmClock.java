@@ -141,7 +141,7 @@ public final class AlarmClock {
             uri = uri.buildUpon().appendQueryParameter(
                     ScContentProvider.Parameter.CACHED, "1").build();
         }
-        context.startService(new Intent(CloudPlaybackService.PLAY_ACTION, uri)
+        context.startService(new Intent(CloudPlaybackService.Actions.PLAY_ACTION, uri)
                 .putExtra(CloudPlaybackService.PlayExtras.unmute, true));
     }
 

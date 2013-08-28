@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -250,17 +251,17 @@ public class NowPlayingIndicator extends ProgressBar {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(CloudPlaybackService.META_CHANGED)) {
+            if (action.equals(Broadcasts.META_CHANGED)) {
                 setCurrentTrack();
 
-            } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+            } else if (action.equals(Broadcasts.PLAYSTATE_CHANGED)) {
               if (intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false)){
                   startRefreshing();
               } else {
                   stopRefreshing();
               }
 
-            } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE) || action.equals(CloudPlaybackService.SEEKING)) {
+            } else if (action.equals(Broadcasts.SEEK_COMPLETE) || action.equals(Broadcasts.SEEKING)) {
                 if (CloudPlaybackService.getState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
             }
         }

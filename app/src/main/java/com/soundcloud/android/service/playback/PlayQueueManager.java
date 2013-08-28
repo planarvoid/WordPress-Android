@@ -241,7 +241,7 @@ public class PlayQueueManager {
     }
 
     private void broadcastPlayQueueChanged() {
-        Intent intent = new Intent(CloudPlaybackService.PLAYQUEUE_CHANGED)
+        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
             .putExtra(CloudPlaybackService.BroadcastExtras.queuePosition, mPlayPos);
         mContext.sendBroadcast(intent);
     }

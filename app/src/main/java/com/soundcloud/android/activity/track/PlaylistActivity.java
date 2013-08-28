@@ -39,7 +39,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
+            if (CloudPlaybackService.Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
                 mFragment.getAdapter().notifyDataSetChanged();
             }
         }
@@ -66,7 +66,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
 
         // listen for playback changes, so that we can update the now-playing indicator
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+        intentFilter.addAction(CloudPlaybackService.Broadcasts.PLAYSTATE_CHANGED);
         registerReceiver(mPlaybackStatusListener, intentFilter);
     }
 
