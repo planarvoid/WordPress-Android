@@ -145,7 +145,7 @@ public class PlayQueueManager {
         }
     }
 
-    public void setTrack(Track toBePlayed, boolean saveQueue) {
+    public void loadTrack(Track toBePlayed, boolean saveQueue) {
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
         mPlayQueue.add(toBePlayed);

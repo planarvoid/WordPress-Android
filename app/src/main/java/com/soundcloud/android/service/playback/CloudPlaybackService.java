@@ -1076,7 +1076,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)){
             // go to the cache to ensure 1 copy of each track app wide
             final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
-            mPlayQueueManager.setTrack(cachedTrack, true);
+            mPlayQueueManager.loadTrack(cachedTrack, true);
             if (startPlayback) {
                 openCurrent();
             }

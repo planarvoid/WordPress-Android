@@ -35,7 +35,7 @@ public class CloudPlaybackServiceTest {
     }
 
     @Test
-    public void shouldCacheAndSetTrackOnQueueViaParcelable() throws CreateModelException {
+    public void shouldCacheAndLoadTrackOnQueueViaParcelable() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
 
         Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
@@ -44,12 +44,12 @@ public class CloudPlaybackServiceTest {
 
         service.onStartCommand(intent, 0, 0);
 
-        verify(playQueueManager).setTrack(eq(track), eq(true));
+        verify(playQueueManager).loadTrack(eq(track), eq(true));
         expect(SoundCloudApplication.MODEL_MANAGER.getCachedTrack(track.getId())).toEqual(track);
     }
 
     @Test
-    public void shouldSetTrackOnQueueViaTrackId() throws CreateModelException {
+    public void shouldLoadTrackOnQueueViaTrackId() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         SoundCloudApplication.MODEL_MANAGER.cache(track);
 
@@ -59,8 +59,10 @@ public class CloudPlaybackServiceTest {
 
         service.onStartCommand(intent, 0, 0);
 
-        verify(playQueueManager).setTrack(eq(track), eq(true));
+        verify(playQueueManager).loadTrack(eq(track), eq(true));
     }
+
+
 
     @Test
     public void shouldAddLikeForTrackViaIntent() throws Exception {
