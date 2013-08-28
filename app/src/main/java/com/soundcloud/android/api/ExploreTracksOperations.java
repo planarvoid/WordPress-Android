@@ -10,6 +10,8 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 
+import java.util.List;
+
 public class ExploreTracksOperations extends ScheduledOperations {
 
 
@@ -40,12 +42,11 @@ public class ExploreTracksOperations extends ScheduledOperations {
     }
 
     public Observable<Track> getRelatedTracks(Track seedTrack) {
-        APIRequest<CollectionHolder<Track>> request = SoundCloudAPIRequest.RequestBuilder.<CollectionHolder<Track>>get("/users/skrillex/tracks.json")
-                .addQueryParameters("linked_partitioning", "1")
+        APIRequest<List<Track>> request = SoundCloudAPIRequest.RequestBuilder.<List<Track>>get("/users/terekke/tracks.json")
                 .addQueryParameters("limit", "15")
                 .forPublicAPI()
-                .forResource(new TrackCollectionHolderToken()).build();
-        return mRxHttpClient.<Track>fetchModels(request);
+                .forResource(new TypeToken<List<Track>>() {}).build();
+        return mRxHttpClient.fetchModels(request);
     }
 
     private static class TrackCollectionHolderToken extends TypeToken<CollectionHolder<Track>> {}
