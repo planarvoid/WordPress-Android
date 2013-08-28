@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import android.content.Context;
+import android.support.v4.view.PagerAdapter;
 import android.view.ViewGroup;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -215,6 +216,19 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueueManager.length()).thenReturn(1);
         when(playQueueManager.lastRelatedFetchFailed()).thenReturn(true);
         expect(adapter.getCount()).toBe(2);
+    }
+
+    public void shouldReturnUnchangedPositionForEmptyItemWhenFetching() throws Exception {
+        when(playQueueManager.length()).thenReturn(1);
+        when(playQueueManager.isFetchingRelated()).thenReturn(true);
+        expect(adapter.getItemPosition(PlayQueueItem.EMPTY)).toBe(PagerAdapter.POSITION_UNCHANGED);
+    }
+
+    @Test
+    public void shouldReturnNoItemPositionForEmptyItemWhenNotFetching() throws Exception {
+        when(playQueueManager.length()).thenReturn(1);
+        when(playQueueManager.isFetchingRelated()).thenReturn(false);
+        expect(adapter.getItemPosition(PlayQueueItem.EMPTY)).toBe(PagerAdapter.POSITION_NONE);
     }
 
     @Test

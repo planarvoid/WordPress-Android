@@ -153,6 +153,11 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         return emptyListView;
     }
 
+    @Override
+    public int getItemPosition(Object object) {
+        return object == PlayQueueItem.EMPTY && !shouldDisplayExtraItem() ? POSITION_NONE : super.getItemPosition(object);
+    }
+
     public PlayerTrackView getPlayerTrackViewById(long id){
         for (PlayerTrackView playerTrackView : mPlayerViewsById.keySet()){
             if (playerTrackView.getTrackId() == id) return playerTrackView;
