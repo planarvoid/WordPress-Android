@@ -399,9 +399,9 @@ public class PlayQueueManagerTest {
 
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
-        for (Intent broadcastIntent : argumentCaptor.getAllValues()){
-            assertThat(broadcastIntent.getAction(), is(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED));
-        }
+        final List<Intent> allValues = argumentCaptor.getAllValues();
+        assertThat(allValues.get(0).getAction(), is(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED));
+        assertThat(allValues.get(1).getAction(), is(CloudPlaybackService.Broadcasts.RELATED_LOAD_COMPLETE));
     }
 
     @Test
