@@ -13,29 +13,31 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.Intent;
+import android.media.AudioManager;
 
 import java.util.ArrayList;
 
 @RunWith(DefaultTestRunner.class)
-public class CloudPlaybackServiceTest {
+public class PlaybackReceiverTest {
 
-    private CloudPlaybackService service;
+    PlaybackReceiver playbackReceiver;
+
+    private @Mock CloudPlaybackService playbackService;
     private @Mock AssociationManager associationManager;
     private @Mock PlayQueueManager playQueueManager;
+    private @Mock AudioManager audioManager;
 
     @Before
     public void setup() {
         SoundCloudApplication.MODEL_MANAGER.clear();
-        service = new CloudPlaybackService();
-        service.onCreate();
-        service.setAssociationManager(associationManager);
-        service.setPlayqueueManager(playQueueManager);
+        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager);
     }
 
     @Test
@@ -46,7 +48,7 @@ public class CloudPlaybackServiceTest {
         intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(playQueueManager).loadTrack(eq(track), eq(true));
         expect(SoundCloudApplication.MODEL_MANAGER.getCachedTrack(track.getId())).toEqual(track);
@@ -61,7 +63,7 @@ public class CloudPlaybackServiceTest {
         intent.putExtra(CloudPlaybackService.PlayExtras.trackId, track.getId());
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(playQueueManager).loadTrack(eq(track), eq(true));
     }
@@ -73,7 +75,7 @@ public class CloudPlaybackServiceTest {
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
         intent.setData(Content.ME_LIKES.uri);
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(playQueueManager).loadUri(Content.ME_LIKES.uri, 2, null, 2);
     }
@@ -87,7 +89,7 @@ public class CloudPlaybackServiceTest {
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
         intent.setData(Content.ME_LIKES.uri);
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(playQueueManager).loadUri(Content.ME_LIKES.uri, 2, CloudPlaybackService.playlistXfer, 2);
     }
@@ -102,7 +104,7 @@ public class CloudPlaybackServiceTest {
         intent.putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(playQueueManager).setPlayQueue(transferList, 2);
     }
@@ -115,7 +117,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.ADD_LIKE_ACTION);
         intent.setData(track.toUri());
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(associationManager).setLike(isA(Track.class), eq(true));
     }
@@ -128,7 +130,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_LIKE_ACTION);
         intent.setData(track.toUri());
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(associationManager).setLike(isA(Track.class), eq(false));
     }
@@ -141,7 +143,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.ADD_LIKE_ACTION);
         intent.setData(playlist.toUri());
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(associationManager).setLike(isA(Playlist.class), eq(true));
     }
@@ -154,7 +156,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_LIKE_ACTION);
         intent.setData(playlist.toUri());
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(associationManager).setLike(isA(Playlist.class), eq(false));
     }
@@ -167,7 +169,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.ADD_REPOST_ACTION);
         intent.setData(track.toUri());
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(associationManager).setRepost(isA(Track.class), eq(true));
     }
@@ -180,7 +182,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_REPOST_ACTION);
         intent.setData(track.toUri());
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(associationManager).setRepost(isA(Track.class), eq(false));
     }
@@ -193,7 +195,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.ADD_REPOST_ACTION);
         intent.setData(playlist.toUri());
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(associationManager).setRepost(isA(Playlist.class), eq(true));
     }
@@ -206,7 +208,7 @@ public class CloudPlaybackServiceTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_REPOST_ACTION);
         intent.setData(playlist.toUri());
 
-        service.onStartCommand(intent, 0, 0);
+        playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(associationManager).setRepost(isA(Playlist.class), eq(false));
     }

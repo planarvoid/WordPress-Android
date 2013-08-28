@@ -24,7 +24,6 @@ import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
@@ -42,13 +41,11 @@ import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.play.NotificationPlaybackRemoteViews;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -76,6 +73,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private static @Nullable CloudPlaybackService instance;
     private static State state = STOPPED;
     private static @Nullable Track currentTrack;
+    private AndroidCloudAPI oldCloudApi;
 
     // static convenience accessors
     public static @Nullable Track getCurrentTrack()  { return currentTrack; }
@@ -179,6 +177,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     };
 
     private Notification status;
+    private PlaybackReceiver mIntentReceiver;
 
     // for play duration tracking
     private PlayEventTracker mPlayEventTracker;
@@ -221,6 +220,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         oldCloudAPI = new OldCloudAPI(this);
+
+        mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueueManager, mAudioManager);
+
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(Actions.PLAY_ACTION);
         commandFilter.addAction(Actions.TOGGLEPAUSE_ACTION);
@@ -362,6 +364,30 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             }
         }
         mTransientFocusLoss = isTransient;
+    }
+
+    public PlayerAppWidgetProvider getAppWidgetProvider() {
+        return mAppWidgetProvider;
+    }
+
+    public void resetAll() {
+        stop();
+        currentTrack = null;
+    }
+
+    public void saveProgressAndStop() {
+        pause();
+        mResumeTime = getProgress();
+        mResumeTrackId = getCurrentTrackId();
+        stop();
+    }
+
+    public AndroidCloudAPI getOldCloudApi() {
+        return oldCloudApi;
+    }
+
+    public FetchModelTask.Listener<Track> getInfoListener() {
+        return mInfoListener;
     }
 
     private void scheduleServiceShutdownCheck() {
@@ -801,15 +827,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    public void setLikeStatus(@NotNull Uri playableUri, boolean like) {
-        Playable playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
-        mAssociationManager.setLike(playable, like);
-    }
 
-    public void setRepostStatus(@NotNull Uri playableUri, boolean repost) {
-        Playable playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
-        mAssociationManager.setRepost(playable, repost);
-    }
 
     /* package */ int getDuration() {
         return currentTrack == null ? -1 : currentTrack.duration;
@@ -1006,101 +1024,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     };
 
-    private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            String action = intent.getAction();
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "BroadcastReceiver#onReceive("+action+")");
-            }
-            if (Actions.NEXT_ACTION.equals(action)) {
-                next();
-            } else if (Actions.PREVIOUS_ACTION.equals(action)) {
-                prev();
-            } else if (Actions.TOGGLEPAUSE_ACTION.equals(action)) {
-                togglePlayback();
-            } else if (Actions.PAUSE_ACTION.equals(action)) {
-                pause();
-            } else if (Broadcasts.UPDATE_WIDGET_ACTION.equals(action)) {
-                // Someone asked us to executeRefreshTask a set of specific widgets,
-                // probably because they were just added.
-                int[] appWidgetIds = intent
-                        .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-
-                mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds,
-                        new Intent(Broadcasts.PLAYSTATE_CHANGED));
-
-            } else if (Actions.ADD_LIKE_ACTION.equals(action)) {
-                setLikeStatus(intent.getData(), true);
-            } else if (Actions.REMOVE_LIKE_ACTION.equals(action)) {
-                setLikeStatus(intent.getData(), false);
-            } else if (Actions.ADD_REPOST_ACTION.equals(action)) {
-                setRepostStatus(intent.getData(), true);
-            } else if (Actions.REMOVE_REPOST_ACTION.equals(action)) {
-                setRepostStatus(intent.getData(), false);
-            } else if (Actions.PLAY_ACTION.equals(action)) {
-                handlePlayAction(intent);
-            } else if (Actions.RESET_ALL.equals(action)) {
-                stop();
-                mPlayQueueManager.clear();
-                currentTrack = null;
-            } else if (Actions.STOP_ACTION.equals(action)) {
-                if (state.isSupposedToBePlaying()) pause();
-                mResumeTime = getProgress();
-                mResumeTrackId = getCurrentTrackId();
-                stop();
-            } else if (Actions.LOAD_TRACK_INFO.equals(action)) {
-                final Track t = Track.fromIntent(intent);
-                t.refreshInfoAsync(oldCloudAPI, mInfoListener);
-
-            } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
-                if (state == EMPTY_PLAYLIST) {
-                    openCurrent();
-                }
-            }
-        }
-    };
-
-    private void handlePlayAction(Intent intent) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "handlePlayAction("+intent+")");
-        }
-
-        if (intent.getBooleanExtra(PlayExtras.unmute, false)) {
-            final int volume = (int) Math.round(
-                    mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-                    * 0.75d);
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setting volume to "+volume);
-            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
-        }
-
-        final boolean startPlayback = intent.getBooleanExtra(PlayExtras.startPlayback, true);
-        if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)){
-            // go to the cache to ensure 1 copy of each track app wide
-            final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
-            mPlayQueueManager.loadTrack(cachedTrack, true);
-            if (startPlayback) {
-                openCurrent();
-            }
-
-        } else {
-            final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
-            if (intent.getData() != null) {
-                mPlayQueueManager.loadUri(intent.getData(), position, playlistXfer, position);
-                if (startPlayback) openCurrent();
-
-            } else if (intent.getBooleanExtra(PlayExtras.playFromXferCache, false)) {
-                mPlayQueueManager.setPlayQueue(playlistXfer, position);
-                playlistXfer = null;
-                if (startPlayback) openCurrent();
-
-            } else if (!mPlayQueueManager.isEmpty() || configureLastPlaylist()){
-                // random play intent, play whatever we had last
-                if (startPlayback) play();
-            }
-        }
-    }
 
     private static final class PlayerHandler extends Handler {
         private static final float DUCK_VOLUME = 0.1f;
@@ -1396,13 +1319,5 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void track(Class<?> klazz, Object... args) {
         getApp().track(klazz, args);
-    }
-
-    void setAssociationManager(AssociationManager associationManager) {
-        this.mAssociationManager = associationManager;
-    }
-
-    void setPlayqueueManager(PlayQueueManager playqueueManager) {
-        this.mPlayQueueManager = playqueueManager;
     }
 }
