@@ -241,7 +241,7 @@ public class PlayQueueManager {
             @Override
             public void onCompleted() {
                 mAppendingState = AppendState.IDLE;
-                broadcastPlayQueueChanged();
+                mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_COMPLETE));
             }
 
             @Override

@@ -108,6 +108,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String UPDATE_WIDGET_ACTION     = "com.soundcloud.android.playback.updatewidgetaction";
         String PLAYSTATE_CHANGED        = "com.soundcloud.android.playstatechanged";
         String META_CHANGED             = "com.soundcloud.android.metachanged";
+        String RELATED_LOAD_COMPLETE    = "com.soundcloud.android.related.complete";
         String PLAYQUEUE_CHANGED        = "com.soundcloud.android.playlistchanged";
         String PLAYBACK_COMPLETE        = "com.soundcloud.android.playbackcomplete";
         String PLAYBACK_ERROR           = "com.soundcloud.android.trackerror";
