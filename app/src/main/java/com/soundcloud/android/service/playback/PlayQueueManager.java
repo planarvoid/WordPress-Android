@@ -304,7 +304,8 @@ public class PlayQueueManager {
     }
 
     private void onPlaylistUriChanged(Uri oldUri, Uri newUri) {
-        if (getUri().getPath().equals(oldUri.getPath())) mPlayQueueUri = new PlayQueueUri(newUri);
+        final Uri loadedUri = getUri();
+        if (loadedUri != null && loadedUri.getPath().equals(oldUri.getPath())) mPlayQueueUri = new PlayQueueUri(newUri);
     }
 
     public void clear() {
