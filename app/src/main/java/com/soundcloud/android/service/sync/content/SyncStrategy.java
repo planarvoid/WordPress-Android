@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.sync.content;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.service.sync.ApiSyncResult;
@@ -37,6 +38,10 @@ public abstract class SyncStrategy {
 
     protected static void log(String message) {
         Log.d(TAG, message);
+    }
+
+    protected boolean isLoggedIn(){
+        return SoundCloudApplication.getUserId() > 0;
     }
 
     public static class IdHolder extends CollectionHolder<Long> {
