@@ -33,8 +33,9 @@ public final class PlayUtils {
         Intent intent = new Intent();
         if (CloudPlaybackService.getCurrentTrackId() != t.getId()) {
             // changing tracks
-            intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.getId());
+            intent.putExtra(CloudPlaybackService.PlayExtras.track, t);
             CloudPlaybackService.playlistXfer = info.playables;
+            intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
 
             if (info.uri != null) {
                 SoundCloudApplication.MODEL_MANAGER.cache(info.initialTrack);

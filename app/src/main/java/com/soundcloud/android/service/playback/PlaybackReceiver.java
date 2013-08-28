@@ -113,9 +113,15 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         final boolean startPlayback = intent.getBooleanExtra(PlayExtras.startPlayback, true);
         if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)){
+
             // go to the cache to ensure 1 copy of each track app wide
             final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
-            mPlayQueueManager.loadTrack(cachedTrack, true);
+            if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)){
+                mPlayQueueManager.loadExploreTracks(cachedTrack, true);
+            } else {
+                mPlayQueueManager.loadTrack(cachedTrack, true);
+            }
+
             if (startPlayback) {
                 mPlaybackService.openCurrent();
             }

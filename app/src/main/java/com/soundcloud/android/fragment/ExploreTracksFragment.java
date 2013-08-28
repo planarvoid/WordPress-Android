@@ -68,7 +68,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        PlayUtils.playTrack(getActivity(), new PlayInfo(mExploreTracksAdapter.getItem(position)));
+        PlayUtils.playTrack(getActivity(), new PlayInfo(mExploreTracksAdapter.getItem(position), true));
     }
 
     @Override
