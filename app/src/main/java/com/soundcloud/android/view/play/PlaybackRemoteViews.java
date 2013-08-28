@@ -37,7 +37,7 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
         setOnClickPendingIntent(R.id.prev, PendingIntent.getService(context,
                 0 /* requestCode */, previous, 0 /* flags */));
 
-        final Intent pause = new Intent(CloudPlaybackService.Actions.TOGGLEPAUSE_ACTION);
+        final Intent pause = new Intent(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
         setOnClickPendingIntent(R.id.pause, PendingIntent.getService(context,
                 0 /* requestCode */, pause, 0 /* flags */));
 

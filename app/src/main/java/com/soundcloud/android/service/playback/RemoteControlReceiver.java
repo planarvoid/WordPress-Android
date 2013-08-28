@@ -43,7 +43,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
     }
 
     private void handleToggle(Context context) {
-        context.startService(new Intent(Actions.TOGGLEPAUSE_ACTION));
+        context.startService(new Intent(Actions.TOGGLEPLAYBACK_ACTION));
     }
 
     private void handlePause(Context context) {

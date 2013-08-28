@@ -125,8 +125,8 @@ public class PlayEventTrackerIntegrationTest {
     @Test
     public void shouldTrackTogglePause() {
         startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, currentTrack);
-        startPlaybackService(CloudPlaybackService.Actions.TOGGLEPAUSE_ACTION, null);
-        startPlaybackService(CloudPlaybackService.Actions.TOGGLEPAUSE_ACTION, null);
+        startPlaybackService(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION, null);
+        startPlaybackService(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION, null);
 
         Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(3);

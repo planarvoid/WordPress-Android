@@ -45,7 +45,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             mPlaybackService.next();
         } else if (Actions.PREVIOUS_ACTION.equals(action)) {
             mPlaybackService.prev();
-        } else if (Actions.TOGGLEPAUSE_ACTION.equals(action)) {
+        } else if (Actions.TOGGLEPLAYBACK_ACTION.equals(action)) {
             mPlaybackService.togglePlayback();
         } else if (Actions.PAUSE_ACTION.equals(action)) {
             mPlaybackService.pause();

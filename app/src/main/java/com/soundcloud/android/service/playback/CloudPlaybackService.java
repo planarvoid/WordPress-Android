@@ -89,36 +89,36 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     // public service actions
     public interface Actions {
-        String PLAY_ACTION          = "com.soundcloud.android.playback.start";
-        String TOGGLEPAUSE_ACTION   = "com.soundcloud.android.playback.togglepause";
-        String PAUSE_ACTION         = "com.soundcloud.android.playback.pause";
-        String NEXT_ACTION          = "com.soundcloud.android.playback.next";
-        String PREVIOUS_ACTION      = "com.soundcloud.android.playback.previous";
-        String RESET_ALL            = "com.soundcloud.android.playback.reset"; // used on logout
-        String STOP_ACTION          = "com.soundcloud.android.playback.stop"; // from the notification
-        String ADD_LIKE_ACTION      = "com.soundcloud.android.like.add";
-        String REMOVE_LIKE_ACTION   = "com.soundcloud.android.like.remove";
-        String ADD_REPOST_ACTION    = "com.soundcloud.android.repost.add";
-        String REMOVE_REPOST_ACTION = "com.soundcloud.android.repost.remove";
-        String RELOAD_QUEUE         = "com.soundcloud.android.reloadqueue";
-        String LOAD_TRACK_INFO      = "com.soundcloud.android.loadTrackInfo";
+        String PLAY_ACTION              = "com.soundcloud.android.playback.start";
+        String TOGGLEPLAYBACK_ACTION    = "com.soundcloud.android.playback.toggleplayback";
+        String PAUSE_ACTION             = "com.soundcloud.android.playback.pause";
+        String NEXT_ACTION              = "com.soundcloud.android.playback.next";
+        String PREVIOUS_ACTION          = "com.soundcloud.android.playback.previous";
+        String RESET_ALL                = "com.soundcloud.android.playback.reset"; // used on logout
+        String STOP_ACTION              = "com.soundcloud.android.playback.stop"; // from the notification
+        String ADD_LIKE_ACTION          = "com.soundcloud.android.like.add";
+        String REMOVE_LIKE_ACTION       = "com.soundcloud.android.like.remove";
+        String ADD_REPOST_ACTION        = "com.soundcloud.android.repost.add";
+        String REMOVE_REPOST_ACTION     = "com.soundcloud.android.repost.remove";
+        String RELOAD_QUEUE             = "com.soundcloud.android.reloadqueue";
+        String LOAD_TRACK_INFO          = "com.soundcloud.android.loadTrackInfo";
     }
 
     // broadcast notifications
     public interface Broadcasts {
-        String UPDATE_WIDGET_ACTION = "com.soundcloud.android.playback.updatewidgetaction";
-        String PLAYSTATE_CHANGED  = "com.soundcloud.android.playstatechanged";
-        String META_CHANGED       = "com.soundcloud.android.metachanged";
-        String PLAYQUEUE_CHANGED  = "com.soundcloud.android.playlistchanged";
-        String PLAYBACK_COMPLETE  = "com.soundcloud.android.playbackcomplete";
-        String PLAYBACK_ERROR     = "com.soundcloud.android.trackerror";
-        String STREAM_DIED        = "com.soundcloud.android.streamdied";
-        String TRACK_UNAVAILABLE  = "com.soundcloud.android.trackunavailable";
-        String COMMENTS_LOADED    = "com.soundcloud.android.commentsloaded";
-        String SEEKING            = "com.soundcloud.android.seeking";
-        String SEEK_COMPLETE      = "com.soundcloud.android.seekcomplete";
-        String BUFFERING          = "com.soundcloud.android.buffering";
-        String BUFFERING_COMPLETE = "com.soundcloud.android.bufferingcomplete";
+        String UPDATE_WIDGET_ACTION     = "com.soundcloud.android.playback.updatewidgetaction";
+        String PLAYSTATE_CHANGED        = "com.soundcloud.android.playstatechanged";
+        String META_CHANGED             = "com.soundcloud.android.metachanged";
+        String PLAYQUEUE_CHANGED        = "com.soundcloud.android.playlistchanged";
+        String PLAYBACK_COMPLETE        = "com.soundcloud.android.playbackcomplete";
+        String PLAYBACK_ERROR           = "com.soundcloud.android.trackerror";
+        String STREAM_DIED              = "com.soundcloud.android.streamdied";
+        String TRACK_UNAVAILABLE        = "com.soundcloud.android.trackunavailable";
+        String COMMENTS_LOADED          = "com.soundcloud.android.commentsloaded";
+        String SEEKING                  = "com.soundcloud.android.seeking";
+        String SEEK_COMPLETE            = "com.soundcloud.android.seekcomplete";
+        String BUFFERING                = "com.soundcloud.android.buffering";
+        String BUFFERING_COMPLETE       = "com.soundcloud.android.bufferingcomplete";
     }
 
 
@@ -225,7 +225,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(Actions.PLAY_ACTION);
-        commandFilter.addAction(Actions.TOGGLEPAUSE_ACTION);
+        commandFilter.addAction(Actions.TOGGLEPLAYBACK_ACTION);
         commandFilter.addAction(Actions.PAUSE_ACTION);
         commandFilter.addAction(Actions.NEXT_ACTION);
         commandFilter.addAction(Actions.PREVIOUS_ACTION);

@@ -20,7 +20,7 @@ public class ServiceRoutingTest extends InstrumentationTestCase {
 
     public void ignore_testActionIntents() {
         for (String action : new String[]{
-                CloudPlaybackService.Actions.TOGGLEPAUSE_ACTION,
+                CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION,
                 CloudPlaybackService.Actions.PAUSE_ACTION,
                 CloudPlaybackService.Actions.NEXT_ACTION,
                 CloudPlaybackService.Actions.PREVIOUS_ACTION,

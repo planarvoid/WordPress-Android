@@ -41,6 +41,30 @@ public class PlaybackReceiverTest {
     }
 
     @Test
+    public void nextActionShouldCallNextOnService() {
+        playbackReceiver.onReceive(Robolectric.application, new Intent(CloudPlaybackService.Actions.NEXT_ACTION));
+        verify(playbackService).next();
+    }
+
+    @Test
+    public void prevActionShouldCallNextOnService() {
+        playbackReceiver.onReceive(Robolectric.application, new Intent(CloudPlaybackService.Actions.PREVIOUS_ACTION));
+        verify(playbackService).prev();
+    }
+
+    @Test
+    public void togglePlaybackActionShouldCallNextOnService() {
+        playbackReceiver.onReceive(Robolectric.application, new Intent(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
+        verify(playbackService).togglePlayback();
+    }
+
+    @Test
+    public void pauseActionShouldCallNextOnService() {
+        playbackReceiver.onReceive(Robolectric.application, new Intent(CloudPlaybackService.Actions.PAUSE_ACTION));
+        verify(playbackService).pause();
+    }
+
+    @Test
     public void shouldCacheAndLoadTrackOnQueueViaParcelable() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
 

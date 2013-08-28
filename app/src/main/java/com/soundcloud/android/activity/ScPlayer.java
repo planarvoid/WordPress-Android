@@ -376,7 +376,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                     playbackService.togglePlayback();
                 }
             } else {
-                startService(new Intent(CloudPlaybackService.Actions.TOGGLEPAUSE_ACTION));
+                startService(new Intent(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
             }
 
             setPlaybackState();
