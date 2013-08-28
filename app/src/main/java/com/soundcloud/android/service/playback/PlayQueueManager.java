@@ -145,13 +145,6 @@ public class PlayQueueManager {
         }
     }
 
-    public void setTrackById(long toBePlayed) {
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(toBePlayed);
-        if (t != null) {
-            setTrack(t, true);
-        }
-    }
-
     public void setTrack(Track toBePlayed, boolean saveQueue) {
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();

@@ -142,7 +142,7 @@ public final class AlarmClock {
                     ScContentProvider.Parameter.CACHED, "1").build();
         }
         context.startService(new Intent(CloudPlaybackService.PLAY_ACTION, uri)
-                .putExtra(CloudPlaybackService.EXTRA_UNMUTE, true));
+                .putExtra(CloudPlaybackService.PlayExtras.unmute, true));
     }
 
     public static boolean isFeatureEnabled(Context context) {

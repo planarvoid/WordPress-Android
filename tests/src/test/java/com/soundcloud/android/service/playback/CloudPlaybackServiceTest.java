@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.playback;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.verify;
@@ -9,6 +10,7 @@ import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,12 +23,43 @@ public class CloudPlaybackServiceTest {
 
     private CloudPlaybackService service;
     private @Mock AssociationManager associationManager;
+    private @Mock PlayQueueManager playQueueManager;
 
     @Before
     public void setup() {
+        SoundCloudApplication.MODEL_MANAGER.clear();
         service = new CloudPlaybackService();
         service.onCreate();
         service.setAssociationManager(associationManager);
+        service.setPlayqueueManager(playQueueManager);
+    }
+
+    @Test
+    public void shouldCacheAndSetTrackOnQueueViaParcelable() throws CreateModelException {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+
+        Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
+        intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
+        intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+
+        service.onStartCommand(intent, 0, 0);
+
+        verify(playQueueManager).setTrack(eq(track), eq(true));
+        expect(SoundCloudApplication.MODEL_MANAGER.getCachedTrack(track.getId())).toEqual(track);
+    }
+
+    @Test
+    public void shouldSetTrackOnQueueViaTrackId() throws CreateModelException {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        SoundCloudApplication.MODEL_MANAGER.cache(track);
+
+        Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackId, track.getId());
+        intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+
+        service.onStartCommand(intent, 0, 0);
+
+        verify(playQueueManager).setTrack(eq(track), eq(true));
     }
 
     @Test

@@ -121,10 +121,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String BUFFERING          = "com.soundcloud.android.buffering";
     public static final String BUFFERING_COMPLETE = "com.soundcloud.android.bufferingcomplete";
 
-    // extras
-    public static final String EXTRA_UNMUTE       = "com.soundcloud.android.playback.extra.unmute"; // used by alarm clock
-    public static final String EXTRA_TRACK_ID     = "com.soundcloud.android.playback.extra.trackId";
-
     // private stuff
     private static final int TRACK_ENDED      = 1;
     private static final int SERVER_DIED      = 2;
@@ -190,9 +186,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     public interface PlayExtras{
-        String trackId = "track_id";
+        String track = Track.EXTRA;
+        String trackId = Track.EXTRA_ID;
         String playPosition = "play_position";
+        String startPlayback = "start_playback";
         String playFromXferCache = "play_from_xfer_cache";
+        String unmute = "unmute"; // used by alarm clock
     }
 
     public interface BroadcastExtras{
@@ -208,6 +207,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String isLike = "isLike";
         String isRepost = "isRepost";
     }
+
+
 
     @Override
     public void onCreate() {
@@ -1063,7 +1064,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             Log.d(TAG, "handlePlayAction("+intent+")");
         }
 
-        if (intent.getBooleanExtra(EXTRA_UNMUTE, false)) {
+        if (intent.getBooleanExtra(PlayExtras.unmute, false)) {
             final int volume = (int) Math.round(
                     mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
                     * 0.75d);
@@ -1071,26 +1072,29 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
         }
 
-        Track track = intent.getParcelableExtra(Track.EXTRA);
-        if (track != null) {
+        final boolean startPlayback = intent.getBooleanExtra(PlayExtras.startPlayback, true);
+        if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)){
             // go to the cache to ensure 1 copy of each track app wide
-            mPlayQueueManager.setTrack(SoundCloudApplication.MODEL_MANAGER.cache(track, ScResource.CacheUpdateMode.NONE), true);
-            openCurrent();
-        } else if (intent.hasExtra(EXTRA_TRACK_ID)) {
-            mPlayQueueManager.setTrackById(intent.getLongExtra(EXTRA_TRACK_ID, -1l));
-            openCurrent();
+            final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
+            mPlayQueueManager.setTrack(cachedTrack, true);
+            if (startPlayback) {
+                openCurrent();
+            }
+
         } else {
             final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
             if (intent.getData() != null) {
                 mPlayQueueManager.loadUri(intent.getData(), position, playlistXfer, position);
-                openCurrent();
+                if (startPlayback) openCurrent();
+
             } else if (intent.getBooleanExtra(PlayExtras.playFromXferCache, false)) {
                 mPlayQueueManager.setPlayQueue(playlistXfer, position);
                 playlistXfer = null;
-                openCurrent();
+                if (startPlayback) openCurrent();
+
             } else if (!mPlayQueueManager.isEmpty() || configureLastPlaylist()){
                 // random play intent, play whatever we had last
-                play();
+                if (startPlayback) play();
             }
         }
     }
@@ -1393,5 +1397,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     void setAssociationManager(AssociationManager associationManager) {
         this.mAssociationManager = associationManager;
+    }
+
+    void setPlayqueueManager(PlayQueueManager playqueueManager) {
+        this.mPlayQueueManager = playqueueManager;
     }
 }
