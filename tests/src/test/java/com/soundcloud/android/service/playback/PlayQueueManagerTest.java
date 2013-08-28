@@ -332,7 +332,7 @@ public class PlayQueueManagerTest {
         expect(pm.getUri().getPath()).toEqual(playlistUri.getPath());
 
         final Uri newUri = Content.PLAYLIST.forQuery("321");
-        PlayQueueManager.onPlaylistUriChanged(pm, DefaultTestRunner.application,playlistUri, newUri);
+        PlayQueueManager.onPlaylistUriChanged(pm, DefaultTestRunner.application, playlistUri, newUri);
         expect(pm.getUri().getPath()).toEqual(newUri.getPath());
     }
 
@@ -354,7 +354,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSetSingleTrack() throws Exception {
         List<Track> tracks = createTracks(1, true, 0);
-        pm.setTrack(tracks.get(0), true);
+        pm.loadTrack(tracks.get(0), true);
         expect(pm.length()).toEqual(1);
         expect(pm.getCurrentTrack()).toBe(tracks.get(0));
     }
@@ -398,7 +398,7 @@ public class PlayQueueManagerTest {
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
         for (Intent broadcastIntent : argumentCaptor.getAllValues()){
-            assertThat(broadcastIntent.getAction(), is(CloudPlaybackService.PLAYQUEUE_CHANGED));
+            assertThat(broadcastIntent.getAction(), is(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED));
         }
     }
 
@@ -412,7 +412,7 @@ public class PlayQueueManagerTest {
         when(observable.subscribe(any(Observer.class))).thenReturn(subscription);
 
         pm.loadExploreTracks(track);
-        pm.setTrack(track, false);
+        pm.loadTrack(track, false);
 
         expect(pm.isFetchingRelated()).toBeFalse();
         verify(subscription).unsubscribe();

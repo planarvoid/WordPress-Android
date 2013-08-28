@@ -1,5 +1,6 @@
 package com.soundcloud.android.fragment;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -28,7 +29,6 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.task.collection.CollectionParams;
@@ -206,9 +206,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         connectivityListener.registerHandler(connectivityHandler, CONNECTIVITY_MSG);
 
         IntentFilter playbackFilter = new IntentFilter();
-        playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
-        playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
-        playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+        playbackFilter.addAction(Broadcasts.META_CHANGED);
+        playbackFilter.addAction(Broadcasts.PLAYBACK_COMPLETE);
+        playbackFilter.addAction(Broadcasts.PLAYSTATE_CHANGED);
         getActivity().registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
         IntentFilter generalIntentFilter = new IntentFilter();
@@ -800,9 +800,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             if (mIgnorePlaybackStatus) return;
 
             final String action = intent.getAction();
-            if (CloudPlaybackService.META_CHANGED.equals(action)
-                || CloudPlaybackService.PLAYBACK_COMPLETE.equals(action)
-                || CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
+            if (Broadcasts.META_CHANGED.equals(action)
+                || Broadcasts.PLAYBACK_COMPLETE.equals(action)
+                || Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
 
                 adapter.notifyDataSetChanged();
             }

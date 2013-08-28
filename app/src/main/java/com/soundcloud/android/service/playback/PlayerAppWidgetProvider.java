@@ -1,5 +1,7 @@
 package com.soundcloud.android.service.playback;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.view.play.WidgetPlaybackRemoteViews;
@@ -36,7 +38,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
         // Send broadcast intent to any running CloudPlaybackService so it can
         // wrap around with an immediate update.
 
-        Intent updateIntent = new Intent(CloudPlaybackService.UPDATE_WIDGET_ACTION);
+        Intent updateIntent = new Intent(Broadcasts.UPDATE_WIDGET_ACTION);
         updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
         updateIntent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
         context.sendBroadcast(updateIntent);
@@ -69,12 +71,12 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
         String action = intent.getAction();
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "notify change " + intent);
         if (hasInstances(context)) {
-            if (action.equals(CloudPlaybackService.META_CHANGED) ||
-                    action.equals(CloudPlaybackService.PLAYBACK_COMPLETE) ||
-                    action.equals(CloudPlaybackService.PLAYSTATE_CHANGED) ||
-                    action.equals(CloudPlaybackService.BUFFERING) ||
-                    action.equals(CloudPlaybackService.BUFFERING_COMPLETE) ||
-                    action.equals(CloudPlaybackService.PLAYBACK_ERROR) ||
+            if (action.equals(Broadcasts.META_CHANGED) ||
+                    action.equals(Broadcasts.PLAYBACK_COMPLETE) ||
+                    action.equals(Broadcasts.PLAYSTATE_CHANGED) ||
+                    action.equals(Broadcasts.BUFFERING) ||
+                    action.equals(Broadcasts.BUFFERING_COMPLETE) ||
+                    action.equals(Broadcasts.PLAYBACK_ERROR) ||
                     action.equals(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
                             && intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1) == mCurrentTrackId) {
 
