@@ -235,13 +235,7 @@ public class PlayQueueManager {
         }
     }
 
-    public void loadExploreTracks(Track track){
-        loadExploreTracks(track, true);
-    }
-
-    public void loadExploreTracks(Track track, boolean saveQueue){
-        loadTrack(track, saveQueue);
-
+    public void fetchRelatedTracks(Track track){
         mAppendingState = AppendState.LOADING;
         mRelatedSubscription = mExploreTrackOperations.getRelatedTracks(track).subscribe(new Observer<Track>() {
             @Override

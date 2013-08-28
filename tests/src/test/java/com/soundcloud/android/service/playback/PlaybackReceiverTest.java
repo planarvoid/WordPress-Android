@@ -101,6 +101,22 @@ public class PlaybackReceiverTest {
     }
 
     @Test
+    public void shouldCacheLoadTrackAndFetchRelatedOnQueueViaParcelable() throws CreateModelException {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+
+        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
+        intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
+        intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, true);
+        intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+
+        verify(playQueueManager).loadTrack(eq(track), eq(true));
+        verify(playQueueManager).fetchRelatedTracks(eq(track));
+        expect(SoundCloudApplication.MODEL_MANAGER.getCachedTrack(track.getId())).toEqual(track);
+    }
+
+    @Test
     public void shouldLoadTrackOnQueueViaTrackId() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         SoundCloudApplication.MODEL_MANAGER.cache(track);

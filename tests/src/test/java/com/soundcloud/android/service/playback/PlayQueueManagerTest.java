@@ -365,7 +365,8 @@ public class PlayQueueManagerTest {
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<Track>never());
 
         expect(pm.length()).toBe(0);
-        pm.loadExploreTracks(track);
+        pm.loadTrack(track, false);
+        pm.fetchRelatedTracks(track);
         expect(pm.length()).toBe(1);
         expect(pm.isFetchingRelated()).toBeTrue();
     }
@@ -375,7 +376,7 @@ public class PlayQueueManagerTest {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<Track>error(new Exception()));
 
-        pm.loadExploreTracks(track);
+        pm.fetchRelatedTracks(track);
         expect(pm.isFetchingRelated()).toBeFalse();
         expect(pm.lastRelatedFetchFailed()).toBeTrue();
     }
@@ -389,7 +390,8 @@ public class PlayQueueManagerTest {
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<Track>just(track));
 
         expect(pm.length()).toBe(0);
-        pm.loadExploreTracks(track, false);
+        pm.loadTrack(track, false);
+        pm.fetchRelatedTracks(track);
         expect(pm.length()).toBe(2);
 
         expect(pm.isFetchingRelated()).toBeFalse();
@@ -411,7 +413,7 @@ public class PlayQueueManagerTest {
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
         when(observable.subscribe(any(Observer.class))).thenReturn(subscription);
 
-        pm.loadExploreTracks(track);
+        pm.fetchRelatedTracks(track);
         pm.loadTrack(track, false);
 
         expect(pm.isFetchingRelated()).toBeFalse();
@@ -427,7 +429,7 @@ public class PlayQueueManagerTest {
         final Subscription subscription = Mockito.mock(Subscription.class);
         when(observable.subscribe(any(Observer.class))).thenReturn(subscription);
 
-        pm.loadExploreTracks(track);
+        pm.fetchRelatedTracks(track);
         pm.loadUri(Content.TRACKS.uri, 0, null);
 
         expect(pm.isFetchingRelated()).toBeFalse();
