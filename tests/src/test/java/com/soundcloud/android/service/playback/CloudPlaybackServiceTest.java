@@ -5,9 +5,11 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -17,6 +19,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.Intent;
+
+import java.util.ArrayList;
 
 @RunWith(DefaultTestRunner.class)
 public class CloudPlaybackServiceTest {
@@ -62,7 +66,46 @@ public class CloudPlaybackServiceTest {
         verify(playQueueManager).loadTrack(eq(track), eq(true));
     }
 
+    @Test
+    public void shouldLoadUriOnQueue() throws CreateModelException {
+        Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
+        intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+        intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+        intent.setData(Content.ME_LIKES.uri);
 
+        service.onStartCommand(intent, 0, 0);
+
+        verify(playQueueManager).loadUri(Content.ME_LIKES.uri, 2, null, 2);
+    }
+
+    @Test
+    public void shouldLoadUriOnQueueWithInitalPlaylist() throws CreateModelException {
+        CloudPlaybackService.playlistXfer = Lists.newArrayList(TestHelper.getModelFactory().createModel(Track.class));
+
+        Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
+        intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+        intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+        intent.setData(Content.ME_LIKES.uri);
+
+        service.onStartCommand(intent, 0, 0);
+
+        verify(playQueueManager).loadUri(Content.ME_LIKES.uri, 2, CloudPlaybackService.playlistXfer, 2);
+    }
+
+    @Test
+    public void shouldSetPlayQueueWithPositionOnPlayIntentWithNoTrackOrUri() throws CreateModelException {
+        final ArrayList<Track> transferList = Lists.newArrayList(TestHelper.getModelFactory().createModel(Track.class));
+        CloudPlaybackService.playlistXfer = transferList;
+
+        Intent intent = new Intent(CloudPlaybackService.PLAY_ACTION);
+        intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+        intent.putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
+        intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+
+        service.onStartCommand(intent, 0, 0);
+
+        verify(playQueueManager).setPlayQueue(transferList, 2);
+    }
 
     @Test
     public void shouldAddLikeForTrackViaIntent() throws Exception {
