@@ -42,8 +42,8 @@ public class ExploreTracksOperations extends ScheduledOperations {
     }
 
     public Observable<Track> getRelatedTracks(Track seedTrack) {
-        APIRequest<List<Track>> request = SoundCloudAPIRequest.RequestBuilder.<List<Track>>get("/users/terekke/tracks.json")
-                .addQueryParameters("limit", "15")
+        APIRequest<List<Track>> request = SoundCloudAPIRequest.RequestBuilder.<List<Track>>get("/users/bad-panda-records/tracks.json")
+                .addQueryParameters("limit", "100")
                 .forPublicAPI()
                 .forResource(new TypeToken<List<Track>>() {}).build();
         return mRxHttpClient.fetchModels(request);
