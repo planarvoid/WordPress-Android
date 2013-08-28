@@ -306,11 +306,4 @@ public class PlaybackReceiverTest {
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).saveProgressAndStop();
     }
-
-    /*
-    } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
-            if (mPlaybackService.getState() == EMPTY_PLAYLIST) {
-                mPlaybackService.openCurrent();
-            }
-     */
 }
