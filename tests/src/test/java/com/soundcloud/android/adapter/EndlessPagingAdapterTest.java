@@ -13,14 +13,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
@@ -233,6 +231,13 @@ public class EndlessPagingAdapterTest {
         createAdapter(Observable.from(pageObservable));
         adapter.onScroll(absListView, 0, 0, 0);
         verifyZeroInteractions(pageObservable);
+    }
+
+    @Test
+    public void onCompleteInPagingObserverShouldSetNextPageObservableToNull() {
+        createAdapter(Observable.from(Observable.just(new Track(1)), Observable.just(new Track(2))));
+        adapter.subscribe();
+        expect(adapter.hasMorePages()).toBeFalse();
     }
 
     private void createAdapter(){

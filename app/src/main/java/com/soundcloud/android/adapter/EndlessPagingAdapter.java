@@ -1,12 +1,12 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.rx.observers.ScObserver;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Action1;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -124,6 +124,10 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         }
     }
 
+    public boolean hasMorePages() {
+        return mNextPageObservable != null;
+    }
+
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
     }
@@ -159,7 +163,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         mDelegateObserver.onNext(item);
     }
 
-    private final class PagingObserver implements Action1<Observable<T>> {
+    private final class PagingObserver extends ScObserver<Observable<T>> {
         private Observer<T> firstPageObserver;
 
         public PagingObserver(Observer<T> firstPageObserver) {
@@ -167,7 +171,17 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         }
 
         @Override
-        public void call(Observable<T> nextPageObservable) {
+        public void onCompleted() {
+            EndlessPagingAdapter.this.mNextPageObservable = null;
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            super.onError(e);
+        }
+
+        @Override
+        public void onNext(Observable<T> nextPageObservable) {
             if (firstPageObserver != null) {
                 nextPageObservable.observeOn(AndroidSchedulers.mainThread()).subscribe(firstPageObserver);
                 firstPageObserver = null;
