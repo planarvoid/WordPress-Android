@@ -192,7 +192,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String trackId = Track.EXTRA_ID;
         String playPosition = "play_position";
         String startPlayback = "start_playback";
-        String playFromXferCache = "play_from_xfer_cache";
+        String playFromXferList = "play_from_xfer_list";
         String unmute = "unmute"; // used by alarm clock
         String fetchRelated = "fetch_related";
     }
