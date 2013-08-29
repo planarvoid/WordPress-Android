@@ -10,14 +10,15 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-public class ExploreTracksCategory implements Parcelable  {
+public class ExploreTracksCategory implements Parcelable {
 
     public static final String EXTRA = "category";
+    static final String SUGGESTED_TRACKS_LINK_REL = "suggested_tracks";
 
     private String mTitle;
     private Map<String, Link> mLinks = Collections.emptyMap();
 
-    public ExploreTracksCategory(){ /* For Deserialization */ }
+    public ExploreTracksCategory() { /* For Deserialization */ }
 
     public ExploreTracksCategory(String title) {
         this.mTitle = title;
@@ -44,6 +45,10 @@ public class ExploreTracksCategory implements Parcelable  {
 
     public void setLinks(Map<String, Link> links) {
         this.mLinks = links;
+    }
+
+    public String getSuggestedTracksPath() {
+        return mLinks.get(SUGGESTED_TRACKS_LINK_REL).getHref();
     }
 
     @Override

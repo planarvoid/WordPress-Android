@@ -15,6 +15,14 @@ public class ModelCollection<T> {
     private List<T> mCollection = Collections.emptyList();
     private Map<String, Link> mLinks = Collections.emptyMap();
 
+    public ModelCollection(List<T> collection) {
+        mCollection = collection;
+    }
+
+    public ModelCollection() {
+        /* deserialization */
+    }
+
     public List<T> getCollection() {
         return mCollection;
     }

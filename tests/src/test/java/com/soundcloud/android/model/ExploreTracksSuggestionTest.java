@@ -25,7 +25,7 @@ public class ExploreTracksSuggestionTest {
         expect(exploreTracksSuggestion.getUser().getUrn()).toEqual(ClientUri.fromUri("soundcloud:users:7861090"));
         expect(exploreTracksSuggestion.isCommentable()).toBeTrue();
         expect(exploreTracksSuggestion.getStreamUrl()).toEqual("https://api.soundcloud.com/tracks/96017719/stream");
-        expect(exploreTracksSuggestion.getmWaveformUrl()).toEqual("https://w1.sndcdn.com/GXIXy4KWvMRG_m.png");
+        expect(exploreTracksSuggestion.getWaveformUrl()).toEqual("https://w1.sndcdn.com/GXIXy4KWvMRG_m.png");
         expect(exploreTracksSuggestion.getTagList()).toContainExactly("daft","punk","cover","chronologic");
         expect(exploreTracksSuggestion.getCreatedAt()).toEqual(Wrapper.CloudDateFormat.fromString("2013/06/08 16:59:05 +0000"));
     }
@@ -49,7 +49,7 @@ public class ExploreTracksSuggestionTest {
         expect(track1.getUser()).toEqual(track2.getUser());
         expect(track1.isCommentable()).toEqual(track2.isCommentable());
         expect(track1.getStreamUrl()).toEqual(track2.getStreamUrl());
-        expect(track1.getmWaveformUrl()).toEqual(track2.getmWaveformUrl());
+        expect(track1.getWaveformUrl()).toEqual(track2.getWaveformUrl());
         expect(track1.getTagList()).toEqual(track2.getTagList());
         expect(track1.getCreatedAt()).toEqual(track2.getCreatedAt());
     }

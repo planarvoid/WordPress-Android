@@ -2,12 +2,12 @@ package com.soundcloud.android.model;
 
 import android.os.Parcel;
 
-public class MiniUser extends ScModel {
+public class UserSummary extends ScModel {
     private String mUsername;
 
-    public MiniUser() { /* for Deserialization */ }
+    public UserSummary() { /* for Deserialization */ }
 
-    public MiniUser(String urn) {
+    public UserSummary(String urn) {
         super(urn);
     }
 
@@ -31,18 +31,18 @@ public class MiniUser extends ScModel {
         dest.writeString(this.mUsername);
     }
 
-    MiniUser(Parcel in) {
+    UserSummary(Parcel in) {
         super(in);
         this.mUsername = in.readString();
     }
 
-    public static Creator<MiniUser> CREATOR = new Creator<MiniUser>() {
-        public MiniUser createFromParcel(Parcel source) {
-            return new MiniUser(source);
+    public static Creator<UserSummary> CREATOR = new Creator<UserSummary>() {
+        public UserSummary createFromParcel(Parcel source) {
+            return new UserSummary(source);
         }
 
-        public MiniUser[] newArray(int size) {
-            return new MiniUser[size];
+        public UserSummary[] newArray(int size) {
+            return new UserSummary[size];
         }
     };
 }

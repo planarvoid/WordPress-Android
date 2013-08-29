@@ -13,13 +13,14 @@ public class ExploreTracksSuggestion extends ScModel {
 
     private String          mTitle;
     private String          mGenre;
-    private MiniUser        mUser;
+    private UserSummary     mUser;
     private boolean         mCommentable;
     private int             mDuration = NOT_SET;
     private String          mStreamUrl;
     private String          mWaveformUrl;
     private List<String>    mTagList;
     private Date            mCreatedAt;
+    private long            mPlaybackCount;
 
     public ExploreTracksSuggestion() { /* for Deserialization */ }
 
@@ -27,7 +28,7 @@ public class ExploreTracksSuggestion extends ScModel {
         super(in);
         this.mTitle = in.readString();
         this.mGenre = in.readString();
-        this.mUser = in.readParcelable(MiniUser.class.getClassLoader());
+        this.mUser = in.readParcelable(UserSummary.class.getClassLoader());
         this.mCommentable = in.readByte() != 0;
         this.mDuration = in.readInt();
         this.mStreamUrl = in.readString();
@@ -58,11 +59,17 @@ public class ExploreTracksSuggestion extends ScModel {
         this.mGenre = genre;
     }
 
-    public MiniUser getUser() {
+    public UserSummary getUser() {
         return mUser;
     }
 
-    public void setUser(MiniUser user) {
+    public String getUserName(){
+        // TODO, remove this once we figure out the embedded problem
+        return mUser != null ? mUser.getUsername() : "";
+    }
+
+
+    public void setUser(UserSummary user) {
         this.mUser = user;
     }
 
@@ -91,8 +98,17 @@ public class ExploreTracksSuggestion extends ScModel {
         this.mStreamUrl = streamUrl;
     }
 
-    public String getmWaveformUrl() {
+    public String getWaveformUrl() {
         return mWaveformUrl;
+    }
+
+    @JsonProperty("playback_count")
+    public void setPlaybackCount(long playback_count) {
+        this.mPlaybackCount = playback_count;
+    }
+
+    public long getPlaybackCount() {
+        return mPlaybackCount;
     }
 
     @JsonProperty("waveform_url")

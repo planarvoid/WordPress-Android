@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.ExploreTracksSuggestion;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
@@ -39,7 +39,7 @@ public class ExploreTracksAdapterTest {
     @Test
     public void shouldBindItemView() throws CreateModelException {
         adapter = new ExploreTracksAdapter(mock(Observable.class), mock(ListFragmentObserver.class));
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        ExploreTracksSuggestion track = TestHelper.getModelFactory().createModel(ExploreTracksSuggestion.class);
         adapter.addItem(track);
 
         View itemView = mock(View.class);

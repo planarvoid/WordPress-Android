@@ -4,8 +4,10 @@ import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ExploreTracksCategories;
+import com.soundcloud.android.model.ExploreTracksCategory;
+import com.soundcloud.android.model.ExploreTracksSuggestion;
+import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
@@ -32,13 +34,25 @@ public class ExploreTracksOperations extends ScheduledOperations {
         return mRxHttpClient.fetchModels(request);
     }
 
-    public Observable<Observable<Track>> getSuggestedTracks() {
-        APIRequest<CollectionHolder<Track>> request = SoundCloudAPIRequest.RequestBuilder.<CollectionHolder<Track>>get("/users/ghostly/tracks.json")
-                .addQueryParameters("linked_partitioning", "1")
+    public Observable<Observable<ExploreTracksSuggestion>> getPopularMusic() {
+        return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path());
+    }
+
+    public Observable<Observable<ExploreTracksSuggestion>> getPopularAudio() {
+        return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path());
+    }
+
+    public Observable<Observable<ExploreTracksSuggestion>> getSuggestedTracksByCategory(ExploreTracksCategory category) {
+        return getSuggestedTracks(category.getSuggestedTracksPath());
+    }
+
+    private Observable<Observable<ExploreTracksSuggestion>> getSuggestedTracks(String endpoint) {
+        APIRequest<ModelCollection<ExploreTracksSuggestion>> request = SoundCloudAPIRequest.RequestBuilder.<ModelCollection<ExploreTracksSuggestion>>get(endpoint)
                 .addQueryParameters("limit", "15")
-                .forPublicAPI()
-                .forResource(new TrackCollectionHolderToken()).build();
-        return mRxHttpClient.<Track>fetchPagedModels(request);
+                .forPrivateAPI(1)
+                .forResource(new SuggestionsModelCollectionToken()).build();
+
+        return mRxHttpClient.fetchPagedModels(request);
     }
 
     public Observable<Track> getRelatedTracks(Track seedTrack) {
@@ -49,7 +63,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
         return mRxHttpClient.fetchModels(request);
     }
 
-    private static class TrackCollectionHolderToken extends TypeToken<CollectionHolder<Track>> {}
+    private static class SuggestionsModelCollectionToken extends TypeToken<ModelCollection<ExploreTracksSuggestion>> {}
     private static class ExploreTracksCategoriesToken extends TypeToken<ExploreTracksCategories> {}
 
 }

@@ -165,6 +165,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
 
     private final class PagingObserver extends ScObserver<Observable<T>> {
         private Observer<T> firstPageObserver;
+        private boolean isFirstPage = true;
 
         public PagingObserver(Observer<T> firstPageObserver) {
             this.firstPageObserver = firstPageObserver;
@@ -182,9 +183,9 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
 
         @Override
         public void onNext(Observable<T> nextPageObservable) {
-            if (firstPageObserver != null) {
+            if (isFirstPage) {
+                isFirstPage = false;
                 nextPageObservable.observeOn(AndroidSchedulers.mainThread()).subscribe(firstPageObserver);
-                firstPageObserver = null;
             } else {
                 EndlessPagingAdapter.this.mNextPageObservable = nextPageObservable;
             }

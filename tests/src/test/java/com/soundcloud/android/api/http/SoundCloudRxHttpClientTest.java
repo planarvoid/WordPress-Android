@@ -333,10 +333,10 @@ public class SoundCloudRxHttpClientTest {
         User userOne = mock(User.class);
         User userTwo = mock(User.class);
         List<User> users = newArrayList(userOne, userTwo);
-        TypeToken<CollectionHolder<User>> resourceType = new TypeToken<CollectionHolder<User>>() {};
+        TypeToken<ModelCollection<User>> resourceType = new TypeToken<ModelCollection<User>>() {};
         when(apiRequest.getResourceType()).thenReturn(resourceType);
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
-        when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(new CollectionHolder(users));
+        when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(new ModelCollection(users));
 
         rxHttpClient.fetchPagedModels(apiRequest).subscribe(observer);
 

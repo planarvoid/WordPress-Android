@@ -34,4 +34,16 @@ public class ExploreTracksCategoryTest {
         expect(category.getLinks().get("link2")).toEqual(mCategory.getLinks().get("link2"));
 
     }
+
+    @Test
+    public void shouldGetSuggestedTracksPath(){
+        mCategory = new ExploreTracksCategory("Title1");
+
+        final Map<String, Link> links = new HashMap<String, Link>();
+        final String href = "http://link1";
+        links.put(ExploreTracksCategory.SUGGESTED_TRACKS_LINK_REL, new Link(href));
+        mCategory.setLinks(links);
+
+        expect(mCategory.getSuggestedTracksPath()).toBe(href);
+    }
 }
