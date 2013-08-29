@@ -1,9 +1,11 @@
 package com.soundcloud.android.utils;
 
+import com.soundcloud.android.SoundCloudApplication;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-public class ExceptionUtils {
+public class ErrorUtils {
     /**
      * A convenient way of extracting the stack trace from an
      * exception.
@@ -18,5 +20,10 @@ public class ExceptionUtils {
         PrintWriter pw = new PrintWriter(sw, true);
         t.printStackTrace(pw);
         return sw.getBuffer().toString();
+    }
+
+    public static void reportThrowable(Throwable t){
+        SoundCloudApplication.handleSilentException(t.getMessage(), t);
+        t.printStackTrace();
     }
 }

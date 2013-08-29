@@ -1,6 +1,6 @@
 package com.soundcloud.android.rx.observers;
 
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.ErrorUtils;
 import rx.android.RxFragmentObserver;
 
 import android.support.v4.app.Fragment;
@@ -12,8 +12,7 @@ public class ScFragmentObserver<T extends Fragment, R> extends RxFragmentObserve
 
     @Override
     public void onError(Throwable error) {
-        SoundCloudApplication.handleSilentException(error.getMessage(), error);
-        error.printStackTrace();
+        ErrorUtils.reportThrowable(error);
         super.onError(error);
     }
 }
