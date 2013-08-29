@@ -43,7 +43,7 @@ public final class PlayUtils {
                         .setData(info.uri);
             } else {
                 intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                        .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
+                        .putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
             }
         }
         if (goToPlayer) {
@@ -60,7 +60,7 @@ public final class PlayUtils {
     }
 
     public static Track getTrackFromIntent(Intent intent){
-        if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferCache,false)){
+        if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList,false)){
             final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
             final List<Track> list = CloudPlaybackService.playlistXfer;
             if (list != null && position > -1 && position < list.size() && list.get(position).getPlayable() instanceof Track){

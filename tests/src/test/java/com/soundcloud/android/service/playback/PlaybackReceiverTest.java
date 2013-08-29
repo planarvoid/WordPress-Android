@@ -147,8 +147,40 @@ public class PlaybackReceiverTest {
 
         Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
-        intent.putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
+        intent.putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+
+        verify(playQueueManager).setPlayQueue(transferList, 2);
+    }
+
+    @Test
+    public void shouldSetPlayQueueToLoadUriIfUriEvenWithInitalTrack() throws CreateModelException {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+
+        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
+        intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
+        intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+        intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+        intent.setData(Content.ME_LIKES.uri);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+
+        verify(playQueueManager).loadUri(Content.ME_LIKES.uri, 2, null, 2);
+    }
+
+    @Test
+    public void shouldSetPlayQueueToTransferListEvenWithInitalTrack() throws CreateModelException {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        final ArrayList<Track> transferList = Lists.newArrayList(TestHelper.getModelFactory().createModel(Track.class));
+        CloudPlaybackService.playlistXfer = transferList;
+
+        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
+        intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
+        intent.putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
+        intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+        intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
