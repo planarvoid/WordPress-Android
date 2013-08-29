@@ -1,6 +1,7 @@
 package com.soundcloud.android.streaming;
 
 
+import android.content.Context;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import org.apache.http.Header;
@@ -69,13 +70,13 @@ public class StreamProxy implements Runnable {
     /* package */ final StreamLoader loader;
     /* package */ final StreamStorage storage;
 
-    public StreamProxy(SoundCloudApplication app) {
-        this(app, 0);
+    public StreamProxy(Context context) {
+        this(context, 0);
     }
 
-    public StreamProxy(SoundCloudApplication app, int port) {
-        storage = new StreamStorage(app, Consts.EXTERNAL_STREAM_DIRECTORY);
-        loader = new StreamLoader(app, storage);
+    public StreamProxy(Context context, int port) {
+        storage = new StreamStorage(context, Consts.EXTERNAL_STREAM_DIRECTORY);
+        loader = new StreamLoader(context, storage);
         mPort = port;
     }
 
