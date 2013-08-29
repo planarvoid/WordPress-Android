@@ -14,7 +14,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.http.json.JsonTransformer;
-import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -34,7 +34,6 @@ import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -106,18 +105,18 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
             @Override
             public Subscription call(Observer<ModelType> itemObserver) {
                 try {
-                    Observable<CollectionHolder<ModelType>> pageRequest = fetchModels(apiRequest);
-                    final CollectionHolder<ModelType> page = pageRequest.toBlockingObservable().last();
+                    Observable<ModelCollection<ModelType>> pageRequest = fetchModels(apiRequest);
+                    final ModelCollection<ModelType> page = pageRequest.toBlockingObservable().last();
 
                     // emit items
-                    RxUtils.emitIterable(itemObserver, page);
+                    RxUtils.emitIterable(itemObserver, page.getCollection());
                     itemObserver.onCompleted();
 
                     // emit next page or done
-                    if (!TextUtils.isEmpty(page.next_href)) {
+                    if (page.getNextLink().isPresent()) {
                         // TODO, honor params from initial request
-                        final APIRequest<?> nextRequest =  SoundCloudAPIRequest.RequestBuilder.get(page.getNextHref())
-                                .forPublicAPI()
+                        final APIRequest<?> nextRequest = SoundCloudAPIRequest.RequestBuilder.get(page.getNextLink().get().getHref())
+                                .forPrivateAPI(1)
                                 .forResource(apiRequest.getResourceType()).build();
                         pageObserver.onNext(getNextPage(pageObserver, nextRequest));
                     } else {
@@ -127,7 +126,6 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
                     itemObserver.onError(e);
                 }
                 return Subscriptions.empty();
-
             }
         }));
     }
