@@ -625,7 +625,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
             // if this comes from a shortcut, we may not have the stream url yet. we should get it on info load
             if (mCurrentTrack != null && mCurrentTrack.isStreamable()) {
-                mMediaPlayer.setDataSource(mProxy.createUri(mCurrentTrack.stream_url, next == null ? null : next.stream_url).toString());
+
+                mMediaPlayer.setDataSource(mProxy.createUri(mCurrentTrack.getStreamUrlWithAppendedId(), next == null ? null : next.getStreamUrlWithAppendedId()).toString());
             }
 
             mMediaPlayer.prepareAsync();
@@ -1297,7 +1298,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     openCurrent();
                     return true;
                 } else {
-                    StreamItem item = mCurrentTrack != null ? mProxy.getStreamItem(mCurrentTrack.stream_url) : null;
+                    StreamItem item = mCurrentTrack != null ? mProxy.getStreamItem(mCurrentTrack.getStreamUrlWithAppendedId()) : null;
                     Log.d(TAG, "stream disconnected, giving up");
                     mConnectRetries = 0;
                     DebugUtils.reportMediaPlayerError(CloudPlaybackService.this, item, what, extra);
