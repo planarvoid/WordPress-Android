@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.sync;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.Wrapper;
@@ -104,9 +105,15 @@ import java.io.IOException;
             handleException(e, mResultKey);
             mResult = ApiSyncResult.fromAuthException(mContentUri);
             mContext.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
+
+        } catch (AndroidCloudAPI.UnexpectedResponseException e) {
+            handleException(e, mResultKey);
+            mResult = ApiSyncResult.fromUnexpectedResponseException(mContentUri);
+
         } catch (IOException e) {
             handleException(e, mResultKey);
             mResult = ApiSyncResult.fromIOException(mContentUri);
+
         } finally {
             // should be taken care of when thread dies, but needed for tests
             Wrapper.setBackgroundMode(false);

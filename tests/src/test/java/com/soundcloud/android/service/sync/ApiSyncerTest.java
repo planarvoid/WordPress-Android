@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.robolectric.TestHelper.assertResolverNotified;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.model.Playlist;
@@ -421,8 +422,8 @@ public class ApiSyncerTest {
         expect(a1.getPlayable().permalink).toEqual("private-share-test");
     }
 
-    @Test(expected = IOException.class)
-    public void shouldThrowIOException() throws Exception {
+    @Test(expected = AndroidCloudAPI.UnexpectedResponseException.class)
+    public void shouldThrowUnexpectedResponseExceptionOn500() throws Exception {
         Robolectric.setDefaultHttpResponse(500, "error");
         sync(Content.ME_LIKES.uri);
     }
