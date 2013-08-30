@@ -119,6 +119,12 @@ public class User extends ScResource implements UserHolder {
         updateFromCursor(cursor);
     }
 
+    public User(UserSummary user) {
+        setUrn(user.getUrn());
+        setUsername(user.getUsername());
+
+    }
+
     public User updateFromCursor(Cursor cursor) {
         mID = cursor.getLong(cursor.getColumnIndex(Users._ID));
         permalink = cursor.getString(cursor.getColumnIndex(Users.PERMALINK));

@@ -17,6 +17,7 @@ import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
@@ -63,7 +64,7 @@ public class Track extends Playable implements PlayableHolder {
     @JsonView(Views.Full.class) public String key_signature;
     @JsonView(Views.Full.class) public float bpm;
 
-    @JsonView(Views.Full.class) public int playback_count = NOT_SET;
+    @JsonView(Views.Full.class) public long playback_count = NOT_SET;
     @JsonView(Views.Full.class) public int download_count = NOT_SET;
     @JsonView(Views.Full.class) public int comment_count  = NOT_SET;
 
@@ -104,6 +105,20 @@ public class Track extends Playable implements PlayableHolder {
     @JsonIgnore public FetchModelTask<Track> load_info_task;
     @JsonIgnore public LoadCommentsTask load_comments_task;
     @JsonIgnore public int last_playback_error = -1;
+
+    public Track(ExploreTracksSuggestion suggestion) {
+        setUrn(suggestion.getUrn());
+        setUser(new User(suggestion.getUser()));
+        setTitle(suggestion.getTitle());
+        artwork_url = suggestion.getArtworkUrl();
+        genre = suggestion.getGenre();
+        commentable = suggestion.isCommentable();
+        stream_url = suggestion.getStreamUrl();
+        waveform_url = suggestion.getWaveformUrl();
+        tag_list = TextUtils.join(" ", suggestion.getUserTags());
+        created_at = suggestion.getCreatedAt();
+        playback_count = suggestion.getPlaybackCount();
+    }
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -164,7 +179,7 @@ public class Track extends Playable implements PlayableHolder {
         b.putString("track_type", track_type);
         b.putString("key_signature", key_signature);
         b.putFloat("bpm", bpm);
-        b.putInt("playback_count", playback_count);
+        b.putLong("playback_count", playback_count);
         b.putInt("download_count", download_count);
         b.putInt("comment_count", comment_count);
         b.putInt("reposts_count", reposts_count);
@@ -265,7 +280,7 @@ public class Track extends Playable implements PlayableHolder {
         track_type = b.getString("track_type");
         key_signature = b.getString("key_signature");
         bpm = b.getFloat("bpm");
-        playback_count = b.getInt("playback_count");
+        playback_count = b.getLong("playback_count");
         download_count = b.getInt("download_count");
         comment_count = b.getInt("comment_count");
         reposts_count = b.getInt("reposts_count");
@@ -575,5 +590,10 @@ public class Track extends Playable implements PlayableHolder {
 
     public boolean isLoadingInfo() {
         return !AndroidUtils.isTaskFinished(load_info_task);
+    }
+
+    public String getStreamUrlWithAppendedId(){
+        return Uri.parse(stream_url).buildUpon().appendQueryParameter(StreamItem.TRACK_ID_KEY,
+                String.valueOf(getId())).build().toString();
     }
 }
