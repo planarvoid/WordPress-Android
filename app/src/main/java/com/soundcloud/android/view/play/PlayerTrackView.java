@@ -11,9 +11,11 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.task.LoadCommentsTask;
@@ -199,8 +201,16 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     private void updateAvatar(boolean postAtFront) {
-        if (mTrack != null && mTrack.hasAvatar()) {
-            ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(getContext(), mTrack.getAvatarUrl()), mAvatar);
+        if (mTrack != null && mTrack.getUser() != null) {
+            final User user = mTrack.getUser();
+            if (user.hasAvatarUrl()){
+                ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(getContext(), user.avatar_url), mAvatar);
+            } else {
+                // TODO, fix this ghetto avatar switching, put on model
+                final ImageSize listItemImageSize = ImageSize.getListItemImageSize(getContext());
+                final ClientUri userClientUri = new ClientUri(ClientUri.forUser(mTrack.getUser().getId()));
+                ImageLoader.getInstance().displayImage(userClientUri.imageUri(listItemImageSize).toString(), mAvatar);
+            }
         } else {
             ImageLoader.getInstance().cancelDisplayTask(mAvatar);
         }

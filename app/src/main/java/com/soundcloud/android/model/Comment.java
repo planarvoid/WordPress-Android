@@ -133,7 +133,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     public void prefetchAvatar(Context c) {
         ImageLoader.getInstance().loadImage(
-                ImageSize.formatUriForList(c, user.getAvatarUrl()), ImageOptionsFactory.prefetch(), null);
+                ImageSize.formatUriForList(c, user.getNonDefaultAvatarUrl()), ImageOptionsFactory.prefetch(), null);
     }
 
     @Override

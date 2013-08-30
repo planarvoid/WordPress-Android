@@ -338,7 +338,11 @@ public class User extends ScResource implements UserHolder {
         return this;
     }
 
-    public String getAvatarUrl(){
+    public boolean hasAvatarUrl(){
+        return !TextUtils.isEmpty(avatar_url);
+    }
+
+    public String getNonDefaultAvatarUrl(){
         return shouldLoadIcon() ? avatar_url : null;
     }
 

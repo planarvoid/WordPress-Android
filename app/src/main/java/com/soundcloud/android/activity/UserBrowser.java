@@ -116,7 +116,7 @@ public class UserBrowser extends ScActivity implements
             @Override
             public void onClick(View v) {
                 if (mUser != null){
-                    final String avatarUrl = mUser.getAvatarUrl();
+                    final String avatarUrl = mUser.getNonDefaultAvatarUrl();
                     if (!TextUtils.isEmpty(avatarUrl)) {
                         new FullImageDialog(UserBrowser.this, ImageSize.CROP.formatUri(avatarUrl)).show();
                     }
@@ -373,7 +373,7 @@ public class UserBrowser extends ScActivity implements
             mFollowerCount.setText(String.valueOf(user.followers_count));
         }
 
-        ImageLoader.getInstance().displayImage(user.getAvatarUrl(), mIcon,
+        ImageLoader.getInstance().displayImage(user.getNonDefaultAvatarUrl(), mIcon,
                 ImageOptionsFactory.adapterView(R.drawable.avatar_badge_large));
 
         invalidateOptionsMenu();
