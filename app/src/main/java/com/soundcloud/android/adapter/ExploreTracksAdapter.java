@@ -5,6 +5,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.ExploreTracksSuggestion;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.view.adapter.GridSpacer;
@@ -54,7 +55,8 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());
         viewHolder.genre.setText(track.getGenre());
-        viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, track.getPlaybackCount()));
+        final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getPlaybackCount());
+        viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, playcountWithCommas));
         final String artworkUri = ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtworkUrl());
         ImageLoader.getInstance().displayImage(artworkUri, viewHolder.imageView, mDisplayImageOptions);
 
