@@ -130,4 +130,5 @@
     <dimen name="explore_suggested_track_category_bottom_text_size">12sp</dimen>
 
     <dimen name="empty_message_margin_left_right">20dp</dimen>
+    <dimen name="tab_height">48dp</dimen>
 </resources>
