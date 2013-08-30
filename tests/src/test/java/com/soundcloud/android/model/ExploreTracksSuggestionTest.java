@@ -18,16 +18,18 @@ public class ExploreTracksSuggestionTest {
         ExploreTracksSuggestion exploreTracksSuggestion = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("suggested_track.json"), ExploreTracksSuggestion.class);
 
-        expect(exploreTracksSuggestion.getUrn()).toEqual(ClientUri.fromUri("soundcloud:sounds:96017719"));
-        expect(exploreTracksSuggestion.getTitle()).toEqual("Evolution of Get Lucky [Daft Punk chronologic cover]");
-        expect(exploreTracksSuggestion.getGenre()).toEqual("all genres");
-        expect(exploreTracksSuggestion.getUser().getUsername()).toEqual("pvnova");
-        expect(exploreTracksSuggestion.getUser().getUrn()).toEqual(ClientUri.fromUri("soundcloud:users:7861090"));
+        expect(exploreTracksSuggestion.getUrn()).toEqual(ClientUri.fromUri("soundcloud:sounds:105834033"));
+        expect(exploreTracksSuggestion.getTitle()).toEqual("[Sketch] - Beloved");
+        expect(exploreTracksSuggestion.getGenre()).toEqual("Piano");
+        expect(exploreTracksSuggestion.getUser().getUsername()).toEqual("georgegao");
+        expect(exploreTracksSuggestion.getUser().getUrn()).toEqual(ClientUri.fromUri("soundcloud:users:106815"));
         expect(exploreTracksSuggestion.isCommentable()).toBeTrue();
-        expect(exploreTracksSuggestion.getStreamUrl()).toEqual("https://api.soundcloud.com/tracks/96017719/stream");
-        expect(exploreTracksSuggestion.getWaveformUrl()).toEqual("https://w1.sndcdn.com/GXIXy4KWvMRG_m.png");
-        expect(exploreTracksSuggestion.getTagList()).toContainExactly("daft","punk","cover","chronologic");
-        expect(exploreTracksSuggestion.getCreatedAt()).toEqual(Wrapper.CloudDateFormat.fromString("2013/06/08 16:59:05 +0000"));
+        expect(exploreTracksSuggestion.getStreamUrl()).toEqual("http://media.soundcloud.com/stream/whVhoRw2gpUh");
+        expect(exploreTracksSuggestion.getWaveformUrl()).toEqual("https://wis.sndcdn.com/whVhoRw2gpUh.png");
+        expect(exploreTracksSuggestion.getUserTags()).toContainExactly("Jazz","Film");
+        expect(exploreTracksSuggestion.getCreatedAt()).toEqual(Wrapper.CloudDateFormat.fromString("2013/08/17 07:50:03 +0000"));
+        expect(exploreTracksSuggestion.getPlaybackCount()).toEqual(3583L);
+
     }
 
     @Test
@@ -38,7 +40,7 @@ public class ExploreTracksSuggestionTest {
         Parcel parcel = Parcel.obtain();
         exploreTracksSuggestion.writeToParcel(parcel, 0);
 
-      compareSuggestedTracks(exploreTracksSuggestion,new ExploreTracksSuggestion(parcel) );
+      compareSuggestedTracks(exploreTracksSuggestion, new ExploreTracksSuggestion(parcel));
     }
 
     private void compareSuggestedTracks(ExploreTracksSuggestion track1, ExploreTracksSuggestion track2){
@@ -50,7 +52,7 @@ public class ExploreTracksSuggestionTest {
         expect(track1.isCommentable()).toEqual(track2.isCommentable());
         expect(track1.getStreamUrl()).toEqual(track2.getStreamUrl());
         expect(track1.getWaveformUrl()).toEqual(track2.getWaveformUrl());
-        expect(track1.getTagList()).toEqual(track2.getTagList());
+        expect(track1.getUserTags()).toEqual(track2.getUserTags());
         expect(track1.getCreatedAt()).toEqual(track2.getCreatedAt());
     }
 
