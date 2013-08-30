@@ -19,7 +19,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
 
     private SoundCloudRxHttpClient mRxHttpClient;
 
-    public ExploreTracksOperations(){
+    public ExploreTracksOperations() {
         this(new SoundCloudRxHttpClient());
     }
 
@@ -34,16 +34,14 @@ public class ExploreTracksOperations extends ScheduledOperations {
         return mRxHttpClient.fetchModels(request);
     }
 
-    public Observable<Observable<ExploreTracksSuggestion>> getPopularMusic() {
-        return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path());
-    }
-
-    public Observable<Observable<ExploreTracksSuggestion>> getPopularAudio() {
-        return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path());
-    }
-
-    public Observable<Observable<ExploreTracksSuggestion>> getSuggestedTracksByCategory(ExploreTracksCategory category) {
-        return getSuggestedTracks(category.getSuggestedTracksPath());
+    public Observable<Observable<ExploreTracksSuggestion>> getSuggestedTracks(ExploreTracksCategory category) {
+        if (category == ExploreTracksCategory.POPULAR_MUSIC_CATEGORY) {
+            return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path());
+        } else if (category == ExploreTracksCategory.POPULAR_AUDIO_CATEGORY) {
+            return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path());
+        } else {
+            return getSuggestedTracks(category.getSuggestedTracksPath());
+        }
     }
 
     private Observable<Observable<ExploreTracksSuggestion>> getSuggestedTracks(String endpoint) {
@@ -59,11 +57,15 @@ public class ExploreTracksOperations extends ScheduledOperations {
         APIRequest<List<Track>> request = SoundCloudAPIRequest.RequestBuilder.<List<Track>>get("/users/bad-panda-records/tracks.json")
                 .addQueryParameters("limit", "100")
                 .forPublicAPI()
-                .forResource(new TypeToken<List<Track>>() {}).build();
+                .forResource(new TypeToken<List<Track>>() {
+                }).build();
         return mRxHttpClient.fetchModels(request);
     }
 
-    private static class SuggestionsModelCollectionToken extends TypeToken<ModelCollection<ExploreTracksSuggestion>> {}
-    private static class ExploreTracksCategoriesToken extends TypeToken<ExploreTracksCategories> {}
+    private static class SuggestionsModelCollectionToken extends TypeToken<ModelCollection<ExploreTracksSuggestion>> {
+    }
+
+    private static class ExploreTracksCategoriesToken extends TypeToken<ExploreTracksCategories> {
+    }
 
 }

@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ExploreTracksCategoriesFragment;
 import com.soundcloud.android.fragment.ExploreTracksFragment;
+import com.soundcloud.android.model.ExploreTracksCategory;
 import com.viewpagerindicator.TabPageIndicator;
 
 import android.os.Bundle;
@@ -50,9 +51,9 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
                 case 0:
                     return new ExploreTracksCategoriesFragment();
                 case 1:
-                    return new ExploreTracksFragment();
+                    return ExploreTracksFragment.fromCategory(ExploreTracksCategory.POPULAR_MUSIC_CATEGORY);
                 case 2:
-                    return new Fragment();
+                    return ExploreTracksFragment.fromCategory(ExploreTracksCategory.POPULAR_AUDIO_CATEGORY);
             }
             throw new RuntimeException("Unexpected position for getItem " + position);
         }

@@ -28,10 +28,32 @@ public class ExploreTracksCategoryTest {
         Parcel parcel = Parcel.obtain();
         mCategory.writeToParcel(parcel, 0);
 
-        ExploreTracksCategory category = new ExploreTracksCategory(parcel);
+        ExploreTracksCategory category = ExploreTracksCategory.CREATOR.createFromParcel(parcel);
         expect(category.getTitle()).toEqual(mCategory.getTitle());
         expect(category.getLinks().get("link1")).toEqual(mCategory.getLinks().get("link1"));
         expect(category.getLinks().get("link2")).toEqual(mCategory.getLinks().get("link2"));
+
+    }
+
+    @Test
+    public void shouldParcelAndUnparcelIntoPopularMusicInstance() {
+        mCategory = ExploreTracksCategory.POPULAR_MUSIC_CATEGORY;
+        Parcel parcel = Parcel.obtain();
+        mCategory.writeToParcel(parcel, 0);
+
+        ExploreTracksCategory category = ExploreTracksCategory.CREATOR.createFromParcel(parcel);
+        expect(category).toBe(ExploreTracksCategory.POPULAR_MUSIC_CATEGORY);
+
+    }
+
+    @Test
+    public void shouldParcelAndUnparcelIntoPopularAudioInstance() {
+        mCategory = ExploreTracksCategory.POPULAR_AUDIO_CATEGORY;
+        Parcel parcel = Parcel.obtain();
+        mCategory.writeToParcel(parcel, 0);
+
+        ExploreTracksCategory category = ExploreTracksCategory.CREATOR.createFromParcel(parcel);
+        expect(category).toBe(ExploreTracksCategory.POPULAR_AUDIO_CATEGORY);
 
     }
 
