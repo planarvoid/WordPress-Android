@@ -286,10 +286,5 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         public int compare(CategoryGroup lhs, CategoryGroup rhs) {
             return Section.fromKey(lhs.getKey()).compareTo(Section.fromKey(rhs.getKey()));
         }
-
-        @Override
-        public boolean equals(Object object) {
-            return object.equals(object);
-        }
     }
 }
