@@ -80,7 +80,8 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Intent intent = new Intent(getActivity(), ExploreTracksCategoryActivity.class);
-        intent.putExtra(ExploreTracksCategory.EXTRA, mCategoriesAdapter.getItem(position));
+        final int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
+        intent.putExtra(ExploreTracksCategory.EXTRA, mCategoriesAdapter.getItem(adjustedPosition));
         startActivity(intent);
     }
 
