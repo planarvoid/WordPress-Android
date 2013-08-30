@@ -3,7 +3,7 @@ $ 68
   _ 2013-08-27
   ! Maintenance
       * Eased playlist syncing requirements
-      * Absent fixes from BETA 1
+      * Added support for devices without location permission
       - New Image Loader
       - New Error Screens in lists
       - Fixed empty playlists when creating from player
