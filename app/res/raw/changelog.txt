@@ -1,12 +1,14 @@
 $ 68
-  % v 2.6.5-BETA1
-  _ 2013-08-22
+  % v 2.6.5-BETA2
+  _ 2013-08-27
   ! Maintenance
-      * New Image Loader
-      * New Error Screens in lists
-      * Fixed empty playlists when creating from player
-      * Fixed Playlist like crashes from activities
-      * Lots of other small stuff...
+      * Eased playlist syncing requirements
+      * Absent fixes from BETA 1
+      - New Image Loader
+      - New Error Screens in lists
+      - Fixed empty playlists when creating from player
+      - Fixed Playlist like crashes from activities
+      - Lots of other small stuff...
 
 $ 67
   % v 2.6.4

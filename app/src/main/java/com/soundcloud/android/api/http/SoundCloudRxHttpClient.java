@@ -120,7 +120,6 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
                     }
                 } catch (Exception e) {
                     itemObserver.onError(e);
-                    pageObserver.onError(e);
                 }
                 return Subscriptions.empty();
 

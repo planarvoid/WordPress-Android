@@ -1,37 +1,39 @@
 package com.soundcloud.android.whoToFollow;
 
-import static com.soundcloud.android.tests.TestUser.GPlusAccount;
-
-import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
+import com.soundcloud.android.activity.auth.Onboard;
+import com.soundcloud.android.screens.auth.OnboardScreen;
+import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersCategoryScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
-import com.soundcloud.android.tests.TestUser;
 import com.soundcloud.android.tests.Waiter;
 
-public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
+public class WhoToFollow extends ActivityTestCase<Onboard> {
 
-    private SuggestedUsersScreen suggestedUsersScreen;
-    private SuggestedUsersCategoryScreen suggestedUsersCategoryScreen;
     private Waiter waiter;
+    protected OnboardScreen onboardScreen;
+    protected SignUpScreen signUpScreen;
+    protected SuggestedUsersScreen suggestedUsersScreen;
+    protected SuggestedUsersCategoryScreen suggestedUsersCategoryScreen;
 
     public WhoToFollow() {
-        super(SuggestedUsersActivity.class);
+        super(Onboard.class);
     }
 
     public void setUp() throws Exception {
-        IntegrationTestHelper.loginAs(getInstrumentation(), GPlusAccount.getUsername(), GPlusAccount.getPassword());
         super.setUp();
         suggestedUsersScreen = new SuggestedUsersScreen(solo);
         suggestedUsersCategoryScreen = new SuggestedUsersCategoryScreen(solo);
+        onboardScreen = new OnboardScreen(solo);
+        signUpScreen  = new SignUpScreen(solo);
         waiter = new Waiter(solo);
-        solo.waitForActivity(SuggestedUsersActivity.class);
-        waiter.waitForListContent();
-
     }
 
     public void testCheckmarkSelection() throws Exception {
+        createNewUser();
+        waiter.waitForListContent();
+
         suggestedUsersScreen.clickToggleCategoryCheckmark(1);
         suggestedUsersScreen.clickCategory(1);
         assertEquals(true, suggestedUsersCategoryScreen.hasAllUsersSelected());
@@ -43,6 +45,7 @@ public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
     }
 
     public void testIndividualUserSelection() throws Exception {
+        createNewUser();
         suggestedUsersScreen.clickCategory(1);
         String followed = suggestedUsersCategoryScreen.followRandomUser();
         solo.goBack();
@@ -50,6 +53,7 @@ public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
     }
 
     public void testSelectDeselectToggle() throws Exception {
+        createNewUser();
         suggestedUsersScreen.clickCategory(1);
         suggestedUsersCategoryScreen.waitForUsers();
         suggestedUsersCategoryScreen.selectAll();
@@ -60,8 +64,25 @@ public class WhoToFollow extends ActivityTestCase<SuggestedUsersActivity> {
 
     @Override
     public void tearDown() throws Exception {
-        TestUser.unfollowAll(getInstrumentation().getTargetContext());
         IntegrationTestHelper.logOut(getInstrumentation());
         super.tearDown();
     }
+
+    protected String generateEmail() {
+        return "slawomir-"+System.currentTimeMillis()+"@tests.soundcloud";
+    }
+
+    private void createNewUser() {
+        onboardScreen.clickSignUpButton();
+
+        // TODO : Re-use the same user
+        signUpScreen.typeEmail(generateEmail());
+        signUpScreen.typePassword("password123");
+
+        signUpScreen.signup();
+        signUpScreen.acceptTerms();
+        signUpScreen.skipInfo();
+        signUpScreen.waitForSuggestedUsers();
+    }
+
 }

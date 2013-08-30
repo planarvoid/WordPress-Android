@@ -145,14 +145,7 @@ public class PlayQueueManager {
         }
     }
 
-    public void setTrackById(long toBePlayed) {
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(toBePlayed);
-        if (t != null) {
-            setTrack(t, true);
-        }
-    }
-
-    public void setTrack(Track toBePlayed, boolean saveQueue) {
+    public void loadTrack(Track toBePlayed, boolean saveQueue) {
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
         mPlayQueue.add(toBePlayed);
@@ -248,7 +241,7 @@ public class PlayQueueManager {
     }
 
     private void broadcastPlayQueueChanged() {
-        Intent intent = new Intent(CloudPlaybackService.PLAYQUEUE_CHANGED)
+        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
             .putExtra(CloudPlaybackService.BroadcastExtras.queuePosition, mPlayPos);
         mContext.sendBroadcast(intent);
     }
@@ -311,7 +304,8 @@ public class PlayQueueManager {
     }
 
     private void onPlaylistUriChanged(Uri oldUri, Uri newUri) {
-        if (getUri().getPath().equals(oldUri.getPath())) mPlayQueueUri = new PlayQueueUri(newUri);
+        final Uri loadedUri = getUri();
+        if (loadedUri != null && loadedUri.getPath().equals(oldUri.getPath())) mPlayQueueUri = new PlayQueueUri(newUri);
     }
 
     public void clear() {

@@ -90,7 +90,7 @@ public class AlarmClockTest {
 
         Intent intent = shadowOf(Robolectric.application).getNextStartedService();
         expect(intent).not.toBeNull();
-        expect(intent.getAction()).toEqual(CloudPlaybackService.PLAY_ACTION);
+        expect(intent.getAction()).toEqual(CloudPlaybackService.Actions.PLAY_ACTION);
         expect(intent.getData()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/likes");
         expect(intent.getData().getQueryParameter(ScContentProvider.Parameter.CACHED)).toBeNull();
     }

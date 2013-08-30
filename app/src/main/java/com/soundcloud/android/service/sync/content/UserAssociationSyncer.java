@@ -75,7 +75,11 @@ public class UserAssociationSyncer extends SyncStrategy {
     @NotNull
     @Override
     public ApiSyncResult syncContent(@NotNull Uri uri, @Nullable String action) throws IOException {
-        if (action != null && action.equals(ApiSyncService.ACTION_PUSH)) {
+        if (!isLoggedIn()) {
+            Log.w(TAG, "Invalid user id, skipping sync ");
+            return new ApiSyncResult(uri);
+
+        } else if (action != null && action.equals(ApiSyncService.ACTION_PUSH)) {
             return pushUserAssociations(Content.match(uri));
         } else {
             return syncLocalToRemote(Content.match(uri), SoundCloudApplication.getUserId());
@@ -88,6 +92,11 @@ public class UserAssociationSyncer extends SyncStrategy {
 
         List<Long> local = mUserAssociationStorage.getStoredIds(content.uri);
         List<Long> remote = mApi.readFullCollection(Request.to(content.remoteUri + "/ids"), IdHolder.class);
+
+        if (!isLoggedIn()) {
+            return result;
+        }
+
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(), remote.size());
 
@@ -111,6 +120,10 @@ public class UserAssociationSyncer extends SyncStrategy {
                 List<ScResource> resources = mApi.readList(Request.to(content.remoteUri)
                         .add(Wrapper.LINKED_PARTITIONING, "1")
                         .add("limit", Consts.COLLECTION_PAGE_SIZE));
+
+                if (!isLoggedIn()) {
+                    return new ApiSyncResult(content.uri);
+                }
 
                 added = mUserAssociationStorage.insertAssociations(resources, content.uri, userId);
 

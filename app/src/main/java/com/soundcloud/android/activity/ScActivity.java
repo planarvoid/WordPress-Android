@@ -277,7 +277,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     public void pausePlayback() {
-        startService(new Intent(CloudPlaybackService.PAUSE_ACTION));
+        startService(new Intent(CloudPlaybackService.Actions.PAUSE_ACTION));
     }
 
     public SoundCloudApplication getApp() {

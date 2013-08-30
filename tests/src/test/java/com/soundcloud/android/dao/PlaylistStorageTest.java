@@ -84,6 +84,7 @@ public class PlaylistStorageTest {
 
         List<Playlist> playlists = storage.getLocalPlaylists();
         expect(playlists.size()).toBe(1);
+        expect(playlists.get(0).tracks).toContainExactly(tracks.get(0), tracks.get(1));
     }
 
     @Test

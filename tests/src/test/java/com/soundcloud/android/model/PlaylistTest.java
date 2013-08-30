@@ -41,6 +41,19 @@ public class PlaylistTest {
     }
 
     @Test
+    public void shouldParcelAndUnparcelWithNoTracksCorrectly() throws Exception {
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("e1_playlist_no_tracks.json"),
+                Playlist.class);
+
+        Parcel p = Parcel.obtain();
+        playlist.writeToParcel(p, 0);
+
+        Playlist playlist2 = new Playlist(p);
+        comparePlaylists(playlist, playlist2);
+    }
+
+    @Test
     public void shouldProvideCreateJson() throws Exception {
         Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),

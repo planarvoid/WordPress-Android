@@ -62,14 +62,14 @@ public class PlayEventTrackerIntegrationTest {
 
     @After
     public void reset() {
-        service.onStartCommand(new Intent(CloudPlaybackService.RESET_ALL), 0, 0);
+        service.onStartCommand(new Intent(CloudPlaybackService.Actions.RESET_ALL), 0, 0);
     }
 
     @Test
     public void shouldTrackPlayEventForFirstTrack() {
         TestHelper.setUserId(456);
 
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, currentTrack);
 
         Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(1);
@@ -84,7 +84,7 @@ public class PlayEventTrackerIntegrationTest {
     public void shouldTrackPlayEventForLoggedOutUser() {
         TestHelper.setUserId(-1);
 
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, currentTrack);
 
         Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(1);
@@ -99,8 +99,8 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test
     public void shouldTrackPauseEvent() {
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
-        startPlaybackService(CloudPlaybackService.PAUSE_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PAUSE_ACTION, currentTrack);
 
         Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(2);
@@ -111,8 +111,8 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test
     public void shouldTrackPlayEventForNextTrackAndStopEventForPreviousTrack() {
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, nextTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, nextTrack);
 
         Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(3);
@@ -124,9 +124,9 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test
     public void shouldTrackTogglePause() {
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
-        startPlaybackService(CloudPlaybackService.TOGGLEPAUSE_ACTION, null);
-        startPlaybackService(CloudPlaybackService.TOGGLEPAUSE_ACTION, null);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION, null);
+        startPlaybackService(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION, null);
 
         Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(3);
@@ -138,8 +138,8 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test @Ignore
     public void shouldTrackNextEvent() throws IOException {
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, null);
-        startPlaybackService(CloudPlaybackService.NEXT_ACTION, null);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, null);
+        startPlaybackService(CloudPlaybackService.Actions.NEXT_ACTION, null);
 
         Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(3);
@@ -151,8 +151,8 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test
     public void shouldNotRecordPlayTwice() {
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, currentTrack);
 
         Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(1);
@@ -162,9 +162,9 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test
     public void shouldNotRecordStopTwice() {
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
-        startPlaybackService(CloudPlaybackService.PAUSE_ACTION, currentTrack);
-        startPlaybackService(CloudPlaybackService.PAUSE_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PAUSE_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PAUSE_ACTION, currentTrack);
 
         Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(2);
@@ -175,9 +175,9 @@ public class PlayEventTrackerIntegrationTest {
 
     @Test
     public void pressingNextshouldNotRecordStopAgainAfterPlayPauseCycle() {
-        startPlaybackService(CloudPlaybackService.PLAY_ACTION, currentTrack);
-        startPlaybackService(CloudPlaybackService.PAUSE_ACTION, currentTrack);
-        startPlaybackService(CloudPlaybackService.PAUSE_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PLAY_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PAUSE_ACTION, currentTrack);
+        startPlaybackService(CloudPlaybackService.Actions.PAUSE_ACTION, currentTrack);
 
         Cursor cursor = tracker.eventsCursor();
         expect(cursor.getCount()).toBe(2);

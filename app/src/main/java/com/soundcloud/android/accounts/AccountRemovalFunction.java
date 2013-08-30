@@ -95,7 +95,7 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
         FBToken.clear(mContext);
 
         mContext.sendBroadcast(new Intent(Actions.LOGGING_OUT));
-        mContext.sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
+        mContext.sendBroadcast(new Intent(CloudPlaybackService.Actions.RESET_ALL));
 
 
         mC2DMReceiver.unregister(mContext);
