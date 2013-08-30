@@ -106,9 +106,9 @@ import java.io.IOException;
             mResult = ApiSyncResult.fromAuthException(mContentUri);
             mContext.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
 
-        } catch (AndroidCloudAPI.BadResponseException e) {
+        } catch (AndroidCloudAPI.UnexpectedResponseException e) {
             handleException(e, mResultKey);
-            mResult = ApiSyncResult.fromBadResponseException(mContentUri);
+            mResult = ApiSyncResult.fromUnexpectedResponseException(mContentUri);
 
         } catch (IOException e) {
             handleException(e, mResultKey);

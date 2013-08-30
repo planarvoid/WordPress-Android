@@ -94,12 +94,11 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
     }
 
-    class BadResponseException extends IOException {
+    class UnexpectedResponseException extends IOException {
         private Request request;
         private StatusLine statusLine;
 
-        public BadResponseException(Request request, StatusLine statusLine) {
-            super();
+        public UnexpectedResponseException(Request request, StatusLine statusLine) {
             this.request = request;
             this.statusLine = statusLine;
         }

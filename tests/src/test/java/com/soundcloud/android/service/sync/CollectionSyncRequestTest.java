@@ -140,8 +140,8 @@ public class CollectionSyncRequestTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsForBadResponseException() throws IOException {
-        final AndroidCloudAPI.BadResponseException badResponseException = new AndroidCloudAPI.BadResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
-        setupExceptionThrowingSync(badResponseException);
+        final AndroidCloudAPI.UnexpectedResponseException unexpectedResponseException = new AndroidCloudAPI.UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
+        setupExceptionThrowingSync(unexpectedResponseException);
 
         collectionSyncRequest.onQueued();
         collectionSyncRequest.execute();
@@ -152,13 +152,13 @@ public class CollectionSyncRequestTest {
 
     @Test
     public void shouldRecordErrorOnBadResponseException() throws IOException {
-        final AndroidCloudAPI.BadResponseException badResponseException = new AndroidCloudAPI.BadResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
-        setupExceptionThrowingSync(badResponseException);
+        final AndroidCloudAPI.UnexpectedResponseException unexpectedResponseException = new AndroidCloudAPI.UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
+        setupExceptionThrowingSync(unexpectedResponseException);
 
         collectionSyncRequest.onQueued();
         collectionSyncRequest.execute();
 
-        verify(sharedPreferencesEditor).putString(eq(RESULT_PREF_KEY), contains(AndroidCloudAPI.BadResponseException.class.getSimpleName()));
+        verify(sharedPreferencesEditor).putString(eq(RESULT_PREF_KEY), contains(AndroidCloudAPI.UnexpectedResponseException.class.getSimpleName()));
         verify(sharedPreferencesEditor).commit();
     }
 

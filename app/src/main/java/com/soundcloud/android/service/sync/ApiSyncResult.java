@@ -48,7 +48,7 @@ public class ApiSyncResult {
         return r;
     }
 
-    public static ApiSyncResult fromBadResponseException(Uri uri) {
+    public static ApiSyncResult fromUnexpectedResponseException(Uri uri) {
         // for now, the defaults are fine
         return new ApiSyncResult(uri);
     }

@@ -422,8 +422,8 @@ public class ApiSyncerTest {
         expect(a1.getPlayable().permalink).toEqual("private-share-test");
     }
 
-    @Test(expected = AndroidCloudAPI.BadResponseException.class)
-    public void shouldBadResponseException() throws Exception {
+    @Test(expected = AndroidCloudAPI.UnexpectedResponseException.class)
+    public void shouldThrowUnexpectedResponseExceptionOn500() throws Exception {
         Robolectric.setDefaultHttpResponse(500, "error");
         sync(Content.ME_LIKES.uri);
     }
