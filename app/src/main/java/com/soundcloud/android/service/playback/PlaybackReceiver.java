@@ -100,47 +100,63 @@ class PlaybackReceiver extends BroadcastReceiver {
 
     private void handlePlayAction(Intent intent) {
         if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-            Log.d(CloudPlaybackService.TAG, "handlePlayAction("+intent+")");
+            Log.d(CloudPlaybackService.TAG, "handlePlayAction(" + intent + ")");
         }
 
         if (intent.getBooleanExtra(PlayExtras.unmute, false)) {
-            final int volume = (int) Math.round(
-                    mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-                            * 0.75d);
-            if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) Log.d(CloudPlaybackService.TAG, "setting volume to "+volume);
-            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
+            configureVolume();
         }
 
         final boolean startPlayback = intent.getBooleanExtra(PlayExtras.startPlayback, true);
-        if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)){
+        final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
+        if (intent.getData() != null) {
+            playViaUri(intent, startPlayback, position);
 
-            // go to the cache to ensure 1 copy of each track app wide
-            final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
-            mPlayQueueManager.loadTrack(cachedTrack, true);
+        } else if (intent.getBooleanExtra(PlayExtras.playFromXferList, false)) {
+            playViaTransferList(startPlayback, position);
 
-            if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)){
-                mPlayQueueManager.fetchRelatedTracks(cachedTrack);
-            }
+        } else if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)) {
+            playSingleTrack(intent, startPlayback);
 
-            if (startPlayback) {
-                mPlaybackService.openCurrent();
-            }
-
-        } else {
-            final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
-            if (intent.getData() != null) {
-                mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position);
-                if (startPlayback) mPlaybackService.openCurrent();
-
-            } else if (intent.getBooleanExtra(PlayExtras.playFromXferCache, false)) {
-                mPlayQueueManager.setPlayQueue(mPlaybackService.playlistXfer, position);
-                mPlaybackService.playlistXfer = null;
-                if (startPlayback) mPlaybackService.openCurrent();
-
-            } else if (!mPlayQueueManager.isEmpty() || mPlaybackService.configureLastPlaylist()){
-                // random play intent, play whatever we had last
-                if (startPlayback) mPlaybackService.play();
-            }
+        } else if (!mPlayQueueManager.isEmpty() || mPlaybackService.configureLastPlaylist()) {
+            // random play intent, play whatever we had last
+            if (startPlayback) mPlaybackService.play();
         }
+
+    }
+
+    private void configureVolume() {
+        final int volume = (int) Math.round(mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)* 0.75d);
+        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)){
+            Log.d(CloudPlaybackService.TAG, "setting volume to " + volume);
+        }
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
+    }
+
+    private void playViaUri(Intent intent, boolean startPlayback, int position) {
+        mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position);
+        if (startPlayback) mPlaybackService.openCurrent();
+    }
+
+    private void playViaTransferList(boolean startPlayback, int position) {
+        mPlayQueueManager.setPlayQueue(mPlaybackService.playlistXfer, position);
+        mPlaybackService.playlistXfer = null;
+        if (startPlayback) mPlaybackService.openCurrent();
+    }
+
+    private void playSingleTrack(Intent intent, boolean startPlayback) {
+
+        // go to the cache to ensure 1 copy of each track app wide
+        final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
+        mPlayQueueManager.loadTrack(cachedTrack, true);
+
+        if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)){
+            mPlayQueueManager.fetchRelatedTracks(cachedTrack);
+        }
+
+        if (startPlayback) {
+            mPlaybackService.openCurrent();
+        }
+
     }
 }

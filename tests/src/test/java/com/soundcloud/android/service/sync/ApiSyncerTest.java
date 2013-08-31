@@ -113,7 +113,7 @@ public class ApiSyncerTest {
         expect(t.download_count).toEqual(ScModel.NOT_SET);
         expect(t.reposts_count ).toEqual(ScModel.NOT_SET);
         expect(t.comment_count ).toEqual(ScModel.NOT_SET);
-        expect(t.playback_count).toEqual(ScModel.NOT_SET);
+        expect(t.playback_count).toEqual(Long.valueOf(ScModel.NOT_SET));
     }
 
     @Test

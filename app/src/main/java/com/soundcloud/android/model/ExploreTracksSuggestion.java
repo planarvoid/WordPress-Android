@@ -13,13 +13,14 @@ public class ExploreTracksSuggestion extends ScModel {
 
     private String          mTitle;
     private String          mGenre;
-    private MiniUser        mUser;
+    private UserSummary     mUser;
     private boolean         mCommentable;
     private int             mDuration = NOT_SET;
     private String          mStreamUrl;
     private String          mWaveformUrl;
-    private List<String>    mTagList;
+    private List<String>    mUserTags;
     private Date            mCreatedAt;
+    private long            mPlaybackCount;
 
     public ExploreTracksSuggestion() { /* for Deserialization */ }
 
@@ -27,13 +28,13 @@ public class ExploreTracksSuggestion extends ScModel {
         super(in);
         this.mTitle = in.readString();
         this.mGenre = in.readString();
-        this.mUser = in.readParcelable(MiniUser.class.getClassLoader());
+        this.mUser = in.readParcelable(UserSummary.class.getClassLoader());
         this.mCommentable = in.readByte() != 0;
         this.mDuration = in.readInt();
         this.mStreamUrl = in.readString();
         this.mWaveformUrl = in.readString();
-        this.mTagList = new ArrayList<String>();
-        in.readStringList(this.mTagList);
+        this.mUserTags = new ArrayList<String>();
+        in.readStringList(this.mUserTags);
         this.mCreatedAt = (Date) in.readSerializable();
 
     }
@@ -46,78 +47,100 @@ public class ExploreTracksSuggestion extends ScModel {
         return mTitle;
     }
 
-    public void setTitle(String title) {
-        this.mTitle = title;
-    }
-
     public String getGenre() {
         return mGenre;
     }
 
-    public void setGenre(String genre) {
-        this.mGenre = genre;
-    }
-
-    public MiniUser getUser() {
+    public UserSummary getUser() {
         return mUser;
     }
 
-    public void setUser(MiniUser user) {
-        this.mUser = user;
+    public String getUserName(){
+       return mUser != null ? mUser.getUsername() : "";
     }
 
     public boolean isCommentable() {
         return mCommentable;
     }
 
-    public void setCommentable(boolean commentable) {
-        this.mCommentable = commentable;
-    }
-
     public int getDuration() {
         return mDuration;
-    }
-
-    public void setDuration(int duration) {
-        this.mDuration = duration;
     }
 
     public String getStreamUrl() {
         return mStreamUrl;
     }
 
-    @JsonProperty("stream_url")
-    public void setStreamUrl(String streamUrl) {
-        this.mStreamUrl = streamUrl;
-    }
-
-    public String getmWaveformUrl() {
+    public String getWaveformUrl() {
         return mWaveformUrl;
     }
 
-    @JsonProperty("waveform_url")
-    public void setWaveformUrl(String waveformUrl) {
-        this.mWaveformUrl = waveformUrl;
+    public long getPlaybackCount() {
+        return mPlaybackCount;
     }
 
-    public List<String> getTagList() {
-        return mTagList;
-    }
-
-    @JsonProperty("tag_list")
-    public void setTagList(List<String> tagList) {
-        this.mTagList = tagList;
+    public List<String> getUserTags() {
+        return mUserTags;
     }
 
     public Date getCreatedAt() {
         return mCreatedAt;
     }
 
+    public String getArtworkUrl() {
+        return getUrn().imageUri(ImageSize.T500).toString();
+    }
+
+    private void setTitle(String title) {
+        this.mTitle = title;
+    }
+
+    private void setGenre(String genre) {
+        this.mGenre = genre;
+    }
+
+    private void setUser(UserSummary user) {
+        this.mUser = user;
+    }
+
+    private void setCommentable(boolean commentable) {
+        this.mCommentable = commentable;
+    }
+
+    private void setDuration(int duration) {
+        this.mDuration = duration;
+    }
+
+    @JsonProperty("stream_url")
+    private void setStreamUrl(String streamUrl) {
+        this.mStreamUrl = streamUrl;
+    }
+
+    @JsonProperty("playback_count")
+    private void setPlaybackCount(long playback_count) {
+        this.mPlaybackCount = playback_count;
+    }
+
+    @JsonProperty("waveform_url")
+    private void setWaveformUrl(String waveformUrl) {
+        this.mWaveformUrl = waveformUrl;
+    }
+
+    @JsonProperty("user_tags")
+    private void setUserTags(List<String> userTags) {
+        this.mUserTags = userTags;
+    }
+
     @JsonProperty("created_at")
-    public void setCreatedAt(Date createdAt) {
+    private void setCreatedAt(Date createdAt) {
         this.mCreatedAt = createdAt;
     }
 
+
+    @JsonProperty("_embedded")
+    private void setRelatedResources(RelatedResources relatedResources) {
+        this.mUser = relatedResources.user;
+    }
 
     @Override
     public int describeContents() {
@@ -134,7 +157,7 @@ public class ExploreTracksSuggestion extends ScModel {
         dest.writeInt(this.mDuration);
         dest.writeString(this.mStreamUrl);
         dest.writeString(this.mWaveformUrl);
-        dest.writeStringList(this.mTagList);
+        dest.writeStringList(this.mUserTags);
         dest.writeSerializable(this.mCreatedAt);
     }
 
@@ -148,8 +171,11 @@ public class ExploreTracksSuggestion extends ScModel {
         }
     };
 
-    public String getArtworkUrl() {
-        // todo, do we really want to hardcode this to this size??
-        return getUrn().imageUri(ImageSize.T500).toString();
+    private static class RelatedResources {
+        private UserSummary user;
+
+        void setUser(UserSummary user) {
+            this.user = user;
+        }
     }
 }

@@ -381,7 +381,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     public boolean hasAvatar() {
-        return user != null && !TextUtils.isEmpty(user.avatar_url);
+        return user != null && user.hasAvatarUrl();
     }
 
     public String getAvatarUrl() {

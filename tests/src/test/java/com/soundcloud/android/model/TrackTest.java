@@ -12,7 +12,9 @@ import org.junit.runner.RunWith;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Parcel;
+import android.text.TextUtils;
 
+import java.io.IOException;
 import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
@@ -254,6 +256,33 @@ public class TrackTest {
         expect(t.getWaveformDataURL()).toBeNull();
         t.waveform_url = "http://waveforms.soundcloud.com/bypOn0pnRvFf_m.png";
         expect(t.getWaveformDataURL().toString()).toEqual("http://wis.sndcdn.com/bypOn0pnRvFf_m.png");
+    }
+
+    @Test
+    public void shouldAppendTrackIdToStreamUrl() throws Exception {
+        Track t = new Track(123L);
+        t.stream_url = "http://media.soundcloud.com/stream/tfmLdABNn0wb";
+        expect(t.getStreamUrlWithAppendedId().toString()).toEqual("http://media.soundcloud.com/stream/tfmLdABNn0wb?_id=123");
+    }
+
+    @Test
+    public void shouldCreateTrackFromExploreTrackSuggestion() throws IOException {
+        ExploreTracksSuggestion suggestion = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("suggested_track.json"), ExploreTracksSuggestion.class);
+        Track t = new Track(suggestion);
+
+        expect(t.getUrn()).toEqual(suggestion.getUrn());
+        expect(t.getUser().getUsername()).toEqual(suggestion.getUser().getUsername());
+        expect(t.getUser().getUrn()).toEqual(suggestion.getUser().getUrn());
+        expect(t.getTitle()).toEqual(suggestion.getTitle());
+        expect(t.getArtwork()).toEqual(suggestion.getArtworkUrl());
+        expect(t.genre).toEqual(suggestion.getGenre());
+        expect(t.commentable).toEqual(suggestion.isCommentable());
+        expect(t.stream_url).toEqual(suggestion.getStreamUrl());
+        expect(t.waveform_url).toEqual(suggestion.getWaveformUrl());
+        expect(t.tag_list).toEqual(TextUtils.join(" ", suggestion.getUserTags()));
+        expect(t.created_at).toEqual(suggestion.getCreatedAt());
+        expect(t.playback_count).toEqual(suggestion.getPlaybackCount());
     }
 
     private void compareTracks(Track t, Track t2) {

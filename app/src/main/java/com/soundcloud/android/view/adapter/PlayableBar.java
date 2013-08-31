@@ -174,7 +174,7 @@ public class PlayableBar extends IconLayout {
 
         // TODO: get rid of the instanceof stuff and have a track specific subclass
         int playCount = 0;
-        if (playable instanceof Track && (playCount = ((Track) playable).playback_count) > 0) {
+        if (playable instanceof Track && (playCount = (int) ((Track) playable).playback_count) > 0) {
             builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_plays,
                     playCount,
                     playCount));

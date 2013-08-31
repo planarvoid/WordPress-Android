@@ -9,6 +9,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ExploreTracksAdapter;
 import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.fragment.behavior.EmptyViewAware;
+import com.soundcloud.android.model.ExploreTracksCategory;
+import com.soundcloud.android.model.ExploreTracksSuggestion;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
@@ -34,18 +36,19 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
+    public static ExploreTracksFragment fromCategory(ExploreTracksCategory category) {
+        final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
+        Bundle args = new Bundle();
+        args.putParcelable(ExploreTracksCategory.EXTRA, category);
+        exploreTracksFragment.setArguments(args);
+        return exploreTracksFragment;
+    }
+
     public ExploreTracksFragment() {
-        Observable<Observable<Track>> observable = new ExploreTracksOperations().getSuggestedTracks().observeOn(AndroidSchedulers.mainThread());
-        ListFragmentObserver<Track, ExploreTracksFragment> observer = new ListFragmentObserver<Track, ExploreTracksFragment>(this);
-        ExploreTracksAdapter adapter = new ExploreTracksAdapter(observable, observer);
-        init(adapter);
+        this(null);
     }
 
-    public ExploreTracksFragment(ExploreTracksAdapter adapter) {
-        init(adapter);
-    }
-
-    private void init(ExploreTracksAdapter adapter) {
+    protected ExploreTracksFragment(ExploreTracksAdapter adapter) {
         mExploreTracksAdapter = adapter;
         setRetainInstance(true);
     }
@@ -53,6 +56,15 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (mExploreTracksAdapter == null){
+            final ExploreTracksCategory category = getArguments().getParcelable(ExploreTracksCategory.EXTRA);
+            final Observable<Observable<ExploreTracksSuggestion>> suggestedTracks = new ExploreTracksOperations().getSuggestedTracks(category);
+
+            ListFragmentObserver<ExploreTracksSuggestion, ExploreTracksFragment> observer = new ListFragmentObserver<ExploreTracksSuggestion, ExploreTracksFragment>(this);
+            mExploreTracksAdapter = new ExploreTracksAdapter(suggestedTracks.observeOn(AndroidSchedulers.mainThread()), observer);
+        }
+
         loadTrackSuggestions();
     }
 
@@ -68,7 +80,8 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        PlayUtils.playTrack(getActivity(), new PlayInfo(mExploreTracksAdapter.getItem(position), true));
+
+        PlayUtils.playTrack(getActivity(), new PlayInfo(new Track(mExploreTracksAdapter.getItem(position)), true));
     }
 
     @Override
@@ -97,7 +110,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
-        mExploreTracksAdapter.subscribe(new PullToRefreshObserver<ExploreTracksFragment, Track>(
+        mExploreTracksAdapter.subscribe(new PullToRefreshObserver<ExploreTracksFragment, ExploreTracksSuggestion>(
                 this, mGridViewId, mExploreTracksAdapter, mExploreTracksAdapter));
     }
 

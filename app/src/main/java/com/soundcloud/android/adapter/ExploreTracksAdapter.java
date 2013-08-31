@@ -4,7 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.ExploreTracksSuggestion;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.view.adapter.GridSpacer;
@@ -17,14 +18,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
+public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSuggestion> {
 
     public static final int INITIAL_LIST_SIZE = 20;
 
     private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.adapterView(R.drawable.placeholder_cells);
     private GridSpacer mGridSpacer;
 
-    public ExploreTracksAdapter(Observable<Observable<Track>> pagingObservable, Observer<Track> itemObserver) {
+    public ExploreTracksAdapter(Observable<Observable<ExploreTracksSuggestion>> pagingObservable, Observer<ExploreTracksSuggestion> itemObserver) {
         super(pagingObservable, itemObserver, INITIAL_LIST_SIZE);
     }
 
@@ -45,12 +46,20 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
     @Override
     protected void bindItemView(int position, View itemView) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
-        final Track track = getItem(position);
+        final ExploreTracksSuggestion track = getItem(position);
+
+        // TODO : figure out why we are null here
+        if (viewHolder == null) throw new IllegalArgumentException("VIEWHOLDER IS NULL");
+        if (track == null) throw new IllegalArgumentException("TRACK IS NULL");
+
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());
-        viewHolder.genre.setText(track.genre);
-        viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, track.playback_count));
-        ImageLoader.getInstance().displayImage(ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtwork()), viewHolder.imageView, mDisplayImageOptions);
+        viewHolder.genre.setText(track.getGenre());
+        final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getPlaybackCount());
+        viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, playcountWithCommas));
+        final String artworkUri = ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtworkUrl());
+        ImageLoader.getInstance().displayImage(artworkUri, viewHolder.imageView, mDisplayImageOptions);
+
         getGridSpacer(itemView.getResources()).configureItemPadding(itemView, position, getCount());
     }
 

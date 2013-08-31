@@ -17,8 +17,8 @@ import android.util.AttributeSet;
 public class SuggestedTracksImageView extends OptimisedImageView {
 
     public static final double GRADIENT_START_POSITION = .5;
-    public static final int[] GRADIENT_COLORS = new int[]{Color.TRANSPARENT, 0x7F000000};
-    public static final float[] GRADIENT_POSITIONS = new float[]{0, 1};
+    public static final int[] GRADIENT_COLORS = new int[]{Color.TRANSPARENT, 0x5F000000, 0x9F000000};
+    public static final float[] GRADIENT_POSITIONS = new float[]{0, .6F, 1};
     private Paint mPaint = new Paint();
 
     public SuggestedTracksImageView(Context context, AttributeSet attrs) {
