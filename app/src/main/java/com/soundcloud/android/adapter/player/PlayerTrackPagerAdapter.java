@@ -10,7 +10,7 @@ import com.soundcloud.android.adapter.BasePagerAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.service.playback.PlayQueueManager;
-import com.soundcloud.android.view.EmptyListView;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.play.PlayerQueueView;
 import com.soundcloud.android.view.play.PlayerTrackView;
 
@@ -19,14 +19,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.Collection;
-import java.util.Set;
 
 public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     private PlayQueueManager mPlayQueueManager;
     private int mCommentingPosition = -1;
 
-    private final BiMap<PlayerQueueView, Integer> mPlayerViewsById = HashBiMap.create(3);
+    private final BiMap<PlayerQueueView, Integer> mQueueViewsById = HashBiMap.create(3);
     private Track mPlaceholderTrack;
 
     public PlayerTrackPagerAdapter(PlayQueueManager playQueueManager) {
@@ -34,7 +33,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     }
 
     public Collection<PlayerTrackView> getPlayerTrackViews() {
-        return Collections2.transform(Collections2.filter(mPlayerViewsById.keySet(), new Predicate<PlayerQueueView>() {
+        return Collections2.transform(Collections2.filter(mQueueViewsById.keySet(), new Predicate<PlayerQueueView>() {
             @Override
             public boolean apply(PlayerQueueView input) {
                 return input.isShowingPlayerTrackView();
@@ -126,13 +125,19 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
             convertView = createPlayerQueueView(parent.getContext());
         }
 
-        ((PlayerQueueView) convertView).setPlayQueueItem(dataItem, mCommentingPosition == dataItem.getPlayQueuePosition());
+        final PlayerQueueView queueView = (PlayerQueueView) convertView;
+        queueView.setPlayQueueItem(dataItem, mCommentingPosition == dataItem.getPlayQueuePosition());
+        if (dataItem != PlayQueueItem.EMPTY){
+            mQueueViewsById.forcePut(queueView, dataItem.getPlayQueuePosition());
+        } else {
+            mQueueViewsById.remove(convertView);
+        }
         return convertView;
     }
 
     @VisibleForTesting
     protected PlayerQueueView createPlayerQueueView(Context context) {
-        return new PlayerQueueView(context);
+        return new PlayerQueueView(context, mPlayQueueManager);
     }
 
     @Override
@@ -148,6 +153,16 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     }
 
     public PlayerTrackView getPlayerTrackViewByPosition(int position){
-        return mPlayerViewsById.inverse().get(position).getTrackView();
+        final PlayerQueueView playerQueueView = mQueueViewsById.inverse().get(position);
+        if (playerQueueView != null){
+            return playerQueueView.getTrackView();
+        } else {
+            Log.i("asdf", "Null trackview at position " + position);
+            return null;
+        }
+    }
+
+    public void replaceEmptyView(){
+
     }
 }
