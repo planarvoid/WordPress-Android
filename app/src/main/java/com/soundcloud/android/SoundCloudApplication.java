@@ -9,7 +9,6 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
@@ -286,10 +285,4 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
     }
 
-    @Override
-    public void onTerminate() {
-        AnalyticsEngine analyticsEngine = new AnalyticsEngine(this);
-        analyticsEngine.closeSession();
-        super.onTerminate();
-    }
 }

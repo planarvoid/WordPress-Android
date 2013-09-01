@@ -1,13 +1,13 @@
 package com.soundcloud.android.analytics;
 
+import static org.mockito.Mockito.verify;
+
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-
-import static org.mockito.Mockito.verify;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LocalyticsAnalyticsProviderTest {
@@ -21,17 +21,27 @@ public class LocalyticsAnalyticsProviderTest {
     }
 
     @Test
-    public void shouldOpenSessionAndUpload(){
+    public void shouldOpenSession(){
         localyticsProvider.openSession();
         verify(localyticsSession).open();
+    }
+
+    @Test
+    public void shouldUploadDataWhenOpeningSession(){
+        localyticsProvider.openSession();
         verify(localyticsSession).upload();
     }
 
     @Test
-    public void shouldCloseSessionAndUpload(){
+    public void shouldUploadDataWhenClosingSession(){
+        localyticsProvider.closeSession();
+        verify(localyticsSession).upload();
+    }
+
+    @Test
+    public void shouldCloseSession(){
         localyticsProvider.closeSession();
         verify(localyticsSession).close();
-        verify(localyticsSession).upload();
     }
 
 }
