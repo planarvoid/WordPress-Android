@@ -191,7 +191,7 @@ namespace :release do
 
   desc "builds the release version"
   task :build do
-    sh "mvn clean install -Psign,release --projects app"
+    sh "mvn clean install -Psign,soundcloud,release --projects app"
   end
 
   desc "sets the release version to the version specified in the manifest, creates bump commit"
@@ -248,7 +248,7 @@ namespace :beta do
         version_code = 0
       end
       sh <<-END
-        mvn clean install --projects app -Psign,beta \
+        mvn clean install --projects app -Psign,soundcloud,beta \
           -Dandroid.manifest.versionCode=#{version_code+1} \
           -Dandroid.manifest.debuggable=true
       END
