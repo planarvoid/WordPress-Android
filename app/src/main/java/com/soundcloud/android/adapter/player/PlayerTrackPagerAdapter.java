@@ -25,7 +25,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     private PlayQueueManager mPlayQueueManager;
     private int mCommentingPosition = -1;
 
-    private final BiMap<PlayerQueueView, Integer> mQueueViewsById = HashBiMap.create(3);
+    private final BiMap<PlayerQueueView, Integer> mQueueViewsByPosition = HashBiMap.create(3);
     private Track mPlaceholderTrack;
 
     public PlayerTrackPagerAdapter(PlayQueueManager playQueueManager) {
@@ -33,7 +33,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     }
 
     public Collection<PlayerTrackView> getPlayerTrackViews() {
-        return Collections2.transform(Collections2.filter(mQueueViewsById.keySet(), new Predicate<PlayerQueueView>() {
+        return Collections2.transform(Collections2.filter(mQueueViewsByPosition.keySet(), new Predicate<PlayerQueueView>() {
             @Override
             public boolean apply(PlayerQueueView input) {
                 return input.isShowingPlayerTrackView();
@@ -95,6 +95,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         }
     }
 
+
     private boolean shouldDisplayExtraItem() {
         return mPlayQueueManager.isFetchingRelated() || mPlayQueueManager.lastRelatedFetchFailed();
     }
@@ -112,7 +113,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
             return new PlayQueueItem(mPlaceholderTrack, 0);
         } else {
             if (position >= mPlayQueueManager.length()){
-                return PlayQueueItem.EMPTY;
+                return PlayQueueItem.empty(position);
             } else {
                 return mPlayQueueManager.getPlayQueueItem(position);
             }
@@ -127,11 +128,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
         final PlayerQueueView queueView = (PlayerQueueView) convertView;
         queueView.setPlayQueueItem(dataItem, mCommentingPosition == dataItem.getPlayQueuePosition());
-        if (dataItem != PlayQueueItem.EMPTY){
-            mQueueViewsById.forcePut(queueView, dataItem.getPlayQueuePosition());
-        } else {
-            mQueueViewsById.remove(convertView);
-        }
+        mQueueViewsByPosition.forcePut(queueView, dataItem.getPlayQueuePosition());
         return convertView;
     }
 
@@ -142,7 +139,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     @Override
     public int getItemPosition(Object object) {
-        return object == PlayQueueItem.EMPTY && !shouldDisplayExtraItem() ? POSITION_NONE : super.getItemPosition(object);
+        return ((PlayQueueItem) object).isEmpty() && !shouldDisplayExtraItem() ? POSITION_NONE : super.getItemPosition(object);
     }
 
     public PlayerTrackView getPlayerTrackViewById(long id){
@@ -153,7 +150,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     }
 
     public PlayerTrackView getPlayerTrackViewByPosition(int position){
-        final PlayerQueueView playerQueueView = mQueueViewsById.inverse().get(position);
+        final PlayerQueueView playerQueueView = mQueueViewsByPosition.inverse().get(position);
         if (playerQueueView != null){
             return playerQueueView.getTrackView();
         } else {
@@ -163,6 +160,12 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     }
 
     public void replaceEmptyView(){
-
+        for (PlayerQueueView playerQueueView : mQueueViewsByPosition.keySet()){
+            if (!playerQueueView.isShowingPlayerTrackView()){
+                final PlayQueueItem playQueueItem = getItem(mQueueViewsByPosition.get(playerQueueView));
+                playerQueueView.setPlayQueueItem(playQueueItem, mCommentingPosition == playQueueItem.getPlayQueuePosition());
+                playerQueueView.invalidate();
+            }
+        }
     }
 }

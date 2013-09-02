@@ -23,7 +23,7 @@ public class PlayerQueueView extends FrameLayout {
 
     public void setPlayQueueItem(PlayQueueItem playQueueItem, boolean inCommentingMode){
         // TODO, replace these with viewStubs
-        if (playQueueItem == PlayQueueItem.EMPTY){
+        if (playQueueItem.isEmpty()){
             showEmptyView();
             mEmptyView.setStatus(mPlayQueueManager.isFetchingRelated() ?
                     EmptyListView.Status.WAITING : EmptyListView.Status.ERROR);

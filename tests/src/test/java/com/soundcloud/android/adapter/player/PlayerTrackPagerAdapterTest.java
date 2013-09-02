@@ -1,6 +1,9 @@
 package com.soundcloud.android.adapter.player;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -15,6 +18,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -179,6 +183,34 @@ public class PlayerTrackPagerAdapterTest {
     }
 
     @Test
+    public void shouldReplaceEmptyView() throws Exception {
+        final PlayerTrackView trackView1 = Mockito.mock(PlayerTrackView.class);
+
+        final ViewGroup parent = Mockito.mock(ViewGroup.class);
+        final PlayerQueueView playerQueueView1 = Mockito.mock(PlayerQueueView.class);
+
+        when(playerQueueView1.getTrackView()).thenReturn(trackView1);
+        when(playerQueueView1.isShowingPlayerTrackView()).thenReturn(true);
+
+        final PlayerQueueView playerQueueView2 = Mockito.mock(PlayerQueueView.class);
+        when(playerQueueView2.isShowingPlayerTrackView()).thenReturn(false);
+
+        expect((PlayerQueueView) adapter.getView(new PlayQueueItem(Mockito.mock(Track.class), 0), playerQueueView1, parent)).toBe(playerQueueView1);
+        expect((PlayerQueueView) adapter.getView(PlayQueueItem.empty(1), playerQueueView2, parent)).toBe(playerQueueView2);
+
+        when(playQueueManager.length()).thenReturn(2);
+        when(playQueueManager.getPlayQueueItem(1)).thenReturn(new PlayQueueItem(Mockito.mock(Track.class), 1));
+
+        adapter.replaceEmptyView();
+
+        ArgumentCaptor<PlayQueueItem> captor = ArgumentCaptor.forClass(PlayQueueItem.class);
+        verify(playerQueueView2, times(2)).setPlayQueueItem(captor.capture(), anyBoolean());
+
+        expect(captor.getAllValues().get(0).isEmpty()).toBeTrue();
+        expect(captor.getAllValues().get(1).isEmpty()).toBeFalse();
+    }
+
+    @Test
     public void shouldReturnExtraItemWhenQueueFetching() throws Exception {
         when(playQueueManager.length()).thenReturn(1);
         when(playQueueManager.isFetchingRelated()).thenReturn(true);
@@ -195,22 +227,21 @@ public class PlayerTrackPagerAdapterTest {
     public void shouldReturnUnchangedPositionForEmptyItemWhenFetching() throws Exception {
         when(playQueueManager.length()).thenReturn(1);
         when(playQueueManager.isFetchingRelated()).thenReturn(true);
-        expect(adapter.getItemPosition(PlayQueueItem.EMPTY)).toBe(PagerAdapter.POSITION_UNCHANGED);
+        expect(adapter.getItemPosition(PlayQueueItem.empty(0))).toBe(PagerAdapter.POSITION_UNCHANGED);
     }
 
     @Test
     public void shouldReturnNoItemPositionForEmptyItemWhenNotFetching() throws Exception {
         when(playQueueManager.length()).thenReturn(1);
         when(playQueueManager.isFetchingRelated()).thenReturn(false);
-        expect(adapter.getItemPosition(PlayQueueItem.EMPTY)).toBe(PagerAdapter.POSITION_NONE);
+        expect(adapter.getItemPosition(PlayQueueItem.empty(0))).toBe(PagerAdapter.POSITION_NONE);
     }
 
     private void add2PlayerTrackViews(PlayerTrackView trackView1, PlayerTrackView trackView2) {
-        final ViewGroup parent = Mockito.mock(ViewGroup.class);
-        final PlayQueueItem playQueueItem1 = new PlayQueueItem(Mockito.mock(Track.class), 0);
-        final PlayQueueItem playQueueItem2 = new PlayQueueItem(Mockito.mock(Track.class), 1);
 
+        final ViewGroup parent = Mockito.mock(ViewGroup.class);
         final PlayerQueueView playerQueueView1 = Mockito.mock(PlayerQueueView.class);
+
         when(playerQueueView1.getTrackView()).thenReturn(trackView1);
         when(playerQueueView1.isShowingPlayerTrackView()).thenReturn(true);
 
@@ -218,7 +249,8 @@ public class PlayerTrackPagerAdapterTest {
         when(playerQueueView2.getTrackView()).thenReturn(trackView2);
         when(playerQueueView2.isShowingPlayerTrackView()).thenReturn(true);
 
-        expect((PlayerQueueView) adapter.getView(playQueueItem1, playerQueueView1, parent)).toBe(playerQueueView1);
-        expect((PlayerQueueView) adapter.getView(playQueueItem2, playerQueueView2, parent)).toBe(playerQueueView2);
+        expect((PlayerQueueView) adapter.getView(new PlayQueueItem(Mockito.mock(Track.class), 0), playerQueueView1, parent)).toBe(playerQueueView1);
+        expect((PlayerQueueView) adapter.getView(new PlayQueueItem(Mockito.mock(Track.class), 1), playerQueueView2, parent)).toBe(playerQueueView2);
     }
+
 }

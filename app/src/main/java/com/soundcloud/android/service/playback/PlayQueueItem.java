@@ -3,12 +3,14 @@ package com.soundcloud.android.service.playback;
 import com.soundcloud.android.model.Track;
 
 public class PlayQueueItem {
-    public static final PlayQueueItem EMPTY = new PlayQueueItem(-1);
-
     private Track mTrack;
     private int mPlayQueuePosition;
 
-    public PlayQueueItem(int pos) {
+    public static PlayQueueItem empty(int position){
+        return new PlayQueueItem(position);
+    }
+
+    private PlayQueueItem(int pos) {
         mPlayQueuePosition = pos;
     }
 
@@ -20,6 +22,10 @@ public class PlayQueueItem {
 
     public Track getTrack() {
         return mTrack;
+    }
+
+    public boolean isEmpty() {
+        return mTrack == null;
     }
 
     public int getPlayQueuePosition() {

@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import scala.xml.dtd.EMPTY;
 
 import android.content.Context;
 
@@ -62,7 +63,7 @@ public class PlayerQueueViewTest {
 
     @Test
     public void shouldSetWaitingStateOnEmptyView() throws Exception {
-        final PlayQueueItem playQueueItem = PlayQueueItem.EMPTY;
+        final PlayQueueItem playQueueItem = PlayQueueItem.empty(0);
         when(playQueueManager.isFetchingRelated()).thenReturn(true);
 
         playerQueueView.setPlayQueueItem(playQueueItem, false);
@@ -71,7 +72,7 @@ public class PlayerQueueViewTest {
 
     @Test
     public void shouldSetUnknownErrorStateOnEmptyView() throws Exception {
-        final PlayQueueItem playQueueItem = PlayQueueItem.EMPTY;
+        final PlayQueueItem playQueueItem = PlayQueueItem.empty(0);
         when(playQueueManager.isFetchingRelated()).thenReturn(false);
         when(playQueueManager.lastRelatedFetchFailed()).thenReturn(true);
 
@@ -81,7 +82,7 @@ public class PlayerQueueViewTest {
 
     @Test
     public void shouldReturnEmptyViewWhenTrackIsNull() throws Exception {
-        final PlayQueueItem playQueueItem = PlayQueueItem.EMPTY;
+        final PlayQueueItem playQueueItem = PlayQueueItem.empty(0);
         playerQueueView.setPlayQueueItem(playQueueItem, false);
         verifyZeroInteractions(playerTrackView);
     }

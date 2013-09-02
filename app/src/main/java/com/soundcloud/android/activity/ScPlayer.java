@@ -509,7 +509,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             } else if (action.equals(Broadcasts.META_CHANGED)) {
                 onMetaChanged(queuePos);
             } else if (action.equals(Broadcasts.RELATED_LOAD_COMPLETE)) {
-                mTrackPagerAdapter.notifyDataSetChanged();
+                mTrackPagerAdapter.replaceEmptyView();
+                setPlaybackState();
 
             } else if (action.equals(Comment.ACTION_CREATE_COMMENT)) {
                 addNewComment(intent.<Comment>getParcelableExtra(Comment.EXTRA));
@@ -605,8 +606,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         int pos    = mPlayQueueManager.getPosition();
         int length = mPlayQueueManager.length();
-
-        Log.i("asdf", "Setting playback state " + pos + " " + length);
 
         mTransportBar.setPreviousEnabled(pos > 0);
         mTransportBar.setNextEnabled(pos < (length - 1));
