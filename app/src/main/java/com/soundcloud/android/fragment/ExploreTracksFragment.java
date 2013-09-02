@@ -28,7 +28,7 @@ import android.widget.GridView;
 public class ExploreTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
 
-    private final int mGridViewId = R.id.suggested_tracks_grid;
+    private static final int GRID_VIEW_ID = R.id.suggested_tracks_grid;
     private EmptyListView mEmptyListView;
     private ExploreTracksAdapter mExploreTracksAdapter;
 
@@ -84,7 +84,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
             }
         });
 
-        PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(mGridViewId);
+        PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(GRID_VIEW_ID);
         ptrGridView.setOnRefreshListener(this);
         GridView gridView = ptrGridView.getRefreshableView();
         gridView.setOnItemClickListener(this);
@@ -98,7 +98,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
         mExploreTracksAdapter.subscribe(new PullToRefreshObserver<ExploreTracksFragment, Track>(
-                this, mGridViewId, mExploreTracksAdapter, mExploreTracksAdapter));
+                this, GRID_VIEW_ID, mExploreTracksAdapter, mExploreTracksAdapter));
     }
 
     @Override
