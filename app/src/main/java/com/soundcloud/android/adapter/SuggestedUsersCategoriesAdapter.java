@@ -22,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -280,7 +281,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         public CompoundButton toggleFollow;
     }
 
-    private static class CategoryGroupComparator implements Comparator<CategoryGroup> {
+    private static class CategoryGroupComparator implements Comparator<CategoryGroup>, Serializable {
 
         @Override
         public int compare(CategoryGroup lhs, CategoryGroup rhs) {
