@@ -81,7 +81,7 @@ public class PlayerQueueView extends FrameLayout {
         }
 
     protected EmptyListView createEmptyListView(Context context) {
-        EmptyListView emptyListView = new EmptyListView(context);
+        EmptyListView emptyListView = new EmptyListView(context, R.layout.empty_player_track);
         emptyListView.setBackgroundColor(Color.WHITE);
         return emptyListView;
     }

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:id="@+id/sizer"
+                android:layout_height="match_parent"
+                android:background="@color/playerControlBackground">
+
+    <LinearLayout android:id="@+id/loading"
+                  android:gravity="center_horizontal"
+                  android:layout_height="match_parent"
+                  android:layout_width="match_parent"
+                  android:orientation="vertical">
+
+        <ProgressBar android:layout_weight="1"
+                     android:indeterminateOnly="true"
+                     android:layout_width="wrap_content"
+                     android:layout_height="0dp"
+                     android:layout_margin="20dip"
+                     android:gravity="center_vertical"/>
+        <RelativeLayout android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:layout_height="0dp">
+
+            <TextView android:id="@+id/client_error_1"
+                      android:text="@string/player_fetching_related_message_1"
+                      android:layout_centerInParent="true"
+                      style="@style/txt_empty_error_message"/>
+
+            <TextView android:id="@+id/client_error_2"
+                      android:text="@string/player_fetching_related_message_2"
+                      android:layout_centerInParent="true"
+                      android:layout_below="@+id/client_error_1"
+                      style="@style/txt_empty_error_sub_message"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout android:id="@+id/empty_view_holder"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:gravity="center"/>
+
+</RelativeLayout>

@@ -18,12 +18,11 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class EmptyListView extends RelativeLayout {
-    protected ProgressBar mProgressBar;
+    protected View mProgressView;
 
     @Nullable protected ViewGroup mEmptyLayout;
 
@@ -51,12 +50,17 @@ public class EmptyListView extends RelativeLayout {
 
     public EmptyListView(final Context context) {
         super(context);
-        init();
+        init(R.layout.empty_list);
+    }
+
+    public EmptyListView(final Context context, int layoutId) {
+        super(context);
+        init(layoutId);
     }
 
     public EmptyListView(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        init();
+        init(R.layout.empty_list);
     }
 
     public EmptyListView setButtonActions(@Nullable final Intent primaryAction, @Nullable final Intent secondaryAction) {
@@ -78,15 +82,15 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    private void init(){
+    private void init(int layoutId){
         ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                .inflate(R.layout.empty_list, this);
+                .inflate(layoutId, this);
 
         final Animation animationIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in_med);
         setLayoutAnimation(new LayoutAnimationController(animationIn));
 
         mEmptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
-        mProgressBar = (ProgressBar) findViewById(R.id.list_loading);
+        mProgressView = findViewById(R.id.loading);
     }
 
     /**
@@ -100,20 +104,20 @@ public class EmptyListView extends RelativeLayout {
 
             if (code == Status.WAITING) {
                 // don't show empty screen, show progress
-                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressView.setVisibility(View.VISIBLE);
                 if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
                 if (mErrorView != null) mErrorView.setVisibility(View.GONE);
                 return true;
 
             } else if (Wrapper.isStatusCodeOk(code))  {
                 // at rest, no error
-                mProgressBar.setVisibility(View.GONE);
+                mProgressView.setVisibility(View.GONE);
                 showEmptyLayout();
                 return true;
 
             } else {
                 // error,
-                mProgressBar.setVisibility(View.GONE);
+                mProgressView.setVisibility(View.GONE);
                 showError(code);
                 return true;
 
