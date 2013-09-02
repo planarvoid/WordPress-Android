@@ -290,9 +290,9 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
                 throw new NotFoundException();
             default:
                 if (!isStatusCodeOk(code)) {
-                    final IOException ioException = new IOException("Invalid response for request: " + originalRequest + " " + response.getStatusLine());
-                    SoundCloudApplication.handleSilentException("Get InputStream failed", ioException);
-                    throw ioException;
+                    final UnexpectedResponseException exception = new UnexpectedResponseException(originalRequest, response.getStatusLine());
+                    SoundCloudApplication.handleSilentException("Get InputStream failed", exception);
+                    throw exception;
                 }
         }
         return response.getEntity().getContent();

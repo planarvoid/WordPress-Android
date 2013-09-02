@@ -55,7 +55,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private @Nullable ViewFlipper mTrackFlipper;            // can be null in landscape mode
     private @Nullable PlayerTrackDetails mTrackDetailsView; // ditto
 
-    protected  @Nullable Track mTrack;
+    protected Track mTrack;
     private int mQueuePosition;
     private long mDuration;
     protected boolean mOnScreen;

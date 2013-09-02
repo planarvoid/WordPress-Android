@@ -75,7 +75,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     // static convenience accessors
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
-    public static long getCurrentTrackId() { return instance == null ? -1L : instance.mCurrentTrack.getId(); }
+    public static long getCurrentTrackId() { return instance == null || instance.mCurrentTrack == null ? -1L : instance.mCurrentTrack.getId(); }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
@@ -601,6 +601,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         Log.w(TAG, e);
                     }
                     break;
+                default: // NO-OP
+                    break;
             }
         }
         state = PREPARING;
@@ -612,7 +614,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             }
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.reset");
             mMediaPlayer.reset();
-            mMediaPlayer.setWakeMode(CloudPlaybackService.this, PowerManager.PARTIAL_WAKE_LOCK);
+            mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setOnPreparedListener(preparedlistener);
             mMediaPlayer.setOnSeekCompleteListener(seekListener);
@@ -889,7 +891,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
             final long currentPos = (mMediaPlayer != null && !state.isError()) ? mMediaPlayer.getCurrentPosition() :0;
             // workaround for devices which can't do content-range requests
-            if (isNotSeekablePastBuffer() && isPastBuffer(pos)) {
+            if ((isNotSeekablePastBuffer() && isPastBuffer(pos)) || mMediaPlayer == null) {
                 Log.d(TAG, "MediaPlayer bug: cannot seek past buffer");
                 return currentPos;
             } else {
@@ -1131,6 +1133,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         removeMessages(CHECK_TRACK_EVENT);
                     }
                     break;
+                default: // NO-OP
+                    break;
             }
         }
     }
@@ -1303,7 +1307,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     mConnectRetries = 0;
                     DebugUtils.reportMediaPlayerError(CloudPlaybackService.this, item, what, extra);
 
-                    mMediaPlayer.release();
+                    mp.release();
                     mMediaPlayer = null;
                     gotoIdleState(ERROR);
 

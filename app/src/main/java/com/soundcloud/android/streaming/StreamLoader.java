@@ -1,7 +1,7 @@
 package com.soundcloud.android.streaming;
 
+import android.content.Context;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.utils.BatteryListener;
 import com.soundcloud.android.utils.IOUtils;
@@ -33,7 +33,7 @@ public class StreamLoader {
 
     private final NetworkConnectivityListener mConnectivityListener;
     private final BatteryListener mBatteryListener;
-    private final SoundCloudApplication mContext;
+    private final Context mContext;
     private final StreamStorage mStorage;
 
     private final ItemQueue mItemsNeedingHeadRequests = new ItemQueue();
@@ -59,7 +59,7 @@ public class StreamLoader {
     static final int HI_PRIO = 1;
     private AndroidCloudAPI mOldCloudAPI;
 
-    public StreamLoader(SoundCloudApplication context, final StreamStorage storage) {
+    public StreamLoader(Context context, final StreamStorage storage) {
         mContext = context;
         mStorage = storage;
         mOldCloudAPI = new OldCloudAPI(mContext);
