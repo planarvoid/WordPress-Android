@@ -5,6 +5,7 @@
           android:paddingTop="15dp"
           android:paddingLeft="15dp"
           android:paddingRight="15dp"
+          android:layout_height="wrap_content"
           android:visibility="gone"
           android:textColor="@color/scOrange"
           android:background="@drawable/orange_list_divider"/>
