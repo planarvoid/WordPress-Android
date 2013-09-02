@@ -185,6 +185,8 @@ public class PlayerTime extends RelativeLayout {
         getLayoutParams().width = mMeasuredMaxWidth;
         requestLayout();
 
+
+        setCurrentTime(0l, false);
         mDuration = time;
         mTotalTime.setText(ScTextUtils.formatTimestamp(time));
         invalidate();

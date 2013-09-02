@@ -110,6 +110,7 @@ public class Track extends Playable implements PlayableHolder {
         setUrn(suggestion.getUrn());
         setUser(new User(suggestion.getUser()));
         setTitle(suggestion.getTitle());
+        duration = suggestion.getDuration();
         artwork_url = suggestion.getArtworkUrl();
         genre = suggestion.getGenre();
         commentable = suggestion.isCommentable();

@@ -91,43 +91,43 @@ public class ExploreTracksSuggestion extends ScModel {
         return getUrn().imageUri(ImageSize.T500).toString();
     }
 
-    private void setTitle(String title) {
+    public void setTitle(String title) {
         this.mTitle = title;
     }
 
-    private void setGenre(String genre) {
+    public void setGenre(String genre) {
         this.mGenre = genre;
     }
 
-    private void setUser(UserSummary user) {
+    public void setUser(UserSummary user) {
         this.mUser = user;
     }
 
-    private void setCommentable(boolean commentable) {
+    public void setCommentable(boolean commentable) {
         this.mCommentable = commentable;
     }
 
-    private void setDuration(int duration) {
+    public void setDuration(int duration) {
         this.mDuration = duration;
     }
 
     @JsonProperty("stream_url")
-    private void setStreamUrl(String streamUrl) {
+    public void setStreamUrl(String streamUrl) {
         this.mStreamUrl = streamUrl;
     }
 
     @JsonProperty("playback_count")
-    private void setPlaybackCount(long playback_count) {
+    public void setPlaybackCount(long playback_count) {
         this.mPlaybackCount = playback_count;
     }
 
     @JsonProperty("waveform_url")
-    private void setWaveformUrl(String waveformUrl) {
+    public void setWaveformUrl(String waveformUrl) {
         this.mWaveformUrl = waveformUrl;
     }
 
     @JsonProperty("user_tags")
-    private void setUserTags(List<String> userTags) {
+    public void setUserTags(List<String> userTags) {
         this.mUserTags = userTags;
     }
 
@@ -138,7 +138,7 @@ public class ExploreTracksSuggestion extends ScModel {
 
 
     @JsonProperty("_embedded")
-    private void setRelatedResources(RelatedResources relatedResources) {
+    public void setRelatedResources(RelatedResources relatedResources) {
         this.mUser = relatedResources.user;
     }
 

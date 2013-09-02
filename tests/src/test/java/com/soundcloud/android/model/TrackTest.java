@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.streaming.StreamItem;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -262,7 +263,7 @@ public class TrackTest {
     public void shouldAppendTrackIdToStreamUrl() throws Exception {
         Track t = new Track(123L);
         t.stream_url = "http://media.soundcloud.com/stream/tfmLdABNn0wb";
-        expect(t.getStreamUrlWithAppendedId().toString()).toEqual("http://media.soundcloud.com/stream/tfmLdABNn0wb?_id=123");
+        expect(t.getStreamUrlWithAppendedId().toString()).toEqual("http://media.soundcloud.com/stream/tfmLdABNn0wb?" + StreamItem.TRACK_ID_KEY + "=123");
     }
 
     @Test
@@ -283,6 +284,7 @@ public class TrackTest {
         expect(t.tag_list).toEqual(TextUtils.join(" ", suggestion.getUserTags()));
         expect(t.created_at).toEqual(suggestion.getCreatedAt());
         expect(t.playback_count).toEqual(suggestion.getPlaybackCount());
+        expect(t.duration).toEqual(suggestion.getDuration());
     }
 
     private void compareTracks(Track t, Track t2) {
