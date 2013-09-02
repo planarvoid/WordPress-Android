@@ -32,6 +32,8 @@ public class ScTextUtils {
             "\\A([a-z0-9_\\-][a-z0-9_\\-\\+\\.]{0,62})?[a-z0-9_\\-]@(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)+[a-z]{2,}\\Z"
     );
 
+    public static final String EMPTY_STRING = "";
+
     private ScTextUtils() {
     }
 

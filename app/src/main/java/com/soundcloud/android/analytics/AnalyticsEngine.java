@@ -1,13 +1,14 @@
 package com.soundcloud.android.analytics;
 
-import android.content.Context;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.utils.Log;
 
-import java.util.Collection;
+import android.content.Context;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import java.util.Collection;
 
 /**
  * The engine which drives sending analytics. Important that all analytics providers to this engine
@@ -39,6 +40,7 @@ public class AnalyticsEngine {
             Log.d(TAG, "Analytics disabled, not opening session");
             return;
         }
+        Log.i(TAG, "Opening Analytics Session");
         for(AnalyticsProvider analyticsProvider : mAnalyticsProviders){
             analyticsProvider.openSession();
         }
@@ -49,7 +51,7 @@ public class AnalyticsEngine {
             Log.d(TAG, "Analytics disabled, not closing session");
             return;
         }
-
+        Log.i(TAG, "Closing Analytics Session");
         for(AnalyticsProvider analyticsProvider : mAnalyticsProviders){
             analyticsProvider.closeSession();
         }

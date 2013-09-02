@@ -1,12 +1,7 @@
-<!--
-This is a template only for development (copy of the debug property file) so that the ids can be referenced in code.
-This file will be replaced at build time with the appropriate file from the properties directory
-when a profile is specified (beta or release)
--->
+<!-- App properties for BETA releases -->
 <resources>
-    <string name="build_type">debug</string>
-    <string name="localytics_app_key">50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8</string>
-    <!-- Enable this if you want to see analytics data pushed to the dev applications in the respective analytics engines -->
-    <bool name="analytics_enabled">false</bool>
-
+    <string name="build_type">beta</string>
+    <string name="localytics_app_key">8fecc6a72fcb74ddc76e2ac-02fa3b92-08f2-11e3-120d-004a77f8b47f</string>
+    <bool name="analytics_enabled">true</bool>
+    <string name="api_mobile_base_uri_path">/app/mobileapps-staging</string>
 </resources>

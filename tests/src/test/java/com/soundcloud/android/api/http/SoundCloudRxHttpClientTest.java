@@ -68,11 +68,13 @@ public class SoundCloudRxHttpClientTest {
     private User resource;
     @Mock
     private Observer observer;
+    @Mock
+    private HttpProperties httpProperties;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        rxHttpClient = new SoundCloudRxHttpClient(jsonTransformer, wrapperFactory).subscribeOn(Schedulers.immediate());
+        rxHttpClient = new SoundCloudRxHttpClient(jsonTransformer, wrapperFactory, httpProperties).subscribeOn(Schedulers.immediate());
         when(apiRequest.getUriPath()).thenReturn(URI);
         when(apiRequest.getMethod()).thenReturn("get");
         when(apiRequest.getQueryParameters()).thenReturn(ArrayListMultimap.create());
@@ -126,6 +128,30 @@ public class SoundCloudRxHttpClientTest {
         verify(wrapper).post(argumentCaptor.capture());
         Request scRequest = argumentCaptor.getValue();
         expect(scRequest.toUrl()).toEqual(URI);
+    }
+
+    @Test
+    public void shouldAppendBaseUriIfGetRequestIsForPrivateAPI() throws IOException {
+        when(apiRequest.isPrivate()).thenReturn(true);
+        when(httpProperties.getApiMobileBaseUriPath()).thenReturn("/baseprivateapiuri");
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).get(argumentCaptor.capture());
+        Request scRequest = argumentCaptor.getValue();
+        expect(scRequest.toUrl()).toEqual("/baseprivateapiuri" + URI);
+    }
+
+    @Test
+    public void shouldAppendBaseUriIfPostRequestIsForPrivateAPI() throws IOException {
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(apiRequest.isPrivate()).thenReturn(true);
+        when(httpProperties.getApiMobileBaseUriPath()).thenReturn("/baseprivateapiuri");
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).post(argumentCaptor.capture());
+        Request scRequest = argumentCaptor.getValue();
+        expect(scRequest.toUrl()).toEqual("/baseprivateapiuri" + URI);
     }
 
     @Test
