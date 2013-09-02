@@ -44,17 +44,39 @@ public class ExploreTracksAdapterTest {
 
         View itemView = mock(View.class);
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
-        ExploreTracksAdapter.ItemViewHolder viewHolder = mock(ExploreTracksAdapter.ItemViewHolder.class);
-        viewHolder.imageView = new ImageView(Robolectric.application);
-        viewHolder.title = new TextView(Robolectric.application);
-        viewHolder.username = new TextView(Robolectric.application);
-        viewHolder.genre = new TextView(Robolectric.application);
-        viewHolder.playcount = new TextView(Robolectric.application);
+        ExploreTracksAdapter.ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
         adapter.bindItemView(0, itemView);
 
         expect(viewHolder.title.getText()).toEqual(track.getTitle());
         expect(viewHolder.username.getText()).toEqual(track.getUserName());
+    }
+
+    @Test
+    public void shouldHideGenreIfNoGenreAvailable() throws CreateModelException {
+        adapter = new ExploreTracksAdapter(mock(Observable.class), mock(ListFragmentObserver.class));
+        ExploreTracksSuggestion track = TestHelper.getModelFactory().createModel(ExploreTracksSuggestion.class);
+        track.setGenre(null);
+        adapter.addItem(track);
+
+        View itemView = mock(View.class);
+        when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
+        ExploreTracksAdapter.ItemViewHolder viewHolder = createItemViewHolder();
+        when(itemView.getTag()).thenReturn(viewHolder);
+
+        adapter.bindItemView(0, itemView);
+
+        expect(viewHolder.genre.getVisibility()).toEqual(View.GONE);
+    }
+
+    private ExploreTracksAdapter.ItemViewHolder createItemViewHolder() {
+        ExploreTracksAdapter.ItemViewHolder viewHolder = mock(ExploreTracksAdapter.ItemViewHolder.class);
+        viewHolder.imageView = new ImageView(Robolectric.application);
+        viewHolder.title = new TextView(Robolectric.application);
+        viewHolder.username = new TextView(Robolectric.application);
+        viewHolder.genre = new TextView(Robolectric.application);
+        viewHolder.playcount = new TextView(Robolectric.application);
+        return viewHolder;
     }
 }

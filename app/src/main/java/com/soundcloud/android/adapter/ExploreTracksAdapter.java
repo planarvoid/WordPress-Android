@@ -13,6 +13,7 @@ import rx.Observable;
 import rx.Observer;
 
 import android.content.res.Resources;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -54,7 +55,12 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
 
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());
-        viewHolder.genre.setText(track.getGenre());
+        if (TextUtils.isEmpty(track.getGenre())){
+            viewHolder.genre.setVisibility(View.GONE);
+        } else {
+            viewHolder.genre.setText(track.getGenre());
+            viewHolder.genre.setVisibility(View.VISIBLE);
+        }
         final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getPlaybackCount());
         viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, playcountWithCommas));
         final String artworkUri = ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtworkUrl());
