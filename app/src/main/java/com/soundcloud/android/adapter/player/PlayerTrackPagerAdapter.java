@@ -164,7 +164,6 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
             if (!playerQueueView.isShowingPlayerTrackView()){
                 final PlayQueueItem playQueueItem = getItem(mQueueViewsByPosition.get(playerQueueView));
                 playerQueueView.setPlayQueueItem(playQueueItem, mCommentingPosition == playQueueItem.getPlayQueuePosition());
-                playerQueueView.invalidate();
             }
         }
     }
