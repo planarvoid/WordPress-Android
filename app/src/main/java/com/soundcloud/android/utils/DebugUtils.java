@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.google.common.base.Charsets;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -33,6 +34,8 @@ import java.util.Map;
 
 public class DebugUtils {
 
+    public static final String UTF_8_ENC = Charsets.UTF_8.displayName();
+
     @SuppressWarnings("UnusedDeclaration")
     public static void dumpIntent(Intent intent) {
         Log.d(TAG, "dumpIntent("+intent+")");
@@ -56,7 +59,7 @@ public class DebugUtils {
             File traceFile = new File(debugDir, "traces-" + System.currentTimeMillis());
 
             try {
-                PrintStream ps = new PrintStream(new FileOutputStream(traceFile));
+                PrintStream ps = new PrintStream(new FileOutputStream(traceFile), true, UTF_8_ENC);
                 for (Map.Entry<Thread, StackTraceElement[]> e : traces.entrySet()) {
                     ps.println(e.getKey());
 
@@ -89,9 +92,9 @@ public class DebugUtils {
                 IOUtils.mkdirs(debugDir);
                 File logFile = new File(debugDir, "log-" + System.currentTimeMillis());
                 Process process = Runtime.getRuntime().exec("logcat -d");
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream(), UTF_8_ENC));
                 String line;
-                PrintStream ps = new PrintStream(new FileOutputStream(logFile));
+                PrintStream ps = new PrintStream(new FileOutputStream(logFile), true, UTF_8_ENC);
                 while ((line = bufferedReader.readLine()) != null) {
                     ps.println(line);
                 }
@@ -187,7 +190,7 @@ public class DebugUtils {
         try {
             instream = new BufferedInputStream(new FileInputStream(f));
             String line;
-            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
+            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream, UTF_8_ENC));
             while ((line = buffreader.readLine()) != null) {
                 if (line.contains("media.stagefright")) {
                     props.append(line);
