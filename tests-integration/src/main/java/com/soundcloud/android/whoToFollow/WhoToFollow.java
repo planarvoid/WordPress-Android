@@ -23,6 +23,7 @@ public class WhoToFollow extends ActivityTestCase<Onboard> {
 
     public void setUp() throws Exception {
         super.setUp();
+        IntegrationTestHelper.logOut(getInstrumentation());
         suggestedUsersScreen = new SuggestedUsersScreen(solo);
         suggestedUsersCategoryScreen = new SuggestedUsersCategoryScreen(solo);
         onboardScreen = new OnboardScreen(solo);

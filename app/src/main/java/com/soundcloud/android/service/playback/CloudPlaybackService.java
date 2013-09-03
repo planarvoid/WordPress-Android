@@ -147,7 +147,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private AudioManager mAudioManager;
     private @Nullable Track mCurrentTrack;
-    private AndroidCloudAPI oldCloudApi;
+    private AndroidCloudAPI mOldCloudApi;
 
     private long mResumeTime = -1;      // time of played track
     private long mResumeTrackId = -1;   // id of last played track
@@ -181,7 +181,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     // for play duration tracking
     private PlayEventTracker mPlayEventTracker;
-    private AndroidCloudAPI oldCloudAPI;
 
     public PlayEventTracker getPlayEventTracker() {
         return mPlayEventTracker;
@@ -220,7 +219,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
-        oldCloudAPI = new OldCloudAPI(this);
+        mOldCloudApi = new OldCloudAPI(this);
 
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueueManager, mAudioManager);
 
@@ -388,7 +387,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     public AndroidCloudAPI getOldCloudApi() {
-        return oldCloudApi;
+        return mOldCloudApi;
     }
 
     public FetchModelTask.Listener<Track> getInfoListener() {
@@ -500,7 +499,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 if (track.isStreamable()) {
                     onStreamableTrack(track);
                 } else if (track.load_info_task == null || !AndroidUtils.isTaskFinished(track.load_info_task)) {
-                    track.refreshInfoAsync(oldCloudAPI,mInfoListener);
+                    track.refreshInfoAsync(mOldCloudApi,mInfoListener);
                 } else {
                     onUnstreamableTrack(track.getId());
                 }
