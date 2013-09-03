@@ -214,6 +214,9 @@ namespace :beta do
     versions['app_versions'].map { |app| app['version'].to_i }.max
   end
 
+  def get_build_number
+    ENV['BUILD_NUMBER'] || "local"
+  end
   task :versions do
     sh "curl -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions"
   end
@@ -228,7 +231,7 @@ namespace :beta do
       curl \
         -H "X-HockeyAppToken: #{TOKEN}" \
         -F "status=2" \
-        -F "notify=1" \
+        -F "notify=0" \
         -F "notes_type=1" \
         -F "notes=#{last_release_notes}" \
         -F "ipa=@#{BETA_APK}" \
@@ -247,9 +250,13 @@ namespace :beta do
       if version_code.nil?
         version_code = 0
       end
+
+      version_name = current_version() + "-" + get_build_number
+
       sh <<-END
         mvn clean install --projects app -DskipTests -Psign,soundcloud,beta \
           -Dandroid.manifest.versionCode=#{version_code+1} \
+          -Dandroid.manifest.versionName=#{version_name} \
           -Dandroid.manifest.debuggable=true
       END
     end
@@ -277,7 +284,8 @@ namespace :beta do
   desc "tag the current beta"
   task :tag do
     with_beta do |version|
-      sh "git tag -a #{version} -m #{version} && git push --tags && git push"
+      version_with_build = version + "-" + get_build_number
+      sh "git tag -a #{version_with_build} -m #{version_with_build} && git push --tags && git push"
     end
   end
 

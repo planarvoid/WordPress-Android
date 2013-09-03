@@ -24,6 +24,7 @@
         <keystore.keypass>android</keystore.keypass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <androidApiLevel>16</androidApiLevel>
+        <android.maven.plugin.version>3.6.1-ndkfix</android.maven.plugin.version>
     </properties>
 
     <build>
@@ -32,7 +33,7 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.6.1-ndkfix</version>
+                <version>${android.maven.plugin.version}</version>
                 <configuration>
                     <!-- Prevents signing of the apk if no profile specified when building -->
                     <sign>
