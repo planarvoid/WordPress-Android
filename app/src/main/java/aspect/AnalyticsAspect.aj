@@ -17,11 +17,6 @@ aspect AnalyticAspects {
     }
 
     before(Activity activity) : activityOnPause(activity) {
-        State playbackState = CloudPlaybackService.getPlaybackState();
-        if(playbackState.isSupposedToBePlaying()){
-            //Player is playing/going to play so do not close session
-            return;
-        }
         initialiseAnalyticsEngine(activity);
         analyticsEngine.closeSession();
     }

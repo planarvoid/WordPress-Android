@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.analytics.AnalyticsEngine.CloudPlayerStateWrapper;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -26,12 +27,14 @@ public class AnalyticsEngineTest {
     private AnalyticsProvider analyticsProviderTwo;
     @Mock
     private SharedPreferences sharedPreferences;
+    @Mock
+    private CloudPlayerStateWrapper playbackWrapper;
 
     @Test
     public void shouldCallOpenSessionOnAllProvidersIfAnalyticsEnabled(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
         when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        initialiseAnalyticsEngine();
         analyticsEngine.openSession();
         verify(analyticsProviderOne).openSession();
         verify(analyticsProviderTwo).openSession();
@@ -41,7 +44,7 @@ public class AnalyticsEngineTest {
     public void shouldNotCallOpenSessionOnAnyProvidersIfAnalyticsPreferenceDisabled(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
         when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(false);
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        initialiseAnalyticsEngine();
         analyticsEngine.openSession();
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
@@ -51,7 +54,7 @@ public class AnalyticsEngineTest {
     public void shouldNotCallOpenSessionOnAnyProvidersIfAnalyticsPropertyDisabled(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
         when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        initialiseAnalyticsEngine();
         analyticsEngine.openSession();
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
@@ -61,47 +64,95 @@ public class AnalyticsEngineTest {
     public void shouldNotOpenCloseSessionOnAnyProvidersIfAnalyticsDisabled(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
         when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(false);
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        initialiseAnalyticsEngine();
         analyticsEngine.openSession();
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
     }
 
     @Test
-    public void shouldCallCloseSessionOnAllProvidersIfAnalyticsEnabled(){
+    public void shouldCallCloseSessionOnAllProvidersIfAnalyticsEnabledAndPlayerIsNotPlaying(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
         when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
+        initialiseAnalyticsEngine();
         analyticsEngine.closeSession();
         verify(analyticsProviderOne).closeSession();
         verify(analyticsProviderTwo).closeSession();
     }
 
     @Test
-    public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsPreferenceDisabled(){
+    public void shouldNotCallCloseSessionOnAllProvidersIfAnalyticsEnabledAndPlayerIsPlaying(){
+        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
+        when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
+        initialiseAnalyticsEngine();
+        analyticsEngine.closeSession();
+        verifyZeroInteractions(analyticsProviderOne);
+        verifyZeroInteractions(analyticsProviderTwo);
+    }
+
+    @Test
+    public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsPreferenceDisabledAndPlayerIsNotPlaying(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
         when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(false);
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
+        initialiseAnalyticsEngine();
         analyticsEngine.closeSession();
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
     }
 
     @Test
-    public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsPropertyDisabled(){
+    public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsPreferenceDisabledAndPlayerIsPlaying(){
+        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(false);
+        when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
+        initialiseAnalyticsEngine();
+        analyticsEngine.closeSession();
+        verifyZeroInteractions(analyticsProviderOne);
+        verifyZeroInteractions(analyticsProviderTwo);
+    }
+
+    @Test
+    public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsPropertyDisabledAndPlayerIsNotPlaying(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
         when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
+        initialiseAnalyticsEngine();
         analyticsEngine.closeSession();
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
     }
 
     @Test
-    public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsDisabled(){
+    public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsPropertyDisabledAndPlayerIsPlaying(){
+        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
+        when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
+        initialiseAnalyticsEngine();
+        analyticsEngine.closeSession();
+        verifyZeroInteractions(analyticsProviderOne);
+        verifyZeroInteractions(analyticsProviderTwo);
+    }
+
+    @Test
+    public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsDisabledAndPlayerIsNotPlaying(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
         when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(false);
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
+        initialiseAnalyticsEngine();
+        analyticsEngine.closeSession();
+        verifyZeroInteractions(analyticsProviderOne);
+        verifyZeroInteractions(analyticsProviderTwo);
+    }
+
+    @Test
+    public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsDisabledAndPlayerIsPlaying(){
+        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(false);
+        when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
+        initialiseAnalyticsEngine();
         analyticsEngine.closeSession();
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
@@ -109,13 +160,13 @@ public class AnalyticsEngineTest {
 
     @Test
     public void shouldRegisterItselfAsListenerForPreferenceChanges(){
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        initialiseAnalyticsEngine();
         verify(sharedPreferences).registerOnSharedPreferenceChangeListener(analyticsEngine);
     }
 
     @Test
     public void shouldUpdateAnalyticsPreferenceWhenChangeOccurs(){
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        initialiseAnalyticsEngine();
         expect(analyticsEngine.isAnalyticsPreferenceEnabled()).toBeFalse();
         when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
         analyticsEngine.onSharedPreferenceChanged(sharedPreferences,Settings.ANALYTICS);
@@ -124,11 +175,15 @@ public class AnalyticsEngineTest {
 
     @Test
     public void shouldNotUpdateAnalyticsPreferenceIfKeyIsNotAnalytics(){
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        initialiseAnalyticsEngine();
         expect(analyticsEngine.isAnalyticsPreferenceEnabled()).toBeFalse();
         SharedPreferences secondSharedPreferences = mock(SharedPreferences.class);
         analyticsEngine.onSharedPreferenceChanged(secondSharedPreferences, Settings.ACCOUNT_SYNC_SETTINGS);
         verifyZeroInteractions(secondSharedPreferences);
+    }
+
+    private void initialiseAnalyticsEngine() {
+        analyticsEngine = new AnalyticsEngine(analyticsProperties, playbackWrapper, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
     }
 
 }

@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
@@ -27,19 +29,23 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
     private final AnalyticsProperties mAnalyticsProperties;
     private boolean mAnalyticsPreferenceEnabled;
+    private CloudPlayerStateWrapper mCloudPlaybackStateWrapper;
 
     public AnalyticsEngine(Context context){
-        this(new AnalyticsProperties(context.getResources()), PreferenceManager.getDefaultSharedPreferences(context),
+        this(new AnalyticsProperties(context.getResources()), new CloudPlayerStateWrapper(),
+                PreferenceManager.getDefaultSharedPreferences(context),
                 new LocalyticsAnalyticsProvider(context.getApplicationContext()));
     }
 
     @VisibleForTesting
-    protected AnalyticsEngine(AnalyticsProperties analyticsProperties, SharedPreferences sharedPreferences, AnalyticsProvider... analyticsProviders) {
+    protected AnalyticsEngine(AnalyticsProperties analyticsProperties, CloudPlayerStateWrapper cloudPlaybackStateWrapper,
+                              SharedPreferences sharedPreferences, AnalyticsProvider... analyticsProviders) {
         checkArgument(analyticsProviders.length > 0, "Need to provide at least one analytics provider");
         mAnalyticsProviders = Lists.newArrayList(analyticsProviders);
         mAnalyticsProperties = analyticsProperties;
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS, true);
+        mCloudPlaybackStateWrapper = cloudPlaybackStateWrapper;
     }
 
     public void openSession(){
@@ -47,6 +53,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             Log.d(TAG, "Analytics disabled, not opening session");
             return;
         }
+
         Log.i(TAG, "Opening Analytics Session");
         for(AnalyticsProvider analyticsProvider : mAnalyticsProviders){
             analyticsProvider.openSession();
@@ -54,10 +61,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     public void closeSession(){
-        if(analyticsIsDisabled()){
+        if(analyticsIsDisabled() || mCloudPlaybackStateWrapper.isPlayerPlaying()){
             Log.d(TAG, "Analytics disabled, not closing session");
             return;
         }
+
         Log.i(TAG, "Closing Analytics Session");
         for(AnalyticsProvider analyticsProvider : mAnalyticsProviders){
             analyticsProvider.closeSession();
@@ -66,6 +74,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     private boolean analyticsIsDisabled() {
         return mAnalyticsProperties.isAnalyticsDisabled() || !mAnalyticsPreferenceEnabled;
+
     }
 
     @Override
@@ -78,5 +87,13 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     @VisibleForTesting
     protected boolean isAnalyticsPreferenceEnabled(){
         return mAnalyticsPreferenceEnabled;
+    }
+
+    //To make testing easier
+    protected static class CloudPlayerStateWrapper{
+        public boolean isPlayerPlaying(){
+            State playbackState = CloudPlaybackService.getPlaybackState();
+            return playbackState.isSupposedToBePlaying();
+        }
     }
 }
