@@ -1,6 +1,9 @@
 import android.app.Activity;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import android.content.Context;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.State;
+
 aspect AnalyticAspects {
 	private AnalyticsEngine analyticsEngine;
 
@@ -14,6 +17,11 @@ aspect AnalyticAspects {
     }
 
     before(Activity activity) : activityOnPause(activity) {
+        State playbackState = CloudPlaybackService.getPlaybackState();
+        if(playbackState.isSupposedToBePlaying()){
+            //Player is playing/going to play so do not close session
+            return;
+        }
         initialiseAnalyticsEngine(activity);
         analyticsEngine.closeSession();
     }

@@ -18,6 +18,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
@@ -182,6 +183,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     // for play duration tracking
     private PlayEventTracker mPlayEventTracker;
 
+    private AnalyticsEngine analyticsEngine;
+
     public PlayEventTracker getPlayEventTracker() {
         return mPlayEventTracker;
     }
@@ -219,6 +222,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         mOldCloudApi = new OldCloudAPI(this);
+        analyticsEngine = new AnalyticsEngine(getApplicationContext());
+        analyticsEngine.openSession();
 
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueueManager, mAudioManager);
 
@@ -255,8 +260,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void onDestroy() {
         instance = null;
-
-        super.onDestroy();
+        analyticsEngine.closeSession();
         stop();
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -268,6 +272,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         unregisterReceiver(mIntentReceiver);
         unregisterReceiver(mNoisyReceiver);
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
+        super.onDestroy();
     }
 
     @Override
