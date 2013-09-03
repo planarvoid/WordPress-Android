@@ -11,10 +11,10 @@ import android.graphics.Shader;
 import android.util.AttributeSet;
 
 /**
- * Offsets the imageview source by ~33%
+ * Offsets the imageview source by 20% from the top
  * Used by {@link com.soundcloud.android.adapter.ExploreTracksAdapter}
  */
-public class SuggestedTracksImageView extends OptimisedImageView {
+public class SuggestedTracksImageView extends AspectRatioImageView {
 
     public static final double GRADIENT_START_POSITION = .5;
     public static final int[] GRADIENT_COLORS = new int[]{Color.TRANSPARENT, 0x5F000000, 0x9F000000};
@@ -29,10 +29,12 @@ public class SuggestedTracksImageView extends OptimisedImageView {
     @Override
     protected boolean setFrame(int l, int t, int r, int b)
     {
-        Matrix matrix = getImageMatrix();
+        final Matrix matrix = getImageMatrix();
         float scaleFactor = (r-l)/(float)getDrawable().getIntrinsicWidth();
-        matrix.setScale(scaleFactor, scaleFactor, 0, 0);
-        matrix.postTranslate(0, -(b-t)/3);
+        final int desiredFocalPoint = (int) (-(getDrawable().getIntrinsicHeight()) * .35);
+        matrix.setTranslate(0, desiredFocalPoint);
+        matrix.postScale(scaleFactor, scaleFactor, 0, 0);
+        matrix.postTranslate(0, (b-t)/(2));
         setImageMatrix(matrix);
         return super.setFrame(l, t, r, b);
     }
