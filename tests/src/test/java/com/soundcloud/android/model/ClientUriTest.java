@@ -72,6 +72,16 @@ public class ClientUriTest {
     }
 
     @Test
+    public void shouldBuildCorrectURNForSounds() {
+        expect(ClientUri.fromTrack(1)).toEqual(new ClientUri("soundcloud:sounds:1"));
+    }
+
+    @Test
+    public void shouldBuildCorrectURNForUsers() {
+        expect(ClientUri.fromUser(1)).toEqual(new ClientUri("soundcloud:users:1"));
+    }
+
+    @Test
     public void shouldBuildCorrectImageResolveUri() {
         expect(new ClientUri("soundcloud:sounds:123").imageUri())
                 .toEqual("https://api.soundcloud.com/resolve/image?url=soundcloud%3Asounds%3A123&client_id=40ccfee680a844780a41fbe23ea89934");

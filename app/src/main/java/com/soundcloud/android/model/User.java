@@ -82,6 +82,14 @@ public class User extends ScResource implements UserHolder {
         super(urn);
     }
 
+    @Override
+    public void setId(long id) {
+        super.setId(id);
+        if (mURN == null) {
+            setUrn(ClientUri.fromUser(id));
+        }
+    }
+
     public User(SuggestedUser suggestedUser){
         setUrn(suggestedUser.getUrn());
         setUsername(suggestedUser.getUsername());

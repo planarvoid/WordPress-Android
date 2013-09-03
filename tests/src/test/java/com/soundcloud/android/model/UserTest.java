@@ -16,6 +16,13 @@ import android.os.Parcel;
 public class UserTest {
 
     @Test
+    public void setIdShouldSetURNIfNull() throws Exception {
+        User u = new User();
+        u.setId(1000L);
+        expect(u.getUrn()).toEqual(new ClientUri("soundcloud:users:1000"));
+    }
+
+    @Test
     public void testLocation() throws Exception {
         User u = new User();
         expect(u.getLocation()).toEqual("");

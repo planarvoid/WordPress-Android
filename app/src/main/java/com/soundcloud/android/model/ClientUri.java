@@ -98,6 +98,16 @@ public class ClientUri {
         }
     }
 
+    @Nullable
+    public static ClientUri fromTrack(long id) {
+        return fromUri(forTrack(id));
+    }
+
+    @Nullable
+    public static ClientUri fromUser(long id) {
+        return fromUri(forUser(id));
+    }
+
     public static Uri forTrack(long id) {
         return Uri.parse("soundcloud:sounds:"+id);
     }

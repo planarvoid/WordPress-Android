@@ -20,6 +20,14 @@ import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
 public class TrackTest {
+
+    @Test
+    public void setIdShouldSetURNIfNull() throws Exception {
+        Track t = new Track();
+        t.setId(1000L);
+        expect(t.getUrn()).toEqual(new ClientUri("soundcloud:sounds:1000"));
+    }
+
     @Test
     public void shouldFilterOutMachineTags() throws Exception {
         Track t = new Track();

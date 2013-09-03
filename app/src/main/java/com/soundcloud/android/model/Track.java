@@ -121,6 +121,14 @@ public class Track extends Playable implements PlayableHolder {
         playback_count = suggestion.getPlaybackCount();
     }
 
+    @Override
+    public void setId(long id) {
+        super.setId(id);
+        if (mURN == null){
+            setUrn(ClientUri.fromTrack(id));
+        }
+    }
+
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
         if (tag_list == null) return tags;
