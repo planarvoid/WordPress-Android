@@ -71,6 +71,29 @@
                     </filesets>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <configuration>
+                    <format>xml</format>
+                    <aggregate>true</aggregate>
+                    <instrumentation>
+                        <includes>
+                            <include>com/soundcloud/android/**/*.class</include>
+                        </includes>
+                        <excludes>
+                            <exclude>com.soundcloud.android.tests.*</exclude>
+                        </excludes>
+                    </instrumentation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
