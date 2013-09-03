@@ -203,14 +203,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private void updateAvatar(boolean postAtFront) {
         if (mTrack != null && mTrack.getUser() != null) {
             final User user = mTrack.getUser();
-            if (user.hasAvatarUrl()){
-                ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(getContext(), user.avatar_url), mAvatar);
-            } else {
-                // TODO, fix this ghetto avatar switching, put on model
-                final ImageSize listItemImageSize = ImageSize.getListItemImageSize(getContext());
-                final ClientUri userClientUri = new ClientUri(ClientUri.forUser(mTrack.getUser().getId()));
-                ImageLoader.getInstance().displayImage(userClientUri.imageUri(listItemImageSize).toString(), mAvatar);
-            }
+            ImageLoader.getInstance().displayImage(user.getListAvatarUri(getContext()), mAvatar);
         } else {
             ImageLoader.getInstance().cancelDisplayTask(mAvatar);
         }

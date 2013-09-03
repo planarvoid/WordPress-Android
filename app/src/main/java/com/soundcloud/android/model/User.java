@@ -355,8 +355,12 @@ public class User extends ScResource implements UserHolder {
     }
 
     public void refreshListAvatarUri(Context context) {
-        final String iconUrl = avatar_url;
-        _list_avatar_uri = shouldLoadIcon() ? ImageSize.formatUriForList(context, iconUrl) : null;
+        if (hasAvatarUrl()){
+            _list_avatar_uri = shouldLoadIcon() ? ImageSize.formatUriForList(context, avatar_url) : null;
+        } else {
+            final ClientUri urn = getUrn();
+            _list_avatar_uri =  urn == null ? null : urn.imageUri(ImageSize.getListItemImageSize(context)).toString();
+        }
     }
 
     public String getListAvatarUri(Context context){
