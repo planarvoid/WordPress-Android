@@ -380,6 +380,19 @@
         </profile>
 
         <profile>
+            <id>ci</id>
+            <properties>
+                <build.type>debug</build.type>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <keystore.alias>androiddebugkey</keystore.alias>
+                <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
+                <keystore.password>android</keystore.password>
+                <keystore.keypass>android</keystore.keypass>
+                <build.proguard.skip>false</build.proguard.skip>
+            </properties>
+        </profile>
+
+        <profile>
             <id>sign</id>
             <build>
                 <plugins>

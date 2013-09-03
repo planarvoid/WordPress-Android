@@ -17,7 +17,6 @@
     </organization>
 
     <properties>
-        <build.type>debug</build.type>
         <build.skipAspectWeaving>true</build.skipAspectWeaving>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <androidApiLevel>16</androidApiLevel>
