@@ -54,7 +54,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             return;
         }
 
-        Log.i(TAG, "Opening Analytics Session");
+        Log.d(TAG, "Opening Analytics Session");
         for(AnalyticsProvider analyticsProvider : mAnalyticsProviders){
             analyticsProvider.openSession();
         }
@@ -66,7 +66,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             return;
         }
 
-        Log.i(TAG, "Closing Analytics Session");
+        Log.d(TAG, "Closing Analytics Session");
         for(AnalyticsProvider analyticsProvider : mAnalyticsProviders){
             analyticsProvider.closeSession();
         }

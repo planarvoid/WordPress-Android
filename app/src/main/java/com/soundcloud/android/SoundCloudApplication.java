@@ -71,7 +71,7 @@ public class SoundCloudApplication extends Application implements Tracker {
 
         Log.i(TAG, "Application starting up in mode " + appProperties.getBuildType());
         Log.d(TAG, appProperties.toString());
-        Log.i(TAG, analyticsProperties.toString());
+        Log.d(TAG, analyticsProperties.toString());
 
         if (appProperties.isDevBuildRunningOnDalvik() && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
