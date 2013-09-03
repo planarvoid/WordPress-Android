@@ -120,6 +120,16 @@ public class EmailPicker extends ListActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         Editable ed = mEmail.getText();
         ed.replace(ed.toString().lastIndexOf(",") + 1, ed.length(),

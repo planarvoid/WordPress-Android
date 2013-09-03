@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.junit.Assert.fail;
 
 import com.google.common.base.Function;
@@ -8,6 +9,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.ClassPath;
+import com.soundcloud.android.activity.auth.AbstractLoginActivity;
 import org.junit.Test;
 
 import android.app.Activity;
@@ -25,7 +27,9 @@ public class ActivityLifecycleCheckTest {
         @Override
         public boolean apply(ClassPath.ClassInfo classInfo) {
             Class<?> clazz = classInfo.load();
-            return Activity.class.isAssignableFrom(clazz) && !Modifier.isAbstract(clazz.getModifiers());
+            boolean isSubclassOfScActivity = ScActivity.class.isAssignableFrom(clazz);
+            boolean isSubclassOfLoginActivity = AbstractLoginActivity.class.isAssignableFrom(clazz);
+            return Activity.class.isAssignableFrom(clazz) && !Modifier.isAbstract(clazz.getModifiers()) && !isSubclassOfScActivity && !isSubclassOfLoginActivity;
         }
     };
 
@@ -46,7 +50,7 @@ public class ActivityLifecycleCheckTest {
 
         for(ClassPath.ClassInfo classInfo : classes){
             Class clazz = classInfo.load();
-            if(!overridesMethod(clazz, "onCreate", Bundle.class) || !overridesMethod(clazz, "onPause") && !overridesMethod(clazz, "onResume")){
+            if(activityDoesNotOverrideLifecycleMethods(clazz)){
                 problemClasses.add(clazz);
             }
 
@@ -57,6 +61,20 @@ public class ActivityLifecycleCheckTest {
             fail("Activity classes which do not override onCreate, onPause or onResume exist\n" + Joiner.on("\n").join(classNames));
         }
 
+    }
+
+    private boolean activityDoesNotOverrideLifecycleMethods(Class clazz) throws NoSuchMethodException {
+        return !overridesMethod(clazz, "onCreate", Bundle.class) || !overridesMethod(clazz, "onPause") || !overridesMethod(clazz, "onResume");
+    }
+
+    @Test
+    public void scActivityShouldOverrideLifecycleMethods() throws NoSuchMethodException {
+        expect(activityDoesNotOverrideLifecycleMethods(ScActivity.class)).toBeFalse();
+    }
+
+    @Test
+    public void loginActivityShouldOverrideLifecycleMethods() throws NoSuchMethodException {
+        expect(activityDoesNotOverrideLifecycleMethods(AbstractLoginActivity.class)).toBeFalse();
     }
 
     private boolean overridesMethod(Class clazz, String methodName, Class... arguments) throws NoSuchMethodException {

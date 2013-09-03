@@ -261,6 +261,11 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
         super.onResume();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
     private void setClearCacheTitle(final String pref, final int key, final File dir) {
         final Handler handler = new Handler();
         new Thread() {

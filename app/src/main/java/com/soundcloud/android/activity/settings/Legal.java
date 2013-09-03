@@ -15,6 +15,17 @@ public class Legal extends SherlockPreferenceActivity implements ActionBarContro
         addPreferencesFromResource(R.xml.legal);
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
     @NotNull
     @Override
     public Activity getActivity() {
