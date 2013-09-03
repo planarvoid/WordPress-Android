@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.ClassPath;
 import com.soundcloud.android.activity.auth.AbstractLoginActivity;
+import com.soundcloud.android.cropimage.MonitoredActivity;
 import org.junit.Test;
 
 import android.app.Activity;
@@ -23,13 +24,22 @@ import java.util.Set;
 
 public class ActivityLifecycleCheckTest {
 
+    private static final Collection<Class> EXCLUDED_CLASSES = Lists.<Class>newArrayList(MonitoredActivity.class);
+
     private static Predicate<ClassPath.ClassInfo> ACTIVITY_CLASS_PREDICATE = new Predicate<ClassPath.ClassInfo>() {
         @Override
         public boolean apply(ClassPath.ClassInfo classInfo) {
             Class<?> clazz = classInfo.load();
-            boolean isSubclassOfScActivity = ScActivity.class.isAssignableFrom(clazz);
-            boolean isSubclassOfLoginActivity = AbstractLoginActivity.class.isAssignableFrom(clazz);
-            return Activity.class.isAssignableFrom(clazz) && !Modifier.isAbstract(clazz.getModifiers()) && !isSubclassOfScActivity && !isSubclassOfLoginActivity;
+            return Activity.class.isAssignableFrom(clazz) && !Modifier.isAbstract(clazz.getModifiers()) &&
+                    !isSubclassOfScActivity(clazz) && !isSubclassOfAbstractLoginActivity(clazz) && !EXCLUDED_CLASSES.contains(clazz);
+        }
+
+        private boolean isSubclassOfScActivity(Class<?> clazz) {
+            return ScActivity.class.isAssignableFrom(clazz);
+        }
+
+        private boolean isSubclassOfAbstractLoginActivity(Class<?> clazz) {
+            return AbstractLoginActivity.class.isAssignableFrom(clazz);
         }
     };
 
