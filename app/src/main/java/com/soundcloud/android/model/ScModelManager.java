@@ -237,11 +237,11 @@ public class ScModelManager {
             track.user = cache(track.user, updateMode);
         }
 
-        if (mTrackCache.containsKey(track.mID)) {
+        if (mTrackCache.containsKey(track.getId())) {
             if (updateMode.shouldUpdate()) {
-                return mTrackCache.get(track.mID).updateFrom(track, updateMode);
+                return mTrackCache.get(track.getId()).updateFrom(track, updateMode);
             } else {
-                return mTrackCache.get(track.mID);
+                return mTrackCache.get(track.getId());
             }
 
         } else {
@@ -261,11 +261,11 @@ public class ScModelManager {
             playlist.tracks.set(i, cache(playlist.tracks.get(i), updateMode));
         }
 
-        if (mPlaylistCache.containsKey(playlist.mID)) {
+        if (mPlaylistCache.containsKey(playlist.getId())) {
             if (updateMode.shouldUpdate()) {
-                return mPlaylistCache.get(playlist.mID).updateFrom(playlist, updateMode);
+                return mPlaylistCache.get(playlist.getId()).updateFrom(playlist, updateMode);
             } else {
-                return mPlaylistCache.get(playlist.mID);
+                return mPlaylistCache.get(playlist.getId());
             }
         } else {
             mPlaylistCache.put(playlist);
@@ -280,11 +280,11 @@ public class ScModelManager {
     public User cache(@Nullable User user, ScResource.CacheUpdateMode updateMode) {
         if (user == null) return null;
 
-        if (mUserCache.containsKey(user.mID)) {
+        if (mUserCache.containsKey(user.getId())) {
             if (updateMode.shouldUpdate()) {
-                return mUserCache.get(user.mID).updateFrom(user, updateMode);
+                return mUserCache.get(user.getId()).updateFrom(user, updateMode);
             } else {
-                return mUserCache.get(user.mID);
+                return mUserCache.get(user.getId());
             }
         } else {
             mUserCache.put(user);

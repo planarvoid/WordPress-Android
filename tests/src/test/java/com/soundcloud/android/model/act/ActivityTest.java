@@ -58,7 +58,7 @@ public class ActivityTest {
         final Date date = new Date();
         a.created_at = date;
         a.tags = "foo";
-        a.track = new Track() { { mID = 10L; } };
+        a.track = new Track() { { setId(10L); } };
 
         ContentValues cv = a.buildContentValues();
 
@@ -74,7 +74,7 @@ public class ActivityTest {
         final Date date = new Date();
         a.created_at = date;
         a.tags = "foo";
-        a.comment = new Comment() { { mID = 10L; } };
+        a.comment = new Comment() { { setId(10L); } };
 
         ContentValues cv = a.buildContentValues();
         expect(cv.getAsString(DBHelper.Activities.TAGS)).toEqual("foo");

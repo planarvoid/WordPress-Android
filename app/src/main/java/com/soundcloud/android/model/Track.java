@@ -138,7 +138,7 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     public Uri toUri() {
-        return Content.TRACKS.forId(mID);
+        return Content.TRACKS.forId(getId());
     }
 
     @JsonIgnore
@@ -367,11 +367,11 @@ public class Track extends Playable implements PlayableHolder {
     // TODO, THIS SUCKS
     public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.Listener<Track> listener) {
         if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
-            load_info_task = new FetchTrackTask(api, mID);
+            load_info_task = new FetchTrackTask(api, getId());
         }
         load_info_task.addListener(listener);
         if (AndroidUtils.isTaskPending(load_info_task)) {
-            load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mID));
+            load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, getId()));
         }
         return load_info_task;
     }
@@ -465,7 +465,7 @@ public class Track extends Playable implements PlayableHolder {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("id", mID)
+                .add("id", getId())
                 .add("title", title)
                 .add("permalink_url", permalink_url)
                 .add("artwork_url", artwork_url)
