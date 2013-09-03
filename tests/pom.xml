@@ -62,6 +62,59 @@
                     <runOrder>random</runOrder>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.github.goldin</groupId>
+                <artifactId>copy-maven-plugin</artifactId>
+                <version>0.2.5</version>
+                <executions>
+                    <execution>
+                        <id>copy-cobertura-data-from-project-under-test</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/../app/target/cobertura</directory>
+                                    <targetPath>${project.basedir}/target/cobertura</targetPath>
+                                    <includes>
+                                        <include>*.ser</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>${project.basedir}/../app/target/generated-classes/cobertura/</directory>
+                                    <targetPath>${project.basedir}/target/generated-classes/cobertura</targetPath>
+                                    <preservePath>true</preservePath>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <configuration>
+                    <format>xml</format>
+                    <aggregate>true</aggregate>
+                    <instrumentation>
+                        <includes>
+                            <include>com/soundcloud/android/**/*.class</include>
+                        </includes>
+                        <excludes>
+                            <exclude>com.soundcloud.android.tests.*</exclude>
+                        </excludes>
+                    </instrumentation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
