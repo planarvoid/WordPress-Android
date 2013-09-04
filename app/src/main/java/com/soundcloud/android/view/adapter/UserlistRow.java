@@ -140,7 +140,7 @@ public class UserlistRow extends IconLayout implements ListRow {
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onError(Throwable e) {
                 setFollowingStatus(true);
             }
         });

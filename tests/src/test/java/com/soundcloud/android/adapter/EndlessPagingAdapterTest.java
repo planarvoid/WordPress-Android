@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
+import rx.android.concurrency.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.support.v4.app.Fragment;
@@ -54,7 +55,7 @@ public class EndlessPagingAdapterTest {
     @Before
     public void setup(){
         when(fragment.isAdded()).thenReturn(true);
-        when (pageObservable.observeOn(ScSchedulers.UI_SCHEDULER)).thenReturn(pageObservable);
+        when (pageObservable.observeOn(AndroidSchedulers.mainThread())).thenReturn(pageObservable);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.soundcloud.android.streaming;
 
+import android.content.Context;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.OldCloudAPI;
@@ -98,7 +99,7 @@ abstract class DataTask extends StreamItemTask {
                 '}';
     }
 
-    public static DataTask create(StreamItem item, Range chunkRange, Range range, SoundCloudApplication context) {
+    public static DataTask create(StreamItem item, Range chunkRange, Range range, Context context) {
         // google recommends using HttpURLConnection from Gingerbread on:
         // http://android-developers.blogspot.com/2011/09/androids-http-clients.html
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {

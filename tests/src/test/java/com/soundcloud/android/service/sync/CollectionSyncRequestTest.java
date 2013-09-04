@@ -10,12 +10,16 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.service.sync.content.SyncStrategy;
+import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
+import org.apache.http.StatusLine;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,17 +40,19 @@ public class CollectionSyncRequestTest {
     CollectionSyncRequest collectionSyncRequest;
 
     @Mock
-    ApiSyncerFactory apiSyncerFactory;
+    private ApiSyncerFactory apiSyncerFactory;
     @Mock
-    SyncStateManager syncStateManager;
+    private SyncStateManager syncStateManager;
     @Mock
-    SyncStrategy syncStrategy;
+    private SyncStrategy syncStrategy;
     @Mock
-    LocalCollection localCollection;
+    private LocalCollection localCollection;
     @Mock
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
     @Mock
-    SharedPreferences.Editor sharedPreferencesEditor;
+    private SharedPreferences.Editor sharedPreferencesEditor;
+    @Mock
+    private ApplicationProperties applicationProperties;
 
     static final String NON_INTERACTIVE =
             "&" + URLEncoder.encode(Wrapper.BACKGROUND_PARAMETER) + "=1";
@@ -56,7 +62,8 @@ public class CollectionSyncRequestTest {
     public void setup() {
         initMocks(this);
         collectionSyncRequest = new CollectionSyncRequest(Robolectric.application,
-                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager, sharedPreferences);
+                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager,
+                sharedPreferences, applicationProperties);
     }
 
     @Test
@@ -112,18 +119,50 @@ public class CollectionSyncRequestTest {
     }
 
     @Test
-    public void shouldSetSyncStateToIdleAndRecordErrorOnException() throws IOException {
-        setupSync();
-
+    public void shouldSetSyncStateToIdleAndRecordStatOnIOException() throws IOException {
         final IOException ioException = new IOException();
-        when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenThrow(ioException);
-        when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
+        setupExceptionThrowingSync(ioException);
 
         collectionSyncRequest.onQueued();
         collectionSyncRequest.execute();
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(collectionSyncRequest.getResult().syncResult.stats.numIoExceptions).toEqual(1L);
+    }
+
+    @Test
+    public void shouldRecordErrorOnIOException() throws IOException {
+        final IOException ioException = new IOException();
+        setupExceptionThrowingSync(ioException);
+
+        collectionSyncRequest.onQueued();
+        collectionSyncRequest.execute();
+
         verify(sharedPreferencesEditor).putString(eq(RESULT_PREF_KEY), contains(ioException.getClass().getSimpleName()));
+        verify(sharedPreferencesEditor).commit();
+    }
+
+    @Test
+    public void shouldSetSyncStateToIdleAndNotSetStatsForBadResponseException() throws IOException {
+        final AndroidCloudAPI.UnexpectedResponseException unexpectedResponseException = new AndroidCloudAPI.UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
+        setupExceptionThrowingSync(unexpectedResponseException);
+
+        collectionSyncRequest.onQueued();
+        collectionSyncRequest.execute();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(collectionSyncRequest.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+    }
+
+    @Test
+    public void shouldRecordErrorOnBadResponseException() throws IOException {
+        final AndroidCloudAPI.UnexpectedResponseException unexpectedResponseException = new AndroidCloudAPI.UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
+        setupExceptionThrowingSync(unexpectedResponseException);
+
+        collectionSyncRequest.onQueued();
+        collectionSyncRequest.execute();
+
+        verify(sharedPreferencesEditor).putString(eq(RESULT_PREF_KEY), contains(AndroidCloudAPI.UnexpectedResponseException.class.getSimpleName()));
         verify(sharedPreferencesEditor).commit();
     }
 
@@ -184,7 +223,6 @@ public class CollectionSyncRequestTest {
         apiSyncResult = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
         apiSyncResult.success = true;
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
-        when(sharedPreferencesEditor.putString(RESULT_PREF_KEY, CollectionSyncRequest.PREF_VAL_SUCCESS)).thenReturn(sharedPreferencesEditor);
     }
 
     private void setupFailedSync() throws IOException {
@@ -192,7 +230,12 @@ public class CollectionSyncRequestTest {
         apiSyncResult = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
         apiSyncResult.success = false;
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
-        when(sharedPreferencesEditor.putString(RESULT_PREF_KEY, CollectionSyncRequest.PREF_VAL_FAILED)).thenReturn(sharedPreferencesEditor);
+    }
+
+    private void setupExceptionThrowingSync(IOException e) throws IOException {
+        setupSync();
+        when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenThrow(e);
+
     }
 
     private void setupSync() {
@@ -201,5 +244,6 @@ public class CollectionSyncRequestTest {
         when(apiSyncerFactory.forContentUri(Robolectric.application, Content.ME_FOLLOWINGS.uri)).thenReturn(syncStrategy);
         when(syncStateManager.updateSyncState(1L, LocalCollection.SyncState.SYNCING)).thenReturn(true);
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
+        when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
     }
 }

@@ -205,7 +205,7 @@ public class AccountRemovalFunctionTest {
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
         Intent broadcastIntent = argumentCaptor.getAllValues().get(1);
-        assertThat(broadcastIntent.getAction(), is(CloudPlaybackService.RESET_ALL));
+        assertThat(broadcastIntent.getAction(), is(CloudPlaybackService.Actions.RESET_ALL));
     }
 
     @Test

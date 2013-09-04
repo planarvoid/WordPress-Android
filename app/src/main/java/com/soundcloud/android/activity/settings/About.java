@@ -26,4 +26,9 @@ public class About extends Activity {
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(getClass());
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 }

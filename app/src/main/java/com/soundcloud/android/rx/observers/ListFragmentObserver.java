@@ -18,7 +18,7 @@ public class ListFragmentObserver<ModelType, FragmentType extends Fragment & Emp
     }
 
     @Override
-    public void onError(FragmentType fragment, Exception error) {
+    public void onError(FragmentType fragment, Throwable error) {
         fragment.setEmptyViewStatus(EmptyListView.Status.ERROR);
     }
 }

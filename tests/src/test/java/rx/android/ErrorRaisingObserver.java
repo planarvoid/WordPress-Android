@@ -19,7 +19,7 @@ public class ErrorRaisingObserver<T> implements Observer {
     }
 
     @Override
-    public void onError(Exception e) {
+    public void onError(Throwable e) {
         e.printStackTrace();
         fail("Test raised an unexpected exception/error when running observable : " + e.toString());
     }

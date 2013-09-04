@@ -7,7 +7,7 @@ import android.widget.EditText;
 public class ShareRecordingTest extends AbstractRecordingTestCase {
 
     public void ignore_testRecordAndSharePrivatelyToEmailAddress() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         solo.clickOnPublish();
         solo.assertActivity(ScUpload.class);
@@ -39,7 +39,7 @@ public class ShareRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testRecordAndSharePrivatelyToMultipleEmailAddresses() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         solo.clickOnPublish();
         solo.assertActivity(ScUpload.class);

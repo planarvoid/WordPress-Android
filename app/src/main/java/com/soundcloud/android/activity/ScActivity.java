@@ -15,7 +15,6 @@ import com.soundcloud.android.activity.landing.FriendFinder;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.ScLandingPage;
-import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
 import com.soundcloud.android.activity.landing.WhoToFollowActivity;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
@@ -122,9 +121,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startNavActivity(ScActivity.this, FriendFinder.class, menuBundle);
                         return true;
                     case R.id.nav_suggested_users:
-                        final Class<? extends Activity> destination = SoundCloudApplication.DEV_MODE ?
-                                SuggestedUsersActivity.class : WhoToFollowActivity.class;
-                        startNavActivity(ScActivity.this, destination, menuBundle);
+                        startNavActivity(ScActivity.this, WhoToFollowActivity.class, menuBundle);
                         return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));
@@ -277,7 +274,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     public void pausePlayback() {
-        startService(new Intent(CloudPlaybackService.PAUSE_ACTION));
+        startService(new Intent(CloudPlaybackService.Actions.PAUSE_ACTION));
     }
 
     public SoundCloudApplication getApp() {

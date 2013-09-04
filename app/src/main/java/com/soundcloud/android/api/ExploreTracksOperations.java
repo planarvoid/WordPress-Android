@@ -1,5 +1,6 @@
 package com.soundcloud.android.api;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
@@ -19,7 +20,8 @@ public class ExploreTracksOperations extends ScheduledOperations {
         this(new SoundCloudRxHttpClient());
     }
 
-    public ExploreTracksOperations(SoundCloudRxHttpClient rxHttpClient) {
+    @VisibleForTesting
+    protected ExploreTracksOperations(SoundCloudRxHttpClient rxHttpClient) {
         mRxHttpClient = rxHttpClient;
     }
 

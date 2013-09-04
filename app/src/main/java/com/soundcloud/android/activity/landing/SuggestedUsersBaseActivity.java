@@ -11,7 +11,9 @@ public abstract class SuggestedUsersBaseActivity extends ScActivity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.frame_layout_holder);
-        mActionBarController.hideMenuIndicator();
+        if (mActionBarController != null) {
+            mActionBarController.hideMenuIndicator();
+        }
     }
 
     @Override

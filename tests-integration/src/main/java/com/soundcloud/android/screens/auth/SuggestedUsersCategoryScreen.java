@@ -21,6 +21,19 @@ public class SuggestedUsersCategoryScreen {
         solo = driver;
     }
 
+    public String followUser(int index) {
+        waitForUsers();
+        GridViewCompat gridViewCompat = (GridViewCompat) solo.getCurrentGridView();
+        if (gridViewCompat == null) {
+            throw new RuntimeException("No Gridview present when trying to follow random user");
+        }
+        ViewGroup viewGroup = (ViewGroup) gridViewCompat.getChildAt(index);
+        TextView textView = (TextView) viewGroup.findViewById(R.id.username);
+        solo.clickOnView(textView);
+        return textView.getText().toString();
+
+    }
+
     public String followRandomUser(){
         waitForUsers();
         GridViewCompat gridViewCompat = (GridViewCompat) solo.getCurrentGridView();

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.soundcloud.android</groupId>
         <artifactId>parent</artifactId>
-        <version>2.6.5-BETA1</version>
+        <version>2.6.5-BETA2</version>
     </parent>
     <artifactId>tests-integration</artifactId>
     <packaging>apk</packaging>
@@ -55,7 +55,6 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.3.2</version>
                 <configuration>
                     <test>
                         <debug>false</debug>
@@ -74,8 +73,21 @@
         </plugins>
     </build>
 
-
     <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>sign</id>
             <build>
@@ -121,7 +133,7 @@
                             </sign>
 
                             <zipalign>
-                                <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-${release.type}.apk</outputApk>
+                                <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-${build.type}.apk</outputApk>
                             </zipalign>
                         </configuration>
                         <executions>

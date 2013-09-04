@@ -20,7 +20,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         IntegrationTestHelper.logOut(getInstrumentation());
         super.setUp();
 
-        if (EMULATOR) {
+        if (applicationProperties.isRunningOnEmulator()) {
             final String[] notInstalled = {
                     "com.android.camera",  // Camera.apk
                     "com.android.gallery", // Gallery.apk
@@ -71,7 +71,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         solo.clickOnText(R.string.add_image);
         solo.assertText(R.string.image_where); // How would you like to add an image?
 
-        if (EMULATOR) {
+        if (applicationProperties.isRunningOnEmulator()) {
             solo.clickOnText(R.string.take_new_picture);
             // FakeCamera will provide an image
             solo.sleep(1000);
@@ -95,7 +95,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         solo.clickOnText(R.string.add_image);
         solo.assertText(R.string.image_where); // How would you like to add an image?
 
-        if (EMULATOR) {
+        if (applicationProperties.isRunningOnEmulator()) {
             solo.clickOnText(R.string.use_existing_image);
 
             // FakeGallery will provide an image

@@ -11,7 +11,7 @@ public abstract class ScObserver<T> implements Observer<T> {
     public void onCompleted() {}
 
     @Override
-    public void onError(Exception e) {}
+    public void onError(Throwable e) {}
 
     @Override
     public void onNext(T args) {}

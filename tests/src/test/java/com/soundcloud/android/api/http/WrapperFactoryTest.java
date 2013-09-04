@@ -1,13 +1,9 @@
 package com.soundcloud.android.api.http;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.WrapperFactory;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import com.google.common.net.MediaType;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.APIEndpoints;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.api.ApiWrapper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -15,6 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.WrapperFactory;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(SoundCloudTestRunner.class)
 public class WrapperFactoryTest {
@@ -26,11 +27,13 @@ public class WrapperFactoryTest {
     private AccountOperations accountOperations;
     @Mock
     private APIRequest apiRequest;
+    @Mock
+    private ApplicationProperties applicationProperties;
 
     @Before
     public void setUp() {
         initMocks(this);
-        wrapperFactory = new WrapperFactory(Robolectric.application, httpProperties, accountOperations);
+        wrapperFactory = new WrapperFactory(Robolectric.application, httpProperties, accountOperations, applicationProperties);
         // TODO remove this once we fix gzip for suggested users
         when(apiRequest.getUriPath()).thenReturn(APIEndpoints.BULK_FOLLOW_USERS.path());
     }

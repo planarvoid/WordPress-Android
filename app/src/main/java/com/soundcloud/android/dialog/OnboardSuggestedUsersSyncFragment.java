@@ -7,11 +7,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.operations.following.FollowingOperations;
-import com.soundcloud.android.rx.ScSchedulers;
-import rx.android.RxFragmentObserver;
 import com.soundcloud.android.service.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
+import rx.android.RxFragmentObserver;
+import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,7 +36,7 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         if (mFollowingOperations == null) {
-            mFollowingOperations = new FollowingOperations().observeOn(ScSchedulers.UI_SCHEDULER);
+            mFollowingOperations = new FollowingOperations().observeOn(AndroidSchedulers.mainThread());
         }
 
         mSubscription = mFollowingOperations.waitForActivities(getActivity()).subscribe(new FollowingsSyncObserver(this));
@@ -80,7 +80,7 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
         }
 
         @Override
-        public void onError(OnboardSuggestedUsersSyncFragment fragment, Exception error) {
+        public void onError(OnboardSuggestedUsersSyncFragment fragment, Throwable error) {
             error.printStackTrace();
             // send sync adapter request for followings so retry logic will kick in
             SyncInitiator.pushFollowingsToApi(new AccountOperations(fragment.getActivity()).getSoundCloudAccount());

@@ -1,9 +1,9 @@
 package com.soundcloud.android.view;
 
-import static com.soundcloud.android.service.playback.CloudPlaybackService.ADD_LIKE_ACTION;
-import static com.soundcloud.android.service.playback.CloudPlaybackService.ADD_REPOST_ACTION;
-import static com.soundcloud.android.service.playback.CloudPlaybackService.REMOVE_LIKE_ACTION;
-import static com.soundcloud.android.service.playback.CloudPlaybackService.REMOVE_REPOST_ACTION;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Actions.ADD_LIKE_ACTION;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Actions.ADD_REPOST_ACTION;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Actions.REMOVE_LIKE_ACTION;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Actions.REMOVE_REPOST_ACTION;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;

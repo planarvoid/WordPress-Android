@@ -83,7 +83,8 @@ public enum Content  {
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
     TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, User.class, -1, Table.USERS),
     TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, User.class, -1, Table.USERS),
-    TRACK_LOOKUP("tracks/q/*", Endpoints.TRACKS, 2250, Track.class, -1, Table.SOUNDS),
+    TRACK_SEARCH("search/tracks", TempEndpoints.TRACK_SEARCH, 209, Track.class, -1, null),
+    TRACK_LOOKUP("tracks/q/*", Endpoints.TRACKS, 250, Track.class, -1, Table.SOUNDS),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", Endpoints.USER_DETAILS, 302, User.class, -1, Table.USERS),

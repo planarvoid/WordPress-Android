@@ -3,18 +3,20 @@ package com.soundcloud.android.fragment;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ExploreTracksAdapter;
 import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.rx.observers.PullToRefreshObserver;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
+import rx.android.concurrency.AndroidSchedulers;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,14 +28,14 @@ import android.widget.GridView;
 public class ExploreTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
 
-    private final int mGridViewId = R.id.suggested_tracks_grid;
+    private static final int GRID_VIEW_ID = R.id.suggested_tracks_grid;
     private EmptyListView mEmptyListView;
     private ExploreTracksAdapter mExploreTracksAdapter;
 
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
     public ExploreTracksFragment() {
-        Observable<Observable<Track>> observable = new ExploreTracksOperations().getSuggestedTracks().observeOn(ScSchedulers.UI_SCHEDULER);
+        Observable<Observable<Track>> observable = new ExploreTracksOperations().getSuggestedTracks().observeOn(AndroidSchedulers.mainThread());
         ListFragmentObserver<Track, ExploreTracksFragment> observer = new ListFragmentObserver<Track, ExploreTracksFragment>(this);
         ExploreTracksAdapter adapter = new ExploreTracksAdapter(observable, observer);
         init(adapter);
@@ -82,7 +84,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
             }
         });
 
-        PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(mGridViewId);
+        PullToRefreshGridView ptrGridView = (PullToRefreshGridView) view.findViewById(GRID_VIEW_ID);
         ptrGridView.setOnRefreshListener(this);
         GridView gridView = ptrGridView.getRefreshableView();
         gridView.setOnItemClickListener(this);
@@ -90,13 +92,13 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         gridView.setEmptyView(mEmptyListView);
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
-        gridView.setOnScrollListener(mExploreTracksAdapter);
+        gridView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true, mExploreTracksAdapter));
     }
 
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
         mExploreTracksAdapter.subscribe(new PullToRefreshObserver<ExploreTracksFragment, Track>(
-                this, mGridViewId, mExploreTracksAdapter, mExploreTracksAdapter));
+                this, GRID_VIEW_ID, mExploreTracksAdapter, mExploreTracksAdapter));
     }
 
     @Override

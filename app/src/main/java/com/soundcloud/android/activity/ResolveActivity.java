@@ -50,6 +50,11 @@ public class ResolveActivity extends Activity implements FetchModelTask.Listener
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
     }

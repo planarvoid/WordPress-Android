@@ -58,7 +58,7 @@ public class PullToRefreshObserver<FragmentType extends Fragment, ModelType>
         }
 
         @Override
-        public void onError(FragmentType fragment, Exception error) {
+        public void onError(FragmentType fragment, Throwable error) {
             mDelegate.onError(error);
             findPullToRefreshView(fragment).onRefreshComplete();
         }

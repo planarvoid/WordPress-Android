@@ -1,6 +1,9 @@
 package com.soundcloud.android.view.play;
 
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.BroadcastExtras;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
+
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
@@ -50,7 +53,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private @Nullable ViewFlipper mTrackFlipper;            // can be null in landscape mode
     private @Nullable PlayerTrackDetails mTrackDetailsView; // ditto
 
-    protected  @Nullable Track mTrack;
+    protected Track mTrack;
     private int mQueuePosition;
     private long mDuration;
     protected boolean mOnScreen;
@@ -222,7 +225,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                     public void run() {
                         final Context context = getContext();
                         if (context != null){
-                            context.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.getId()));
+                            context.startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.getId()));
                         }
                     }
                 }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
@@ -324,28 +327,28 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         if (mTrack == null) return;
 
         String action = intent.getAction();
-        if (CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
-            if (intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, false)) {
+        if (Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
+            if (intent.getBooleanExtra(BroadcastExtras.isSupposedToBePlaying, false)) {
                 hideUnplayable();
                 mTrack.last_playback_error = -1;
             } else {
-                mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+                mWaveformController.setPlaybackStatus(false, intent.getLongExtra(BroadcastExtras.position, 0));
             }
 
         } else if (Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED.equals(action)) {
-            if (mTrack.getId() == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
-                mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
-                mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
+            if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.id, -1)) {
+                mTrack.user_like = intent.getBooleanExtra(BroadcastExtras.isLike, false);
+                mTrack.user_repost = intent.getBooleanExtra(BroadcastExtras.isRepost, false);
                 mActionButtons.update(mTrack);
             }
 
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
-            if (mTrack.getId() == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
+            if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.id, -1)) {
                 onCommentsChanged();
             }
 
         } else if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)) {
-            Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1));
+            Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(BroadcastExtras.id, -1));
             if (t != null) {
                 setTrack(t, mQueuePosition, mOnScreen);
                 if (mTrackDetailsView != null) {
@@ -358,35 +361,35 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                 mTrackDetailsView.fillTrackDetails(mTrack);
             }
 
-        } else if (CloudPlaybackService.BUFFERING.equals(action)) {
+        } else if (Broadcasts.BUFFERING.equals(action)) {
             setBufferingState(true);
-        } else if (CloudPlaybackService.BUFFERING_COMPLETE.equals(action)) {
+        } else if (Broadcasts.BUFFERING_COMPLETE.equals(action)) {
             setBufferingState(false);
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
-                    intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(BroadcastExtras.isPlaying, false),
+                    intent.getLongExtra(BroadcastExtras.position, 0));
 
-        } else if (CloudPlaybackService.PLAYBACK_ERROR.equals(action)) {
+        } else if (Broadcasts.PLAYBACK_ERROR.equals(action)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.PLAYBACK_ERROR;
             onUnplayable(intent);
-        } else if (CloudPlaybackService.STREAM_DIED.equals(action)) {
+        } else if (Broadcasts.STREAM_DIED.equals(action)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.STREAM_ERROR;
             onUnplayable(intent);
-        } else if (CloudPlaybackService.TRACK_UNAVAILABLE.equals(action)) {
+        } else if (Broadcasts.TRACK_UNAVAILABLE.equals(action)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.TRACK_UNAVAILABLE;
             onUnplayable(intent);
-        } else if (CloudPlaybackService.COMMENTS_LOADED.equals(action)) {
+        } else if (Broadcasts.COMMENTS_LOADED.equals(action)) {
             mWaveformController.setComments(mTrack.comments, true);
-        } else if (CloudPlaybackService.SEEKING.equals(action)) {
-            mWaveformController.onSeek(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, -1));
-        } else if (CloudPlaybackService.SEEK_COMPLETE.equals(action)) {
+        } else if (Broadcasts.SEEKING.equals(action)) {
+            mWaveformController.onSeek(intent.getLongExtra(BroadcastExtras.position, -1));
+        } else if (Broadcasts.SEEK_COMPLETE.equals(action)) {
             mWaveformController.onSeekComplete();
         }
     }
 
     private void onUnplayable(Intent intent) {
         mWaveformController.setBufferingState(false);
-        mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
-                intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+        mWaveformController.setPlaybackStatus(intent.getBooleanExtra(BroadcastExtras.isPlaying, false),
+                intent.getLongExtra(BroadcastExtras.position, 0));
 
         showUnplayable();
     }

@@ -31,4 +31,14 @@ public class WebViewActivity extends Activity {
             finish();
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 }
