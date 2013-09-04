@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.soundcloud.android.view.ErrorView
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <ImageView android:id="@+id/img_error"
-               android:layout_height="0dp"
-               android:layout_width="fill_parent"
-               android:layout_weight="1"
-               android:layout_marginTop="5dp"
-               android:scaleType="fitXY"/>
-
     <LinearLayout style="@style/emptyCollectionErrorContentHolder">
+
+        <ImageView android:id="@+id/img_error"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   style="@style/EmptyViewImage"/>
 
         <TextView android:id="@+id/server_error"
                   android:text="@string/error_soundcloud_no_response"
@@ -37,5 +33,4 @@
                 style="@style/btn_empty_collection_retry"/>
 
     </LinearLayout>
-
 </com.soundcloud.android.view.ErrorView>

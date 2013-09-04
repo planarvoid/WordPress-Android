@@ -1334,8 +1334,8 @@
     </style>
 
     <style name="emptyCollectionErrorContentHolder" parent="emptyCollectionContentHolderBase">
-        <item name="android:layout_height">0dp</item>
-        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
     </style>
 
     <style name="ExploreTrackBottom">
@@ -1354,6 +1354,12 @@
     <style name="ExploreTrackPlaycount" parent="ExploreTrackBottom">
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:drawableLeft">@drawable/stats_plays_white_50</item>
+    </style>
+
+    <style name="EmptyViewImage">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">15dp</item>
+        <item name="android:scaleType">fitXY</item>
     </style>
 
 </resources>
