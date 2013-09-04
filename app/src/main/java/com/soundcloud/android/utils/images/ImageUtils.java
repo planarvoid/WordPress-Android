@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -518,7 +519,7 @@ public final class ImageUtils {
      */
     public static Bitmap getCachedTrackListIcon(Context context, Track track){
         final String listArtworkUrl = track.getListArtworkUrl(context);
-        if (TextUtils.isEmpty(listArtworkUrl)) {
+        if (ScTextUtils.isBlank(listArtworkUrl)) {
             return null;
         } else {
             return ImageLoader.getInstance().getMemoryCache().get(MemoryCacheUtil.generateKey(
