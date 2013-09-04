@@ -144,6 +144,8 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     @Deprecated
     public void setTrack(@NotNull Track track, int queuePosition, boolean priority) {
+        final boolean changed = !track.equals(mTrack);
+
         mTrack = track;
         mQueuePosition = queuePosition;
 
@@ -174,7 +176,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             refreshComments();
         }
 
-        if (mTrackFlipper != null) {
+        if (mTrackFlipper != null && changed) {
             onTrackDetailsFlip(mTrackFlipper, false);
         }
     }
