@@ -4,12 +4,12 @@ package com.soundcloud.android.api;
  * TODO make package visible
  */
 public enum APIEndpoints {
-    SUGGESTED_USER_CATEGORIES("/app/mobileapps/suggestions/users/categories"),
-    SUGGESTED_USER_FACEBOOK_CATEGORIES("/app/mobileapps/suggestions/users/social/facebook"),
+    SUGGESTED_USER_CATEGORIES("/suggestions/users/categories"),
+    SUGGESTED_USER_FACEBOOK_CATEGORIES("/suggestions/users/social/facebook"),
     BULK_FOLLOW_USERS("/me/suggested/users"),
-    EXPLORE_TRACKS_CATEGORIES("/app/mobileapps-staging/suggestions/tracks/categories"),
-    EXPLORE_TRACKS_POPULAR_MUSIC("/app/mobileapps-staging/suggestions/tracks/categories/popular+music"),
-    EXPLORE_TRACKS_POPULAR_AUDIO("/app/mobileapps-staging/suggestions/tracks/categories/popular+audio");
+    EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/categories/popular+music"),
+    EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/categories/popular+audio"),
+    EXPLORE_TRACKS_CATEGORIES("/suggestions/tracks/categories");
 
     private String path;
 

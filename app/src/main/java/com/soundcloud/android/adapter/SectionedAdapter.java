@@ -58,7 +58,7 @@ public abstract class SectionedAdapter<ModelType> extends ScAdapter<ModelType> i
                 sectionedListRow.hideSectionHeader();
             }
         } else {
-            throw new IllegalArgumentException("Cannot use a sectioned adapter without a row type that impelements SectionedListRow");
+            throw new IllegalArgumentException("Cannot use a sectioned adapter without a row type that implements SectionedListRow");
         }
     }
 

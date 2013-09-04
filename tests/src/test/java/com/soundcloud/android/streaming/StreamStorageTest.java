@@ -1,11 +1,10 @@
 package com.soundcloud.android.streaming;
 
 
-import static android.content.SharedPreferences.Editor;
-import static com.soundcloud.android.Expect.expect;
-import static junit.framework.Assert.fail;
-
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.BufferUtils;
@@ -14,9 +13,6 @@ import com.xtremelabs.robolectric.shadows.ShadowStatFs;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +25,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import static android.content.SharedPreferences.Editor;
+import static com.soundcloud.android.Expect.expect;
+import static junit.framework.Assert.fail;
+import static org.mockito.Mockito.mock;
+
 @RunWith(DefaultTestRunner.class)
 public class StreamStorageTest {
     public static final int TEST_CHUNK_SIZE = 1024;
@@ -37,13 +38,16 @@ public class StreamStorageTest {
     final LinkedHashMap<Integer, ByteBuffer> sampleBuffers = new LinkedHashMap<Integer, ByteBuffer>();
     final List<Integer> sampleChunkIndexes = new ArrayList<Integer>();
 
-    StreamStorage storage;
-    StreamItem item;
+    private StreamStorage storage;
+    private StreamItem item;
+    private ApplicationProperties applicationProperties;
+
 
     @Before
     public void before() {
         IOUtils.deleteDir(baseDir);
-        storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE, 0);
+        applicationProperties = mock(ApplicationProperties.class);
+        storage = new StreamStorage(DefaultTestRunner.application, baseDir,applicationProperties, TEST_CHUNK_SIZE, 0);
         item = new StreamItem("https://api.soundcloud.com/tracks/1234/stream", testFile);
         TestHelper.enableSDCard();
     }

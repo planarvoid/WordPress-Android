@@ -6,15 +6,15 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class ErrorView extends LinearLayout {
+public class ErrorView extends RelativeLayout {
 
     private ImageView mImageView;
     private TextView mServerErrorText;
-    private TextView mClientErrorText1;
-    private TextView mClientErrorText2;
+    private TextView mConnectionErrorText1;
+    private TextView mConnectionErrorText2;
 
     public ErrorView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -42,21 +42,21 @@ public class ErrorView extends LinearLayout {
         super.onFinishInflate();
         mImageView = (ImageView) findViewById(R.id.img_error);
         mServerErrorText = (TextView) findViewById(R.id.server_error);
-        mClientErrorText1 = (TextView) findViewById(R.id.client_error_1);
-        mClientErrorText2 = (TextView) findViewById(R.id.client_error_2);
+        mConnectionErrorText1 = (TextView) findViewById(R.id.connection_error_1);
+        mConnectionErrorText2 = (TextView) findViewById(R.id.connection_error_2);
     }
 
-    public void setServerErrorState() {
+    public void setUnexpectedResponseState() {
         mImageView.setImageResource(R.drawable.error_message_soundcloud);
         mServerErrorText.setVisibility(View.VISIBLE);
-        mClientErrorText1.setVisibility(View.GONE);
-        mClientErrorText2.setVisibility(View.GONE);
+        mConnectionErrorText1.setVisibility(View.GONE);
+        mConnectionErrorText2.setVisibility(View.GONE);
     }
 
-    public void setClientErrorState() {
+    public void setConnectionErrorState() {
         mImageView.setImageResource(R.drawable.error_message_internet);
         mServerErrorText.setVisibility(View.GONE);
-        mClientErrorText1.setVisibility(View.VISIBLE);
-        mClientErrorText2.setVisibility(View.VISIBLE);
+        mConnectionErrorText1.setVisibility(View.VISIBLE);
+        mConnectionErrorText2.setVisibility(View.VISIBLE);
     }
 }

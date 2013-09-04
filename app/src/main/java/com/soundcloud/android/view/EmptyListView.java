@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -133,11 +134,7 @@ public class EmptyListView extends RelativeLayout {
 
     private void showError(int responseCode){
         if (mErrorView == null) {
-            mErrorView = (ErrorView) LayoutInflater.from(getContext()).inflate(R.layout.error_view, null);
-            final RelativeLayout.LayoutParams params =
-                new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-            mEmptyViewHolder.addView(mErrorView, params);
-
+            mErrorView = addErrorView();
             mErrorView.setOnRetryListener(mRetryListener);
 
         } else {
@@ -147,11 +144,20 @@ public class EmptyListView extends RelativeLayout {
             mEmptyLayout.setVisibility(View.GONE);
         }
 
-        if (Wrapper.isStatusCodeServerError(responseCode)){
-            mErrorView.setServerErrorState();
+        if (Wrapper.isStatusCodeError(responseCode)){
+            mErrorView.setUnexpectedResponseState();
         } else {
-            mErrorView.setClientErrorState();
+            mErrorView.setConnectionErrorState();
         }
+    }
+
+    @VisibleForTesting
+    protected ErrorView addErrorView() {
+        ErrorView errorView = (ErrorView) LayoutInflater.from(getContext()).inflate(R.layout.error_view, null);
+        final RelativeLayout.LayoutParams params =
+                new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        mEmptyViewHolder.addView(errorView, params);
+        return errorView;
     }
 
     protected void showEmptyLayout() {

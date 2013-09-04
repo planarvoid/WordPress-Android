@@ -77,7 +77,8 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     // TODO, rollback memory state on error
-    public FollowingOperations(RxHttpClient httpClient, UserAssociationStorage userAssociationStorage,
+    @VisibleForTesting
+    protected FollowingOperations(RxHttpClient httpClient, UserAssociationStorage userAssociationStorage,
                                SyncStateManager syncStateManager, FollowStatus followStatus, ScModelManager modelManager) {
         mRxHttpClient = httpClient;
         mUserAssociationStorage = userAssociationStorage;

@@ -1,16 +1,34 @@
 package com.soundcloud.android.api.http;
 
 
+import static com.google.common.base.Preconditions.checkArgument;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.ScTextUtils;
+
+import android.content.res.Resources;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 public class HttpProperties {
 
-    private final long[] PRODUCTION =
+    private static final long[] PRODUCTION =
             new long[]{0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
                     0x300C455E649B39A7L, 0x20A6BAC9576286CBL};
 
     private static final String CLIENT_ID = "40ccfee680a844780a41fbe23ea89934";
+    private final String apiMobileBaseUriPath;
+
+    public HttpProperties(){
+        this(SoundCloudApplication.instance.getResources());
+    }
+
+    public HttpProperties(Resources resources){
+        apiMobileBaseUriPath = resources.getString(R.string.api_mobile_base_uri_path);
+        checkArgument(ScTextUtils.isNotBlank(apiMobileBaseUriPath), "API mobile base uri path cannot be blank");
+    }
 
     public String getClientSecret() {
         return deobfuscate(PRODUCTION);
@@ -20,6 +38,11 @@ public class HttpProperties {
     public String getClientId(){
         return CLIENT_ID;
     }
+
+    public String getApiMobileBaseUriPath(){
+        return apiMobileBaseUriPath;
+    }
+
     /**
      * Based on
      * <a href="http://truelicense.java.net/apidocs/de/schlichtherle/util/ObfuscatedString.html">

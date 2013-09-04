@@ -119,7 +119,7 @@ public class EndlessPagingAdapterTest {
         adapter.loadNextPage();
         View progressView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
         expect(progressView).not.toBeNull();
-        expect(progressView.findViewById(R.id.list_loading).getVisibility()).toBe(View.VISIBLE);
+        expect(progressView.findViewById(R.id.loading).getVisibility()).toBe(View.VISIBLE);
         expect(progressView.findViewById(R.id.txt_list_loading_retry).getVisibility()).toBe(View.GONE);
     }
 
@@ -130,7 +130,7 @@ public class EndlessPagingAdapterTest {
         adapter.loadNextPage();
         View errorView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
         expect(errorView).not.toBeNull();
-        expect(errorView.findViewById(R.id.list_loading).getVisibility()).toBe(View.GONE);
+        expect(errorView.findViewById(R.id.loading).getVisibility()).toBe(View.GONE);
         expect(errorView.findViewById(R.id.txt_list_loading_retry).getVisibility()).toBe(View.VISIBLE);
     }
 

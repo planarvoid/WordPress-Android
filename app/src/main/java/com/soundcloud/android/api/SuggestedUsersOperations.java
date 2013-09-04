@@ -32,7 +32,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     }
 
     @VisibleForTesting
-    public SuggestedUsersOperations(RxHttpClient rxHttpClient) {
+    protected SuggestedUsersOperations(RxHttpClient rxHttpClient) {
         mRxHttpClient = rxHttpClient;
     }
 

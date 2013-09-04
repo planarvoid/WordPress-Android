@@ -24,14 +24,14 @@ import java.io.File;
 public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     public void ignore_testRecordAndPlayback() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
         playback();
-        solo.sleep(RECORDING_TIME + 5000);
+        solo.sleep(recordingTime + 5000);
         assertState(IDLE_PLAYBACK);
     }
 
     public void ignore_testRecordMakeSureFilesGetWritten() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         SoundRecorder recorder = getActivity().getRecorder();
 
@@ -49,7 +49,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testRecordAndEditRevert() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
         gotoEditMode();
 
         solo.clickOnText(R.string.btn_revert_to_original);
@@ -60,7 +60,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testRecordAndEditApplyAndDelete() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
         gotoEditMode();
         applyEdits();
         assertState(IDLE_PLAYBACK);
@@ -72,7 +72,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testRecordAndDelete() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
         solo.clickOnText(R.string.delete); // "Discard"
         solo.assertText(R.string.dialog_confirm_delete_recording_message); // "Are you sure you want to delete this recording?"
         solo.clickOnOK();
@@ -80,7 +80,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testRecordAndUpload() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         uploadSound("A test upload", null, true);
 
@@ -91,14 +91,14 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
             assertEquals("A test upload", track.title);
             assertFalse("track is public", track.isPublic());
 
-            assertTrackDuration(track, RECORDING_TIME + ROBO_SLEEP);
+            assertTrackDuration(track, recordingTime + ROBO_SLEEP);
         }
 
         solo.assertActivityFinished();
     }
 
     public void ignore_testRecordAndUploadWithLocation() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         final String location = "Model "+Build.MODEL;
         uploadSound("A test upload", location, true);
@@ -113,7 +113,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     public void ignore_testRecordAndUploadRaw() throws Exception {
         setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         assertTrue("raw file does not exist", getActivity().getRecorder().getRecording().getFile().exists());
         assertFalse("encoded file exists", getActivity().getRecorder().getRecording().getEncodedFile().exists());
@@ -126,7 +126,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testRecordAndUploadThenRecordAnotherSound() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         solo.clickOnPublish();
         solo.assertActivity(ScUpload.class);
@@ -138,7 +138,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testRecordAndUploadThenGoBack() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         solo.clickOnPublish();
         solo.assertActivity(ScUpload.class);
@@ -155,7 +155,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     @SlowTest
     public void ignore_testRecordAndRunningOutOfStorageSpace() throws Exception {
-        if (!EMULATOR) return;
+        if (!applicationProperties.isRunningOnEmulator()) return;
 
         File filler = fillUpSpace(1024*1024);
         try {
@@ -186,38 +186,38 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
 
     public void ignore_testRecordAndAppendAndUpload() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         solo.sleep(1000);
 
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         uploadSound("An appended playable", null, true);
 
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 2 * (RECORDING_TIME + ROBO_SLEEP));
+        assertTrackDuration(track, 2 * (recordingTime + ROBO_SLEEP));
     }
 
     public void ignore_testRecordRawAndAppendAndUpload() throws Exception {
         setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
 
-        record(RECORDING_TIME);
+        record(recordingTime);
         solo.sleep(1000);
-        record(RECORDING_TIME);
+        record(recordingTime);
         solo.sleep(1000);
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         uploadSound("An appended raw playable", null, true);
 
-        assertSoundEncoded(RECORDING_TIME * 3 * 4);
+        assertSoundEncoded(recordingTime * 3 * 4);
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
-        assertTrackDuration(track, 3 * (RECORDING_TIME + ROBO_SLEEP));
+        assertTrackDuration(track, 3 * (recordingTime + ROBO_SLEEP));
     }
 
     public void ignore_testShouldRegenerateWaveFormIfItGetsLost() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
         solo.sleep(1000);
 
         Recording r = getActivity().getRecorder().getRecording();
@@ -238,7 +238,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testDeleteWavFileAndPlayback() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
         solo.sleep(1000);
         Recording r = getActivity().getRecorder().getRecording();
         File wavFile = r.getFile();
@@ -256,7 +256,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         // test only makes sense if we have an ogg file + wav file
         if (!getActivity().getRecorder().shouldEncodeWhileRecording()) return;
 
-        record(RECORDING_TIME);
+        record(recordingTime);
         solo.sleep(1000);
 
         // create a faded and trimmed recording to test re-encoding of ogg file
@@ -299,7 +299,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testShouldAutoSaveRecordingAndNavigateToYourSounds() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
         solo.clickOnView(R.id.abs__home);
         solo.clickOnText(IntegrationTestHelper.USERNAME);
@@ -307,7 +307,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     }
 
     public void ignore_testShouldOnlyDisplayedSavedLocallyMessageOnce() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
         solo.sleep(500);
         solo.clickOnView(R.id.btn_action);
@@ -318,7 +318,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
     @Suppress
     public void ignore_testRecordAndLoadAndAppend() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         solo.clickOnPublish();
 
@@ -330,6 +330,6 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
 
         setActivity(reloadRecording(getActivity().getRecorder().getRecording()));
 
-        record(RECORDING_TIME);
+        record(recordingTime);
     }
 }

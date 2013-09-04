@@ -18,6 +18,11 @@ public class AccountSettings extends PreferenceActivity {
      }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(getClass());

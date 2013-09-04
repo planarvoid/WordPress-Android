@@ -5,7 +5,9 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.utils.BufferUtils.readToByteBuffer;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static org.mockito.Mockito.mock;
 
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -42,7 +44,7 @@ public class StreamLoaderTest {
     public static final int TEST_CHUNK_SIZE = 1024;
 
     File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test");
-    StreamStorage storage = new MockStorage(baseDir, TEST_CHUNK_SIZE);
+    StreamStorage storage = new MockStorage(baseDir, TEST_CHUNK_SIZE, mock(ApplicationProperties.class));
     StreamLoader loader = new StreamLoader(DefaultTestRunner.application, storage);
     File testFile = new File(getClass().getResource(TEST_MP3).getFile());
     StreamItem item = new StreamItem(TEST_URL, testFile.length(), IOUtils.md5(testFile));
@@ -254,8 +256,8 @@ public class StreamLoaderTest {
         Map<String, Map<Integer, ByteBuffer>> _storage = new HashMap<String, Map<Integer, ByteBuffer>>();
         Map<String, StreamItem> _metadata = new HashMap<String, StreamItem>();
 
-        public MockStorage(File basedir, int chunkSize) {
-            super(null, basedir, chunkSize, 0);
+        public MockStorage(File basedir, int chunkSize, ApplicationProperties applicationProperties) {
+            super(null, basedir, applicationProperties, chunkSize, 0);
         }
 
         @NotNull

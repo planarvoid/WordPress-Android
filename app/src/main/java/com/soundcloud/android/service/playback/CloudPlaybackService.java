@@ -18,6 +18,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
@@ -42,6 +43,7 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.play.NotificationPlaybackRemoteViews;
 import org.jetbrains.annotations.Nullable;
+import rx.android.concurrency.AndroidSchedulers;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -62,7 +64,6 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -182,6 +183,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     // for play duration tracking
     private PlayEventTracker mPlayEventTracker;
 
+    private AnalyticsEngine analyticsEngine;
+
     public PlayEventTracker getPlayEventTracker() {
         return mPlayEventTracker;
     }
@@ -220,6 +223,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         mOldCloudApi = new OldCloudAPI(this);
+        analyticsEngine = new AnalyticsEngine(getApplicationContext());
+        analyticsEngine.openSession();
 
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueueManager, mAudioManager);
 
@@ -244,20 +249,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         // system will relaunch it. Make sure it gets stopped again in that case.
         scheduleServiceShutdownCheck();
 
-        try {
-            mProxy = new StreamProxy(getApp()).init().start();
-        } catch (IOException e) {
-            Log.e(TAG, "Unable to start service ", e);
-        }
-
+        initializeProxyIfNeeded();
         instance = this;
     }
 
     @Override
     public void onDestroy() {
         instance = null;
-
-        super.onDestroy();
+        analyticsEngine.closeSession();
         stop();
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -269,6 +268,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         unregisterReceiver(mIntentReceiver);
         unregisterReceiver(mNoisyReceiver);
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
+        super.onDestroy();
     }
 
     @Override
@@ -608,9 +608,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         setPlayingNotification(track);
 
         try {
-            if (mProxy == null) {
-                mProxy = new StreamProxy(getApp()).init().start();
-            }
+            initializeProxyIfNeeded();
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.reset");
             mMediaPlayer.reset();
             mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
@@ -626,18 +624,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
             // if this comes from a shortcut, we may not have the stream url yet. we should get it on info load
             if (mCurrentTrack != null && mCurrentTrack.isStreamable()) {
-
-                mMediaPlayer.setDataSource(mProxy.createUri(mCurrentTrack.getStreamUrlWithAppendedId(), next == null ? null : next.getStreamUrlWithAppendedId()).toString());
+                mProxy.uriObservable(mCurrentTrack.getStreamUrlWithAppendedId(), next == null ? null : next.getStreamUrlWithAppendedId())
+                      .subscribe(new MediaPlayerDataSourceObserver(mMediaPlayer, errorListener), AndroidSchedulers.mainThread());
             }
-
-            mMediaPlayer.prepareAsync();
-
         } catch (IllegalStateException e) {
             Log.e(TAG, "error", e);
             gotoIdleState(ERROR);
-        } catch (IOException e) {
-            Log.e(TAG, "error", e);
-            errorListener.onError(mMediaPlayer, 0, 0);
         }
     }
 
@@ -989,11 +981,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
 
-
-    private SoundCloudApplication getApp() {
-        return (SoundCloudApplication) getApplication();
-    }
-
     private static final class DelayedStopHandler extends Handler {
         private WeakReference<CloudPlaybackService> serviceRef;
 
@@ -1021,6 +1008,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 service.stopSelf(service.mServiceStartId);
             }
         }
+    }
+
+    private StreamProxy initializeProxyIfNeeded() {
+        if (mProxy == null) {
+            mProxy = new StreamProxy(getApplicationContext()).start();
+        }
+        return mProxy;
     }
 
     private final Handler mDelayedStopHandler = new DelayedStopHandler(this);
@@ -1323,11 +1317,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     };
 
     public void track(Event event, Object... args) {
-        getApp().track(event, args);
+        getTracker().track(event, args);
     }
 
     @Override
     public void track(Class<?> klazz, Object... args) {
-        getApp().track(klazz, args);
+        getTracker().track(klazz, args);
+    }
+
+    private Tracker getTracker() {
+        return (Tracker) getApplication();
     }
 }

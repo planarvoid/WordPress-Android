@@ -114,6 +114,16 @@ public class UploadMonitor extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         ImageUtils.recycleImageViewBitmap((ImageView) findViewById(R.id.icon));

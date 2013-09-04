@@ -146,6 +146,8 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     @Deprecated
     public void setTrack(@NotNull Track track, int queuePosition, boolean priority) {
+        final boolean changed = !track.equals(mTrack);
+
         mTrack = track;
         mQueuePosition = queuePosition;
 
@@ -176,7 +178,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             refreshComments();
         }
 
-        if (mTrackFlipper != null) {
+        if (mTrackFlipper != null && changed) {
             onTrackDetailsFlip(mTrackFlipper, false);
         }
     }
@@ -239,10 +241,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             }
 
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_in));
-            trackFlipper.setOutAnimation(null);
+            trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.showNext();
         } else if (!showDetails && trackFlipper.getDisplayedChild() == 1){
-            trackFlipper.setInAnimation(null);
+            trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_out));
             trackFlipper.showPrevious();
         }

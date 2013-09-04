@@ -29,10 +29,14 @@ public class RemoteCollectionLoader<T extends ScResource> implements CollectionL
                     holder.moreResourcesExist(),
                     true);
 
+        } catch (AndroidCloudAPI.UnexpectedResponseException e){
+            Log.e(TAG, "error", e);
+            return new ReturnData.Error<T>(params, e.getStatusCode());
         } catch (IOException e) {
             Log.e(TAG, "error", e);
+            return new ReturnData.Error<T>(params);
         }
 
-        return new ReturnData.Error<T>(params);
+
     }
 }
