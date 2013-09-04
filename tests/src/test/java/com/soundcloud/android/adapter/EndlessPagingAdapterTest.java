@@ -13,14 +13,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
@@ -118,7 +116,7 @@ public class EndlessPagingAdapterTest {
         adapter.loadNextPage();
         View progressView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
         expect(progressView).not.toBeNull();
-        expect(progressView.findViewById(R.id.list_loading).getVisibility()).toBe(View.VISIBLE);
+        expect(progressView.findViewById(R.id.loading).getVisibility()).toBe(View.VISIBLE);
         expect(progressView.findViewById(R.id.txt_list_loading_retry).getVisibility()).toBe(View.GONE);
     }
 
@@ -129,7 +127,7 @@ public class EndlessPagingAdapterTest {
         adapter.loadNextPage();
         View errorView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
         expect(errorView).not.toBeNull();
-        expect(errorView.findViewById(R.id.list_loading).getVisibility()).toBe(View.GONE);
+        expect(errorView.findViewById(R.id.loading).getVisibility()).toBe(View.GONE);
         expect(errorView.findViewById(R.id.txt_list_loading_retry).getVisibility()).toBe(View.VISIBLE);
     }
 

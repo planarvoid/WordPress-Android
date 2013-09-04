@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ErrorViewTest {
@@ -26,24 +25,24 @@ public class ErrorViewTest {
     @Test
     public void shouldDefaultToNoMessage(){
         expect(errorView.findViewById(R.id.server_error).getVisibility()).toEqual(View.GONE);
-        expect(errorView.findViewById(R.id.client_error_1).getVisibility()).toEqual(View.GONE);
-        expect(errorView.findViewById(R.id.client_error_2).getVisibility()).toEqual(View.GONE);
+        expect(errorView.findViewById(R.id.connection_error_1).getVisibility()).toEqual(View.GONE);
+        expect(errorView.findViewById(R.id.connection_error_2).getVisibility()).toEqual(View.GONE);
     }
 
     @Test
     public void shouldSetServerErrorState(){
-        errorView.setServerErrorState();
+        errorView.setUnexpectedResponseState();
         expect(errorView.findViewById(R.id.server_error).getVisibility()).toEqual(View.VISIBLE);
-        expect(errorView.findViewById(R.id.client_error_1).getVisibility()).toEqual(View.GONE);
-        expect(errorView.findViewById(R.id.client_error_2).getVisibility()).toEqual(View.GONE);
+        expect(errorView.findViewById(R.id.connection_error_1).getVisibility()).toEqual(View.GONE);
+        expect(errorView.findViewById(R.id.connection_error_2).getVisibility()).toEqual(View.GONE);
     }
 
     @Test
     public void shouldSetClientErrorState() {
-        errorView.setClientErrorState();
+        errorView.setConnectionErrorState();
         expect(errorView.findViewById(R.id.server_error).getVisibility()).toEqual(View.GONE);
-        expect(errorView.findViewById(R.id.client_error_1).getVisibility()).toEqual(View.VISIBLE);
-        expect(errorView.findViewById(R.id.client_error_2).getVisibility()).toEqual(View.VISIBLE);
+        expect(errorView.findViewById(R.id.connection_error_1).getVisibility()).toEqual(View.VISIBLE);
+        expect(errorView.findViewById(R.id.connection_error_2).getVisibility()).toEqual(View.VISIBLE);
     }
 
     @Test
