@@ -204,8 +204,8 @@ namespace :release do
 end
 
 namespace :beta do
-  APP_ID="31bb3a437ee0cd325e994283fb8e7da3"
-  TOKEN="ef31e73570804365acba701c47568c9d"
+  APP_ID="b81f0193d361b59e2e37d7f1c0aff017"
+  TOKEN="7a972dbc225d2e9cfc36ba1f49e75ed8"
   BETA_APK = "app/target/soundcloud-android-#{current_version}-beta.apk"
   file BETA_APK => 'beta:build'
 
