@@ -101,6 +101,7 @@
                             <exclude>com.soundcloud.android.tests.*</exclude>
                         </excludes>
                     </instrumentation>
+                    <check/>
                 </configuration>
             </plugin>
             <plugin>
@@ -352,44 +353,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-
-        <!-- release profile -->
-        <profile>
-            <id>release</id>
-            <properties>
-                <build.type>release</build.type>
-                <build.skipAspectWeaving>false</build.skipAspectWeaving>
-                <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
-                <keystore.alias>jons keystore</keystore.alias>
-                <build.proguard.skip>false</build.proguard.skip>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>debug</id>
-            <properties>
-                <build.type>debug</build.type>
-                <build.skipAspectWeaving>false</build.skipAspectWeaving>
-                <keystore.alias>androiddebugkey</keystore.alias>
-                <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
-                <keystore.password>android</keystore.password>
-                <keystore.keypass>android</keystore.keypass>
-                <build.proguard.skip>true</build.proguard.skip>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>ci</id>
-            <properties>
-                <build.type>debug</build.type>
-                <build.skipAspectWeaving>false</build.skipAspectWeaving>
-                <keystore.alias>androiddebugkey</keystore.alias>
-                <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
-                <keystore.password>android</keystore.password>
-                <keystore.keypass>android</keystore.keypass>
-                <build.proguard.skip>false</build.proguard.skip>
-            </properties>
         </profile>
 
         <profile>
