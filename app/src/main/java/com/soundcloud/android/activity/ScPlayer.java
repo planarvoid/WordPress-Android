@@ -5,7 +5,6 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.Broad
 import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlaylistManager;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -65,7 +64,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private TransportBar mTransportBar;
     private @CheckForNull CloudPlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1;
-    private AndroidCloudAPI mAndroidCloudAPI;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
 
     public interface PlayerError {
