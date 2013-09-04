@@ -90,6 +90,13 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
 
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
+        mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
+            @Override
+            public void onEmptyViewRetry() {
+                setEmptyViewStatus(FriendFinderFragment.Status.WAITING);
+                loadCategories();
+            }
+        });
 
         PullToRefreshListView pullToRefreshListView = (PullToRefreshListView) view.findViewById(mListViewID);
         pullToRefreshListView.setOnItemClickListener(this);
@@ -109,6 +116,10 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
 
     @Override
     public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+        loadCategories();
+    }
+
+    private void loadCategories() {
         mCategoriesObservable.subscribe(new PullToRefreshObserver<ExploreTracksCategoriesFragment, Section<ExploreTracksCategory>>(
                         this, mListViewID, mCategoriesAdapter, mCategoriesAdapter));
     }
