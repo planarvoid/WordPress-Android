@@ -70,6 +70,7 @@
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarView.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingButton.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingTextView.class"/>
+        <ignore path="target/classes/com/actionbarsherlock/internal/widget/CollapsibleActionViewWrapper.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsAbsSpinner.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsLinearLayout.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsListPopupWindow.class"/>
