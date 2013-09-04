@@ -236,10 +236,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             }
 
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_in));
-            trackFlipper.setOutAnimation(null);
+            trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.showNext();
         } else if (!showDetails && trackFlipper.getDisplayedChild() == 1){
-            trackFlipper.setInAnimation(null);
+            trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_out));
             trackFlipper.showPrevious();
         }
