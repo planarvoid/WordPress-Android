@@ -2,6 +2,7 @@ package com.soundcloud.android.api.http;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.URI_APP_PREFIX;
 import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.WrapperFactory;
 import static com.soundcloud.api.CloudAPI.InvalidTokenException;
 import static org.mockito.Matchers.any;
@@ -19,7 +20,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.json.JsonTransformer;
-import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Link;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.UnknownResource;
@@ -156,6 +156,20 @@ public class SoundCloudRxHttpClientTest {
         verify(wrapper).post(argumentCaptor.capture());
         Request scRequest = argumentCaptor.getValue();
         expect(scRequest.toUrl()).toEqual("/baseprivateapiuri" + URI);
+    }
+
+    @Test
+    public void shouldNotAppendBasePathIfAppPrefixPresent() throws IOException {
+        when(apiRequest.getUriPath()).thenReturn(SoundCloudRxHttpClient.URI_APP_PREFIX);
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(apiRequest.isPrivate()).thenReturn(true);
+        when(httpProperties.getApiMobileBaseUriPath()).thenReturn("/baseprivateapiuri");
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).post(argumentCaptor.capture());
+        Request scRequest = argumentCaptor.getValue();
+        expect(scRequest.toUrl()).toEqual(URI_APP_PREFIX);
     }
 
     @Test

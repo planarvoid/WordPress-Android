@@ -44,6 +44,7 @@ import java.util.Map;
 
 public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient  {
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json";
+    public static final String URI_APP_PREFIX = "/app";
 
     private final JsonTransformer mJsonTransformer;
     private final WrapperFactory mWrapperFactory;
@@ -201,10 +202,12 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     }
 
     private Request createSCRequest(APIRequest<?> apiRequest) throws IOException {
-        String baseUriPath = apiRequest.isPrivate() ? mHttpProperties.getApiMobileBaseUriPath() : ScTextUtils.EMPTY_STRING;
+        final boolean needsPrefix = apiRequest.isPrivate() && !apiRequest.getUriPath().startsWith(URI_APP_PREFIX);
+        String baseUriPath = needsPrefix ? mHttpProperties.getApiMobileBaseUriPath() : ScTextUtils.EMPTY_STRING;
         Request request = Request.to(baseUriPath + apiRequest.getUriPath());
-        final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();
 
+
+        final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();
         Map<String, String> transformedParameters = Maps.toMap(queryParameters.keySet(), new Function<String, String>() {
             @Nullable
             @Override
