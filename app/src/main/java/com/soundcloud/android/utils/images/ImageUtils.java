@@ -517,12 +517,18 @@ public final class ImageUtils {
      * @return
      */
     public static Bitmap getCachedTrackListIcon(Context context, Track track){
-        return ImageLoader.getInstance().getMemoryCache().get(MemoryCacheUtil.generateKey(
-                track.getListArtworkUrl(context),
-                new com.nostra13.universalimageloader.core.assist.ImageSize(
-                        (int) context.getResources().getDimension(R.dimen.list_icon_width),
-                        (int) context.getResources().getDimension(R.dimen.list_icon_height)
-                )
-        ));
+        final String listArtworkUrl = track.getListArtworkUrl(context);
+        if (TextUtils.isEmpty(listArtworkUrl)) {
+            return null;
+        } else {
+            return ImageLoader.getInstance().getMemoryCache().get(MemoryCacheUtil.generateKey(
+                    listArtworkUrl,
+                    new com.nostra13.universalimageloader.core.assist.ImageSize(
+                            (int) context.getResources().getDimension(R.dimen.list_icon_width),
+                            (int) context.getResources().getDimension(R.dimen.list_icon_height)
+                    )
+            ));
+
+        }
     }
 }
