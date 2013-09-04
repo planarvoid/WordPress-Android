@@ -25,7 +25,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
      */
     @FlakyTest
     public void ignore_testEditAndTrim() {
-        record(RECORDING_TIME);
+        record(recordingTime);
         gotoEditMode();
 
         trim(0.25, 0.25);
@@ -35,7 +35,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         solo.sleep(2000);
 
         playback();
-        waitForState(IDLE_PLAYBACK, RECORDING_TIME);
+        waitForState(IDLE_PLAYBACK, recordingTime);
 
     }
 
@@ -44,18 +44,18 @@ public class RecordEditTest extends AbstractRecordingTestCase {
      */
     public void ignore_testEditAndTrimAndAppendAndUpload() {
 
-        record(RECORDING_TIME);
+        record(recordingTime);
         gotoEditMode();
         trim(0.25, 0.25);
         applyEdits();
 
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         gotoEditMode();
         trim(0, 0.25);
         applyEdits();
 
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         uploadSound("An edit test upload", null, true);
 
@@ -68,7 +68,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
      * Record something, enable fading and upload. Make sure transcoding works.
      */
     public void ignore_testFadingAndUpload() throws Exception {
-        record(RECORDING_TIME);
+        record(recordingTime);
         gotoEditMode();
         assertTrue(toggleFade());
 
@@ -76,7 +76,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         uploadSound("A faded test upload", null, true);
 
-        assertSoundEncoded(RECORDING_TIME * 4);
+        assertSoundEncoded(recordingTime * 4);
         assertSoundUploaded();
         assertSoundTranscoded();
     }
@@ -108,7 +108,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         uploadSound("A faded + trimmed test upload", null, true);
 
-        assertSoundEncoded(RECORDING_TIME * 4);
+        assertSoundEncoded(recordingTime * 4);
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
         assertTrackDuration(track, 5000 + ROBO_SLEEP);
@@ -116,7 +116,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
     @Suppress
     public void ignore_testEditModesGetPersisted() {
-        record(RECORDING_TIME);
+        record(recordingTime);
         gotoEditMode();
 
         playbackEdit();

@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -15,6 +16,26 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${basedir}/properties/app_properties_${build.type}.xml"
+                                      tofile="${basedir}/res/values/app_properties.xml"
+                                      overwrite="true"
+                                      failOnError="true"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
 
@@ -24,7 +45,7 @@
                     <useHeaderArchives>false</useHeaderArchives>
                     <ndkBuildAdditionalCommandline>NDK_TOOLCHAIN=""</ndkBuildAdditionalCommandline>
                     <proguard>
-                        <skip>false</skip>
+                        <skip>${build.proguard.skip}</skip>
                     </proguard>
                     <lint>
                         <config>app/lint.xml</config>
@@ -46,11 +67,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.4</version>
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
@@ -87,9 +103,42 @@
                     </instrumentation>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${build.skipAspectWeaving}</skip>
+                    <showWeaveInfo>true</showWeaveInfo>
+                    <verbose>true</verbose>
+                    <argumentFileName>aspectj_output.log</argumentFileName>
+                    <source>${source.version}</source>
+                    <complianceLevel>${source.version}</complianceLevel>
+                    <target>${source.version}</target>
+                    <privateScope>true</privateScope>
+                    <includes>
+                        <!-- For Activities which need to be weaved -->
+                        <include>com/soundcloud/android/activity/**/*.java</include>
+                        <include>com/soundcloud/android/cropimage/**/*.java</include>
+                        <include>aspect/*.aj</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.7.3</version>
+        </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
@@ -188,6 +237,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>com.localytics</groupId>
+            <artifactId>android-localytics</artifactId>
+            <version>2.8</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>support-v4</artifactId>
             <version>r12</version>
@@ -208,7 +263,7 @@
         <dependency>
             <groupId>com.soundcloud.android</groupId>
             <artifactId>cropimage</artifactId>
-            <version>1.1.7</version>
+            <version>1.1.9</version>
             <scope>compile</scope>
             <type>apklib</type>
         </dependency>
@@ -268,18 +323,17 @@
             <version>1.8.5</version>
         </dependency>
     </dependencies>
-    <properties>
-        <release.type>debug</release.type>
-    </properties>
 
     <profiles>
         <!-- beta profile -->
         <profile>
             <id>beta</id>
             <properties>
+                <build.type>beta</build.type>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>beta-key</keystore.alias>
-                <release.type>beta</release.type>
+                <build.proguard.skip>false</build.proguard.skip>
             </properties>
 
             <build>
@@ -304,9 +358,37 @@
         <profile>
             <id>release</id>
             <properties>
+                <build.type>release</build.type>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>jons keystore</keystore.alias>
-                <release.type>market</release.type>
+                <build.proguard.skip>false</build.proguard.skip>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>debug</id>
+            <properties>
+                <build.type>debug</build.type>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <keystore.alias>androiddebugkey</keystore.alias>
+                <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
+                <keystore.password>android</keystore.password>
+                <keystore.keypass>android</keystore.keypass>
+                <build.proguard.skip>true</build.proguard.skip>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>ci</id>
+            <properties>
+                <build.type>debug</build.type>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <keystore.alias>androiddebugkey</keystore.alias>
+                <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
+                <keystore.password>android</keystore.password>
+                <keystore.keypass>android</keystore.keypass>
+                <build.proguard.skip>false</build.proguard.skip>
             </properties>
         </profile>
 
@@ -357,7 +439,7 @@
                             <zipalign>
                                 <skip>false</skip>
                                 <verbose>true</verbose>
-                                <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-${release.type}.apk</outputApk>
+                                <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-${build.type}.apk</outputApk>
                             </zipalign>
                         </configuration>
                         <executions>

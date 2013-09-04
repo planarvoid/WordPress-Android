@@ -1,0 +1,7 @@
+<!-- App properties for BETA releases -->
+<resources>
+    <string name="build_type">beta</string>
+    <string name="localytics_app_key">8fecc6a72fcb74ddc76e2ac-02fa3b92-08f2-11e3-120d-004a77f8b47f</string>
+    <bool name="analytics_enabled">true</bool>
+    <string name="api_mobile_base_uri_path">/app/mobileapps-staging</string>
+</resources>

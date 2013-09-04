@@ -55,7 +55,6 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.3.2</version>
                 <configuration>
                     <test>
                         <debug>false</debug>
@@ -134,7 +133,7 @@
                             </sign>
 
                             <zipalign>
-                                <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-${release.type}.apk</outputApk>
+                                <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-${build.type}.apk</outputApk>
                             </zipalign>
                         </configuration>
                         <executions>

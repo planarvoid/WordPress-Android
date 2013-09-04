@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -64,14 +65,13 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     private int mClicksToDebug = CLICKS_TO_DEBUG_MODE;
 
     private ProgressDialog mDeleteDialog;
-    private AccountOperations mAccountOperations;
+    private ApplicationProperties mApplicationProperties;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        mAccountOperations = new AccountOperations(this);
         addPreferencesFromResource(R.xml.settings);
-
+        mApplicationProperties = new ApplicationProperties(getResources());
         PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
         if (AlarmClock.isFeatureEnabled(this)) {
             AlarmClock.get(getApplicationContext()).addPrefs(this, extras);
@@ -222,10 +222,10 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
         }
 
 
-        if (!SoundCloudApplication.DEV_MODE) {
-            getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
-        } else {
+        if (mApplicationProperties.isDevBuildRunningOnDalvik()) {
             DevSettings.setup(this, getApp());
+        } else {
+            getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
         }
     }
 
@@ -259,6 +259,11 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
         getApp().track(Settings.class);
         updateClearCacheTitles();
         super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     private void setClearCacheTitle(final String pref, final int key, final File dir) {

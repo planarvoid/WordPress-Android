@@ -17,13 +17,10 @@
     </organization>
 
     <properties>
-        <release.type>androiddebugkey</release.type>
-        <keystore.alias>androiddebugkey</keystore.alias>
-        <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
-        <keystore.password>android</keystore.password>
-        <keystore.keypass>android</keystore.keypass>
+        <build.skipAspectWeaving>true</build.skipAspectWeaving>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <androidApiLevel>16</androidApiLevel>
+        <source.version>1.6</source.version>
     </properties>
 
     <build>
@@ -49,8 +46,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                  <source>1.6</source>
-                  <target>1.6</target>
+                  <source>${source.version}</source>
+                  <target>${source.version}</target>
                 </configuration>
             </plugin>
 

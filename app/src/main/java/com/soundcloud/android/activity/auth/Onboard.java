@@ -17,6 +17,7 @@ import com.soundcloud.android.dialog.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.dialog.auth.LoginTaskFragment;
 import com.soundcloud.android.dialog.auth.SignupTaskFragment;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.task.auth.AuthTask;
 import com.soundcloud.android.task.auth.AuthTaskResult;
 import com.soundcloud.android.tracking.Click;
@@ -91,6 +92,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
     @Nullable private Bundle mLoginBundle, mSignUpBundle, mUserDetailsBundle, mAcceptTermsBundle;
 
     private AndroidCloudAPI mOldCloudAPI;
+    private ApplicationProperties mApplicationProperties;
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -109,7 +111,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         mTourPages.add(new TourLayout(this, R.layout.tour_page_1, R.drawable.tour_image_1));
         mTourPages.add(new TourLayout(this, R.layout.tour_page_2, R.drawable.tour_image_2));
         mTourPages.add(new TourLayout(this, R.layout.tour_page_3, R.drawable.tour_image_3));
-
+        mApplicationProperties = new ApplicationProperties(getResources());
         // randomize for variety
         Collections.shuffle(mTourPages);
 
@@ -175,7 +177,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             public void onClick(View v) {
                 app.track(Click.Signup_Signup);
 
-                if (!SoundCloudApplication.DEV_MODE && SignupLog.shouldThrottleSignup()) {
+                if (!mApplicationProperties.isDevBuildRunningOnDalvik() && SignupLog.shouldThrottleSignup()) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
                     finish();
                 } else {
@@ -184,7 +186,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
             }
         });
 
-        if (SoundCloudApplication.BETA_MODE) {
+        if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
             UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
 

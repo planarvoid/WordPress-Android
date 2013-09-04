@@ -2,9 +2,10 @@ package com.soundcloud.android.streaming;
 
 import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
@@ -54,18 +55,21 @@ public class StreamStorage {
     private Set<String> mConvertingUrls = new HashSet<String>();
 
     private final int mCleanupInterval;
+    private ApplicationProperties mApplicationProperties;
 
     public StreamStorage(Context context, File basedir) {
-        this(context, basedir, DEFAULT_CHUNK_SIZE, CLEANUP_INTERVAL);
+        this(context, basedir, new ApplicationProperties(context.getResources()), DEFAULT_CHUNK_SIZE, CLEANUP_INTERVAL);
     }
 
-    public StreamStorage(Context context, File basedir, int chunkSize, int cleanupInterval) {
+    @VisibleForTesting
+    protected StreamStorage(Context context, File basedir, ApplicationProperties applicationProperties,
+                            int chunkSize, int cleanupInterval) {
         mContext = context;
         mBaseDir = basedir;
         mIncompleteDir = new File(mBaseDir, "Incomplete");
         mCompleteDir = new File(mBaseDir, "Complete");
         mCleanupInterval = cleanupInterval;
-
+        mApplicationProperties = applicationProperties;
         mkdirs(mIncompleteDir);
         mkdirs(mCompleteDir);
 
@@ -202,7 +206,7 @@ public class StreamStorage {
 
             if (currentCount >= mCleanupInterval) {
                 if (cleanup(calculateUsableSpace())) {
-                    if (SoundCloudApplication.DEV_MODE) {
+                    if (mApplicationProperties.isDevBuildRunningOnDalvik()) {
                         // print file stats again
                         calculateUsableSpace();
                     }

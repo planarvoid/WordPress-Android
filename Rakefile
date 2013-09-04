@@ -164,7 +164,7 @@ end
 namespace :debug do
     desc "Build Debug APK"
     task :build do
-        sh "mvn clean install -Psign --projects app"
+        sh "mvn clean install -Pdebug,sign --projects app"
     end
 
     task :build_deploy => :build do
@@ -173,9 +173,9 @@ namespace :debug do
 end
 
 namespace :test do
-    desc "Build Debug APK"
+    desc "Run unit tests"
     task :unit do
-        sh "mvn clean install -Dandroid.proguard.skip=true --projects app && mvn clean test --projects tests"
+        sh "mvn clean install -Dandroid.proguard.skip=true --projects app,tests"
     end
 end
 
@@ -191,7 +191,7 @@ namespace :release do
 
   desc "builds the release version"
   task :build do
-    sh "mvn clean install -DskipTests -Psign,soundcloud,release"
+    sh "mvn clean install -Psign,soundcloud,release --projects app"
   end
 
   desc "sets the release version to the version specified in the manifest, creates bump commit"
@@ -248,7 +248,7 @@ namespace :beta do
         version_code = 0
       end
       sh <<-END
-        mvn clean install --projects app -DskipTests -Psign,soundcloud,beta \
+        mvn clean install --projects app -Psign,soundcloud,beta \
           -Dandroid.manifest.versionCode=#{version_code+1} \
           -Dandroid.manifest.debuggable=true
       END

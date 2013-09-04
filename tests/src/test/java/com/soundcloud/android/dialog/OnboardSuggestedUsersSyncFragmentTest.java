@@ -3,11 +3,9 @@ package com.soundcloud.android.dialog;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.dialog.OnboardSuggestedUsersSyncFragment.FollowingsSyncObserver;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -35,7 +33,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
     @Before
     public void setup() {
         fragment = new OnboardSuggestedUsersSyncFragment(followingOperations);
-        Robolectric.shadowOf(fragment).setActivity(new SherlockFragmentActivity());
+        Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
         Robolectric.shadowOf(fragment).setAttached(true);
     }
 
@@ -118,7 +116,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
         when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
         fragment.onCreate(null);
 
-        SherlockFragmentActivity activity = new SherlockFragmentActivity();
+        FragmentActivity activity = new FragmentActivity();
         Robolectric.shadowOf(fragment).setActivity(activity);
 
         ArgumentCaptor<FollowingsSyncObserver> argumentCaptor = ArgumentCaptor.forClass(FollowingsSyncObserver.class);
