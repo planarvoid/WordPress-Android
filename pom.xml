@@ -87,6 +87,7 @@
             <id>release</id>
             <properties>
                 <build.type>release</build.type>
+                <build.debuggable>false</build.debuggable>
                 <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>jons keystore</keystore.alias>
@@ -98,6 +99,7 @@
             <id>debug</id>
             <properties>
                 <build.type>debug</build.type>
+                <build.debuggable>true</build.debuggable>
                 <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.alias>androiddebugkey</keystore.alias>
                 <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
@@ -111,6 +113,7 @@
             <id>ci</id>
             <properties>
                 <build.type>debug</build.type>
+                <build.debuggable>false</build.debuggable>
                 <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.alias>androiddebugkey</keystore.alias>
                 <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
