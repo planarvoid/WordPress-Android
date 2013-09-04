@@ -43,7 +43,10 @@
 
     <!-- flag NewApi as error -->
     <issue id="NewApi" severity="error">
+        <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/MenuItemWrapper.class"/>
+        <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/MenuItemWrapper$1.class"/>
         <ignore path="target/classes/com/actionbarsherlock/widget/SearchView.class"/>
+        <ignore path="target/classes/com/actionbarsherlock/widget/SearchView$5.class"/>
         <ignore path="target/classes/com/actionbarsherlock/app/SherlockActivity.class"/>
         <ignore path="target/classes/com/actionbarsherlock/app/SherlockExpandableListActivity.class"/>
         <ignore path="target/classes/com/actionbarsherlock/app/SherlockListActivity.class"/>
@@ -63,7 +66,6 @@
         <ignore path="target/classes/com/actionbarsherlock/internal/view/ActionProviderWrapper.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/ActionMenuItemView.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/BaseMenuPresenter.class"/>
-        <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/MenuItemWrapper.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/view/menu/ActionMenuPresenter$HasPermanentMenuKey.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/AbsActionBarView.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarContextView.class"/>
