@@ -54,7 +54,6 @@ public final class PlayUtils {
 
         if (goToPlayer) {
             Intent activityIntent = new Intent(Actions.PLAYER)
-                    .putExtra(Track.EXTRA, t)
                     .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                     .putExtra("commentMode", commentMode);
 
