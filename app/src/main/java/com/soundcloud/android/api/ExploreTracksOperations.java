@@ -10,8 +10,14 @@ import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ExploreTracksSuggestion;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.sun.org.apache.regexp.internal.RE;
 import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import java.util.List;
 
@@ -56,12 +62,23 @@ public class ExploreTracksOperations extends ScheduledOperations {
     }
 
     public Observable<Track> getRelatedTracks(Track seedTrack) {
-        APIRequest<List<Track>> request = SoundCloudAPIRequest.RequestBuilder.<List<Track>>get("/users/bad-panda-records/tracks.json")
-                .addQueryParameters("limit", "100")
-                .forPublicAPI()
-                .forResource(new TypeToken<List<Track>>() {
-                }).build();
-        return mRxHttpClient.fetchModels(request);
+        final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), seedTrack.getUrn().toEncodedString());
+        final APIRequest<ModelCollection<ExploreTracksSuggestion>> request = SoundCloudAPIRequest.RequestBuilder.<ModelCollection<ExploreTracksSuggestion>>get(endpoint)
+                .forPrivateAPI(1)
+                .forResource(new SuggestionsModelCollectionToken()).build();
+
+        return Observable.create(new Func1<Observer<Track>, Subscription>() {
+            @Override
+            public Subscription call(Observer<Track> trackObserver) {
+                final Observable<ModelCollection<ExploreTracksSuggestion>> collectionObservable = mRxHttpClient.fetchModels(request);
+                List<ExploreTracksSuggestion> suggestions = collectionObservable.toBlockingObservable().last().getCollection();
+                for (ExploreTracksSuggestion item : suggestions) {
+                    final Track track = new Track(item);
+                    trackObserver.onNext(track);
+                }
+                return Subscriptions.empty();
+            }
+        });
     }
 
     private static class SuggestionsModelCollectionToken extends TypeToken<ModelCollection<ExploreTracksSuggestion>> {
