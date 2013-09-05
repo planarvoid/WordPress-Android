@@ -111,12 +111,12 @@ public class Track extends Playable implements PlayableHolder {
         setUrn(suggestion.getUrn());
         setUser(new User(suggestion.getUser()));
         setTitle(suggestion.getTitle());
+        setWaveformUrl(suggestion.getWaveformUrl());
         duration = suggestion.getDuration();
         artwork_url = suggestion.getArtworkUrl();
         genre = suggestion.getGenre();
         commentable = suggestion.isCommentable();
         stream_url = suggestion.getStreamUrl();
-        waveform_url = suggestion.getWaveformUrl();
         tag_list = suggestion.getUserTags() == null ? ScTextUtils.EMPTY_STRING : TextUtils.join(" ", suggestion.getUserTags());
         created_at = suggestion.getCreatedAt();
         playback_count = suggestion.getPlaybackCount();
@@ -144,6 +144,17 @@ public class Track extends Playable implements PlayableHolder {
             }
         }
         return tags;
+    }
+
+    /**
+     * GHETTO WAVEFORM FIX. Make the private API return something we can use and remove this
+     */
+    public void setWaveformUrl(String waveformUrl){
+        if (!waveformUrl.endsWith("_m.png")) {
+            waveform_url = waveformUrl.replace(".png", "_m.png");
+        } else {
+            waveform_url = waveformUrl;
+        }
     }
 
     public Uri toUri() {
