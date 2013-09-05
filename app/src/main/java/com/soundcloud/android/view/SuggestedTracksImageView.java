@@ -8,6 +8,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Shader;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
 /**
@@ -29,13 +30,16 @@ public class SuggestedTracksImageView extends AspectRatioImageView {
     @Override
     protected boolean setFrame(int l, int t, int r, int b)
     {
-        final Matrix matrix = getImageMatrix();
-        float scaleFactor = (r-l)/(float)getDrawable().getIntrinsicWidth();
-        final int desiredFocalPoint = (int) (-(getDrawable().getIntrinsicHeight()) * .35);
-        matrix.setTranslate(0, desiredFocalPoint);
-        matrix.postScale(scaleFactor, scaleFactor, 0, 0);
-        matrix.postTranslate(0, (b-t)/(2));
-        setImageMatrix(matrix);
+        final Drawable drawable = getDrawable();
+        if (drawable != null){
+            final Matrix matrix = getImageMatrix();
+            float scaleFactor = (r-l)/(float) drawable.getIntrinsicWidth();
+            final int desiredFocalPoint = (int) (-(drawable.getIntrinsicHeight()) * .35);
+            matrix.setTranslate(0, desiredFocalPoint);
+            matrix.postScale(scaleFactor, scaleFactor, 0, 0);
+            matrix.postTranslate(0, (b-t)/(2));
+            setImageMatrix(matrix);
+        }
         return super.setFrame(l, t, r, b);
     }
 
@@ -52,12 +56,14 @@ public class SuggestedTracksImageView extends AspectRatioImageView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        final Rect clipBounds = canvas.getClipBounds();
-        Rect r = new Rect();
-        r.left = clipBounds.left;
-        r.right = clipBounds.right;
-        r.top = (int) ((clipBounds.bottom - clipBounds.top) * GRADIENT_START_POSITION + clipBounds.top);
-        r.bottom = clipBounds.bottom-1;
-        canvas.drawRect(r, mPaint);
+        if (getDrawable() != null){
+            final Rect clipBounds = canvas.getClipBounds();
+            Rect r = new Rect();
+            r.left = clipBounds.left;
+            r.right = clipBounds.right;
+            r.top = (int) ((clipBounds.bottom - clipBounds.top) * GRADIENT_START_POSITION + clipBounds.top);
+            r.bottom = clipBounds.bottom-1;
+            canvas.drawRect(r, mPaint);
+        }
     }
 }

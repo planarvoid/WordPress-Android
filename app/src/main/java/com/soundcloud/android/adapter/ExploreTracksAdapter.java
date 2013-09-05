@@ -23,7 +23,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
 
     public static final int INITIAL_LIST_SIZE = 20;
 
-    private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.adapterView(R.drawable.placeholder_cells);
+    private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.gridView();
     private GridSpacer mGridSpacer;
 
     public ExploreTracksAdapter(Observable<Observable<ExploreTracksSuggestion>> pagingObservable, Observer<ExploreTracksSuggestion> itemObserver) {
@@ -63,6 +63,9 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
         }
         final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getPlaybackCount());
         viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, playcountWithCommas));
+
+
+        viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
         final String artworkUri = ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtworkUrl());
         ImageLoader.getInstance().displayImage(artworkUri, viewHolder.imageView, mDisplayImageOptions);
 
