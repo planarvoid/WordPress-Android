@@ -5,10 +5,10 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.PlaylistActivity;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 
 import android.content.Context;
@@ -47,17 +47,18 @@ public final class PlayUtils {
                 intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
             }
+
         }
+        intent.setAction(CloudPlaybackService.Actions.PLAY_ACTION);
+        context.startService(intent);
 
         if (goToPlayer) {
-            intent.setAction(Actions.PLAY)
-                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                .putExtra("commentMode", commentMode);
+            Intent activityIntent = new Intent(Actions.PLAYER)
+                    .putExtra(Track.EXTRA, t)
+                    .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    .putExtra("commentMode", commentMode);
 
-            context.startActivity(intent);
-        } else {
-            intent.setAction(CloudPlaybackService.Actions.PLAY_ACTION);
-            context.startService(intent);
+            context.startActivity(activityIntent);
         }
     }
 
