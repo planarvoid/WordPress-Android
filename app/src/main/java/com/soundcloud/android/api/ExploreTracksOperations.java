@@ -1,6 +1,7 @@
 package com.soundcloud.android.api;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
@@ -12,9 +13,6 @@ import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import java.util.List;
@@ -65,17 +63,14 @@ public class ExploreTracksOperations extends ScheduledOperations {
                 .forPrivateAPI(1)
                 .forResource(new SuggestionsModelCollectionToken()).build();
 
-        return Observable.create(new Func1<Observer<Track>, Subscription>() {
+        return mRxHttpClient.<ModelCollection<ExploreTracksSuggestion>>fetchModels(request).mapMany(new Func1<ModelCollection<ExploreTracksSuggestion>, Observable<Track>>() {
             @Override
-            public Subscription call(Observer<Track> trackObserver) {
-                final Observable<ModelCollection<ExploreTracksSuggestion>> collectionObservable = mRxHttpClient.fetchModels(request);
-                List<ExploreTracksSuggestion> suggestions = collectionObservable.toBlockingObservable().last().getCollection();
-                for (ExploreTracksSuggestion item : suggestions) {
-                    final Track track = new Track(item);
-                    trackObserver.onNext(track);
+            public Observable<Track> call(ModelCollection<ExploreTracksSuggestion> exploreTracksSuggestionModelCollection) {
+                List<Track> toEmit = Lists.newArrayListWithCapacity(exploreTracksSuggestionModelCollection.getCollection().size());
+                for (ExploreTracksSuggestion item : exploreTracksSuggestionModelCollection.getCollection()) {
+                    toEmit.add(new Track(item));
                 }
-                trackObserver.onCompleted();
-                return Subscriptions.empty();
+                return Observable.from(toEmit);
             }
         });
     }
