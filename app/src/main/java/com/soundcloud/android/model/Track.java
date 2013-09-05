@@ -22,6 +22,7 @@ import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
@@ -116,7 +117,7 @@ public class Track extends Playable implements PlayableHolder {
         commentable = suggestion.isCommentable();
         stream_url = suggestion.getStreamUrl();
         waveform_url = suggestion.getWaveformUrl();
-        tag_list = TextUtils.join(" ", suggestion.getUserTags());
+        tag_list = suggestion.getUserTags() == null ? ScTextUtils.EMPTY_STRING : TextUtils.join(" ", suggestion.getUserTags());
         created_at = suggestion.getCreatedAt();
         playback_count = suggestion.getPlaybackCount();
     }

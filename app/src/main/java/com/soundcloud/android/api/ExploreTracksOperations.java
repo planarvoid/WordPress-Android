@@ -10,9 +10,7 @@ import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ExploreTracksSuggestion;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScheduledOperations;
-import com.sun.org.apache.regexp.internal.RE;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -76,6 +74,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
                     final Track track = new Track(item);
                     trackObserver.onNext(track);
                 }
+                trackObserver.onCompleted();
                 return Subscriptions.empty();
             }
         });

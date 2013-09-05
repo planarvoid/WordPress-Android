@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.google.common.base.Charsets;
 import com.soundcloud.android.api.http.HttpProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.images.ImageSize;
@@ -8,6 +9,9 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.net.Uri;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Models a SoundCloud client uri
@@ -119,6 +123,16 @@ public class ClientUri {
     @Override
     public String toString() {
         return uri.toString();
+    }
+
+    public String toEncodedString() {
+        try {
+            return URLEncoder.encode(uri.toString(), Charsets.UTF_8.displayName());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 
