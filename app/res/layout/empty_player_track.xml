@@ -24,13 +24,13 @@
             <TextView android:id="@+id/client_error_1"
                       android:text="@string/player_fetching_related_message_1"
                       android:layout_centerInParent="true"
-                      style="@style/txt_empty_error_message"/>
+                      style="@style/ErrorMessage.EmptyCollection.Main"/>
 
             <TextView android:id="@+id/client_error_2"
                       android:text="@string/player_fetching_related_message_2"
                       android:layout_centerInParent="true"
                       android:layout_below="@+id/client_error_1"
-                      style="@style/txt_empty_error_sub_message"/>
+                      style="@style/ErrorMessage.EmptyCollection.Sub"/>
 
         </RelativeLayout>
 
