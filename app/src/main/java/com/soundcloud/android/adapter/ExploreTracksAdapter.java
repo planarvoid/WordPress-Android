@@ -11,7 +11,6 @@ import com.soundcloud.android.view.adapter.GridSpacer;
 import rx.Observable;
 import rx.Observer;
 
-import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -26,6 +25,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
 
     public ExploreTracksAdapter(Observable<Observable<Track>> pagingObservable, Observer<Track> itemObserver) {
         super(pagingObservable, itemObserver, INITIAL_LIST_SIZE);
+        mGridSpacer = new GridSpacer();
     }
 
     @Override
@@ -51,21 +51,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
         viewHolder.genre.setText(track.genre);
         viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, track.playback_count));
         ImageLoader.getInstance().displayImage(ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtwork()), viewHolder.imageView, mDisplayImageOptions);
-        getGridSpacer(itemView.getResources()).configureItemPadding(itemView, position, getCount());
-    }
-
-    /**
-     * Lazy Grid Spacer initialization as it needs resources for configuration
-     */
-    private GridSpacer getGridSpacer(Resources resources) {
-        if (mGridSpacer == null) {
-            mGridSpacer = new GridSpacer(
-                    resources.getDimensionPixelSize(R.dimen.explore_suggested_track_item_spacing_outside_left_right),
-                    resources.getDimensionPixelSize(R.dimen.explore_suggested_track_item_spacing_outside_top_bottom),
-                    resources.getInteger(R.integer.suggested_user_grid_num_columns)
-            );
-        }
-        return mGridSpacer;
+        mGridSpacer.configureItemPadding(itemView, position, getCount());
     }
 
     @VisibleForTesting

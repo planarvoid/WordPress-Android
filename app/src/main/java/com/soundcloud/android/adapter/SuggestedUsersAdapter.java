@@ -10,7 +10,6 @@ import com.soundcloud.android.view.SuggestedUserItemLayout;
 import com.soundcloud.android.view.adapter.GridSpacer;
 
 import android.annotation.TargetApi;
-import android.content.res.Resources;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
@@ -30,6 +29,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
 
     public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers) {
         mSuggestedUsers = suggestedUsers;
+        mGridSpacer = new GridSpacer();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
         }
 
         configureViewHolder(getItem(position), viewHolder);
-        getGridSpacer(convertView.getResources()).configureItemPadding(convertView, position, getCount());
+        mGridSpacer.configureItemPadding(convertView, position, getCount());
 
         return convertView;
     }
@@ -92,20 +92,6 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder.location.setVisibility(View.VISIBLE);
         }
         ImageLoader.getInstance().displayImage(suggestedUser.getAvatarUrl(), viewHolder.imageView, mDisplayImageOptions);
-    }
-
-    /**
-     * Lazy Grid Spacer initialization as it needs resources for configuration
-     */
-    private GridSpacer getGridSpacer(Resources resources){
-        if (mGridSpacer == null) {
-            mGridSpacer = new GridSpacer(
-                    resources.getDimensionPixelSize(R.dimen.onboarding_suggested_user_item_spacing),
-                    resources.getDimensionPixelSize(R.dimen.onboarding_suggested_user_item_spacing),
-                    resources.getInteger(R.integer.suggested_user_grid_num_columns)
-            );
-        }
-        return mGridSpacer;
     }
 
     private static class ItemViewHolder {
