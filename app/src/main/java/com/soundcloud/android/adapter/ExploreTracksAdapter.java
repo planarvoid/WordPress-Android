@@ -28,6 +28,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
 
     public ExploreTracksAdapter(Observable<Observable<ExploreTracksSuggestion>> pagingObservable, Observer<ExploreTracksSuggestion> itemObserver) {
         super(pagingObservable, itemObserver, INITIAL_LIST_SIZE, R.layout.grid_loading_item);
+        mGridSpacer = new GridSpacer();
     }
 
     @Override
@@ -55,6 +56,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
 
         viewHolder.username.setText(track.getUserName());
         viewHolder.title.setText(track.getTitle());
+
         if (TextUtils.isEmpty(track.getGenre())){
             viewHolder.genre.setVisibility(View.GONE);
         } else {
@@ -69,21 +71,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
         final String artworkUri = ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtworkUrl());
         ImageLoader.getInstance().displayImage(artworkUri, viewHolder.imageView, mDisplayImageOptions);
 
-        getGridSpacer(itemView.getResources()).configureItemPadding(itemView, position, getCount());
-    }
-
-    /**
-     * Lazy Grid Spacer initialization as it needs resources for configuration
-     */
-    private GridSpacer getGridSpacer(Resources resources) {
-        if (mGridSpacer == null) {
-            mGridSpacer = new GridSpacer(
-                    resources.getDimensionPixelSize(R.dimen.explore_suggested_track_item_spacing_outside_left_right),
-                    resources.getDimensionPixelSize(R.dimen.explore_suggested_track_item_spacing_outside_top_bottom),
-                    resources.getInteger(R.integer.suggested_user_grid_num_columns)
-            );
-        }
-        return mGridSpacer;
+        mGridSpacer.configureItemPadding(itemView, position, getCount());
     }
 
     @VisibleForTesting
