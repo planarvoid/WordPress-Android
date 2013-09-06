@@ -47,17 +47,17 @@ public final class PlayUtils {
                 intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
             }
-
         }
-        intent.setAction(CloudPlaybackService.Actions.PLAY_ACTION);
-        context.startService(intent);
 
         if (goToPlayer) {
-            Intent activityIntent = new Intent(Actions.PLAYER)
-                    .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    .putExtra("commentMode", commentMode);
+            intent.setAction(Actions.PLAY)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                .putExtra("commentMode", commentMode);
 
-            context.startActivity(activityIntent);
+            context.startActivity(intent);
+        } else {
+            intent.setAction(CloudPlaybackService.Actions.PLAY_ACTION);
+            context.startService(intent);
         }
     }
 

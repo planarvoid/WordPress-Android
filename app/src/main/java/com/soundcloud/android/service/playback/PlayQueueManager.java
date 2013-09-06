@@ -41,7 +41,7 @@ public class PlayQueueManager {
 
     private long mUserId;
     private AsyncTask mLoadTask;
-    private AppendState mAppendingState;
+    private AppendState mAppendingState = AppendState.IDLE;
     private Subscription mRelatedSubscription;
     private Observable<Track> mRelatedTracksObservable;
 
@@ -242,11 +242,11 @@ public class PlayQueueManager {
 
     public void retryRelatedTracksFetch(){
         loadRelatedTracks();
-        mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
     }
 
     private void loadRelatedTracks() {
         mAppendingState = AppendState.LOADING;
+        mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
         mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<Track>() {
             @Override
             public void onCompleted() {
