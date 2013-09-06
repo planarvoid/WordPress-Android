@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.http.Wrapper;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
@@ -104,24 +105,25 @@ public class EmptyListView extends RelativeLayout {
             mMode = code;
 
             if (code == Status.WAITING) {
+
                 // don't show empty screen, show progress
                 mProgressView.setVisibility(View.VISIBLE);
                 if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
                 if (mErrorView != null) mErrorView.setVisibility(View.GONE);
                 return true;
 
-            } else if (Wrapper.isStatusCodeOk(code))  {
-                // at rest, no error
-                mProgressView.setVisibility(View.GONE);
-                showEmptyLayout();
-                return true;
-
             } else {
-                // error,
-                mProgressView.setVisibility(View.GONE);
-                showError(code);
-                return true;
+                AnimUtils.hideView(getContext(), mProgressView, false);
+                if (Wrapper.isStatusCodeOk(code)) {
+                    // at rest, no error
+                    showEmptyLayout();
+                    return true;
 
+                } else {
+                    // error,
+                    showError(code);
+                    return true;
+                }
             }
 
         }
@@ -136,12 +138,11 @@ public class EmptyListView extends RelativeLayout {
         if (mErrorView == null) {
             mErrorView = addErrorView();
             mErrorView.setOnRetryListener(mRetryListener);
-
-        } else {
-            mErrorView.setVisibility(View.VISIBLE);
         }
+        AnimUtils.showView(getContext(), mErrorView, true);
+
         if (mEmptyLayout != null) {
-            mEmptyLayout.setVisibility(View.GONE);
+            AnimUtils.hideView(getContext(), mEmptyLayout, false);
         }
 
         if (Wrapper.isStatusCodeError(responseCode)){
@@ -202,14 +203,13 @@ public class EmptyListView extends RelativeLayout {
             }
             setSecondaryText(mSecondaryText);
             setActionText(mActionText);
-
-
-        } else {
-            mEmptyLayout.setVisibility(View.VISIBLE);
         }
 
+        AnimUtils.showView(getContext(), mEmptyLayout, true);
 
-        if (mErrorView != null) mErrorView.setVisibility(View.GONE);
+        if (mErrorView != null) {
+            AnimUtils.hideView(getContext(), mErrorView, false);
+        }
     }
 
     protected int getEmptyViewLayoutId() {
