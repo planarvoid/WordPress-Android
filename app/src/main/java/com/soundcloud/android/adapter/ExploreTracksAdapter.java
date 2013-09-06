@@ -27,7 +27,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
     private GridSpacer mGridSpacer;
 
     public ExploreTracksAdapter(Observable<Observable<ExploreTracksSuggestion>> pagingObservable, Observer<ExploreTracksSuggestion> itemObserver) {
-        super(pagingObservable, itemObserver, INITIAL_LIST_SIZE);
+        super(pagingObservable, itemObserver, INITIAL_LIST_SIZE, R.layout.grid_loading_item);
     }
 
     @Override

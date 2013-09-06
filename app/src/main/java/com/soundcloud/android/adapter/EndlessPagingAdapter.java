@@ -28,10 +28,14 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
     }
 
     public EndlessPagingAdapter(Observable<Observable<T>> pageEmittingObservable, Observer<T> delegateObserver, int pageSize) {
+        this(pageEmittingObservable, delegateObserver, pageSize, R.layout.list_loading_item);
+    }
+
+    public EndlessPagingAdapter(Observable<Observable<T>> pageEmittingObservable, Observer<T> delegateObserver, int pageSize, int progressItemLayoutResId) {
         super(pageSize);
         mPagingObservable = pageEmittingObservable;
         mDelegateObserver = delegateObserver;
-        mProgressItemLayoutResId = R.layout.list_loading_item;
+        mProgressItemLayoutResId = progressItemLayoutResId;
     }
 
     @Override

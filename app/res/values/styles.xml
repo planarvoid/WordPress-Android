@@ -73,6 +73,11 @@
 
     <style name="Widget.TextView" />
 
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
 
 
     <style name="PlayerActionSeparator">
@@ -470,11 +475,8 @@
         <item name="android:paddingRight">12dip</item>
     </style>
 
-    <style name="Player.TrackInfo.Separator">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">1px</item>
+    <style name="Divider.PlayerTrackInfo">
         <item name="android:layout_alignWithParentIfMissing">true</item>
-        <item name="android:background">?android:attr/listDivider</item>
     </style>
 
     <!-- Standard animations for a non-full-screen window or activity. -->
