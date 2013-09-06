@@ -150,11 +150,7 @@ public class Track extends Playable implements PlayableHolder {
      * GHETTO WAVEFORM FIX. Make the private API return something we can use and remove this
      */
     public void setWaveformUrl(String waveformUrl){
-        if (!waveformUrl.endsWith("_m.png")) {
-            waveform_url = waveformUrl.replace(".png", "_m.png");
-        } else {
-            waveform_url = waveformUrl;
-        }
+        waveform_url = fixWaveform(waveformUrl);
     }
 
     public Uri toUri() {
@@ -616,5 +612,13 @@ public class Track extends Playable implements PlayableHolder {
     public String getStreamUrlWithAppendedId(){
         return Uri.parse(stream_url).buildUpon().appendQueryParameter(StreamItem.TRACK_ID_KEY,
                 String.valueOf(getId())).build().toString();
+    }
+
+    protected static String fixWaveform(String input){
+        if (input != null && !input.endsWith("_m.png")) {
+            return input.replace(".png", "_m.png");
+        } else {
+            return input;
+        }
     }
 }

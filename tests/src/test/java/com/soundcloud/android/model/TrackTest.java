@@ -288,7 +288,7 @@ public class TrackTest {
         expect(t.genre).toEqual(suggestion.getGenre());
         expect(t.commentable).toEqual(suggestion.isCommentable());
         expect(t.stream_url).toEqual(suggestion.getStreamUrl());
-        expect(t.waveform_url).toEqual(suggestion.getWaveformUrl());
+        expect(t.waveform_url).toEqual(Track.fixWaveform(suggestion.getWaveformUrl()));
         expect(t.tag_list).toEqual(TextUtils.join(" ", suggestion.getUserTags()));
         expect(t.created_at).toEqual(suggestion.getCreatedAt());
         expect(t.playback_count).toEqual(suggestion.getPlaybackCount());
