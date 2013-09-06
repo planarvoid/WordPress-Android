@@ -311,7 +311,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         bindService(new Intent(this, CloudPlaybackService.class), osc, 0);
         IntentFilter f = new IntentFilter();
         f.addAction(Broadcasts.PLAYQUEUE_CHANGED);
-        f.addAction(Broadcasts.RELATED_LOAD_COMPLETE);
+        f.addAction(Broadcasts.RELATED_LOAD_STATE_CHANGED);
         f.addAction(Broadcasts.PLAYSTATE_CHANGED);
         f.addAction(Broadcasts.META_CHANGED);
         f.addAction(Broadcasts.PLAYBACK_ERROR);
@@ -504,8 +504,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 }
             } else if (action.equals(Broadcasts.META_CHANGED)) {
                 onMetaChanged(queuePos);
-            } else if (action.equals(Broadcasts.RELATED_LOAD_COMPLETE)) {
-                mTrackPagerAdapter.replaceEmptyView();
+            } else if (action.equals(Broadcasts.RELATED_LOAD_STATE_CHANGED)) {
+                mTrackPagerAdapter.reloadEmptyView();
                 setPlaybackState();
 
             } else if (action.equals(Comment.ACTION_CREATE_COMMENT)) {

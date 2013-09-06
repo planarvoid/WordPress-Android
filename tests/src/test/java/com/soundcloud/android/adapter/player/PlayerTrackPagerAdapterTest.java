@@ -201,7 +201,7 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueueManager.length()).thenReturn(2);
         when(playQueueManager.getPlayQueueItem(1)).thenReturn(new PlayQueueItem(Mockito.mock(Track.class), 1));
 
-        adapter.replaceEmptyView();
+        adapter.reloadEmptyView();
 
         ArgumentCaptor<PlayQueueItem> captor = ArgumentCaptor.forClass(PlayQueueItem.class);
         verify(playerQueueView2, times(2)).setPlayQueueItem(captor.capture(), anyBoolean());

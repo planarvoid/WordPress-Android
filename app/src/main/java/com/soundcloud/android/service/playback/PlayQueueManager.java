@@ -236,17 +236,28 @@ public class PlayQueueManager {
     }
 
     public void fetchRelatedTracks(Track track){
+        mRelatedTracksObservable = mExploreTrackOperations.getRelatedTracks(track);
+        loadRelatedTracks();
+    }
+
+    public void retryRelatedTracksFetch(){
+        loadRelatedTracks();
+        mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
+    }
+
+    private void loadRelatedTracks() {
         mAppendingState = AppendState.LOADING;
-        mRelatedSubscription = mExploreTrackOperations.getRelatedTracks(track).subscribe(new Observer<Track>() {
+        mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<Track>() {
             @Override
             public void onCompleted() {
                 mAppendingState = AppendState.IDLE;
-                mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_COMPLETE));
+                mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
             }
 
             @Override
             public void onError(Throwable e) {
                 mAppendingState = AppendState.ERROR;
+                mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
             }
 
             @Override

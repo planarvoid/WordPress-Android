@@ -401,7 +401,21 @@ public class PlayQueueManagerTest {
         verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
         final List<Intent> allValues = argumentCaptor.getAllValues();
         assertThat(allValues.get(0).getAction(), is(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED));
-        assertThat(allValues.get(1).getAction(), is(CloudPlaybackService.Broadcasts.RELATED_LOAD_COMPLETE));
+        assertThat(allValues.get(1).getAction(), is(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
+    }
+
+    @Test
+    public void shouldRetryRelatedLoadWithSameObservable() throws Exception {
+        Context context = Mockito.mock(Context.class);
+        pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
+
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        final Observable<Track> observable = Mockito.mock(Observable.class);
+        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
+
+        pm.fetchRelatedTracks(track);
+        pm.retryRelatedTracksFetch();
+        verify(observable, times(2)).subscribe(any(Observer.class));
     }
 
     @Test

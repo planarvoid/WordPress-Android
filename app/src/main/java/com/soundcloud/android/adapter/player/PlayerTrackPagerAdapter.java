@@ -159,7 +159,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         }
     }
 
-    public void replaceEmptyView(){
+    public void reloadEmptyView(){
         for (PlayerQueueView playerQueueView : mQueueViewsByPosition.keySet()){
             if (!playerQueueView.isShowingPlayerTrackView()){
                 final PlayQueueItem playQueueItem = getItem(mQueueViewsByPosition.get(playerQueueView));

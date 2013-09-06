@@ -41,6 +41,12 @@ public class PlayerQueueView extends FrameLayout {
         if (mEmptyView == null){
             mEmptyView = createEmptyListView(getContext());
         }
+        mEmptyView.setOnRetryListener(new EmptyListView.RetryListener() {
+            @Override
+            public void onEmptyViewRetry() {
+                mPlayQueueManager.retryRelatedTracksFetch();
+            }
+        });
         if (mEmptyView.getParent() != this){
             addView(mEmptyView);
         }
