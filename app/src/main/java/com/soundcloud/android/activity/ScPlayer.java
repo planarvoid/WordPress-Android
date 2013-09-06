@@ -115,13 +115,17 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 && !mHandler.hasMessages(SEND_CURRENT_QUEUE_POSITION) // not already changing
                 && (mChangeTrackFast || CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()) // responding to transport click or already playing
                 ) {
-            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-            mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
-                    mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
+            sendTrackChangeOnDelay();
         }
         mChangeTrackFast = false;
 
         mTransportBar.setIsCommenting(mTrackPager.getCurrentItem() == mTrackPagerAdapter.getCommentingPosition());
+    }
+
+    private void sendTrackChangeOnDelay() {
+        mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
+                mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
     }
 
     @Override
@@ -505,7 +509,14 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             } else if (action.equals(Broadcasts.META_CHANGED)) {
                 onMetaChanged(queuePos);
             } else if (action.equals(Broadcasts.RELATED_LOAD_STATE_CHANGED)) {
+                boolean wasOnEmptyView = getCurrentDisplayedTrackView() == null;
+
                 mTrackPagerAdapter.reloadEmptyView();
+                // TODO, this needs a test. Running to demos :?
+                if (wasOnEmptyView && getCurrentDisplayedTrackView() != null &&
+                        CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()){
+                    sendTrackChangeOnDelay();
+                }
                 setPlaybackState();
 
             } else if (action.equals(Comment.ACTION_CREATE_COMMENT)) {
@@ -580,6 +591,10 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private int getCurrentDisplayedTrackPosition() {
         return mTrackPager.getCurrentItem();
+    }
+
+    private PlayerTrackView getCurrentDisplayedTrackView() {
+        return mTrackPagerAdapter.getPlayerTrackViewByPosition(getCurrentDisplayedTrackPosition());
     }
 
     private @Nullable PlayerTrackView getTrackView(int playPos){
