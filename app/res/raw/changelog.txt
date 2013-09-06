@@ -1,3 +1,9 @@
+$ 69
+  % v 2.7.0
+  _ 2013-??
+  ! Explore
+      * Explore functionality added
+
 $ 68
   % v 2.6.5
   _ 2013-09-4
