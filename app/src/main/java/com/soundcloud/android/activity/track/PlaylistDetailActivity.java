@@ -25,7 +25,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-public class PlaylistActivity extends ScActivity implements Playlist.OnChangeListener {
+public class PlaylistDetailActivity extends ScActivity implements Playlist.OnChangeListener {
 
     public static final String EXTRA_SCROLL_TO_PLAYING_TRACK = "scroll_to_playing_track";
     private static final String TRACKS_FRAGMENT_TAG = "tracks_fragment";
@@ -102,7 +102,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
         mPlaylistBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UserBrowser.startFromPlayable(PlaylistActivity.this, mPlaylist);
+                UserBrowser.startFromPlayable(PlaylistDetailActivity.this, mPlaylist);
             }
         });
 
@@ -111,7 +111,7 @@ public class PlaylistActivity extends ScActivity implements Playlist.OnChangeLis
             public void onClick(View v) {
                 final String artwork = mPlaylist.getArtwork();
                 if (ImageUtils.checkIconShouldLoad(artwork)) {
-                    new FullImageDialog(PlaylistActivity.this, ImageSize.CROP.formatUri(artwork)).show();
+                    new FullImageDialog(PlaylistDetailActivity.this, ImageSize.CROP.formatUri(artwork)).show();
                 }
 
             }
