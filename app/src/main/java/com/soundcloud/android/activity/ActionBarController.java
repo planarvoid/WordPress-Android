@@ -8,7 +8,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.track.PlaylistActivity;
+import com.soundcloud.android.activity.track.PlaylistDetailActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -296,8 +296,8 @@ public class ActionBarController {
                 return true;
 
             case R.id.menu_backToSet:
-                final Intent intent = new Intent(mOwner.getActivity(), PlaylistActivity.class);
-                intent.putExtra(PlaylistActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
+                final Intent intent = new Intent(mOwner.getActivity(), PlaylistDetailActivity.class);
+                intent.putExtra(PlaylistDetailActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
                 final Uri uri = CloudPlaybackService.getUri();
                 if (Content.match(uri) == Content.PLAYLIST) {
                     intent.setData(uri);
