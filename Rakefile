@@ -175,7 +175,7 @@ end
 namespace :test do
     desc "Run unit tests"
     task :unit do
-        sh "mvn clean install -Dandroid.proguard.skip=true --projects app,tests"
+        sh "mvn clean install -Dandroid.proguard.skip=true --projects app,tests -Pdebug"
     end
 end
 

@@ -382,7 +382,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldAddTrackSetIdleStateAndBroadcastChangeAfterSuccesfulRelatedLoad() throws Exception {
+    public void shouldAddTrackSetIdleStateAndBroadcastChangeAfterSuccessfulRelatedLoad() throws Exception {
         Context context = Mockito.mock(Context.class);
         pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
 
@@ -398,10 +398,12 @@ public class PlayQueueManagerTest {
         expect(pm.lastRelatedFetchFailed()).toBeFalse();
 
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
-        verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
+        verify(context, times(3)).sendBroadcast(argumentCaptor.capture());
         final List<Intent> allValues = argumentCaptor.getAllValues();
+        expect(allValues.size()).toEqual(3);
         assertThat(allValues.get(0).getAction(), is(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED));
         assertThat(allValues.get(1).getAction(), is(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
+        assertThat(allValues.get(2).getAction(), is(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
     }
 
     @Test
