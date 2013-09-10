@@ -95,13 +95,17 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     private boolean closeSessionIfAnalyticsEnabled() {
         if (analyticsIsEnabled()) {
-            Log.d(TAG, "Closing Analytics Session");
-            for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
-                analyticsProvider.closeSession();
-            }
+            closeSession();
             return true;
         } else {
             return false;
+        }
+    }
+
+    private void closeSession() {
+        Log.d(TAG, "Closing Analytics Session");
+        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            analyticsProvider.closeSession();
         }
     }
 
@@ -114,6 +118,10 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (Settings.ANALYTICS.equalsIgnoreCase(key)) {
             mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS, true);
+
+            if (!mAnalyticsPreferenceEnabled){
+                closeSession();
+            }
         }
     }
 
