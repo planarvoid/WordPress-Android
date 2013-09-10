@@ -62,6 +62,10 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     public static final String VERSION = "version";
     public static final int CLICKS_TO_DEBUG_MODE = 5;
 
+    public static final String ACRA_ENABLE = "acra.enable";
+    @Deprecated
+    public static final String CRASHLOGS = "crashlogs";
+
     private int mClicksToDebug = CLICKS_TO_DEBUG_MODE;
 
     private ProgressDialog mDeleteDialog;
