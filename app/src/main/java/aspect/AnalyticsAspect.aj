@@ -13,12 +13,12 @@ aspect AnalyticAspects {
 
     after(Activity activity) : (activityOnCreate(activity) || activityOnResume(activity)) {
         initialiseAnalyticsEngine(activity);
-        analyticsEngine.openSession();
+        analyticsEngine.openSessionForActivity();
     }
 
     before(Activity activity) : activityOnPause(activity) {
         initialiseAnalyticsEngine(activity);
-        analyticsEngine.closeSession();
+        analyticsEngine.closeSessionForActivity();
     }
 
     private void initialiseAnalyticsEngine(Context context){
