@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,9 +33,14 @@ public class AnalyticsEngineTest {
     @Mock
     private CloudPlayerStateWrapper playbackWrapper;
 
+    @After
+    public void tearDown(){
+        AnalyticsEngine.sActivitySessionOpen.set(false);
+    }
+
     @Test
     public void shouldCallOpenSessionOnAllProvidersIfAnalyticsEnabled(){
-        setAnalyticsEnabled();
+        setAnalyticsPreferenceAndPropertyEnabled();
         initialiseAnalyticsEngine();
         analyticsEngine.openSessionForActivity();
         verify(analyticsProviderOne).openSession();
@@ -81,8 +87,7 @@ public class AnalyticsEngineTest {
 
     @Test
     public void shouldCallCloseSessionOnAllProvidersIfAnalyticsEnabledAndPlayerIsNotPlaying(){
-        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
-        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
+        setAnalyticsPreferenceAndPropertyEnabled();
         when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
         initialiseAnalyticsEngine();
         analyticsEngine.closeSessionForActivity();
@@ -189,7 +194,7 @@ public class AnalyticsEngineTest {
 
     @Test
     public void shouldSetTheActivitySessionStateToTrueWhenOpeningActivitySession(){
-        setAnalyticsEnabled();
+        setAnalyticsPreferenceAndPropertyEnabled();
         initialiseAnalyticsEngineWithActivitySessionState(false);
 
         analyticsEngine.openSessionForActivity();
@@ -210,7 +215,7 @@ public class AnalyticsEngineTest {
 
     @Test
     public void shouldSetTheActivitySessionStateToFalseWhenClosingActivitySessionAndAnalyticsEnabled(){
-        setAnalyticsEnabled();
+        setAnalyticsPreferenceAndPropertyEnabled();
         initialiseAnalyticsEngineWithActivitySessionState(true);
 
         analyticsEngine.closeSessionForActivity();
@@ -229,7 +234,7 @@ public class AnalyticsEngineTest {
 
     @Test
     public void shouldOpenAnalyticsSessionFromPlayerWhenAnalyticsEnabled(){
-        setAnalyticsEnabled();
+        setAnalyticsPreferenceAndPropertyEnabled();
         initialiseAnalyticsEngine();
         analyticsEngine.openSessionForPlayer();
         verify(analyticsProviderOne).openSession();
@@ -254,7 +259,7 @@ public class AnalyticsEngineTest {
 
     @Test
     public void shouldCloseSessionIfAnalyticsEnabledAndActivitySessionStateIsFalse(){
-        setAnalyticsEnabled();
+        setAnalyticsPreferenceAndPropertyEnabled();
         initialiseAnalyticsEngineWithActivitySessionState(false);
 
         analyticsEngine.closeSessionForPlayer();
@@ -282,7 +287,7 @@ public class AnalyticsEngineTest {
 
     @Test
     public void shouldNotCloseSessionIfAnalyticsEnabledAndActivitySessionStateIsTrue(){
-        setAnalyticsEnabled();
+        setAnalyticsPreferenceAndPropertyEnabled();
         initialiseAnalyticsEngineWithActivitySessionState(true);
 
         analyticsEngine.closeSessionForPlayer();
@@ -290,7 +295,7 @@ public class AnalyticsEngineTest {
         verify(analyticsProviderTwo, never()).closeSession();
     }
 
-    private void setAnalyticsEnabled() {
+    private void setAnalyticsPreferenceAndPropertyEnabled() {
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
         when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
     }

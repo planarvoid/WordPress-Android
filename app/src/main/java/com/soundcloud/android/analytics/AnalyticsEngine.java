@@ -27,14 +27,14 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     private static final String TAG = AnalyticsEngine.class.getSimpleName();
 
-    private static AtomicBoolean sActivitySessionOpen = new AtomicBoolean();
+    @VisibleForTesting
+    protected static AtomicBoolean sActivitySessionOpen = new AtomicBoolean();
 
 
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
     private final AnalyticsProperties mAnalyticsProperties;
     private boolean mAnalyticsPreferenceEnabled;
     private CloudPlayerStateWrapper mCloudPlaybackStateWrapper;
-    private SharedPreferences mSharedPreferences;
 
     public AnalyticsEngine(Context context) {
         this(new AnalyticsProperties(context.getResources()), new CloudPlayerStateWrapper(),
@@ -48,17 +48,22 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         checkArgument(analyticsProviders.length > 0, "Need to provide at least one analytics provider");
         mAnalyticsProviders = Lists.newArrayList(analyticsProviders);
         mAnalyticsProperties = analyticsProperties;
-        mSharedPreferences = sharedPreferences;
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS, true);
         mCloudPlaybackStateWrapper = cloudPlaybackStateWrapper;
     }
 
+    /**
+     * Opens an analytics session for activities
+     */
     public void openSessionForActivity() {
         sActivitySessionOpen.set(true);
         openSessionIfAnalyticsEnabled();
     }
 
+    /**
+     * Closes a analytics session for activities
+     */
     public void closeSessionForActivity() {
         sActivitySessionOpen.set(false);
         if (mCloudPlaybackStateWrapper.isPlayerPlaying() || !closeSessionIfAnalyticsEnabled()) {
@@ -66,18 +71,26 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
+    /**
+     * Opens an analytics session for the player
+     */
     public void openSessionForPlayer() {
         openSessionIfAnalyticsEnabled();
     }
 
+    /**
+     * Closes a analytics session for the player
+     */
     public void closeSessionForPlayer() {
         if (activitySessionIsClosed()){
-            if (!closeSessionIfAnalyticsEnabled()) {
-                Log.d(TAG, "Didn't close analytics session");
+            if (closeSessionIfAnalyticsEnabled()) {
+                return;
             }
         }
+        Log.d(TAG, "Didn't close analytics session for player");
     }
 
+    @VisibleForTesting
     protected boolean activitySessionIsClosed() {
         return !sActivitySessionOpen.get();
     }
@@ -97,9 +110,10 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         if (analyticsIsEnabled()) {
             closeSession();
             return true;
-        } else {
-            return false;
         }
+
+        return false;
+
     }
 
     private void closeSession() {

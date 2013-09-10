@@ -259,7 +259,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void onDestroy() {
         instance = null;
-        mAnalyticsEngine.closeSessionForActivity();
         stop();
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -699,7 +698,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         safePause();
         notifyChange(Broadcasts.PLAYSTATE_CHANGED);
-        mAnalyticsEngine.closeSessionForPlayer();
     }
 
     private void safePause() {
@@ -745,7 +743,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private void gotoIdleState(State newState) {
         if (!newState.isInIdleState()) throw new IllegalArgumentException(newState + " is not a valid idle state");
-
+        mAnalyticsEngine.closeSessionForPlayer();
         state = newState;
         mPlayerHandler.removeMessages(FADE_OUT);
         mPlayerHandler.removeMessages(FADE_IN);
