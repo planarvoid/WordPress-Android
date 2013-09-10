@@ -28,6 +28,7 @@ import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.VersionMigrator;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
 import org.acra.ACRA;
@@ -66,6 +67,9 @@ public class SoundCloudApplication extends Application implements Tracker {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        new VersionMigrator(this).migrate();
+
         ApplicationProperties appProperties = new ApplicationProperties(getResources());
         AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources());
 
