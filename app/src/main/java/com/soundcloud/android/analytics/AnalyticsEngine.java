@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The engine which drives sending analytics. Important that all analytics providers to this engine
@@ -25,8 +26,9 @@ import java.util.Collection;
 public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = AnalyticsEngine.class.getSimpleName();
-    @VisibleForTesting
-    protected static final String ACTIVITY_SESSION_STATE = "ActivitySessionState";
+
+    private static AtomicBoolean sActivitySessionOpen = new AtomicBoolean();
+
 
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
     private final AnalyticsProperties mAnalyticsProperties;
@@ -53,18 +55,12 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     public void openSessionForActivity() {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(ACTIVITY_SESSION_STATE, true);
-        editor.commit();
-
+        sActivitySessionOpen.set(true);
         openSessionIfAnalyticsEnabled();
     }
 
     public void closeSessionForActivity() {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putBoolean(ACTIVITY_SESSION_STATE, false);
-        editor.commit();
-
+        sActivitySessionOpen.set(false);
         if (mCloudPlaybackStateWrapper.isPlayerPlaying() || !closeSessionIfAnalyticsEnabled()) {
             Log.d(TAG, "Didn't close analytics session");
         }
@@ -75,9 +71,15 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     public void closeSessionForPlayer() {
-        if (!activitySessionIsClosed() || !closeSessionIfAnalyticsEnabled()) {
-            Log.d(TAG, "Didn't close analytics session");
+        if (activitySessionIsClosed()){
+            if (!closeSessionIfAnalyticsEnabled()) {
+                Log.d(TAG, "Didn't close analytics session");
+            }
         }
+    }
+
+    protected boolean activitySessionIsClosed() {
+        return !sActivitySessionOpen.get();
     }
 
     private void openSessionIfAnalyticsEnabled() {
@@ -89,10 +91,6 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         } else {
             Log.d(TAG, "Didn't open analytics session");
         }
-    }
-
-    private boolean activitySessionIsClosed() {
-        return !mSharedPreferences.getBoolean(ACTIVITY_SESSION_STATE, false);
     }
 
     private boolean closeSessionIfAnalyticsEnabled() {
