@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.os.Parcel;
 
@@ -21,6 +22,7 @@ public class ExploreTracksSuggestion extends ScModel {
     private List<String>    mUserTags;
     private Date            mCreatedAt;
     private long            mPlaybackCount;
+    private String          mArtworkUrl;
 
     public ExploreTracksSuggestion() { /* for Deserialization */ }
 
@@ -33,6 +35,7 @@ public class ExploreTracksSuggestion extends ScModel {
         this.mDuration = in.readInt();
         this.mStreamUrl = in.readString();
         this.mWaveformUrl = in.readString();
+        this.mArtworkUrl = in.readString();
         this.mUserTags = new ArrayList<String>();
         in.readStringList(this.mUserTags);
         this.mCreatedAt = (Date) in.readSerializable();
@@ -75,6 +78,20 @@ public class ExploreTracksSuggestion extends ScModel {
         return mWaveformUrl;
     }
 
+    public String getArtworkUrl() {
+        return mArtworkUrl;
+    }
+
+    public String getArtworkOrAvatar(ImageSize imageSize) {
+        if (ImageUtils.checkIconShouldLoad(mArtworkUrl)){
+            return imageSize.formatUri(mArtworkUrl);
+        } else if (mUser != null){
+            return mUser.getAvatar(imageSize);
+        } else {
+            return null;
+        }
+    }
+
     public long getPlaybackCount() {
         return mPlaybackCount;
     }
@@ -85,10 +102,6 @@ public class ExploreTracksSuggestion extends ScModel {
 
     public Date getCreatedAt() {
         return mCreatedAt;
-    }
-
-    public String getArtworkUrl() {
-        return getUrn().imageUri(ImageSize.T500).toString();
     }
 
     public void setTitle(String title) {
@@ -131,6 +144,11 @@ public class ExploreTracksSuggestion extends ScModel {
         this.mUserTags = userTags;
     }
 
+    @JsonProperty("artwork_url")
+    public void setArtworkUrl(String mArtworkUrl) {
+        this.mArtworkUrl = mArtworkUrl;
+    }
+
     @JsonProperty("created_at")
     private void setCreatedAt(Date createdAt) {
         this.mCreatedAt = createdAt;
@@ -157,6 +175,7 @@ public class ExploreTracksSuggestion extends ScModel {
         dest.writeInt(this.mDuration);
         dest.writeString(this.mStreamUrl);
         dest.writeString(this.mWaveformUrl);
+        dest.writeString(this.mArtworkUrl);
         dest.writeStringList(this.mUserTags);
         dest.writeSerializable(this.mCreatedAt);
     }

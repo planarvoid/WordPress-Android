@@ -1,5 +1,7 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.utils.images.ImageSize;
+
 import android.os.Parcel;
 
 public class UserSummary extends ScModel {
@@ -19,6 +21,9 @@ public class UserSummary extends ScModel {
         this.mUsername = username;
     }
 
+    public String getAvatar(ImageSize imageSize) {
+        return mURN.imageUri(imageSize).toString();
+    }
 
     @Override
     public int describeContents() {
