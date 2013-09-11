@@ -13,18 +13,17 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
 public class MigrationEngine {
     @VisibleForTesting
     protected static final String VERSION_KEY = "changeLogVersionCode";
-    public static final int DEFAULT_APP_VERSION_CODE = -1;
+    private static final int DEFAULT_APP_VERSION_CODE = -1;
 
     private final SharedPreferences mSharedPreferences;
     private final int mCurrentVersion;
-    private final List<Migration> migrations;
+    private final List<Migration> mMigrations;
     private final AndroidPackageUtils mPackageUtils;
 
     public MigrationEngine(Context context) {
@@ -37,7 +36,7 @@ public class MigrationEngine {
                               Migration... migrationsToApply) {
         mSharedPreferences = sharedPreferences;
         mCurrentVersion = currentVersion;
-        migrations = newArrayList(migrationsToApply);
+        mMigrations = newArrayList(migrationsToApply);
         mPackageUtils = androidPackageUtils;
     }
 
@@ -46,7 +45,8 @@ public class MigrationEngine {
         int previousVersionCode = mSharedPreferences.getInt(VERSION_KEY, DEFAULT_APP_VERSION_CODE);
 
         if (previousVersionCode < mCurrentVersion && !mPackageUtils.appIsInstalledForTheFirstTime()) {
-            List<Migration> applicableMigrations = newArrayList(Collections2.filter(migrations, new ApplicableMigrationsPredicate(previousVersionCode, mCurrentVersion)));
+            List<Migration> applicableMigrations = newArrayList(Collections2.filter(mMigrations,
+                    new ApplicableMigrationsPredicate(previousVersionCode, mCurrentVersion)));
             Collections.sort(applicableMigrations, Migration.APPLICABLE_VERSION_COMPARATOR);
 
             for(Migration migration : applicableMigrations){
@@ -75,7 +75,7 @@ public class MigrationEngine {
         }
 
         @Override
-        public boolean apply(@Nullable Migration input) {
+        public boolean apply(Migration input) {
             return input.getApplicableAppVersionCode() > mPreviousVersionCode && input.getApplicableAppVersionCode() <= mCurrentVersion;
         }
     }

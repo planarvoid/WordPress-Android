@@ -18,7 +18,8 @@ class SettingsMigration implements Migration {
         this(PreferenceManager.getDefaultSharedPreferences(context));
     }
 
-    public SettingsMigration(SharedPreferences defaultSharedPreferences) {
+    @VisibleForTesting
+    protected SettingsMigration(SharedPreferences defaultSharedPreferences) {
         mSharedPreferences = defaultSharedPreferences;
 
     }
