@@ -12,6 +12,7 @@ import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.migrations.MigrationEngine;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
@@ -28,7 +29,6 @@ import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.migrations.SettingsMigration;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
 import org.acra.ACRA;
@@ -68,7 +68,7 @@ public class SoundCloudApplication extends Application implements Tracker {
     public void onCreate() {
         super.onCreate();
 
-        new SettingsMigration(this).migrate();
+        new MigrationEngine(this).migrate();
 
         ApplicationProperties appProperties = new ApplicationProperties(getResources());
         AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources());

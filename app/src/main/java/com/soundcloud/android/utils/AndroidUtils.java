@@ -1,5 +1,7 @@
 package com.soundcloud.android.utils;
 
+import com.soundcloud.android.SoundCloudApplication;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -151,7 +153,7 @@ public final class AndroidUtils {
                 PackageInfo info = context
                         .getPackageManager()
                         .getPackageInfo(context.getPackageName(),
-                        PackageManager.GET_META_DATA);
+                                PackageManager.GET_META_DATA);
                 return info.packageName;
             } else return null;
         } catch (PackageManager.NameNotFoundException ignored) {
@@ -281,6 +283,30 @@ public final class AndroidUtils {
             } else {
                 return 1;
             } // returning 0 would merge keys
+        }
+    }
+
+    public static class AndroidPackageUtils{
+        private final PackageManager mPackageManager;
+        private final String mPackageName;
+
+        public AndroidPackageUtils(Context context){
+            this(context.getPackageManager(), context.getPackageName());
+        }
+
+        protected AndroidPackageUtils(PackageManager packageManager, String packageName){
+            mPackageManager = packageManager;
+            mPackageName = packageName;
+        }
+
+        public boolean appIsInstalledForTheFirstTime(){
+            try {
+                PackageInfo packageInfo = mPackageManager.getPackageInfo(mPackageName,0);
+                return packageInfo.firstInstallTime == packageInfo.lastUpdateTime;
+            } catch (PackageManager.NameNotFoundException e) {
+                SoundCloudApplication.handleSilentException("Could not determine if application installed for first time", e);
+                return false;
+            }
         }
     }
 }
