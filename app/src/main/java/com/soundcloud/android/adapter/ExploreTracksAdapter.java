@@ -12,7 +12,6 @@ import com.soundcloud.android.view.adapter.GridSpacer;
 import rx.Observable;
 import rx.Observer;
 
-import android.content.res.Resources;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,9 +65,8 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
         final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getPlaybackCount());
         viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, playcountWithCommas));
 
-
         viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
-        final String artworkUri = ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtworkUrl());
+        final String artworkUri = track.getArtworkOrAvatar(ImageSize.getPlayerImageSize(itemView.getContext()));
         ImageLoader.getInstance().displayImage(artworkUri, viewHolder.imageView, mDisplayImageOptions);
 
         mGridSpacer.configureItemPadding(itemView, position, getCount());
