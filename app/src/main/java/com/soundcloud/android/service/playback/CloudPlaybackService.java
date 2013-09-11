@@ -183,7 +183,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     // for play duration tracking
     private PlayEventTracker mPlayEventTracker;
 
-    private AnalyticsEngine analyticsEngine;
+    private AnalyticsEngine mAnalyticsEngine;
 
     public PlayEventTracker getPlayEventTracker() {
         return mPlayEventTracker;
@@ -222,8 +222,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         mOldCloudApi = new OldCloudAPI(this);
-        analyticsEngine = new AnalyticsEngine(getApplicationContext());
-        analyticsEngine.openSession();
+        mAnalyticsEngine = new AnalyticsEngine(getApplicationContext());
 
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueueManager, mAudioManager);
 
@@ -260,7 +259,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void onDestroy() {
         instance = null;
-        analyticsEngine.closeSession();
         stop();
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -679,6 +677,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 if (!Consts.SdkSwitches.useRichNotifications) setPlayingNotification(mCurrentTrack);
 
                 trackPlayEvent(mCurrentTrack);
+                mAnalyticsEngine.openSessionForPlayer();
 
             } else if (state != PLAYING) {
                 // must have been a playback error
@@ -744,7 +743,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private void gotoIdleState(State newState) {
         if (!newState.isInIdleState()) throw new IllegalArgumentException(newState + " is not a valid idle state");
-
+        mAnalyticsEngine.closeSessionForPlayer();
         state = newState;
         mPlayerHandler.removeMessages(FADE_OUT);
         mPlayerHandler.removeMessages(FADE_IN);

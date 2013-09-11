@@ -3,6 +3,7 @@ import com.soundcloud.android.analytics.AnalyticsEngine;
 import android.content.Context;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.State;
+import android.util.Log;
 
 aspect AnalyticAspects {
 	private AnalyticsEngine analyticsEngine;
@@ -13,16 +14,17 @@ aspect AnalyticAspects {
 
     after(Activity activity) : (activityOnCreate(activity) || activityOnResume(activity)) {
         initialiseAnalyticsEngine(activity);
-        analyticsEngine.openSession();
+        analyticsEngine.openSessionForActivity();
     }
 
     before(Activity activity) : activityOnPause(activity) {
         initialiseAnalyticsEngine(activity);
-        analyticsEngine.closeSession();
+        analyticsEngine.closeSessionForActivity();
     }
 
     private void initialiseAnalyticsEngine(Context context){
         if(analyticsEngine == null){
+            Log.d("Aspect", "Creating aspect analytics engine");
             analyticsEngine = new AnalyticsEngine(context.getApplicationContext());
         }
     }
