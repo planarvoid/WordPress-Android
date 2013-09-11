@@ -48,10 +48,11 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
+    //IMPORTANT make sure these match the values in settings.xml
     public static final String CHANGE_LOG = "changeLog";
     public static final String LOGOUT = "logout";
     public static final String HELP = "help";
-    public static final String ANALYTICS = "analytics";
+    public static final String ANALYTICS_ENABLED = "analytics_enabled";
     public static final String CLEAR_CACHE = "clearCache";
     public static final String STREAM_CACHE_SIZE = "streamCacheSize";
     public static final String CLEAR_STREAM_CACHE = "clearStreamCache";
@@ -62,9 +63,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
     public static final String VERSION = "version";
     public static final int CLICKS_TO_DEBUG_MODE = 5;
 
-    public static final String ACRA_ENABLE = "acra.enable";
-    @Deprecated
-    public static final String CRASHLOGS = "crashlogs";
+    public static final String CRASH_REPORTING_ENABLED = "acra.enable";
 
     private int mClicksToDebug = CLICKS_TO_DEBUG_MODE;
 
