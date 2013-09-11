@@ -1,8 +1,6 @@
 package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
@@ -30,7 +28,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class ExploreTracksCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
-        EmptyViewAware, PullToRefreshBase.OnRefreshListener<ListView> {
+        EmptyViewAware {
 
 
     private Observable<Section<ExploreTracksCategory>> mCategoriesObservable;
@@ -99,12 +97,11 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
             }
         });
 
-        PullToRefreshListView pullToRefreshListView = (PullToRefreshListView) view.findViewById(mListViewID);
-        pullToRefreshListView.setOnItemClickListener(this);
-        pullToRefreshListView.setAdapter(mCategoriesAdapter);
-        pullToRefreshListView.setEmptyView(mEmptyListView);
-        pullToRefreshListView.setOnRefreshListener(this);
-        pullToRefreshListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true));
+        ListView listview = (ListView) view.findViewById(mListViewID);
+        listview.setOnItemClickListener(this);
+        listview.setAdapter(mCategoriesAdapter);
+        listview.setEmptyView(mEmptyListView);
+        listview.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), false, true));
     }
 
     @Override
@@ -113,11 +110,6 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
         if (mEmptyListView != null) {
             mEmptyListView.setStatus(status);
         }
-    }
-
-    @Override
-    public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-        loadCategories();
     }
 
     private void loadCategories() {
