@@ -144,7 +144,15 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.landing.ExploreActivity" android:label="@string/side_menu_explore" />
+        <activity android:name=".activity.landing.ExploreActivity" android:label="@string/side_menu_explore">
+            <intent-filter android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/explore"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/explore"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".activity.ExploreTracksCategoryActivity" />
 
         <activity android:name=".activity.landing.News" android:label="@string/side_menu_activity">
