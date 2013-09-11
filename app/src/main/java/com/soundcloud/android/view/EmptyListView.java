@@ -20,12 +20,11 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class EmptyListView extends RelativeLayout {
-    protected ProgressBar mProgressBar;
+    protected View mProgressBar;
 
     @Nullable protected ViewGroup mEmptyLayout;
 
@@ -88,7 +87,7 @@ public class EmptyListView extends RelativeLayout {
         setLayoutAnimation(new LayoutAnimationController(animationIn));
 
         mEmptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
-        mProgressBar = (ProgressBar) findViewById(R.id.loading);
+        mProgressBar = findViewById(R.id.loading);
     }
 
     /**
