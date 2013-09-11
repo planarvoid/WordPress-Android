@@ -5,6 +5,7 @@ import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpRespon
 import static com.soundcloud.android.robolectric.TestHelper.assertResolverNotified;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.model.Playlist;
@@ -260,6 +261,7 @@ public class ApiSyncerTest {
         expect(Content.ME_SOUNDS).toHaveCount(51);
         expect(Content.COLLECTIONS).toHaveCount(0);
         expect(new ApiSyncer(Robolectric.application, resolver).pushLocalPlaylists()).toBe(1);
+        expect(SoundCloudApplication.MODEL_MANAGER.getPlaylist(p.toUri())).toBeNull();
         expect(Content.ME_SOUNDS).toHaveCount(51);
         expect(Content.COLLECTIONS).toHaveCount(1);
 

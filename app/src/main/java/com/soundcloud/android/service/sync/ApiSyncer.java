@@ -236,6 +236,8 @@ public class ApiSyncer extends SyncStrategy {
 
                 // update local state
                 p.localToGlobal(mContext, added);
+                SoundCloudApplication.MODEL_MANAGER.removeFromCache(toDelete);
+
                 mPlaylistStorage.create(added).toBlockingObservable().last();
                 mSoundAssociationStorage.addCreation(added).toBlockingObservable().last();
 
