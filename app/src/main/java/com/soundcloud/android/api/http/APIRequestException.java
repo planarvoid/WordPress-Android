@@ -73,6 +73,10 @@ public class APIRequestException extends RuntimeException {
         return mResponse;
     }
 
+    public int responseCode() {
+        return mResponse.getResponseCode();
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this).omitNullValues()
