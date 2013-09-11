@@ -245,21 +245,19 @@ namespace :beta do
 
   desc "build beta"
   task :build do
-    with_beta do |version|
-      version_code = get_last_published_version
-      if version_code.nil?
-        version_code = 0
-      end
-
-      version_name = current_version() + "-" + get_build_number
-
-      sh <<-END
-        mvn clean install --projects app -DskipTests -Psign,soundcloud,beta \
-          -Dandroid.manifest.versionCode=#{version_code+1} \
-          -Dandroid.manifest.versionName=#{version_name} \
-          -Dandroid.manifest.debuggable=true
-      END
+    version_code = get_last_published_version
+    if version_code.nil?
+      version_code = 0
     end
+
+    p version_name = current_version() + "-beta-" + get_build_number
+
+    #sh <<-END
+    #  mvn clean install --projects app -DskipTests -Psign,soundcloud,beta \
+    #    -Dandroid.manifest.versionCode=#{version_code+1} \
+    #    -Dandroid.manifest.versionName=#{version_name} \
+    #    -Dandroid.manifest.debuggable=true
+    #END
   end
 
   desc "install beta on device"
