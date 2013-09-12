@@ -3,7 +3,7 @@ package com.soundcloud.android.service.sync;
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.rx.ScheduledOperations;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;

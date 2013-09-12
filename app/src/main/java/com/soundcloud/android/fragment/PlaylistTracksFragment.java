@@ -1,6 +1,8 @@
 package com.soundcloud.android.fragment;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
@@ -76,7 +78,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
             Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
             getActivity().finish();
         } else {
-            mSyncStateManager = new SyncStateManager();
+            mSyncStateManager = new SyncStateManager(getActivity());
             mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
             getLoaderManager().initLoader(TRACK_LIST_LOADER, null, this);
             mDetachableReceiver.setReceiver(this);
@@ -93,6 +95,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mListView = (ScListView) layout.findViewById(R.id.list);
         mListView.setOnRefreshListener(this);
         mListView.setOnItemClickListener(this);
+        mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true));
 
         View mInfoHeader = View.inflate(getActivity(), R.layout.playlist_header, null);
         mInfoHeaderText = (TextView) mInfoHeader.findViewById(android.R.id.text1);
@@ -210,7 +213,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     @Nullable
     private LocalCollection getLocalCollection() {
-        return mPlaylist == null ? null : new SyncStateManager().fromContent(mPlaylist.toUri());
+        return mPlaylist == null ? null : new SyncStateManager(getActivity()).fromContent(mPlaylist.toUri());
     }
 
     public void scrollToPosition(int position) {
@@ -237,12 +240,21 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
-        if (isAdded() && mLocalCollection.isIdle()) {
-            if (mListView != null && isInLayout()) mListView.setRefreshing(false);
-            activity.startService(new Intent(activity, ApiSyncService.class)
-                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
-                    .setData(mPlaylist.toUri()));
+        if (isAdded()) {
+            if (mPlaylist.isLocal()){
+                activity.startService(new Intent(activity, ApiSyncService.class)
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
+                        .setData(Content.ME_PLAYLISTS.uri));
+
+            } else
+            if (mLocalCollection.isIdle()) {
+                if (mListView != null && isInLayout()) mListView.setRefreshing(false);
+                activity.startService(new Intent(activity, ApiSyncService.class)
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
+                        .setData(mPlaylist.toUri()));
+            }
         }
     }
 

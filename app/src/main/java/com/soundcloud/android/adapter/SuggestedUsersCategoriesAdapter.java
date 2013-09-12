@@ -7,9 +7,9 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.operations.following.FollowingOperations;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.ScObserver;
 import com.soundcloud.android.view.SingleLineCollectionTextView;
+import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -22,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -87,7 +88,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowingOperations followingOperations) {
-        mFollowingOperations = followingOperations.observeOn(ScSchedulers.UI_SCHEDULER);
+        mFollowingOperations = followingOperations.observeOn(AndroidSchedulers.mainThread());
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new SparseArray<Section>();
@@ -229,7 +230,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     private ItemViewHolder getItemViewHolder(View convertView) {
         ItemViewHolder viewHolder = new ItemViewHolder();
         convertView.setTag(viewHolder);
-        viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.suggested_users_list_header);
+        viewHolder.sectionHeader = (TextView) convertView.findViewById(R.id.list_section_header);
         return viewHolder;
     }
 
@@ -269,7 +270,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         }
 
         @Override
-        public void onError(Exception e) {
+        public void onError(Throwable e) {
             notifyDataSetChanged();
         }
     };
@@ -280,16 +281,11 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         public CompoundButton toggleFollow;
     }
 
-    private static class CategoryGroupComparator implements Comparator<CategoryGroup> {
+    private static class CategoryGroupComparator implements Comparator<CategoryGroup>, Serializable {
 
         @Override
         public int compare(CategoryGroup lhs, CategoryGroup rhs) {
             return Section.fromKey(lhs.getKey()).compareTo(Section.fromKey(rhs.getKey()));
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            return false;
         }
     }
 }

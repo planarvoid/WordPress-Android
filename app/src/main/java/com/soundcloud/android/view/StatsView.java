@@ -193,7 +193,7 @@ public class StatsView extends View {
 
         if (playable instanceof Track){
             final Track track = (Track) playable;
-            mPlays = track.playback_count;
+            mPlays = (int) track.playback_count;
             mComments = (showFullStats) ? track.comment_count : 0;
         } else {
             mPlays = 0;

@@ -25,7 +25,7 @@ public class SyncContentTest {
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
-        syncStateManager = new SyncStateManager();
+        syncStateManager = new SyncStateManager(resolver);
 
         SyncContent.setAllSyncEnabledPrefs(Robolectric.application,true);
     }

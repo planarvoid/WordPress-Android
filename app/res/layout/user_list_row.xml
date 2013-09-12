@@ -22,7 +22,7 @@
 
         <TextView android:id="@+id/username"
                   android:layout_height="wrap_content"
-                  style="@style/txt_list_main"
+                  style="@style/TextAppearance.List.Main"
                   android:ellipsize="end"
                   android:text="@string/username"
                   android:textSize="@dimen/list_txt_main_size"
@@ -43,7 +43,7 @@
                       android:text="@string/track_count"
                       android:layout_alignParentLeft="true"
                       android:singleLine="true"
-                      style="@style/txt_list_sub_secondary"/>
+                      style="@style/TextAppearance.List.Sub.Secondary"/>
 
             <View style="@style/stat_pipe"
                   android:layout_alignWithParentIfMissing="true"
@@ -63,7 +63,7 @@
                       android:text="@string/follower_count"
                       android:layout_toRightOf="@id/vr_stats"
                       android:singleLine="true"
-                      style="@style/txt_list_sub_secondary"/>
+                      style="@style/TextAppearance.List.Sub.Secondary"/>
         </RelativeLayout>
     </RelativeLayout>
 

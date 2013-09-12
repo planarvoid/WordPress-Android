@@ -20,6 +20,7 @@ import com.soundcloud.android.accounts.exception.OperationFailedException;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.CollectionStorage;
+import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -75,13 +76,15 @@ public class AccountRemovalFunctionTest {
     private SoundCloudApplication soundCloudApplication;
     @Mock
     private C2DMReceiver c2DMReceiver;
+    @Mock
+    private UserAssociationStorage userAssociationStorage;
 
 
     @Before
     public void setup(){
         initMocks(this);
         function = new AccountRemovalFunction(soundCloudAccount, context, accountManager, syncStateManager,
-                collectionStorage, activitiesStorage, soundRecorder, playQueueManager, c2DMReceiver);
+                collectionStorage, activitiesStorage, userAssociationStorage, soundRecorder, playQueueManager, c2DMReceiver);
 
         when(accountManager.removeAccount(soundCloudAccount,null,null)).thenReturn(future);
         when(context.getSharedPreferences(anyString(),anyInt())).thenReturn(sharedPreferences);
@@ -202,7 +205,7 @@ public class AccountRemovalFunctionTest {
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
         Intent broadcastIntent = argumentCaptor.getAllValues().get(1);
-        assertThat(broadcastIntent.getAction(), is(CloudPlaybackService.RESET_ALL));
+        assertThat(broadcastIntent.getAction(), is(CloudPlaybackService.Actions.RESET_ALL));
     }
 
     @Test
@@ -238,6 +241,13 @@ public class AccountRemovalFunctionTest {
         when(future.getResult()).thenReturn(false);
         function.call(observer);
         verifyZeroInteractions(soundCloudApplication);
+    }
+
+    @Test
+    public void shouldClearUserAssociationStorageIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
+        when(future.getResult()).thenReturn(true);
+        function.call(observer);
+        verify(userAssociationStorage).clear();
     }
 
 }

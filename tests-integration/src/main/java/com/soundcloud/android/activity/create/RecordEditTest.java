@@ -24,8 +24,8 @@ public class RecordEditTest extends AbstractRecordingTestCase {
      * Record something, move trim handles, playback trimmed version.
      */
     @FlakyTest
-    public void testEditAndTrim() {
-        record(RECORDING_TIME);
+    public void ignore_testEditAndTrim() {
+        record(recordingTime);
         gotoEditMode();
 
         trim(0.25, 0.25);
@@ -35,27 +35,27 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         solo.sleep(2000);
 
         playback();
-        waitForState(IDLE_PLAYBACK, RECORDING_TIME);
+        waitForState(IDLE_PLAYBACK, recordingTime);
 
     }
 
     /**
      * Trim and append. Make sure the trimmed version of the uploaded file gets transcoded properly.
      */
-    public void testEditAndTrimAndAppendAndUpload() {
+    public void ignore_testEditAndTrimAndAppendAndUpload() {
 
-        record(RECORDING_TIME);
+        record(recordingTime);
         gotoEditMode();
         trim(0.25, 0.25);
         applyEdits();
 
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         gotoEditMode();
         trim(0, 0.25);
         applyEdits();
 
-        record(RECORDING_TIME);
+        record(recordingTime);
 
         uploadSound("An edit test upload", null, true);
 
@@ -67,8 +67,8 @@ public class RecordEditTest extends AbstractRecordingTestCase {
     /*
      * Record something, enable fading and upload. Make sure transcoding works.
      */
-    public void testFadingAndUpload() throws Exception {
-        record(RECORDING_TIME);
+    public void ignore_testFadingAndUpload() throws Exception {
+        record(recordingTime);
         gotoEditMode();
         assertTrue(toggleFade());
 
@@ -76,13 +76,13 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         uploadSound("A faded test upload", null, true);
 
-        assertSoundEncoded(RECORDING_TIME * 4);
+        assertSoundEncoded(recordingTime * 4);
         assertSoundUploaded();
         assertSoundTranscoded();
     }
 
 
-    public void testTrimAndUpload() throws Exception {
+    public void ignore_testTrimAndUpload() throws Exception {
         record(10000);
 
         gotoEditMode();
@@ -97,7 +97,7 @@ public class RecordEditTest extends AbstractRecordingTestCase {
         assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
-    public void testTrimAndFadeAndUpload() throws Exception {
+    public void ignore_testTrimAndFadeAndUpload() throws Exception {
         record(10000);
 
         gotoEditMode();
@@ -108,15 +108,15 @@ public class RecordEditTest extends AbstractRecordingTestCase {
 
         uploadSound("A faded + trimmed test upload", null, true);
 
-        assertSoundEncoded(RECORDING_TIME * 4);
+        assertSoundEncoded(recordingTime * 4);
         assertSoundUploaded();
         Track track = assertSoundTranscoded();
         assertTrackDuration(track, 5000 + ROBO_SLEEP);
     }
 
     @Suppress
-    public void testEditModesGetPersisted() {
-        record(RECORDING_TIME);
+    public void ignore_testEditModesGetPersisted() {
+        record(recordingTime);
         gotoEditMode();
 
         playbackEdit();

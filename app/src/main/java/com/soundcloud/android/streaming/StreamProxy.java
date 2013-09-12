@@ -1,6 +1,9 @@
 package com.soundcloud.android.streaming;
 
 
+import android.content.Context;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import org.apache.http.Header;
@@ -11,6 +14,10 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.message.BasicLineParser;
+import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.subjects.ReplaySubject;
+import rx.util.functions.Func1;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -24,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -47,7 +55,7 @@ import java.util.regex.Pattern;
 /**
  * orig: http://code.google.com/p/npr-android-app/source/browse/trunk/Npr/src/org/npr/android/news/StreamProxy.java
  */
-public class StreamProxy implements Runnable {
+public class StreamProxy {
     private static final String LOG_TAG = StreamProxy.class.getSimpleName();
 
     private static final int INITIAL_TIMEOUT  = 15;   // before receiving the first chunk
@@ -58,42 +66,29 @@ public class StreamProxy implements Runnable {
 
     private static final String PARAM_STREAM_URL = "streamUrl";
     private static final String PARAM_NEXT_STREAM_URL = "nextStreamUrl";
-    private int mPort;
 
-    private boolean mIsRunning = true;
-    private ServerSocketChannel mSocket;
+    private boolean mIsRunning;
     private Thread mThread;
 
-    public static String userAgent;
+    private ReplaySubject<Integer> mPortSubject = ReplaySubject.create();
 
-    /* package */ final StreamLoader loader;
-    /* package */ final StreamStorage storage;
+    private static String userAgent;
 
-    public StreamProxy(SoundCloudApplication app) {
-        this(app, 0);
-    }
+    private final StreamLoader loader;
+    private final StreamStorage storage;
 
-    public StreamProxy(SoundCloudApplication app, int port) {
-        storage = new StreamStorage(app, Consts.EXTERNAL_STREAM_DIRECTORY);
-        loader = new StreamLoader(app, storage);
-        mPort = port;
-    }
 
-    public StreamProxy init() throws IOException {
-        mSocket = ServerSocketChannel.open();
-        mSocket.socket().bind(new InetSocketAddress(mPort));
-        mPort = mSocket.socket().getLocalPort();
-
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
-            Log.d(LOG_TAG, "port " + mPort + " obtained");
-        return this;
+    public StreamProxy(Context context) {
+        storage = new StreamStorage(context, Consts.EXTERNAL_STREAM_DIRECTORY);
+        loader = new StreamLoader(context, storage);
     }
 
     public StreamProxy start() {
-        if (mSocket == null) {
-            throw new IllegalStateException("Cannot start proxy; it has not been initialized.");
-        }
-        mThread = new Thread(this, "StreamProxy-accept");
+        mThread = new Thread(new Runnable() {
+            @Override public void run() {
+                initAndRun();
+            }
+        }, "StreamProxy-accept");
         mThread.start();
         return this;
     }
@@ -110,25 +105,53 @@ public class StreamProxy implements Runnable {
     }
 
     public void stop() {
-        mIsRunning = false;
-        if (mThread == null) {
+        if (!isRunning()) {
             throw new IllegalStateException("Cannot stop proxy; it has not been started.");
         }
-
+        mIsRunning = false;
         mThread.interrupt();
         try {
             mThread.join(5000);
         } catch (InterruptedException ignored) {
         }
+        mThread = null;
         loader.stop();
     }
 
-    @Override
-    public void run() {
+    public StreamItem getStreamItem(String url) {
+        return storage.getMetadata(url);
+    }
+
+    public Observable<Uri> uriObservable(final String streamUrl, final @Nullable String nextStreamUrl) {
+        if (TextUtils.isEmpty(streamUrl)) {
+            return Observable.error(new IllegalArgumentException("streamUrl is empty"));
+        } else {
+            return mPortSubject.map(new Func1<Integer, Uri>() {
+                @Override
+                public Uri call(Integer port) {
+                    return createUri(port, streamUrl, nextStreamUrl);
+                }
+            });
+        }
+    }
+
+    private void initAndRun() {
+        try {
+            ServerSocket serverSocket = initializeSocket();
+            mIsRunning = true;
+            mPortSubject.onNext(serverSocket.getLocalPort());
+            acceptLoop(serverSocket);
+        } catch (IOException e) {
+            Log.w(LOG_TAG, "error initialising socket", e);
+            mPortSubject.onError(e);
+        }
+    }
+
+    private void acceptLoop(ServerSocket socket) {
         if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "running");
-        while (mIsRunning) {
+        while (isRunning()) {
             try {
-                final Socket client = mSocket.socket().accept();
+                final Socket client = socket.accept();
                 client.setKeepAlive(true);
                 client.setSendBufferSize(storage.chunkSize);
 
@@ -157,7 +180,19 @@ public class StreamProxy implements Runnable {
         Log.d(LOG_TAG, "Proxy interrupted. Shutting down.");
     }
 
-    /* package */ static HttpUriRequest readRequest(InputStream is) throws IOException, URISyntaxException {
+    private static Uri createUri(int port, String streamUrl, @Nullable String nextStreamUrl) {
+        final Uri.Builder builder = Uri.parse("http://127.0.0.1:" + port)
+            .buildUpon()
+            .appendPath("/")
+            .appendQueryParameter(PARAM_STREAM_URL, streamUrl);
+        if (nextStreamUrl != null) {
+            builder.appendQueryParameter(PARAM_NEXT_STREAM_URL, nextStreamUrl);
+        }
+        return builder.build();
+    }
+
+    @VisibleForTesting
+    protected static HttpUriRequest readRequest(InputStream is) throws IOException, URISyntaxException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is), 8192);
         String line = reader.readLine();
 
@@ -195,24 +230,14 @@ public class StreamProxy implements Runnable {
         return request;
     }
 
-    public int getPort() {
-        return mPort;
-    }
+    private ServerSocket initializeSocket() throws IOException {
+        ServerSocketChannel socket = ServerSocketChannel.open();
+        socket.socket().bind(new InetSocketAddress(0));
 
-    public StreamItem getStreamItem(String url) {
-        return storage.getMetadata(url);
-    }
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, "port " + socket.socket().getLocalPort() + " obtained");
 
-    public Uri createUri(String streamUrl, String nextStreamUrl) {
-        if (TextUtils.isEmpty(streamUrl)) throw new IllegalArgumentException("streamUrl is empty");
-
-        final Uri.Builder builder = Uri.parse("http://127.0.0.1:" + getPort()).buildUpon();
-        builder.appendPath("/");
-        builder.appendQueryParameter(PARAM_STREAM_URL, streamUrl);
-        if (nextStreamUrl != null) {
-            builder.appendQueryParameter(PARAM_NEXT_STREAM_URL, nextStreamUrl);
-        }
-        return builder.build();
+        return socket.socket();
     }
 
     private long firstRequestedByte(HttpRequest request) {
@@ -224,7 +249,8 @@ public class StreamProxy implements Runnable {
         }
     }
 
-    /* package */ static long firstRequestedByte(String range) {
+    @VisibleForTesting
+    protected static long firstRequestedByte(String range) {
         long startByte = 0;
         if (!TextUtils.isEmpty(range)) {
             Matcher m = Pattern.compile("bytes=(-?\\d+)-?(\\d+)?(?:,.*)?").matcher(range);
@@ -398,7 +424,8 @@ public class StreamProxy implements Runnable {
         }
     }
 
-    /* package */ Map<String, String> headerMap() {
+    @VisibleForTesting
+    protected Map<String, String> headerMap() {
         Map<String, String> h = new LinkedHashMap<String, String>();
         h.put("Server", SERVER);
         h.put("Accept-Ranges", "bytes");

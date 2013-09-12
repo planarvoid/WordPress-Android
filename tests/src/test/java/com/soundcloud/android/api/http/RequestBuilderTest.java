@@ -5,6 +5,7 @@ import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilde
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
@@ -14,7 +15,8 @@ import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class RequestBuilderTest {
-    private static final String URI_PATH = "somepath";
+    private static final String URI_PATH = "/somepath";
+    private static final String FULL_URI = "http://api.soundcloud.com/somepath?a=1&b=2";
 
 
     @Test(expected = IllegalArgumentException.class)
@@ -30,6 +32,12 @@ public class RequestBuilderTest {
     @Test
     public void shouldReturnRequestInstanceWithURISet() {
         APIRequest<Integer> request = buildValidRequest();
+        expect(request.getUriPath()).toEqual(URI_PATH);
+    }
+
+    @Test
+    public void shouldReturnRequestWithCorrectUriPathFromFullUri() {
+        APIRequest<Integer> request = buildValidRequestFromFullUri();
         expect(request.getUriPath()).toEqual(URI_PATH);
     }
 
@@ -69,7 +77,8 @@ public class RequestBuilderTest {
     @Test
     public void shouldReturnSpecifiedResourceTypeClassForValidRequest(){
         APIRequest<Integer> request = buildValidRequest();
-        expect(request.getResourceType()).toEqual(new TypeToken<Integer>(){});
+        expect(request.getResourceType()).toEqual(new TypeToken<Integer>() {
+        });
     }
 
     @Test
@@ -135,7 +144,19 @@ public class RequestBuilderTest {
         expect(request.getQueryParameters().get("key")).toContainExactly("value", "value2");
     }
 
+    @Test
+    public void shouldSetParametersFromFullUri() {
+        APIRequest<Integer> request = buildValidRequestFromFullUri();
+        final Multimap<String,String> queryParameters = request.getQueryParameters();
+        expect(queryParameters.get("a")).toContainExactly("1");
+        expect(queryParameters.get("b")).toContainExactly("2");
+    }
+
     private <T> APIRequest<Integer> buildValidRequest() {
         return RequestBuilder.<Integer>get(URI_PATH).forResource(Integer.class).forPrivateAPI(1).build();
+    }
+
+    private <T> APIRequest<Integer> buildValidRequestFromFullUri() {
+        return RequestBuilder.<Integer>get(FULL_URI).forResource(Integer.class).forPrivateAPI(1).build();
     }
 }

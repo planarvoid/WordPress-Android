@@ -45,7 +45,7 @@ import java.util.WeakHashMap;
 
     protected FollowStatus(final Context context) {
         mContext = context;
-        mSyncStateManager = new SyncStateManager();
+        mSyncStateManager = new SyncStateManager(context);
 
         mFollowingCollectionState = mSyncStateManager.fromContent(Content.ME_FOLLOWINGS);
         mSyncStateManager.addChangeListener(mFollowingCollectionState, new LocalCollection.OnChangeListener() {

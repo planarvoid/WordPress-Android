@@ -148,7 +148,7 @@ public class SuggestedUsersCategoriesAdapterTest {
         View itemLayout = adapter.getView(positionWithHeader, null, new FrameLayout(Robolectric.application));
 
         expect(itemLayout).not.toBeNull();
-        View headerView = itemLayout.findViewById(R.id.suggested_users_list_header);
+        View headerView = itemLayout.findViewById(R.id.list_section_header);
         expect(headerView).not.toBeNull();
         expect(headerView.getVisibility()).toEqual(View.VISIBLE);
     }
@@ -160,7 +160,7 @@ public class SuggestedUsersCategoriesAdapterTest {
         View itemLayout = adapter.getView(positionWithoutHeader, null, new FrameLayout(Robolectric.application));
 
         expect(itemLayout).not.toBeNull();
-        View headerView = itemLayout.findViewById(R.id.suggested_users_list_header);
+        View headerView = itemLayout.findViewById(R.id.list_section_header);
         expect(headerView).not.toBeNull();
         expect(headerView.getVisibility()).toEqual(View.GONE);
     }

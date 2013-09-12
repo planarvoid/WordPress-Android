@@ -17,10 +17,12 @@ import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.Nullable;
@@ -63,7 +65,7 @@ public class Track extends Playable implements PlayableHolder {
     @JsonView(Views.Full.class) public String key_signature;
     @JsonView(Views.Full.class) public float bpm;
 
-    @JsonView(Views.Full.class) public int playback_count = NOT_SET;
+    @JsonView(Views.Full.class) public long playback_count = NOT_SET;
     @JsonView(Views.Full.class) public int download_count = NOT_SET;
     @JsonView(Views.Full.class) public int comment_count  = NOT_SET;
 
@@ -105,6 +107,29 @@ public class Track extends Playable implements PlayableHolder {
     @JsonIgnore public LoadCommentsTask load_comments_task;
     @JsonIgnore public int last_playback_error = -1;
 
+    public Track(ExploreTracksSuggestion suggestion) {
+        setUrn(suggestion.getUrn());
+        setUser(new User(suggestion.getUser()));
+        setTitle(suggestion.getTitle());
+        setWaveformUrl(suggestion.getWaveformUrl());
+        duration = suggestion.getDuration();
+        artwork_url = suggestion.getArtworkUrl();
+        genre = suggestion.getGenre();
+        commentable = suggestion.isCommentable();
+        stream_url = suggestion.getStreamUrl();
+        tag_list = suggestion.getUserTags() == null ? ScTextUtils.EMPTY_STRING : TextUtils.join(" ", suggestion.getUserTags());
+        created_at = suggestion.getCreatedAt();
+        playback_count = suggestion.getPlaybackCount();
+    }
+
+    @Override
+    public void setId(long id) {
+        super.setId(id);
+        if (mURN == null){
+            setUrn(ClientUri.fromTrack(id));
+        }
+    }
+
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
         if (tag_list == null) return tags;
@@ -121,8 +146,15 @@ public class Track extends Playable implements PlayableHolder {
         return tags;
     }
 
+    /**
+     * GHETTO WAVEFORM FIX. Make the private API return something we can use and remove this
+     */
+    public void setWaveformUrl(String waveformUrl){
+        waveform_url = fixWaveform(waveformUrl);
+    }
+
     public Uri toUri() {
-        return Content.TRACKS.forId(mID);
+        return Content.TRACKS.forId(getId());
     }
 
     @JsonIgnore
@@ -164,7 +196,7 @@ public class Track extends Playable implements PlayableHolder {
         b.putString("track_type", track_type);
         b.putString("key_signature", key_signature);
         b.putFloat("bpm", bpm);
-        b.putInt("playback_count", playback_count);
+        b.putLong("playback_count", playback_count);
         b.putInt("download_count", download_count);
         b.putInt("comment_count", comment_count);
         b.putInt("reposts_count", reposts_count);
@@ -265,7 +297,7 @@ public class Track extends Playable implements PlayableHolder {
         track_type = b.getString("track_type");
         key_signature = b.getString("key_signature");
         bpm = b.getFloat("bpm");
-        playback_count = b.getInt("playback_count");
+        playback_count = b.getLong("playback_count");
         download_count = b.getInt("download_count");
         comment_count = b.getInt("comment_count");
         reposts_count = b.getInt("reposts_count");
@@ -351,11 +383,11 @@ public class Track extends Playable implements PlayableHolder {
     // TODO, THIS SUCKS
     public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.Listener<Track> listener) {
         if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
-            load_info_task = new FetchTrackTask(api, mID);
+            load_info_task = new FetchTrackTask(api, getId());
         }
         load_info_task.addListener(listener);
         if (AndroidUtils.isTaskPending(load_info_task)) {
-            load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mID));
+            load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, getId()));
         }
         return load_info_task;
     }
@@ -449,7 +481,7 @@ public class Track extends Playable implements PlayableHolder {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("id", mID)
+                .add("id", getId())
                 .add("title", title)
                 .add("permalink_url", permalink_url)
                 .add("artwork_url", artwork_url)
@@ -575,5 +607,18 @@ public class Track extends Playable implements PlayableHolder {
 
     public boolean isLoadingInfo() {
         return !AndroidUtils.isTaskFinished(load_info_task);
+    }
+
+    public String getStreamUrlWithAppendedId(){
+        return Uri.parse(stream_url).buildUpon().appendQueryParameter(StreamItem.TRACK_ID_KEY,
+                String.valueOf(getId())).build().toString();
+    }
+
+    protected static String fixWaveform(String input){
+        if (input != null && !input.endsWith("_m.png")) {
+            return input.replace(".png", "_m.png");
+        } else {
+            return input;
+        }
     }
 }

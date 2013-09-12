@@ -3,6 +3,7 @@ package com.soundcloud.android.service.upload;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.dao.SoundAssociationStorage;
 import com.soundcloud.android.dao.TrackStorage;
@@ -149,7 +150,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             new SoundAssociationStorage().addCreation(track);
 
             //request to update my collection
-            new SyncStateManager().forceToStale(Content.ME_SOUNDS.uri);
+            new SyncStateManager(SoundCloudApplication.instance).forceToStale(Content.ME_SOUNDS.uri);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 

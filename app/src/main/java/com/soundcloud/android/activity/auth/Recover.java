@@ -39,6 +39,11 @@ public class Recover extends Activity {
         ((SoundCloudApplication)getApplication()).track(getClass());
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
     protected void build() {
         setContentView(R.layout.recover);
         mAndroidCloudAPI = new OldCloudAPI(this);

@@ -1,10 +1,13 @@
 package com.soundcloud.android.service.sync;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 
@@ -38,16 +41,19 @@ import java.io.IOException;
     private final SyncStateManager mSyncStateManager;
     private ApiSyncerFactory mApiSyncerFactory;
     private SharedPreferences mSharedPreferences;
+    private ApplicationProperties mApplicationProperties;
 
     private LocalCollection localCollection;
     private ApiSyncResult mResult;
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI){
-        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(), PreferenceManager.getDefaultSharedPreferences(context));
+        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context),
+                PreferenceManager.getDefaultSharedPreferences(context), new ApplicationProperties(context.getResources()));
     }
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI,
-                                 ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager, SharedPreferences sharedPreferences) {
+                                 ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager,
+                                 SharedPreferences sharedPreferences, ApplicationProperties applicationProperties) {
         mContext = context;
         mContentUri = contentUri;
         mAction = action;
@@ -58,6 +64,7 @@ import java.io.IOException;
         mSyncStateManager = syncStateManager;
         mApiSyncerFactory = apiSyncerFactory;
         mSharedPreferences = sharedPreferences;
+        mApplicationProperties = applicationProperties;
     }
 
     public void onQueued() {
@@ -103,9 +110,15 @@ import java.io.IOException;
             handleException(e, mResultKey);
             mResult = ApiSyncResult.fromAuthException(mContentUri);
             mContext.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
+
+        } catch (AndroidCloudAPI.UnexpectedResponseException e) {
+            handleException(e, mResultKey);
+            mResult = ApiSyncResult.fromUnexpectedResponseException(mContentUri);
+
         } catch (IOException e) {
             handleException(e, mResultKey);
             mResult = ApiSyncResult.fromIOException(mContentUri);
+
         } finally {
             // should be taken care of when thread dies, but needed for tests
             Wrapper.setBackgroundMode(false);
@@ -135,12 +148,12 @@ import java.io.IOException;
     private void handleException(IOException e, String lastResultKey) {
         Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
         mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-        mSharedPreferences.edit().putString(lastResultKey, e.toString()).commit();
+        mSharedPreferences.edit().putString(lastResultKey, ErrorUtils.getStackTrace(e)).commit();
 
         /**
          * Firehose beta exceptions for sync debugging purposes. we may want to turn this off
          */
-        if (SoundCloudApplication.BETA_MODE && mIsUi){
+        if (mApplicationProperties.isBetaBuildRunningOnDalvik() && mIsUi){
             SoundCloudApplication.handleSilentException("Problem while syncing", e);
         }
     }

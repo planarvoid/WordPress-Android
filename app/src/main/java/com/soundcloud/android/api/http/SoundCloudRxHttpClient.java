@@ -14,10 +14,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.http.json.JsonTransformer;
+import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.UnknownResource;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -28,6 +31,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
+import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
@@ -40,23 +44,28 @@ import java.util.Map;
 
 public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient  {
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json";
+    public static final String URI_APP_PREFIX = "/app";
 
     private final JsonTransformer mJsonTransformer;
     private final WrapperFactory mWrapperFactory;
+    private final HttpProperties mHttpProperties;
 
     public SoundCloudRxHttpClient() {
         this(ScSchedulers.API_SCHEDULER);
     }
 
     public SoundCloudRxHttpClient(Scheduler scheduler) {
-        this(new JacksonJsonTransformer(), new WrapperFactory(SoundCloudApplication.instance));
+        this(new JacksonJsonTransformer(), new WrapperFactory(SoundCloudApplication.instance),
+                new HttpProperties(SoundCloudApplication.instance.getResources()));
         subscribeOn(scheduler);
     }
 
     @VisibleForTesting
-    protected SoundCloudRxHttpClient(JsonTransformer jsonTransformer, WrapperFactory wrapperFactory) {
+    protected SoundCloudRxHttpClient(JsonTransformer jsonTransformer, WrapperFactory wrapperFactory,
+                                     HttpProperties httpProperties) {
         mJsonTransformer = jsonTransformer;
         mWrapperFactory = wrapperFactory;
+        mHttpProperties = httpProperties;
     }
 
 
@@ -65,9 +74,13 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         return schedule(Observable.create(new Func1<Observer<APIResponse>, Subscription>() {
             @Override
             public Subscription call(Observer<APIResponse> observer) {
-                observer.onNext(executeRequest(apiRequest));
-                observer.onCompleted();
-                return Subscriptions.empty();
+                BooleanSubscription subscription = new BooleanSubscription();
+                final APIResponse response = executeRequest(apiRequest);
+                if (!subscription.isUnsubscribed()) {
+                    observer.onNext(response);
+                    observer.onCompleted();
+                }
+                return subscription;
             }
 
         }));
@@ -83,6 +96,47 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         });
     }
 
+    @Override
+    public <ModelType> Observable<Observable<ModelType>> fetchPagedModels(final APIRequest apiRequest) {
+        return Observable.create(new Func1<Observer<Observable<ModelType>>, Subscription>() {
+            @Override
+            public Subscription call(final Observer<Observable<ModelType>> observableObserver) {
+                observableObserver.onNext(getNextPage(observableObserver, apiRequest));
+                return Subscriptions.empty();
+            }
+        });
+    }
+
+    private <ModelType> Observable<ModelType> getNextPage(final Observer<Observable<ModelType>> pageObserver, final APIRequest apiRequest) {
+        return schedule(Observable.create(new Func1<Observer<ModelType>, Subscription>() {
+            @Override
+            public Subscription call(Observer<ModelType> itemObserver) {
+                try {
+                    Observable<ModelCollection<ModelType>> pageRequest = fetchModels(apiRequest);
+                    final ModelCollection<ModelType> page = pageRequest.toBlockingObservable().last();
+
+                    // emit items
+                    RxUtils.emitIterable(itemObserver, page.getCollection());
+                    itemObserver.onCompleted();
+
+                    // emit next page or done
+                    if (page.getNextLink().isPresent()) {
+                        // TODO, honor params from initial request
+                        final APIRequest<?> nextRequest = SoundCloudAPIRequest.RequestBuilder.get(page.getNextLink().get().getHref())
+                                .forPrivateAPI(1)
+                                .forResource(apiRequest.getResourceType()).build();
+                        pageObserver.onNext(getNextPage(pageObserver, nextRequest));
+                    } else {
+                        pageObserver.onCompleted();
+                    }
+                } catch (Exception e) {
+                    itemObserver.onError(e);
+                }
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
     private <ModelType> Observable<ModelType> mapResponseToModels(final APIRequest apiRequest, final APIResponse apiResponse) {
         return Observable.create(new Func1<Observer<ModelType>, Subscription>() {
             @Override
@@ -92,7 +146,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
                     Object resource = parseJsonResponse(apiResponse, apiRequest);
                     @SuppressWarnings("unchecked")
                     Collection<ModelType> resources = isRequestedResourceTypeOfCollection(resourceType) ? Collection.class.cast(resource) : Collections.singleton(resource);
-                    RxUtils.emitCollection(observer, resources);
+                    RxUtils.emitIterable(observer, resources);
                 } else if (resourceType != null && !apiResponse.hasResponseBody()) {
                     throw APIRequestException.badResponse(apiRequest, apiResponse, "Response could not be unmarshaled into resource type as response is empty");
                 }
@@ -148,9 +202,12 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     }
 
     private Request createSCRequest(APIRequest<?> apiRequest) throws IOException {
-        Request request = Request.to(apiRequest.getUriPath());
-        final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();
+        final boolean needsPrefix = apiRequest.isPrivate() && !apiRequest.getUriPath().startsWith(URI_APP_PREFIX);
+        String baseUriPath = needsPrefix ? mHttpProperties.getApiMobileBaseUriPath() : ScTextUtils.EMPTY_STRING;
+        Request request = Request.to(baseUriPath + apiRequest.getUriPath());
 
+
+        final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();
         Map<String, String> transformedParameters = Maps.toMap(queryParameters.keySet(), new Function<String, String>() {
             @Nullable
             @Override
@@ -174,19 +231,23 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         private final Context mContext;
         private final HttpProperties mHttpProperties;
         private final AccountOperations mAccountOperations;
+        private final ApplicationProperties mApplicationProperties;
 
         public WrapperFactory(Context context){
-            this(context, new HttpProperties(), new AccountOperations(context));
+            this(context, new HttpProperties(context.getResources()), new AccountOperations(context),
+                    new ApplicationProperties(context.getResources()));
         }
         @VisibleForTesting
-        public WrapperFactory(Context context, HttpProperties httpProperties, AccountOperations accountOperations) {
+        public WrapperFactory(Context context, HttpProperties httpProperties, AccountOperations accountOperations,
+                              ApplicationProperties applicationProperties) {
             mContext = context;
             mHttpProperties = httpProperties;
             mAccountOperations = accountOperations;
+            mApplicationProperties = applicationProperties;
         }
 
         public ApiWrapper createWrapper(APIRequest apiRequest){
-            Wrapper wrapper = new Wrapper(mContext, mHttpProperties, mAccountOperations);
+            Wrapper wrapper = new Wrapper(mContext, mHttpProperties,mAccountOperations, mApplicationProperties);
             String acceptContentType = apiRequest.isPrivate() ? format(PRIVATE_API_ACCEPT_CONTENT_TYPE, apiRequest.getVersion()) : MediaType.JSON_UTF_8.toString();
             wrapper.setDefaultContentType(acceptContentType);
             return wrapper;

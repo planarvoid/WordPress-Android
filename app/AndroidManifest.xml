@@ -3,7 +3,7 @@
       package="com.soundcloud.android"
       android:versionName="2.7.0"
       android:installLocation="auto"
-      android:versionCode="68">
+      android:versionCode="69">
 
     <supports-screens android:anyDensity="true" />
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
@@ -30,6 +30,10 @@
     <!-- allows non-flash, non-autofocus devices to use app -->
     <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+    <!-- allows non-flash, non-location enabled devices to use the app -->
+    <uses-feature android:name="android.hardware.location.network" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 
     <!-- c2dm -->
     <permission android:name="com.soundcloud.android.permission.C2D_MESSAGE" android:protectionLevel="signature" />
@@ -139,6 +143,17 @@
                 <data android:scheme="https" android:host="soundcloud.com" android:path="/groups/search"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".activity.landing.ExploreActivity" android:label="@string/side_menu_explore">
+            <intent-filter android:priority="10">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="soundcloud.com" android:path="/explore"/>
+                <data android:scheme="https" android:host="soundcloud.com" android:path="/explore"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.ExploreTracksCategoryActivity" />
 
         <activity android:name=".activity.landing.News" android:label="@string/side_menu_activity">
             <intent-filter>
@@ -334,7 +349,7 @@
         <activity android:name=".activity.track.TrackInteractionActivity" />
         <activity android:name=".activity.track.TracksByTag" />
 
-        <activity android:name=".activity.track.PlaylistActivity"
+        <activity android:name=".activity.track.PlaylistDetailActivity"
                   android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYLIST"/>
@@ -404,7 +419,7 @@
 
             <intent-filter>
                 <action android:name="com.soundcloud.android.playback.start"/>
-                <action android:name="com.soundcloud.android.playback.togglepause"/>
+                <action android:name="com.soundcloud.android.playback.toggleplayback"/>
                 <action android:name="com.soundcloud.android.playback.pause"/>
                 <action android:name="com.soundcloud.android.playback.next"/>
                 <action android:name="com.soundcloud.android.playback.previous"/>

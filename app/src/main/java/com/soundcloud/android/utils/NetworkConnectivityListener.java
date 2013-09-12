@@ -1,6 +1,6 @@
 package com.soundcloud.android.utils;
 
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.properties.ApplicationProperties;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
@@ -164,8 +164,10 @@ public class NetworkConnectivityListener {
     }
 
     private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
+
         @Override
         public void onReceive(Context context, Intent intent) {
+            ApplicationProperties applicationProperties = new ApplicationProperties(context.getResources());
             String action = intent.getAction();
 
             if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION) || mContext == null) {
@@ -178,12 +180,12 @@ public class NetworkConnectivityListener {
                     ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 
             mState =  noConnectivity ? State.NOT_CONNECTED : State.CONNECTED;
-            mNetworkInfo = (NetworkInfo) intent
+            mNetworkInfo = intent
                     .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-            mOtherNetworkInfo = (NetworkInfo) intent
+            mOtherNetworkInfo = intent
                     .getParcelableExtra(ConnectivityManager.EXTRA_OTHER_NETWORK_INFO);
 
-            if (SoundCloudApplication.DEV_MODE) {
+            if (applicationProperties.isDevBuildRunningOnDalvik()) {
                 Log.d(TAG, "onReceive(): mNetworkInfo="
                         + mNetworkInfo
                         + " mOtherNetworkInfo = "

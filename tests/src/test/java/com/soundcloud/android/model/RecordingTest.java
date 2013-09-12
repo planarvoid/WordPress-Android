@@ -290,7 +290,7 @@ public class RecordingTest {
 
         Recording r2 = Recording.CREATOR.createFromParcel(p);
 
-        expect(r.mID).toEqual(r2.mID);
+        expect(r.getId()).toEqual(r2.getId());
         expect(r.user_id).toEqual(r2.user_id);
         expect(r.what_text).toEqual(r2.what_text);
         expect(r.where_text).toEqual(r2.where_text);
@@ -318,7 +318,7 @@ public class RecordingTest {
             if (profile != DeprecatedRecordingProfile.UNKNOWN) {
                 final File recordingFile = createRecordingFile(profile.getExtension());
                 Recording r = new Recording(recordingFile);
-                r.mID = i;
+                r.setId(i);
                 shouldMigrateRecording(r);
                 i++;
             }
@@ -377,7 +377,7 @@ public class RecordingTest {
         Recording r = createRecording();
 
         expect(r.toUri()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/recordings");
-        r.mID = 10;
+        r.setId(10);
         expect(r.toUri()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/recordings/10");
     }
 

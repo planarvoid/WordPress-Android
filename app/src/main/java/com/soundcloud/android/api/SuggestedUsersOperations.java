@@ -9,7 +9,7 @@ import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.CategoryGroup;
-import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.util.functions.Func1;
 
@@ -32,7 +32,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     }
 
     @VisibleForTesting
-    public SuggestedUsersOperations(RxHttpClient rxHttpClient) {
+    protected SuggestedUsersOperations(RxHttpClient rxHttpClient) {
         mRxHttpClient = rxHttpClient;
     }
 
@@ -47,7 +47,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     public Observable<CategoryGroup> getFacebookSuggestions() {
         APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
                 .forPrivateAPI(1)
-                .forResource(new TypeToken<List<CategoryGroup>>() {})
+                .forResource(new CategoryGroupListToken())
                 .build();
         return schedule(mRxHttpClient.<CategoryGroup>fetchModels(request).onErrorReturn(EMPTY_FACEBOOK_GROUP));
     }
@@ -56,4 +56,5 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         return schedule(Observable.merge(getMusicAndSoundsSuggestions(), getFacebookSuggestions()));
     }
 
+    private static class CategoryGroupListToken extends TypeToken<List<CategoryGroup>> {}
 }

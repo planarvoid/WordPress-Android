@@ -4,14 +4,16 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.behavior.RelatesToPlayable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -56,6 +58,10 @@ import java.util.Date;
 
 
 public class Comment extends ScResource implements RelatesToUser, RelatesToPlayable {
+
+    public static final String ACTION_CREATE_COMMENT  = "com.soundcloud.android.comment.create";
+    public static final String EXTRA = "comment";
+
     @JsonProperty @JsonView(Views.Mini.class) public Date created_at;
     @JsonProperty @JsonView(Views.Mini.class) public long user_id;
     @JsonProperty @JsonView(Views.Mini.class) public long track_id;
@@ -80,7 +86,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     }
 
     @Override
-    public void putDependencyValues(BulkInsertMap destination) {
+    public void putDependencyValues(@NotNull BulkInsertMap destination) {
         if (user != null) {
             user.putFullContentValues(destination);
         }
@@ -91,7 +97,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     @Override
     public Uri toUri() {
-       return Content.COMMENTS.forId(mID);
+       return Content.COMMENTS.forId(getId());
     }
 
 
@@ -102,7 +108,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
 
     public Comment(Cursor c, boolean view) {
         if (view) {
-            mID = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID));
+            setId(c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID)));
             track_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
             user_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
             user = User.fromActivityView(c);
@@ -110,7 +116,7 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
             timestamp = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_TIMESTAMP));
             created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_CREATED_AT)));
         } else {
-            mID = c.getLong(c.getColumnIndex(DBHelper.Comments._ID));
+            setId(c.getLong(c.getColumnIndex(DBHelper.Comments._ID)));
             track_id = c.getLong(c.getColumnIndex(DBHelper.Comments.TRACK_ID));
             user_id = c.getLong(c.getColumnIndex(DBHelper.Comments.USER_ID));
             body = c.getString(c.getColumnIndex(DBHelper.Comments.BODY));
@@ -126,9 +132,8 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
     }
 
     public void prefetchAvatar(Context c) {
-        if (shouldLoadIcon()) {
-            ImageLoader.get(c).prefetch(ImageSize.formatUriForList(c, user.avatar_url));
-        }
+        ImageLoader.getInstance().loadImage(
+                ImageSize.formatUriForList(c, user.getNonDefaultAvatarUrl()), ImageOptionsFactory.prefetch(), null);
     }
 
     @Override
@@ -178,10 +183,10 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
                                 long replyToId,
                                 String replyToUsername){
         Comment comment = new Comment();
-        comment.track_id = track.mID;
+        comment.track_id = track.getId();
         comment.track = track;
         comment.user = user;
-        comment.user_id = user.mID;
+        comment.user_id = user.getId();
         comment.timestamp = timestamp;
         comment.created_at = new Date(); // not actually used?
         comment.body = body;

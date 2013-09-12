@@ -5,6 +5,7 @@ import static com.soundcloud.android.utils.IOUtils.mkdirs;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Stream;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -31,6 +32,8 @@ public class StreamItem implements Parcelable {
     public final Index missingChunks = new Index();
     public final List<Integer> downloadedChunks =
             Collections.synchronizedList(new ArrayList<Integer>());
+
+    public static final String TRACK_ID_KEY = "track_id";
 
     private final URL url;
     public final String urlHash;
@@ -159,14 +162,20 @@ public class StreamItem implements Parcelable {
 
 
     public static long getTrackId(String url) {
-        Matcher m = STREAM_PATTERN.matcher(url);
-        if (m.find()) {
-            try {
-                return Long.parseLong(m.group(1));
-            } catch (NumberFormatException e) {
+        final Uri uri = Uri.parse(url);
+        String id = uri.getQueryParameter(TRACK_ID_KEY);
+        if (id == null) {
+            Matcher m = STREAM_PATTERN.matcher(url);
+            if (m.find()) {
+                id = m.group(1);
+            } else {
                 return -1;
             }
-        } else {
+        }
+
+        try {
+            return Long.parseLong(id);
+        } catch (NumberFormatException e) {
             return -1;
         }
     }

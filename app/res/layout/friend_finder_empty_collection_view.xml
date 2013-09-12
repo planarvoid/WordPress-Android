@@ -14,7 +14,7 @@
                   android:layout_marginBottom="20dp"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  style="@style/txt_empty_collection_message"/>
+                  style="@style/ErrorMessage.EmptyCollection"/>
 
         <Button android:layout_width="wrap_content"
                 style="@style/Tour.FacebookButton"
@@ -28,6 +28,6 @@
                   android:gravity="center_horizontal"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
-                  style="@style/txt_empty_collection_link"/>
+                  style="@style/ErrorMessage.EmptyCollection.Link"/>
     </LinearLayout>
 </RelativeLayout>

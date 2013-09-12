@@ -24,7 +24,7 @@
         <TableRow>
             <TextView android:id="@+id/txt_username"
                       android:layout_height="wrap_content"
-                      style="@style/txt_comment_panel_user"
+                      style="@style/TextAppearance.Comment.User"
                       android:singleLine="true"
                       android:ellipsize="end"
                       android:layout_width="wrap_content"/>
@@ -34,14 +34,16 @@
                       android:ellipsize="end"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      style="@style/txt_comment_panel_timestamp" />
+                      android:paddingLeft="3dp"
+                      style="@style/TextAppearance.Comment.Timestamp" />
 
             <TextView android:id="@+id/txt_elapsed"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      style="@style/txt_comment_panel_created_at"
+                      style="@style/TextAppearance.Comment.CreatedAt"
                       android:layout_marginLeft="5dp"
                       android:layout_marginRight="5dp"
+                      android:paddingLeft="3dp"
                       android:singleLine="true"
                       android:ellipsize="end"/>
         </TableRow>
@@ -56,7 +58,7 @@
               android:layout_height="wrap_content"
               android:lines="2"
               android:ellipsize="end"
-              style="@style/txt_comment_panel_body"
+              style="@style/TextAppearance.Comment.Body"
               />
 
     <ImageButton android:id="@+id/btn_close"

@@ -27,7 +27,7 @@ public class SyncStateManagerTest {
     @Before public void before() {
         MockitoAnnotations.initMocks(this);
         resolver = DefaultTestRunner.application.getContentResolver();
-        syncStateManager = new SyncStateManager();
+        syncStateManager = new SyncStateManager(resolver);
     }
 
     @Test

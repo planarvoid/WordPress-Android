@@ -85,6 +85,13 @@ public class UserAssociationSyncerTest {
     }
 
     @Test
+    public void shouldNotSyncWithNoLoggedInUser() throws Exception {
+        TestHelper.setUserId(0);
+        ApiSyncResult result = sync(Content.ME_FOLLOWERS.uri);
+        expect(result.success).toBeFalse();
+    }
+
+    @Test
     public void shouldSyncFollowers() throws Exception {
         addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
         addCannedResponse(ApiSyncServiceTest.class, "/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");

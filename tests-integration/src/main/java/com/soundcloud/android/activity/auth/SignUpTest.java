@@ -20,7 +20,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         IntegrationTestHelper.logOut(getInstrumentation());
         super.setUp();
 
-        if (EMULATOR) {
+        if (applicationProperties.isRunningOnEmulator()) {
             final String[] notInstalled = {
                     "com.android.camera",  // Camera.apk
                     "com.android.gallery", // Gallery.apk
@@ -34,7 +34,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
     }
 
     @Suppress
-    public void testSignup() throws Exception {
+    public void ignore_testSignup() throws Exception {
         performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
@@ -48,7 +48,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
     }
 
     @Suppress
-    public void testSignupSkip() throws Exception {
+    public void ignore_testSignupSkip() throws Exception {
         performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
@@ -64,14 +64,14 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
     }
 
     @Suppress
-    public void testSignupWithPhotoFromCamera() throws Exception {
+    public void ignore_testSignupWithPhotoFromCamera() throws Exception {
         performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_add_info_msg);
 
         solo.clickOnText(R.string.add_image);
         solo.assertText(R.string.image_where); // How would you like to add an image?
 
-        if (EMULATOR) {
+        if (applicationProperties.isRunningOnEmulator()) {
             solo.clickOnText(R.string.take_new_picture);
             // FakeCamera will provide an image
             solo.sleep(1000);
@@ -89,13 +89,13 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
     }
 
     @Suppress
-    public void testSignupWithExistingPhoto() throws Exception {
+    public void ignore_testSignupWithExistingPhoto() throws Exception {
         performSignup(generateEmail(), "password");
 
         solo.clickOnText(R.string.add_image);
         solo.assertText(R.string.image_where); // How would you like to add an image?
 
-        if (EMULATOR) {
+        if (applicationProperties.isRunningOnEmulator()) {
             solo.clickOnText(R.string.use_existing_image);
 
             // FakeGallery will provide an image
@@ -113,25 +113,25 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         }
     }
 
-    public void testSignupWithNonMatchingPasswords() throws Exception {
+    public void ignore_testSignupWithNonMatchingPasswords() throws Exception {
         performSignup(generateEmail(), "password");
         solo.assertText(R.string.authentication_error_password_mismatch);
     }
 
-    public void testSignupWithoutInput() throws Exception {
+    public void ignore_testSignupWithoutInput() throws Exception {
         solo.clickOnButtonResId(R.string.authentication_sign_up);
         solo.assertText(R.string.authentication_sign_up);
         solo.clickOnButtonResId(R.string.btn_done);
         solo.assertText(R.string.authentication_error_incomplete_fields);
     }
 
-    public void testSignupWithInvalidEmail() throws Exception {
+    public void ignore_testSignupWithInvalidEmail() throws Exception {
         performSignup("not-an-email", "password");
         solo.assertText(R.string.authentication_error_invalid_email);
     }
 
     @Suppress
-    public void testSignupEmailAlreadyTaken() throws Exception {
+    public void ignore_testSignupEmailAlreadyTaken() throws Exception {
         String email = generateEmail();
         performSignup(email, "password");
         solo.assertText(R.string.authentication_add_info_msg);
@@ -154,15 +154,15 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
         solo.clickOnOK();
     }
 
-    public void testSignupWithTooShortPassword() throws Exception {
+    public void ignore_testSignupWithTooShortPassword() throws Exception {
         performSignup(generateEmail(), "123");
         solo.assertText(R.string.authentication_error_password_too_short);
     }
 
     @Suppress
-    public void testShouldShowEmailConfirmationDialogAfterSignupNoThanks() throws Exception {
+    public void ignore_testShouldShowEmailConfirmationDialogAfterSignupNoThanks() throws Exception {
         // perform a full signup
-        testSignup();
+        ignore_testSignup();
 
         // exit app
         solo.goBack();
@@ -187,9 +187,9 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
 
 
     @Suppress
-    public void testShouldShowEmailConfirmationDialogAfterSignupResendEmail() throws Exception {
+    public void ignore_testShouldShowEmailConfirmationDialogAfterSignupResendEmail() throws Exception {
         // perform a full signup
-        testSignup();
+        ignore_testSignup();
 
         // exit app
         solo.goBack();

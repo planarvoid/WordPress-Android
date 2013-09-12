@@ -1,26 +1,21 @@
 
 package com.soundcloud.android.view;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.adapter.PlayableRow;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
-
-import java.io.IOException;
 
 // TODO: Ugly as FUCK. This class overrides practically everything from its super classes.
 // It doesn't even operate on a Playable. Could make nicer by wrapping the Recording in PlayableAdapter.
@@ -29,11 +24,14 @@ public class MyTracklistRow extends PlayableRow {
     private Drawable mVeryPrivateBgDrawable;
     private final int mTargetIconDimension;
 
+    private ImageLoader mImageLoader;
+
     private Recording mRecording;
 
     public MyTracklistRow(Context activity) {
         super(activity);
         mTargetIconDimension = (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE);
+        mImageLoader = ImageLoader.getInstance();
     }
 
     @Override
@@ -79,7 +77,6 @@ public class MyTracklistRow extends PlayableRow {
         }
 
         mRecording = ((Recording) p);
-
         setTitle();
 
         if (!mRecording.is_private) {
@@ -122,49 +119,11 @@ public class MyTracklistRow extends PlayableRow {
 
     protected void loadIcon(Recording recording) {
         if (recording.artwork_path == null) {
-            mImageLoader.unbind(mIcon);
+            mImageLoader.cancelDisplayTask(mIcon);
+            mIcon.setImageDrawable(null);
         } else {
-            ImageLoader.Options options = new ImageLoader.Options();
-            try {
-                options.decodeInSampleSize = ImageUtils.determineResizeOptions(
-                        recording.artwork_path,
-                        (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE),
-                        (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE), false
-                ).inSampleSize;
-            } catch (IOException e) {
-                Log.w(SoundCloudApplication.TAG, "error", e);
-            }
-            mImageLoader.bind(mIcon, recording.artwork_path.getAbsolutePath(), null, options);
+            mImageLoader.displayImage("file://"+ recording.artwork_path.getAbsolutePath(),mIcon);
         }
     }
 
-    private void setArtwork(final Recording recording) {
-
-        if (recording.artwork_path == null) {
-            mImageLoader.unbind(mIcon);
-        } else {
-            // use getBitmap instead of bind here because we have to account for exif rotation on local images
-            final String fileUri = Uri.fromFile(recording.artwork_path).toString();
-            mImageLoader.getBitmap(
-                    fileUri,
-                    new ImageLoader.BitmapLoadCallback(){
-                        @Override
-                        public void onImageLoaded(Bitmap bitmap, String url) {
-                            if (fileUri.equals(url)) setImageBitmap(recording, bitmap);
-                        }
-
-                        @Override
-                        public void onImageError(String url, Throwable error) { }
-                    }, getContext(),
-                    ImageUtils.getImageLoaderOptionsWithResizeSet(recording.artwork_path, mTargetIconDimension, mTargetIconDimension, false)
-            );
-        }
-    }
-
-    private void setImageBitmap(Recording recording, Bitmap b) {
-        ImageUtils.setImage(b, mIcon,
-                (int) getResources().getDimension(R.dimen.list_icon_width),
-                (int) getResources().getDimension(R.dimen.list_icon_height),
-                ImageUtils.getExifRotation(recording.artwork_path));
-    }
 }

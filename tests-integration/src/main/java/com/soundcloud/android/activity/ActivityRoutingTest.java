@@ -23,11 +23,11 @@ import android.test.InstrumentationTestCase;
  */
 public class ActivityRoutingTest extends InstrumentationTestCase {
 
-    public void testActivity() throws Exception {
+    public void ignore_testActivity() throws Exception {
         assertActivityStarted(News.class, Actions.ACTIVITY);
     }
 
-    public void testYou() throws Exception {
+    public void ignore_testYou() throws Exception {
         assertActivityStarted(You.class, Actions.YOU);
         assertActivityStarted(You.class, Actions.YOUR_INFO);
         assertActivityStarted(You.class, Actions.YOUR_SOUNDS);
@@ -36,62 +36,62 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         assertActivityStarted(You.class, Actions.YOUR_FOLLOWINGS);
     }
 
-    public void testRecord() throws Exception {
+    public void ignore_testRecord() throws Exception {
         assertActivityStarted(ScCreate.class, Actions.RECORD);
         assertActivityStarted(ScCreate.class, Actions.RECORD_START);
         assertActivityStarted(ScCreate.class, Actions.RECORD_STOP);
     }
 
-    public void testStream() throws Exception {
+    public void ignore_testStream() throws Exception {
         assertActivityStarted(Home.class, Actions.STREAM);
     }
 
-    public void testPlayer() throws Exception {
+    public void ignore_testPlayer() throws Exception {
         assertActivityStarted(ScPlayer.class, Actions.PLAYER);
         assertActivityStarted(ScPlayer.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/1235"));
     }
 
-    public void testPlayWithPlaylist() throws Exception {
+    public void ignore_testPlayWithPlaylist() throws Exception {
         assertActivityStarted(ScPlayer.class, Actions.PLAY,  Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/tracks"));
     }
 
-    public void testPlayEmpty() throws Exception {
+    public void ignore_testPlayEmpty() throws Exception {
         assertActivityStarted(ScPlayer.class, Actions.PLAY);
     }
 
-    public void testShare() throws Exception {
+    public void ignore_testShare() throws Exception {
         assertActivityStarted(ScUpload.class, Actions.SHARE);
     }
 
-    public void testUserBrowser() throws Exception {
+    public void ignore_testUserBrowser() throws Exception {
         assertActivityStarted(UserBrowser.class, Actions.USER_BROWSER);
         assertActivityStarted(UserBrowser.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/users/1235"));
     }
 
-    public void testFriendFinder() throws Exception {
+    public void ignore_testFriendFinder() throws Exception {
         assertActivityStarted(FriendFinder.class, Actions.FRIEND_FINDER);
     }
 
-    public void testSuggestedUsers() throws Exception {
+    public void ignore_testSuggestedUsers() throws Exception {
         assertActivityStarted(SuggestedUsersActivity.class, Actions.WHO_TO_FOLLOW);
     }
 
-    public void testSearch() throws Exception {
+    public void ignore_testSearch() throws Exception {
         assertActivityStarted(ScSearch.class, Actions.SEARCH);
         assertActivityStarted(ScSearch.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/search/1234"));
     }
 
-    public void testResolve() throws Exception {
+    public void ignore_testResolve() throws Exception {
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:users:1234"));
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:tracks:1234"));
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:sounds:1234"));
     }
 
-    public void testAccountSettings() throws Exception {
+    public void ignore_testAccountSettings() throws Exception {
         assertActivityStarted(AccountSettings.class, Actions.ACCOUNT_PREF);
     }
 
-    public void testUploadMonitor() throws Exception {
+    public void ignore_testUploadMonitor() throws Exception {
         assertActivityStarted(UploadMonitor.class, Actions.UPLOAD_MONITOR, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/recordings/1234"));
     }
 

@@ -4,17 +4,18 @@ import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.imageloader.DownloadBitmapHandler;
-import com.soundcloud.android.imageloader.ImageLoader;
-import com.soundcloud.android.imageloader.PrefetchHandler;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
@@ -26,6 +27,8 @@ import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -42,7 +45,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=e594a3cc",
@@ -51,12 +53,6 @@ import android.util.Log;
         checkReportSender = true)
 public class SoundCloudApplication extends Application implements Tracker {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
-    public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
-                                           "full_x86".equals(Build.PRODUCT)   || "sdk_x86".equals(Build.PRODUCT);
-
-    public static final boolean DALVIK = Build.PRODUCT != null;
-    public static boolean DEV_MODE, BETA_MODE;
-    private ImageLoader mImageLoader;
 
     @Deprecated public static ScModelManager MODEL_MANAGER;
 
@@ -70,22 +66,29 @@ public class SoundCloudApplication extends Application implements Tracker {
     @Override
     public void onCreate() {
         super.onCreate();
+        ApplicationProperties appProperties = new ApplicationProperties(getResources());
+        AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources());
 
-        DEV_MODE = isDevMode();
-        BETA_MODE = isBetaMode();
+        Log.i(TAG, "Application starting up in mode " + appProperties.getBuildType());
+        Log.d(TAG, appProperties.toString());
+        Log.d(TAG, analyticsProperties.toString());
 
-        if (DEV_MODE && !ActivityManager.isUserAMonkey()) {
+        if (appProperties.isDevBuildRunningOnDalvik() && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
         }
 
-        if (DALVIK && !EMULATOR) {
-            ACRA.init(this); // don't use ACRA when running unit tests / emulator
+        if(analyticsProperties.isAnalyticsEnabled()){
             mTracker = new ATTracker(this);
+        }
+
+        if (ApplicationProperties.shouldReportToAcra()) {
+            ACRA.init(this);
         }
         instance = this;
         IOUtils.checkState(this);
+        createImageLoader();
+
         accountOperations = new AccountOperations(this);
-        mImageLoader = createImageLoader();
         final Account account = accountOperations.getSoundCloudAccount();
 
 
@@ -161,21 +164,16 @@ public class SoundCloudApplication extends Application implements Tracker {
         mLoggedInUser = null;
     }
 
-    protected ImageLoader createImageLoader() {
+    protected void createImageLoader() {
+        ImageLoader.getInstance().init(
+                new ImageLoaderConfiguration.Builder(this)
+                .defaultDisplayImageOptions(ImageOptionsFactory.cache())
+                .build()
+        );
+
         FileCache.installFileCache(IOUtils.getCacheDir(this));
-        return new ImageLoader(new DownloadBitmapHandler(),
-                new PrefetchHandler(),
-                ImageLoader.DEFAULT_CACHE_SIZE, ImageLoader.DEFAULT_TASK_LIMIT);
     }
 
-    @Override
-    public Object getSystemService(String name) {
-        if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
-            return mImageLoader;
-        } else {
-            return super.getSystemService(name);
-        }
-    }
     //TODO Move this into AccountOperations once we refactor User info out of here
     public boolean addUserAccountAndEnableSync(User user, Token token, SignupVia via) {
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
@@ -236,26 +234,14 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
     }
 
-    private boolean isBetaMode() {
-        return AndroidUtils.appSignedBy(this, getResources().getStringArray(R.array.beta_sigs));
-    }
-
-    private boolean isDevMode() {
-        return AndroidUtils.appSignedBy(this, getResources().getStringArray(R.array.debug_sigs));
-    }
-
-    /**
-     * @param msg    message
-     * @param e      exception, can be null
-     * @return       the thread used to submit the msg
-     */
-    public static Thread handleSilentException(@Nullable String msg, Exception e) {
-        if (EMULATOR || !DALVIK) return null; // acra is disabled on emulator
-        if (msg != null) {
-           Log.w(TAG, "silentException: "+msg, e);
-           ACRA.getErrorReporter().putCustomData("message", msg);
+    public static void handleSilentException(@Nullable String msg, Throwable e) {
+        if (ApplicationProperties.shouldReportToAcra()) {
+            if (msg != null) {
+                Log.w(TAG, "silentException: "+msg, e);
+                ACRA.getErrorReporter().putCustomData("message", msg);
+            }
+            ACRA.getErrorReporter().handleSilentException(new SilentException(e));
         }
-        return ACRA.getErrorReporter().handleSilentException(new SilentException(e));
     }
 
     public static SoundCloudApplication fromContext(@NotNull Context c){
@@ -269,12 +255,6 @@ public class SoundCloudApplication extends Application implements Tracker {
     public static long getUserIdFromContext(Context c){
         SoundCloudApplication app = fromContext(c);
         return app == null ? -1 : app.getCurrentUserId();
-    }
-
-    @Override @TargetApi(14)
-    public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
-        /*if (level >= TRIM_MEMORY_RUNNING_CRITICAL) ImageLoader.get(this).onLowMemory(); */
     }
 
     @TargetApi(9)

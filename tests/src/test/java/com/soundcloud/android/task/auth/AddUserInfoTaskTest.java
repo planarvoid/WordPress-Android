@@ -36,6 +36,8 @@ public class AddUserInfoTaskTest  {
     public void shouldWorkWithFile() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "me.json");
         User user = new User();
+        user.setUsername("testing");
+        user.permalink = "testing";
         File tmp = File.createTempFile("test", "tmp");
         AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, user, tmp);
         AuthTaskResult result = task.doInBackground();

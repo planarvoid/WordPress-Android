@@ -10,16 +10,15 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.landing.ExploreActivity;
 import com.soundcloud.android.activity.landing.FriendFinder;
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.ScLandingPage;
-import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
 import com.soundcloud.android.activity.landing.WhoToFollowActivity;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.api.OldCloudAPI;
-import com.soundcloud.android.imageloader.ImageLoader;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -58,7 +57,7 @@ import java.lang.ref.WeakReference;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, RootView.OnMenuStateListener, ImageLoader.LoadBlocker, ActionBarController.ActionBarOwner {
+public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, RootView.OnMenuStateListener, ActionBarController.ActionBarOwner {
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -96,6 +95,9 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_stream:
                         startNavActivity(ScActivity.this, Home.class, menuBundle);
                         return true;
+                    case R.id.nav_explore:
+                        startNavActivity(ScActivity.this, ExploreActivity.class, menuBundle);
+                        return true;
                     case R.id.nav_news:
                         startNavActivity(ScActivity.this, News.class, menuBundle);
                         return true;
@@ -119,9 +121,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         startNavActivity(ScActivity.this, FriendFinder.class, menuBundle);
                         return true;
                     case R.id.nav_suggested_users:
-                        final Class<? extends Activity> destination = SoundCloudApplication.DEV_MODE ?
-                                SuggestedUsersActivity.class : WhoToFollowActivity.class;
-                        startNavActivity(ScActivity.this, destination, menuBundle);
+                        startNavActivity(ScActivity.this, WhoToFollowActivity.class, menuBundle);
                         return true;
                     case R.id.nav_settings:
                         startActivity(new Intent(ScActivity.this, Settings.class));
@@ -274,7 +274,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     }
 
     public void pausePlayback() {
-        startService(new Intent(CloudPlaybackService.PAUSE_ACTION));
+        startService(new Intent(CloudPlaybackService.Actions.PAUSE_ACTION));
     }
 
     public SoundCloudApplication getApp() {
@@ -316,7 +316,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         mIsConnected = isConnected;
         if (isConnected) {
             // clear image loading errors
-            ImageLoader.get(this).clearErrors();
+            // TODO, retry failed images??
         }
     }
 
@@ -423,8 +423,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                         NetworkInfo networkInfo = (NetworkInfo) msg.obj;
                         final boolean connected = networkInfo.isConnectedOrConnecting();
                         if (connected) {
-                            ImageLoader.get(context.getApplicationContext()).clearErrors();
-
                             // announce potential proxy change
                             context.sendBroadcast(new Intent(Actions.CHANGE_PROXY_ACTION)
                                     .putExtra(Actions.EXTRA_PROXY, IOUtils.getProxy(context, networkInfo)));
@@ -472,16 +470,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         if (mActionBarController != null) {
             mActionBarController.showMenuIndicator();
         }
-    }
-
-    @Override
-    public void onScrollStarted() {
-        ImageLoader.get(this).block(this);
-    }
-
-    @Override
-    public void onScrollEnded() {
-        ImageLoader.get(this).unblock(this);
     }
 
     @Override

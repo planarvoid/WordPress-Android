@@ -71,7 +71,7 @@ public class ConnectionsCache implements DetachableResultReceiver.Receiver {
 
     private void doQuery(@Nullable final Listener listener){
         if (listener != null) addListener(listener);
-        mLocalCollection = new SyncStateManager().fromContent(Content.ME_CONNECTIONS);
+        mLocalCollection = new SyncStateManager(mContext).fromContent(Content.ME_CONNECTIONS);
         asyncQueryHandler = new ConnectionsQueryHandler(mContext, this);
         asyncQueryHandler.startQuery(0, null, Content.ME_CONNECTIONS.uri, null, null, null, null);
     }

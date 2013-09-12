@@ -22,7 +22,7 @@ public class ScModelTest {
     @Test
     public void shouldSetIdFieldIfConstructedFromUrn() {
         expect(model.getId()).toBe(1L);
-        expect(model.mID).toBe(1L);
+        expect(model.getId()).toBe(1L);
     }
 
     @Test

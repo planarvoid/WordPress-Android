@@ -4,6 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.robolectric.TestHelper.assertResolverNotified;
 
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.PlaylistStorage;
 import com.soundcloud.android.model.Playlist;
@@ -18,7 +20,10 @@ import com.soundcloud.android.model.act.TrackSharingActivity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.api.CloudAPI;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +50,7 @@ public class ApiSyncerTest {
     public void before() {
         TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        syncStateManager = new SyncStateManager();
+        syncStateManager = new SyncStateManager(resolver);
         activitiesStorage = new ActivitiesStorage();
         playlistStorage = new PlaylistStorage();
         startTime = System.currentTimeMillis();
@@ -63,6 +68,12 @@ public class ApiSyncerTest {
         expect(Content.USERS).toHaveCount(1);
         expect(result.success).toBe(true);
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
+    }
+
+    @Test(expected = CloudAPI.InvalidTokenException.class)
+    public void shouldThrowAuthExceptionFrom404FromSyncStream() throws Exception {
+        Robolectric.getFakeHttpLayer().addPendingHttpResponse(new TestHttpResponse(HttpStatus.SC_NOT_FOUND, ""));
+        sync(Content.ME_SOUND_STREAM.uri);
     }
 
     @Test
@@ -104,7 +115,7 @@ public class ApiSyncerTest {
         expect(t.download_count).toEqual(ScModel.NOT_SET);
         expect(t.reposts_count ).toEqual(ScModel.NOT_SET);
         expect(t.comment_count ).toEqual(ScModel.NOT_SET);
-        expect(t.playback_count).toEqual(ScModel.NOT_SET);
+        expect(t.playback_count).toEqual(Long.valueOf(ScModel.NOT_SET));
     }
 
     @Test
@@ -250,6 +261,7 @@ public class ApiSyncerTest {
         expect(Content.ME_SOUNDS).toHaveCount(51);
         expect(Content.COLLECTIONS).toHaveCount(0);
         expect(new ApiSyncer(Robolectric.application, resolver).pushLocalPlaylists()).toBe(1);
+        expect(SoundCloudApplication.MODEL_MANAGER.getPlaylist(p.toUri())).toBeNull();
         expect(Content.ME_SOUNDS).toHaveCount(51);
         expect(Content.COLLECTIONS).toHaveCount(1);
 
@@ -412,8 +424,8 @@ public class ApiSyncerTest {
         expect(a1.getPlayable().permalink).toEqual("private-share-test");
     }
 
-    @Test(expected = IOException.class)
-    public void shouldThrowIOException() throws Exception {
+    @Test(expected = AndroidCloudAPI.UnexpectedResponseException.class)
+    public void shouldThrowUnexpectedResponseExceptionOn500() throws Exception {
         Robolectric.setDefaultHttpResponse(500, "error");
         sync(Content.ME_LIKES.uri);
     }

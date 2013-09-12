@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.sync.content;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.service.sync.ApiSyncResult;
@@ -8,6 +9,7 @@ import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.concurrency.Schedulers;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -28,7 +30,7 @@ public abstract class SyncStrategy {
         mApi = new OldCloudAPI(context);
         mResolver = resolver;
         mContext = context;
-        mSyncStateManager = new SyncStateManager();
+        mSyncStateManager = new SyncStateManager(Schedulers.immediate(), resolver);
     }
 
     @NotNull
@@ -36,6 +38,10 @@ public abstract class SyncStrategy {
 
     protected static void log(String message) {
         Log.d(TAG, message);
+    }
+
+    protected boolean isLoggedIn(){
+        return SoundCloudApplication.getUserId() > 0;
     }
 
     public static class IdHolder extends CollectionHolder<Long> {

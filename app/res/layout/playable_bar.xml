@@ -22,10 +22,10 @@
     <include layout="@layout/playable_metadata" />
 
     <TextView android:id="@+id/playable_title"
-              style="@style/PlayableTitle"/>
+              style="@style/Widget.TextView.Playable.Title"/>
 
     <TextView android:id="@+id/playable_track_count"
-              style="@style/PlayableTrackCount" />
+              style="@style/Widget.TextView.Playable.TrackCount" />
 
     <TextView android:id="@+id/playable_private_indicator"
               android:visibility="gone"

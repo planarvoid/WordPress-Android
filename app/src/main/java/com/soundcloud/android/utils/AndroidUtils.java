@@ -1,12 +1,11 @@
 package com.soundcloud.android.utils;
 
-import static android.content.pm.PackageManager.GET_SIGNATURES;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -24,7 +23,7 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Arrays;
+import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -160,23 +159,6 @@ public final class AndroidUtils {
         }
     }
 
-    public static boolean appSignedBy(Context context, String... keys) {
-        try {
-            PackageInfo info = context.getPackageManager().getPackageInfo(
-                    context.getPackageName(),
-                    GET_SIGNATURES);
-            if (info != null && info.signatures != null) {
-                final String sig =  info.signatures[0].toCharsString();
-                Arrays.sort(keys);
-                return Arrays.binarySearch(keys, sig) > -1;
-            } else {
-                return false;
-            }
-        } catch (PackageManager.NameNotFoundException ignored) {
-            return false;
-        }
-    }
-
     /**
      * @param context the context
      * @return a unique id for this device (MD5 of IMEI / {@link Settings.Secure#ANDROID_ID}) or null
@@ -270,6 +252,22 @@ public final class AndroidUtils {
         return names;
     }
 
+    /**
+     * Idempotent version of {@link Context#unregisterReceiver(android.content.BroadcastReceiver)} which allows null
+     * references and recovers from "receiver not registered" errors.
+     *
+     * @param context  the context from which to unregister
+     * @param receiver the receiver to unregister
+     */
+    public static void safeUnregisterReceiver(final Context context, @Nullable final BroadcastReceiver receiver) {
+        if (receiver != null) {
+            try {
+                context.unregisterReceiver(receiver);
+            } catch (IllegalArgumentException receiverAlreadyUnregistered) {
+                receiverAlreadyUnregistered.printStackTrace();
+            }
+        }
+    }
 
     private static class MapValueComparator implements Comparator<String> {
         Map<String, Integer> map;

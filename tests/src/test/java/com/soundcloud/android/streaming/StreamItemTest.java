@@ -73,6 +73,8 @@ public class StreamItemTest {
 
     @Test
     public void testGetTrackId() throws Exception {
+        expect(StreamItem.getTrackId("http://media.soundcloud.com/stream/tfmLdABNn0wb?track_id=123321")).toEqual(123321l);
+        expect(StreamItem.getTrackId("http://media.soundcloud.com/stream/tfmLdABNn0wb")).toEqual(-1l);
         expect(StreamItem.getTrackId("http://api.soundcloud.com/tracks/10853436/stream")).toEqual(10853436l);
         expect(StreamItem.getTrackId("http://api.soundcloud.com/tracks/10853436/stream?secret_token=s-v9jiw")).toEqual(10853436l);
         expect(StreamItem.getTrackId("https://api.soundcloud.com/tracks/blargh/stream")).toEqual(-1l);

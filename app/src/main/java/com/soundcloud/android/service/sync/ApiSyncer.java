@@ -60,7 +60,7 @@ import java.util.Set;
  */
 public class ApiSyncer extends SyncStrategy {
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
-    private static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 100;
+    private static final int MAX_MY_PLAYLIST_TRACK_COUNT_SYNC = 30;
 
     private final ActivitiesStorage mActivitiesStorage;
     private final PlaylistStorage mPlaylistStorage;
@@ -236,6 +236,8 @@ public class ApiSyncer extends SyncStrategy {
 
                 // update local state
                 p.localToGlobal(mContext, added);
+                SoundCloudApplication.MODEL_MANAGER.removeFromCache(toDelete);
+
                 mPlaylistStorage.create(added).toBlockingObservable().last();
                 mSoundAssociationStorage.addCreation(added).toBlockingObservable().last();
 

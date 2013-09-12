@@ -48,6 +48,11 @@ public class ApiSyncResult {
         return r;
     }
 
+    public static ApiSyncResult fromUnexpectedResponseException(Uri uri) {
+        // for now, the defaults are fine
+        return new ApiSyncResult(uri);
+    }
+
     @Override
     public String toString() {
         return "Result{" +

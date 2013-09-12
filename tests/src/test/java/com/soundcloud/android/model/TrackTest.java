@@ -6,17 +6,28 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.streaming.StreamItem;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Parcel;
+import android.text.TextUtils;
 
+import java.io.IOException;
 import java.util.Date;
 
 @RunWith(DefaultTestRunner.class)
 public class TrackTest {
+
+    @Test
+    public void setIdShouldSetURNIfNull() throws Exception {
+        Track t = new Track();
+        t.setId(1000L);
+        expect(t.getUrn()).toEqual(new ClientUri("soundcloud:sounds:1000"));
+    }
+
     @Test
     public void shouldFilterOutMachineTags() throws Exception {
         Track t = new Track();
@@ -96,7 +107,7 @@ public class TrackTest {
     @Test
     public void shouldBuildContentValuesWithContent() throws Exception{
         Track t = new Track();
-        t.mID = 1000;
+        t.setId(1000);
         ContentValues v = t.buildContentValues();
         expect(v).not.toBeNull();
         expect(v.getAsLong(DBHelper.Sounds._ID)).toEqual(1000L);
@@ -105,7 +116,7 @@ public class TrackTest {
     @Test
     public void shouldBuildContentValuesWithNoLastUpdated() throws Exception{
         Track t = new Track();
-        t.mID = 1000;
+        t.setId(1000);
         ContentValues v = t.buildContentValues();
         expect(v.get(DBHelper.Sounds.LAST_UPDATED)).toBeNull();
         t.created_at = new Date(System.currentTimeMillis());
@@ -133,7 +144,7 @@ public class TrackTest {
     @Test
     public void shouldGetTrackFromIntentParcelable() throws Exception {
         Track t  = new Track();
-        t.mID = 0;
+        t.setId(0);
         t.permalink = "permalink";
         Intent i = new Intent();
         i.putExtra("track", t);
@@ -143,10 +154,10 @@ public class TrackTest {
     @Test
     public void shouldGetTrackFromIntentTrackCache() throws Exception {
         Track t  = new Track();
-        t.mID = 0;
+        t.setId(0);
         t.permalink = "permalink";
         Intent i = new Intent();
-        i.putExtra("track_id", t.mID);
+        i.putExtra("track_id", t.getId());
         SoundCloudApplication.MODEL_MANAGER.cache(t);
         expect(Track.fromIntent(i)).toEqual(t);
     }
@@ -200,13 +211,13 @@ public class TrackTest {
     @Test
     public void testShouldIconLoad() throws Exception {
         Track t = new Track();
-        expect(t.shouldLoadIcon()).toBeFalse();
+        expect(t.shouldLoadArtwork()).toBeFalse();
         t.artwork_url = "";
-        expect(t.shouldLoadIcon()).toBeFalse();
+        expect(t.shouldLoadArtwork()).toBeFalse();
         t.artwork_url = "NULL";
-        expect(t.shouldLoadIcon()).toBeFalse();
+        expect(t.shouldLoadArtwork()).toBeFalse();
         t.artwork_url = "http://foo.com";
-        expect(t.shouldLoadIcon()).toBeTrue();
+        expect(t.shouldLoadArtwork()).toBeTrue();
     }
 
     @Test
@@ -256,8 +267,36 @@ public class TrackTest {
         expect(t.getWaveformDataURL().toString()).toEqual("http://wis.sndcdn.com/bypOn0pnRvFf_m.png");
     }
 
+    @Test
+    public void shouldAppendTrackIdToStreamUrl() throws Exception {
+        Track t = new Track(123L);
+        t.stream_url = "http://media.soundcloud.com/stream/tfmLdABNn0wb";
+        expect(t.getStreamUrlWithAppendedId().toString()).toEqual("http://media.soundcloud.com/stream/tfmLdABNn0wb?" + StreamItem.TRACK_ID_KEY + "=123");
+    }
+
+    @Test
+    public void shouldCreateTrackFromExploreTrackSuggestion() throws IOException {
+        ExploreTracksSuggestion suggestion = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("suggested_track.json"), ExploreTracksSuggestion.class);
+        Track t = new Track(suggestion);
+
+        expect(t.getUrn()).toEqual(suggestion.getUrn());
+        expect(t.getUser().getUsername()).toEqual(suggestion.getUser().getUsername());
+        expect(t.getUser().getUrn()).toEqual(suggestion.getUser().getUrn());
+        expect(t.getTitle()).toEqual(suggestion.getTitle());
+        expect(t.getArtwork()).toEqual(suggestion.getArtworkUrl());
+        expect(t.genre).toEqual(suggestion.getGenre());
+        expect(t.commentable).toEqual(suggestion.isCommentable());
+        expect(t.stream_url).toEqual(suggestion.getStreamUrl());
+        expect(t.waveform_url).toEqual(Track.fixWaveform(suggestion.getWaveformUrl()));
+        expect(t.tag_list).toEqual(TextUtils.join(" ", suggestion.getUserTags()));
+        expect(t.created_at).toEqual(suggestion.getCreatedAt());
+        expect(t.playback_count).toEqual(suggestion.getPlaybackCount());
+        expect(t.duration).toEqual(suggestion.getDuration());
+    }
+
     private void compareTracks(Track t, Track t2) {
-        expect(t2.mID).toEqual(t.mID);
+        expect(t2.getId()).toEqual(t.getId());
         expect(t2.title).toEqual(t.title);
         expect(t2.permalink).toEqual(t.permalink);
         expect(t2.duration).toBeGreaterThan(0);

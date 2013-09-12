@@ -2,14 +2,11 @@ package com.soundcloud.android.rx;
 
 import rx.Observer;
 
-import java.util.Collection;
-
 public class RxUtils {
 
-    public static <T> void emitCollection(Observer<T> observer, Collection<T> collection) {
-        for (T item : collection){
+    public static <T> void emitIterable(Observer<T> observer, Iterable<T> iterable) {
+        for (T item : iterable){
             observer.onNext(item);
         }
     }
-
 }

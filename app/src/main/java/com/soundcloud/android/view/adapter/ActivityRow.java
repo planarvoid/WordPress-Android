@@ -9,6 +9,7 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.DrawableSpan;
+import com.soundcloud.android.view.adapter.behavior.ListRow;
 
 import android.content.Context;
 import android.content.Intent;

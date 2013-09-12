@@ -140,7 +140,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public Recording(Cursor c) {
-        mID = c.getLong(c.getColumnIndex(Recordings._ID));
+        setId(c.getLong(c.getColumnIndex(Recordings._ID)));
         user_id = c.getLong(c.getColumnIndex(Recordings.USER_ID));
         longitude = c.getDouble(c.getColumnIndex(Recordings.LONGITUDE));
         latitude = c.getDouble(c.getColumnIndex(Recordings.LATITUDE));
@@ -255,7 +255,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
 
     @Deprecated private void setRecipient(User recipient) {
         this.recipient     = recipient;
-        recipient_user_id  = recipient.mID;
+        recipient_user_id  = recipient.getId();
         recipient_username = recipient.getDisplayName();
         is_private = true;
     }
@@ -329,7 +329,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     }
 
     public Uri toUri() {
-        return mID > 0 ? Content.RECORDING.forId(mID) : getBulkInsertUri();
+        return getId() > 0 ? Content.RECORDING.forId(getId()) : getBulkInsertUri();
     }
 
     public boolean isLegacyRecording(){
@@ -636,7 +636,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     @Override
     public String toString() {
         return "Recording{" +
-                "id=" + mID +
+                "id=" + getId() +
                 ", user_id=" + user_id +
                 ", longitude=" + longitude +
                 ", latitude=" + latitude +
@@ -672,7 +672,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     public Recording(Parcel in) {
 
         Bundle data = in.readBundle(getClass().getClassLoader());
-        mID = data.getLong("id");
+        setId(data.getLong("id"));
         user_id = data.getLong("user_id");
         longitude = data.getDouble("longitude");
         latitude = data.getDouble("latitude");
@@ -709,7 +709,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         Bundle data = new Bundle();
-        data.putLong("id", mID);
+        data.putLong("id", getId());
         data.putLong("user_id", user_id);
         data.putDouble("longitude", longitude);
         data.putDouble("latitude", latitude);

@@ -33,15 +33,15 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
 
     protected void linkPlayerControls(Context context) {
         // Connect up various buttons and touch events
-        final Intent previous = new Intent(CloudPlaybackService.PREVIOUS_ACTION);
+        final Intent previous = new Intent(CloudPlaybackService.Actions.PREVIOUS_ACTION);
         setOnClickPendingIntent(R.id.prev, PendingIntent.getService(context,
                 0 /* requestCode */, previous, 0 /* flags */));
 
-        final Intent pause = new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION);
+        final Intent pause = new Intent(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
         setOnClickPendingIntent(R.id.pause, PendingIntent.getService(context,
                 0 /* requestCode */, pause, 0 /* flags */));
 
-        final Intent next = new Intent(CloudPlaybackService.NEXT_ACTION);
+        final Intent next = new Intent(CloudPlaybackService.Actions.NEXT_ACTION);
         setOnClickPendingIntent(R.id.next, PendingIntent.getService(context,
                 0 /* requestCode */, next, 0 /* flags */));
     }

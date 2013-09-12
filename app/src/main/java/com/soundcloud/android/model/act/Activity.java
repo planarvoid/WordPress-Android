@@ -83,7 +83,7 @@ public abstract class Activity extends ScModel implements Parcelable,
     }
 
     public Activity(Cursor c) {
-        mID = c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID));
+        setId(c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID)));
         uuid = c.getString(c.getColumnIndex(DBHelper.ActivityView.UUID));
         tags = c.getString(c.getColumnIndex(DBHelper.ActivityView.TAGS));
         created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));

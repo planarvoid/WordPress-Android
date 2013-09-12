@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -31,6 +32,8 @@ public class ScTextUtils {
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
             "\\A([a-z0-9_\\-][a-z0-9_\\-\\+\\.]{0,62})?[a-z0-9_\\-]@(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)+[a-z]{2,}\\Z"
     );
+
+    public static final String EMPTY_STRING = "";
 
     private ScTextUtils() {
     }
@@ -241,5 +244,9 @@ public class ScTextUtils {
 
         @Override
         final public void onTextChanged(CharSequence s, int start, int before, int count) { /* Don't care */ }
+    }
+
+    public static String formatNumberWithCommas(long number){
+        return new DecimalFormat("###,###,###,###").format(number);
     }
 }

@@ -1,12 +1,14 @@
 package com.soundcloud.android.fragment;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
@@ -18,16 +20,15 @@ import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
-import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.adapter.UserAssociationAdapter;
-import com.soundcloud.android.imageloader.ImageLoader;
+import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.task.collection.CollectionParams;
@@ -67,12 +68,13 @@ import android.widget.ListView;
 
 import java.lang.ref.WeakReference;
 
+@Deprecated
 public class ScListFragment extends SherlockListFragment implements PullToRefreshBase.OnRefreshListener,
                                                             DetachableResultReceiver.Receiver,
                                                             LocalCollection.OnChangeListener,
                                                             CollectionTask.Callback,
                                                             AbsListView.OnScrollListener,
-                                                            ImageLoader.LoadBlocker {
+                                                            EmptyListView.RetryListener {
     private static final int CONNECTIVITY_MSG = 0;
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
@@ -126,7 +128,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mContent = Content.match(mContentUri);
 
             if (mContent.isSyncable()) {
-                mSyncStateManager = new SyncStateManager();
+                mSyncStateManager = new SyncStateManager(activity);
                 mChangeObserver = new ChangeObserver();
             }
         }
@@ -154,12 +156,13 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
         mListView = configureList(new ScListView(getActivity()));
         mListView.setOnRefreshListener(this);
-        mListView.setOnScrollListener(this);
+        mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true, this));
 
         if (mEmptyListView == null) {
             mEmptyListView = createEmptyView();
         }
         mEmptyListView.setStatus(mStatusCode);
+        mEmptyListView.setOnRetryListener(this);
         mListView.setEmptyView(mEmptyListView);
 
         configurePullToRefreshState();
@@ -181,6 +184,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         return root;
     }
 
+    @Override
+    public void onEmptyViewRetry() {
+        refresh(true);
+    }
+
     protected EmptyListView createEmptyView() {
         return mEmptyListViewFactory.build(getActivity());
     }
@@ -198,9 +206,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         connectivityListener.registerHandler(connectivityHandler, CONNECTIVITY_MSG);
 
         IntentFilter playbackFilter = new IntentFilter();
-        playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
-        playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
-        playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+        playbackFilter.addAction(Broadcasts.META_CHANGED);
+        playbackFilter.addAction(Broadcasts.PLAYBACK_COMPLETE);
+        playbackFilter.addAction(Broadcasts.PLAYSTATE_CHANGED);
         getActivity().registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
         IntentFilter generalIntentFilter = new IntentFilter();
@@ -278,10 +286,10 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     private void stopListening() {
-        getActivity().unregisterReceiver(mPlaybackStatusListener);
-        getActivity().unregisterReceiver(mGeneralIntentListener);
-        if (mContent.shouldListenForPlaylistChanges() && mPlaylistChangedReceiver != null) {
-            getActivity().unregisterReceiver(mPlaylistChangedReceiver);
+        AndroidUtils.safeUnregisterReceiver(getActivity(), mPlaybackStatusListener);
+        AndroidUtils.safeUnregisterReceiver(getActivity(), mGeneralIntentListener);
+        if (mContent.shouldListenForPlaylistChanges()) {
+            AndroidUtils.safeUnregisterReceiver(getActivity(), mPlaylistChangedReceiver);
         }
 
         if (mSyncStateManager != null && mLocalCollection != null) {
@@ -505,14 +513,6 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-        switch (scrollState){
-            case SCROLL_STATE_FLING:
-            case SCROLL_STATE_TOUCH_SCROLL:
-                ImageLoader.get(getActivity()).block(this);
-                break;
-            case SCROLL_STATE_IDLE:
-                ImageLoader.get(getActivity()).unblock(this);
-        }
     }
 
     @Override
@@ -800,9 +800,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             if (mIgnorePlaybackStatus) return;
 
             final String action = intent.getAction();
-            if (CloudPlaybackService.META_CHANGED.equals(action)
-                || CloudPlaybackService.PLAYBACK_COMPLETE.equals(action)
-                || CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
+            if (Broadcasts.META_CHANGED.equals(action)
+                || Broadcasts.PLAYBACK_COMPLETE.equals(action)
+                || Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
 
                 adapter.notifyDataSetChanged();
             }

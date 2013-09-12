@@ -15,7 +15,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.rx.ScheduledOperations;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -60,7 +60,7 @@ public class UserAssociationStorage extends ScheduledOperations {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> userAssociationObserver) {
-                RxUtils.emitCollection(userAssociationObserver,
+                RxUtils.emitIterable(userAssociationObserver,
                         mFollowingsDAO.buildQuery().where(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT + " IS NULL").queryAll()
                 );
                 userAssociationObserver.onCompleted();
@@ -128,7 +128,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
                 }
                 mFollowingsDAO.createCollection(userAssociations);
-                RxUtils.emitCollection(userAssociationObserver, userAssociations);
+                RxUtils.emitIterable(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
                 return Subscriptions.empty();
             }
@@ -155,7 +155,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                     ).markForAddition(suggestedUser.getToken()));
                 }
                 mFollowingsDAO.createCollection(userAssociations);
-                RxUtils.emitCollection(userAssociationObserver, userAssociations);
+                RxUtils.emitIterable(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
                 return Subscriptions.empty();
             }
@@ -203,7 +203,7 @@ public class UserAssociationStorage extends ScheduledOperations {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForRemoval());
                 }
                 mFollowingsDAO.createCollection(userAssociations);
-                RxUtils.emitCollection(userAssociationObserver, userAssociations);
+                RxUtils.emitIterable(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
                 return Subscriptions.empty();
             }
