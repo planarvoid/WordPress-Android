@@ -154,6 +154,34 @@ def versionCode() manifest.root.attribute('versionCode') end
 def versionName() manifest.root.attribute('versionName') end
 def package() manifest.root.attribute('package') end
 
+def version_name(build_type)
+  current_version() + "-#{build_type}" + get_build_number
+end
+
+def get_build_number
+  ENV['BUILD_NUMBER'] ? "-#{ENV['BUILD_NUMBER']}" : ""
+end
+
+def maven_install(config)
+  android_manifest = options_for_android_manifest(config.delete(:manifest))
+  options          = config.delete(:options) || ""
+
+  mvn_params = config.map{|key, value|
+    key = "activate-profiles" if key.to_s == "profiles"
+    " --#{key} #{value.join(',')}"
+  }.join()
+
+  sh "mvn clean install" << mvn_params << android_manifest << " #{options.join}"
+end
+
+def options_for_android_manifest(config)
+  return "" if !config
+  config.map{|key, value|
+    " -Dandroid.manifest.#{key}=#{value}"
+  }.join()
+end
+
+
 def gitsha1()
   `git rev-parse HEAD`.tap do |head|
     raise "could not get current HEAD" unless $?.success?
@@ -204,19 +232,19 @@ namespace :release do
 end
 
 namespace :beta do
-  APP_ID="31bb3a437ee0cd325e994283fb8e7da3"
-  TOKEN="ef31e73570804365acba701c47568c9d"
-  BETA_APK = "app/target/soundcloud-android-#{current_version}-beta.apk"
-  file BETA_APK => 'beta:build'
+  APP_ID   = "31bb3a437ee0cd325e994283fb8e7da3"
+  TOKEN    = "ef31e73570804365acba701c47568c9d"
+  BETA_APK = "app/target/soundcloud-android-#{version_name('beta')}.apk"
 
-  def get_last_published_version
+  file BETA_APK do
+    Rake::Task['beta:build'].execute
+  end
+
+  def get_last_published_beta_version
     versions = JSON.parse(`curl -s -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions`)
     versions['app_versions'].map { |app| app['version'].to_i }.max
   end
 
-  def get_build_number
-    ENV['BUILD_NUMBER'] || "local"
-  end
   task :versions do
     sh "curl -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions"
   end
@@ -227,6 +255,7 @@ namespace :beta do
 
   desc "build and upload beta, then tag it"
   task :upload => [ BETA_APK, :verify ] do
+    exit
     sh <<-END
       curl \
         -H "X-HockeyAppToken: #{TOKEN}" \
@@ -245,19 +274,21 @@ namespace :beta do
 
   desc "build beta"
   task :build do
-    version_code = get_last_published_version
+    version_code = get_last_published_beta_version
     if version_code.nil?
       version_code = 0
     end
 
-    p version_name = current_version() + "-beta-" + get_build_number
-
-    #sh <<-END
-    #  mvn clean install --projects app -DskipTests -Psign,soundcloud,beta \
-    #    -Dandroid.manifest.versionCode=#{version_code+1} \
-    #    -Dandroid.manifest.versionName=#{version_name} \
-    #    -Dandroid.manifest.debuggable=true
-    #END
+    maven_install({
+      :projects => ['app'],
+      :profiles => ['sign', 'soundcloud', 'beta'],
+      :options  => ['-DskipTests'],
+      :manifest => {
+        :versionCode => version_code+1,
+        :versionName => version_name('beta'),
+        :debuggable  => true
+      }
+    })
   end
 
   desc "install beta on device"
@@ -266,11 +297,7 @@ namespace :beta do
   end
 
   task :verify do
-    raise "Missing file: #{BETA_APK}" unless File.exists?(BETA_APK)
-    raise "#{BETA_APK} does not contain -BETA" unless BETA_APK.match(/-BETA/i)
-
     output = `jarsigner -verify -certs -verbose #{BETA_APK}`
-    raise unless $?.success?
     if output !~ /CN=SoundCloud Android Beta/
       raise "Wrong signature"
     end
@@ -281,32 +308,8 @@ namespace :beta do
 
   desc "tag the current beta"
   task :tag do
-    with_beta do |version|
-      version_with_build = version + "-" + get_build_number
-      sh "git tag -a #{version_with_build} -m #{version_with_build} && git push --tags && git push"
-    end
-  end
-
-  def with_beta(&block)
-    version = current_version.gsub(/-SNAPSHOT\Z/, '')
-    if version.to_s =~ /-BETA(\d+)?\Z/
-      block.call(version)
-    else
-      raise "#{version}: not a beta version"
-    end
-  end
-
-  desc "bump the beta version"
-  task :bump do
-    version = current_version.gsub(/-SNAPSHOT\Z/, '')
-    match = version[/-BETA(\d+)/]
-    raise "Not a beta version" unless match
-    raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
-
-    current_beta = $1.to_i
-    new_version = version.gsub(/BETA#{current_beta}\Z/, "BETA#{current_beta+1}")
-    update_version(new_version)
-    sh "git commit -a -m 'Bumped to #{new_version}'"
+    version_with_build = version_name('beta')
+    sh "git tag -a #{version_with_build} -m #{version_with_build} && git push --tags && git push"
   end
 end
 
