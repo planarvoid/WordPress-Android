@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.soundcloud.android.view.ParallaxImageView;
 
 import android.os.Build;
 import android.view.View;
@@ -16,12 +17,14 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
     @VisibleForTesting
     static final String VIEW_TOP_TAG = "parallax_top";
     static final String VIEW_MID_TAG = "parallax_mid";
+    static final String VIEW_BG_TAG = "parallax_bg";
 
     private AbsListView.OnScrollListener mOnScrollListenerDelegate;
     final int mParallaxStepAmount = 10;
 
     HashMap<ViewGroup, Iterable<View>> parallaxMidViewMap = new HashMap<ViewGroup, Iterable<View>>();
     HashMap<ViewGroup, Iterable<View>> parallaxTopViewMap = new HashMap<ViewGroup, Iterable<View>>();
+    HashMap<ViewGroup, Iterable<View>> parallaxBgImageViewMap = new HashMap<ViewGroup, Iterable<View>>();
 
     public AbsListViewParallaxer(AbsListView.OnScrollListener scrollListenerDelegate) {
         this.mOnScrollListenerDelegate = scrollListenerDelegate;
@@ -68,6 +71,13 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
             for (View view : parallaxTopViewMap.get(itemView)) {
                 view.setTranslationY((int) (getParallaxRatio(halfHeight, itemView, view) * mParallaxStepScaled * 2));
             }
+
+            for (View view : parallaxBgImageViewMap.get(itemView)) {
+                if (view instanceof ParallaxImageView){
+                    ((ParallaxImageView) view).setParallaxOffset(getParallaxRatio(halfHeight, itemView, view));
+                    //view.requestLayout();
+                }
+            }
         }
     }
 
@@ -90,6 +100,15 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
                 @Override
                 public boolean apply(View input) {
                     return (VIEW_TOP_TAG.equals(input.getTag()));
+                }
+            }));
+        }
+
+        if (!parallaxBgImageViewMap.containsKey(itemView)) {
+            parallaxBgImageViewMap.put(itemView, Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
+                @Override
+                public boolean apply(View input) {
+                    return input instanceof ParallaxImageView;
                 }
             }));
         }

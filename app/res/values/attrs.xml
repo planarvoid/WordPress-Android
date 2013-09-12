@@ -50,4 +50,9 @@
           <enum name="height" value="1"/>
         </attr>
       </declare-styleable>
+
+    <declare-styleable name="ParallaxImageView">
+        <attr name="movement" format="dimension" />
+        <attr name="focalPoint" format="float" />
+    </declare-styleable>
 </resources>
