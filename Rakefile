@@ -7,7 +7,7 @@ require 'csv'
 require 'json'
 require 'yaml'
 
-DEFAULT_LEVELS = %w(
+DEFAULT_LEVELS  = %w(
    SoundCloudApplication CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
    StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
    ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
@@ -162,26 +162,6 @@ def get_build_number
   ENV['BUILD_NUMBER'] ? "-#{ENV['BUILD_NUMBER']}" : ""
 end
 
-def maven_install(config)
-  android_manifest = options_for_android_manifest(config.delete(:manifest))
-  options          = config.delete(:options) || ""
-
-  mvn_params = config.map{|key, value|
-    key = "activate-profiles" if key.to_s == "profiles"
-    " --#{key} #{value.join(',')}"
-  }.join()
-
-  sh "mvn clean install" << mvn_params << android_manifest << " #{options.join}"
-end
-
-def options_for_android_manifest(config)
-  return "" if !config
-  config.map{|key, value|
-    " -Dandroid.manifest.#{key}=#{value}"
-  }.join()
-end
-
-
 def gitsha1()
   `git rev-parse HEAD`.tap do |head|
     raise "could not get current HEAD" unless $?.success?
@@ -189,15 +169,54 @@ def gitsha1()
   end
 end
 
-namespace :debug do
-    desc "Build Debug APK"
-    task :build do
-        sh "mvn clean install -Pdebug,sign --projects app"
-    end
+def get_last_published_version(token, app_id)
+  versions = JSON.parse(`curl -s -H 'X-HockeyAppToken: #{token}' https://rink.hockeyapp.net/api/2/apps/#{app_id}/app_versions`)
+  versions['app_versions'].map { |app| app['version'].to_i }.max
+end
 
-    task :build_deploy => :build do
-        sh "mvn android:deploy --projects app"
-    end
+def get_file_path(build_type)
+  "app/target/soundcloud-android-#{version_name(build_type)}.apk"
+end
+
+namespace :debug do
+  DEBUG_APP_ID = "b81f0193d361b59e2e37d7f1c0aff017"
+  DEBUG_TOKEN  = "94dfa3e409cb4aa1a2f3fe65c76cc8ba"
+  DEBUG_APK    = get_file_path('debug')
+
+  file DEBUG_APK do
+    Rake::Task['debug:build'].invoke
+  end
+
+  desc "Build Debug APK"
+  task :build do
+    version_code = get_last_published_version(DEBUG_TOKEN, DEBUG_APP_ID) || 0
+
+    sh <<-END
+      mvn clean install --projects app \
+        -Pdebug,sign \
+        -Dandroid.manifest.versionCode=#{version_code+1} \
+        -Dandroid.manifest.versionName=#{version_name('debug')} \
+        -Dandroid.manifest.debuggable=true
+    END
+  end
+
+  task :install => DEBUG_APK do
+    sh "adb -d install -r #{DEBUG_APK}"
+  end
+
+  desc "build and upload debug version to hockeyapp"
+  task :upload => DEBUG_APK do
+    sh <<-END
+      curl \
+        -H "X-HockeyAppToken: #{DEBUG_TOKEN}" \
+        -F "status=2" \
+        -F "notify=0" \
+        -F "notes_type=1" \
+        -F "notes=#{last_release_notes}" \
+        -F "ipa=@#{DEBUG_APK}" \
+        https://rink.hockeyapp.net/api/2/apps/#{DEBUG_APP_ID}/app_versions
+    END
+  end
 end
 
 namespace :test do
@@ -232,40 +251,36 @@ namespace :release do
 end
 
 namespace :beta do
-  APP_ID   = "31bb3a437ee0cd325e994283fb8e7da3"
-  TOKEN    = "ef31e73570804365acba701c47568c9d"
-  BETA_APK = "app/target/soundcloud-android-#{version_name('beta')}.apk"
+  BETA_APP_ID = "31bb3a437ee0cd325e994283fb8e7da3"
+  BETA_TOKEN  = "ef31e73570804365acba701c47568c9d"
+  BETA_APK    = get_file_path('beta')
 
   file BETA_APK do
-    Rake::Task['beta:build'].execute
-  end
-
-  def get_last_published_beta_version
-    versions = JSON.parse(`curl -s -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions`)
-    versions['app_versions'].map { |app| app['version'].to_i }.max
+    Rake::Task['beta:build'].invoke
   end
 
   task :versions do
-    sh "curl -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions"
+    sh "curl -H 'X-HockeyAppToken: #{BETA_TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{BETA_APP_ID}/app_versions"
   end
 
   task :apps do
-    sh "curl -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps"
+    sh "curl -H 'X-HockeyAppToken: #{BETA_TOKEN}' https://rink.hockeyapp.net/api/2/apps"
   end
 
   desc "build and upload beta, then tag it"
   task :upload => [ BETA_APK, :verify ] do
-    exit
+
     sh <<-END
       curl \
-        -H "X-HockeyAppToken: #{TOKEN}" \
+        -H "X-HockeyAppToken: #{BETA_TOKEN}" \
         -F "status=2" \
         -F "notify=0" \
         -F "notes_type=1" \
         -F "notes=#{last_release_notes}" \
         -F "ipa=@#{BETA_APK}" \
-        https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions
+        https://rink.hockeyapp.net/api/2/apps/#{BETA_APP_ID}/app_versions
     END
+
     # undo changes caused by build
     sh "git checkout app/AndroidManifest.xml"
 
@@ -274,21 +289,15 @@ namespace :beta do
 
   desc "build beta"
   task :build do
-    version_code = get_last_published_beta_version
-    if version_code.nil?
-      version_code = 0
-    end
+    version_code = get_last_published_version(BETA_BETA_TOKEN, BETA_APP_ID) || 0
 
-    maven_install({
-      :projects => ['app'],
-      :profiles => ['sign', 'soundcloud', 'beta'],
-      :options  => ['-DskipTests'],
-      :manifest => {
-        :versionCode => version_code+1,
-        :versionName => version_name('beta'),
-        :debuggable  => true
-      }
-    })
+    sh <<-END
+      mvn clean install --projects app \
+        -Psign,soundcloud,beta \
+        -Dandroid.manifest.versionCode=#{version_code+1} \
+        -Dandroid.manifest.versionName=#{version_name('beta')} \
+        -Dandroid.manifest.debuggable=true
+    END
   end
 
   desc "install beta on device"
