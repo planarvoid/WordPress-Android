@@ -87,7 +87,7 @@ public class EmptyListView extends RelativeLayout {
         setLayoutAnimation(new LayoutAnimationController(animationIn));
 
         mEmptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
-        mProgressBar = findViewById(R.id.loading);
+        mProgressBar = findViewById(R.id.empty_view_progress);
     }
 
     /**
