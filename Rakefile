@@ -197,7 +197,6 @@ namespace :debug do
       with_profiles(DEBUG_BUILD_TYPE, 'sign', 'update-android-manifest').
       set_version_code(version_code + 1).
       set_version_name(version_name(DEBUG_BUILD_TYPE)).
-      set_debuggable.
       execute()
 
     sh "git checkout app/AndroidManifest.xml"
@@ -301,7 +300,6 @@ namespace :beta do
       with_profiles('beta', 'sign', 'soundcloud', 'update-android-manifest').
       set_version_code(version_code + 1).
       set_version_name(version_name('beta')).
-      set_debuggable.
       execute()
 
     sh "git checkout app/AndroidManifest.xml"
