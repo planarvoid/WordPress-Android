@@ -96,7 +96,7 @@ public class UserlistRow extends IconLayout implements ListRow {
         loadIcon();
         if (mUser != null) {
             mUsername.setText(mUser.username);
-            setFollowingStatus(true);
+            setFollowingStatus();
             setTrackCount();
             setFollowerCount();
             mVrStats.setVisibility((mUser.track_count <= 0 || mUser.followers_count <= 0) ? View.GONE : View.VISIBLE);
@@ -108,10 +108,8 @@ public class UserlistRow extends IconLayout implements ListRow {
         return R.drawable.avatar_badge;
     }
 
-    private void setFollowingStatus(boolean enabled) {
+    private void setFollowingStatus() {
         final boolean following = mFollowingOperations.isFollowing(mUser);
-        mFollowOffBtn.setEnabled(enabled);
-        mFollowOnBtn.setEnabled(enabled);
 
         if (mUser.getId() == getCurrentUserId()) {
             mFollowOffBtn.setVisibility(View.INVISIBLE);
@@ -144,13 +142,13 @@ public class UserlistRow extends IconLayout implements ListRow {
         mFollowingOperations.toggleFollowing(user).observeOn(AndroidSchedulers.mainThread()).subscribe(new ScObserver<Void>() {
             @Override
             public void onCompleted() {
-                setFollowingStatus(true);
+                setFollowingStatus();
                 SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
             }
 
             @Override
             public void onError(Throwable e) {
-                setFollowingStatus(true);
+                setFollowingStatus();
             }
         });
     }
