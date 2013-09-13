@@ -5,7 +5,7 @@
                 android:layout_height="wrap_content">
 
     <com.soundcloud.android.view.adapter.SuggestedTrackImageView android:id="@+id/suggested_track_image"
-                                                                 app:movement="-50dp"
+                                                                 app:movement="-30dp"
                                                                  app:focalPoint=".4"
                                                                  style="@style/ExploreGridItemImageView"/>
 
