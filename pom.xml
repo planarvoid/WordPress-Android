@@ -95,7 +95,16 @@
                 <build.proguard.skip>false</build.proguard.skip>
             </properties>
         </profile>
-
+        <profile>
+            <id>beta</id>
+            <properties>
+                <build.type>beta</build.type>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
+                <keystore.alias>beta-key</keystore.alias>
+                <build.proguard.skip>false</build.proguard.skip>
+            </properties>
+        </profile>
         <profile>
             <id>debug</id>
             <properties>

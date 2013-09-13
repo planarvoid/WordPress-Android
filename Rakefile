@@ -179,9 +179,11 @@ def get_file_path(build_type)
 end
 
 namespace :debug do
-  DEBUG_APP_ID = "b81f0193d361b59e2e37d7f1c0aff017"
-  DEBUG_TOKEN  = "94dfa3e409cb4aa1a2f3fe65c76cc8ba"
-  DEBUG_APK    = get_file_path('debug')
+  DEBUG_BUILD_TYPE = 'debug'
+  DEBUG_APP_ID     = "b81f0193d361b59e2e37d7f1c0aff017"
+  DEBUG_TOKEN      = "94dfa3e409cb4aa1a2f3fe65c76cc8ba"
+  DEBUG_APK        = get_file_path(DEBUG_BUILD_TYPE)
+
 
   file DEBUG_APK do
     Rake::Task['debug:build'].invoke
@@ -191,13 +193,14 @@ namespace :debug do
   task :build do
     version_code = get_last_published_version(DEBUG_TOKEN, DEBUG_APP_ID) || 0
 
-    sh <<-END
-      mvn clean install --projects app \
-        -Pdebug,sign \
-        -Dandroid.manifest.versionCode=#{version_code+1} \
-        -Dandroid.manifest.versionName=#{version_name('debug')} \
-        -Dandroid.manifest.debuggable=true
-    END
+    Mvn.install.projects('app').
+      with_profiles(DEBUG_BUILD_TYPE, 'sign', 'update-android-manifest').
+      set_version_code(version_code + 1).
+      set_version_name(version_name(DEBUG_BUILD_TYPE)).
+      set_debuggable.
+      execute()
+
+    sh "git checkout app/AndroidManifest.xml"
   end
 
   task :install => DEBUG_APK do
@@ -238,7 +241,10 @@ namespace :release do
 
   desc "builds the release version"
   task :build do
-    sh "mvn clean install -Psign,soundcloud,release --projects app"
+    Mvn.install.
+      projects('app').
+      with_profiles('sign','soundcloud','release').
+      execute()
   end
 
   desc "sets the release version to the version specified in the manifest, creates bump commit"
@@ -289,15 +295,16 @@ namespace :beta do
 
   desc "build beta"
   task :build do
-    version_code = get_last_published_version(BETA_BETA_TOKEN, BETA_APP_ID) || 0
+    version_code = get_last_published_version(BETA_TOKEN, BETA_APP_ID) || 0
 
-    sh <<-END
-      mvn clean install --projects app \
-        -Psign,soundcloud,beta \
-        -Dandroid.manifest.versionCode=#{version_code+1} \
-        -Dandroid.manifest.versionName=#{version_name('beta')} \
-        -Dandroid.manifest.debuggable=true
-    END
+    Mvn.install.projects('app').
+      with_profiles('beta', 'sign', 'soundcloud', 'update-android-manifest').
+      set_version_code(version_code + 1).
+      set_version_name(version_name('beta')).
+      set_debuggable.
+      execute()
+
+    sh "git checkout app/AndroidManifest.xml"
   end
 
   desc "install beta on device"
@@ -408,5 +415,48 @@ task :setup_codestyle do
 
   pref_dirs.each do |dir|
     sh "ln -sf #{template} #{dir}/SoundCloud-Android.xml"
+  end
+end
+
+
+class Mvn
+  def self.install
+    @@command = "mvn clean install"
+    self
+  end
+
+  def self.projects(*array_of_projects)
+    @@command << " --projects #{array_of_projects.join(',')}"
+    self
+  end
+
+  def self.with_profiles(*array_of_profiles)
+    @@command << " -P #{array_of_profiles.join(',')}"
+    self
+  end
+
+  def self.skip_tests
+    @@command << " -DskipTests"
+    self
+  end
+
+  def self.set_version_code(version_code)
+    @@command << " -Dandroid.manifest.versionCode=#{version_code}"
+    self
+  end
+
+  def self.set_version_name(version_name)
+    @@command << " -Dandroid.manifest.versionName=#{version_name}"
+    self
+  end
+
+  def self.set_debuggable
+    @@command << " -Dandroid.manifest.debuggable=true"
+    self
+  end
+
+  def self.execute
+    puts "Executing: #{@@command}"
+    system @@command
   end
 end
