@@ -20,7 +20,7 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
     static final String VIEW_FOREGROUND_TAG = "foreground";
 
     private AbsListView.OnScrollListener mOnScrollListenerDelegate;
-    final int mParallaxStepAmount = 10;
+    final int mParallaxStepAmount = -10;
 
     HashMap<ViewGroup, Iterable<View>> parallaxViewMap = new HashMap<ViewGroup, Iterable<View>>();
     HashMap<ViewGroup, Iterable<ParallaxImageView>> parallaxBgImageViewMap = new HashMap<ViewGroup, Iterable<ParallaxImageView>>();
