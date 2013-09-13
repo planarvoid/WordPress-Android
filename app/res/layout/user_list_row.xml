@@ -74,10 +74,16 @@
                     android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp">
-        <ToggleButton
+        <!-- USE 2 buttons here as 2.3.X version of android won't redraw the toggle button in a list row on change !-->
+        <Button android:id="@+id/toggle_btn_follow_on"
                 android:duplicateParentState="true"
                 android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
-                style="@style/UserBrowser.ToggleButton.Follow"/>
+                style="@style/UserFollowButton.On"/>
+        <Button android:id="@+id/toggle_btn_follow_off"
+                android:duplicateParentState="true"
+                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
+                style="@style/UserFollowButton.Off"/>
     </RelativeLayout>
 </RelativeLayout>
