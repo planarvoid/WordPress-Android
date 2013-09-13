@@ -248,6 +248,7 @@ namespace :release do
 
   desc "sets the release version to the version specified in the manifest, creates bump commit"
   task :bump do
+
     raise "#{versionName}: Not a release version" if versionName.to_s =~ /-BETA(\d+)?\Z/
     raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
     update_version(versionName)
@@ -418,43 +419,47 @@ end
 
 
 class Mvn
+
   def self.install
-    @@command = "mvn clean install"
+    self.new
+  end
+
+  def initialize
+    @command = "mvn clean install"
+  end
+
+  def projects(*array_of_projects)
+    @command << " --projects #{array_of_projects.join(',')}"
     self
   end
 
-  def self.projects(*array_of_projects)
-    @@command << " --projects #{array_of_projects.join(',')}"
+  def with_profiles(*array_of_profiles)
+    @command << " -P #{array_of_profiles.join(',')}"
     self
   end
 
-  def self.with_profiles(*array_of_profiles)
-    @@command << " -P #{array_of_profiles.join(',')}"
+  def skip_tests
+    @command << " -DskipTests"
     self
   end
 
-  def self.skip_tests
-    @@command << " -DskipTests"
+  def set_version_code(version_code)
+    @command << " -Dandroid.manifest.versionCode=#{version_code}"
     self
   end
 
-  def self.set_version_code(version_code)
-    @@command << " -Dandroid.manifest.versionCode=#{version_code}"
+  def set_version_name(version_name)
+    @command << " -Dandroid.manifest.versionName=#{version_name}"
     self
   end
 
-  def self.set_version_name(version_name)
-    @@command << " -Dandroid.manifest.versionName=#{version_name}"
+  def set_debuggable
+    @command << " -Dandroid.manifest.debuggable=true"
     self
   end
 
-  def self.set_debuggable
-    @@command << " -Dandroid.manifest.debuggable=true"
-    self
-  end
-
-  def self.execute
-    puts "Executing: #{@@command}"
+  def execute
+    puts "Executing: #{@command}"
     system @@command
   end
 end
