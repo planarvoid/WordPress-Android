@@ -91,6 +91,6 @@ public class AbsListViewParallaxerTest {
     public void shouldApplyForegroundParallax() throws Exception {
         when(view.getTag()).thenReturn(AbsListViewParallaxer.VIEW_FOREGROUND_TAG);
         absListViewParallaxer.onScroll(absListView, 0, 0, 0);
-        verify(view).setTranslationY(-6.0f);
+        verify(view).setTranslationY(6.0f);
     }
 }
