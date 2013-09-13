@@ -4,7 +4,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
 
-        <ProgressBar android:id="@+id/loading"
+        <ProgressBar android:id="@+id/empty_view_progress"
                      android:indeterminateOnly="true"
                      android:layout_centerInParent="true"
                      android:layout_width="wrap_content"
