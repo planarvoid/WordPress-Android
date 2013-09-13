@@ -18,6 +18,7 @@ import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.adapter.behavior.ListRow;
+import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -25,10 +26,10 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 public class UserlistRow extends IconLayout implements ListRow {
     private User mUser;
@@ -37,7 +38,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     private TextView mFollowers;
     private View mVrStats;
     private RelativeLayout mFollowBtnHolder;
-    private ToggleButton mFollowBtn;
+    private Button mFollowOnBtn, mFollowOffBtn;
     private AccountOperations mAccountOperations;
     private FollowingOperations mFollowingOperations;
 
@@ -50,12 +51,16 @@ public class UserlistRow extends IconLayout implements ListRow {
         mTracks = (TextView) findViewById(R.id.tracks);
         mFollowers = (TextView) findViewById(R.id.followers);
         mIcon = (ImageView) findViewById(R.id.icon);
-        mFollowBtn = (ToggleButton) findViewById(R.id.toggle_btn_follow);
+        mFollowOnBtn = (Button) findViewById(R.id.toggle_btn_follow_on);
+        mFollowOffBtn = (Button) findViewById(R.id.toggle_btn_follow_off);
         mVrStats = findViewById(R.id.vr_stats);
 
-        if (mFollowBtn != null) {
-            mFollowBtn.setFocusable(false);
-            mFollowBtn.setClickable(false);
+        if (mFollowOnBtn != null) {
+            mFollowOnBtn.setFocusable(false);
+            mFollowOnBtn.setClickable(false);
+
+            mFollowOffBtn.setFocusable(false);
+            mFollowOffBtn.setClickable(false);
 
             mFollowBtnHolder = (RelativeLayout) findViewById(R.id.toggleFollowingHolder);
             mFollowBtnHolder.setFocusable(false);
@@ -91,7 +96,7 @@ public class UserlistRow extends IconLayout implements ListRow {
         loadIcon();
         if (mUser != null) {
             mUsername.setText(mUser.username);
-            setFollowingStatus(true);
+            setFollowingStatus();
             setTrackCount();
             setFollowerCount();
             mVrStats.setVisibility((mUser.track_count <= 0 || mUser.followers_count <= 0) ? View.GONE : View.VISIBLE);
@@ -103,14 +108,15 @@ public class UserlistRow extends IconLayout implements ListRow {
         return R.drawable.avatar_badge;
     }
 
-    private void setFollowingStatus(boolean enabled) {
+    private void setFollowingStatus() {
         final boolean following = mFollowingOperations.isFollowing(mUser);
-        mFollowBtn.setEnabled(enabled);
+
         if (mUser.getId() == getCurrentUserId()) {
-            mFollowBtn.setVisibility(View.INVISIBLE);
+            mFollowOffBtn.setVisibility(View.INVISIBLE);
+            mFollowOnBtn.setVisibility(View.INVISIBLE);
         } else {
-            mFollowBtn.setVisibility(View.VISIBLE);
-            mFollowBtn.setChecked(following);
+            mFollowOnBtn.setVisibility(following ? View.VISIBLE : View.GONE);
+            mFollowOffBtn.setVisibility(following ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -133,15 +139,16 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     private void toggleFollowing(final User user) {
-        mFollowingOperations.toggleFollowing(user).subscribe(new ScObserver<Void>() {
+        mFollowingOperations.toggleFollowing(user).observeOn(AndroidSchedulers.mainThread()).subscribe(new ScObserver<Void>() {
             @Override
             public void onCompleted() {
+                setFollowingStatus();
                 SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
             }
 
             @Override
             public void onError(Throwable e) {
-                setFollowingStatus(true);
+                setFollowingStatus();
             }
         });
     }
