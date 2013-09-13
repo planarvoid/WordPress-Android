@@ -6,4 +6,9 @@
         <item name="android:layout_marginBottom">15dp</item>
         <item name="android:scaleType">fitXY</item>
     </style>
+
+    <style name="Widget.ScFixedTabPageIndicator" parent="Widget.ScTabPageIndicator">
+        <item name="tabWeight">.33</item>
+    </style>
+
 </resources>
