@@ -511,25 +511,5 @@ public final class ImageUtils {
         return BitmapFactory.decodeResource(res, resId, options);
     }
 
-    /**
-     * Get an instance of a list sized bitmap for a particular track (for player image substitution)
-     * @param context
-     * @param track
-     * @return
-     */
-    public static Bitmap getCachedTrackListIcon(Context context, Track track){
-        final String listArtworkUrl = track.getListArtworkUrl(context);
-        if (ScTextUtils.isBlank(listArtworkUrl)) {
-            return null;
-        } else {
-            return ImageLoader.getInstance().getMemoryCache().get(MemoryCacheUtil.generateKey(
-                    listArtworkUrl,
-                    new com.nostra13.universalimageloader.core.assist.ImageSize(
-                            (int) context.getResources().getDimension(R.dimen.list_icon_width),
-                            (int) context.getResources().getDimension(R.dimen.list_icon_height)
-                    )
-            ));
 
-        }
-    }
 }
