@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.view.ParallaxImageView;
@@ -10,21 +11,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 
 public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
 
     @VisibleForTesting
-    static final String VIEW_TOP_TAG = "parallax_top";
-    static final String VIEW_MID_TAG = "parallax_mid";
-    static final String VIEW_BG_TAG = "parallax_bg";
+    static final String VIEW_FOREGROUND_TAG = "foreground";
 
     private AbsListView.OnScrollListener mOnScrollListenerDelegate;
     final int mParallaxStepAmount = 10;
 
-    HashMap<ViewGroup, Iterable<View>> parallaxMidViewMap = new HashMap<ViewGroup, Iterable<View>>();
-    HashMap<ViewGroup, Iterable<View>> parallaxTopViewMap = new HashMap<ViewGroup, Iterable<View>>();
-    HashMap<ViewGroup, Iterable<View>> parallaxBgImageViewMap = new HashMap<ViewGroup, Iterable<View>>();
+    HashMap<ViewGroup, Iterable<View>> parallaxViewMap = new HashMap<ViewGroup, Iterable<View>>();
+    HashMap<ViewGroup, Iterable<ParallaxImageView>> parallaxBgImageViewMap = new HashMap<ViewGroup, Iterable<ParallaxImageView>>();
 
     public AbsListViewParallaxer(AbsListView.OnScrollListener scrollListenerDelegate) {
         this.mOnScrollListenerDelegate = scrollListenerDelegate;
@@ -65,18 +64,12 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
         if (itemView instanceof ViewGroup) {
             populateItemToParallaxViewsMaps((ViewGroup) itemView);
 
-            for (View view : parallaxMidViewMap.get(itemView)) {
+            for (View view : parallaxViewMap.get(itemView)) {
                 view.setTranslationY((int) (getParallaxRatio(halfHeight, itemView, view) * mParallaxStepScaled));
             }
-            for (View view : parallaxTopViewMap.get(itemView)) {
-                view.setTranslationY((int) (getParallaxRatio(halfHeight, itemView, view) * mParallaxStepScaled * 2));
-            }
 
-            for (View view : parallaxBgImageViewMap.get(itemView)) {
-                if (view instanceof ParallaxImageView){
-                    ((ParallaxImageView) view).setParallaxOffset(getParallaxRatio(halfHeight, itemView, view));
-                    //view.requestLayout();
-                }
+            for (ParallaxImageView view : parallaxBgImageViewMap.get(itemView)) {
+                view.setParallaxOffset(getParallaxRatio(halfHeight, itemView, view));
             }
         }
     }
@@ -86,29 +79,26 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
     }
 
     private void populateItemToParallaxViewsMaps(ViewGroup itemView) {
-        if (!parallaxMidViewMap.containsKey(itemView)) {
-            parallaxMidViewMap.put(itemView, Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
+        if (!parallaxViewMap.containsKey(itemView)) {
+            parallaxViewMap.put(itemView, Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
                 @Override
                 public boolean apply(View input) {
-                    return (VIEW_MID_TAG.equals(input.getTag()));
-                }
-            }));
-        }
-
-        if (!parallaxTopViewMap.containsKey(itemView)) {
-            parallaxTopViewMap.put(itemView, Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
-                @Override
-                public boolean apply(View input) {
-                    return (VIEW_TOP_TAG.equals(input.getTag()));
+                    return (VIEW_FOREGROUND_TAG.equals(input.getTag()));
                 }
             }));
         }
 
         if (!parallaxBgImageViewMap.containsKey(itemView)) {
-            parallaxBgImageViewMap.put(itemView, Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
+            parallaxBgImageViewMap.put(itemView, Iterables.transform(Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
                 @Override
                 public boolean apply(View input) {
                     return input instanceof ParallaxImageView;
+                }
+            }), new Function<View, ParallaxImageView>() {
+                @Nullable
+                @Override
+                public ParallaxImageView apply(@Nullable View input) {
+                    return (ParallaxImageView) input;
                 }
             }));
         }

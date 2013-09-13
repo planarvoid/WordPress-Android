@@ -8,10 +8,12 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.view.ParallaxImageView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.content.res.Resources;
 import android.os.Build;
@@ -78,15 +80,17 @@ public class AbsListViewParallaxerTest {
 
     @Test
     public void shouldApplyMiddleParallax() throws Exception {
-        when(view.getTag()).thenReturn(AbsListViewParallaxer.VIEW_MID_TAG);
+        ParallaxImageView parallaxImageView = Mockito.mock(ParallaxImageView.class);
+        when(viewGroup.getChildAt(0)).thenReturn(parallaxImageView);
+
         absListViewParallaxer.onScroll(absListView, 0, 0, 0);
-        verify(view).setTranslationY(-6.0f);
+        verify(parallaxImageView).setParallaxOffset(-1.0f);
     }
 
     @Test
-    public void shouldApplyTopParallax() throws Exception {
-        when(view.getTag()).thenReturn(AbsListViewParallaxer.VIEW_TOP_TAG);
+    public void shouldApplyForegroundParallax() throws Exception {
+        when(view.getTag()).thenReturn(AbsListViewParallaxer.VIEW_FOREGROUND_TAG);
         absListViewParallaxer.onScroll(absListView, 0, 0, 0);
-        verify(view).setTranslationY(-12.0f);
+        verify(view).setTranslationY(-6.0f);
     }
 }
