@@ -93,6 +93,16 @@ public class MainMenu extends LinearLayout {
         getContext().getContentResolver().registerContentObserver(Content.ME.uri, false, mObserver);
     }
 
+    public View getMenuItemViewId(int menuItemId){
+        final int positionByItemId = mMenuAdapter.getItemPositionByItemId(menuItemId);
+        if (positionByItemId >= 0){
+            return mList.getChildAt(positionByItemId).findViewById(R.id.main_menu_item_text);
+        } else {
+            return null;
+        }
+
+    }
+
     public void refresh() {
         mMenuAdapter.notifyDataSetChanged();
     }
@@ -198,6 +208,15 @@ public class MainMenu extends LinearLayout {
             mMenuItems = new ArrayList<SimpleListMenuItem>();
             mLayouts = new SparseIntArray();
             mLayouts.put(R.layout.main_menu_item, 0);
+        }
+
+        public int getItemPositionByItemId(int menuItemId) {
+            for (int i = 0; i < mMenuItems.size(); i++) {
+                if (menuItemId == mMenuItems.get(i).id) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         void clear() {

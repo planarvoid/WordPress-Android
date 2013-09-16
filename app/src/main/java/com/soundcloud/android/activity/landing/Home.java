@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.landing;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.github.espiandev.showcaseview.ShowcaseView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -27,6 +28,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 public class Home extends ScActivity implements ScLandingPage {
     public static final String EXTRA_ONBOARDING_USERS_RESULT  = "onboarding_users_result";
@@ -121,5 +124,16 @@ public class Home extends ScActivity implements ScLandingPage {
 
     private boolean justAuthenticated(Intent intent) {
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
+    }
+
+    @Override
+    public void onMenuOpenLeft() {
+        super.onMenuOpenLeft();
+        ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
+        co.hideOnClickOutside = true;
+        co.fadeInDuration = getResources().getInteger(android.R.integer.config_longAnimTime);
+        co.fadeOutDuration = getResources().getInteger(android.R.integer.config_mediumAnimTime);
+        ShowcaseView.insertShowcaseView(mRootView.getMenuItemViewId(R.id.nav_explore), getActivity(),
+                "Explore", "Find some new music here.", co);
     }
 }

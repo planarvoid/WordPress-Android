@@ -823,6 +823,10 @@ public class RootView extends ViewGroup {
         animateClose();
     }
 
+    public View getMenuItemViewId(int menuItemId){
+        return mMenu.getMenuItemViewId(menuItemId);
+    }
+
 
     /**
      * Closes the menus with an animation.
