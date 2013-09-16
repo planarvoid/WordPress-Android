@@ -18,6 +18,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
@@ -142,6 +143,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
     /* package */ PlayQueueManager mPlayQueueManager;
+    /* package */ AccountOperations mAccountOperations;
 
     // TODO: this doesn't really belong here. It's only used to PUT likes and reposts, and isn't playback specific.
     /* package */ AssociationManager mAssociationManager;
@@ -224,6 +226,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         mOldCloudApi = new OldCloudAPI(this);
         mAnalyticsEngine = new AnalyticsEngine(getApplicationContext());
+        mAccountOperations = new AccountOperations(this);
 
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueueManager, mAudioManager);
 
@@ -313,11 +316,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
         if (intent != null) {
-
-            if (!Actions.PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.isEmpty()){
+            final boolean hasAccount = mAccountOperations.soundCloudAccountExists();
+            if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.isEmpty()){
                 configureLastPlaylist();
             }
-            mIntentReceiver.onReceive(this, intent);
+            mIntentReceiver.onReceive(this, intent, hasAccount);
         }
         scheduleServiceShutdownCheck();
         // make sure the service will shut down on its own if it was

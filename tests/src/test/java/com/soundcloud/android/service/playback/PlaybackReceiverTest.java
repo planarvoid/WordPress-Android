@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -42,12 +43,13 @@ public class PlaybackReceiverTest {
     private @Mock PlayQueueManager playQueueManager;
     private @Mock AudioManager audioManager;
     private @Mock PlayerAppWidgetProvider playerAppWidgetProvider;
+    private @Mock AccountOperations accountOperations;
 
     @Before
     public void setup() {
         SoundCloudApplication.MODEL_MANAGER.clear();
-        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager);
-
+        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager, accountOperations);
+        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);
     }
 
@@ -342,6 +344,15 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).saveProgressAndStop();
+    }
+
+    @Test
+    public void shouldCallResetAllWithNoAccount(){
+        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        Intent intent = new Intent(CloudPlaybackService.Actions.RESET_ALL);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verify(playbackService).resetAll();
+        verify(playQueueManager).clear();
     }
 
     @Test
