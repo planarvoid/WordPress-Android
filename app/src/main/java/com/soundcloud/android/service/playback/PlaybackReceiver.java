@@ -80,9 +80,11 @@ class PlaybackReceiver extends BroadcastReceiver {
                 mPlaybackService.openCurrent();
             }
         } else if (Actions.LOAD_TRACK_INFO.equals(action)) {
-            final Track t = Track.fromIntent(intent);
+            final Track t = Track.nullableTrackfromIntent(intent);
             if (t != null){
                 t.refreshInfoAsync(mPlaybackService.getOldCloudApi(), mPlaybackService.getInfoListener());
+            } else {
+                mPlaybackService.getInfoListener().onError(intent.getLongExtra(Track.EXTRA_ID, -1L));
             }
 
         }
