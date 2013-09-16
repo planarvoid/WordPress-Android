@@ -5,7 +5,8 @@
     <parent>
         <groupId>com.soundcloud.android</groupId>
         <artifactId>parent</artifactId>
-        <version>2.7.0-BETA</version>
+        <version>2.7.0</version>
+
     </parent>
 
     <artifactId>soundcloud-android</artifactId>
@@ -337,23 +338,25 @@
     </dependencies>
 
     <profiles>
-        <!-- beta profile -->
         <profile>
-            <id>beta</id>
-            <properties>
-                <build.type>beta</build.type>
-                <build.debuggable>true</build.debuggable>
-                <build.skipAspectWeaving>false</build.skipAspectWeaving>
-                <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
-                <keystore.alias>beta-key</keystore.alias>
-                <build.proguard.skip>false</build.proguard.skip>
-            </properties>
-
+            <id>update-android-manifest</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                         <artifactId>android-maven-plugin</artifactId>
+                        <configuration>
+                            <renameManifestPackage>com.soundcloud.android.${build.type}</renameManifestPackage>
+                            <manifestApplicationLabel>SC-${build.type}</manifestApplicationLabel>
+                            <!--<manifest>-->
+                                <!--<providerAuthorities>-->
+                                    <!--<property>-->
+                                        <!--<name>.provider.ScContentProvider</name>-->
+                                        <!--<value>.provider.ScContentProvider.${build.type}</value>-->
+                                    <!--</property>-->
+                                <!--</providerAuthorities>-->
+                            <!--</manifest>-->
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>update-manifest</id>
