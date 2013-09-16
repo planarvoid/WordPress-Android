@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Parcel;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -52,9 +53,15 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
     }
 
     public void setCurrentUsername(CharSequence username) {
-        setTextViewText(R.id.user_txt, username);
-        setViewVisibility(R.id.by_txt, View.VISIBLE);
-        setViewVisibility(R.id.user_txt, View.VISIBLE);
+        if (TextUtils.isEmpty(username)){
+            setViewVisibility(R.id.by_txt, View.GONE);
+            setViewVisibility(R.id.user_txt, View.GONE);
+        } else {
+            setTextViewText(R.id.user_txt, username);
+            setViewVisibility(R.id.by_txt, View.VISIBLE);
+            setViewVisibility(R.id.user_txt, View.VISIBLE);
+
+        }
     }
 
     public void setPlaybackStatus(boolean playing) {

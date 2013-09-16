@@ -119,6 +119,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String SEEK_COMPLETE            = "com.soundcloud.android.seekcomplete";
         String BUFFERING                = "com.soundcloud.android.buffering";
         String BUFFERING_COMPLETE       = "com.soundcloud.android.bufferingcomplete";
+        String RESET_ALL                = "com.soundcloud.android.resetAll";
     }
 
 
@@ -378,6 +379,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public void resetAll() {
         stop();
         mCurrentTrack = null;
+        mAppWidgetProvider.notifyChange(this, new Intent(Broadcasts.RESET_ALL));
     }
 
     public void saveProgressAndStop() {
