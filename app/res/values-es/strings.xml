@@ -203,7 +203,7 @@
     <string name="accessibility_toggle_playback">Activar repetición</string>
     <string name="accessibility_previous_track">Pista anterior</string>
 
-    <string name="accessibility_action_bar_set">Volver a la lista de reproducción actual</string>
+    <string name="accessibility_action_bar_playlist">Volver a la lista de reproducción actual</string>
 
     <string name="playlist_info_header_text">Esta lista contiene %1$s, tiempo total: %2$s</string>
     <string name="imprint">Grabar</string>
@@ -213,21 +213,21 @@
         <item quantity="other">%d sonidos</item>
     </plurals>
 
-    <string name="add_track_to_set">Añadir a lista...</string>
-    <string name="create_new_set">Crear nueva lista</string>
-    <string name="error_new_set_blank_title">Escribe un título válido</string>
-    <string name="add_set_private">Privada</string>
+    <string name="add_track_to_playlist">Añadir a lista...</string>
+    <string name="create_new_playlist">Crear nueva lista</string>
+    <string name="error_new_playlist_blank_title">Escribe un título válido</string>
+    <string name="add_playlist_private">Privada</string>
 
-    <string name="tab_title_my_sets">Tus listas</string>
-    <string name="tab_title_user_sets">Listas</string>
+    <string name="tab_title_my_playlists">Tus listas</string>
+    <string name="tab_title_user_playlists">Listas</string>
 
-    <string name="side_menu_sets">Tus listas</string>
+    <string name="side_menu_playlists">Tus listas</string>
     <string name="empty_playlist">Esta lista aún no tiene sonidos</string>
 
     <string name="playlist_removed">No se ha encontrado esta lista en SoundCloud</string>
 
-    <string name="list_empty_user_sets_message">%1$s no tiene actualmente ninguna sets.</string>
-    <string name="list_empty_you_sets_message">Crear un conjunto de compartir una colección de sus canciones favoritas.</string>
+    <string name="list_empty_user_playlists_message">%1$s no tiene actualmente ninguna listas.</string>
+    <string name="list_empty_you_playlists_message">Crear un conjunto de compartir una colección de sus canciones favoritas.</string>
 
     <string name="authentication_log_in_with_google">Iniciar sesión con Google</string>
 
