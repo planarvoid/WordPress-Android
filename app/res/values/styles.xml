@@ -1341,4 +1341,17 @@
         <item name="android:scaleType">fitXY</item>
     </style>
 
+    <style name="ScShowcaseTheme" parent="ShowcaseView">
+        <item name="sv_backgroundColor">#CC000000</item>
+        <item name="sv_showcaseColor">#ff5e00</item>
+        <item name="sv_titleTextAppearance">@style/ShowcaseTitleText</item>
+        <item name="sv_detailTextAppearance">@style/ShowcaseDetailText</item>
+    </style>
+
+    <style name="ShowcaseTitleText" parent="TextAppearance.ShowcaseView.Title">
+        <item name="android:textColor">#ff5e00</item>
+    </style>
+    <style name="ShowcaseDetailText" parent="TextAppearance.ShowcaseView.Detail">
+        <item name="android:textColor">#ff5e00</item>
+    </style>
 </resources>
