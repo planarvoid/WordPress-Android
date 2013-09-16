@@ -416,29 +416,28 @@ public class UserBrowser extends ScActivity implements
 
 
     public enum Tab {
-        details(Actions.YOUR_INFO, Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info, R.string.tab_title_my_info),
-        tracks(Actions.YOUR_SOUNDS,Page.Users_sounds, Page.You_sounds, Content.USER_SOUNDS, Content.ME_SOUNDS, R.string.tab_title_user_sounds, R.string.tab_title_my_sounds),
-        sets(Actions.YOUR_SETS,Page.Users_sets, Page.You_sets, Content.USER_PLAYLISTS, Content.ME_PLAYLISTS, R.string.tab_title_user_playlists, R.string.tab_title_my_playlists),
-        likes(Actions.YOUR_LIKES,Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes, R.string.tab_title_my_likes),
-        followings(Actions.YOUR_FOLLOWINGS,Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings, R.string.tab_title_my_followings),
-        followers(Actions.YOUR_FOLLOWERS, Page.Users_followers, Page.You_followers, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers, R.string.tab_title_my_followers);
+        details(Actions.YOUR_INFO, Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info),
+        tracks(Actions.YOUR_SOUNDS,Page.Users_sounds, Page.You_sounds, Content.USER_SOUNDS, Content.ME_SOUNDS, R.string.tab_title_user_sounds),
+        sets(Actions.YOUR_SETS,Page.Users_sets, Page.You_sets, Content.USER_PLAYLISTS, Content.ME_PLAYLISTS, R.string.tab_title_user_playlists),
+        likes(Actions.YOUR_LIKES,Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes),
+        followings(Actions.YOUR_FOLLOWINGS,Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings),
+        followers(Actions.YOUR_FOLLOWERS, Page.Users_followers, Page.You_followers, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers);
 
         public static final String EXTRA = "userBrowserTag";
 
         public final Page userPage, youPage;
         public final Content userContent, youContent;
-        public final int userTitle, youTitle;
+        public final int userTitle;
         public final String tag;
         public final String action;
 
-        Tab(String action, Page userPage, Page youPage, Content userContent, Content youContent, int userTitle, int youTitle) {
+        Tab(String action, Page userPage, Page youPage, Content userContent, Content youContent, int userTitle) {
             this.action = action;
             this.userPage = userPage;
             this.youPage = youPage;
             this.userContent = userContent;
             this.youContent = youContent;
             this.userTitle = userTitle;
-            this.youTitle = youTitle;
             this.tag = this.name();
         }
 
@@ -458,7 +457,7 @@ public class UserBrowser extends ScActivity implements
         }
 
         public static String getTitle(Resources resources, int position, boolean isYou){
-            return resources.getString(isYou ? Tab.values()[position].youTitle : Tab.values()[position].userTitle);
+            return resources.getString(Tab.values()[position].userTitle);
         }
     }
 

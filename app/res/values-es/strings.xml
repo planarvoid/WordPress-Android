@@ -68,12 +68,6 @@
     <string name="yes">Sí</string>
     <string name="no">No</string>
 
-    <string name="tab_title_my_info">Tu información</string>
-    <string name="tab_title_my_sounds">Tus sonidos</string>
-    <string name="tab_title_my_likes">Tus votos positivos</string>
-    <string name="tab_title_my_followers">Tus seguidores</string>
-    <string name="tab_title_my_followings">Gente a la que sigues</string>
-
     <string name="tab_title_user_info">Información</string>
     <string name="tab_title_user_sounds">Sonidos</string>
     <string name="tab_title_user_likes">Votos positivos</string>
@@ -218,7 +212,6 @@
     <string name="error_new_playlist_blank_title">Escribe un título válido</string>
     <string name="add_playlist_private">Privada</string>
 
-    <string name="tab_title_my_playlists">Tus listas</string>
     <string name="tab_title_user_playlists">Listas</string>
 
     <string name="side_menu_playlists">Tus listas</string>
