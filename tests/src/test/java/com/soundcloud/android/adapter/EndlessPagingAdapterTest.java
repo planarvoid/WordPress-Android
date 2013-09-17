@@ -19,11 +19,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
+import rx.android.BufferingObserver;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
@@ -153,15 +155,6 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
-    public void shouldSubscribeToFirstPageWithSpecificObserver() {
-        ListFragmentObserver specificObserver = mock(ListFragmentObserver.class);
-        createAdapter(Observable.just(pageObservable));
-        adapter.subscribe(specificObserver);
-        verify(pageObservable).subscribe(specificObserver);
-        verify(pageObservable, never()).subscribe(adapter);
-    }
-
-    @Test
     public void shouldRetryRequestWhenClickingOnErrorRow() {
         Observable retriedPage = pageObservable;
         createAdapter(createPagingObservable(2, retriedPage));
@@ -177,11 +170,26 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
+    public void pageObserverShouldNotSubscribeDirectlyOnFirstPageLoad() {
+        createAdapter(Observable.just(pageObservable));
+        adapter.subscribe();
+        verify(pageObservable, never()).subscribe(adapter);
+    }
+
+    @Test
+    public void pageObserverShouldNeverSubscribeDirectlyOnSubsequentPageLoad() {
+        createAdapter(createPagingObservable(2, pageObservable));
+        adapter.subscribe();
+        adapter.onScroll(absListView, 0, 5, 5);
+        verify(pageObservable, never()).subscribe(adapter);
+    }
+
+    @Test
     public void pageScrollListenerShouldTriggerNextPageLoad() {
         createAdapter(createPagingObservable(2, pageObservable));
         adapter.subscribe();
         adapter.onScroll(absListView, 0, 5, 5);
-        verify(pageObservable).subscribe(adapter);
+        verify(pageObservable).subscribe(any(BufferingObserver.class));
         verify(observer).onNext(any());
     }
 
@@ -191,7 +199,10 @@ public class EndlessPagingAdapterTest {
         createAdapter(Observable.from(pageObservable));
 
         adapter.subscribe(specificObserver);
-        verify(pageObservable).subscribe(specificObserver);
+
+        ArgumentCaptor<BufferingObserver> captor = ArgumentCaptor.forClass(BufferingObserver.class);
+        verify(pageObservable).subscribe(captor.capture());
+        expect(captor.getValue().isWrapping(specificObserver)).toBeTrue();
     }
 
     @Test
@@ -200,7 +211,10 @@ public class EndlessPagingAdapterTest {
         createAdapter(createPagingObservable(2, pageObservable));
         adapter.subscribe(specificObserver);
         adapter.onScroll(absListView, 0, 5, 5);
-        verify(pageObservable).subscribe(adapter);
+
+        ArgumentCaptor<BufferingObserver> captor = ArgumentCaptor.forClass(BufferingObserver.class);
+        verify(pageObservable).subscribe(captor.capture());
+        expect(captor.getValue().isWrapping(adapter)).toBeTrue();
     }
 
     @Test
@@ -208,7 +222,10 @@ public class EndlessPagingAdapterTest {
         createAdapter(createPagingObservable(2, pageObservable));
         adapter.subscribe();
         adapter.onScroll(absListView, 0, 5, 2 * 5);
-        verify(pageObservable).subscribe(adapter);
+
+        ArgumentCaptor<BufferingObserver> captor = ArgumentCaptor.forClass(BufferingObserver.class);
+        verify(pageObservable).subscribe(captor.capture());
+        expect(captor.getValue().isWrapping(adapter)).toBeTrue();
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.soundcloud.android.rx.observers.ScObserver;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.android.BufferingObserver;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
@@ -122,7 +123,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
     public Subscription loadNextPage() {
         if (mNextPageObservable != null) {
             setNewAppendState(AppendState.LOADING);
-            return mNextPageObservable.observeOn(AndroidSchedulers.mainThread()).subscribe(this);
+            return mNextPageObservable.observeOn(AndroidSchedulers.mainThread()).subscribe(new BufferingObserver<T>(this));
         } else {
             return Subscriptions.empty();
         }
@@ -189,7 +190,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         public void onNext(Observable<T> nextPageObservable) {
             if (isFirstPage) {
                 isFirstPage = false;
-                nextPageObservable.observeOn(AndroidSchedulers.mainThread()).subscribe(firstPageObserver);
+                nextPageObservable.observeOn(AndroidSchedulers.mainThread()).subscribe(new BufferingObserver<T>(firstPageObserver));
             } else {
                 EndlessPagingAdapter.this.mNextPageObservable = nextPageObservable;
             }

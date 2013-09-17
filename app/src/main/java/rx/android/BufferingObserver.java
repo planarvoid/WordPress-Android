@@ -1,5 +1,6 @@
 package rx.android;
 
+import com.google.common.annotations.VisibleForTesting;
 import rx.Observer;
 
 import java.util.ArrayList;
@@ -45,5 +46,10 @@ public class BufferingObserver<T> implements Observer<T> {
     @Override
     public void onNext(T item) {
         items.add(item);
+    }
+
+    @VisibleForTesting
+    public boolean isWrapping(Observer<T> observer){
+        return observer == wrapped;
     }
 }
