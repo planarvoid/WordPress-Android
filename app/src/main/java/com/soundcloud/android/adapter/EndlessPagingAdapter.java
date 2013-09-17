@@ -15,7 +15,6 @@ import android.widget.AbsListView;
 
 public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements AbsListView.OnScrollListener, Observer<T> {
 
-    private static final int APPEND_ITEM_VIEW_TYPE = 1;
     private final int mProgressItemLayoutResId;
 
     private final Observable<Observable<T>> mPagingObservable;
@@ -55,12 +54,12 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
 
     @Override
     public boolean isEnabled(int position) {
-        return getItemViewType(position) != APPEND_ITEM_VIEW_TYPE || mAppendState == AppendState.ERROR;
+        return getItemViewType(position) != IGNORE_ITEM_VIEW_TYPE || mAppendState == AppendState.ERROR;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (getItemViewType(position) == APPEND_ITEM_VIEW_TYPE) {
+        if (getItemViewType(position) == IGNORE_ITEM_VIEW_TYPE) {
             if (convertView == null) {
                 convertView = View.inflate(parent.getContext(), mProgressItemLayoutResId, null);
             }
@@ -108,7 +107,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
 
     @Override
     public int getItemViewType(int position) {
-        return mAppendState != AppendState.IDLE && position == mItems.size() ? APPEND_ITEM_VIEW_TYPE
+        return mAppendState != AppendState.IDLE && position == mItems.size() ? IGNORE_ITEM_VIEW_TYPE
                 : super.getItemViewType(position);
     }
 
