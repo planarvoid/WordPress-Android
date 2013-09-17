@@ -51,6 +51,7 @@
                                                     android:layout_width="wrap_content"
                                                     android:layout_height="@dimen/player_time_height"
                                                     android:layout_above="@id/waveform_holder"
+                                                    android:layout_marginBottom="@dimen/player_time_bottom_margin"
                                                     app:show_arrow="true"/>
     <FrameLayout android:id="@id/player_avatar_bar_holder"
                  android:layout_width="fill_parent"

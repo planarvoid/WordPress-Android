@@ -303,6 +303,7 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
     }
 
     public void setCommentMode(boolean commenting) {
+        mCurrentTimeDisplay.setCommenting(commenting);
         if (commenting) {
             if (mCurrentShowingComment != null && !isLandscape()) {
                 closeComment(false);
@@ -310,7 +311,7 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
             mSuspendTimeDisplay = true;
             mode = TOUCH_MODE_COMMENT_DRAG;
             mPlayerTouchBar.setSeekPosition((int) ((((float) lastTrackTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight(), true);
-            mCurrentTimeDisplay.setByPercent((((float) lastTrackTime) / mDuration), true);
+            mCurrentTimeDisplay.setByPercent(((float) lastTrackTime) / mDuration);
         } else {
             mSuspendTimeDisplay = false;
             mode = TOUCH_MODE_NONE;
@@ -365,11 +366,11 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
                 post(new Runnable() {
                     @Override
                     public void run() {
-                        mCurrentTimeDisplay.setCurrentTime(pos, false);
+                        mCurrentTimeDisplay.setCurrentTime(pos);
                     }
                 });
             } else {
-                mCurrentTimeDisplay.setCurrentTime(pos, false);
+                mCurrentTimeDisplay.setCurrentTime(pos);
             }
         }
     }
@@ -808,7 +809,7 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
                         mode = TOUCH_MODE_NONE;
                     } else {
                         mPlayerTouchBar.setSeekPosition((int) (seekPercent * getWidth()), mPlayerTouchBar.getHeight(), false);
-                        mCurrentTimeDisplay.setCurrentTime(seekTime, false);
+                        mCurrentTimeDisplay.setCurrentTime(seekTime);
                     }
                     mWaveformHolder.invalidate();
                 }
@@ -828,7 +829,7 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
                 break;
 
             case UI_UPDATE_COMMENT_POSITION:
-                mCurrentTimeDisplay.setByPercent(seekPercent, true);
+                mCurrentTimeDisplay.setByPercent(seekPercent);
                 touchBar.setSeekPosition((int) (seekPercent * getWidth()), touchBar.getHeight(), true);
                 break;
 
