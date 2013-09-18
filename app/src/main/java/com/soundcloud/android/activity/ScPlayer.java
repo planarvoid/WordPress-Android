@@ -620,8 +620,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         int pos    = mPlayQueueManager.getPosition();
         int length = mPlayQueueManager.length();
-
-        mTransportBar.setPreviousEnabled(pos > 0);
         mTransportBar.setNextEnabled(pos < (length - 1));
     }
 }
