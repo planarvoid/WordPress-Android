@@ -310,7 +310,7 @@
             <artifactId>rxjava-android</artifactId>
             <version>0.10.1</version>
         </dependency>
-            <dependency>
+        <dependency>
             <groupId>com.nostra13.universalimageloader</groupId>
             <artifactId>universal-image-loader</artifactId>
             <version>1.8.5</version>
