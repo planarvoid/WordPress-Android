@@ -37,8 +37,7 @@ public class ParallaxImageView extends AspectRatioImageView {
     }
 
     @Override
-    protected boolean setFrame(int l, int t, int r, int b)
-    {
+    protected boolean setFrame(int l, int t, int r, int b) {
         final Drawable drawable = getDrawable();
         if (drawable != null){
             final Matrix matrix = getImageMatrix();

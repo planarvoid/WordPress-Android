@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:sc="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
     <com.soundcloud.android.view.adapter.SuggestedTrackImageView android:id="@+id/suggested_track_image"
-                                                                 app:movement="-40dp"
-                                                                 app:focalPoint=".4"
+                                                                 sc:movement="-40dp"
+                                                                 sc:focalPoint=".4"
                                                                  style="@style/ExploreGridItemImageView"/>
 
     <RelativeLayout android:layout_width="match_parent"

@@ -20,10 +20,10 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
     static final String VIEW_FOREGROUND_TAG = "foreground";
 
     private AbsListView.OnScrollListener mOnScrollListenerDelegate;
-    final int mParallaxStepAmount = -10;
+    private final int mParallaxStepAmount = -10;
 
-    HashMap<ViewGroup, Iterable<View>> parallaxViewMap = new HashMap<ViewGroup, Iterable<View>>();
-    HashMap<ViewGroup, Iterable<ParallaxImageView>> parallaxBgImageViewMap = new HashMap<ViewGroup, Iterable<ParallaxImageView>>();
+    private final HashMap<ViewGroup, Iterable<View>> mParallaxViewMap = new HashMap<ViewGroup, Iterable<View>>();
+    private final HashMap<ViewGroup, Iterable<ParallaxImageView>> mParallaxBgImageViewMap = new HashMap<ViewGroup, Iterable<ParallaxImageView>>();
 
     public AbsListViewParallaxer(AbsListView.OnScrollListener scrollListenerDelegate) {
         this.mOnScrollListenerDelegate = scrollListenerDelegate;
@@ -50,25 +50,25 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
 
     private void scrollChanged(AbsListView listView) {
         final int halfHeight = listView.getHeight() / 2;
-        final float mParallaxStepScaled = listView.getResources().getDisplayMetrics().density * mParallaxStepAmount;
+        final float parallaxStepScaled = listView.getResources().getDisplayMetrics().density * mParallaxStepAmount;
 
         if (halfHeight > 0) {
             for (int i = 0; i < listView.getChildCount(); i++) {
-                applyParallaxToItemView(halfHeight, mParallaxStepScaled, listView.getChildAt(i));
+                applyParallaxToItemView(halfHeight, parallaxStepScaled, listView.getChildAt(i));
             }
         }
     }
 
-    private void applyParallaxToItemView(int halfHeight, float mParallaxStepScaled, View itemView) {
+    private void applyParallaxToItemView(int halfHeight, float parallaxStepScaled, View itemView) {
 
         if (itemView instanceof ViewGroup) {
             populateItemToParallaxViewsMaps((ViewGroup) itemView);
 
-            for (View view : parallaxViewMap.get(itemView)) {
-                view.setTranslationY((int) (getParallaxRatio(halfHeight, itemView, view) * mParallaxStepScaled));
+            for (View view : mParallaxViewMap.get(itemView)) {
+                view.setTranslationY((int) (getParallaxRatio(halfHeight, itemView, view) * parallaxStepScaled));
             }
 
-            for (ParallaxImageView view : parallaxBgImageViewMap.get(itemView)) {
+            for (ParallaxImageView view : mParallaxBgImageViewMap.get(itemView)) {
                 view.setParallaxOffset(getParallaxRatio(halfHeight, itemView, view));
             }
         }
@@ -79,8 +79,8 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
     }
 
     private void populateItemToParallaxViewsMaps(ViewGroup itemView) {
-        if (!parallaxViewMap.containsKey(itemView)) {
-            parallaxViewMap.put(itemView, Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
+        if (!mParallaxViewMap.containsKey(itemView)) {
+            mParallaxViewMap.put(itemView, Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
                 @Override
                 public boolean apply(View input) {
                     return (VIEW_FOREGROUND_TAG.equals(input.getTag()));
@@ -88,8 +88,8 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
             }));
         }
 
-        if (!parallaxBgImageViewMap.containsKey(itemView)) {
-            parallaxBgImageViewMap.put(itemView, Iterables.transform(Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
+        if (!mParallaxBgImageViewMap.containsKey(itemView)) {
+            mParallaxBgImageViewMap.put(itemView, Iterables.transform(Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
                 @Override
                 public boolean apply(View input) {
                     return input instanceof ParallaxImageView;
