@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -22,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
@@ -71,6 +73,17 @@ public class PlaybackReceiverTest {
     public void pauseActionShouldCallNextOnService() {
         playbackReceiver.onReceive(Robolectric.application, new Intent(CloudPlaybackService.Actions.PAUSE_ACTION));
         verify(playbackService).pause();
+    }
+
+    @Test
+    public void loadInfoShouldCallLoadErrorWhenIdHasNoLocalTrack() {
+        final Intent intent = new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO);
+        intent.putExtra(Track.EXTRA_ID, 100L);
+        final FetchModelTask.Listener listener = Mockito.mock(FetchModelTask.Listener.class);
+        when(playbackService.getInfoListener()).thenReturn(listener);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verify(listener).onError(100L);
     }
 
     @Test

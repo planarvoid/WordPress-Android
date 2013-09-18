@@ -22,6 +22,7 @@ import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -548,12 +549,20 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     public static Track fromIntent(Intent intent) {
+        Track t = nullableTrackfromIntent(intent);
+        if (t == null) {
+            throw new IllegalArgumentException("Could not obtain track from intent " + intent);
+        }
+        return t;
+    }
+
+    public static Track nullableTrackfromIntent(Intent intent) {
         if (intent == null) throw new IllegalArgumentException("intent is null");
         Track t = intent.getParcelableExtra(EXTRA);
         if (t == null) {
             t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(EXTRA_ID, 0));
             if (t == null) {
-                throw new IllegalArgumentException("Could not obtain track from intent "+intent);
+                Log.e(TAG, "Could not obtain track from intent " + intent);
             }
         }
         return t;

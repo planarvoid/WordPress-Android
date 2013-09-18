@@ -53,7 +53,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_create_new_set, null);
-        ((TextView) dialogView.findViewById(android.R.id.title)).setText(R.string.create_new_set);
+        ((TextView) dialogView.findViewById(android.R.id.title)).setText(R.string.create_new_playlist);
 
         // Set an EditText view to get user input
         final EditText input = (EditText) dialogView.findViewById(android.R.id.edit);
@@ -85,7 +85,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
                     @Override
                     public void onClick(View v) {
                         if (TextUtils.isEmpty(input.getText())) {
-                            Toast.makeText(getActivity(), R.string.error_new_set_blank_title, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
                         } else {
                             createPlaylist(input.getText(), mApplicationProperties.isDevBuildRunningOnDalvik() && privacy.isChecked());
                             dialog.dismiss();

@@ -12,12 +12,6 @@
     </string>
     <string name="visit_support">Visit Support</string>
 
-    <string name="tab_title_my_info">Your Info</string>
-    <string name="tab_title_my_sounds">Your Sounds</string>
-    <string name="tab_title_my_likes">Your Likes</string>
-    <string name="tab_title_my_followers">Your followers</string>
-    <string name="tab_title_my_followings">People you follow</string>
-
     <string name="tab_title_user_info">Info</string>
     <string name="tab_title_user_sounds">Sounds</string>
     <string name="tab_title_user_likes">Likes</string>
@@ -43,7 +37,7 @@
     <string name="side_menu_you">You</string>
     <string name="side_menu_settings">Settings</string>
 
-    <string name="side_menu_likes">Your likes</string>
+    <string name="side_menu_likes">Likes</string>
     <string name="side_menu_friend_finder">Find friends</string>
     <string name="side_menu_who_to_follow">Who to follow</string>
 
@@ -108,26 +102,25 @@
     <string name="accessibility_toggle_playback">Toggle playback</string>
     <string name="accessibility_previous_track">Previous Track</string>
 
-    <string name="accessibility_action_bar_set">Go back to the current playing set</string>
+    <string name="accessibility_action_bar_playlist">Go back to the current playing playlist</string>
 
-    <string name="playlist_info_header_text">This set contains %1$s, total time: %2$s</string>
+    <string name="playlist_info_header_text">This playlist contains %1$s, total time: %2$s</string>
     <string name="imprint">Imprint</string>
 
-    <string name="add_track_to_set">Add to set...</string>
-    <string name="create_new_set">Create new set</string>
-    <string name="error_new_set_blank_title">Please enter a valid title</string>
-    <string name="add_set_private">Private</string>
+    <string name="add_track_to_playlist">Add to playlist...</string>
+    <string name="create_new_playlist">Create new playlist</string>
+    <string name="error_new_playlist_blank_title">Please enter a valid title</string>
+    <string name="add_playlist_private">Private</string>
 
-    <string name="tab_title_my_sets">Your Sets</string>
-    <string name="tab_title_user_sets">Sets</string>
+    <string name="tab_title_user_playlists">Playlists</string>
 
-    <string name="side_menu_sets">Your Sets</string>
-    <string name="empty_playlist">This set has no sounds yet</string>
+    <string name="side_menu_playlists">Playlists</string>
+    <string name="empty_playlist">This playlist has no sounds yet</string>
 
-    <string name="playlist_removed">This set was not found on SoundCloud</string>
+    <string name="playlist_removed">This playlist was not found on SoundCloud</string>
 
-    <string name="list_empty_user_sets_message">%1$s currently has no sets.</string>
-    <string name="list_empty_you_sets_message">Create a set to share a collection of your favorite sounds.</string>
+    <string name="list_empty_user_playlists_message">%1$s currently has no playlist.</string>
+    <string name="list_empty_you_playlists_message">Create a playlist to share a collection of your favorite sounds.</string>
 
     <string name="dialog_select_google_account">Please select a Google account to Sign in with</string>
     <string name="authentication_login_error_message">We couldn\'t log you in. Please try again.</string>

@@ -13,6 +13,7 @@ import java.io.IOException;
 
 public class PlaycountTask extends StreamItemTask {
     static final String LOG_TAG = StreamLoader.class.getSimpleName();
+    public static final int SC_SPAM_WARNING = 429;
     private final boolean mUsePlaycountApi;
 
     public PlaycountTask(StreamItem item, AndroidCloudAPI api, boolean usePlaycountApi) {
@@ -56,6 +57,7 @@ public class PlaycountTask extends StreamItemTask {
         switch (resp.getStatusLine().getStatusCode()) {
             case HttpStatus.SC_UNAUTHORIZED: /* bad token or scope */
             case HttpStatus.SC_FORBIDDEN: /* track not streamable */
+            case SC_SPAM_WARNING: /* getting spam warning, dont retry */ //TODO, move this code to the api wrapper
 
                 Log.w(LOG_TAG, "could not log playcount:" + resp.getStatusLine());
                 break;

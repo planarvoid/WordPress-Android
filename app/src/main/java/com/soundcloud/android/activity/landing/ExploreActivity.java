@@ -46,6 +46,11 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
         }
 
         @Override
+        public float getPageWidth(int position) {
+            return position == 0 ? getResources().getDimension(R.dimen.explore_category_page_size) : super.getPageWidth(position);
+        }
+
+        @Override
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
