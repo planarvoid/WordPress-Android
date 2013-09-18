@@ -62,6 +62,7 @@ public class TransportBar extends LinearLayout{
         mToggleComment.setOnClickListener(listener);
     }
     public void setNextEnabled(boolean b) {
+        mNextButton.setEnabled(b);
         mNextEnabled = b;
         mNextHolder.invalidate();
     }
