@@ -97,7 +97,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
 
     private boolean shouldDisplayExtraItem() {
-        return mPlayQueueManager.isFetchingRelated() || mPlayQueueManager.lastRelatedFetchFailed();
+        return mPlayQueueManager.isFetchingRelated() || mPlayQueueManager.lastRelatedFetchFailed() || mPlayQueueManager.lastRelatedFetchWasEmpty();
     }
 
     public void clearCommentingPosition(boolean animated) {
