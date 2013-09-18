@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 public class Home extends ScActivity implements ScLandingPage {
     public static final String EXTRA_ONBOARDING_USERS_RESULT  = "onboarding_users_result";
@@ -128,7 +129,10 @@ public class Home extends ScActivity implements ScLandingPage {
     public void onMenuOpenLeft() {
         super.onMenuOpenLeft();
 
-        Showcase.EXPLORE.insertShowcase(this, mRootView.getMenuItemViewId(R.id.nav_explore));
+        final View viewById = mRootView.getMenuItemViewById(R.id.nav_explore);
+        if (viewById != null){
+            Showcase.EXPLORE.insertShowcase(this, viewById);
+        }
     }
 
 }

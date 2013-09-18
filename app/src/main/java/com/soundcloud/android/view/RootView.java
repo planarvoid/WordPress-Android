@@ -823,8 +823,8 @@ public class RootView extends ViewGroup {
         animateClose();
     }
 
-    public View getMenuItemViewId(int menuItemId){
-        return mMenu.getMenuItemViewId(menuItemId);
+    public View getMenuItemViewById(int menuItemId){
+        return mMenu.getMenuItemViewById(menuItemId);
     }
 
 

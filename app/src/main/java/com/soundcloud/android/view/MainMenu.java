@@ -93,14 +93,13 @@ public class MainMenu extends LinearLayout {
         getContext().getContentResolver().registerContentObserver(Content.ME.uri, false, mObserver);
     }
 
-    public View getMenuItemViewId(int menuItemId){
+    public View getMenuItemViewById(int menuItemId){
         final int positionByItemId = mMenuAdapter.getItemPositionByItemId(menuItemId);
-        if (positionByItemId >= 0){
+        if (positionByItemId >= 0 && positionByItemId < mList.getChildCount()){
             return mList.getChildAt(positionByItemId).findViewById(R.id.main_menu_item_text);
         } else {
             return null;
         }
-
     }
 
     public void refresh() {
