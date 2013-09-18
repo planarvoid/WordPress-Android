@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx.observers;
 
+import com.soundcloud.android.utils.ErrorUtils;
 import rx.Observer;
 
 /**
@@ -11,7 +12,9 @@ public abstract class ScObserver<T> implements Observer<T> {
     public void onCompleted() {}
 
     @Override
-    public void onError(Throwable e) {}
+    public void onError(Throwable e) {
+        ErrorUtils.reportThrowable(e);
+    }
 
     @Override
     public void onNext(T args) {}

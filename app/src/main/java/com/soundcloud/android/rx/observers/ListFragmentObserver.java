@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx.observers;
 
+import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.view.EmptyListView;
 
@@ -19,6 +20,10 @@ public class ListFragmentObserver<ModelType, FragmentType extends Fragment & Emp
 
     @Override
     public void onError(FragmentType fragment, Throwable error) {
-        fragment.setEmptyViewStatus(EmptyListView.Status.ERROR);
+        if (error instanceof APIRequestException){
+            fragment.setEmptyViewStatus(((APIRequestException) error).responseCode());
+        } else {
+            fragment.setEmptyViewStatus(EmptyListView.Status.ERROR);
+        }
     }
 }

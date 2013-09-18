@@ -7,7 +7,10 @@ public enum APIEndpoints {
     SUGGESTED_USER_CATEGORIES("/suggestions/users/categories"),
     SUGGESTED_USER_FACEBOOK_CATEGORIES("/suggestions/users/social/facebook"),
     BULK_FOLLOW_USERS("/me/suggested/users"),
-    EXPLORE_TRACKS_CATEGORIES("/suggestions/tracks/categories");
+    EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/categories/popular+music"),
+    EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/categories/popular+audio"),
+    EXPLORE_TRACKS_CATEGORIES("/suggestions/tracks/categories"),
+    RELATED_TRACKS("/tracks/%s/related");
 
     private String path;
 

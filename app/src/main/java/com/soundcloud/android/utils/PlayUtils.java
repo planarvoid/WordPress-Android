@@ -2,13 +2,13 @@ package com.soundcloud.android.utils;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.track.PlaylistActivity;
+import com.soundcloud.android.activity.track.PlaylistDetailActivity;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 
 import android.content.Context;
@@ -33,19 +33,22 @@ public final class PlayUtils {
         Intent intent = new Intent();
         if (CloudPlaybackService.getCurrentTrackId() != t.getId()) {
             // changing tracks
-            intent.putExtra(CloudPlaybackService.PlayExtras.trackId, t.getId());
+            intent.putExtra(CloudPlaybackService.PlayExtras.track, t);
             CloudPlaybackService.playlistXfer = info.playables;
+            intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
 
             if (info.uri != null) {
                 SoundCloudApplication.MODEL_MANAGER.cache(info.initialTrack);
                 intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.initialTrack.getId())
                         .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .setData(info.uri);
-            } else {
+
+            } else if (info.playables.size() > 1) {
                 intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
             }
         }
+
         if (goToPlayer) {
             intent.setAction(Actions.PLAY)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
@@ -54,7 +57,6 @@ public final class PlayUtils {
             context.startActivity(intent);
         } else {
             intent.setAction(CloudPlaybackService.Actions.PLAY_ACTION);
-
             context.startService(intent);
         }
     }
@@ -103,7 +105,7 @@ public final class PlayUtils {
             playTrack(context, info);
 
         } else if (playable instanceof Playlist) {
-            PlaylistActivity.start(context, (Playlist) playable);
+            PlaylistDetailActivity.start(context, (Playlist) playable);
         } else {
             throw new AssertionError("Unexpected playable type");
         }

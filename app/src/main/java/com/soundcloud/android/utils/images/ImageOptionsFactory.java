@@ -20,7 +20,14 @@ public class ImageOptionsFactory {
                 .showImageOnFail(defaultIconResId)
                 .showImageForEmptyUri(defaultIconResId)
                 .showStubImage(defaultIconResId)
-                .displayer(new ListAnimateListener())
+                .displayer(new PlaceholderTransitionDisplayer())
+                .build();
+    }
+
+    public static DisplayImageOptions gridView(){
+        return fullCacheBuilder()
+                .resetViewBeforeLoading(true)
+                .displayer(new BackgroundTransitionDisplayer())
                 .build();
     }
 
@@ -54,39 +61,70 @@ public class ImageOptionsFactory {
      * Prevents image flashing on subsequent loads in lists
      */
     @VisibleForTesting
-    static class ListAnimateListener implements BitmapDisplayer {
+    static class PlaceholderTransitionDisplayer extends BitmapTransitionDisplayer {
+        @Override
+        protected Drawable getTransitionFromDrawable(ImageView imageView) {
+            return imageView.getDrawable();
+        }
+    }
+
+    @VisibleForTesting
+    static class BackgroundTransitionDisplayer extends BitmapTransitionDisplayer {
+        @Override
+        protected Drawable getTransitionFromDrawable(ImageView imageView) {
+            return imageView.getBackground();
+        }
+
+        @Override
+        protected void performDrawableTransition(Bitmap bitmap, ImageView imageView) {
+            super.performDrawableTransition(bitmap, imageView);
+            imageView.setBackgroundDrawable(null);
+        }
+    }
+
+    @VisibleForTesting
+    static abstract class BitmapTransitionDisplayer implements BitmapDisplayer {
+
+        abstract protected Drawable getTransitionFromDrawable(ImageView imageView);
+
         @Override
         public Bitmap display(Bitmap bitmap, final ImageView imageView, LoadedFrom loadedFrom) {
             if (bitmap != null) {
                 if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
-                    final Drawable from = imageView.getDrawable();
-                    TransitionDrawable tDrawable = new TransitionDrawable(
-                            new Drawable[]{
-                                    from == null ? new BitmapDrawable(imageView.getResources()) : from,
-                                    new BitmapDrawable(imageView.getResources(), bitmap)
-                            });
-                    tDrawable.setCrossFadeEnabled(true);
-                    tDrawable.setCallback(new Drawable.Callback() {
-                        @Override
-                        public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) {
-                        }
-
-                        @Override
-                        public void unscheduleDrawable(Drawable drawable, Runnable runnable) {
-                        }
-
-                        @Override
-                        public void invalidateDrawable(Drawable drawable) {
-                            imageView.invalidate();
-                        }
-                    });
-                    tDrawable.startTransition(200);
-                    imageView.setImageDrawable(tDrawable);
+                    performDrawableTransition(bitmap, imageView);
                 } else {
                     imageView.setImageBitmap(bitmap);
                 }
             }
             return bitmap;
         }
+
+        protected void performDrawableTransition(Bitmap bitmap, final ImageView imageView) {
+            final Drawable from = getTransitionFromDrawable(imageView);
+            TransitionDrawable tDrawable = new TransitionDrawable(
+                    new Drawable[]{
+                            from == null ? new BitmapDrawable(imageView.getResources()) : from,
+                            new BitmapDrawable(imageView.getResources(), bitmap)
+                    });
+            tDrawable.setCrossFadeEnabled(true);
+            tDrawable.setCallback(new Drawable.Callback() {
+                @Override
+                public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) {
+                }
+
+                @Override
+                public void unscheduleDrawable(Drawable drawable, Runnable runnable) {
+                }
+
+                @Override
+                public void invalidateDrawable(Drawable drawable) {
+                    imageView.invalidate();
+                }
+            });
+            tDrawable.startTransition(200);
+            imageView.setImageDrawable(tDrawable);
+        }
     }
+
+
 }

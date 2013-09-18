@@ -2,12 +2,14 @@
 
 ## Building
 
-Make sure the [Android SDK][], [Android NDK][] and Maven (3.0.4+ required) are installed:
+Make sure the [Android SDK][], [Android NDK][] and Maven (3.0.4+ required) are installed.
+Beware! You need Maven > 3.0.4 but < 3.1.0 due to [this issue](https://code.google.com/p/appengine-maven-plugin/issues/detail?id=31) breaking the build
 
     $ brew install android-sdk android-ndk maven # OSX - you'll also need XCode CLI tools
     $ mv /usr/bin/mvn{,.old}
     $ mvn -version
     Apache Maven 3.0.4 (r1232337; 2012-01-17 09:44:56+0100)
+
 
 Add thess lines to your .zshrc (or bash or whatever) [version numbers may change]
 

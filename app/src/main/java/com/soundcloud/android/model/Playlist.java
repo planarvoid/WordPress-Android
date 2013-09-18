@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.track.PlaylistActivity;
+import com.soundcloud.android.activity.track.PlaylistDetailActivity;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.BulkInsertMap;
@@ -151,7 +151,7 @@ public class Playlist extends Playable {
     @Override
     public String toString() {
         return "Playlist{" +
-                "id=" + mID +
+                "id=" + getId() +
                 ", title='" + title + "'" +
                 ", permalink_url='" + permalink_url + "'" +
                 ", duration=" + duration +
@@ -187,16 +187,16 @@ public class Playlist extends Playable {
 
             // add to relationship table
             ContentValues cv = new ContentValues();
-            cv.put(DBHelper.PlaylistTracks.TRACK_ID, t.mID);
+            cv.put(DBHelper.PlaylistTracks.TRACK_ID, t.getId());
             cv.put(DBHelper.PlaylistTracks.POSITION, i);
-            destMap.add(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(mID)), cv);
+            destMap.add(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(getId())), cv);
             i++;
         }
     }
 
     @Override
     public Uri toUri() {
-        return Content.PLAYLISTS.forQuery(String.valueOf(mID));
+        return Content.PLAYLISTS.forQuery(String.valueOf(getId()));
     }
 
 
@@ -207,7 +207,7 @@ public class Playlist extends Playable {
 
     @Override
     public Intent getViewIntent() {
-        return PlaylistActivity.getIntent(this);
+        return PlaylistDetailActivity.getIntent(this);
     }
 
     public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {
@@ -223,7 +223,7 @@ public class Playlist extends Playable {
     };
 
     public boolean isLocal() {
-        return mID < 0;
+        return getId() < 0;
     }
 
     @JsonRootName("playlist")
@@ -240,7 +240,7 @@ public class Playlist extends Playable {
             // convert to ScModel as we only want to serialize the id
             this.tracks = new ArrayList<ScModel>();
             for (Track t : p.tracks) {
-                tracks.add(new ScModel(t.mID));
+                tracks.add(new ScModel(t.getId()));
             }
         }
 

@@ -6,8 +6,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.utils.ExceptionUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 
@@ -148,7 +148,7 @@ import java.io.IOException;
     private void handleException(IOException e, String lastResultKey) {
         Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
         mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-        mSharedPreferences.edit().putString(lastResultKey, ExceptionUtils.getStackTrace(e)).commit();
+        mSharedPreferences.edit().putString(lastResultKey, ErrorUtils.getStackTrace(e)).commit();
 
         /**
          * Firehose beta exceptions for sync debugging purposes. we may want to turn this off

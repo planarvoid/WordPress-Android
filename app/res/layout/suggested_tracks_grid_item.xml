@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
     <com.soundcloud.android.view.SuggestedTracksImageView android:id="@+id/suggested_track_image"
-               style="@style/ExploreGridItemImageView"/>
+                                                          style="@style/ExploreGridItemImageView"/>
 
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_alignBottom="@id/suggested_track_image"
+                    android:layout_alignTop="@id/suggested_track_image"
                     android:padding="13dp">
 
         <LinearLayout style="@style/ExploreGridItemTextHolder">
@@ -26,7 +28,9 @@
 
     </RelativeLayout>
 
-    <ImageView style="@style/ExploreTrackGridItemSelector"/>
+    <ImageView style="@style/ExploreTrackGridItemSelector"
+               android:layout_alignBottom="@id/suggested_track_image"
+               android:layout_alignTop="@id/suggested_track_image"/>
 
-</FrameLayout>
+</RelativeLayout>
 

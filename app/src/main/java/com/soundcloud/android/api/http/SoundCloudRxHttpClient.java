@@ -14,7 +14,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.http.json.JsonTransformer;
-import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.RxUtils;
@@ -31,11 +31,11 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
+import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -44,6 +44,7 @@ import java.util.Map;
 
 public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient  {
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json";
+    public static final String URI_APP_PREFIX = "/app";
 
     private final JsonTransformer mJsonTransformer;
     private final WrapperFactory mWrapperFactory;
@@ -73,9 +74,13 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         return schedule(Observable.create(new Func1<Observer<APIResponse>, Subscription>() {
             @Override
             public Subscription call(Observer<APIResponse> observer) {
-                observer.onNext(executeRequest(apiRequest));
-                observer.onCompleted();
-                return Subscriptions.empty();
+                BooleanSubscription subscription = new BooleanSubscription();
+                final APIResponse response = executeRequest(apiRequest);
+                if (!subscription.isUnsubscribed()) {
+                    observer.onNext(response);
+                    observer.onCompleted();
+                }
+                return subscription;
             }
 
         }));
@@ -107,18 +112,18 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
             @Override
             public Subscription call(Observer<ModelType> itemObserver) {
                 try {
-                    Observable<CollectionHolder<ModelType>> pageRequest = fetchModels(apiRequest);
-                    final CollectionHolder<ModelType> page = pageRequest.toBlockingObservable().last();
+                    Observable<ModelCollection<ModelType>> pageRequest = fetchModels(apiRequest);
+                    final ModelCollection<ModelType> page = pageRequest.toBlockingObservable().last();
 
                     // emit items
-                    RxUtils.emitIterable(itemObserver, page);
+                    RxUtils.emitIterable(itemObserver, page.getCollection());
                     itemObserver.onCompleted();
 
                     // emit next page or done
-                    if (!TextUtils.isEmpty(page.next_href)) {
+                    if (page.getNextLink().isPresent()) {
                         // TODO, honor params from initial request
-                        final APIRequest<?> nextRequest =  SoundCloudAPIRequest.RequestBuilder.get(page.getNextHref())
-                                .forPublicAPI()
+                        final APIRequest<?> nextRequest = SoundCloudAPIRequest.RequestBuilder.get(page.getNextLink().get().getHref())
+                                .forPrivateAPI(1)
                                 .forResource(apiRequest.getResourceType()).build();
                         pageObserver.onNext(getNextPage(pageObserver, nextRequest));
                     } else {
@@ -128,7 +133,6 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
                     itemObserver.onError(e);
                 }
                 return Subscriptions.empty();
-
             }
         }));
     }
@@ -198,10 +202,12 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     }
 
     private Request createSCRequest(APIRequest<?> apiRequest) throws IOException {
-        String baseUriPath = apiRequest.isPrivate() ? mHttpProperties.getApiMobileBaseUriPath() : ScTextUtils.EMPTY_STRING;
+        final boolean needsPrefix = apiRequest.isPrivate() && !apiRequest.getUriPath().startsWith(URI_APP_PREFIX);
+        String baseUriPath = needsPrefix ? mHttpProperties.getApiMobileBaseUriPath() : ScTextUtils.EMPTY_STRING;
         Request request = Request.to(baseUriPath + apiRequest.getUriPath());
-        final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();
 
+
+        final Multimap<String,String> queryParameters = apiRequest.getQueryParameters();
         Map<String, String> transformedParameters = Maps.toMap(queryParameters.keySet(), new Function<String, String>() {
             @Nullable
             @Override

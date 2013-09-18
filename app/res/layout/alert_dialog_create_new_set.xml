@@ -35,7 +35,7 @@
                 android:layout_margin="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/add_set_private"/>
+                android:text="@string/add_playlist_private"/>
 
     </LinearLayout>
 </LinearLayout>

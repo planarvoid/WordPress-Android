@@ -14,12 +14,12 @@ import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
@@ -201,8 +201,9 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     private void updateAvatar(boolean postAtFront) {
-        if (mTrack != null && mTrack.hasAvatar()) {
-            ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(getContext(), mTrack.getAvatarUrl()), mAvatar);
+        if (mTrack != null && mTrack.getUser() != null) {
+            final User user = mTrack.getUser();
+            ImageLoader.getInstance().displayImage(user.getListAvatarUri(getContext()), mAvatar);
         } else {
             ImageLoader.getInstance().cancelDisplayTask(mAvatar);
         }
@@ -227,7 +228,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                     public void run() {
                         final Context context = getContext();
                         if (context != null){
-                            context.startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.getId()));
+                            context.startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA, mTrack));
                         }
                     }
                 }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end

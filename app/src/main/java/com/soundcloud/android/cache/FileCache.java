@@ -23,7 +23,7 @@ import java.util.List;
  */
 public final class FileCache  {
     public static final String TAG = FileCache.class.getSimpleName();
-    public static final long   MAX_IMAGE_CACHE  = 20 * 1024  * 1024; // 20  MB
+    public static final long   MAX_IMAGE_CACHE  = 60 * 1024  * 1024; // 60  MB
 
     public static ResponseCache installFileCache(final File cacheDir)  {
         ResponseCache responseCache = ResponseCache.getDefault();

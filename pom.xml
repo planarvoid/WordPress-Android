@@ -4,7 +4,8 @@
 
     <groupId>com.soundcloud.android</groupId>
     <artifactId>parent</artifactId>
-    <version>2.6.5-BETA3</version>
+    <version>2.7.0</version>
+
     <packaging>pom</packaging>
 
     <name>Parent</name>
@@ -20,6 +21,7 @@
         <build.skipAspectWeaving>true</build.skipAspectWeaving>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <androidApiLevel>16</androidApiLevel>
+        <android.maven.plugin.version>3.6.1-ndkfix</android.maven.plugin.version>
         <source.version>1.6</source.version>
     </properties>
 
@@ -29,7 +31,7 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.6.1-ndkfix</version>
+                <version>${android.maven.plugin.version}</version>
                 <configuration>
                     <!-- Prevents signing of the apk if no profile specified when building -->
                     <sign>
@@ -87,13 +89,24 @@
             <id>release</id>
             <properties>
                 <build.type>release</build.type>
+                <build.debuggable>false</build.debuggable>
                 <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
                 <keystore.alias>jons keystore</keystore.alias>
                 <build.proguard.skip>false</build.proguard.skip>
             </properties>
         </profile>
-
+        <profile>
+            <id>beta</id>
+            <properties>
+                <build.type>beta</build.type>
+                <build.debuggable>true</build.debuggable>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
+                <keystore.alias>beta-key</keystore.alias>
+                <build.proguard.skip>false</build.proguard.skip>
+            </properties>
+        </profile>
         <profile>
             <id>debug</id>
             <activation>
@@ -101,6 +114,7 @@
             </activation>
             <properties>
                 <build.type>debug</build.type>
+                <build.debuggable>true</build.debuggable>
                 <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.alias>androiddebugkey</keystore.alias>
                 <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
@@ -114,6 +128,7 @@
             <id>ci</id>
             <properties>
                 <build.type>debug</build.type>
+                <build.debuggable>false</build.debuggable>
                 <build.skipAspectWeaving>false</build.skipAspectWeaving>
                 <keystore.alias>androiddebugkey</keystore.alias>
                 <keystore.location>${project.basedir}/../debug.keystore</keystore.location>

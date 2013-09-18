@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.os.Parcel;
 
@@ -13,13 +14,15 @@ public class ExploreTracksSuggestion extends ScModel {
 
     private String          mTitle;
     private String          mGenre;
-    private MiniUser        mUser;
+    private UserSummary     mUser;
     private boolean         mCommentable;
     private int             mDuration = NOT_SET;
     private String          mStreamUrl;
     private String          mWaveformUrl;
-    private List<String>    mTagList;
+    private List<String>    mUserTags;
     private Date            mCreatedAt;
+    private long            mPlaybackCount;
+    private String          mArtworkUrl;
 
     public ExploreTracksSuggestion() { /* for Deserialization */ }
 
@@ -27,13 +30,14 @@ public class ExploreTracksSuggestion extends ScModel {
         super(in);
         this.mTitle = in.readString();
         this.mGenre = in.readString();
-        this.mUser = in.readParcelable(MiniUser.class.getClassLoader());
+        this.mUser = in.readParcelable(UserSummary.class.getClassLoader());
         this.mCommentable = in.readByte() != 0;
         this.mDuration = in.readInt();
         this.mStreamUrl = in.readString();
         this.mWaveformUrl = in.readString();
-        this.mTagList = new ArrayList<String>();
-        in.readStringList(this.mTagList);
+        this.mArtworkUrl = in.readString();
+        this.mUserTags = new ArrayList<String>();
+        in.readStringList(this.mUserTags);
         this.mCreatedAt = (Date) in.readSerializable();
 
     }
@@ -46,44 +50,78 @@ public class ExploreTracksSuggestion extends ScModel {
         return mTitle;
     }
 
-    public void setTitle(String title) {
-        this.mTitle = title;
-    }
-
     public String getGenre() {
         return mGenre;
     }
 
-    public void setGenre(String genre) {
-        this.mGenre = genre;
-    }
-
-    public MiniUser getUser() {
+    public UserSummary getUser() {
         return mUser;
     }
 
-    public void setUser(MiniUser user) {
-        this.mUser = user;
+    public String getUserName(){
+       return mUser != null ? mUser.getUsername() : "";
     }
 
     public boolean isCommentable() {
         return mCommentable;
     }
 
-    public void setCommentable(boolean commentable) {
-        this.mCommentable = commentable;
-    }
-
     public int getDuration() {
         return mDuration;
     }
 
-    public void setDuration(int duration) {
-        this.mDuration = duration;
-    }
-
     public String getStreamUrl() {
         return mStreamUrl;
+    }
+
+    public String getWaveformUrl() {
+        return mWaveformUrl;
+    }
+
+    public String getArtworkUrl() {
+        return mArtworkUrl;
+    }
+
+    public String getArtworkOrAvatar(ImageSize imageSize) {
+        if (ImageUtils.checkIconShouldLoad(mArtworkUrl)){
+            return imageSize.formatUri(mArtworkUrl);
+        } else if (mUser != null){
+            return mUser.getAvatar(imageSize);
+        } else {
+            return null;
+        }
+    }
+
+    public long getPlaybackCount() {
+        return mPlaybackCount;
+    }
+
+    public List<String> getUserTags() {
+        return mUserTags;
+    }
+
+    public Date getCreatedAt() {
+        return mCreatedAt;
+    }
+
+    public void setTitle(String title) {
+        this.mTitle = title;
+    }
+
+    public void setGenre(String genre) {
+        this.mGenre = genre;
+    }
+
+    public void setUser(UserSummary user) {
+        this.mUser = user;
+    }
+
+    public void setCommentable(boolean commentable) {
+        this.mCommentable = commentable;
+    }
+
+    public void setDuration(int duration) {
+        this.mDuration = duration;
     }
 
     @JsonProperty("stream_url")
@@ -91,8 +129,9 @@ public class ExploreTracksSuggestion extends ScModel {
         this.mStreamUrl = streamUrl;
     }
 
-    public String getmWaveformUrl() {
-        return mWaveformUrl;
+    @JsonProperty("playback_count")
+    public void setPlaybackCount(long playback_count) {
+        this.mPlaybackCount = playback_count;
     }
 
     @JsonProperty("waveform_url")
@@ -100,24 +139,26 @@ public class ExploreTracksSuggestion extends ScModel {
         this.mWaveformUrl = waveformUrl;
     }
 
-    public List<String> getTagList() {
-        return mTagList;
+    @JsonProperty("user_tags")
+    public void setUserTags(List<String> userTags) {
+        this.mUserTags = userTags;
     }
 
-    @JsonProperty("tag_list")
-    public void setTagList(List<String> tagList) {
-        this.mTagList = tagList;
-    }
-
-    public Date getCreatedAt() {
-        return mCreatedAt;
+    @JsonProperty("artwork_url")
+    public void setArtworkUrl(String mArtworkUrl) {
+        this.mArtworkUrl = mArtworkUrl;
     }
 
     @JsonProperty("created_at")
-    public void setCreatedAt(Date createdAt) {
+    private void setCreatedAt(Date createdAt) {
         this.mCreatedAt = createdAt;
     }
 
+
+    @JsonProperty("_embedded")
+    public void setRelatedResources(RelatedResources relatedResources) {
+        this.mUser = relatedResources.user;
+    }
 
     @Override
     public int describeContents() {
@@ -134,7 +175,8 @@ public class ExploreTracksSuggestion extends ScModel {
         dest.writeInt(this.mDuration);
         dest.writeString(this.mStreamUrl);
         dest.writeString(this.mWaveformUrl);
-        dest.writeStringList(this.mTagList);
+        dest.writeString(this.mArtworkUrl);
+        dest.writeStringList(this.mUserTags);
         dest.writeSerializable(this.mCreatedAt);
     }
 
@@ -148,8 +190,11 @@ public class ExploreTracksSuggestion extends ScModel {
         }
     };
 
-    public String getArtworkUrl() {
-        // todo, do we really want to hardcode this to this size??
-        return getUrn().imageUri(ImageSize.T500).toString();
+    private static class RelatedResources {
+        private UserSummary user;
+
+        void setUser(UserSummary user) {
+            this.user = user;
+        }
     }
 }

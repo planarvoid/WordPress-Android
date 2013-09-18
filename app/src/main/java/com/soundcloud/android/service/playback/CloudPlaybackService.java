@@ -78,7 +78,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
     public static long getCurrentTrackId() { return instance == null || instance.mCurrentTrack == null ? -1L : instance.mCurrentTrack.getId(); }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
-    public static @Nullable PlayQueueManager getPlaylistManager() { return instance == null ? null : instance.getPlayQueueManager(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
     public static Uri getUri()     { return instance == null ? null : instance.getPlayQueueManager().getUri(); }
@@ -108,6 +107,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String UPDATE_WIDGET_ACTION     = "com.soundcloud.android.playback.updatewidgetaction";
         String PLAYSTATE_CHANGED        = "com.soundcloud.android.playstatechanged";
         String META_CHANGED             = "com.soundcloud.android.metachanged";
+        String RELATED_LOAD_STATE_CHANGED = "com.soundcloud.android.related.changed";
         String PLAYQUEUE_CHANGED        = "com.soundcloud.android.playlistchanged";
         String PLAYBACK_COMPLETE        = "com.soundcloud.android.playbackcomplete";
         String PLAYBACK_ERROR           = "com.soundcloud.android.trackerror";
@@ -183,7 +183,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     // for play duration tracking
     private PlayEventTracker mPlayEventTracker;
 
-    private AnalyticsEngine analyticsEngine;
+    private AnalyticsEngine mAnalyticsEngine;
 
     public PlayEventTracker getPlayEventTracker() {
         return mPlayEventTracker;
@@ -196,6 +196,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String startPlayback = "start_playback";
         String playFromXferList = "play_from_xfer_list";
         String unmute = "unmute"; // used by alarm clock
+        String fetchRelated = "fetch_related";
     }
 
     public interface BroadcastExtras{
@@ -217,13 +218,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void onCreate() {
         super.onCreate();
-        mPlayQueueManager = new PlayQueueManager(this);
+        mPlayQueueManager = PlayQueueManager.get(this);
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         mOldCloudApi = new OldCloudAPI(this);
-        analyticsEngine = new AnalyticsEngine(getApplicationContext());
-        analyticsEngine.openSession();
+        mAnalyticsEngine = new AnalyticsEngine(getApplicationContext());
 
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueueManager, mAudioManager);
 
@@ -255,7 +255,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void onDestroy() {
         instance = null;
-        analyticsEngine.closeSession();
         stop();
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -623,7 +622,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
             // if this comes from a shortcut, we may not have the stream url yet. we should get it on info load
             if (mCurrentTrack != null && mCurrentTrack.isStreamable()) {
-                mProxy.uriObservable(mCurrentTrack.stream_url, next == null ? null : next.stream_url)
+                mProxy.uriObservable(mCurrentTrack.getStreamUrlWithAppendedId(), next == null ? null : next.getStreamUrlWithAppendedId())
                       .subscribe(new MediaPlayerDataSourceObserver(mMediaPlayer, errorListener), AndroidSchedulers.mainThread());
             }
         } catch (IllegalStateException e) {
@@ -667,6 +666,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 if (!Consts.SdkSwitches.useRichNotifications) setPlayingNotification(mCurrentTrack);
 
                 trackPlayEvent(mCurrentTrack);
+                mAnalyticsEngine.openSessionForPlayer();
 
             } else if (state != PLAYING) {
                 // must have been a playback error
@@ -732,7 +732,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private void gotoIdleState(State newState) {
         if (!newState.isInIdleState()) throw new IllegalArgumentException(newState + " is not a valid idle state");
-
+        mAnalyticsEngine.closeSessionForPlayer();
         state = newState;
         mPlayerHandler.removeMessages(FADE_OUT);
         mPlayerHandler.removeMessages(FADE_IN);
@@ -1294,7 +1294,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     openCurrent();
                     return true;
                 } else {
-                    StreamItem item = mCurrentTrack != null ? mProxy.getStreamItem(mCurrentTrack.stream_url) : null;
+                    StreamItem item = mCurrentTrack != null ? mProxy.getStreamItem(mCurrentTrack.getStreamUrlWithAppendedId()) : null;
                     Log.d(TAG, "stream disconnected, giving up");
                     mConnectRetries = 0;
                     DebugUtils.reportMediaPlayerError(CloudPlaybackService.this, item, what, extra);

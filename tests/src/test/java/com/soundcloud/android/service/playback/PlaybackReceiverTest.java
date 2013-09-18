@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -22,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
@@ -74,6 +76,17 @@ public class PlaybackReceiverTest {
     }
 
     @Test
+    public void loadInfoShouldCallLoadErrorWhenIdHasNoLocalTrack() {
+        final Intent intent = new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO);
+        intent.putExtra(Track.EXTRA_ID, 100L);
+        final FetchModelTask.Listener listener = Mockito.mock(FetchModelTask.Listener.class);
+        when(playbackService.getInfoListener()).thenReturn(listener);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verify(listener).onError(100L);
+    }
+
+    @Test
     public void updateAppWidgetProviderActionShouldCallUpdateOnAppWidgetProviderWithPlaystateChangedAction(){
         Intent intent = new Intent(CloudPlaybackService.Broadcasts.UPDATE_WIDGET_ACTION);
         final int[] ids = {1, 2, 3};
@@ -97,6 +110,22 @@ public class PlaybackReceiverTest {
         playbackReceiver.onReceive(Robolectric.application, intent);
 
         verify(playQueueManager).loadTrack(eq(track), eq(true));
+        expect(SoundCloudApplication.MODEL_MANAGER.getCachedTrack(track.getId())).toEqual(track);
+    }
+
+    @Test
+    public void shouldCacheLoadTrackAndFetchRelatedOnQueueViaParcelable() throws CreateModelException {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+
+        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
+        intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
+        intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, true);
+        intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+
+        verify(playQueueManager).loadTrack(eq(track), eq(true));
+        verify(playQueueManager).fetchRelatedTracks(eq(track));
         expect(SoundCloudApplication.MODEL_MANAGER.getCachedTrack(track.getId())).toEqual(track);
     }
 

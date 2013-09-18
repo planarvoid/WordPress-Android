@@ -53,6 +53,18 @@ public class PlaycountTaskTest {
         expect(t.execute().getBoolean("success", false)).toBeTrue();
     }
 
+    @Test
+    public void shouldNotRetryIfSpamCodeIsReturned() throws Exception {
+        Robolectric.addHttpResponseRule(
+                new FakeHttpLayer.RequestMatcherBuilder()
+                        .method("POST")
+                        .path("tracks/12345/plays"), new TestHttpResponse(429, ""));
+
+        StreamItem item = new StreamItem("https://api.soundcloud.com/tracks/12345/stream");
+        PlaycountTask t = new PlaycountTask(item, DefaultTestRunner.application.getCloudAPI(), true);
+        expect(t.execute().getBoolean("success", false)).toBeFalse();
+    }
+
     @Test(expected = IOException.class)
     public void testLogPlaycountWithTrustedApiShouldRetry() throws Exception {
 

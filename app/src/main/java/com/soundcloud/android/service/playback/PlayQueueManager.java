@@ -1,18 +1,23 @@
 package com.soundcloud.android.service.playback;
 
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.dao.PlayQueueManagerStore;
 import com.soundcloud.android.dao.TrackStorage;
-import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
 
 import android.content.Context;
 import android.content.Intent;
@@ -29,20 +34,43 @@ public class PlayQueueManager {
     private List<Track> mPlayQueue = new ArrayList<Track>();
     private PlayQueueUri mPlayQueueUri = new PlayQueueUri();
     private final PlayQueueManagerStore mPlayQueueDAO;
+    private final ExploreTracksOperations mExploreTrackOperations;
 
     private int mPlayPos;
     private final Context mContext;
 
     private long mUserId;
     private AsyncTask mLoadTask;
+    private AppendState mAppendingState = AppendState.IDLE;
+    private Subscription mRelatedSubscription;
+    private Observable<Track> mRelatedTracksObservable;
 
-    public PlayQueueManager(Context context) {
-        this(context, ((SoundCloudApplication)context.getApplicationContext()).getLoggedInUsersId());
+    private enum AppendState {
+        IDLE, LOADING, ERROR;
     }
 
-    public PlayQueueManager(Context context, long userId) {
+    private static PlayQueueManager instance;
+
+    public static PlayQueueManager get(Context context){
+        return get(context, SoundCloudApplication.getUserId());
+    }
+
+    public static PlayQueueManager get(Context context, long userId) {
+        return get(context, userId, new ExploreTracksOperations());
+    }
+
+    public static PlayQueueManager get(Context context, long userId, ExploreTracksOperations operations){
+        if (instance == null){
+            instance = new PlayQueueManager(context, userId, operations);
+        }
+        return instance;
+    }
+
+    @VisibleForTesting
+    protected PlayQueueManager(Context context, long userId, ExploreTracksOperations exploreTracksOperations) {
         mContext = context;
         mUserId = userId;
+        mExploreTrackOperations = exploreTracksOperations;
         mPlayQueueDAO = new PlayQueueManagerStore();
 
     }
@@ -146,6 +174,7 @@ public class PlayQueueManager {
     }
 
     public void loadTrack(Track toBePlayed, boolean saveQueue) {
+        stopLoadingRelatedTracks();
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
         mPlayQueue.add(toBePlayed);
@@ -181,6 +210,8 @@ public class PlayQueueManager {
      * @param initialPlayPos    initial play position for initial queue.
      */
     public void loadUri(Uri uri, int position, List<? extends PlayableHolder> initialPlayQueue, int initialPlayPos) {
+        stopLoadingRelatedTracks();
+
         if (mLoadTask != null && !AndroidUtils.isTaskFinished(mLoadTask)){
             mLoadTask.cancel(false);
         }
@@ -202,6 +233,54 @@ public class PlayQueueManager {
         if (uri != null) {
             mLoadTask = loadCursor(uri, position);
         }
+    }
+
+    public void fetchRelatedTracks(Track track){
+        mRelatedTracksObservable = mExploreTrackOperations.getRelatedTracks(track);
+        loadRelatedTracks();
+    }
+
+    public void retryRelatedTracksFetch(){
+        loadRelatedTracks();
+    }
+
+    private void loadRelatedTracks() {
+        mAppendingState = AppendState.LOADING;
+        mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
+        mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<Track>() {
+            @Override
+            public void onCompleted() {
+                mAppendingState = AppendState.IDLE;
+                mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                mAppendingState = AppendState.ERROR;
+                mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
+            }
+
+            @Override
+            public void onNext(Track track) {
+                mPlayQueue.add(track);
+            }
+        });
+    }
+
+
+    private void stopLoadingRelatedTracks() {
+        mAppendingState = AppendState.IDLE;
+        if (mRelatedSubscription != null){
+            mRelatedSubscription.unsubscribe();
+        }
+    }
+
+    public boolean isFetchingRelated() {
+        return mAppendingState == AppendState.LOADING;
+    }
+
+    public boolean lastRelatedFetchFailed() {
+        return mAppendingState == AppendState.ERROR;
     }
 
     private AsyncTask loadCursor(final Uri uri, final int position) {
@@ -280,7 +359,7 @@ public class PlayQueueManager {
     }
 
     public static void onPlaylistUriChanged(Context context, Uri oldUri, Uri newUri) {
-        onPlaylistUriChanged(CloudPlaybackService.getPlaylistManager(),context,oldUri,newUri);
+        onPlaylistUriChanged(PlayQueueManager.get(context),context,oldUri,newUri);
     }
 
     public static void onPlaylistUriChanged(PlayQueueManager playQueueManager, Context context, Uri oldUri, Uri newUri) {

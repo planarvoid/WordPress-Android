@@ -80,9 +80,11 @@ class PlaybackReceiver extends BroadcastReceiver {
                 mPlaybackService.openCurrent();
             }
         } else if (Actions.LOAD_TRACK_INFO.equals(action)) {
-            final Track t = Track.fromIntent(intent);
+            final Track t = Track.nullableTrackfromIntent(intent);
             if (t != null){
                 t.refreshInfoAsync(mPlaybackService.getOldCloudApi(), mPlaybackService.getInfoListener());
+            } else {
+                mPlaybackService.getInfoListener().onError(intent.getLongExtra(Track.EXTRA_ID, -1L));
             }
 
         }
@@ -109,7 +111,6 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         final boolean startPlayback = intent.getBooleanExtra(PlayExtras.startPlayback, true);
         final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
-
         if (intent.getData() != null) {
             playViaUri(intent, startPlayback, position);
 
@@ -146,11 +147,18 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private void playSingleTrack(Intent intent, boolean startPlayback) {
+
         // go to the cache to ensure 1 copy of each track app wide
         final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
         mPlayQueueManager.loadTrack(cachedTrack, true);
+
+        if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)){
+            mPlayQueueManager.fetchRelatedTracks(cachedTrack);
+        }
+
         if (startPlayback) {
             mPlaybackService.openCurrent();
         }
+
     }
 }

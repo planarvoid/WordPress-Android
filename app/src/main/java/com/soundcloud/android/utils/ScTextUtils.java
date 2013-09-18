@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -243,5 +244,9 @@ public class ScTextUtils {
 
         @Override
         final public void onTextChanged(CharSequence s, int start, int before, int count) { /* Don't care */ }
+    }
+
+    public static String formatNumberWithCommas(long number){
+        return new DecimalFormat("###,###,###,###").format(number);
     }
 }

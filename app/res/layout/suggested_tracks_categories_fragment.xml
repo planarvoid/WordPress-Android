@@ -3,7 +3,7 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
-    <com.handmark.pulltorefresh.library.PullToRefreshListView
+    <ListView
             android:id="@+id/suggested_tracks_categories_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>

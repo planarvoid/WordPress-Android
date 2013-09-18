@@ -5,9 +5,12 @@ import static com.soundcloud.android.Expect.expect;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(SoundCloudTestRunner.class)
 public class JackonJsonTransformerTest {
 
     private JacksonJsonTransformer jsonTransformer;

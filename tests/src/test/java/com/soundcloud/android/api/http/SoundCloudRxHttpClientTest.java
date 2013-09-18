@@ -2,6 +2,7 @@ package com.soundcloud.android.api.http;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.URI_APP_PREFIX;
 import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.WrapperFactory;
 import static com.soundcloud.api.CloudAPI.InvalidTokenException;
 import static org.mockito.Matchers.any;
@@ -19,7 +20,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.json.JsonTransformer;
-import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Link;
+import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -42,7 +44,9 @@ import rx.concurrency.Schedulers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -152,6 +156,20 @@ public class SoundCloudRxHttpClientTest {
         verify(wrapper).post(argumentCaptor.capture());
         Request scRequest = argumentCaptor.getValue();
         expect(scRequest.toUrl()).toEqual("/baseprivateapiuri" + URI);
+    }
+
+    @Test
+    public void shouldNotAppendBasePathIfAppPrefixPresent() throws IOException {
+        when(apiRequest.getUriPath()).thenReturn(SoundCloudRxHttpClient.URI_APP_PREFIX);
+        when(apiRequest.getMethod()).thenReturn("post");
+        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(apiRequest.isPrivate()).thenReturn(true);
+        when(httpProperties.getApiMobileBaseUriPath()).thenReturn("/baseprivateapiuri");
+        rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
+        ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(wrapper).post(argumentCaptor.capture());
+        Request scRequest = argumentCaptor.getValue();
+        expect(scRequest.toUrl()).toEqual(URI_APP_PREFIX);
     }
 
     @Test
@@ -355,10 +373,10 @@ public class SoundCloudRxHttpClientTest {
         User userOne = mock(User.class);
         User userTwo = mock(User.class);
         List<User> users = newArrayList(userOne, userTwo);
-        TypeToken<CollectionHolder<User>> resourceType = new TypeToken<CollectionHolder<User>>() {};
+        TypeToken<ModelCollection<User>> resourceType = new TypeToken<ModelCollection<User>>() {};
         when(apiRequest.getResourceType()).thenReturn(resourceType);
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
-        when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(new CollectionHolder(users));
+        when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(new ModelCollection(users));
 
         rxHttpClient.fetchPagedModels(apiRequest).subscribe(observer);
 
@@ -376,12 +394,15 @@ public class SoundCloudRxHttpClientTest {
 
     @Test
     public void fetchPagedModelsShouldReturnTwoPageObservables() throws Exception {
-        TypeToken<CollectionHolder<User>> resourceType = new TypeToken<CollectionHolder<User>>() {};
+        TypeToken<ModelCollection<User>> resourceType = new TypeToken<ModelCollection<User>>() {};
         when(apiRequest.getResourceType()).thenReturn(resourceType);
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
 
-        final CollectionHolder collectionHolder = new CollectionHolder();
-        collectionHolder.next_href = URI;
+        final ModelCollection collectionHolder = new ModelCollection();
+
+        Map<String, Link> links = new HashMap<String,Link>();
+        links.put(ModelCollection.NEXT_LINK_REL, new Link("http://url.com"));
+        collectionHolder.setLinks(links);
         when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(collectionHolder);
 
         rxHttpClient.fetchPagedModels(apiRequest).subscribe(observer);

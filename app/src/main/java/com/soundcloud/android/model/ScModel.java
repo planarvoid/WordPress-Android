@@ -23,14 +23,14 @@ public class ScModel implements Parcelable, Identifiable {
     public static final String EXTRA_ID = "id";
     public static final int NOT_SET = -1;
 
-    protected long mID = NOT_SET;
+    private long mID = NOT_SET;
     protected ClientUri mURN;
 
     public ScModel() {
     }
 
     public ScModel(long id) {
-        this.mID = id;
+        this.setId(id);
     }
 
     public ScModel(String urn) {
@@ -50,7 +50,7 @@ public class ScModel implements Parcelable, Identifiable {
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        if (mID != ScResource.NOT_SET) cv.put(BaseColumns._ID, mID);
+        if (getId() != ScResource.NOT_SET) cv.put(BaseColumns._ID, getId());
         return cv;
     }
 
@@ -71,11 +71,10 @@ public class ScModel implements Parcelable, Identifiable {
 
     @JsonIgnore
     public long getListItemId() {
-        return mID;
+        return getId();
     }
 
     @Override
-    @JsonProperty("id")
     public long getId() {
         return mID != NOT_SET ? mID : idFromUrn();
     }
@@ -99,7 +98,7 @@ public class ScModel implements Parcelable, Identifiable {
     public void setUrn(ClientUri urn) {
         this.mURN = urn;
         if (mURN != null) {
-            this.mID = mURN.numericId;
+            this.setId(mURN.numericId);
         }
     }
 
@@ -112,7 +111,7 @@ public class ScModel implements Parcelable, Identifiable {
 
     @Override
     public int hashCode() {
-        return new Long(mID).hashCode();
+        return new Long(getId()).hashCode();
     }
 
     @Override
@@ -121,7 +120,7 @@ public class ScModel implements Parcelable, Identifiable {
             return false;
         }
         ScModel that = (ScModel) o;
-        return this.mID == that.mID;
+        return this.getId() == that.getId();
     }
 
     public static <T extends ScModel> long[] getIdList(List<T> modelList) {

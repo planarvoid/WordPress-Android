@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.ExploreTracksSuggestion;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
@@ -39,22 +39,44 @@ public class ExploreTracksAdapterTest {
     @Test
     public void shouldBindItemView() throws CreateModelException {
         adapter = new ExploreTracksAdapter(mock(Observable.class), mock(ListFragmentObserver.class));
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        ExploreTracksSuggestion track = TestHelper.getModelFactory().createModel(ExploreTracksSuggestion.class);
         adapter.addItem(track);
 
         View itemView = mock(View.class);
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
-        ExploreTracksAdapter.ItemViewHolder viewHolder = mock(ExploreTracksAdapter.ItemViewHolder.class);
-        viewHolder.imageView = new ImageView(Robolectric.application);
-        viewHolder.title = new TextView(Robolectric.application);
-        viewHolder.username = new TextView(Robolectric.application);
-        viewHolder.genre = new TextView(Robolectric.application);
-        viewHolder.playcount = new TextView(Robolectric.application);
+        ExploreTracksAdapter.ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
         adapter.bindItemView(0, itemView);
 
         expect(viewHolder.title.getText()).toEqual(track.getTitle());
         expect(viewHolder.username.getText()).toEqual(track.getUserName());
+    }
+
+    @Test
+    public void shouldHideGenreIfNoGenreAvailable() throws CreateModelException {
+        adapter = new ExploreTracksAdapter(mock(Observable.class), mock(ListFragmentObserver.class));
+        ExploreTracksSuggestion track = TestHelper.getModelFactory().createModel(ExploreTracksSuggestion.class);
+        track.setGenre(null);
+        adapter.addItem(track);
+
+        View itemView = mock(View.class);
+        when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
+        ExploreTracksAdapter.ItemViewHolder viewHolder = createItemViewHolder();
+        when(itemView.getTag()).thenReturn(viewHolder);
+
+        adapter.bindItemView(0, itemView);
+
+        expect(viewHolder.genre.getVisibility()).toEqual(View.GONE);
+    }
+
+    private ExploreTracksAdapter.ItemViewHolder createItemViewHolder() {
+        ExploreTracksAdapter.ItemViewHolder viewHolder = mock(ExploreTracksAdapter.ItemViewHolder.class);
+        viewHolder.imageView = new ImageView(Robolectric.application);
+        viewHolder.title = new TextView(Robolectric.application);
+        viewHolder.username = new TextView(Robolectric.application);
+        viewHolder.genre = new TextView(Robolectric.application);
+        viewHolder.playcount = new TextView(Robolectric.application);
+        return viewHolder;
     }
 }

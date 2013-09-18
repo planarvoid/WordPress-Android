@@ -7,7 +7,7 @@ require 'csv'
 require 'json'
 require 'yaml'
 
-DEFAULT_LEVELS = %w(
+DEFAULT_LEVELS  = %w(
    SoundCloudApplication CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
    StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
    ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
@@ -154,6 +154,14 @@ def versionCode() manifest.root.attribute('versionCode') end
 def versionName() manifest.root.attribute('versionName') end
 def package() manifest.root.attribute('package') end
 
+def version_name(build_type)
+  current_version() + "-#{build_type}" + get_build_number
+end
+
+def get_build_number
+  ENV['BUILD_NUMBER'] ? "-#{ENV['BUILD_NUMBER']}" : ""
+end
+
 def gitsha1()
   `git rev-parse HEAD`.tap do |head|
     raise "could not get current HEAD" unless $?.success?
@@ -161,21 +169,62 @@ def gitsha1()
   end
 end
 
-namespace :debug do
-    desc "Build Debug APK"
-    task :build do
-        sh "mvn clean install -Pdebug,sign --projects app"
-    end
+def get_last_published_version(token, app_id)
+  versions = JSON.parse(`curl -s -H 'X-HockeyAppToken: #{token}' https://rink.hockeyapp.net/api/2/apps/#{app_id}/app_versions`)
+  versions['app_versions'].map { |app| app['version'].to_i }.max
+end
 
-    task :build_deploy => :build do
-        sh "mvn android:deploy --projects app"
-    end
+def get_file_path(build_type)
+  "app/target/soundcloud-android-#{version_name(build_type)}.apk"
+end
+
+namespace :debug do
+  DEBUG_BUILD_TYPE = 'debug'
+  DEBUG_APP_ID     = "b81f0193d361b59e2e37d7f1c0aff017"
+  DEBUG_TOKEN      = "94dfa3e409cb4aa1a2f3fe65c76cc8ba"
+  DEBUG_APK        = get_file_path(DEBUG_BUILD_TYPE)
+
+
+  file DEBUG_APK do
+    Rake::Task['debug:build'].invoke
+  end
+
+  desc "Build Debug APK"
+  task :build do
+    version_code = get_last_published_version(DEBUG_TOKEN, DEBUG_APP_ID) || 0
+
+    Mvn.install.projects('app').
+      with_profiles(DEBUG_BUILD_TYPE, 'sign', 'update-android-manifest').
+      set_version_code(version_code + 1).
+      set_version_name(version_name(DEBUG_BUILD_TYPE)).
+      execute()
+
+    sh "git checkout app/AndroidManifest.xml"
+  end
+
+  task :install => DEBUG_APK do
+    sh "adb -d install -r #{DEBUG_APK}"
+  end
+
+  desc "build and upload debug version to hockeyapp"
+  task :upload => DEBUG_APK do
+    sh <<-END
+      curl \
+        -H "X-HockeyAppToken: #{DEBUG_TOKEN}" \
+        -F "status=2" \
+        -F "notify=0" \
+        -F "notes_type=1" \
+        -F "notes=#{last_release_notes}" \
+        -F "ipa=@#{DEBUG_APK}" \
+        https://rink.hockeyapp.net/api/2/apps/#{DEBUG_APP_ID}/app_versions
+    END
+  end
 end
 
 namespace :test do
     desc "Run unit tests"
     task :unit do
-        sh "mvn clean install -Dandroid.proguard.skip=true --projects app,tests"
+        sh "mvn clean install -Dandroid.proguard.skip=true --projects app,tests -Pdebug"
     end
 end
 
@@ -191,11 +240,15 @@ namespace :release do
 
   desc "builds the release version"
   task :build do
-    sh "mvn clean install -Psign,soundcloud,release --projects app"
+    Mvn.install.
+      projects('app').
+      with_profiles('sign','soundcloud','release').
+      execute()
   end
 
   desc "sets the release version to the version specified in the manifest, creates bump commit"
   task :bump do
+
     raise "#{versionName}: Not a release version" if versionName.to_s =~ /-BETA(\d+)?\Z/
     raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
     update_version(versionName)
@@ -204,36 +257,36 @@ namespace :release do
 end
 
 namespace :beta do
-  APP_ID="31bb3a437ee0cd325e994283fb8e7da3"
-  TOKEN="ef31e73570804365acba701c47568c9d"
-  BETA_APK = "app/target/soundcloud-android-#{current_version}-beta.apk"
-  file BETA_APK => 'beta:build'
+  BETA_APP_ID = "31bb3a437ee0cd325e994283fb8e7da3"
+  BETA_TOKEN  = "ef31e73570804365acba701c47568c9d"
+  BETA_APK    = get_file_path('beta')
 
-  def get_last_published_version
-    versions = JSON.parse(`curl -s -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions`)
-    versions['app_versions'].map { |app| app['version'].to_i }.max
+  file BETA_APK do
+    Rake::Task['beta:build'].invoke
   end
 
   task :versions do
-    sh "curl -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions"
+    sh "curl -H 'X-HockeyAppToken: #{BETA_TOKEN}' https://rink.hockeyapp.net/api/2/apps/#{BETA_APP_ID}/app_versions"
   end
 
   task :apps do
-    sh "curl -H 'X-HockeyAppToken: #{TOKEN}' https://rink.hockeyapp.net/api/2/apps"
+    sh "curl -H 'X-HockeyAppToken: #{BETA_TOKEN}' https://rink.hockeyapp.net/api/2/apps"
   end
 
   desc "build and upload beta, then tag it"
   task :upload => [ BETA_APK, :verify ] do
+
     sh <<-END
       curl \
-        -H "X-HockeyAppToken: #{TOKEN}" \
+        -H "X-HockeyAppToken: #{BETA_TOKEN}" \
         -F "status=2" \
-        -F "notify=1" \
+        -F "notify=0" \
         -F "notes_type=1" \
         -F "notes=#{last_release_notes}" \
         -F "ipa=@#{BETA_APK}" \
-        https://rink.hockeyapp.net/api/2/apps/#{APP_ID}/app_versions
+        https://rink.hockeyapp.net/api/2/apps/#{BETA_APP_ID}/app_versions
     END
+
     # undo changes caused by build
     sh "git checkout app/AndroidManifest.xml"
 
@@ -242,17 +295,15 @@ namespace :beta do
 
   desc "build beta"
   task :build do
-    with_beta do |version|
-      version_code = get_last_published_version
-      if version_code.nil?
-        version_code = 0
-      end
-      sh <<-END
-        mvn clean install --projects app -Psign,soundcloud,beta \
-          -Dandroid.manifest.versionCode=#{version_code+1} \
-          -Dandroid.manifest.debuggable=true
-      END
-    end
+    version_code = get_last_published_version(BETA_TOKEN, BETA_APP_ID) || 0
+
+    Mvn.install.projects('app').
+      with_profiles('beta', 'sign', 'soundcloud', 'update-android-manifest').
+      set_version_code(version_code + 1).
+      set_version_name(version_name('beta')).
+      execute()
+
+    sh "git checkout app/AndroidManifest.xml"
   end
 
   desc "install beta on device"
@@ -261,11 +312,7 @@ namespace :beta do
   end
 
   task :verify do
-    raise "Missing file: #{BETA_APK}" unless File.exists?(BETA_APK)
-    raise "#{BETA_APK} does not contain -BETA" unless BETA_APK.match(/-BETA/i)
-
     output = `jarsigner -verify -certs -verbose #{BETA_APK}`
-    raise unless $?.success?
     if output !~ /CN=SoundCloud Android Beta/
       raise "Wrong signature"
     end
@@ -276,31 +323,8 @@ namespace :beta do
 
   desc "tag the current beta"
   task :tag do
-    with_beta do |version|
-      sh "git tag -a #{version} -m #{version} && git push --tags && git push"
-    end
-  end
-
-  def with_beta(&block)
-    version = current_version.gsub(/-SNAPSHOT\Z/, '')
-    if version.to_s =~ /-BETA(\d+)?\Z/
-      block.call(version)
-    else
-      raise "#{version}: not a beta version"
-    end
-  end
-
-  desc "bump the beta version"
-  task :bump do
-    version = current_version.gsub(/-SNAPSHOT\Z/, '')
-    match = version[/-BETA(\d+)/]
-    raise "Not a beta version" unless match
-    raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
-
-    current_beta = $1.to_i
-    new_version = version.gsub(/BETA#{current_beta}\Z/, "BETA#{current_beta+1}")
-    update_version(new_version)
-    sh "git commit -a -m 'Bumped to #{new_version}'"
+    version_with_build = version_name('beta')
+    sh "git tag -a #{version_with_build} -m #{version_with_build} && git push --tags && git push"
   end
 end
 
@@ -390,5 +414,52 @@ task :setup_codestyle do
 
   pref_dirs.each do |dir|
     sh "ln -sf #{template} #{dir}/SoundCloud-Android.xml"
+  end
+end
+
+
+class Mvn
+
+  def self.install
+    self.new
+  end
+
+  def initialize
+    @command = "mvn clean install"
+  end
+
+  def projects(*array_of_projects)
+    @command << " --projects #{array_of_projects.join(',')}"
+    self
+  end
+
+  def with_profiles(*array_of_profiles)
+    @command << " -P #{array_of_profiles.join(',')}"
+    self
+  end
+
+  def skip_tests
+    @command << " -DskipTests"
+    self
+  end
+
+  def set_version_code(version_code)
+    @command << " -Dandroid.manifest.versionCode=#{version_code}"
+    self
+  end
+
+  def set_version_name(version_name)
+    @command << " -Dandroid.manifest.versionName=#{version_name}"
+    self
+  end
+
+  def set_debuggable
+    @command << " -Dandroid.manifest.debuggable=true"
+    self
+  end
+
+  def execute
+    puts "Executing: #{@command}"
+    system @@command
   end
 end

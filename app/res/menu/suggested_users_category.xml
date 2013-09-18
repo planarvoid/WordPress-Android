@@ -3,7 +3,7 @@
     <item android:id="@+id/menu_backToSet"
           android:icon="@drawable/ic_action_current_set"
           android:showAsAction="always"
-          android:title="@string/accessibility_action_bar_set"/>
+          android:title="@string/accessibility_action_bar_playlist"/>
     <item android:id="@+id/menu_select_all"
           android:showAsAction="always|withText"
           android:title="@string/suggested_users_btn_select_all"/>

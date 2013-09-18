@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.http.Wrapper;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
@@ -19,12 +20,11 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class EmptyListView extends RelativeLayout {
-    protected ProgressBar mProgressBar;
+    protected View mProgressView;
 
     @Nullable protected ViewGroup mEmptyLayout;
 
@@ -52,12 +52,17 @@ public class EmptyListView extends RelativeLayout {
 
     public EmptyListView(final Context context) {
         super(context);
-        init();
+        init(R.layout.empty_list);
+    }
+
+    public EmptyListView(final Context context, int layoutId) {
+        super(context);
+        init(layoutId);
     }
 
     public EmptyListView(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        init();
+        init(R.layout.empty_list);
     }
 
     public EmptyListView setButtonActions(@Nullable final Intent primaryAction, @Nullable final Intent secondaryAction) {
@@ -79,15 +84,15 @@ public class EmptyListView extends RelativeLayout {
         return this;
     }
 
-    private void init(){
+    private void init(int layoutId){
         ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                .inflate(R.layout.empty_list, this);
+                .inflate(layoutId, this);
 
         final Animation animationIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in_med);
         setLayoutAnimation(new LayoutAnimationController(animationIn));
 
         mEmptyViewHolder = ((RelativeLayout) findViewById(R.id.empty_view_holder));
-        mProgressBar = (ProgressBar) findViewById(R.id.loading);
+        mProgressView = findViewById(R.id.loading);
     }
 
     /**
@@ -100,24 +105,25 @@ public class EmptyListView extends RelativeLayout {
             mMode = code;
 
             if (code == Status.WAITING) {
+
                 // don't show empty screen, show progress
-                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressView.setVisibility(View.VISIBLE);
                 if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
                 if (mErrorView != null) mErrorView.setVisibility(View.GONE);
                 return true;
 
-            } else if (Wrapper.isStatusCodeOk(code))  {
-                // at rest, no error
-                mProgressBar.setVisibility(View.GONE);
-                showEmptyLayout();
-                return true;
-
             } else {
-                // error,
-                mProgressBar.setVisibility(View.GONE);
-                showError(code);
-                return true;
+                AnimUtils.hideView(getContext(), mProgressView, false);
+                if (Wrapper.isStatusCodeOk(code)) {
+                    // at rest, no error
+                    showEmptyLayout();
+                    return true;
 
+                } else {
+                    // error,
+                    showError(code);
+                    return true;
+                }
             }
 
         }
@@ -132,12 +138,11 @@ public class EmptyListView extends RelativeLayout {
         if (mErrorView == null) {
             mErrorView = addErrorView();
             mErrorView.setOnRetryListener(mRetryListener);
-
-        } else {
-            mErrorView.setVisibility(View.VISIBLE);
         }
+        AnimUtils.showView(getContext(), mErrorView, true);
+
         if (mEmptyLayout != null) {
-            mEmptyLayout.setVisibility(View.GONE);
+            AnimUtils.hideView(getContext(), mEmptyLayout, false);
         }
 
         if (Wrapper.isStatusCodeError(responseCode)){
@@ -198,14 +203,13 @@ public class EmptyListView extends RelativeLayout {
             }
             setSecondaryText(mSecondaryText);
             setActionText(mActionText);
-
-
-        } else {
-            mEmptyLayout.setVisibility(View.VISIBLE);
         }
 
+        AnimUtils.showView(getContext(), mEmptyLayout, true);
 
-        if (mErrorView != null) mErrorView.setVisibility(View.GONE);
+        if (mErrorView != null) {
+            AnimUtils.hideView(getContext(), mErrorView, false);
+        }
     }
 
     protected int getEmptyViewLayoutId() {

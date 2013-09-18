@@ -60,19 +60,19 @@ public abstract class ScResource
         if (!(o instanceof ScResource)) return false;
 
         ScResource resourceBase = (ScResource) o;
-        return mID == resourceBase.mID;
+        return getId() == resourceBase.getId();
     }
 
     @Override
     public int hashCode() {
-        return (int) (mID ^ (mID >>> 32));
+        return (int) (getId() ^ (getId() >>> 32));
     }
 
     /**
      * @return whether this object has been saved to the database.
      */
     public boolean isSaved() {
-        return mID > NOT_SET;
+        return getId() > NOT_SET;
     }
 
     /**

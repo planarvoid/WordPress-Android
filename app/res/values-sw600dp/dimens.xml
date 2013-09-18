@@ -3,4 +3,5 @@
     <dimen name="empty_message_margin_left_right">120dp</dimen>
 
     <dimen name="explore_suggested_track_item_height">250dp</dimen>
+    <dimen name="explore_category_page_size">.5px</dimen><!-- ratio used for pager adapter -->
 </resources>

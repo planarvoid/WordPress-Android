@@ -6,6 +6,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -14,6 +15,13 @@ import android.os.Parcel;
 
 @RunWith(DefaultTestRunner.class)
 public class UserTest {
+
+    @Test
+    public void setIdShouldSetURNIfNull() throws Exception {
+        User u = new User();
+        u.setId(1000L);
+        expect(u.getUrn()).toEqual(new ClientUri("soundcloud:users:1000"));
+    }
 
     @Test
     public void testLocation() throws Exception {
@@ -30,7 +38,7 @@ public class UserTest {
     @Test
     public void testBuildContentValues() throws Exception {
         User u = new User();
-        u.mID = 1000L;
+        u.setId(1000L);
         ContentValues cv = u.buildContentValues();
         expect(cv.getAsLong(DBHelper.Users._ID)).toEqual(1000L);
     }
@@ -45,6 +53,33 @@ public class UserTest {
         expect(u.shouldLoadIcon()).toBeFalse();
         u.avatar_url = "http://foo.com";
         expect(u.shouldLoadIcon()).toBeTrue();
+    }
+
+    @Test
+    public void shouldReturnNullWithNoAvatarOrUrn() {
+        User u = new User();
+        expect(u.getListAvatarUri(Robolectric.application)).toBeNull();
+    }
+
+    @Test
+    public void shouldReturnURNBasedImageResolverUri() {
+        User u = new User();
+        u.setId(1000L);
+        expect(u.getListAvatarUri(Robolectric.application)).toEqual("https://api.soundcloud.com/resolve/image?url=soundcloud%3Ausers%3A1000&client_id=40ccfee680a844780a41fbe23ea89934&size=badge");
+    }
+
+    @Test
+    public void shouldReturnNullWithDefaultAvatarUri() throws Exception {
+        User u = new User();
+        u.avatar_url = "http://a1.soundcloud.com/images/default_avatar_large.png?05a778";
+        expect(u.getListAvatarUri(Robolectric.application)).toBeNull();
+    }
+
+    @Test
+    public void shouldReturnFormattedAvatarUri() throws Exception {
+        User u = new User();
+        u.avatar_url = "http://i1.soundcloud.com/avatars-000002679242-0j7zgk-large.jpg?05a778";
+        expect(u.getListAvatarUri(Robolectric.application)).toEqual("http://i1.soundcloud.com/avatars-000002679242-0j7zgk-badge.jpg?05a778");
     }
 
     @Test
@@ -80,7 +115,7 @@ public class UserTest {
     @Test
     public void shouldBeParcelable() throws Exception {
         User user = new User();
-        user.mID = 1;
+        user.setId(1);
         user.username = "peter";
         user.uri = "http://peter.com";
         user.avatar_url = "http://avatar.com";
@@ -107,7 +142,7 @@ public class UserTest {
 
         User u = new User(p);
 
-        expect(u.mID).toEqual(user.mID);
+        expect(u.getId()).toEqual(user.getId());
         expect(u.username).toEqual(user.username);
         expect(u.uri).toEqual(user.uri);
         expect(u.avatar_url).toEqual(user.avatar_url);
@@ -133,7 +168,7 @@ public class UserTest {
     public void shouldDeserializeUser() throws Exception {
         User u = TestHelper.readJson(User.class, "/com/soundcloud/android/model/user.json");
 
-        expect(u.mID).not.toBeNull();
+        expect(u.getId()).not.toBeNull();
         expect(u.username).not.toBeNull();
         expect(u.uri).not.toBeNull();
         expect(u.avatar_url).not.toBeNull();

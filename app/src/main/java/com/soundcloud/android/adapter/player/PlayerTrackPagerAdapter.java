@@ -1,42 +1,51 @@
 package com.soundcloud.android.adapter.player;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.BiMap;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
-import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.BasePagerAdapter;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.view.play.PlayerQueueView;
 import com.soundcloud.android.view.play.PlayerTrackView;
 
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.Set;
+import java.util.Collection;
 
 public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     private PlayQueueManager mPlayQueueManager;
     private int mCommentingPosition = -1;
 
-    private final BiMap<PlayerTrackView, Integer> mPlayerViewsById = HashBiMap.create(3);
+    private final BiMap<PlayerQueueView, Integer> mQueueViewsByPosition = HashBiMap.create(3);
     private Track mPlaceholderTrack;
 
-    // Dual constructors will not be necessary after explore release
-    // when we can use the playqueue manager as a proper singleton
-    public PlayerTrackPagerAdapter() {
-        this(CloudPlaybackService.getPlaylistManager());
+    public PlayerTrackPagerAdapter(PlayQueueManager playQueueManager) {
+        this.mPlayQueueManager = playQueueManager;
     }
 
-    public PlayerTrackPagerAdapter(PlayQueueManager mPlayQueueManager) {
-        this.mPlayQueueManager = mPlayQueueManager;
-    }
+    public Collection<PlayerTrackView> getPlayerTrackViews() {
+        return Collections2.transform(Collections2.filter(mQueueViewsByPosition.keySet(), new Predicate<PlayerQueueView>() {
+            @Override
+            public boolean apply(PlayerQueueView input) {
+                return input.isShowingPlayerTrackView();
+            }
+        }), new Function<PlayerQueueView, PlayerTrackView>() {
+            @Override
+            public PlayerTrackView apply(PlayerQueueView input) {
+                return input.getTrackView();
+            }
+        });
 
-    public Set<PlayerTrackView> getPlayerTrackViews() {
-        return mPlayerViewsById.keySet();
+
     }
 
     public int getCommentingPosition() {
@@ -77,24 +86,23 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         mPlaceholderTrack = displayTrack;
     }
 
-    private PlayQueueManager getPlayQueueManager(){
-        if (mPlayQueueManager == null) mPlayQueueManager = CloudPlaybackService.getPlaylistManager();
-        return mPlayQueueManager;
-    }
-
     @Override
     public int getCount() {
         if (mPlaceholderTrack != null){
             return 1;
         } else {
-            final PlayQueueManager playQueueManager = getPlayQueueManager();
-            return playQueueManager == null ? 0 : playQueueManager.length();
+            return shouldDisplayExtraItem() ? mPlayQueueManager.length() + 1 : mPlayQueueManager.length();
         }
+    }
+
+
+    private boolean shouldDisplayExtraItem() {
+        return mPlayQueueManager.isFetchingRelated() || mPlayQueueManager.lastRelatedFetchFailed();
     }
 
     public void clearCommentingPosition(boolean animated) {
         mCommentingPosition = -1;
-        for (PlayerTrackView playerTrackView : mPlayerViewsById.keySet()){
+        for (PlayerTrackView playerTrackView : getPlayerTrackViews()){
             playerTrackView.setCommentMode(false, animated);
         }
     }
@@ -104,44 +112,59 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         if (position == 0 && mPlaceholderTrack != null){
             return new PlayQueueItem(mPlaceholderTrack, 0);
         } else {
-            final PlayQueueManager playQueueManager = getPlayQueueManager();
-            return playQueueManager == null ? null : playQueueManager.getPlayQueueItem(position);
+            if (position >= mPlayQueueManager.length()){
+                return PlayQueueItem.empty(position);
+            } else {
+                return mPlayQueueManager.getPlayQueueItem(position);
+            }
         }
     }
 
     @Override
     protected View getView(PlayQueueItem dataItem, View convertView, ViewGroup parent) {
-        PlayerTrackView playerTrackView;
         if (convertView == null) {
-            playerTrackView = createPlayerTrackView(parent.getContext());
-        } else {
-            playerTrackView = (PlayerTrackView) convertView;
+            convertView = createPlayerQueueView(parent.getContext());
         }
 
-
-        mPlayerViewsById.forcePut(playerTrackView, dataItem.getPlayQueuePosition());
-
-        //TODO consolidate these calls
-
-        playerTrackView.setPlayQueueItem(dataItem);
-        playerTrackView.setCommentMode(mCommentingPosition == dataItem.getPlayQueuePosition());
-        playerTrackView.setOnScreen(true);
-        return playerTrackView;
+        final PlayerQueueView queueView = (PlayerQueueView) convertView;
+        queueView.setPlayQueueItem(dataItem, mCommentingPosition == dataItem.getPlayQueuePosition());
+        mQueueViewsByPosition.forcePut(queueView, dataItem.getPlayQueuePosition());
+        return convertView;
     }
 
     @VisibleForTesting
-    protected PlayerTrackView createPlayerTrackView(Context context) {
-        return (PlayerTrackView) View.inflate(context, R.layout.player_track_view, null);
+    protected PlayerQueueView createPlayerQueueView(Context context) {
+        return new PlayerQueueView(context, mPlayQueueManager);
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return ((PlayQueueItem) object).isEmpty() && !shouldDisplayExtraItem() ? POSITION_NONE : super.getItemPosition(object);
     }
 
     public PlayerTrackView getPlayerTrackViewById(long id){
-        for (PlayerTrackView playerTrackView : mPlayerViewsById.keySet()){
+        for (PlayerTrackView playerTrackView : getPlayerTrackViews()){
             if (playerTrackView.getTrackId() == id) return playerTrackView;
         }
         return null;
     }
 
     public PlayerTrackView getPlayerTrackViewByPosition(int position){
-        return mPlayerViewsById.inverse().get(position);
+        final PlayerQueueView playerQueueView = mQueueViewsByPosition.inverse().get(position);
+        if (playerQueueView != null){
+            return playerQueueView.getTrackView();
+        } else {
+            Log.i("asdf", "Null trackview at position " + position);
+            return null;
+        }
+    }
+
+    public void reloadEmptyView(){
+        for (PlayerQueueView playerQueueView : mQueueViewsByPosition.keySet()){
+            if (!playerQueueView.isShowingPlayerTrackView()){
+                final PlayQueueItem playQueueItem = getItem(mQueueViewsByPosition.get(playerQueueView));
+                playerQueueView.setPlayQueueItem(playQueueItem, mCommentingPosition == playQueueItem.getPlayQueuePosition());
+            }
+        }
     }
 }
