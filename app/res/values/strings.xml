@@ -215,6 +215,6 @@
     <string name="player_fetching_related_message_2">We\'re getting your next track</string>
 
     <string name="showcase_explore_title">Explore</string>
-    <string name="showcase_explore_message">Hear the most popular new tracks across SoundCloud. Related tracks play automatically for a smooth radio experience.</string>
+    <string name="showcase_explore_message">Discover the most popular new tracks. Hear related tracks automatically for a smooth radio experience.</string>
 
 </resources>
