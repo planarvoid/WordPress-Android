@@ -71,13 +71,6 @@
                         </goals>
                         <phase>install</phase>
                     </execution>
-                    <execution>
-                        <id>build-ndk</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>ndk-build</goal>
-                        </goals>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -334,6 +327,13 @@
             <groupId>com.nostra13.universalimageloader</groupId>
             <artifactId>universal-image-loader</artifactId>
             <version>1.8.5</version>
+        </dependency>
+        <!-- contains the three native ndk libraries -->
+        <dependency>
+            <groupId>com.soundcloud.android.native</groupId>
+            <artifactId>soundcloud_vorbis_encoder</artifactId>
+            <version>1.0.1</version>
+            <type>apklib</type>
         </dependency>
     </dependencies>
 
