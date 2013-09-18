@@ -214,4 +214,7 @@
     <string name="player_fetching_related_message_1">Just a second</string>
     <string name="player_fetching_related_message_2">We\'re getting your next track</string>
 
+    <string name="showcase_explore_title">Explore</string>
+    <string name="showcase_explore_message">Find some new music here.</string>
+
 </resources>
