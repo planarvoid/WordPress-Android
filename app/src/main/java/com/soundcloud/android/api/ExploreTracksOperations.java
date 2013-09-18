@@ -3,6 +3,7 @@ package com.soundcloud.android.api;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
@@ -57,7 +58,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
         return mRxHttpClient.fetchPagedModels(request);
     }
 
-    public Observable<Track> getRelatedTracks(Track seedTrack) {
+    public Observable<Track> getRelatedTracks(final Track seedTrack) {
         final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), seedTrack.getUrn().toEncodedString());
         final APIRequest<ModelCollection<ExploreTracksSuggestion>> request = SoundCloudAPIRequest.RequestBuilder.<ModelCollection<ExploreTracksSuggestion>>get(endpoint)
                 .forPrivateAPI(1)
@@ -67,8 +68,13 @@ public class ExploreTracksOperations extends ScheduledOperations {
             @Override
             public Observable<Track> call(ModelCollection<ExploreTracksSuggestion> exploreTracksSuggestionModelCollection) {
                 List<Track> toEmit = Lists.newArrayListWithCapacity(exploreTracksSuggestionModelCollection.getCollection().size());
-                for (ExploreTracksSuggestion item : exploreTracksSuggestionModelCollection.getCollection()) {
-                    toEmit.add(new Track(item));
+                if (!toEmit.isEmpty()) {
+                    for (ExploreTracksSuggestion item : exploreTracksSuggestionModelCollection.getCollection()) {
+                        toEmit.add(new Track(item));
+                    }
+                } else {
+                    SoundCloudApplication.handleSilentException("Empty related tracks response from seed track " + seedTrack,
+                            new IllegalStateException("No Related Tracks"));
                 }
                 return Observable.from(toEmit);
             }
