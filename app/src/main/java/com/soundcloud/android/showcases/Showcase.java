@@ -34,7 +34,7 @@ public enum Showcase {
 
     private ShowcaseView.ConfigOptions createBaseConfigOptions(Activity activity) {
         ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
-        co.hideOnClickOutside = true;
+        co.hideOnClickAnywhere = true;
         co.noButton = true;
         co.fadeInDuration = activity.getResources().getInteger(android.R.integer.config_longAnimTime);
         co.fadeOutDuration = activity.getResources().getInteger(android.R.integer.config_mediumAnimTime);
