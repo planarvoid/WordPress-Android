@@ -207,11 +207,16 @@
     <string name="error_no_internet">No Internet.</string>
     <string name="error_connect_and_try_again">Connect and try again.</string>
 
+    <string name="player_no_recommended_tracks">No related tracks found. Try exploring something new.</string>
+
     <string name="appending_failed">Loading error. Tap to try again</string>
 
     <string name="playcount">%s plays</string>
 
     <string name="player_fetching_related_message_1">Just a second</string>
     <string name="player_fetching_related_message_2">We\'re getting your next track</string>
+
+    <string name="showcase_explore_title">Explore</string>
+    <string name="showcase_explore_message">Hear what\'s new and popular\nUp next: your personalized recommendations, automatically.</string>
 
 </resources>

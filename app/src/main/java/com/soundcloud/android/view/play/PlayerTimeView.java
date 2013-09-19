@@ -1,8 +1,8 @@
 package com.soundcloud.android.view.play;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class PlayerTime extends RelativeLayout {
+public class PlayerTimeView extends RelativeLayout {
     private TextView mCurrentTime;
     private TextView mTotalTime;
     private int mDuration;
@@ -26,7 +26,6 @@ public class PlayerTime extends RelativeLayout {
     private int mCommentingWidth;
     private int mDefaultHeight;
     private int mCommentingHeight;
-    private int mBottomMargin;
 
     private Paint mBgPaint;
     private Paint mLinePaint;
@@ -40,9 +39,11 @@ public class PlayerTime extends RelativeLayout {
     private TextView mCommentInstructions;
     private boolean mShowArrow;
     private boolean mRoundTop = true;
+    private int mTargetOffsetX;
+    private int mAdjustedHeight;
 
 
-    public PlayerTime(Context context, AttributeSet attrs) {
+    public PlayerTimeView(Context context, AttributeSet attrs) {
         super(context, attrs);
         View.inflate(context, R.layout.player_time, this);
 
@@ -50,36 +51,49 @@ public class PlayerTime extends RelativeLayout {
         mTotalTime = (TextView) findViewById(R.id.txt_total);
 
         mCommentInstructions = (TextView) findViewById(R.id.txt_comment_instructions);
-        mCommentingWidth = (int) context.getResources().getDimension(R.dimen.player_time_comment_width);
+        mCommentingWidth = context.getResources().getDimensionPixelSize(R.dimen.player_time_comment_width);
 
-        mDefaultHeight = (int) context.getResources().getDimension(R.dimen.player_time_height);
-        mCommentingHeight = (int) context.getResources().getDimension(R.dimen.player_time_comment_height);
+        mDefaultHeight = context.getResources().getDimensionPixelSize(R.dimen.player_time_height);
+        mCommentingHeight = context.getResources().getDimensionPixelSize(R.dimen.player_time_comment_height);
 
         mBgPaint = new Paint();
         mBgPaint.setColor(0xFFFFFFFF);
         mBgPaint.setAntiAlias(true);
         mBgPaint.setStyle(Paint.Style.FILL);
-        mBgPaint.setMaskFilter(new EmbossMaskFilter(new float[] { 0, .5f, 1 },0.85f, 10, 1f));
+        mBgPaint.setMaskFilter(new EmbossMaskFilter(new float[]{0, .5f, 1}, 0.85f, 10, 1f));
 
         mLinePaint = new Paint();
         mLinePaint.setColor(getResources().getColor(R.color.portraitPlayerCommentLine));
         mLinePaint.setStyle(Paint.Style.STROKE);
 
         mArc = (int) (getResources().getDisplayMetrics().density * 10);
-        mPlayheadArrowWidth = (int) (getResources().getDisplayMetrics().density * 10);
-        mPlayheadArrowHeight = (int) (getResources().getDisplayMetrics().density * 10);
+        mPlayheadArrowWidth = getResources().getDimensionPixelSize(R.dimen.player_time_width);
+        mPlayheadArrowHeight = -1 * getResources().getDimensionPixelSize(R.dimen.player_time_bottom_margin);
 
         setGravity(Gravity.CENTER_HORIZONTAL);
 
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        setLayoutParams(lp);
-        init(attrs);
-    }
-
-    private void init(AttributeSet attrs){
         TypedArray a=getContext().obtainStyledAttributes(attrs,R.styleable.PlayerTime);
         setShowArrow(a.getBoolean(R.styleable.PlayerTime_show_arrow, false));
         a.recycle();
+    }
+
+    public void setCommenting(boolean commenting) {
+        if (commenting && !mCommenting) {
+            mCommenting = true;
+            mCurrentTime.setTextColor(getResources().getColor(R.color.portraitPlayerCommentLine));
+            mCommentInstructions.setVisibility(View.VISIBLE);
+            getLayoutParams().width = mCommentingWidth;
+            getLayoutParams().height = mCommentingHeight;
+
+        } else if (!commenting && mCommenting) {
+            mCommenting = false;
+            mCurrentTime.setTextColor(Color.BLACK);
+            mCommentInstructions.setVisibility(View.GONE);
+            getLayoutParams().width = mMeasuredMaxWidth;
+            getLayoutParams().height = mDefaultHeight;
+        }
+        requestLayout();
+        invalidate();
     }
 
     public void setRoundTop(boolean roundTop) {
@@ -89,42 +103,23 @@ public class PlayerTime extends RelativeLayout {
 
     public void setCommentingHeight(int commentingHeight){
         mCommentingHeight = commentingHeight;
+        setAdjustedHeight();
         invalidate();
     }
 
-    public void setShowArrow(boolean showArrow){
-        mShowArrow = showArrow;
-        final int pad = (int) (5 * getResources().getDisplayMetrics().density);
-        if (mShowArrow) {
-            setPadding(pad, 0, pad, mPlayheadArrowHeight + (int) (3 * getResources().getDisplayMetrics().density));
-            mBottomMargin = -mPlayheadArrowHeight;
-        } else {
-            setPadding(pad, 0, pad, (int) (3 * getResources().getDisplayMetrics().density));
-            mBottomMargin = 0;
-        }
-        requestLayout();
-        invalidate();
+    private void setAdjustedHeight() {
+        int arrowOffset = mShowArrow ? mPlayheadArrowHeight : 0;
+        mAdjustedHeight = (mCommenting ? mCommentingHeight : mDefaultHeight) + arrowOffset ;
+        getLayoutParams().height = mAdjustedHeight;
     }
 
-    public void setCurrentTime(long time, boolean commenting) {
+    public void setCurrentTime(long time) {
         mCurrentTime.setText(ScTextUtils.formatTimestamp(time));
-        final RelativeLayout.LayoutParams lp = (LayoutParams) getLayoutParams();
 
         if (getParent() == null) return;
 
-        final int width = commenting ? mCommentingWidth : mMeasuredMaxWidth;
-        final int height = (commenting ? mCommentingHeight : mDefaultHeight) ;
-        if (commenting && !mCommenting) {
-            mCommenting = true;
-            mCurrentTime.setTextColor(getResources().getColor(R.color.portraitPlayerCommentLine));
-            mCommentInstructions.setVisibility(View.VISIBLE);
-        } else if (!commenting && mCommenting) {
-            mCommenting = false;
-            mCurrentTime.setTextColor(Color.BLACK);
-            mCommentInstructions.setVisibility(View.GONE);
-        }
-
         final int parentWidth = ((RelativeLayout) this.getParent()).getWidth();
+        final int width = getLayoutParams().width;
         final int playheadX = Math.round(parentWidth * (time / ((float) mDuration)));
 
         if (playheadX < width / 2) {
@@ -135,18 +130,16 @@ public class PlayerTime extends RelativeLayout {
             mPlayheadOffset = (int) (.5 * width);
         }
 
-        if (mDuration > 0) {
-            lp.leftMargin = Math.round(parentWidth * (time / ((float) mDuration))) - mPlayheadOffset;
-        } else {
-            lp.leftMargin = 0;
+        mTargetOffsetX = mDuration == 0 ? 0 : Math.round(parentWidth * (time / ((float) mDuration))) - mPlayheadOffset;
+        offsetLeftAndRight(mTargetOffsetX - getLeft());
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        if (changed){
+            offsetLeftAndRight(mTargetOffsetX);
         }
-
-        lp.width = width;
-        lp.height = mShowArrow ? height + mPlayheadArrowHeight : height;
-        lp.bottomMargin = mBottomMargin;
-
-        requestLayout();
-        invalidate();
     }
 
     @Override
@@ -163,15 +156,16 @@ public class PlayerTime extends RelativeLayout {
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
+        final int measuredHeight = getMeasuredHeight();
         ImageUtils.drawBubbleOnCanvas(canvas, mBgPaint, mCommenting ? mLinePaint : null, getMeasuredWidth(),
-                mShowArrow ? getMeasuredHeight() - mPlayheadArrowHeight : getMeasuredHeight(),
+                mShowArrow ? measuredHeight - mPlayheadArrowHeight : measuredHeight,
                 mRoundTop ? mArc : 0, mShowArrow ? mPlayheadArrowWidth : 0, mPlayheadArrowHeight, mPlayheadOffset);
 
         super.dispatchDraw(canvas);
     }
 
-    public void setByPercent(float seekPercent, boolean commenting) {
-        setCurrentTime((long) (mDuration * seekPercent), commenting);
+    public void setByPercent(float seekPercent) {
+        setCurrentTime((long) (mDuration * seekPercent));
     }
 
     public void setDuration(int time) {
@@ -186,10 +180,21 @@ public class PlayerTime extends RelativeLayout {
         requestLayout();
 
 
-        setCurrentTime(0l, false);
+        setCurrentTime(0l);
         mDuration = time;
         mTotalTime.setText(ScTextUtils.formatTimestamp(time));
         invalidate();
+    }
+
+    private void setShowArrow(boolean showArrow){
+        mShowArrow = showArrow;
+
+        final int paddingBottomExtra = mShowArrow ? mPlayheadArrowHeight : 0;
+        setPadding(
+                getResources().getDimensionPixelOffset(R.dimen.player_time_padding_left_right), 0,
+                getResources().getDimensionPixelOffset(R.dimen.player_time_padding_left_right),
+                getResources().getDimensionPixelOffset(R.dimen.player_time_padding_top_bottom) + paddingBottomExtra
+        );
     }
 
     private CharSequence formatTime(int time) {

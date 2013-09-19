@@ -14,6 +14,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.Animation;
@@ -29,6 +30,11 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
     private SoftReference<Drawable> mArtworkBgDrawable;
 
     private View mArtworkOverlay;
+    private String mLastArtworkUri;
+
+    public PlayerArtworkTrackView(Context context) {
+        this(context, null);
+    }
 
     public PlayerArtworkTrackView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -47,8 +53,8 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
     }
 
     @Override
-    public void setTrack(@NotNull Track track, int queuePosition, boolean priority) {
-        super.setTrack(track, queuePosition, priority);
+    protected void setTrackInternal(@NotNull Track track, boolean priority) {
+        super.setTrackInternal(track, priority);
         updateArtwork(priority);
     }
 
@@ -84,6 +90,10 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
     void setTemporaryArtwork(Bitmap bitmap){
         mArtwork.setImageBitmap(bitmap);
         mArtwork.setVisibility(View.VISIBLE);
+        removeArtworkBackground();
+    }
+
+    private void removeArtworkBackground() {
         mArtworkHolder.setBackgroundDrawable(null);
     }
 
@@ -94,14 +104,14 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
                 AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
                 mArtwork.getAnimation().setAnimationListener(new ArtworkFadeInListener(this));
             } else {
-                mArtworkHolder.setBackgroundDrawable(null); // take care of overdraw
+                removeArtworkBackground();
             }
         }
     }
 
     void clearBackgroundAfterAnimation(Animation animation){
         if (animation.equals(mArtwork.getAnimation())) {
-            mArtworkHolder.setBackgroundDrawable(null); // take care of overdraw
+            removeArtworkBackground();
         }
     }
 
@@ -109,20 +119,25 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
         // this will cause OOMs
         if (mTrack == null || ActivityManager.isUserAMonkey()) return;
 
-        mArtwork.setVisibility(View.GONE);
-        mArtworkHolder.setBackgroundResource(R.drawable.artwork_player);
-        ImageLoader.getInstance().cancelDisplayTask(mArtwork);
+        final String playerArtworkUri = mTrack.getPlayerArtworkUri(getContext());
+        if (mLastArtworkUri == null || !mLastArtworkUri.equals(playerArtworkUri)){
+            mLastArtworkUri = playerArtworkUri;
 
-        ImageLoader.getInstance().displayImage(
-                mTrack.getPlayerArtworkUri(getContext()),
-                mArtwork,
-                createPlayerDisplayImageOptions(priority),
-                new ArtworkLoadListener(this, mTrack));
+            showDefaultArtwork(); // during load
+            if (!TextUtils.isEmpty(playerArtworkUri)){
+                ImageLoader.getInstance().displayImage(
+                        playerArtworkUri,
+                        mArtwork,
+                        createPlayerDisplayImageOptions(priority),
+                        new ArtworkLoadListener(this, mTrack));
+            }
+        }
     }
 
     private void showDefaultArtwork() {
         mArtwork.setVisibility(View.GONE);
         mArtwork.setImageDrawable(null);
+        ImageLoader.getInstance().cancelDisplayTask(mArtwork);
 
         if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null) {
             try {
