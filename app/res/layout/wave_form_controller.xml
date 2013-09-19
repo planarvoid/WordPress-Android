@@ -46,7 +46,7 @@
           android:layout_above="@id/waveform_holder"
           android:background="@drawable/drop_shadow_up"/>
 
-    <com.soundcloud.android.view.play.PlayerTime android:id="@+id/currenttime"
+    <com.soundcloud.android.view.play.PlayerTimeView android:id="@+id/currenttime"
                                                     style="@style/txt_player_time"
                                                     android:layout_width="wrap_content"
                                                     android:layout_height="@dimen/player_time_height"

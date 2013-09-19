@@ -23,7 +23,7 @@ import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.PlayerTrackPager;
 import com.soundcloud.android.view.RootView;
 import com.soundcloud.android.view.play.PlayerTrackView;
-import com.soundcloud.android.view.play.TransportBar;
+import com.soundcloud.android.view.play.TransportBarView;
 import com.soundcloud.android.view.play.WaveformController;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +60,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private long mSeekPos = -1;
     private boolean mActivityPaused, mChangeTrackFast, mIgnoreServiceQueue;
     private PlayerTrackPager mTrackPager;
-    private TransportBar mTransportBar;
+    private TransportBarView mTransportBar;
     private @CheckForNull CloudPlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
@@ -88,7 +88,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTrackPagerAdapter = new PlayerTrackPagerAdapter(mPlayQueueManager);
         mTrackPager.setAdapter(mTrackPagerAdapter);
 
-        mTransportBar = (TransportBar) findViewById(R.id.transport_bar);
+        mTransportBar = (TransportBarView) findViewById(R.id.transport_bar);
         mTransportBar.setOnPrevListener(mPrevListener);
         mTransportBar.setOnNextListener(mNextListener);
         mTransportBar.setOnPauseListener(mPauseListener);

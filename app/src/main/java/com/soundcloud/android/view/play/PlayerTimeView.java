@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class PlayerTime extends RelativeLayout {
+public class PlayerTimeView extends RelativeLayout {
     private TextView mCurrentTime;
     private TextView mTotalTime;
     private int mDuration;
@@ -43,7 +43,7 @@ public class PlayerTime extends RelativeLayout {
     private int mAdjustedHeight;
 
 
-    public PlayerTime(Context context, AttributeSet attrs) {
+    public PlayerTimeView(Context context, AttributeSet attrs) {
         super(context, attrs);
         View.inflate(context, R.layout.player_time, this);
 

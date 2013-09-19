@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
-public class TransportBar extends LinearLayout{
+public class TransportBarView extends LinearLayout {
     private ImageButton mPauseButton, mPrevButton, mNextButton;
     private ToggleButton mToggleComment;
     private Drawable mPlayState, mPauseState;
@@ -22,7 +22,7 @@ public class TransportBar extends LinearLayout{
 
     private boolean mNextEnabled;
 
-    public TransportBar(Context context, AttributeSet attrs) {
+    public TransportBarView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setStaticTransformationsEnabled(true);
         LayoutInflater inflater = (LayoutInflater) context

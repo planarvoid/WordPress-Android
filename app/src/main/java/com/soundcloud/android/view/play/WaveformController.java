@@ -51,7 +51,7 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
     protected RelativeLayout mWaveformFrame;
     private PlayerTouchBar mPlayerTouchBar;
     protected @Nullable WaveformCommentLines mCommentLines;
-    protected PlayerTime mCurrentTimeDisplay;
+    protected PlayerTimeView mCurrentTimeDisplay;
 
     protected @Nullable Track mTrack;
     protected int mQueuePosition;
@@ -129,7 +129,7 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
         mWaveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
         mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        mCurrentTimeDisplay = (PlayerTime) findViewById(R.id.currenttime);
+        mCurrentTimeDisplay = (PlayerTimeView) findViewById(R.id.currenttime);
 
         mWaveformColor = context.getResources().getColor(R.color.playerControlBackground);
         mOverlay = findViewById(R.id.progress_overlay);
