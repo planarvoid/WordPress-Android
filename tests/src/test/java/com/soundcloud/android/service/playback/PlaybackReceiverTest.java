@@ -340,6 +340,14 @@ public class PlaybackReceiverTest {
     }
 
     @Test
+    public void shouldCallStopOnStopActionIfNotPlaying(){
+        when(playbackService.getState()).thenReturn(State.PAUSED);
+        Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verify(playbackService).stop();
+    }
+
+    @Test
     public void shouldNotCallSaveProgressAndStopOnStopActionIfNotPlaying(){
         when(playbackService.getState()).thenReturn(State.STOPPED);
         Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);

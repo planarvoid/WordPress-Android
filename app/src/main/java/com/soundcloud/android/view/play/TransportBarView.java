@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.play;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -15,16 +14,15 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
-public class TransportBar extends LinearLayout{
+public class TransportBarView extends LinearLayout {
     private ImageButton mPauseButton, mPrevButton, mNextButton;
     private ToggleButton mToggleComment;
     private Drawable mPlayState, mPauseState;
-    private RelativeLayout mPrevHolder;
     private RelativeLayout mNextHolder;
 
-    private boolean mPrevEnabled, mNextEnabled;
+    private boolean mNextEnabled;
 
-    public TransportBar(Context context, AttributeSet attrs) {
+    public TransportBarView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setStaticTransformationsEnabled(true);
         LayoutInflater inflater = (LayoutInflater) context
@@ -45,8 +43,6 @@ public class TransportBar extends LinearLayout{
 
         mPauseState = getResources().getDrawable(R.drawable.ic_pause_states);
         mPlayState = getResources().getDrawable(R.drawable.ic_play_states);
-
-        mPrevHolder = (RelativeLayout) mPrevButton.getParent();
         mNextHolder = (RelativeLayout) mNextButton.getParent();
     }
 
@@ -65,13 +61,8 @@ public class TransportBar extends LinearLayout{
     public void setOnCommentListener(OnClickListener listener) {
         mToggleComment.setOnClickListener(listener);
     }
-    public void setPreviousEnabled(boolean b) {
-        mPrevEnabled = b;
-        mPrevHolder.invalidate();
-    }
-
     public void setNextEnabled(boolean b) {
-        Log.i("asdf", "Set Next Enabled " + b);
+        mNextButton.setEnabled(b);
         mNextEnabled = b;
         mNextHolder.invalidate();
     }
@@ -79,7 +70,7 @@ public class TransportBar extends LinearLayout{
     @Override
     protected boolean getChildStaticTransformation(View child, Transformation t) {
         boolean ret = super.getChildStaticTransformation(child, t);
-        if (child == mPrevHolder && !mPrevEnabled || child == mNextHolder && !mNextEnabled){
+        if (child == mNextHolder && !mNextEnabled){
             t.setAlpha(0.5f);
             return true;
         }

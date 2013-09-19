@@ -460,6 +460,6 @@ class Mvn
 
   def execute
     puts "Executing: #{@command}"
-    system @@command
+    system @command
   end
 end

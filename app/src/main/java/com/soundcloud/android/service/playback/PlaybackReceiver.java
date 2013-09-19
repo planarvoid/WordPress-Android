@@ -82,11 +82,6 @@ class PlaybackReceiver extends BroadcastReceiver {
                 setRepostStatus(intent.getData(), false);
             } else if (Actions.PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
-            } else if (Actions.STOP_ACTION.equals(action)) {
-                if (mPlaybackService.getState().isSupposedToBePlaying()) {
-                    mPlaybackService.saveProgressAndStop();
-                }
-
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
                 if (mPlaybackService.getState() == EMPTY_PLAYLIST) {
                     mPlaybackService.openCurrent();
@@ -97,6 +92,13 @@ class PlaybackReceiver extends BroadcastReceiver {
                     t.refreshInfoAsync(mPlaybackService.getOldCloudApi(), mPlaybackService.getInfoListener());
                 } else {
                     mPlaybackService.getInfoListener().onError(intent.getLongExtra(Track.EXTRA_ID, -1L));
+                }
+            } else if (Actions.STOP_ACTION.equals(action)) {
+                if (mPlaybackService.getState().isSupposedToBePlaying()) {
+                    mPlaybackService.saveProgressAndStop();
+                } else {
+                    // make sure we go to a stopped stat. No-op if there already
+                    mPlaybackService.stop();
                 }
 
             }
