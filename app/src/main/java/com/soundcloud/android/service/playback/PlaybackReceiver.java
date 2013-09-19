@@ -73,6 +73,9 @@ class PlaybackReceiver extends BroadcastReceiver {
         } else if (Actions.STOP_ACTION.equals(action)) {
             if (mPlaybackService.getState().isSupposedToBePlaying()) {
                 mPlaybackService.saveProgressAndStop();
+            } else {
+                // make sure we go to a stopped stat. No-op if there already
+                mPlaybackService.stop();
             }
 
         } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
