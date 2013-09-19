@@ -198,6 +198,14 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         }
     }
 
+    public void onBeingScrolled(){
+        mWaveformController.setSuppressComments(true);
+    }
+
+    public void onScrollComplete(){
+        mWaveformController.setSuppressComments(false);
+    }
+
     private void updateAvatar(boolean postAtFront) {
         if (mTrack != null && mTrack.getUser() != null) {
             final User user = mTrack.getUser();

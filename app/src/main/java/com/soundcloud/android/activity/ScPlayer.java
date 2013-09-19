@@ -107,11 +107,17 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     @Override
     public void onPageDrag() {
+        for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
+            ptv.onBeingScrolled();
+        }
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
     }
 
     @Override
     public void onPageSettling() {
+        for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
+            ptv.onScrollComplete();
+        }
         if (mPlayQueueManager.getPosition() != getCurrentDisplayedTrackPosition() // different track
                 && !mHandler.hasMessages(SEND_CURRENT_QUEUE_POSITION) // not already changing
                 && (mChangeTrackFast || CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()) // responding to transport click or already playing

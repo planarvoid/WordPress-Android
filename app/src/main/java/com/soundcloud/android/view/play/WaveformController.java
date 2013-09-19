@@ -91,6 +91,8 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
     static final int TOUCH_MODE_SEEK_CLEAR_DRAG = 4;
 
+    private boolean mSuppressComments;
+
     protected int mode = TOUCH_MODE_NONE;
 
     protected boolean mShowComment;
@@ -263,6 +265,11 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
         }
     }
 
+    public void setSuppressComments(boolean suppressComments){
+        mSuppressComments = suppressComments;
+        closeComment(false);
+    }
+
     public void setBufferingState(boolean isBuffering) {
         mIsBuffering = isBuffering;
         if (mIsBuffering){
@@ -347,12 +354,14 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
                     if (isShown() && (mCurrentShowingComment == null ||
                                     (mCurrentShowingComment == mLastAutoComment &&
                                     last.timestamp - mLastAutoComment.timestamp > MIN_COMMENT_DISPLAY_TIME))) {
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                autoShowComment(last);
-                            }
-                        });
+                        if (!mSuppressComments){
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    autoShowComment(last);
+                                }
+                            });
+                        }
                         mLastAutoComment = last;
                     }
                 }
