@@ -72,10 +72,6 @@ public class APIResponse {
         return !isSuccess();
     }
 
-    int getResponseCode() {
-        return mStatusCode;
-    }
-
     private Map<String, String> createHeadersMap(Header[] allHeaders) {
         return Maps.transformValues(uniqueIndex(newArrayList(allHeaders), HEADER_KEY_FUNCTION), HEADER_VALUE_FUNCTION);
     }

@@ -34,6 +34,7 @@ import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.task.collection.CollectionParams;
 import com.soundcloud.android.task.collection.CollectionTask;
 import com.soundcloud.android.task.collection.ReturnData;
+import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -156,7 +157,8 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
 
         mListView = configureList(new ScListView(getActivity()));
         mListView.setOnRefreshListener(this);
-        mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true, this));
+
+        mListView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(),false, true, this)));
 
         if (mEmptyListView == null) {
             mEmptyListView = createEmptyView();

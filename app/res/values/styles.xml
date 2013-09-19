@@ -1323,16 +1323,19 @@
         <item name="android:layout_alignParentBottom">true</item>
         <item name="android:drawablePadding">5dp</item>
         <item name="android:textAppearance">@style/TextAppearance.ExploreTrackBottom</item>
+        <item name="android:layout_marginBottom">@dimen/explore_suggested_track_parallax_margin_top_bottom</item>
     </style>
 
     <style name="ExploreTrackGenre" parent="ExploreTrackBottom">
         <item name="android:layout_alignParentLeft">true</item>
         <item name="android:drawableLeft">@drawable/mini_tag</item>
+        <item name="android:layout_marginLeft">@dimen/explore_suggested_track_parallax_margin_right_left</item>
     </style>
 
     <style name="ExploreTrackPlaycount" parent="ExploreTrackBottom">
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:drawableLeft">@drawable/stats_plays_white_50</item>
+        <item name="android:layout_marginRight">@dimen/explore_suggested_track_parallax_margin_right_left</item>
     </style>
 
     <style name="EmptyViewImage">

@@ -15,6 +15,7 @@ import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.rx.observers.PullToRefreshObserver;
+import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
@@ -105,7 +106,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         gridView.setEmptyView(mEmptyListView);
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
-        gridView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true, mExploreTracksAdapter));
+        gridView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(),false, true, mExploreTracksAdapter)));
     }
 
     @Override
