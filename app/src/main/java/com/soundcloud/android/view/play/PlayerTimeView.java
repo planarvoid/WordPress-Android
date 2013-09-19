@@ -72,8 +72,8 @@ public class PlayerTimeView extends RelativeLayout {
 
         setGravity(Gravity.CENTER_HORIZONTAL);
 
-        TypedArray a=getContext().obtainStyledAttributes(attrs,R.styleable.PlayerTime);
-        setShowArrow(a.getBoolean(R.styleable.PlayerTime_show_arrow, false));
+        TypedArray a=getContext().obtainStyledAttributes(attrs,R.styleable.PlayerTimeView);
+        setShowArrow(a.getBoolean(R.styleable.PlayerTimeView_show_arrow, false));
         a.recycle();
     }
 
