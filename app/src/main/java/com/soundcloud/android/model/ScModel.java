@@ -69,6 +69,11 @@ public class ScModel implements Parcelable, Identifiable {
         return c.isNull(index) ? NOT_SET : c.getInt(index);
     }
 
+    protected static long getLongOrNotSet(Cursor c, String column) {
+        final int index = c.getColumnIndex(column);
+        return c.isNull(index) ? NOT_SET : c.getLong(index);
+    }
+
     @JsonIgnore
     public long getListItemId() {
         return getId();

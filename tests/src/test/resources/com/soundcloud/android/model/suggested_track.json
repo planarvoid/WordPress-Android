@@ -5,6 +5,17 @@
     "waveform_url": "https://wis.sndcdn.com/whVhoRw2gpUh.png",
     "artwork_url": "http://i1.sndcdn.com/artworks-000056989650-zm98k6-large.jpg?5e64f12",
     "_embedded": {
+        "stats": {
+          "comments_count": 23,
+          "_links": {
+            "self": {
+              "href": "http://api.soundcloud.com/app/mobileapps-staging/tracks/soundcloud%3Asounds%3A110843267/stats"
+            }
+          },
+          "favoritings_count": 219,
+          "playback_count": 4901,
+          "reposts_count": 40
+        },
         "user": {
             "urn": "soundcloud:users:106815",
             "username": "georgegao",

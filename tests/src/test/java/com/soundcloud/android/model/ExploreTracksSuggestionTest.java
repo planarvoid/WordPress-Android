@@ -30,7 +30,7 @@ public class ExploreTracksSuggestionTest {
         expect(exploreTracksSuggestion.getArtworkUrl()).toEqual("http://i1.sndcdn.com/artworks-000056989650-zm98k6-large.jpg?5e64f12");
         expect(exploreTracksSuggestion.getUserTags()).toContainExactly("Jazz","Film");
         expect(exploreTracksSuggestion.getCreatedAt()).toEqual(Wrapper.CloudDateFormat.fromString("2013/08/17 07:50:03 +0000"));
-        expect(exploreTracksSuggestion.getPlaybackCount()).toEqual(3583L);
+        expect(exploreTracksSuggestion.getStats().getPlaybackCount()).toEqual(4901L);
 
     }
 

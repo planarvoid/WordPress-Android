@@ -21,8 +21,9 @@ public class ExploreTracksSuggestion extends ScModel {
     private String          mWaveformUrl;
     private List<String>    mUserTags;
     private Date            mCreatedAt;
-    private long            mPlaybackCount;
     private String          mArtworkUrl;
+
+    private Stats           mStats;
 
     public ExploreTracksSuggestion() { /* for Deserialization */ }
 
@@ -92,8 +93,8 @@ public class ExploreTracksSuggestion extends ScModel {
         }
     }
 
-    public long getPlaybackCount() {
-        return mPlaybackCount;
+    public Stats getStats() {
+        return mStats;
     }
 
     public List<String> getUserTags() {
@@ -106,6 +107,10 @@ public class ExploreTracksSuggestion extends ScModel {
 
     public void setTitle(String title) {
         this.mTitle = title;
+    }
+
+    public void setStats(Stats stats) {
+        this.mStats = stats;
     }
 
     public void setGenre(String genre) {
@@ -127,11 +132,6 @@ public class ExploreTracksSuggestion extends ScModel {
     @JsonProperty("stream_url")
     public void setStreamUrl(String streamUrl) {
         this.mStreamUrl = streamUrl;
-    }
-
-    @JsonProperty("playback_count")
-    public void setPlaybackCount(long playback_count) {
-        this.mPlaybackCount = playback_count;
     }
 
     @JsonProperty("waveform_url")
@@ -158,6 +158,7 @@ public class ExploreTracksSuggestion extends ScModel {
     @JsonProperty("_embedded")
     public void setRelatedResources(RelatedResources relatedResources) {
         this.mUser = relatedResources.user;
+        this.mStats = relatedResources.stats;
     }
 
     @Override
@@ -192,9 +193,14 @@ public class ExploreTracksSuggestion extends ScModel {
 
     private static class RelatedResources {
         private UserSummary user;
+        private Stats stats;
 
         void setUser(UserSummary user) {
             this.user = user;
+        }
+
+        void setStats(Stats stats) {
+            this.stats = stats;
         }
     }
 }

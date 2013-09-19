@@ -68,7 +68,7 @@ public class Track extends Playable implements PlayableHolder {
 
     @JsonView(Views.Full.class) public long playback_count = NOT_SET;
     @JsonView(Views.Full.class) public int download_count = NOT_SET;
-    @JsonView(Views.Full.class) public int comment_count  = NOT_SET;
+    @JsonView(Views.Full.class) public long comment_count  = NOT_SET;
 
     @JsonView(Views.Full.class) public String original_format;
 
@@ -120,7 +120,14 @@ public class Track extends Playable implements PlayableHolder {
         stream_url = suggestion.getStreamUrl();
         tag_list = suggestion.getUserTags() == null ? ScTextUtils.EMPTY_STRING : TextUtils.join(" ", suggestion.getUserTags());
         created_at = suggestion.getCreatedAt();
-        playback_count = suggestion.getPlaybackCount();
+
+        final Stats stats = suggestion.getStats();
+        if (stats != null){
+            playback_count = stats.getPlaybackCount();
+            likes_count = stats.getLikesCount();
+            comment_count = stats.getCommentsCount();
+            reposts_count = stats.getRepostsCount();
+        }
     }
 
     @Override
@@ -199,8 +206,8 @@ public class Track extends Playable implements PlayableHolder {
         b.putFloat("bpm", bpm);
         b.putLong("playback_count", playback_count);
         b.putInt("download_count", download_count);
-        b.putInt("comment_count", comment_count);
-        b.putInt("reposts_count", reposts_count);
+        b.putLong("comment_count", comment_count);
+        b.putLong("reposts_count", reposts_count);
         b.putInt("shared_to_count", shared_to_count);
         b.putString("original_format", original_format);
         b.putString("user_uri", user_uri);
@@ -300,8 +307,8 @@ public class Track extends Playable implements PlayableHolder {
         bpm = b.getFloat("bpm");
         playback_count = b.getLong("playback_count");
         download_count = b.getInt("download_count");
-        comment_count = b.getInt("comment_count");
-        reposts_count = b.getInt("reposts_count");
+        comment_count = b.getLong("comment_count");
+        reposts_count = b.getLong("reposts_count");
         shared_to_count = b.getInt("shared_to_count");
         original_format = b.getString("original_format");
         user_uri = b.getString("user_uri");
@@ -332,9 +339,9 @@ public class Track extends Playable implements PlayableHolder {
         download_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOAD_URL));
 
         stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STREAM_URL));
-        playback_count = getIntOrNotSet(cursor, DBHelper.SoundView.PLAYBACK_COUNT);
+        playback_count = getLongOrNotSet(cursor, DBHelper.SoundView.PLAYBACK_COUNT);
         download_count = getIntOrNotSet(cursor, DBHelper.SoundView.DOWNLOAD_COUNT);
-        comment_count = getIntOrNotSet(cursor, DBHelper.SoundView.COMMENT_COUNT);
+        comment_count = getLongOrNotSet(cursor, DBHelper.SoundView.COMMENT_COUNT);
         shared_to_count = getIntOrNotSet(cursor, DBHelper.SoundView.SHARED_TO_COUNT);
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.COMMENTABLE)) == 1;
 

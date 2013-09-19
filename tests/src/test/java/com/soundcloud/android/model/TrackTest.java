@@ -291,8 +291,12 @@ public class TrackTest {
         expect(t.waveform_url).toEqual(Track.fixWaveform(suggestion.getWaveformUrl()));
         expect(t.tag_list).toEqual(TextUtils.join(" ", suggestion.getUserTags()));
         expect(t.created_at).toEqual(suggestion.getCreatedAt());
-        expect(t.playback_count).toEqual(suggestion.getPlaybackCount());
         expect(t.duration).toEqual(suggestion.getDuration());
+
+        expect(t.likes_count).toEqual(suggestion.getStats().getLikesCount());
+        expect(t.playback_count).toEqual(suggestion.getStats().getPlaybackCount());
+        expect(t.reposts_count).toEqual(suggestion.getStats().getRepostsCount());
+        expect(t.comment_count).toEqual(suggestion.getStats().getCommentsCount());
     }
 
     private void compareTracks(Track t, Track t2) {

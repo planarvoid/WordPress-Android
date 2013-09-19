@@ -72,8 +72,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     @JsonView(Views.Full.class) public String purchase_title;
     @JsonView(Views.Full.class) public String embeddable_by;
 
-    @JsonView(Views.Full.class) public int likes_count = NOT_SET;
-    @JsonView(Views.Full.class) public int reposts_count = NOT_SET;
+    @JsonView(Views.Full.class) public long likes_count = NOT_SET;
+    @JsonView(Views.Full.class) public long reposts_count = NOT_SET;
     @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public int shared_to_count = NOT_SET;
     @JsonView(Views.Full.class) public String tag_list;
@@ -110,8 +110,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.SHARING)));
         license = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.LICENSE));
         genre = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.GENRE));
-        likes_count = getIntOrNotSet(cursor, DBHelper.SoundView.LIKES_COUNT);
-        reposts_count = getIntOrNotSet(cursor, DBHelper.SoundView.REPOSTS_COUNT);
+        likes_count = getLongOrNotSet(cursor, DBHelper.SoundView.LIKES_COUNT);
+        reposts_count = getLongOrNotSet(cursor, DBHelper.SoundView.REPOSTS_COUNT);
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
 
         final long lastUpdated = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.LAST_UPDATED));
@@ -242,8 +242,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         b.putInt("release_month", release_month);
         b.putString("purchase_title", purchase_title);
         b.putString("embeddable_by", embeddable_by);
-        b.putInt("likes_count", likes_count);
-        b.putInt("reposts_count", reposts_count);
+        b.putLong("likes_count", likes_count);
+        b.putLong("reposts_count", reposts_count);
         b.putString("tag_list", tag_list);
         b.putString("sharing", sharing.value());
         b.putCharSequence("elapsedTime", mElapsedTime);
@@ -280,8 +280,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         release_month = b.getInt("release_month");
         purchase_title = b.getString("purchase_title");
         embeddable_by = b.getString("embeddable_by");
-        likes_count = b.getInt("likes_count");
-        reposts_count = b.getInt("reposts_count");
+        likes_count = b.getLong("likes_count");
+        reposts_count = b.getLong("reposts_count");
         tag_list = b.getString("tag_list");
         sharing = Sharing.fromString(b.getString("sharing"));
         mElapsedTime = b.getCharSequence("elapsedTime");
