@@ -47,6 +47,7 @@ public class EmptyListView extends RelativeLayout {
         int WAITING = -1;
         int ERROR = -2; //generic error
         int CONNECTION_ERROR = -3;
+        int SERVER_ERROR = -4;
         int OK = SC_OK; //generic OK
     }
 
@@ -145,7 +146,7 @@ public class EmptyListView extends RelativeLayout {
             AnimUtils.hideView(getContext(), mEmptyLayout, false);
         }
 
-        if (Wrapper.isStatusCodeError(responseCode)){
+        if (Wrapper.isStatusCodeError(responseCode) || responseCode == Status.SERVER_ERROR){
             mErrorView.setUnexpectedResponseState();
         } else {
             mErrorView.setConnectionErrorState();

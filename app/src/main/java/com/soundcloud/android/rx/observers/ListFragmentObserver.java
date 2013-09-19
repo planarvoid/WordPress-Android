@@ -21,7 +21,8 @@ public class ListFragmentObserver<ModelType, FragmentType extends Fragment & Emp
     @Override
     public void onError(FragmentType fragment, Throwable error) {
         if (error instanceof APIRequestException){
-            fragment.setEmptyViewStatus(((APIRequestException) error).responseCode());
+            boolean commsError= ((APIRequestException) error).reason() == APIRequestException.APIErrorReason.NETWORK_COMM_ERROR;
+            fragment.setEmptyViewStatus(commsError ? EmptyListView.Status.CONNECTION_ERROR : EmptyListView.Status.SERVER_ERROR);
         } else {
             fragment.setEmptyViewStatus(EmptyListView.Status.ERROR);
         }
