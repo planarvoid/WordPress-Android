@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="PlayerTime">
+    <declare-styleable name="PlayerTimeView">
         <attr name="show_arrow" format="boolean" />
     </declare-styleable>
 

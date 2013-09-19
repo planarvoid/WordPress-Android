@@ -57,7 +57,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
         return mRxHttpClient.fetchPagedModels(request);
     }
 
-    public Observable<Track> getRelatedTracks(Track seedTrack) {
+    public Observable<Track> getRelatedTracks(final Track seedTrack) {
         final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), seedTrack.getUrn().toEncodedString());
         final APIRequest<ModelCollection<ExploreTracksSuggestion>> request = SoundCloudAPIRequest.RequestBuilder.<ModelCollection<ExploreTracksSuggestion>>get(endpoint)
                 .forPrivateAPI(1)

@@ -239,6 +239,14 @@ public class WaveformControllerLand extends WaveformController {
         }
     }
 
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        if (changed){
+            mCurrentTimeDisplay.setCommentingHeight(mWaveformHolder.getHeight()/2);
+        }
+    }
+
     private float getAnimationTransY(Animation a) {
         Transformation outTransformation = new Transformation();
         a.getTransformation(mWaveformHolder.getDrawingTime(), outTransformation);
@@ -270,17 +278,14 @@ public class WaveformControllerLand extends WaveformController {
             toggleCommentsPanelVisibility(false);
             ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ALIGN_PARENT_TOP);
             ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ABOVE,0);
-            mCurrentTimeDisplay.setCommentingHeight(mWaveformHolder.getHeight()/2);
             mCurrentTimeDisplay.setRoundTop(false);
-            mCurrentTimeDisplay.setShowArrow(true);
-
         } else {
             toggleWaveformHalf(false);
             ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ALIGN_PARENT_TOP, 0);
             ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ABOVE, R.id.player_avatar_bar_holder);
             mCurrentTimeDisplay.setRoundTop(true);
-            mCurrentTimeDisplay.setShowArrow(false);
         }
+        mCurrentTimeDisplay.setCommenting(commenting);
         super.setCommentMode(commenting);
     }
 

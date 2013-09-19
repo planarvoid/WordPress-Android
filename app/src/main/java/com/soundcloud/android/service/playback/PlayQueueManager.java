@@ -46,7 +46,7 @@ public class PlayQueueManager {
     private Observable<Track> mRelatedTracksObservable;
 
     private enum AppendState {
-        IDLE, LOADING, ERROR;
+        IDLE, LOADING, ERROR, EMPTY;
     }
 
     private static PlayQueueManager instance;
@@ -248,9 +248,12 @@ public class PlayQueueManager {
         mAppendingState = AppendState.LOADING;
         mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
         mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<Track>() {
+
+            private boolean mGotRelatedTracks;
+
             @Override
             public void onCompleted() {
-                mAppendingState = AppendState.IDLE;
+                mAppendingState = mGotRelatedTracks ? AppendState.IDLE : AppendState.EMPTY;
                 mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
             }
 
@@ -263,6 +266,7 @@ public class PlayQueueManager {
             @Override
             public void onNext(Track track) {
                 mPlayQueue.add(track);
+                mGotRelatedTracks = true;
             }
         });
     }
@@ -281,6 +285,10 @@ public class PlayQueueManager {
 
     public boolean lastRelatedFetchFailed() {
         return mAppendingState == AppendState.ERROR;
+    }
+
+    public boolean lastRelatedFetchWasEmpty() {
+        return mAppendingState == AppendState.EMPTY;
     }
 
     private AsyncTask loadCursor(final Uri uri, final int position) {
