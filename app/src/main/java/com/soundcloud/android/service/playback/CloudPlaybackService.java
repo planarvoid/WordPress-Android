@@ -317,11 +317,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
         if (intent != null) {
-            final boolean hasAccount = mAccountOperations.soundCloudAccountExists();
+            boolean hasAccount = mAccountOperations.soundCloudAccountExists();
             if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.isEmpty()){
                 configureLastPlaylist();
             }
-            mIntentReceiver.onReceive(this, intent, hasAccount);
+            mIntentReceiver.onReceive(this, intent);
         }
         scheduleServiceShutdownCheck();
         // make sure the service will shut down on its own if it was

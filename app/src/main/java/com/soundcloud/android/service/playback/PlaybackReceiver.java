@@ -45,10 +45,6 @@ class PlaybackReceiver extends BroadcastReceiver {
     @Override
 
     public void onReceive(Context context, Intent intent) {
-        onReceive(context, intent, mAccountOperations.soundCloudAccountExists());
-    }
-
-    public void onReceive(Context context, Intent intent, boolean hasAccount) {
 
         String action = intent.getAction();
         if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
@@ -59,7 +55,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             mPlaybackService.resetAll();
             mPlayQueueManager.clear();
 
-        } else if (hasAccount) {
+        } else if (mAccountOperations.soundCloudAccountExists()) {
 
             if (Actions.NEXT_ACTION.equals(action)) {
                 mPlaybackService.next();
