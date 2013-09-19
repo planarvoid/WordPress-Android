@@ -23,6 +23,4 @@ public class OnboardScreen {
         solo.clickOnButtonResId(R.string.authentication_log_in);
         solo.waitForViewId(R.id.btn_login, 5000);
     }
-
-
 }

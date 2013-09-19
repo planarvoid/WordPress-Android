@@ -8,6 +8,7 @@ import com.soundcloud.android.dao.SoundAssociationStorage;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.SyncStateManager;
@@ -32,7 +33,8 @@ import android.widget.Toast;
 
 public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 
-    private AccountOperations accountOperations;
+    private AccountOperations mAccountOpertations;
+    private ApplicationProperties mApplicationProperties;
 
     public static CreateNewSetDialogFragment from(long trackId) {
 
@@ -46,11 +48,12 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        accountOperations = new AccountOperations(getActivity());
+        mAccountOpertations = new AccountOperations(getActivity());
+        mApplicationProperties = new ApplicationProperties(getResources());
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_create_new_set, null);
-        ((TextView) dialogView.findViewById(android.R.id.title)).setText(R.string.create_new_set);
+        ((TextView) dialogView.findViewById(android.R.id.title)).setText(R.string.create_new_playlist);
 
         // Set an EditText view to get user input
         final EditText input = (EditText) dialogView.findViewById(android.R.id.edit);
@@ -59,7 +62,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
         final CheckBox privacy = (CheckBox) dialogView.findViewById(R.id.chk_private);
 
 
-        if (!SoundCloudApplication.DEV_MODE){
+        if (!mApplicationProperties.isDevBuildRunningOnDalvik()){
             privacy.setVisibility(View.GONE);
         }
 
@@ -82,9 +85,9 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
                     @Override
                     public void onClick(View v) {
                         if (TextUtils.isEmpty(input.getText())) {
-                            Toast.makeText(getActivity(), R.string.error_new_set_blank_title, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
                         } else {
-                            createPlaylist(input.getText(), SoundCloudApplication.DEV_MODE && privacy.isChecked());
+                            createPlaylist(input.getText(), mApplicationProperties.isDevBuildRunningOnDalvik() && privacy.isChecked());
                             dialog.dismiss();
                         }
                     }
@@ -96,7 +99,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 
     private void createPlaylist(final Editable text, final boolean isPrivate) {
         final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
-        final Account account = accountOperations.getSoundCloudAccount();
+        final Account account = mAccountOpertations.getSoundCloudAccount();
 
         PlaylistStorage playlistStorage = getPlaylistStorage();
         // insert the new playlist into the database

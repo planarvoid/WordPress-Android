@@ -41,6 +41,19 @@ public class PlaylistTest {
     }
 
     @Test
+    public void shouldParcelAndUnparcelWithNoTracksCorrectly() throws Exception {
+        Playlist playlist = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("e1_playlist_no_tracks.json"),
+                Playlist.class);
+
+        Parcel p = Parcel.obtain();
+        playlist.writeToParcel(p, 0);
+
+        Playlist playlist2 = new Playlist(p);
+        comparePlaylists(playlist, playlist2);
+    }
+
+    @Test
     public void shouldProvideCreateJson() throws Exception {
         Playlist playlist = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("e1_playlist.json"),
@@ -62,7 +75,7 @@ public class PlaylistTest {
 
         List<Long> toAdd = new ArrayList<Long>();
         for (Track t : playlist.tracks){
-            toAdd.add(t.mID);
+            toAdd.add(t.getId());
         }
 
         // update tracks mode
@@ -72,7 +85,7 @@ public class PlaylistTest {
     }
 
     private void comparePlaylists(Playlist playlist, Playlist playlist1) {
-        expect(playlist1.mID).toEqual(playlist.mID);
+        expect(playlist1.getId()).toEqual(playlist.getId());
         expect(playlist1.title).toEqual(playlist.title);
         expect(playlist1.permalink).toEqual(playlist.permalink);
         expect(playlist1.duration).toBeGreaterThan(0);

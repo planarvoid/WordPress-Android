@@ -1,42 +1,66 @@
 package com.soundcloud.android.streaming;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import rx.Observable;
+import rx.Observer;
+
+import android.net.Uri;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @RunWith(DefaultTestRunner.class)
 public class StreamProxyTest {
+    private StreamProxy subject;
+
+    @Before public void before() {
+        subject = new StreamProxy(Robolectric.application);
+    }
 
     @Test
-    @Ignore
-    public void testStartProxy() throws Exception {
-        StreamProxy proxy = new StreamProxy(DefaultTestRunner.application, 0);
-        proxy.loader.setForceOnline(true);
-        proxy.init()
-                .start()
-                .join();
+    public void testProxyLifeCycle() throws Exception {
+        expect(subject.isRunning()).toBeFalse();
+
+        subject.start();
+        int tries = 5;
+        while (!subject.isRunning() && tries-- > 0) {
+            Thread.sleep(100);
+        }
+        expect(subject.isRunning()).toBeTrue();
+        subject.stop();
+        subject.join();
+        expect(subject.isRunning()).toBeFalse();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testProxyThrowsErrorIfStoppedAndNotStarted() throws Exception {
+        subject.stop();
     }
 
     @Test
     public void testCreateHeader() throws Exception {
-        StreamProxy proxy = new StreamProxy(DefaultTestRunner.application, 0);
-
-        Map<String, String> h = proxy.headerMap();
+        Map<String, String> h = subject.headerMap();
 
         expect(h.containsKey("Server")).toBeTrue();
         expect(h.containsKey("Content-Type")).toBeTrue();
         expect(h.get("Content-Type")).toEqual("audio/mpeg");
     }
-
 
     @Test
     public void testReadRequest() throws Exception {
@@ -68,10 +92,32 @@ public class StreamProxyTest {
     }
 
     @Test
-    public void testCreateUri() throws Exception {
-        StreamProxy proxy = new StreamProxy(DefaultTestRunner.application, 0);
-        expect(proxy.createUri("https://api.soundcloud.com/tracks/3232/stream", null).toString())
-                .toEqual("http://127.0.0.1:0/%2F?streamUrl=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F3232%2Fstream");
+    public void testUriObservableReturnsCorrectUri() throws Exception {
+        final String url = "https://api.soundcloud.com/tracks/3232/stream";
+        final String nextUrl = null;
+
+        subject.start();
+        Observable<Uri> observable = subject.uriObservable(url, nextUrl);
+        Uri result = observable.toBlockingObservable().getIterator().next();
+
+        expect(result.toString()).toMatch(
+                Pattern.quote("http://127.0.0.1:") + "\\d+" +
+                Pattern.quote("/%2F?streamUrl=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F3232%2Fstream"));
+
+        subject.stop();
+    }
+
+    @Test
+    public void testUriObservableErrorsIfStreamUrlIsEmpty() throws Exception {
+        Observable<Uri> observable = subject.uriObservable("", null);
+        Observer<Uri> observer = mock(Observer.class);
+        observable.subscribe(observer);
+
+        ArgumentCaptor<Throwable> argumentCaptor = ArgumentCaptor.forClass(Throwable.class);
+        verify(observer).onError(argumentCaptor.capture());
+        verify(observer, never()).onCompleted();
+        verify(observer, never()).onNext(any(Uri.class));
+        expect(argumentCaptor.getValue()).toBeInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

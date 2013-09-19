@@ -43,8 +43,8 @@ public class WidgetPlaybackRemoteViews extends PlaybackRemoteViews {
             Uri trackUri = Content.TRACK.forId(trackId);
             final Intent toggleLike = new Intent(
                     userLike ?
-                            CloudPlaybackService.REMOVE_LIKE_ACTION :
-                            CloudPlaybackService.ADD_LIKE_ACTION)
+                            CloudPlaybackService.Actions.REMOVE_LIKE_ACTION :
+                            CloudPlaybackService.Actions.ADD_LIKE_ACTION)
                     .setData(trackUri);
 
             // toggle like

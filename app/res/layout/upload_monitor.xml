@@ -42,7 +42,7 @@
                           android:layout_alignTop="@id/icon"
                           android:layout_alignBottom="@id/icon"
                           android:gravity="center_vertical"
-                          style="@style/txt_list_main"
+                          style="@style/TextAppearance.List.Main"
                           android:text="@string/track"
                           android:layout_toRightOf="@id/icon"/>
                 <RelativeLayout android:id="@+id/uploading_layout"
@@ -118,7 +118,7 @@
                               android:layout_below="@id/result_icon"
                               android:layout_width="fill_parent"
                               android:layout_height="wrap_content"
-                              style="@style/txt_list_sub"
+                              style="@style/TextAppearance.List.Sub"
                               android:gravity="center"
                               android:textStyle="normal"
                               android:text="@string/share_success_message"/>

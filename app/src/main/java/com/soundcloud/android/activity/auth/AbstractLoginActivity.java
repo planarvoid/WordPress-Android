@@ -30,6 +30,7 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse;
     private Bundle mResultBundle;
 
+    @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
@@ -37,6 +38,16 @@ public abstract class AbstractLoginActivity extends SherlockFragmentActivity imp
         if (mAccountAuthenticatorResponse != null) {
             mAccountAuthenticatorResponse.onRequestContinued();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     public void finish() {

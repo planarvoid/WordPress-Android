@@ -134,15 +134,15 @@ public final class AlarmClock {
 
     /* package */ void play(Context context, Uri uri) {
         // TODO: should be handled via intent parameter
-        new PlayQueueManager(context).clearLastPlayed(context);
+        PlayQueueManager.get(context).clearLastPlayed(context);
 
         if (!IOUtils.isConnected(context)) {
             // just use cached items if there is no network connection
             uri = uri.buildUpon().appendQueryParameter(
                     ScContentProvider.Parameter.CACHED, "1").build();
         }
-        context.startService(new Intent(CloudPlaybackService.PLAY_ACTION, uri)
-                .putExtra(CloudPlaybackService.EXTRA_UNMUTE, true));
+        context.startService(new Intent(CloudPlaybackService.Actions.PLAY_ACTION, uri)
+                .putExtra(CloudPlaybackService.PlayExtras.unmute, true));
     }
 
     public static boolean isFeatureEnabled(Context context) {

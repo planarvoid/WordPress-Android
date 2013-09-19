@@ -27,7 +27,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +77,8 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     // TODO, rollback memory state on error
-    public FollowingOperations(RxHttpClient httpClient, UserAssociationStorage userAssociationStorage,
+    @VisibleForTesting
+    protected FollowingOperations(RxHttpClient httpClient, UserAssociationStorage userAssociationStorage,
                                SyncStateManager syncStateManager, FollowStatus followStatus, ScModelManager modelManager) {
         mRxHttpClient = httpClient;
         mUserAssociationStorage = userAssociationStorage;
@@ -221,7 +222,7 @@ public class FollowingOperations extends ScheduledOperations {
         return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
             @Override
             public Subscription call(Observer<UserAssociation> observer) {
-                RxUtils.emitCollection(observer, mUserAssociationStorage.getFollowingsNeedingSync());
+                RxUtils.emitIterable(observer, mUserAssociationStorage.getFollowingsNeedingSync());
                 observer.onCompleted();
                 return Subscriptions.empty();
             }

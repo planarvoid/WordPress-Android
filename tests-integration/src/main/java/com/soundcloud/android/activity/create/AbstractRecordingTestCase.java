@@ -45,7 +45,7 @@ import java.util.Map;
 
 public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreate> {
     // longer recordings on emulator
-    protected static final int RECORDING_TIME = EMULATOR ? 6000 : 2000;
+    protected int recordingTime;
     protected static final int ROBO_SLEEP = 500;
 
     protected LocalBroadcastManager lbm;
@@ -74,7 +74,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
     @Override
     public void setUp() throws Exception {
         IntegrationTestHelper.loginAsDefault(getInstrumentation());
-
+        recordingTime = applicationProperties.isRunningOnEmulator() ? 6000 : 2000;
         intents = Collections.synchronizedMap(new LinkedHashMap<String, Intent>());
         lbm = LocalBroadcastManager.getInstance(getActivity());
         lbm.registerReceiver(receiver, UploadService.getIntentFilter());
@@ -301,7 +301,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
             assertEquals("track is not in ogg format: "+track, VorbisReader.EXTENSION, track.original_format);
 
             // emulator uploaded tracks are longer (samplerate mismatch)
-            if (!EMULATOR) {
+            if (!applicationProperties.isRunningOnEmulator()) {
                 assertEquals("track duration: "+track, durationInMs, track.duration, 2000);
             }
 

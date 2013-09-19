@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests;
 
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.screens.MenuScreen;
 
 import android.app.Activity;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * screenshots for test failures.
  */
 public abstract class ActivityTestCase<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
-    protected static final boolean EMULATOR = SoundCloudApplication.EMULATOR;
+    protected ApplicationProperties applicationProperties;
     protected MenuScreen menuScreen;
 
     protected Han solo;
@@ -29,9 +29,10 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void setUp() throws Exception {
+        super.setUp();
         solo = new Han(getInstrumentation(), getActivity());
         menuScreen = new MenuScreen(solo);
-        super.setUp();
+        applicationProperties = new ApplicationProperties(getActivity().getResources());
     }
 
     @Override
@@ -68,13 +69,16 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void runTest() throws Throwable {
-        try {
+
+        try{
             super.runTest();
-        } catch (Throwable e) {
-            if (!(e instanceof OutOfMemoryError)) {
-                solo.poseForScreenshot(getClass().getSimpleName()+"-"+getName());
-            }
-            throw e;
+        }
+        catch (Throwable t) {
+            String testCaseName = String.format("%s.%s", getClass().getName(), getName());
+            solo.takeScreenshot(testCaseName);
+            Log.w("Boom! Screenshot!",String.format("Captured screenshot for failed test: %s", testCaseName));
+
+            throw t;
         }
     }
 

@@ -240,12 +240,21 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private void syncPlaylist() {
         final FragmentActivity activity = getActivity();
-        if (isAdded() && mLocalCollection.isIdle()) {
-            if (mListView != null && isInLayout()) mListView.setRefreshing(false);
-            activity.startService(new Intent(activity, ApiSyncService.class)
-                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
-                    .setData(mPlaylist.toUri()));
+        if (isAdded()) {
+            if (mPlaylist.isLocal()){
+                activity.startService(new Intent(activity, ApiSyncService.class)
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
+                        .setData(Content.ME_PLAYLISTS.uri));
+
+            } else
+            if (mLocalCollection.isIdle()) {
+                if (mListView != null && isInLayout()) mListView.setRefreshing(false);
+                activity.startService(new Intent(activity, ApiSyncService.class)
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, mDetachableReceiver)
+                        .setData(mPlaylist.toUri()));
+            }
         }
     }
 

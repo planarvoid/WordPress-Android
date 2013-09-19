@@ -1,0 +1,145 @@
+
+{
+    "collection": [
+        {
+            "title": "Evolution of Get Lucky [Daft Punk chronologic cover]",
+            "urn": "soundcloud:sounds:96017719",
+            "genre": "all genres",
+            "user": {
+                "username": "pvnova",
+                "urn": "soundcloud:users:7861090"
+            },
+            "sharing": "public",
+            "commentable": true,
+            "duration": 191102,
+            "stream_url": "https://api.soundcloud.com/tracks/96017719/stream",
+            "waveform_url": "https://w1.sndcdn.com/GXIXy4KWvMRG_m.png",
+            "tag_list": [
+                "daft",
+                "punk",
+                "cover",
+                "chronologic"
+            ],
+            "created_at": "2013/06/08 16:59:05 +0000"
+        },
+        {
+            "title": "?",
+            "urn": "soundcloud:sounds:63951180",
+            "genre": "Ambient",
+            "playback_count": 2934,
+            "user": {
+                "username": "terek ke",
+                "urn": "soundcloud:users:2202787"
+            },
+            "sharing": "public",
+            "commentable": true,
+            "duration": 380900,
+            "stream_url": "https://api.soundcloud.com/tracks/63951180/stream",
+            "waveform_url": "https://w1.sndcdn.com/fgXE5Qzzrh6j_m.png",
+            "tag_list": [],
+            "created_at": "2012/10/19 00:46:50 +0000"
+        },
+         {
+             "title": "secretsundaze 008 // BLM - Chemistry",
+             "urn": "soundcloud:sounds:80754545",
+             "genre": "House",
+             "playback_count": 2906,
+             "user": {
+                 "username": "secretsundaze",
+                 "urn": "soundcloud:users:5393825"
+             },
+             "sharing": "public",
+             "commentable": true,
+             "duration": 434326,
+             "stream_url": "https://api.soundcloud.com/tracks/80754545/stream",
+             "waveform_url": "https://w1.sndcdn.com/d7eT1Ow4WoQm_m.png",
+             "tag_list": [],
+             "created_at": "2013/02/25 12:44:27 +0000"
+         },
+        {
+            "title": "Accident du Travail – Lycaon",
+            "urn": "soundcloud:sounds:100463928",
+            "genre": "TTTape",
+            "playback_count": 1011,
+            "user": {
+                "username": "The Trilogy Tapes",
+                "urn": "soundcloud:users:1322566"
+            },
+            "sharing": "public",
+            "commentable": true,
+            "duration": 244607,
+            "stream_url": "https://api.soundcloud.com/tracks/100463928/stream",
+            "waveform_url": "https://w1.sndcdn.com/WmAWfRlm3HC0_m.png",
+            "tag_list": [],
+            "created_at": "2013/07/10 15:01:06 +0000"
+        },
+        {
+            "title": "atba",
+            "urn": "soundcloud:sounds:99941429",
+            "genre": "Electronic",
+            "playback_count": 1361,
+            "user": {
+                "username": "terek   ke",
+                "urn": "soundcloud:users:2202787"
+            },
+            "sharing": "public",
+            "commentable": true,
+            "duration": 363840,
+            "stream_url": "https://api.soundcloud.com/tracks/99941429/stream",
+            "waveform_url": "https://w1.sndcdn.com/xNdgoKCfg0wA_m.png",
+            "tag_list": [],
+            "created_at": "2013/07/06 18:02:12 +0000"
+        },
+        {
+            "title": "\"Vaporware 05\" from Donato Dozzy Plays Bee Mask",
+            "urn": "soundcloud:sounds:99422235",
+            "genre": "BrokenPlate",
+            "user": {
+                "username": "Spectrum Spools",
+                "urn": "soundcloud:users:2218862"
+            },
+            "sharing": "public",
+            "commentable": true,
+            "duration": 363345,
+            "stream_url": "https://api.soundcloud.com/tracks/99422235/stream",
+            "waveform_url": "https://w1.sndcdn.com/rYeLQ8g4mpf6_m.png",
+            "tag_list": [],
+            "created_at": "2013/07/02 20:43:10 +0000"
+        },
+        {
+            "title": "TODD TERJE - Strandbar (disko)",
+            "urn": "soundcloud:sounds:92182988",
+            "genre": "",
+            "user": {
+                "username": "toddterje",
+                "urn": "soundcloud:users:48903"
+            },
+            "sharing": "public",
+            "commentable": true,
+            "duration": 527827,
+            "stream_url": "https://api.soundcloud.com/tracks/92182988/stream",
+            "waveform_url": "https://w1.sndcdn.com/qyS0xTv2j2T8_m.png",
+            "tag_list": [
+                "terje"
+            ],
+            "created_at": "2013/05/14 18:01:18 +0000"
+        },
+        {
+            "title": "Let go 2",
+            "urn": "soundcloud:sounds:62848613",
+            "genre": "Outsider House",
+            "playback_count": 4362,
+            "user": {
+                "username": "terek ke",
+                "urn": "soundcloud:users:2202787"
+            },
+            "sharing": "public",
+            "commentable": true,
+            "duration": 782570,
+            "stream_url": "https://api.soundcloud.com/tracks/62848613/stream",
+            "waveform_url": "https://w1.sndcdn.com/bvcyGs3H4hMi_m.png",
+            "tag_list": [],
+            "created_at": "2012/10/09 23:49:44 +0000"
+        }
+    ]
+}

@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.google.common.base.Charsets;
 import com.soundcloud.android.api.http.HttpProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.images.ImageSize;
@@ -8,6 +9,9 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.net.Uri;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Models a SoundCloud client uri
@@ -98,6 +102,16 @@ public class ClientUri {
         }
     }
 
+    @Nullable
+    public static ClientUri fromTrack(long id) {
+        return fromUri(forTrack(id));
+    }
+
+    @Nullable
+    public static ClientUri fromUser(long id) {
+        return fromUri(forUser(id));
+    }
+
     public static Uri forTrack(long id) {
         return Uri.parse("soundcloud:sounds:"+id);
     }
@@ -109,6 +123,16 @@ public class ClientUri {
     @Override
     public String toString() {
         return uri.toString();
+    }
+
+    public String toEncodedString() {
+        try {
+            return URLEncoder.encode(uri.toString(), Charsets.UTF_8.displayName());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 

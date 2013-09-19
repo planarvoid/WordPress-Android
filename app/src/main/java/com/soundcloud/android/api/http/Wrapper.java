@@ -14,6 +14,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
@@ -71,7 +72,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
     private static final int API_LOOKUP_BATCH_SIZE = 200;
 
     private static Wrapper instance;
-
+    private ApplicationProperties mApplicationProperties;
     private ObjectMapper mObjectMapper;
     private Context mContext;
     private String userAgent;
@@ -85,20 +86,21 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Deprecated
     public Wrapper(Context context) {
-        this(context,  new HttpProperties(), new AccountOperations(context));
+        this(context,  new HttpProperties(), new AccountOperations(context), new ApplicationProperties(context.getResources()));
     }
-
-    protected Wrapper(Context context, HttpProperties properties, AccountOperations accountOperations){
+    @Deprecated
+    protected Wrapper(Context context, HttpProperties properties, AccountOperations accountOperations,
+                      ApplicationProperties applicationProperties){
         this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
-                ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken());
+                ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken(), applicationProperties);
     }
 
     private Wrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri,
-                    Token token) {
+                    Token token, ApplicationProperties applicationProperties) {
         super(clientId, clientSecret, redirectUri, token);
         // context can be null in tests
         if (context == null) return;
-
+        mApplicationProperties = applicationProperties;
         mContext = context;
         mObjectMapper = mapper;
         setTokenListener(new SoundCloudTokenListener(context));
@@ -113,7 +115,8 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
             }
         }, filter);
 
-        if (SoundCloudApplication.DEV_MODE) {
+        if (applicationProperties.shouldEnableNetworkProxy()) {
+            //The only place this const is used us here? Do we even set this at all?
             final String proxy =
                     PreferenceManager.getDefaultSharedPreferences(context).getString(Consts.PrefKeys.DEV_HTTP_PROXY, null);
             setProxy(TextUtils.isEmpty(proxy) ? null : URI.create(proxy));
@@ -143,18 +146,18 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
     public void setProxy(URI proxy) {
         super.setProxy(proxy);
 
-        if (SoundCloudApplication.DEV_MODE) {
+        if (mApplicationProperties.shouldEnableNetworkProxy()) {
             getHttpClient().getConnectionManager().getSchemeRegistry()
-                           .register(new Scheme("https",
-                                   proxy != null ? unsafeSocketFactory() : getSSLSocketFactory(), 443));
+                    .register(new Scheme("https",
+                            proxy != null ? unsafeSocketFactory() : getSSLSocketFactory(), 443));
         }
 
     }
 
     @SuppressWarnings({"PointlessBooleanExpression", "ConstantConditions"})
     @Override protected SSLSocketFactory getSSLSocketFactory() {
-        if (SoundCloudApplication.DALVIK &&
-            env == Env.LIVE) {
+        //Why do we do this differentiation? Why not just use the standard one?
+        if (mApplicationProperties.isRunningOnDalvik()) {
             // make use of android's implementation
             return SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT,
                     new SSLSessionCache(mContext));
@@ -170,23 +173,23 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Override @SuppressWarnings("unchecked")
     public <T extends ScResource> T read(Request request) throws NotFoundException, IOException {
-        return (T) getMapper().readValue(getInputStream(get(request)), ScResource.class);
+        return (T) getMapper().readValue(getInputStream(get(request), request), ScResource.class);
     }
 
     @Override @SuppressWarnings("unchecked")
     public <T extends ScResource> T update(Request request) throws NotFoundException, IOException {
-        return (T) getMapper().readValue(getInputStream(put(request)), ScResource.class);
+        return (T) getMapper().readValue(getInputStream(put(request), request), ScResource.class);
     }
 
     @Override @SuppressWarnings("unchecked")
     public <T extends ScResource> T create(Request request) throws IOException {
-        return (T) getMapper().readValue(getInputStream(post(request)), ScResource.class);
+        return (T) getMapper().readValue(getInputStream(post(request), request), ScResource.class);
     }
 
     @Override @SuppressWarnings("unchecked")
     @NotNull
     public <T extends ScResource> List<T> readList(Request request) throws IOException {
-        InputStream is = getInputStream(get(request));
+        InputStream is = getInputStream(get(request), request);
 
         JsonParser parser = getMapper().getFactory().createParser(is);
         JsonToken t = parser.getCurrentToken();
@@ -210,7 +213,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
                 result = Collections.emptyList();
             }
         } finally {
-             parser.close();
+            parser.close();
         }
 
         return result;
@@ -241,7 +244,8 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         C holder = null;
         do {
             Request r = holder == null ? request : Request.to(holder.next_href);
-            holder = getMapper().readValue(getInputStream(get(r.with(LINKED_PARTITIONING, "1"))), ch);
+            r = r.with(LINKED_PARTITIONING, "1");
+            holder = getMapper().readValue(getInputStream(get(r), r), ch);
             if (holder == null) throw new IOException("invalid data");
 
             if (holder.collection != null) {
@@ -255,7 +259,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Override @SuppressWarnings("unchecked")
     public <T extends ScResource> ScResource.ScResourceHolder<T> readCollection(Request req) throws IOException {
-        return getMapper().readValue(getInputStream(get(req)), ScResource.ScResourceHolder.class);
+        return getMapper().readValue(getInputStream(get(req), req), ScResource.ScResourceHolder.class);
     }
 
     @Override
@@ -278,7 +282,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         }
     }
 
-    private InputStream getInputStream(HttpResponse response) throws IOException, NotFoundException {
+    private InputStream getInputStream(HttpResponse response, Request originalRequest) throws IOException {
         final int code = response.getStatusLine().getStatusCode();
         switch (code) {
             case HttpStatus.SC_UNAUTHORIZED:
@@ -289,7 +293,9 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
                 throw new NotFoundException();
             default:
                 if (!isStatusCodeOk(code)) {
-                    throw new IOException("Invalid response: " + response.getStatusLine());
+                    final UnexpectedResponseException exception = new UnexpectedResponseException(originalRequest, response.getStatusLine());
+                    SoundCloudApplication.handleSilentException("Get InputStream failed", exception);
+                    throw exception;
                 }
         }
         return response.getEntity().getContent();

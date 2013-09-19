@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="EmptyViewImage">
+        <item name="android:visibility">gone</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">15dp</item>
+        <item name="android:scaleType">fitXY</item>
+    </style>
+
+    <style name="Widget.ScFixedTabPageIndicator" parent="Widget.ScTabPageIndicator">
+        <item name="tabWeight">.33</item>
+    </style>
+
+</resources>

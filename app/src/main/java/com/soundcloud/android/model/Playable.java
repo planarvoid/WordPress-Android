@@ -93,9 +93,9 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
 
         final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID);
         if (trackIdIdx == -1) {
-            mID = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView._ID));
+            setId(cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView._ID)));
         } else {
-            mID = cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID));
+            setId(cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.SOUND_ID)));
         }
         permalink = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.PERMALINK));
         duration = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.DURATION));
@@ -166,7 +166,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     public String getArtwork() {
-        if (shouldLoadIcon()){
+        if (shouldLoadArtwork()){
             return artwork_url;
         } else if (user != null && user.shouldLoadIcon()){
             return user.avatar_url;
@@ -175,7 +175,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         }
     }
 
-    public boolean shouldLoadIcon() {
+    public boolean shouldLoadArtwork() {
         return ImageUtils.checkIconShouldLoad(artwork_url);
     }
 
@@ -214,7 +214,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
 
     public Bundle getBundle() {
         Bundle b = new Bundle();
-        b.putLong("id", mID);
+        b.putLong("id", getId());
         b.putString("title", title);
         b.putParcelable("user", user);
         b.putString("uri", uri);
@@ -252,7 +252,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     public void readFromBundle(Bundle b) {
-        mID = b.getLong("id");
+        setId(b.getLong("id"));
         title = b.getString("title");
         user = b.getParcelable("user");
         uri = b.getString("uri");
@@ -300,7 +300,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         if (user_id != 0) {
             cv.put(DBHelper.Sounds.USER_ID, user_id);
         } else if (user != null && user.isSaved()) {
-            cv.put(DBHelper.Sounds.USER_ID, user.mID);
+            cv.put(DBHelper.Sounds.USER_ID, user.getId());
         }
         if (created_at != null) cv.put(DBHelper.Sounds.CREATED_AT, created_at.getTime());
         if (tag_list != null) cv.put(DBHelper.Sounds.TAG_LIST, tag_list);
@@ -317,7 +317,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     public Playable updateFrom(Playable updatedItem, CacheUpdateMode cacheUpdateMode) {
-        mID = updatedItem.mID;
+        setId(updatedItem.getId());
         title = updatedItem.title;
         permalink = updatedItem.permalink;
 
@@ -365,7 +365,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     public long getUserId() {
-        return user != null ? user.mID : user_id;
+        return user != null ? user.getId() : user_id;
     }
 
     public abstract int getTypeId();
@@ -381,7 +381,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
     }
 
     public boolean hasAvatar() {
-        return user != null && !TextUtils.isEmpty(user.avatar_url);
+        return user != null && user.hasAvatarUrl();
     }
 
     public String getAvatarUrl() {

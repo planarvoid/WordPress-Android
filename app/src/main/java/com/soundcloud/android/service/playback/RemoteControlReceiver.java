@@ -1,5 +1,7 @@
 package com.soundcloud.android.service.playback;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Actions;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -41,22 +43,22 @@ public class RemoteControlReceiver extends BroadcastReceiver {
     }
 
     private void handleToggle(Context context) {
-        context.startService(new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION));
+        context.startService(new Intent(Actions.TOGGLEPLAYBACK_ACTION));
     }
 
     private void handlePause(Context context) {
-        context.startService(new Intent(CloudPlaybackService.PAUSE_ACTION));
+        context.startService(new Intent(Actions.PAUSE_ACTION));
     }
 
     private void handlePlay(Context context) {
-        context.startService(new Intent(CloudPlaybackService.PLAY_ACTION));
+        context.startService(new Intent(Actions.PLAY_ACTION));
     }
 
     private void handleNextTrack(Context context) {
-        context.startService(new Intent(CloudPlaybackService.NEXT_ACTION));
+        context.startService(new Intent(Actions.NEXT_ACTION));
     }
 
     private void handlePreviousTrack(Context context)  {
-        context.startService(new Intent(CloudPlaybackService.PREVIOUS_ACTION));
+        context.startService(new Intent(Actions.PREVIOUS_ACTION));
     }
 }

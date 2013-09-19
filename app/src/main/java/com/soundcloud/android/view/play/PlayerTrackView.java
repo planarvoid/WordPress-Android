@@ -1,46 +1,36 @@
 package com.soundcloud.android.view.play;
 
 
-import static com.soundcloud.android.utils.AnimUtils.SimpleAnimationListener;
-import static com.soundcloud.android.utils.AnimUtils.runFadeInAnimationOn;
-import static com.soundcloud.android.utils.AnimUtils.runFadeOutAnimationOn;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.BroadcastExtras;
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.LoadedFrom;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
-import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.api.OldCloudAPI;
-import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
-import com.soundcloud.android.utils.images.ImageSize;
-import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewStub;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -50,18 +40,12 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
-import java.lang.ref.SoftReference;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
-public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.LoadCommentsListener {
+public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.LoadCommentsListener, WaveformController.WaveformListener {
 
-    private ScPlayer mPlayer;
-
-    private @Nullable ImageView mArtwork;
     private ImageView mAvatar;
-    private @Nullable FrameLayout mArtworkHolder;
-
     private WaveformController mWaveformController;
     private FrameLayout mUnplayableLayout;
 
@@ -69,72 +53,49 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private @Nullable ViewFlipper mTrackFlipper;            // can be null in landscape mode
     private @Nullable PlayerTrackDetails mTrackDetailsView; // ditto
 
-    private @Nullable Track mTrack;
+    protected Track mTrack;
     private int mQueuePosition;
     private long mDuration;
-    private final boolean mLandscape;
-    private boolean mOnScreen;
+    protected boolean mOnScreen;
     private boolean mIsCommenting;
 
     private ToggleButton mToggleInfo;
-
     private PlayableActionButtonsController mActionButtons;
-
-    private SoftReference<Drawable> mArtworkBgDrawable;
-
-    private View mArtworkOverlay;
     private AndroidCloudAPI oldCloudApi;
+    @NotNull
+    protected PlayerTrackViewListener mListener;
 
-    public PlayerTrackView(ScPlayer player) {
-        super(player);
-        View.inflate(player, R.layout.player_track, this);
-        setOrientation(LinearLayout.VERTICAL);
-        oldCloudApi = new OldCloudAPI(player.getApplicationContext());
-        mPlayer = player;
+    public interface PlayerTrackViewListener extends WaveformController.WaveformListener {
+        void onAddToPlaylist(Track track);
+        void onCloseCommentMode();
+    }
 
+    public PlayerTrackView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        View.inflate(context,R.layout.player_track, this);
+
+        mListener = (ScPlayer) context;// NO!!!
+        oldCloudApi = new OldCloudAPI(context.getApplicationContext());
         mTrackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
         findViewById(R.id.btn_addToSet).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTrack != null && mPlayer.isForeground()){
-                    MyPlaylistsDialogFragment.from(mTrack).show(
-                            mPlayer.getSupportFragmentManager(), "playlist_dialog");
-                }
+                mListener.onAddToPlaylist(mTrack);
             }
         });
 
         mTrackInfoBar.addTextShadows();
-        mArtwork = (ImageView) findViewById(R.id.artwork);
-        if (mArtwork != null) {
-            mArtworkHolder = (FrameLayout) mArtwork.getParent();
-            mArtwork.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
-            mLandscape = false;
-        } else {
-            mLandscape = true;
-        }
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                UserBrowser.startFromPlayable(getContext(),mTrack);
+                UserBrowser.startFromPlayable(getContext(), mTrack);
             }
         });
-
-        mArtworkOverlay   = findViewById(R.id.artwork_overlay);
-
-        final OnClickListener closeCommentListener = new OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                mPlayer.closeCommentMode();
-            }
-        };
-
-
-        if (mArtworkOverlay != null) mArtworkOverlay.setOnClickListener(closeCommentListener);
 
         findViewById(R.id.playable_private_indicator).setVisibility(View.GONE);
 
@@ -154,26 +115,47 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
-        mWaveformController.setPlayerTrackView(this);
+        mWaveformController.setListener(mListener);
     }
 
+    // TODO, this is currently true all the time
     public void setOnScreen(boolean onScreen){
         mOnScreen = onScreen;
         mWaveformController.setOnScreen(onScreen);
     }
 
-    public void setTrack(@NotNull Track track, int queuePosition, boolean forceUpdate, boolean priority) {
-        final boolean changed = mTrack != track;
-        if (!(forceUpdate || changed)) return;
+    public void setPlayQueueItem(@NotNull PlayQueueItem playQueueItem){
+        setPlayQueueItem(playQueueItem, true);
+    }
 
-        mQueuePosition = queuePosition;
+    public void setPlayQueueItem(@NotNull PlayQueueItem playQueueItem, boolean priority){
+        setTrack(playQueueItem.getTrack(), playQueueItem.getPlayQueuePosition(), priority);
+    }
+
+    @Override
+    public long sendSeek(float seekPosition) {
+        return mListener.sendSeek(seekPosition);
+    }
+
+    @Override
+    public long setSeekMarker(int queuePosition, float seekPosition) {
+        return mListener.setSeekMarker(queuePosition, seekPosition);
+    }
+
+    @Deprecated
+    public void setTrack(@NotNull Track track, int queuePosition, boolean priority) {
+        final boolean changed = !track.equals(mTrack);
+
         mTrack = track;
+        mQueuePosition = queuePosition;
 
         mWaveformController.updateTrack(mTrack, queuePosition, priority);
-
         mTrackInfoBar.display(mTrack);
-        if (mTrackDetailsView != null) mTrackDetailsView.fillTrackDetails(mTrack);
         updateAvatar(priority);
+
+        if (mTrackDetailsView != null) {
+            mTrackDetailsView.fillTrackDetails(mTrack);
+        }
 
         if (mDuration != mTrack.duration) {
             mDuration = mTrack.duration;
@@ -188,23 +170,14 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             mWaveformController.setBufferingState(false);
         }
 
-        if (changed) {
-            if (!mLandscape) updateArtwork(priority);
-            mWaveformController.clearTrackComments();
-            mWaveformController.setProgress(0);
+        if (mTrack.comments != null) {
+            mWaveformController.setComments(mTrack.comments, true);
+        } else {
+            refreshComments();
+        }
 
-            if (mTrack.comments != null) {
-                mWaveformController.setComments(mTrack.comments, true);
-            } else {
-                refreshComments();
-            }
-
-            if (mTrackFlipper != null) {
-                onTrackDetailsFlip(mTrackFlipper, false);
-            }
-
-            setCommentMode(mPlayer.getCommentPosition() == queuePosition, false);
-
+        if (mTrackFlipper != null && changed) {
+            onTrackDetailsFlip(mTrackFlipper, false);
         }
     }
 
@@ -227,43 +200,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         }
     }
 
-    private void updateArtwork(boolean priority) {
-        // this will cause OOMs
-        if (mTrack == null || ActivityManager.isUserAMonkey()) return;
-
-        mArtwork.setVisibility(View.GONE);
-        mArtworkHolder.setBackgroundResource(R.drawable.artwork_player);
-        ImageLoader.getInstance().cancelDisplayTask(mArtwork);
-
-        ImageLoader.getInstance().displayImage(
-                mTrack.getPlayerArtworkUri(getContext()),
-                mArtwork,
-                createPlayerDisplayImageOptions(priority),
-                new SimpleImageLoadingListener(){
-                    @Override
-                    public void onLoadingStarted(String imageUri, View view) {
-                        Bitmap memoryBitmap = ImageUtils.getCachedTrackListIcon(getContext(), mTrack);
-                        if (memoryBitmap != null){
-                            mArtwork.setImageBitmap(memoryBitmap);
-                            mArtwork.setVisibility(View.VISIBLE);
-                            mArtworkHolder.setBackgroundDrawable(null);
-                        }
-                    }
-                });
-    }
-
-    private DisplayImageOptions createPlayerDisplayImageOptions(boolean priority){
-        return ImageOptionsFactory
-                .fullCacheBuilder()
-                .delayBeforeLoading(priority ? 0 : 200)
-                .displayer(mArtworkDisplayer)
-                .build();
-    }
-
     private void updateAvatar(boolean postAtFront) {
-        if (mTrack != null && mTrack.hasAvatar()) {
-            ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(mPlayer, mTrack.getAvatarUrl()), mAvatar);
-
+        if (mTrack != null && mTrack.getUser() != null) {
+            final User user = mTrack.getUser();
+            ImageLoader.getInstance().displayImage(user.getListAvatarUri(getContext()), mAvatar);
         } else {
             ImageLoader.getInstance().cancelDisplayTask(mAvatar);
         }
@@ -271,12 +211,12 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     public void onTrackDetailsFlip(@NotNull ViewFlipper trackFlipper, boolean showDetails) {
         if (mTrack != null && showDetails && trackFlipper.getDisplayedChild() == 0) {
-            if (mIsCommenting) mPlayer.closeCommentMode();
+            mListener.onCloseCommentMode();
 
-            mPlayer.track(Page.Sounds_info__main, mTrack);
+            SoundCloudApplication.fromContext(getContext()).track(Page.Sounds_info__main, mTrack);
             mWaveformController.closeComment(false);
             if (mTrackDetailsView == null) {
-                mTrackDetailsView = new PlayerTrackDetails(mPlayer);
+                mTrackDetailsView = new PlayerTrackDetails(getContext());
                 trackFlipper.addView(mTrackDetailsView);
             }
 
@@ -286,8 +226,9 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (!mPlayer.isFinishing()) {
-                            mPlayer.startService(new Intent(CloudPlaybackService.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.getId()));
+                        final Context context = getContext();
+                        if (context != null){
+                            context.startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA, mTrack));
                         }
                     }
                 }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
@@ -298,10 +239,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             }
 
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_in));
-            trackFlipper.setOutAnimation(null);
+            trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.showNext();
         } else if (!showDetails && trackFlipper.getDisplayedChild() == 1){
-            trackFlipper.setInAnimation(null);
+            trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_out));
             trackFlipper.showPrevious();
         }
@@ -310,15 +251,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     public void onDataConnected() {
         mWaveformController.onDataConnected();
-
-        // TODO, errors
-//        if (!mLandscape && mCurrentArtBindResult == OldImageLoader.BindResult.ERROR) {
-//            updateArtwork(mOnScreen);
-//        }
-//
-//        if (mCurrentAvatarBindResult == OldImageLoader.BindResult.ERROR) {
-//            updateAvatar(mOnScreen);
-//        }
     }
 
     public void setCommentMode(boolean  isCommenting) {
@@ -327,29 +259,16 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     public void setCommentMode(boolean isCommenting, boolean animated) {
         if (mIsCommenting != isCommenting){
-            mIsCommenting = isCommenting;
-            getWaveformController().setCommentMode(isCommenting);
+            onCommentModeChanged(isCommenting, animated);
+        }
+    }
 
-            if (mTrackFlipper != null && mIsCommenting) {
-                onTrackDetailsFlip(mTrackFlipper, false);
-            }
+    protected void onCommentModeChanged(boolean isCommenting, boolean animated) {
+        mIsCommenting = isCommenting;
+        getWaveformController().setCommentMode(isCommenting);
 
-            if (!mLandscape) {
-                mArtworkOverlay.clearAnimation();
-                if (animated) {
-                    if (isCommenting) {
-                        mArtworkOverlay.setVisibility(VISIBLE);
-                        runFadeInAnimationOn(mPlayer, mArtworkOverlay);
-                    } else {
-                        runFadeOutAnimationOn(mPlayer, mArtworkOverlay);
-                        AnimUtils.attachVisibilityListener(mArtworkOverlay, GONE);
-                    }
-                } else {
-                    int visibility = mIsCommenting ? VISIBLE : GONE;
-                    mArtworkOverlay.setVisibility(visibility);
-                }
-            }
-
+        if (mTrackFlipper != null && mIsCommenting) {
+            onTrackDetailsFlip(mTrackFlipper, false);
         }
     }
 
@@ -360,10 +279,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     public void onDestroy() {
         clear();
         mWaveformController.onDestroy();
-    }
-
-    public boolean waveformVisible(){
-        return (mTrackFlipper == null || mTrackFlipper.getDisplayedChild() == 0);
     }
 
     public WaveformController getWaveformController() {
@@ -396,9 +311,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                     unplayableText.setText(R.string.player_not_streamable);
                 }
             }
+            mUnplayableLayout.setVisibility(View.VISIBLE);
         }
         mWaveformController.setVisibility(View.GONE);
-        mUnplayableLayout.setVisibility(View.VISIBLE);
+
     }
 
     private void hideUnplayable() {
@@ -414,30 +330,30 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         if (mTrack == null) return;
 
         String action = intent.getAction();
-        if (CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
-            if (intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, false)) {
+        if (Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
+            if (intent.getBooleanExtra(BroadcastExtras.isSupposedToBePlaying, false)) {
                 hideUnplayable();
                 mTrack.last_playback_error = -1;
             } else {
-                mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+                mWaveformController.setPlaybackStatus(false, intent.getLongExtra(BroadcastExtras.position, 0));
             }
 
         } else if (Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED.equals(action)) {
-            if (mTrack.getId() == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
-                mTrack.user_like = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
-                mTrack.user_repost = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isRepost, false);
+            if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.id, -1)) {
+                mTrack.user_like = intent.getBooleanExtra(BroadcastExtras.isLike, false);
+                mTrack.user_repost = intent.getBooleanExtra(BroadcastExtras.isRepost, false);
                 mActionButtons.update(mTrack);
             }
 
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
-            if (mTrack.getId() == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
+            if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.id, -1)) {
                 onCommentsChanged();
             }
 
         } else if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)) {
-            Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1));
+            Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(BroadcastExtras.id, -1));
             if (t != null) {
-                setTrack(t, mQueuePosition, true, mOnScreen);
+                setTrack(t, mQueuePosition, mOnScreen);
                 if (mTrackDetailsView != null) {
                     mTrackDetailsView.fillTrackDetails(mTrack);
                 }
@@ -448,35 +364,35 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                 mTrackDetailsView.fillTrackDetails(mTrack);
             }
 
-        } else if (CloudPlaybackService.BUFFERING.equals(action)) {
+        } else if (Broadcasts.BUFFERING.equals(action)) {
             setBufferingState(true);
-        } else if (CloudPlaybackService.BUFFERING_COMPLETE.equals(action)) {
+        } else if (Broadcasts.BUFFERING_COMPLETE.equals(action)) {
             setBufferingState(false);
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
-                    intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(BroadcastExtras.isPlaying, false),
+                    intent.getLongExtra(BroadcastExtras.position, 0));
 
-        } else if (CloudPlaybackService.PLAYBACK_ERROR.equals(action)) {
+        } else if (Broadcasts.PLAYBACK_ERROR.equals(action)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.PLAYBACK_ERROR;
             onUnplayable(intent);
-        } else if (CloudPlaybackService.STREAM_DIED.equals(action)) {
+        } else if (Broadcasts.STREAM_DIED.equals(action)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.STREAM_ERROR;
             onUnplayable(intent);
-        } else if (CloudPlaybackService.TRACK_UNAVAILABLE.equals(action)) {
+        } else if (Broadcasts.TRACK_UNAVAILABLE.equals(action)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.TRACK_UNAVAILABLE;
             onUnplayable(intent);
-        } else if (CloudPlaybackService.COMMENTS_LOADED.equals(action)) {
+        } else if (Broadcasts.COMMENTS_LOADED.equals(action)) {
             mWaveformController.setComments(mTrack.comments, true);
-        } else if (CloudPlaybackService.SEEKING.equals(action)) {
-            mWaveformController.onSeek(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, -1));
-        } else if (CloudPlaybackService.SEEK_COMPLETE.equals(action)) {
+        } else if (Broadcasts.SEEKING.equals(action)) {
+            mWaveformController.onSeek(intent.getLongExtra(BroadcastExtras.position, -1));
+        } else if (Broadcasts.SEEK_COMPLETE.equals(action)) {
             mWaveformController.onSeekComplete();
         }
     }
 
     private void onUnplayable(Intent intent) {
         mWaveformController.setBufferingState(false);
-        mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
-                intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+        mWaveformController.setPlaybackStatus(intent.getBooleanExtra(BroadcastExtras.isPlaying, false),
+                intent.getLongExtra(BroadcastExtras.position, 0));
 
         showUnplayable();
     }
@@ -532,44 +448,5 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mAvatar.setImageBitmap(null);
         mWaveformController.reset(true);
         mWaveformController.setOnScreen(false);
-        if (mArtwork != null) mArtwork.setImageResource(R.drawable.artwork_player);
     }
-
-    public boolean onBackPressed() {
-        if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
-            onTrackDetailsFlip(mTrackFlipper, false);
-            return true;
-        } else if (mIsCommenting) {
-            setCommentMode(false);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private BitmapDisplayer mArtworkDisplayer = new BitmapDisplayer() {
-        @Override
-        public Bitmap display(Bitmap bitmap, ImageView imageView, LoadedFrom loadedFrom) {
-            imageView.setImageBitmap(bitmap);
-            if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-                if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
-                    AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
-                    mArtwork.getAnimation().setAnimationListener(new SimpleAnimationListener() {
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            if (animation.equals(mArtwork.getAnimation())) {
-                                mArtworkHolder.setBackgroundDrawable(null);
-                            }
-                        }
-                    });
-                    mArtwork.setVisibility(View.VISIBLE);
-                } else {
-                    mArtwork.setVisibility(View.VISIBLE);
-                    mArtworkHolder.setBackgroundDrawable(null);
-                }
-            }
-            return bitmap;
-        }
-    };;
-
 }

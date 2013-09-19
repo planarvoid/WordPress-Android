@@ -3,7 +3,6 @@ package com.soundcloud.android.auth;
 import com.soundcloud.android.activity.auth.Onboard;
 import com.soundcloud.android.screens.auth.OnboardScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.IntegrationTestHelper;
 
 public class AuthTestCase extends ActivityTestCase<Onboard> {
 
@@ -15,7 +14,6 @@ public class AuthTestCase extends ActivityTestCase<Onboard> {
 
     @Override
     public void setUp() throws Exception {
-        IntegrationTestHelper.logOut(getInstrumentation());
         super.setUp();
         onboardScreen = new OnboardScreen(solo);
     }

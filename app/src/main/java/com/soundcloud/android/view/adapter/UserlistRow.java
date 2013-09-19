@@ -17,6 +17,7 @@ import com.soundcloud.android.tracking.EventAware;
 import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.view.adapter.behavior.ListRow;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -139,7 +140,7 @@ public class UserlistRow extends IconLayout implements ListRow {
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onError(Throwable e) {
                 setFollowingStatus(true);
             }
         });

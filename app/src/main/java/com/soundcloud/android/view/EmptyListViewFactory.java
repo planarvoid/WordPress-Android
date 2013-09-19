@@ -87,11 +87,11 @@ public class EmptyListViewFactory {
                 break;
 
             case ME_PLAYLISTS:
-                mMessageText = context.getString(R.string.list_empty_you_sets_message);
+                mMessageText = context.getString(R.string.list_empty_you_playlists_message);
                 break;
 
             case USER_PLAYLISTS:
-                mMessageText = getTextForUser(context, R.string.list_empty_user_sets_message, user);
+                mMessageText = getTextForUser(context, R.string.list_empty_user_playlists_message, user);
                 break;
 
             case ME_LIKES:

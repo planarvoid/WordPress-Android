@@ -48,7 +48,11 @@ public class ReturnData<T extends ScModel> {
 
     public  static class Error<T extends ScModel> extends ReturnData<T> {
         public Error(CollectionParams<T> parameters) {
-            super(null, parameters, null, EmptyListView.Status.CONNECTION_ERROR, false, false);
+            this(parameters, EmptyListView.Status.CONNECTION_ERROR);
+        }
+
+        public Error(CollectionParams<T> parameters, int statusCode) {
+            super(null, parameters, null, statusCode, false, false);
         }
     }
 }

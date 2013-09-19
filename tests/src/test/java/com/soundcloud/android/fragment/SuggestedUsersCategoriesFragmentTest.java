@@ -1,13 +1,12 @@
 package com.soundcloud.android.fragment;
 
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersCategoriesAdapter;
 import com.soundcloud.android.api.SuggestedUsersOperations;
@@ -24,6 +23,7 @@ import rx.Observable;
 import rx.Observer;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -41,11 +41,9 @@ public class SuggestedUsersCategoriesFragmentTest {
         when(operations.getCategoryGroups()).thenReturn(Observable.from(audio(), music()).cache());
         when(operations.getMusicAndSoundsSuggestions()).thenReturn(Observable.from(audio(), music()).cache());
 
-        fragment = spy(new SuggestedUsersCategoriesFragment(operations, observer, adapter));
+        fragment = new SuggestedUsersCategoriesFragment(operations, observer, adapter);
 
-        SherlockFragmentActivity fragmentActivity = new SherlockFragmentActivity();
-        when(fragment.getLayoutInflater(null)).thenReturn(fragmentActivity.getLayoutInflater());
-        Robolectric.shadowOf(fragment).setActivity(fragmentActivity);
+        shadowOf(fragment).setActivity(new FragmentActivity());
     }
 
     @Test

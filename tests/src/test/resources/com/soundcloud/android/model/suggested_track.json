@@ -1,0 +1,32 @@
+{
+    "duration": 86316,
+    "genre": "Piano",
+    "playback_count": 3583,
+    "waveform_url": "https://wis.sndcdn.com/whVhoRw2gpUh.png",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000056989650-zm98k6-large.jpg?5e64f12",
+    "_embedded": {
+        "user": {
+            "urn": "soundcloud:users:106815",
+            "username": "georgegao",
+            "_links": {
+                "self": {
+                    "href": "http://api.soundcloud.com/app/mobileapps-staging/users/soundcloud%3Ausers%3A106815"
+                }
+            }
+        }
+    },
+    "user_tags": [
+        "Jazz",
+        "Film"
+    ],
+    "commentable": true,
+    "urn": "soundcloud:sounds:105834033",
+    "stream_url": "http://media.soundcloud.com/stream/whVhoRw2gpUh",
+    "created_at": "2013/08/17 07:50:03 +0000",
+    "title": "[Sketch] - Beloved",
+    "_links": {
+        "self": {
+            "href": "http://api.soundcloud.com/app/mobileapps-staging/tracks/soundcloud%3Asounds%3A105834033"
+        }
+    }
+}

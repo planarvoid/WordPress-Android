@@ -9,7 +9,7 @@ import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.schedulers.ScheduledOperations;
+import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -180,15 +181,22 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
                 null, DBHelper.SoundView._ID + " < 0",
                 null, DBHelper.SoundView._ID + " DESC");
 
-        List<Playlist> playlists = new ArrayList<Playlist>();
         if (itemsCursor != null) {
+            List<Playlist> playlists = new ArrayList<Playlist>(itemsCursor.getCount());
             while (itemsCursor.moveToNext()) {
                 playlists.add(SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(itemsCursor));
             }
+            itemsCursor.close();
 
+            final TrackDAO trackDAO = new TrackDAO(mResolver);
+            for (Playlist p : playlists){
+                p.tracks = trackDAO.queryAllByUri(Content.PLAYLIST_TRACKS.forId(p.getId()));
+            }
+            return playlists;
+
+        } else {
+            return Collections.emptyList();
         }
-        if (itemsCursor != null) itemsCursor.close();
-        return playlists;
     }
 
 

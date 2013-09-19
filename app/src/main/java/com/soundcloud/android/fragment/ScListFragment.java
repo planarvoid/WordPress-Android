@@ -1,5 +1,6 @@
 package com.soundcloud.android.fragment;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -15,6 +16,7 @@ import com.soundcloud.android.adapter.CommentAdapter;
 import com.soundcloud.android.adapter.DefaultPlayableAdapter;
 import com.soundcloud.android.adapter.FriendAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
+import com.soundcloud.android.adapter.PlaylistChangedReceiver;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
@@ -24,11 +26,9 @@ import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import com.soundcloud.android.task.collection.CollectionParams;
@@ -68,11 +68,13 @@ import android.widget.ListView;
 
 import java.lang.ref.WeakReference;
 
+@Deprecated
 public class ScListFragment extends SherlockListFragment implements PullToRefreshBase.OnRefreshListener,
                                                             DetachableResultReceiver.Receiver,
                                                             LocalCollection.OnChangeListener,
                                                             CollectionTask.Callback,
-                                                            AbsListView.OnScrollListener {
+                                                            AbsListView.OnScrollListener,
+                                                            EmptyListView.RetryListener {
     private static final int CONNECTIVITY_MSG = 0;
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
@@ -160,6 +162,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             mEmptyListView = createEmptyView();
         }
         mEmptyListView.setStatus(mStatusCode);
+        mEmptyListView.setOnRetryListener(this);
         mListView.setEmptyView(mEmptyListView);
 
         configurePullToRefreshState();
@@ -181,6 +184,11 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         return root;
     }
 
+    @Override
+    public void onEmptyViewRetry() {
+        refresh(true);
+    }
+
     protected EmptyListView createEmptyView() {
         return mEmptyListViewFactory.build(getActivity());
     }
@@ -198,9 +206,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         connectivityListener.registerHandler(connectivityHandler, CONNECTIVITY_MSG);
 
         IntentFilter playbackFilter = new IntentFilter();
-        playbackFilter.addAction(CloudPlaybackService.META_CHANGED);
-        playbackFilter.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
-        playbackFilter.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
+        playbackFilter.addAction(Broadcasts.META_CHANGED);
+        playbackFilter.addAction(Broadcasts.PLAYBACK_COMPLETE);
+        playbackFilter.addAction(Broadcasts.PLAYSTATE_CHANGED);
         getActivity().registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
         IntentFilter generalIntentFilter = new IntentFilter();
@@ -343,26 +351,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     private void listenForPlaylistChanges() {
-        mPlaylistChangedReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (mAdapter != null) {
-                    long playlistId = intent.getLongExtra(Playlist.EXTRA_ID, -1);
-                    int newTracksCount = intent.getIntExtra(Playlist.EXTRA_TRACKS_COUNT, -1);
-
-                    for (int i = 0; i < mAdapter.getCount(); i++) {
-                        Playable playable = (Playable) mAdapter.getItem(i);
-                        if (playable instanceof Playlist && playable.getId() == playlistId) {
-                            Playlist playlist = (Playlist) playable;
-                            // TODO: this should be updated by the model manager
-
-                            playlist.setTrackCount(newTracksCount);
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    }
-                }
-            }
-        };
+        mPlaylistChangedReceiver = new PlaylistChangedReceiver(mAdapter);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Playlist.ACTION_CONTENT_CHANGED);
         getActivity().registerReceiver(mPlaylistChangedReceiver, intentFilter);
@@ -792,9 +781,9 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
             if (mIgnorePlaybackStatus) return;
 
             final String action = intent.getAction();
-            if (CloudPlaybackService.META_CHANGED.equals(action)
-                || CloudPlaybackService.PLAYBACK_COMPLETE.equals(action)
-                || CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
+            if (Broadcasts.META_CHANGED.equals(action)
+                || Broadcasts.PLAYBACK_COMPLETE.equals(action)
+                || Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
 
                 adapter.notifyDataSetChanged();
             }

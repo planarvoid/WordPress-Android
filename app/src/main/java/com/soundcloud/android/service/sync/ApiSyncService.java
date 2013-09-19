@@ -6,6 +6,7 @@ import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.ParallelAsyncTask;
+import com.soundcloud.android.utils.Log;
 
 import android.app.Service;
 import android.content.ContentValues;
@@ -13,7 +14,6 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -55,7 +55,7 @@ public class ApiSyncService extends Service {
 
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "startListening("+intent+")");
+        Log.d(LOG_TAG, "startListening("+intent+")");
         if (intent != null){
             enqueueRequest(new SyncIntent(this, intent));
         }
@@ -64,7 +64,7 @@ public class ApiSyncService extends Service {
 
     @Override
     public void onDestroy() {
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "onDestroy()");
+        Log.d(LOG_TAG, "onDestroy()");
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.SYNC_STATE,LocalCollection.SyncState.IDLE);
         getContentResolver().update(Content.COLLECTIONS.uri, cv, null, null);

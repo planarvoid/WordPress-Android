@@ -3,6 +3,7 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.Onboard;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.Waiter;
 import com.soundcloud.android.view.MainMenu;
 
 import android.view.View;
@@ -10,9 +11,11 @@ import android.widget.TextView;
 
 public class MenuScreen {
     private Han solo;
+    private Waiter waiter;
 
     public MenuScreen(Han solo) {
         this.solo = solo;
+        this.waiter = new Waiter(solo);
     }
 
     public void logout() {
@@ -36,5 +39,12 @@ public class MenuScreen {
     public String getUserName() {
         TextView you = (TextView) youMenu().findViewById(R.id.main_menu_item_text);
         return you.getText().toString();
+    }
+
+    public void openExplore() {
+        View item = rootMenu().findViewById(R.id.nav_explore);
+        solo.clickOnView(R.id.custom_home);
+        solo.clickOnView(item);
+        waiter.waitForListContent();
     }
 }

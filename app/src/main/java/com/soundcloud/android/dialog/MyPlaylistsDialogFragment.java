@@ -78,7 +78,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
             }
         });
 
-        ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_set));
+        ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_playlist));
         listView.setAdapter(mAdapter);
 
         builder.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
@@ -156,7 +156,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
                 MatrixCursor extras = new MatrixCursor(new String[]{DBHelper.PlaylistTracksView._ID,
                         DBHelper.PlaylistTracksView.TITLE, DBHelper.PlaylistTracksView.TRACK_COUNT, COL_ALREADY_ADDED});
 
-                extras.addRow(new Object[]{NEW_PLAYLIST_ITEM, getContext().getString(R.string.create_new_set), -1, 0});
+                extras.addRow(new Object[]{NEW_PLAYLIST_ITEM, getContext().getString(R.string.create_new_playlist), -1, 0});
 
                 return new MergeCursor(new Cursor[]{extras, dbCursor});
             }

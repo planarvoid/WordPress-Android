@@ -25,7 +25,7 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
         mPlayableInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PlaylistActivity.start(PlaylistInteractionActivity.this, (Playlist) mPlayable);
+                PlaylistDetailActivity.start(PlaylistInteractionActivity.this, (Playlist) mPlayable);
             }
         });
 

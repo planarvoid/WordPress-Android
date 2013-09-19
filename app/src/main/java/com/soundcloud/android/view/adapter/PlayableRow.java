@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.view.adapter.behavior.ListRow;
 
 import android.content.Context;
 import android.database.Cursor;

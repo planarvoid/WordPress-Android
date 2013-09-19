@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -510,19 +511,5 @@ public final class ImageUtils {
         return BitmapFactory.decodeResource(res, resId, options);
     }
 
-    /**
-     * Get an instance of a list sized bitmap for a particular track (for player image substitution)
-     * @param context
-     * @param track
-     * @return
-     */
-    public static Bitmap getCachedTrackListIcon(Context context, Track track){
-        return ImageLoader.getInstance().getMemoryCache().get(MemoryCacheUtil.generateKey(
-                track.getListArtworkUrl(context),
-                new com.nostra13.universalimageloader.core.assist.ImageSize(
-                        (int) context.getResources().getDimension(R.dimen.list_icon_width),
-                        (int) context.getResources().getDimension(R.dimen.list_icon_height)
-                )
-        ));
-    }
+
 }

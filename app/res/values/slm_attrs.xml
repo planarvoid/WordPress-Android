@@ -7,5 +7,6 @@
         <attr name="android:icon" />
         <attr name="android:layout" />
         <attr name="asHeader" format="boolean" />
+        <attr name="android:enabled" />
     </declare-styleable>
 </resources>

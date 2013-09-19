@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.tests.Han;
@@ -20,9 +21,25 @@ public class SuggestedUsersCategoryScreen {
         solo = driver;
     }
 
+    public String followUser(int index) {
+        waitForUsers();
+        GridViewCompat gridViewCompat = (GridViewCompat) solo.getCurrentGridView();
+        if (gridViewCompat == null) {
+            throw new RuntimeException("No Gridview present when trying to follow random user");
+        }
+        ViewGroup viewGroup = (ViewGroup) gridViewCompat.getChildAt(index);
+        TextView textView = (TextView) viewGroup.findViewById(R.id.username);
+        solo.clickOnView(textView);
+        return textView.getText().toString();
+
+    }
+
     public String followRandomUser(){
         waitForUsers();
         GridViewCompat gridViewCompat = (GridViewCompat) solo.getCurrentGridView();
+        if (gridViewCompat == null) {
+            throw new RuntimeException("No Gridview present when trying to follow random user");
+        }
         ViewGroup viewGroup = (ViewGroup) gridViewCompat.getChildAt((int) (Math.random() * gridViewCompat.getChildCount()));
         TextView textView = (TextView) viewGroup.findViewById(R.id.username);
         solo.clickOnView(textView);
@@ -60,6 +77,8 @@ public class SuggestedUsersCategoryScreen {
     }
 
     public void waitForUsers() {
-        solo.waitForViewId(R.id.username, 5000);
+        solo.waitForActivity(SuggestedUsersCategoryActivity.class);
+        solo.waitForViewId(R.id.suggested_users_grid, 10000);
+        solo.waitForViewId(R.id.username, 10000);
     }
 }

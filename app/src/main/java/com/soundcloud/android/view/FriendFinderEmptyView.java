@@ -19,26 +19,26 @@ public class FriendFinderEmptyView extends EmptyListView {
             mMode = mode;
             switch (mode) {
                 case FriendFinderFragment.Status.NO_CONNECTIONS:
-                    mProgressBar.setVisibility(View.GONE);
+                    mProgressView.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder_no_connections);
                     mBtnAction.setVisibility(View.VISIBLE);
                     return true;
 
                 case FriendFinderFragment.Status.CONNECTION_ERROR:
-                    mProgressBar.setVisibility(View.GONE);
+                    mProgressView.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder_error);
                     mBtnAction.setVisibility(View.GONE);
                     return true;
 
                 case Status.WAITING:
-                    mProgressBar.setVisibility(View.VISIBLE);
+                    mProgressView.setVisibility(View.VISIBLE);
                     if (mEmptyLayout != null) mEmptyLayout.setVisibility(View.GONE);
                     return true;
 
                 default:
-                    mProgressBar.setVisibility(View.GONE);
+                    mProgressView.setVisibility(View.GONE);
                     showEmptyLayout();
                     setMessageText(R.string.list_empty_friend_finder);
                     return true;

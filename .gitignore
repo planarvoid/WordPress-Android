@@ -50,3 +50,5 @@ reg_ids.yaml
 # test data
 tests-*.sqlite
 coverage-error.log
+
+app/res/values/app_properties*.xml

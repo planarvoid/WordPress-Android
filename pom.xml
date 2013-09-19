@@ -4,7 +4,8 @@
 
     <groupId>com.soundcloud.android</groupId>
     <artifactId>parent</artifactId>
-    <version>2.6.4</version>
+    <version>2.7.0</version>
+
     <packaging>pom</packaging>
 
     <name>Parent</name>
@@ -17,13 +18,11 @@
     </organization>
 
     <properties>
-        <release.type>androiddebugkey</release.type>
-        <keystore.alias>androiddebugkey</keystore.alias>
-        <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
-        <keystore.password>android</keystore.password>
-        <keystore.keypass>android</keystore.keypass>
+        <build.skipAspectWeaving>true</build.skipAspectWeaving>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <androidApiLevel>16</androidApiLevel>
+        <android.maven.plugin.version>3.6.1-ndkfix</android.maven.plugin.version>
+        <source.version>1.6</source.version>
     </properties>
 
     <build>
@@ -32,7 +31,7 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.6.1-ndkfix</version>
+                <version>${android.maven.plugin.version}</version>
                 <configuration>
                     <!-- Prevents signing of the apk if no profile specified when building -->
                     <sign>
@@ -49,8 +48,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                  <source>1.6</source>
-                  <target>1.6</target>
+                  <source>${source.version}</source>
+                  <target>${source.version}</target>
                 </configuration>
             </plugin>
 
@@ -83,6 +82,62 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- release profile -->
+        <profile>
+            <id>release</id>
+            <properties>
+                <build.type>release</build.type>
+                <build.debuggable>false</build.debuggable>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
+                <keystore.alias>jons keystore</keystore.alias>
+                <build.proguard.skip>false</build.proguard.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>beta</id>
+            <properties>
+                <build.type>beta</build.type>
+                <build.debuggable>true</build.debuggable>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <keystore.location>soundcloud_sign/soundcloud.ks</keystore.location>
+                <keystore.alias>beta-key</keystore.alias>
+                <build.proguard.skip>false</build.proguard.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>debug</id>
+            <activation>
+              <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <build.type>debug</build.type>
+                <build.debuggable>true</build.debuggable>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <keystore.alias>androiddebugkey</keystore.alias>
+                <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
+                <keystore.password>android</keystore.password>
+                <keystore.keypass>android</keystore.keypass>
+                <build.proguard.skip>true</build.proguard.skip>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>ci</id>
+            <properties>
+                <build.type>debug</build.type>
+                <build.debuggable>false</build.debuggable>
+                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <keystore.alias>androiddebugkey</keystore.alias>
+                <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
+                <keystore.password>android</keystore.password>
+                <keystore.keypass>android</keystore.keypass>
+                <build.proguard.skip>false</build.proguard.skip>
+            </properties>
+        </profile>
+    </profiles>
 
     <modules>
         <module>app</module>
@@ -132,6 +187,12 @@
         <repository>
             <id>crashlytics-repo</id>
             <url>http://download.crashlytics.com/maven</url>
+        </repository>
+
+        <repository>
+            <id>soundcloud-thirdparty-snapshots</id>
+            <name>SoundCloud ThirdParty Snapshots</name>
+            <url>http://maven.int.s-cloud.net/content/repositories/thirdparty_snapshots</url>
         </repository>
     </repositories>
 

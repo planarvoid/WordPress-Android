@@ -8,6 +8,7 @@ import static junit.framework.Assert.fail;
 import com.jayway.android.robotium.solo.By;
 import com.jayway.android.robotium.solo.Condition;
 import com.jayway.android.robotium.solo.Solo;
+import com.jayway.android.robotium.solo.WebElement;
 import com.soundcloud.android.R;
 
 import android.app.Activity;
@@ -50,12 +51,24 @@ public class Han  {
         clickOnText(getString(android.R.string.ok));
     }
 
+    public boolean scrollDown() {
+        return solo.scrollDown();
+    }
+
     public void clickOnDone() {
         clickOnButtonResId(R.string.btn_done);
     }
 
     public void clickOnPublish() {
         clickOnButtonResId(R.string.btn_publish);
+    }
+
+    public WebElement getWebElement(By by, int index) {
+        return solo.getWebElement(by, index);
+    }
+
+    public void clearTextInWebElement(By by) {
+        solo.clearTextInWebElement(by);
     }
 
     public void clickOnText(int resId) {
@@ -67,6 +80,7 @@ public class Han  {
     }
 
     public void clickOnView(int resId) {
+        solo.waitForView(resId);
         clickOnView(solo.getCurrentActivity().findViewById(resId));
     }
 
@@ -360,6 +374,10 @@ public class Han  {
         poseForScreenshotWithKeyValue("name", name);
     }
 
+    public boolean scrollUp() {
+        return solo.scrollUp();
+    }
+
     public boolean scrollListToTop(int index) {
         return solo.scrollListToTop(index);
     }
@@ -405,6 +423,10 @@ public class Han  {
 
     public boolean waitForDialogToOpen(long timeout) {
         return solo.waitForDialogToOpen(timeout);
+    }
+
+    public void takeScreenshot(String name) {
+        solo.takeScreenshot(name);
     }
 
     public boolean waitForCondition(Condition condition, int timeout) {

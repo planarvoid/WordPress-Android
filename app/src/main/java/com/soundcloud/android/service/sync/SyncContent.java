@@ -1,12 +1,12 @@
 package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.util.EnumSet;
 
@@ -67,10 +67,8 @@ enum SyncContent {
                 !resultData.getBoolean(sc.content.uri.toString())) {
                 final int misses = stateManager.incrementSyncMiss(sc.content.uri);
 
-                if (Log.isLoggable(SyncAdapterService.TAG, Log.DEBUG)) {
-                    Log.d(SyncAdapterService.TAG, "Sync endpoint unchanged, " + sc.content.uri +
-                            " incrementing misses to " + misses);
-                }
+                Log.d(SyncAdapterService.TAG, "Sync endpoint unchanged, " + sc.content.uri +
+                        " incrementing misses to " + misses);
             }
         }
     }

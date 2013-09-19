@@ -13,6 +13,7 @@ import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.auth.AuthenticatorService;
 import com.soundcloud.android.task.fetch.FetchUserTask;
@@ -33,12 +34,14 @@ public class Home extends ScActivity implements ScLandingPage {
     private AccountOperations mAccountOperations;
 
     private AndroidCloudAPI oldCloudAPI;
+    private ApplicationProperties mApplicationProperties;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         oldCloudAPI = new OldCloudAPI(this);
         mAccountOperations = new AccountOperations(this);
+        mApplicationProperties = new ApplicationProperties(getResources());
         setTitle(getString(R.string.side_menu_stream));
         final SoundCloudApplication app = getApp();
         if (mAccountOperations.soundCloudAccountExists()) {
@@ -51,7 +54,7 @@ public class Home extends ScActivity implements ScLandingPage {
                 getSupportFragmentManager().beginTransaction()
                         .add(mRootView.getContentHolderId(), ScListFragment.newInstance(build))
                         .commit();
-                if (SoundCloudApplication.BETA_MODE) {
+                if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
                     ChangeLog changeLog = new ChangeLog(this);
                     if (changeLog.isFirstRun()) {
                         changeLog.getDialog(true).show();
@@ -67,7 +70,7 @@ public class Home extends ScActivity implements ScLandingPage {
                 checkEmailConfirmed();
             }
 
-            if (SoundCloudApplication.BETA_MODE) {
+            if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
                 Log.d(TAG, "checking for beta updates");
                 UpdateManager.register(this, getString(R.string.hockey_app_id));
             }

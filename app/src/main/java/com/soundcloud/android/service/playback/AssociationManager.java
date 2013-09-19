@@ -81,7 +81,7 @@ public class AssociationManager {
                 .putExtra(CloudPlaybackService.BroadcastExtras.id, playable.getId())
                 .putExtra(CloudPlaybackService.BroadcastExtras.isRepost, playable.user_repost)
                 .putExtra(CloudPlaybackService.BroadcastExtras.isLike, playable.user_like)
-                .putExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, CloudPlaybackService.getState().isSupposedToBePlaying());
+                .putExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, CloudPlaybackService.getPlaybackState().isSupposedToBePlaying());
 
         mContext.sendBroadcast(intent);
         PlayerAppWidgetProvider.getInstance().notifyChange(mContext, intent);
