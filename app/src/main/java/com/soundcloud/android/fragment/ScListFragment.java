@@ -16,6 +16,7 @@ import com.soundcloud.android.adapter.CommentAdapter;
 import com.soundcloud.android.adapter.DefaultPlayableAdapter;
 import com.soundcloud.android.adapter.FriendAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
+import com.soundcloud.android.adapter.PlaylistChangedReceiver;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SearchAdapter;
 import com.soundcloud.android.adapter.SoundAssociationAdapter;
@@ -25,7 +26,6 @@ import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
@@ -351,26 +351,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     }
 
     private void listenForPlaylistChanges() {
-        mPlaylistChangedReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (mAdapter != null) {
-                    long playlistId = intent.getLongExtra(Playlist.EXTRA_ID, -1);
-                    int newTracksCount = intent.getIntExtra(Playlist.EXTRA_TRACKS_COUNT, -1);
-
-                    for (int i = 0; i < mAdapter.getCount(); i++) {
-                        Playable playable = (Playable) mAdapter.getItem(i);
-                        if (playable instanceof Playlist && playable.getId() == playlistId) {
-                            Playlist playlist = (Playlist) playable;
-                            // TODO: this should be updated by the model manager
-
-                            playlist.setTrackCount(newTracksCount);
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    }
-                }
-            }
-        };
+        mPlaylistChangedReceiver = new PlaylistChangedReceiver(mAdapter);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Playlist.ACTION_CONTENT_CHANGED);
         getActivity().registerReceiver(mPlaylistChangedReceiver, intentFilter);

@@ -549,13 +549,9 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     public static Track fromIntent(Intent intent) {
-        if (intent == null) throw new IllegalArgumentException("intent is null");
-        Track t = intent.getParcelableExtra(EXTRA);
+        Track t = nullableTrackfromIntent(intent);
         if (t == null) {
-            t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(EXTRA_ID, 0));
-            if (t == null) {
-                throw new IllegalArgumentException("Could not obtain track from intent "+intent);
-            }
+            throw new IllegalArgumentException("Could not obtain track from intent " + intent);
         }
         return t;
     }
