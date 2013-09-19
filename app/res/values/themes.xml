@@ -41,6 +41,8 @@
 
         <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
 
+        <item name="showcaseViewStyle">@style/ScShowcaseTheme</item>
+
     </style>
 
     <style name="Theme.Next.Dark" parent="@style/Theme.Sherlock">

@@ -328,6 +328,12 @@
             <artifactId>universal-image-loader</artifactId>
             <version>1.8.5</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.espiandev</groupId>
+            <artifactId>showcaseview-library</artifactId>
+            <version>3.5.1-SOUNDCLOUD-SNAPSHOT</version>
+            <type>apklib</type>
+        </dependency>
         <!-- contains the three native ndk libraries -->
         <dependency>
             <groupId>com.soundcloud.android.native</groupId>
@@ -335,6 +341,7 @@
             <version>1.0.1</version>
             <type>apklib</type>
         </dependency>
+
     </dependencies>
 
     <profiles>
