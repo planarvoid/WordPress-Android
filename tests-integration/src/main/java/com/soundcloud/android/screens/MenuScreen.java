@@ -47,4 +47,11 @@ public class MenuScreen {
         solo.clickOnView(item);
         waiter.waitForListContent();
     }
+
+    public void openStream() {
+        View item = rootMenu().findViewById(R.id.nav_stream);
+        solo.clickOnView(R.id.custom_home);
+        solo.clickOnView(item);
+        waiter.waitForListContent();
+    }
 }
