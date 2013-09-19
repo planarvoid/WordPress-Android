@@ -3,7 +3,6 @@ package com.soundcloud.android.api;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
@@ -68,13 +67,8 @@ public class ExploreTracksOperations extends ScheduledOperations {
             @Override
             public Observable<Track> call(ModelCollection<ExploreTracksSuggestion> exploreTracksSuggestionModelCollection) {
                 List<Track> toEmit = Lists.newArrayListWithCapacity(exploreTracksSuggestionModelCollection.getCollection().size());
-                if (!toEmit.isEmpty()) {
-                    for (ExploreTracksSuggestion item : exploreTracksSuggestionModelCollection.getCollection()) {
-                        toEmit.add(new Track(item));
-                    }
-                } else {
-                    SoundCloudApplication.handleSilentException("Empty related tracks response from seed track " + seedTrack,
-                            new IllegalStateException("No Related Tracks"));
+                for (ExploreTracksSuggestion item : exploreTracksSuggestionModelCollection.getCollection()) {
+                    toEmit.add(new Track(item));
                 }
                 return Observable.from(toEmit);
             }
