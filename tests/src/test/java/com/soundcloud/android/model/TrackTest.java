@@ -275,7 +275,7 @@ public class TrackTest {
     }
 
     @Test
-    public void shouldCreateTrackFromExploreTrackSuggestion() throws IOException {
+    public void shouldCreateTrackFromTrackSummary() throws IOException {
         TrackSummary suggestion = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("suggested_track.json"), TrackSummary.class);
         Track t = new Track(suggestion);
@@ -292,6 +292,7 @@ public class TrackTest {
         expect(t.tag_list).toEqual(TextUtils.join(" ", suggestion.getUserTags()));
         expect(t.created_at).toEqual(suggestion.getCreatedAt());
         expect(t.duration).toEqual(suggestion.getDuration());
+        expect(t.sharing).toEqual(suggestion.getSharing());
 
         expect(t.likes_count).toEqual(suggestion.getStats().getLikesCount());
         expect(t.playback_count).toEqual(suggestion.getStats().getPlaybackCount());

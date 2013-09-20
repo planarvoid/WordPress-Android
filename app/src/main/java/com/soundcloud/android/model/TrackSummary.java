@@ -23,6 +23,8 @@ public class TrackSummary extends ScModel {
     private Date            mCreatedAt;
     private String          mArtworkUrl;
 
+    private Sharing         mSharing = Sharing.UNDEFINED;
+
     private TrackStats mStats;
 
     public TrackSummary() { /* for Deserialization */ }
@@ -105,6 +107,10 @@ public class TrackSummary extends ScModel {
         return mCreatedAt;
     }
 
+    public Sharing getSharing() {
+        return mSharing;
+    }
+
     public void setTitle(String title) {
         this.mTitle = title;
     }
@@ -123,6 +129,10 @@ public class TrackSummary extends ScModel {
 
     public void setCommentable(boolean commentable) {
         this.mCommentable = commentable;
+    }
+
+    public void setSharing(Sharing sharing) {
+        mSharing = sharing;
     }
 
     public void setDuration(int duration) {

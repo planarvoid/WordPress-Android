@@ -31,6 +31,7 @@
         "Jazz",
         "Film"
     ],
+    "sharing": "private",
     "commentable": true,
     "urn": "soundcloud:sounds:105834033",
     "stream_url": "http://media.soundcloud.com/stream/whVhoRw2gpUh",
