@@ -330,7 +330,7 @@
         <dependency>
             <groupId>com.github.espiandev</groupId>
             <artifactId>showcaseview-library</artifactId>
-            <version>3.5.1-SOUNDCLOUD</version>
+            <version>3.5.2-SOUNDCLOUD</version>
             <type>apklib</type>
         </dependency>
         <!-- contains the three native ndk libraries -->
