@@ -185,6 +185,11 @@
         </repository>
 
         <repository>
+            <id>crashlytics-repo</id>
+            <url>http://download.crashlytics.com/maven</url>
+        </repository>
+
+        <repository>
             <id>soundcloud-thirdparty-snapshots</id>
             <name>SoundCloud ThirdParty Snapshots</name>
             <url>http://maven.int.s-cloud.net/content/repositories/thirdparty_snapshots</url>
@@ -201,6 +206,10 @@
             <id>soundcloud.internal.releases</id>
             <name>SoundCloud Internal Releases</name>
             <url>http://maven.int.s-cloud.net/content/repositories/releases</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>crashlytics-plugin-repo</id>
+            <url>http://download.crashlytics.com/maven</url>
         </pluginRepository>
     </pluginRepositories>
 

@@ -4,6 +4,7 @@ import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
+import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -30,8 +31,6 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
-import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,11 +45,6 @@ import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 
-@ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=e594a3cc",
-        formKey= "",
-        checkReportVersion = true,
-        checkReportSender = true)
 public class SoundCloudApplication extends Application implements Tracker {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
@@ -82,7 +76,7 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
 
         if (ApplicationProperties.shouldReportToAcra()) {
-            ACRA.init(this);
+            Crashlytics.start(this);
         }
         instance = this;
         IOUtils.checkState(this);
@@ -234,13 +228,10 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
     }
 
-    public static void handleSilentException(@Nullable String msg, Throwable e) {
+    public static void handleSilentException(@Nullable String message, Throwable e) {
         if (ApplicationProperties.shouldReportToAcra()) {
-            if (msg != null) {
-                Log.w(TAG, "silentException: "+msg, e);
-                ACRA.getErrorReporter().putCustomData("message", msg);
-            }
-            ACRA.getErrorReporter().handleSilentException(new SilentException(e));
+            Log.e(TAG, "Handling silent exception L " + message, e);
+            Crashlytics.logException(e);
         }
     }
 
