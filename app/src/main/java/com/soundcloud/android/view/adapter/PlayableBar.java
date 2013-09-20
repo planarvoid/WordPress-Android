@@ -183,8 +183,9 @@ public class PlayableBar extends IconLayout {
 
         if (playable.likes_count > 0) {
             builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_likes,
-                    playable.likes_count,
-                    playable.likes_count));
+                    ((int) playable.likes_count),
+                    ((int) playable.likes_count))
+            );
             builder.append(", ");
         }
 
@@ -195,8 +196,8 @@ public class PlayableBar extends IconLayout {
 
         if (playable.reposts_count > 0) {
             builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_reposts,
-                    playable.reposts_count,
-                    playable.reposts_count));
+                    ((int) playable.reposts_count),
+                    ((int) playable.reposts_count)));
             builder.append(", ");
         }
 
@@ -207,7 +208,7 @@ public class PlayableBar extends IconLayout {
 
         // TODO: get rid of the instanceof stuff and have a track specific subclass
         int commentCount = 0;
-        if (playable instanceof Track && (commentCount = ((Track) playable).comment_count) > 0) {
+        if (playable instanceof Track && (commentCount = (int) ((Track) playable).comment_count) > 0) {
             builder.append(getContext().getResources().getQuantityString(R.plurals.accessibility_stats_comments,
                     commentCount,
                     commentCount));

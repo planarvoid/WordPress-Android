@@ -62,7 +62,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
             viewHolder.genre.setText(track.getGenre());
             viewHolder.genre.setVisibility(View.VISIBLE);
         }
-        final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getPlaybackCount());
+        final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getStats().getPlaybackCount());
         viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, playcountWithCommas));
 
         viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
