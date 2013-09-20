@@ -6,6 +6,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.PlayE
 import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
@@ -25,71 +26,84 @@ class PlaybackReceiver extends BroadcastReceiver {
     private AssociationManager mAssociationManager;
     private PlayQueueManager mPlayQueueManager;
     private AudioManager mAudioManager;
+    private final AccountOperations mAccountOperations;
 
     public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
                             PlayQueueManager playQueueManager, AudioManager audioManager) {
+        this(playbackService, associationManager, playQueueManager, audioManager, new AccountOperations(playbackService));
+    }
+
+    public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
+                            PlayQueueManager playQueueManager, AudioManager audioManager, AccountOperations accountOperations) {
         this.mPlaybackService = playbackService;
         this.mAssociationManager = associationManager;
         this.mPlayQueueManager = playQueueManager;
         this.mAudioManager = audioManager;
+        this.mAccountOperations = accountOperations;
     }
 
     @Override
+
     public void onReceive(Context context, Intent intent) {
 
         String action = intent.getAction();
         if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-            Log.d(CloudPlaybackService.TAG, "BroadcastReceiver#onReceive("+action+")");
+            Log.d(CloudPlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
         }
-        if (Actions.NEXT_ACTION.equals(action)) {
-            mPlaybackService.next();
-        } else if (Actions.PREVIOUS_ACTION.equals(action)) {
-            mPlaybackService.prev();
-        } else if (Actions.TOGGLEPLAYBACK_ACTION.equals(action)) {
-            mPlaybackService.togglePlayback();
-        } else if (Actions.PAUSE_ACTION.equals(action)) {
-            mPlaybackService.pause();
-        } else if (Broadcasts.UPDATE_WIDGET_ACTION.equals(action)) {
-            // Someone asked us to executeRefreshTask a set of specific widgets,
-            // probably because they were just added.
-            final int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-            final PlayerAppWidgetProvider appWidgetProvider = mPlaybackService.getAppWidgetProvider();
-            appWidgetProvider.performUpdate(context, appWidgetIds,new Intent(Broadcasts.PLAYSTATE_CHANGED));
 
-        } else if (Actions.ADD_LIKE_ACTION.equals(action)) {
-            setLikeStatus(intent.getData(), true);
-        } else if (Actions.REMOVE_LIKE_ACTION.equals(action)) {
-            setLikeStatus(intent.getData(), false);
-        } else if (Actions.ADD_REPOST_ACTION.equals(action)) {
-            setRepostStatus(intent.getData(), true);
-        } else if (Actions.REMOVE_REPOST_ACTION.equals(action)) {
-            setRepostStatus(intent.getData(), false);
-        } else if (Actions.PLAY_ACTION.equals(action)) {
-            handlePlayAction(intent);
-        } else if (Actions.RESET_ALL.equals(action)) {
+        if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
             mPlayQueueManager.clear();
 
-        } else if (Actions.STOP_ACTION.equals(action)) {
-            if (mPlaybackService.getState().isSupposedToBePlaying()) {
-                mPlaybackService.saveProgressAndStop();
-            } else {
-                // make sure we go to a stopped stat. No-op if there already
-                mPlaybackService.stop();
-            }
+        } else if (mAccountOperations.soundCloudAccountExists()) {
 
-        } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
-            if (mPlaybackService.getState() == EMPTY_PLAYLIST) {
-                mPlaybackService.openCurrent();
-            }
-        } else if (Actions.LOAD_TRACK_INFO.equals(action)) {
-            final Track t = Track.nullableTrackfromIntent(intent);
-            if (t != null){
-                t.refreshInfoAsync(mPlaybackService.getOldCloudApi(), mPlaybackService.getInfoListener());
-            } else {
-                mPlaybackService.getInfoListener().onError(intent.getLongExtra(Track.EXTRA_ID, -1L));
-            }
+            if (Actions.NEXT_ACTION.equals(action)) {
+                mPlaybackService.next();
+            } else if (Actions.PREVIOUS_ACTION.equals(action)) {
+                mPlaybackService.prev();
+            } else if (Actions.TOGGLEPLAYBACK_ACTION.equals(action)) {
+                mPlaybackService.togglePlayback();
+            } else if (Actions.PAUSE_ACTION.equals(action)) {
+                mPlaybackService.pause();
+            } else if (Broadcasts.UPDATE_WIDGET_ACTION.equals(action)) {
+                // Someone asked us to executeRefreshTask a set of specific widgets,
+                // probably because they were just added.
+                final int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+                final PlayerAppWidgetProvider appWidgetProvider = mPlaybackService.getAppWidgetProvider();
+                appWidgetProvider.performUpdate(context, appWidgetIds, new Intent(Broadcasts.PLAYSTATE_CHANGED));
 
+            } else if (Actions.ADD_LIKE_ACTION.equals(action)) {
+                setLikeStatus(intent.getData(), true);
+            } else if (Actions.REMOVE_LIKE_ACTION.equals(action)) {
+                setLikeStatus(intent.getData(), false);
+            } else if (Actions.ADD_REPOST_ACTION.equals(action)) {
+                setRepostStatus(intent.getData(), true);
+            } else if (Actions.REMOVE_REPOST_ACTION.equals(action)) {
+                setRepostStatus(intent.getData(), false);
+            } else if (Actions.PLAY_ACTION.equals(action)) {
+                handlePlayAction(intent);
+            } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
+                if (mPlaybackService.getState() == EMPTY_PLAYLIST) {
+                    mPlaybackService.openCurrent();
+                }
+            } else if (Actions.LOAD_TRACK_INFO.equals(action)) {
+                final Track t = Track.nullableTrackfromIntent(intent);
+                if (t != null) {
+                    t.refreshInfoAsync(mPlaybackService.getOldCloudApi(), mPlaybackService.getInfoListener());
+                } else {
+                    mPlaybackService.getInfoListener().onError(intent.getLongExtra(Track.EXTRA_ID, -1L));
+                }
+            } else if (Actions.STOP_ACTION.equals(action)) {
+                if (mPlaybackService.getState().isSupposedToBePlaying()) {
+                    mPlaybackService.saveProgressAndStop();
+                } else {
+                    // make sure we go to a stopped stat. No-op if there already
+                    mPlaybackService.stop();
+                }
+
+            }
+        } else {
+            Log.e(CloudPlaybackService.TAG, "Aborting playback service action, no soundcloud account(" + intent + ")");
         }
     }
 
@@ -131,8 +145,8 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private void configureVolume() {
-        final int volume = (int) Math.round(mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)* 0.75d);
-        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)){
+        final int volume = (int) Math.round(mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * 0.75d);
+        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
             Log.d(CloudPlaybackService.TAG, "setting volume to " + volume);
         }
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
@@ -155,7 +169,7 @@ class PlaybackReceiver extends BroadcastReceiver {
         final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
         mPlayQueueManager.loadTrack(cachedTrack, true);
 
-        if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)){
+        if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)) {
             mPlayQueueManager.fetchRelatedTracks(cachedTrack);
         }
 

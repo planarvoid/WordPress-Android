@@ -81,6 +81,13 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                             && intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1) == mCurrentTrackId) {
 
                 performUpdate(context, new int[0], intent);
+
+            } else if (action.equals(Broadcasts.RESET_ALL)){
+                final WidgetPlaybackRemoteViews views = new WidgetPlaybackRemoteViews(context.getPackageName());
+                views.setPlaybackStatus(false);
+                views.setCurrentTrackTitle(context.getString(R.string.widget_touch_to_open));
+                views.setCurrentUsername(null);
+                pushUpdate(context, new int[0], views);
             }
         }
     }

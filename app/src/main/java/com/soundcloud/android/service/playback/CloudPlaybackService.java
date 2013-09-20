@@ -18,6 +18,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
@@ -118,6 +119,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String SEEK_COMPLETE            = "com.soundcloud.android.seekcomplete";
         String BUFFERING                = "com.soundcloud.android.buffering";
         String BUFFERING_COMPLETE       = "com.soundcloud.android.bufferingcomplete";
+        String RESET_ALL                = "com.soundcloud.android.resetAll";
     }
 
 
@@ -142,6 +144,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
     /* package */ PlayQueueManager mPlayQueueManager;
+    /* package */ AccountOperations mAccountOperations;
 
     // TODO: this doesn't really belong here. It's only used to PUT likes and reposts, and isn't playback specific.
     /* package */ AssociationManager mAssociationManager;
@@ -224,6 +227,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         mOldCloudApi = new OldCloudAPI(this);
         mAnalyticsEngine = new AnalyticsEngine(getApplicationContext());
+        mAccountOperations = new AccountOperations(this);
 
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueueManager, mAudioManager);
 
@@ -313,8 +317,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
         if (intent != null) {
-
-            if (!Actions.PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.isEmpty()){
+            boolean hasAccount = mAccountOperations.soundCloudAccountExists();
+            if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.isEmpty()){
                 configureLastPlaylist();
             }
             mIntentReceiver.onReceive(this, intent);
@@ -375,6 +379,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public void resetAll() {
         stop();
         mCurrentTrack = null;
+        mAppWidgetProvider.notifyChange(this, new Intent(Broadcasts.RESET_ALL));
     }
 
     public void saveProgressAndStop() {
