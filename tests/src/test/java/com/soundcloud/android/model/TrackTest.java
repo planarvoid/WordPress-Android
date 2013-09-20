@@ -276,8 +276,8 @@ public class TrackTest {
 
     @Test
     public void shouldCreateTrackFromExploreTrackSuggestion() throws IOException {
-        ExploreTracksSuggestion suggestion = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("suggested_track.json"), ExploreTracksSuggestion.class);
+        TrackSummary suggestion = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("suggested_track.json"), TrackSummary.class);
         Track t = new Track(suggestion);
 
         expect(t.getUrn()).toEqual(suggestion.getUrn());

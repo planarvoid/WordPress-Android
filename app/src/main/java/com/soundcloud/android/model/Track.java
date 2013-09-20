@@ -109,7 +109,7 @@ public class Track extends Playable implements PlayableHolder {
     @JsonIgnore public LoadCommentsTask load_comments_task;
     @JsonIgnore public int last_playback_error = -1;
 
-    public Track(ExploreTracksSuggestion suggestion) {
+    public Track(TrackSummary suggestion) {
         setUrn(suggestion.getUrn());
         setUser(new User(suggestion.getUser()));
         setTitle(suggestion.getTitle());

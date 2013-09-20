@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.ExploreTracksSuggestion;
+import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
@@ -18,14 +18,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSuggestion> {
+public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
     public static final int INITIAL_LIST_SIZE = 20;
 
     private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.gridView();
     private GridSpacer mGridSpacer;
 
-    public ExploreTracksAdapter(Observable<Observable<ExploreTracksSuggestion>> pagingObservable, Observer<ExploreTracksSuggestion> itemObserver) {
+    public ExploreTracksAdapter(Observable<Observable<TrackSummary>> pagingObservable, Observer<TrackSummary> itemObserver) {
         super(pagingObservable, itemObserver, INITIAL_LIST_SIZE, R.layout.grid_loading_item);
         mGridSpacer = new GridSpacer();
     }
@@ -47,7 +47,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<ExploreTracksSugg
     @Override
     protected void bindItemView(int position, View itemView) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
-        final ExploreTracksSuggestion track = getItem(position);
+        final TrackSummary track = getItem(position);
 
         // TODO : figure out why we are null here
         if (viewHolder == null) throw new IllegalArgumentException("VIEWHOLDER IS NULL");
