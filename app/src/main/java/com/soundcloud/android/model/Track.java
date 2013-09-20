@@ -12,6 +12,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
@@ -339,10 +340,10 @@ public class Track extends Playable implements PlayableHolder {
         download_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.DOWNLOAD_URL));
 
         stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.STREAM_URL));
-        playback_count = getLongOrNotSet(cursor, DBHelper.SoundView.PLAYBACK_COUNT);
-        download_count = getIntOrNotSet(cursor, DBHelper.SoundView.DOWNLOAD_COUNT);
-        comment_count = getLongOrNotSet(cursor, DBHelper.SoundView.COMMENT_COUNT);
-        shared_to_count = getIntOrNotSet(cursor, DBHelper.SoundView.SHARED_TO_COUNT);
+        playback_count = ResolverHelper.getLongOrNotSet(cursor, DBHelper.SoundView.PLAYBACK_COUNT);
+        download_count = ResolverHelper.getIntOrNotSet(cursor, DBHelper.SoundView.DOWNLOAD_COUNT);
+        comment_count = ResolverHelper.getLongOrNotSet(cursor, DBHelper.SoundView.COMMENT_COUNT);
+        shared_to_count = ResolverHelper.getIntOrNotSet(cursor, DBHelper.SoundView.SHARED_TO_COUNT);
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.COMMENTABLE)) == 1;
 
         final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.SoundView.USER_PLAY_COUNT);

@@ -8,7 +8,6 @@ import com.google.common.primitives.Longs;
 import com.soundcloud.android.model.behavior.Identifiable;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.BaseColumns;
@@ -50,7 +49,7 @@ public class ScModel implements Parcelable, Identifiable {
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        if (getId() != ScResource.NOT_SET) cv.put(BaseColumns._ID, getId());
+        if (getId() != NOT_SET) cv.put(BaseColumns._ID, getId());
         return cv;
     }
 
@@ -62,16 +61,6 @@ public class ScModel implements Parcelable, Identifiable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mURN != null ? mURN.toString() : null);
-    }
-
-    protected static int getIntOrNotSet(Cursor c, String column) {
-        final int index = c.getColumnIndex(column);
-        return c.isNull(index) ? NOT_SET : c.getInt(index);
-    }
-
-    protected static long getLongOrNotSet(Cursor c, String column) {
-        final int index = c.getColumnIndex(column);
-        return c.isNull(index) ? NOT_SET : c.getLong(index);
     }
 
     @JsonIgnore

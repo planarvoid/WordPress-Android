@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
@@ -110,8 +111,8 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
         sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.SHARING)));
         license = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.LICENSE));
         genre = cursor.getString(cursor.getColumnIndex(DBHelper.SoundView.GENRE));
-        likes_count = getLongOrNotSet(cursor, DBHelper.SoundView.LIKES_COUNT);
-        reposts_count = getLongOrNotSet(cursor, DBHelper.SoundView.REPOSTS_COUNT);
+        likes_count = ResolverHelper.getLongOrNotSet(cursor, DBHelper.SoundView.LIKES_COUNT);
+        reposts_count = ResolverHelper.getLongOrNotSet(cursor, DBHelper.SoundView.REPOSTS_COUNT);
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.SoundView.USER_ID));
 
         final long lastUpdated = cursor.getLong(cursor.getColumnIndex(DBHelper.SoundView.LAST_UPDATED));
