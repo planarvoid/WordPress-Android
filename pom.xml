@@ -207,10 +207,6 @@
             <name>SoundCloud Internal Releases</name>
             <url>http://maven.int.s-cloud.net/content/repositories/releases</url>
         </pluginRepository>
-        <pluginRepository>
-            <id>crashlytics-plugin-repo</id>
-            <url>http://download.crashlytics.com/maven</url>
-        </pluginRepository>
     </pluginRepositories>
 
     <scm>
