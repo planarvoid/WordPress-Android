@@ -1,11 +1,11 @@
 package com.soundcloud.android.blueprints;
 
-import com.soundcloud.android.model.Stats;
+import com.soundcloud.android.model.TrackStats;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 
-@Blueprint(Stats.class)
-public class StatsBlueprint {
+@Blueprint(TrackStats.class)
+public class TrackStatsBlueprint {
 
     @Default
     long playbackCount = 789L;

@@ -122,7 +122,7 @@ public class Track extends Playable implements PlayableHolder {
         tag_list = suggestion.getUserTags() == null ? ScTextUtils.EMPTY_STRING : TextUtils.join(" ", suggestion.getUserTags());
         created_at = suggestion.getCreatedAt();
 
-        final Stats stats = suggestion.getStats();
+        final TrackStats stats = suggestion.getStats();
         if (stats != null){
             playback_count = stats.getPlaybackCount();
             likes_count = stats.getLikesCount();

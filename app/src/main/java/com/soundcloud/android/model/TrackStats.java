@@ -2,7 +2,7 @@ package com.soundcloud.android.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Stats {
+public class TrackStats {
 
     private long mPlaybackCount;
     private long mRepostsCount;

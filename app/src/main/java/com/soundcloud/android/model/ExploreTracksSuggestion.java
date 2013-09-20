@@ -23,7 +23,7 @@ public class ExploreTracksSuggestion extends ScModel {
     private Date            mCreatedAt;
     private String          mArtworkUrl;
 
-    private Stats           mStats;
+    private TrackStats mStats;
 
     public ExploreTracksSuggestion() { /* for Deserialization */ }
 
@@ -93,7 +93,7 @@ public class ExploreTracksSuggestion extends ScModel {
         }
     }
 
-    public Stats getStats() {
+    public TrackStats getStats() {
         return mStats;
     }
 
@@ -109,7 +109,7 @@ public class ExploreTracksSuggestion extends ScModel {
         this.mTitle = title;
     }
 
-    public void setStats(Stats stats) {
+    public void setStats(TrackStats stats) {
         this.mStats = stats;
     }
 
@@ -193,13 +193,13 @@ public class ExploreTracksSuggestion extends ScModel {
 
     private static class RelatedResources {
         private UserSummary user;
-        private Stats stats;
+        private TrackStats stats;
 
         void setUser(UserSummary user) {
             this.user = user;
         }
 
-        void setStats(Stats stats) {
+        void setStats(TrackStats stats) {
             this.stats = stats;
         }
     }

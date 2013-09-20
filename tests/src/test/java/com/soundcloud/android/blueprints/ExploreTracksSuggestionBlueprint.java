@@ -1,7 +1,7 @@
 package com.soundcloud.android.blueprints;
 
 import com.soundcloud.android.model.ExploreTracksSuggestion;
-import com.soundcloud.android.model.Stats;
+import com.soundcloud.android.model.TrackStats;
 import com.soundcloud.android.model.UserSummary;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
@@ -28,5 +28,5 @@ public class ExploreTracksSuggestionBlueprint {
     UserSummary user;
 
     @Mapped
-    Stats stats;
+    TrackStats stats;
 }
