@@ -16,6 +16,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.auth.AuthenticatorService;
+import com.soundcloud.android.showcases.Showcase;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
@@ -27,6 +28,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 public class Home extends ScActivity implements ScLandingPage {
     public static final String EXTRA_ONBOARDING_USERS_RESULT  = "onboarding_users_result";
@@ -122,4 +124,15 @@ public class Home extends ScActivity implements ScLandingPage {
     private boolean justAuthenticated(Intent intent) {
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
+
+    @Override
+    public void onMenuOpenLeft() {
+        super.onMenuOpenLeft();
+
+        final View viewById = mRootView.getMenuItemViewById(R.id.nav_explore);
+        if (viewById != null){
+            Showcase.EXPLORE.insertShowcase(this, viewById);
+        }
+    }
+
 }

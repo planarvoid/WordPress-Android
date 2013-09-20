@@ -25,7 +25,10 @@ public class StatsView extends View {
     private final int[] mOffsets;
 
     // track stats
-    private int mPlays, mLikes, mReposts, mComments;
+    private int mPlays;
+    private long mLikes;
+    private long mReposts;
+    private long mComments;
     private boolean mLiked;
     private boolean mReposted;
 
@@ -85,7 +88,7 @@ public class StatsView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width  = 0;
         int height = 0;
-        int[]      counts   = {mPlays, mLikes, mReposts, mComments};
+        long[]      counts   = {mPlays, mLikes, mReposts, mComments};
 
         boolean    hasDrawn = false;
 
@@ -97,7 +100,7 @@ public class StatsView extends View {
         for (int i = 0; i < mIcons.length; i++) {
             if (counts[i] <= 0) continue;
             Drawable icon   = mIcons[i];
-            String   string = Integer.toString(counts[i]);
+            String   string = Long.toString(counts[i]);
             if (hasDrawn) {
                 width += mSeparatorWidth;
                 width += mItemPadding;
@@ -118,7 +121,7 @@ public class StatsView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        int[] counts   = {mPlays, mLikes, mReposts, mComments};
+        long[] counts   = {mPlays, mLikes, mReposts, mComments};
         Drawable[] icons = {
             mPlaysIcon,
             isLiked() ?    mLikedIcon    : mLikesIcon,
@@ -132,7 +135,7 @@ public class StatsView extends View {
             if (counts[i] <= 0) continue;
 
             Drawable icon   = icons[i];
-            String   string = Integer.toString(counts[i]);
+            String   string = Long.toString(counts[i]);
 
             if (hasDrawn) {
                 mSeparator.setBounds(x, 0, x + mSeparatorWidth, getHeight());

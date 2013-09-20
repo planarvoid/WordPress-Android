@@ -6,10 +6,12 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -42,12 +44,13 @@ public class PlaybackReceiverTest {
     private @Mock PlayQueueManager playQueueManager;
     private @Mock AudioManager audioManager;
     private @Mock PlayerAppWidgetProvider playerAppWidgetProvider;
+    private @Mock AccountOperations accountOperations;
 
     @Before
     public void setup() {
         SoundCloudApplication.MODEL_MANAGER.clear();
-        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager);
-
+        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager, accountOperations);
+        when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);
     }
 
@@ -337,6 +340,14 @@ public class PlaybackReceiverTest {
     }
 
     @Test
+    public void shouldCallStopOnStopActionIfNotPlaying(){
+        when(playbackService.getState()).thenReturn(State.PAUSED);
+        Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verify(playbackService).stop();
+    }
+
+    @Test
     public void shouldNotCallSaveProgressAndStopOnStopActionIfNotPlaying(){
         when(playbackService.getState()).thenReturn(State.STOPPED);
         Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
@@ -345,10 +356,51 @@ public class PlaybackReceiverTest {
     }
 
     @Test
+    public void shouldCallResetAllWithNoAccount(){
+        Intent intent = new Intent(CloudPlaybackService.Actions.RESET_ALL);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verify(playbackService).resetAll();
+        verify(playQueueManager).clear();
+        verifyZeroInteractions(accountOperations);
+    }
+
+    @Test
     public void shouldOpenCurrentIfPlayQueueChangedFromEmptyPlaylist(){
         when(playbackService.getState()).thenReturn(State.EMPTY_PLAYLIST);
         Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).saveProgressAndStop();
+    }
+
+    @Test
+    public void shouldNotInteractWithThePlayBackServiceIfNoAccountExists(){
+        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verifyZeroInteractions(playbackService);
+    }
+
+    @Test
+    public void shouldNotInteractWithTheAssociationManagerIfNoAccountExists(){
+        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verifyZeroInteractions(associationManager);
+    }
+
+    @Test
+    public void shouldNotInteractWithThePlayqueueManagerIfNoAccountExists(){
+        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verifyZeroInteractions(playQueueManager);
+    }
+
+    @Test
+    public void shouldNotInteractWithTheAudioManagerIfNoAccountExists(){
+        when(accountOperations.soundCloudAccountExists()).thenReturn(false);
+        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        playbackReceiver.onReceive(Robolectric.application, intent);
+        verifyZeroInteractions(audioManager);
     }
 }

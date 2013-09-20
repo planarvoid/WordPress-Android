@@ -1,5 +1,6 @@
 package com.soundcloud.android.dao;
 
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.ScContentProvider;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,5 +51,15 @@ public class ResolverHelper {
 
     public static Uri addIdOnlyParameter(Uri uri){
         return uri.buildUpon().appendQueryParameter(ScContentProvider.Parameter.IDS_ONLY, "1").build();
+    }
+
+    public static int getIntOrNotSet(Cursor c, String column) {
+        final int index = c.getColumnIndex(column);
+        return c.isNull(index) ? ScModel.NOT_SET : c.getInt(index);
+    }
+
+    public static long getLongOrNotSet(Cursor c, String column) {
+        final int index = c.getColumnIndex(column);
+        return c.isNull(index) ? ScModel.NOT_SET : c.getLong(index);
     }
 }

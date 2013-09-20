@@ -8,7 +8,7 @@ import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
-import com.soundcloud.android.model.ExploreTracksSuggestion;
+import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScheduledOperations;
@@ -38,7 +38,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
         return mRxHttpClient.fetchModels(request);
     }
 
-    public Observable<Observable<ExploreTracksSuggestion>> getSuggestedTracks(ExploreTracksCategory category) {
+    public Observable<Observable<TrackSummary>> getSuggestedTracks(ExploreTracksCategory category) {
         if (category == ExploreTracksCategory.POPULAR_MUSIC_CATEGORY) {
             return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path());
         } else if (category == ExploreTracksCategory.POPULAR_AUDIO_CATEGORY) {
@@ -48,8 +48,8 @@ public class ExploreTracksOperations extends ScheduledOperations {
         }
     }
 
-    private Observable<Observable<ExploreTracksSuggestion>> getSuggestedTracks(String endpoint) {
-        APIRequest<ModelCollection<ExploreTracksSuggestion>> request = SoundCloudAPIRequest.RequestBuilder.<ModelCollection<ExploreTracksSuggestion>>get(endpoint)
+    private Observable<Observable<TrackSummary>> getSuggestedTracks(String endpoint) {
+        APIRequest<ModelCollection<TrackSummary>> request = SoundCloudAPIRequest.RequestBuilder.<ModelCollection<TrackSummary>>get(endpoint)
                 .addQueryParameters("limit", "15")
                 .forPrivateAPI(1)
                 .forResource(new SuggestionsModelCollectionToken()).build();
@@ -57,17 +57,17 @@ public class ExploreTracksOperations extends ScheduledOperations {
         return mRxHttpClient.fetchPagedModels(request);
     }
 
-    public Observable<Track> getRelatedTracks(Track seedTrack) {
+    public Observable<Track> getRelatedTracks(final Track seedTrack) {
         final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), seedTrack.getUrn().toEncodedString());
-        final APIRequest<ModelCollection<ExploreTracksSuggestion>> request = SoundCloudAPIRequest.RequestBuilder.<ModelCollection<ExploreTracksSuggestion>>get(endpoint)
+        final APIRequest<ModelCollection<TrackSummary>> request = SoundCloudAPIRequest.RequestBuilder.<ModelCollection<TrackSummary>>get(endpoint)
                 .forPrivateAPI(1)
                 .forResource(new SuggestionsModelCollectionToken()).build();
 
-        return mRxHttpClient.<ModelCollection<ExploreTracksSuggestion>>fetchModels(request).mapMany(new Func1<ModelCollection<ExploreTracksSuggestion>, Observable<Track>>() {
+        return mRxHttpClient.<ModelCollection<TrackSummary>>fetchModels(request).mapMany(new Func1<ModelCollection<TrackSummary>, Observable<Track>>() {
             @Override
-            public Observable<Track> call(ModelCollection<ExploreTracksSuggestion> exploreTracksSuggestionModelCollection) {
+            public Observable<Track> call(ModelCollection<TrackSummary> exploreTracksSuggestionModelCollection) {
                 List<Track> toEmit = Lists.newArrayListWithCapacity(exploreTracksSuggestionModelCollection.getCollection().size());
-                for (ExploreTracksSuggestion item : exploreTracksSuggestionModelCollection.getCollection()) {
+                for (TrackSummary item : exploreTracksSuggestionModelCollection.getCollection()) {
                     toEmit.add(new Track(item));
                 }
                 return Observable.from(toEmit);
@@ -75,7 +75,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
         });
     }
 
-    private static class SuggestionsModelCollectionToken extends TypeToken<ModelCollection<ExploreTracksSuggestion>> {
+    private static class SuggestionsModelCollectionToken extends TypeToken<ModelCollection<TrackSummary>> {
     }
 
     private static class ExploreTracksCategoriesToken extends TypeToken<ExploreTracksCategories> {

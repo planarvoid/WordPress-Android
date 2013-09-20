@@ -45,7 +45,6 @@ public class APIRequestException extends RuntimeException {
         return new APIRequestException(RATE_LIMITED, request, response, (Exception)null);
     }
 
-
     public static APIRequestException authError(APIRequest request, CloudAPI.InvalidTokenException e) {
         return new APIRequestException(TOKEN_AUTH_ERROR,  request, null, e);
     }
@@ -71,10 +70,6 @@ public class APIRequestException extends RuntimeException {
 
     public APIResponse response() {
         return mResponse;
-    }
-
-    public int responseCode() {
-        return mResponse.getResponseCode();
     }
 
     @Override
