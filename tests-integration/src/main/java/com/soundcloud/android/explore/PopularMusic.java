@@ -25,7 +25,6 @@ public class PopularMusic extends ActivityTestCase<Home> {
         super.setUp();
 
         waiter = new Waiter(solo);
-        waiter.waitForListContent();
 
         exploreScreen = new ExploreScreen(solo);
     }

@@ -1,16 +1,22 @@
 package com.soundcloud.android.screens.explore;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 
+import android.widget.TextView;
+
 public class ExploreScreen extends Screen {
+
+    private Han solo;
 
     public ExploreScreen(Han solo) {
         super(solo);
+        this.solo = solo;
     }
 
     public String getActiveTabName() {
-        return null;
+        return ((TextView)solo.getView(R.id.nav_explore)).getText().toString();
     }
 
     public int getItemsOnList() {
