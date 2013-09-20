@@ -194,41 +194,6 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
-    public void firstPageShouldUseSpecificItemObserver() {
-        ListFragmentObserver specificObserver = mock(ListFragmentObserver.class);
-        createAdapter(Observable.from(pageObservable));
-
-        adapter.subscribe(specificObserver);
-
-        ArgumentCaptor<BufferingObserver> captor = ArgumentCaptor.forClass(BufferingObserver.class);
-        verify(pageObservable).subscribe(captor.capture());
-        expect(captor.getValue().isWrapping(specificObserver)).toBeTrue();
-    }
-
-    @Test
-    public void secondPageShouldUseTheDefaultItemObserver() {
-        ListFragmentObserver specificObserver = mock(ListFragmentObserver.class);
-        createAdapter(createPagingObservable(2, pageObservable));
-        adapter.subscribe(specificObserver);
-        adapter.onScroll(absListView, 0, 5, 5);
-
-        ArgumentCaptor<BufferingObserver> captor = ArgumentCaptor.forClass(BufferingObserver.class);
-        verify(pageObservable).subscribe(captor.capture());
-        expect(captor.getValue().isWrapping(adapter)).toBeTrue();
-    }
-
-    @Test
-    public void pageScrollListenerShouldLoadNextPageWithOnePageLookAhead() {
-        createAdapter(createPagingObservable(2, pageObservable));
-        adapter.subscribe();
-        adapter.onScroll(absListView, 0, 5, 2 * 5);
-
-        ArgumentCaptor<BufferingObserver> captor = ArgumentCaptor.forClass(BufferingObserver.class);
-        verify(pageObservable).subscribe(captor.capture());
-        expect(captor.getValue().isWrapping(adapter)).toBeTrue();
-    }
-
-    @Test
     public void pageScrollListenerShouldNotDoAnythingIfAlreadyLoading() {
         final Observable pageObservable = mock(Observable.class);
         when(pageObservable.observeOn(any(Scheduler.class))).thenReturn(pageObservable);
