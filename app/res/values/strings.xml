@@ -196,7 +196,7 @@
 
     <string name="side_menu_explore">Explore</string>
 
-    <string name="explore_categories">Categories</string>
+    <string name="explore_genres">Genres</string>
     <string name="explore_category_header_music">Music</string>
     <string name="explore_category_header_audio">Audio</string>
 
