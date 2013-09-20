@@ -129,7 +129,8 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     public void setPlayQueueItem(@NotNull PlayQueueItem playQueueItem, boolean priority){
-        setTrack(playQueueItem.getTrack(), playQueueItem.getPlayQueuePosition(), priority);
+        mQueuePosition = playQueueItem.getPlayQueuePosition();
+        setTrackInternal(playQueueItem.getTrack(), priority);
     }
 
     @Override
@@ -142,14 +143,11 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         return mListener.setSeekMarker(queuePosition, seekPosition);
     }
 
-    @Deprecated
-    public void setTrack(@NotNull Track track, int queuePosition, boolean priority) {
+    protected void setTrackInternal(@NotNull Track track, boolean priority) {
         final boolean changed = !track.equals(mTrack);
 
         mTrack = track;
-        mQueuePosition = queuePosition;
-
-        mWaveformController.updateTrack(mTrack, queuePosition, priority);
+        mWaveformController.updateTrack(mTrack, mQueuePosition, priority);
         mTrackInfoBar.display(mTrack);
         updateAvatar(priority);
 
@@ -198,6 +196,14 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             mTrack.comments = comments;
             mWaveformController.setComments(mTrack.comments, true);
         }
+    }
+
+    public void onBeingScrolled(){
+        mWaveformController.setSuppressComments(true);
+    }
+
+    public void onScrollComplete(){
+        mWaveformController.setSuppressComments(false);
     }
 
     private void updateAvatar(boolean postAtFront) {
@@ -353,7 +359,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         } else if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)) {
             Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(BroadcastExtras.id, -1));
             if (t != null) {
-                setTrack(t, mQueuePosition, mOnScreen);
+                setTrackInternal(t, mOnScreen);
                 if (mTrackDetailsView != null) {
                     mTrackDetailsView.fillTrackDetails(mTrack);
                 }

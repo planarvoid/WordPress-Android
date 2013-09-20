@@ -25,8 +25,14 @@ public class PlayerQueueView extends FrameLayout {
         // TODO, replace these with viewStubs
         if (playQueueItem.isEmpty()){
             showEmptyView();
-            mEmptyView.setStatus(mPlayQueueManager.isFetchingRelated() ?
-                    EmptyListView.Status.WAITING : EmptyListView.Status.ERROR);
+            if (mPlayQueueManager.isFetchingRelated()){
+                mEmptyView.setStatus(EmptyListView.Status.WAITING);
+            } else if (mPlayQueueManager.lastRelatedFetchFailed()){
+                mEmptyView.setStatus(EmptyListView.Status.ERROR);
+            } else {
+                mEmptyView.setStatus(EmptyListView.Status.OK);
+            }
+
 
         } else {
             showTrackView();
@@ -89,6 +95,7 @@ public class PlayerQueueView extends FrameLayout {
     protected EmptyListView createEmptyListView(Context context) {
         EmptyListView emptyListView = new EmptyListView(context, R.layout.empty_player_track);
         emptyListView.setBackgroundColor(Color.WHITE);
+        emptyListView.setMessageText(R.string.player_no_recommended_tracks);
         return emptyListView;
     }
 
