@@ -352,8 +352,8 @@
                         <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                         <artifactId>android-maven-plugin</artifactId>
                         <configuration>
-                            <renameManifestPackage>com.soundcloud.android.${build.type}</renameManifestPackage>
-                            <manifestApplicationLabel>SC-${build.type}</manifestApplicationLabel>
+                            <!--<renameManifestPackage>com.soundcloud.android.${build.type}</renameManifestPackage>
+                            <manifestApplicationLabel>SC-${build.type}</manifestApplicationLabel>-->
                             <!--<manifest>-->
                                 <!--<providerAuthorities>-->
                                     <!--<property>-->
