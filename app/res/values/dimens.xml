@@ -138,8 +138,6 @@
     <dimen name="empty_message_margin_left_right">20dp</dimen>
     <dimen name="tab_height">48dp</dimen>
 
-    <dimen name="explore_category_page_size">.66px</dimen><!-- ratio used for pager adapter -->
-
     <dimen name="player_time_width">10dp</dimen><!-- will correspond to the arrow height -->
     <dimen name="player_time_bottom_margin">-10dp</dimen><!-- will correspond to the arrow height -->
 

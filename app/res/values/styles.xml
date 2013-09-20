@@ -1352,9 +1352,9 @@
     </style>
 
     <style name="ShowcaseTitleText" parent="TextAppearance.ShowcaseView.Title">
-        <item name="android:textColor">#ff5e00</item>
+        <item name="android:textColor">#ffffff</item>
     </style>
     <style name="ShowcaseDetailText" parent="TextAppearance.ShowcaseView.Detail">
-        <item name="android:textColor">#ff5e00</item>
+        <item name="android:textColor">#ffffff</item>
     </style>
 </resources>

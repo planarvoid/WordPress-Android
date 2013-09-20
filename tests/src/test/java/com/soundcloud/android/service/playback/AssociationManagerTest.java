@@ -38,7 +38,7 @@ public class AssociationManagerTest {
     @Test
     public void shouldCreateNewLike() throws Exception {
         Track t = createTrack();
-        int likesCount = t.likes_count;
+        long likesCount = t.likes_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setLike(t, true);
@@ -62,20 +62,20 @@ public class AssociationManagerTest {
         Track t = createTrack();
         TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE);
         expect(TestHelper.reload(t).user_like).toBeTrue();
-        expect(TestHelper.reload(t).likes_count).toEqual(5);
+        expect(TestHelper.reload(t).likes_count).toEqual(5L);
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(200, "OK"));
         associationManager.setLike(t, true);
 
         expect(TestHelper.reload(t).user_like).toBeTrue();
-        expect(TestHelper.reload(t).likes_count).toEqual(5);
+        expect(TestHelper.reload(t).likes_count).toEqual(5L);
     }
 
     @Test
     public void shouldNotChangeLikeCountWhenAddLikeApiCallFails() throws Exception {
         Track t = createTrack();
         t.user_like = false;
-        int likesCount = t.likes_count;
+        long likesCount = t.likes_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_LIKE, t.getId()).toUrl(), new TestHttpResponse(404, "FAIL"));
         associationManager.setLike(t, true);
@@ -94,7 +94,7 @@ public class AssociationManagerTest {
         associationManager.setLike(track, false);
 
         expect(TestHelper.reload(track).user_like).toBeFalse();
-        expect(TestHelper.reload(track).likes_count).toEqual(4);
+        expect(TestHelper.reload(track).likes_count).toEqual(4L);
     }
 
     @Test
@@ -111,14 +111,14 @@ public class AssociationManagerTest {
         associationManager.setLike(t, false);
 
         expect(TestHelper.reload(p).user_like).toBeTrue();
-        expect(TestHelper.reload(p).likes_count).toEqual(1);
+        expect(TestHelper.reload(p).likes_count).toEqual(1L);
     }
 
     @Test
     public void shouldAddTrackRepost() throws Exception {
         Track t = createTrack();
         expect(t.user_repost).toBeFalse();
-        int repostsCount = t.reposts_count;
+        long repostsCount = t.reposts_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_TRACK_REPOST, t.getId()).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setRepost(t, true);
@@ -145,7 +145,7 @@ public class AssociationManagerTest {
         Playlist p = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
         TestHelper.insertWithDependencies(p);
         expect(p.user_repost).toBeFalse();
-        int repostsCount = p.reposts_count;
+        long repostsCount = p.reposts_count;
 
         addHttpResponseRule("PUT", Request.to(TempEndpoints.e1.MY_PLAYLIST_REPOST, p.getId()).toUrl(), new TestHttpResponse(201, "OK"));
         associationManager.setRepost(p, true);

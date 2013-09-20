@@ -275,9 +275,9 @@ public class TrackTest {
     }
 
     @Test
-    public void shouldCreateTrackFromExploreTrackSuggestion() throws IOException {
-        ExploreTracksSuggestion suggestion = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("suggested_track.json"), ExploreTracksSuggestion.class);
+    public void shouldCreateTrackFromTrackSummary() throws IOException {
+        TrackSummary suggestion = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("suggested_track.json"), TrackSummary.class);
         Track t = new Track(suggestion);
 
         expect(t.getUrn()).toEqual(suggestion.getUrn());
@@ -291,8 +291,13 @@ public class TrackTest {
         expect(t.waveform_url).toEqual(Track.fixWaveform(suggestion.getWaveformUrl()));
         expect(t.tag_list).toEqual(TextUtils.join(" ", suggestion.getUserTags()));
         expect(t.created_at).toEqual(suggestion.getCreatedAt());
-        expect(t.playback_count).toEqual(suggestion.getPlaybackCount());
         expect(t.duration).toEqual(suggestion.getDuration());
+        expect(t.sharing).toEqual(suggestion.getSharing());
+
+        expect(t.likes_count).toEqual(suggestion.getStats().getLikesCount());
+        expect(t.playback_count).toEqual(suggestion.getStats().getPlaybackCount());
+        expect(t.reposts_count).toEqual(suggestion.getStats().getRepostsCount());
+        expect(t.comment_count).toEqual(suggestion.getStats().getCommentsCount());
     }
 
     private void compareTracks(Track t, Track t2) {

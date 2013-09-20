@@ -98,18 +98,18 @@ public class PlayerTrackDetails extends RelativeLayout {
 
         setViewVisibility(track.likes_count > 0, mLikersRow, mLikersDivider);
         mLikersText.setText(getResources().getQuantityString(R.plurals.track_info_likers,
-                track.likes_count,
-                track.likes_count));
+                ((int) track.likes_count),
+                ((int) track.likes_count)));
 
         setViewVisibility(track.reposts_count > 0, mRepostersRow, mRepostersDivider);
         mRepostersText.setText(getResources().getQuantityString(R.plurals.track_info_reposters,
-                track.reposts_count,
-                track.reposts_count));
+                ((int) track.reposts_count),
+                ((int) track.reposts_count)));
 
         setViewVisibility(track.comment_count > 0, mCommentersRow, mCommentersDivider);
         mCommentersText.setText(getResources().getQuantityString(R.plurals.track_info_commenters,
-                track.comment_count,
-                track.comment_count));
+                ((int) track.comment_count),
+                ((int) track.comment_count)));
 
 
         // check for equality to avoid extra view inflation

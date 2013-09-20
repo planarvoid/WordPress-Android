@@ -5,7 +5,6 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.EmbossMaskFilter;
@@ -71,10 +70,7 @@ public class PlayerTimeView extends RelativeLayout {
         mPlayheadArrowHeight = -1 * getResources().getDimensionPixelSize(R.dimen.player_time_bottom_margin);
 
         setGravity(Gravity.CENTER_HORIZONTAL);
-
-        TypedArray a=getContext().obtainStyledAttributes(attrs,R.styleable.PlayerTimeView);
-        setShowArrow(a.getBoolean(R.styleable.PlayerTimeView_show_arrow, false));
-        a.recycle();
+        setShowArrow(getContext().getResources().getBoolean(R.bool.player_time_show_arrow));
     }
 
     public void setCommenting(boolean commenting) {

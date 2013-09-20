@@ -169,10 +169,9 @@
             <version>14.0.1</version>
         </dependency>
         <dependency>
-            <groupId>org.acra</groupId>
-            <artifactId>acra</artifactId>
-            <version>4.3.0-filter</version>
-            <scope>compile</scope>
+            <groupId>com.crashlytics.android</groupId>
+            <artifactId>crashlytics</artifactId>
+            <version>[1.0.2,)</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -331,7 +330,7 @@
         <dependency>
             <groupId>com.github.espiandev</groupId>
             <artifactId>showcaseview-library</artifactId>
-            <version>3.5.1-SOUNDCLOUD-SNAPSHOT</version>
+            <version>3.5.1-SOUNDCLOUD</version>
             <type>apklib</type>
         </dependency>
         <!-- contains the three native ndk libraries -->

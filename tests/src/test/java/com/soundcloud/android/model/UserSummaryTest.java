@@ -15,6 +15,7 @@ public class UserSummaryTest {
     public void shouldBeParcelable() throws Exception {
         UserSummary userSummary1 = new UserSummary("soundcloud:users:123");
         userSummary1.setUsername("Slawomir");
+        userSummary1.setAvatarUrl("avatar/url");
 
         Parcel parcel = Parcel.obtain();
         userSummary1.writeToParcel(parcel, 0);
@@ -23,6 +24,7 @@ public class UserSummaryTest {
         expect(userSummary1.getId()).toEqual(userSummary2.getId());
         expect(userSummary1.getUrn()).toEqual(userSummary2.getUrn());
         expect(userSummary1.getUsername()).toEqual(userSummary2.getUsername());
+        expect(userSummary1.getAvatarUrl()).toEqual(userSummary2.getAvatarUrl());
 
     }
 }

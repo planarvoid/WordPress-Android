@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.ExploreTracksCategory;
-import com.soundcloud.android.model.ExploreTracksSuggestion;
+import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.UserSummary;
@@ -68,15 +68,15 @@ public class ExploreTracksOperationsTest {
 
         Observer<Track> relatedObserver = Mockito.mock(Observer.class);
 
-        final ModelCollection<ExploreTracksSuggestion> collection = new ModelCollection<ExploreTracksSuggestion>();
-        final ExploreTracksSuggestion suggestion1 = new ExploreTracksSuggestion("soundcloud:sounds:1");
+        final ModelCollection<TrackSummary> collection = new ModelCollection<TrackSummary>();
+        final TrackSummary suggestion1 = new TrackSummary("soundcloud:sounds:1");
         suggestion1.setUser(new UserSummary());
-        final ExploreTracksSuggestion suggestion2 = new ExploreTracksSuggestion("soundcloud:sounds:2");
+        final TrackSummary suggestion2 = new TrackSummary("soundcloud:sounds:2");
         suggestion2.setUser(new UserSummary());
-        final ArrayList<ExploreTracksSuggestion> collection1 = Lists.newArrayList(suggestion1, suggestion2);
+        final ArrayList<TrackSummary> collection1 = Lists.newArrayList(suggestion1, suggestion2);
         collection.setCollection(collection1);
 
-        when(soundCloudRxHttpClient.<ModelCollection<ExploreTracksSuggestion>>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
+        when(soundCloudRxHttpClient.<ModelCollection<TrackSummary>>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
         final Track seedTrack = new Track(123L);
         exploreTracksOperations.getRelatedTracks(seedTrack).subscribe(relatedObserver);
         verify(relatedObserver).onNext(eq(new Track(suggestion1)));
