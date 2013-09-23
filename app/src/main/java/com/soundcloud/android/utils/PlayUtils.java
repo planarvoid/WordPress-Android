@@ -7,6 +7,7 @@ import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -21,9 +22,15 @@ import java.util.List;
 public final class PlayUtils {
 
     private Context mContext;
+    private ScModelManager mModelManager;
 
     public PlayUtils(Context context) {
+        this(context, SoundCloudApplication.MODEL_MANAGER);
+    }
+
+    public PlayUtils(Context context, ScModelManager modelManager) {
         mContext = context;
+        mModelManager = modelManager;
     }
 
     public void playTrack(PlayInfo playInfo) {
@@ -41,21 +48,6 @@ public final class PlayUtils {
             configureIntentViaPlayInfo(info, info.initialTrack, intent);
         }
         return intent;
-    }
-
-    public static Track getTrackFromIntent(Intent intent){
-        if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList,false)){
-            final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
-            final List<Track> list = CloudPlaybackService.playlistXfer;
-            if (list != null && position > -1 && position < list.size() && list.get(position).getPlayable() instanceof Track){
-                return (Track) list.get(position).getPlayable();
-            }
-        } else if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
-            return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
-        } else if (intent.getParcelableExtra(Track.EXTRA) != null) {
-            return intent.getParcelableExtra(Track.EXTRA);
-        }
-        return null;
     }
 
     public void playFromAdapter(List<? extends ScModel> data, int position, Uri streamUri) {
@@ -93,13 +85,28 @@ public final class PlayUtils {
         }
     }
 
+    public static Track getTrackFromIntent(Intent intent){
+        if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList,false)){
+            final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
+            final List<Track> list = CloudPlaybackService.playlistXfer;
+            if (list != null && position > -1 && position < list.size() && list.get(position).getPlayable() instanceof Track){
+                return (Track) list.get(position).getPlayable();
+            }
+        } else if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
+            return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
+        } else if (intent.getParcelableExtra(Track.EXTRA) != null) {
+            return intent.getParcelableExtra(Track.EXTRA);
+        }
+        return null;
+    }
+
     private void configureIntentViaPlayInfo(PlayInfo info, Track initialTrack, Intent intent) {
         intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
         intent.putExtra(CloudPlaybackService.PlayExtras.track, initialTrack);
         CloudPlaybackService.playlistXfer = info.playables;
 
         if (info.uri != null) {
-            SoundCloudApplication.MODEL_MANAGER.cache(info.initialTrack);
+            mModelManager.cache(info.initialTrack);
             intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.initialTrack.getId())
                     .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                     .setData(info.uri);
