@@ -11,11 +11,13 @@ import com.tobedevoured.modelcitizen.field.ConstructorCallback;
 @Blueprint(Track.class)
 public class TrackBlueprint {
 
+    private static long runningId = 1L;
+
     @NewInstance
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new Track(1L);
+            return new Track(runningId++);
         }
     };
 

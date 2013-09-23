@@ -51,7 +51,7 @@ public final class PlayUtils {
     }
 
     public void playFromAdapter(List<? extends ScModel> data, int position, Uri streamUri) {
-        if (position > data.size() || !(data.get(position) instanceof PlayableHolder)) {
+        if (position >= data.size() || !(data.get(position) instanceof PlayableHolder)) {
             throw new AssertionError("Invalid item " + position + ", must be a playable");
         }
 
@@ -79,7 +79,7 @@ public final class PlayUtils {
             mContext.startActivity(getPlayIntent(info));
 
         } else if (playable instanceof Playlist) {
-            PlaylistDetailActivity.start(mContext, (Playlist) playable);
+            PlaylistDetailActivity.start(mContext, (Playlist) playable, mModelManager);
         } else {
             throw new AssertionError("Unexpected playable type");
         }
