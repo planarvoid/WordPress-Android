@@ -21,8 +21,15 @@ DISABLED_LEVELS = %w()
 # help methods to access pom data
 def pom() @pom ||= REXML::Document.new(File.read(File.dirname(__FILE__)+'/pom.xml')) end
 def current_version() pom.root.elements["version"].text end
+
 def update_version(new_version)
-  sh "mvn versions:set -DnewVersion=#{new_version} -DgenerateBackupPoms=false -DupdateMatchingVersions=false"
+  Mvn.set_version(new_version).
+    with_profiles('update-android-manifest').
+    execute()
+
+  Mvn.manifest_update().
+    set_version_code(versionCode.to_s.to_i+1).
+    execute()
 end
 
 [:device, :emu].each do |t|
@@ -158,6 +165,19 @@ def version_name(build_type)
   current_version() + "-#{build_type}" + get_build_number
 end
 
+def bump_minor(version)
+  version = version.split('.').map(&:to_i)
+  version[1] += 1
+  version[2] = 0
+  version.join('.')
+end
+
+def bump_revision(version)
+  version = version.split('.').map(&:to_i)
+  version[2] += 1
+  version.join('.')
+end
+
 def get_build_number
   ENV['BUILD_NUMBER'] ? "-#{ENV['BUILD_NUMBER']}" : ""
 end
@@ -246,12 +266,25 @@ namespace :release do
       execute()
   end
 
-  desc "sets the release version to the version specified in the manifest, creates bump commit"
+  desc "bumps the release version, pom files will be afected as well as AndroidManifest.xml files"
   task :bump do
-
     raise "#{versionName}: Not a release version" if versionName.to_s =~ /-BETA(\d+)?\Z/
     raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
-    update_version(versionName)
+
+    version = bump_minor(versionName.to_s)
+    update_version(version)
+    sh "git commit -a -m 'Bumped to #{versionName}'"
+  end
+end
+
+namespace :hotfix do
+  desc "bumps the hotfix version, pom files will be afected as well as AndroidManifest.xml files"
+  task :bump do
+    raise "#{versionName}: Not a release version" if versionName.to_s =~ /-BETA(\d+)?\Z/
+    raise "Uncommitted changes in working tree" unless system("git diff --exit-code --quiet")
+
+    version = bump_revision(versionName.to_s)
+    update_version(version)
     sh "git commit -a -m 'Bumped to #{versionName}'"
   end
 end
@@ -421,11 +454,19 @@ end
 class Mvn
 
   def self.install
-    self.new
+    self.new('mvn clean install')
   end
 
-  def initialize
-    @command = "mvn clean install"
+  def self.set_version(version)
+    self.new("mvn versions:set -DnewVersion=#{version} -DgenerateBackupPoms=false -DupdateMatchingVersions=false")
+  end
+
+  def self.manifest_update
+    self.new('mvn android:manifest-update')
+  end
+
+  def initialize(command)
+    @command = command
   end
 
   def projects(*array_of_projects)
