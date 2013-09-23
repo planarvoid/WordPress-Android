@@ -58,8 +58,10 @@ public class TrackSummaryTest {
     @Test
     public void shouldReturnAvatarUrlInCorrectSize(){
         TrackSummary suggestion = new TrackSummary();
-        suggestion.setUser(new UserSummary("soundcloud:users:123"));
-        expect(suggestion.getArtworkOrAvatar(ImageSize.T500)).toEqual("https://api.soundcloud.com/resolve/image?url=soundcloud%3Ausers%3A123&client_id=40ccfee680a844780a41fbe23ea89934&size=t500x500");
+        final UserSummary user = new UserSummary("soundcloud:users:123");
+        user.setAvatarUrl("http://i1.sndcdn.com/avatars-000018614344-2p78eh-large.jpg?f34f187");
+        suggestion.setUser(user);
+        expect(suggestion.getArtworkOrAvatar(ImageSize.T500)).toEqual("http://i1.sndcdn.com/avatars-000018614344-2p78eh-t500x500.jpg?f34f187");
     }
 
     @Test

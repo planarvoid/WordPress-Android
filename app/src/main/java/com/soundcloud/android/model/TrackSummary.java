@@ -89,7 +89,7 @@ public class TrackSummary extends ScModel {
         if (ImageUtils.checkIconShouldLoad(mArtworkUrl)) {
             return imageSize.formatUri(mArtworkUrl);
         } else if (mUser != null) {
-            return mUser.getAvatarUrl();
+            return imageSize.formatUri(mUser.getAvatarUrl());
         } else {
             return null;
         }
