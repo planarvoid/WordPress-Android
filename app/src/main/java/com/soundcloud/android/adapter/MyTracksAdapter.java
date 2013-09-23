@@ -167,7 +167,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
                 context.startActivity(new Intent(context,(r.external_upload ? ScUpload.class : ScCreate.class)).setData(r.toUri()));
             }
         } else {
-            PlayUtils.playFromAdapter(context, mData, position - mRecordingData.size(), mContentUri);
+            new PlayUtils(context).playFromAdapter(mData, position - mRecordingData.size(), mContentUri);
         }
         return ItemClickResults.LEAVING;
     }

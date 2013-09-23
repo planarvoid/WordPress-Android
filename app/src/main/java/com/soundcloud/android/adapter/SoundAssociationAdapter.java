@@ -22,7 +22,7 @@ public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> {
     @Override
     public int handleListItemClick(Context context, int position, long id) {
         Uri streamUri = Content.match(mContentUri).isMine() ? mContentUri : null;
-        PlayUtils.playFromAdapter(context, mData, position, streamUri);
+        new PlayUtils(context).playFromAdapter(mData, position, streamUri);
         return ItemClickResults.LEAVING;
     }
 
