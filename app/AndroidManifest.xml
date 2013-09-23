@@ -82,6 +82,13 @@
                 <data android:host="*" android:scheme="soundcloud"/>
             </intent-filter>
 
+            <intent-filter android:priority="1">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="soundcloud"/>
+            </intent-filter>
+
         </activity>
 
         <activity android:label="@string/title_search" android:name=".activity.landing.ScSearch">
