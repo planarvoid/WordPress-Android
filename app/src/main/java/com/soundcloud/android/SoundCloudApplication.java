@@ -4,6 +4,7 @@ import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
+import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -27,10 +28,9 @@ import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
-import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,13 +44,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
-@ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=878e4d88",
-        formKey= "",
-        checkReportVersion = true,
-        checkReportSender = true)
 public class SoundCloudApplication extends Application implements Tracker {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
@@ -77,12 +71,12 @@ public class SoundCloudApplication extends Application implements Tracker {
             setupStrictMode();
         }
 
-        if(analyticsProperties.isAnalyticsEnabled()) {
+        if(analyticsProperties.isAnalyticsEnabled()){
             mTracker = new ATTracker(this);
         }
 
         if (ApplicationProperties.shouldReportToAcra()) {
-            ACRA.init(this); // don't use ACRA when running unit tests / emulator
+            Crashlytics.start(this);
         }
         instance = this;
         IOUtils.checkState(this);
@@ -135,6 +129,10 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
 
         FacebookSSO.extendAccessTokenIfNeeded(this);
+    }
+
+    public Long getLoggedInUsersId(){
+        return getLoggedInUser().getId();
     }
 
     public synchronized User getLoggedInUser() {
@@ -232,11 +230,8 @@ public class SoundCloudApplication extends Application implements Tracker {
 
     public static void handleSilentException(@Nullable String message, Throwable e) {
         if (ApplicationProperties.shouldReportToAcra()) {
-            if (message != null) {
-                Log.w(TAG, "silentException: " + message, e);
-                ACRA.getErrorReporter().putCustomData("message", message);
-            }
-            ACRA.getErrorReporter().handleSilentException(new SilentException(e));
+            Log.e(TAG, "Handling silent exception L " + message, e);
+            Crashlytics.logException(e);
         }
     }
 
