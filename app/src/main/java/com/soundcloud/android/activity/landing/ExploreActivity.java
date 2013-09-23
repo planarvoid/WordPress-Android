@@ -72,7 +72,7 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
         public CharSequence getPageTitle(int position) {
             switch (position){
                 case 0:
-                    return getString(R.string.explore_categories);
+                    return getString(R.string.explore_genres);
                 case 1:
                     return getString(R.string.explore_category_popular_music);
                 case 2:

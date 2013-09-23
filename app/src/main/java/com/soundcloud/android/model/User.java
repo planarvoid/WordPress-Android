@@ -130,7 +130,7 @@ public class User extends ScResource implements UserHolder {
     public User(UserSummary user) {
         setUrn(user.getUrn());
         setUsername(user.getUsername());
-
+        avatar_url = user.getAvatarUrl();
     }
 
     public User updateFromCursor(Cursor cursor) {

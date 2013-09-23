@@ -23,6 +23,8 @@ public class TrackSummary extends ScModel {
     private Date            mCreatedAt;
     private String          mArtworkUrl;
 
+    private Sharing         mSharing = Sharing.UNDEFINED;
+
     private TrackStats mStats;
 
     public TrackSummary() { /* for Deserialization */ }
@@ -84,10 +86,10 @@ public class TrackSummary extends ScModel {
     }
 
     public String getArtworkOrAvatar(ImageSize imageSize) {
-        if (ImageUtils.checkIconShouldLoad(mArtworkUrl)){
+        if (ImageUtils.checkIconShouldLoad(mArtworkUrl)) {
             return imageSize.formatUri(mArtworkUrl);
-        } else if (mUser != null){
-            return mUser.getAvatar(imageSize);
+        } else if (mUser != null) {
+            return mUser.getAvatarUrl();
         } else {
             return null;
         }
@@ -103,6 +105,10 @@ public class TrackSummary extends ScModel {
 
     public Date getCreatedAt() {
         return mCreatedAt;
+    }
+
+    public Sharing getSharing() {
+        return mSharing;
     }
 
     public void setTitle(String title) {
@@ -123,6 +129,10 @@ public class TrackSummary extends ScModel {
 
     public void setCommentable(boolean commentable) {
         this.mCommentable = commentable;
+    }
+
+    public void setSharing(Sharing sharing) {
+        mSharing = sharing;
     }
 
     public void setDuration(int duration) {

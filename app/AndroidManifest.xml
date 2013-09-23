@@ -82,6 +82,13 @@
                 <data android:host="*" android:scheme="soundcloud"/>
             </intent-filter>
 
+            <intent-filter android:priority="1">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="soundcloud"/>
+            </intent-filter>
+
         </activity>
 
         <activity android:label="@string/title_search" android:name=".activity.landing.ScSearch">
@@ -476,8 +483,6 @@
         </receiver>
 
         <meta-data android:name="android.app.default_searchable" android:value=".activity.landing.ScSearch"/>
-
-        <meta-data android:name="com.crashlytics.ApiKey" android:value="3ec813b4091b6da31a39af4d414c8b7f816ae817"/>
     </application>
 
 </manifest>

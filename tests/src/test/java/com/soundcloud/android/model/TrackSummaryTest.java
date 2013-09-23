@@ -24,6 +24,7 @@ public class TrackSummaryTest {
         expect(trackSummary.getTitle()).toEqual("[Sketch] - Beloved");
         expect(trackSummary.getGenre()).toEqual("Piano");
         expect(trackSummary.getUser().getUsername()).toEqual("georgegao");
+        expect(trackSummary.getUser().getAvatarUrl()).toEqual("http://i1.sndcdn.com/avatars-000018614344-2p78eh-large.jpg?f34f187");
         expect(trackSummary.getUser().getUrn()).toEqual(ClientUri.fromUri("soundcloud:users:106815"));
         expect(trackSummary.isCommentable()).toBeTrue();
         expect(trackSummary.getStreamUrl()).toEqual("http://media.soundcloud.com/stream/whVhoRw2gpUh");
@@ -31,6 +32,7 @@ public class TrackSummaryTest {
         expect(trackSummary.getArtworkUrl()).toEqual("http://i1.sndcdn.com/artworks-000056989650-zm98k6-large.jpg?5e64f12");
         expect(trackSummary.getUserTags()).toContainExactly("Jazz","Film");
         expect(trackSummary.getCreatedAt()).toEqual(Wrapper.CloudDateFormat.fromString("2013/08/17 07:50:03 +0000"));
+        expect(trackSummary.getSharing()).toBe(Sharing.PRIVATE);
         expect(trackSummary.getStats().getPlaybackCount()).toEqual(4901L);
 
     }

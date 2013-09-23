@@ -1,11 +1,12 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.utils.images.ImageSize;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import android.os.Parcel;
 
 public class UserSummary extends ScModel {
     private String mUsername;
+    private String mAvatarUrl;
 
     public UserSummary() { /* for Deserialization */ }
 
@@ -21,8 +22,13 @@ public class UserSummary extends ScModel {
         this.mUsername = username;
     }
 
-    public String getAvatar(ImageSize imageSize) {
-        return mURN.imageUri(imageSize).toString();
+    @JsonProperty("avatar_url")
+    public void setAvatarUrl(String avatarUrl){
+        mAvatarUrl = avatarUrl;
+    }
+
+    public String getAvatarUrl() {
+        return mAvatarUrl;
     }
 
     @Override
@@ -34,11 +40,13 @@ public class UserSummary extends ScModel {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeString(this.mUsername);
+        dest.writeString(this.mAvatarUrl);
     }
 
     UserSummary(Parcel in) {
         super(in);
         this.mUsername = in.readString();
+        this.mAvatarUrl = in.readString();
     }
 
     public static Creator<UserSummary> CREATOR = new Creator<UserSummary>() {

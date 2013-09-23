@@ -169,9 +169,10 @@
             <version>14.0.1</version>
         </dependency>
         <dependency>
-            <groupId>com.crashlytics.android</groupId>
-            <artifactId>crashlytics</artifactId>
-            <version>[1.0.2,)</version>
+            <groupId>org.acra</groupId>
+            <artifactId>acra</artifactId>
+            <version>4.3.0-filter</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -330,7 +331,7 @@
         <dependency>
             <groupId>com.github.espiandev</groupId>
             <artifactId>showcaseview-library</artifactId>
-            <version>3.5.1-SOUNDCLOUD</version>
+            <version>3.5.2-SOUNDCLOUD</version>
             <type>apklib</type>
         </dependency>
         <!-- contains the three native ndk libraries -->
@@ -352,8 +353,8 @@
                         <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                         <artifactId>android-maven-plugin</artifactId>
                         <configuration>
-                            <renameManifestPackage>com.soundcloud.android.${build.type}</renameManifestPackage>
-                            <manifestApplicationLabel>SC-${build.type}</manifestApplicationLabel>
+                            <!--<renameManifestPackage>com.soundcloud.android.${build.type}</renameManifestPackage>
+                            <manifestApplicationLabel>SC-${build.type}</manifestApplicationLabel>-->
                             <!--<manifest>-->
                                 <!--<providerAuthorities>-->
                                     <!--<property>-->

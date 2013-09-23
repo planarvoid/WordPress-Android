@@ -19,6 +19,7 @@
         "user": {
             "urn": "soundcloud:users:106815",
             "username": "georgegao",
+            "avatar_url": "http://i1.sndcdn.com/avatars-000018614344-2p78eh-large.jpg?f34f187",
             "_links": {
                 "self": {
                     "href": "http://api.soundcloud.com/app/mobileapps-staging/users/soundcloud%3Ausers%3A106815"
@@ -30,6 +31,7 @@
         "Jazz",
         "Film"
     ],
+    "sharing": "private",
     "commentable": true,
     "urn": "soundcloud:sounds:105834033",
     "stream_url": "http://media.soundcloud.com/stream/whVhoRw2gpUh",
