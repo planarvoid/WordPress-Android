@@ -114,7 +114,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     @Override
-    public void onPageSettling() {
+    public void onPageChanged() {
         for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
             ptv.onScrollComplete();
         }

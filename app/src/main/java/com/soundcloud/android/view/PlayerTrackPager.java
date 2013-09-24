@@ -2,7 +2,6 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.adapter.player.PlayerTrackPagerAdapter;
 import com.soundcloud.android.view.play.PlayerTrackView;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
@@ -10,55 +9,23 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 
 public class PlayerTrackPager extends ViewPager {
-    private @Nullable OnTrackPageListener mTrackPagerScrollListener;
-    private int mScrollState = SCROLL_STATE_IDLE;
 
-    private int mPartialScreen = -1;
+    private PageChangeListener mPageChangeListener;
 
     public interface OnTrackPageListener {
         void onPageDrag();
-        void onPageSettling();
+        void onPageChanged();
     }
 
     public PlayerTrackPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        setOnPageChangeListener(new OnPageChangeListener() {
-
-            @Override
-            public void onPageSelected(int position) {
-            }
-
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                PlayerTrackView trackView;
-                if (position == getCurrentItem() && positionOffset > 0 && mPartialScreen != position + 1) {
-                    mPartialScreen = position + 1;
-                    trackView = getAdapter().getPlayerTrackViewByPosition(mPartialScreen);
-                    if (trackView != null) trackView.setOnScreen(true);
-                } else if (position == getCurrentItem() - 1 && mPartialScreen != position) {
-                    mPartialScreen = position;
-                    trackView = getAdapter().getPlayerTrackViewByPosition(mPartialScreen);
-                    if (trackView != null) trackView.setOnScreen(true);
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                mScrollState = state;
-
-                if (mScrollState == SCROLL_STATE_DRAGGING && mTrackPagerScrollListener != null) {
-                    mTrackPagerScrollListener.onPageDrag();
-                } else if (mScrollState == SCROLL_STATE_SETTLING && mTrackPagerScrollListener != null) {
-                    mTrackPagerScrollListener.onPageSettling();
-                }
-            }
-        });
+        mPageChangeListener = new PageChangeListener(this);
+        setOnPageChangeListener(mPageChangeListener);
     }
 
     @Override
     public void setAdapter(PagerAdapter adapter) {
-        if (adapter instanceof PlayerTrackPagerAdapter){
+        if (adapter instanceof PlayerTrackPagerAdapter) {
             super.setAdapter(adapter);
         } else {
             throw new IllegalArgumentException("PlayerTrackPager can only be used with PlayerTrackPagerAdapter");
@@ -78,7 +45,7 @@ public class PlayerTrackPager extends ViewPager {
     }
 
     public void setListener(OnTrackPageListener listener) {
-        mTrackPagerScrollListener = listener;
+        mPageChangeListener.setTrackPageListener(listener);
     }
 
     public boolean prev() {
@@ -103,6 +70,51 @@ public class PlayerTrackPager extends ViewPager {
     }
 
     public boolean isScrolling() {
-        return mScrollState != SCROLL_STATE_IDLE;
+        return mPageChangeListener.mScrollState != SCROLL_STATE_IDLE;
     }
-   }
+
+    static class PageChangeListener implements OnPageChangeListener {
+
+        private PlayerTrackPager mPlayerTrackPager;
+        private int mPartialScreen = -1;
+        private OnTrackPageListener mTrackPageListener;
+        private int mScrollState = SCROLL_STATE_IDLE;
+
+        PageChangeListener(PlayerTrackPager playerTrackPager) {
+            this.mPlayerTrackPager = playerTrackPager;
+        }
+
+        void setTrackPageListener(OnTrackPageListener trackPageListener) {
+            mTrackPageListener = trackPageListener;
+        }
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            PlayerTrackView trackView;
+            if (position == mPlayerTrackPager.getCurrentItem() && positionOffset > 0 && mPartialScreen != position + 1) {
+                mPartialScreen = position + 1;
+                trackView = mPlayerTrackPager.getAdapter().getPlayerTrackViewByPosition(mPartialScreen);
+                if (trackView != null) trackView.setOnScreen(true);
+            } else if (position == mPlayerTrackPager.getCurrentItem() - 1 && mPartialScreen != position) {
+                mPartialScreen = position;
+                trackView = mPlayerTrackPager.getAdapter().getPlayerTrackViewByPosition(mPartialScreen);
+                if (trackView != null) trackView.setOnScreen(true);
+            }
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+            if (state == SCROLL_STATE_DRAGGING && mTrackPageListener != null) {
+                mTrackPageListener.onPageDrag();
+            } else if ((state == SCROLL_STATE_SETTLING || (state == SCROLL_STATE_IDLE && mScrollState == SCROLL_STATE_DRAGGING))
+                    && mTrackPageListener != null) {
+                mTrackPageListener.onPageChanged();
+            }
+            mScrollState = state;
+        }
+    }
+}
