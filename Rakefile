@@ -181,7 +181,7 @@ end
 namespace :debug do
   DEBUG_BUILD_TYPE = 'debug'
   DEBUG_APP_ID     = "b81f0193d361b59e2e37d7f1c0aff017"
-  DEBUG_TOKEN      = "94dfa3e409cb4aa1a2f3fe65c76cc8ba"
+  DEBUG_TOKEN      = "a46e02930bb94d2a92f7591576baac70"
   DEBUG_APK        = get_file_path(DEBUG_BUILD_TYPE)
 
 
