@@ -4,8 +4,8 @@ import static com.soundcloud.android.tests.TestUser.testUser;
 
 import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.screens.PlayerScreen;
-import com.soundcloud.android.screens.explore.ExploreScreen;
-import com.soundcloud.android.screens.explore.ExploreTracksScreen;
+import com.soundcloud.android.screens.explore.DiscoveryScreen;
+import com.soundcloud.android.screens.explore.DiscoveryCategoryTracksScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.Waiter;
@@ -19,8 +19,8 @@ import com.soundcloud.android.tests.Waiter;
  */
 public class ExploreRecommendations extends ActivityTestCase<Home> {
     private Waiter waiter;
-    private ExploreScreen exploreScreen;
-    private ExploreTracksScreen exploreTracksScreen;
+    private DiscoveryScreen discoveryScreen;
+    private DiscoveryCategoryTracksScreen discoveryCategoryTracksScreen;
     private PlayerScreen playerScreen;
 
     public ExploreRecommendations() {
@@ -32,8 +32,8 @@ public class ExploreRecommendations extends ActivityTestCase<Home> {
         IntegrationTestHelper.loginAs(getInstrumentation(), testUser.getUsername(), testUser.getPassword());
         super.setUp();
 
-        exploreScreen       = new ExploreScreen(solo);
-        exploreTracksScreen = new ExploreTracksScreen(solo);
+        discoveryScreen = new DiscoveryScreen(solo);
+        discoveryCategoryTracksScreen = new DiscoveryCategoryTracksScreen(solo);
         playerScreen        = new PlayerScreen(solo);
         waiter              = new Waiter(solo);
 
@@ -42,7 +42,7 @@ public class ExploreRecommendations extends ActivityTestCase<Home> {
 
     public void testPlayingTrack() {
         menuScreen.openExplore();
-        String trackName = exploreScreen.clickTrack(1);
+        String trackName = discoveryScreen.clickTrack(1);
         assertEquals(trackName, playerScreen.trackTitle());
     }
 
