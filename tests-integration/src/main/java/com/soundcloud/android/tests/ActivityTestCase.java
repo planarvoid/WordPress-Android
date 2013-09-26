@@ -33,6 +33,12 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         solo = new Han(getInstrumentation(), getActivity());
         menuScreen = new MenuScreen(solo);
         applicationProperties = new ApplicationProperties(getActivity().getResources());
+
+        getInstrumentation().getContext()
+            .getSharedPreferences("showcase_internal", Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean("hasShot1", true)
+            .commit();
     }
 
     @Override

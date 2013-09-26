@@ -95,7 +95,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                     case R.id.nav_stream:
                         startNavActivity(ScActivity.this, Home.class, menuBundle);
                         return true;
-                    case R.id.nav_explore:
+                    case R.id.nav_discover:
                         startNavActivity(ScActivity.this, ExploreActivity.class, menuBundle);
                         return true;
                     case R.id.nav_news:

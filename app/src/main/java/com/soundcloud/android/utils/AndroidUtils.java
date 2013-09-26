@@ -34,13 +34,16 @@ import java.util.TreeMap;
  * Android related utility functions.
  */
 public final class AndroidUtils {
-    private AndroidUtils() {}
+    private AndroidUtils() {
+    }
 
     public static ProgressDialog showProgress(Context context, int message) {
         return showProgress(context, message, 0);
     }
 
-    /** I18N safe impl of {@link android.app.ProgressDialog#show()} */
+    /**
+     * I18N safe impl of {@link android.app.ProgressDialog#show()}
+     */
     @SuppressWarnings("JavaDoc")
     public static ProgressDialog showProgress(Context context, int message, int titleId) {
         ProgressDialog dialog = new ProgressDialog(context);
@@ -72,6 +75,7 @@ public final class AndroidUtils {
         return lt == null || lt.getStatus() == AsyncTask.Status.FINISHED;
 
     }
+
     public static boolean isTaskPending(AsyncTask lt) {
         return lt != null && lt.getStatus() == AsyncTask.Status.PENDING;
     }
@@ -94,14 +98,15 @@ public final class AndroidUtils {
 
     /**
      * Execute a function, but only once.
+     *
      * @param context the context
-     * @param key an identifier for the function
-     * @param fun the function to run
+     * @param key     an identifier for the function
+     * @param fun     the function to run
      * @return whether the function was executed
      */
     @SuppressWarnings("UnusedDeclaration")
     public static boolean doOnce(Context context, String key, final Runnable fun) {
-        final String k = "do.once."+key;
+        final String k = "do.once." + key;
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (!prefs.getBoolean(k, false)) {
             new Thread() {
@@ -123,7 +128,7 @@ public final class AndroidUtils {
                 PackageInfo info = context
                         .getPackageManager()
                         .getPackageInfo(context.getPackageName(),
-                        PackageManager.GET_META_DATA);
+                                PackageManager.GET_META_DATA);
                 return info.versionName;
             } else return defaultVersion;
         } catch (PackageManager.NameNotFoundException ignored) {
@@ -137,7 +142,7 @@ public final class AndroidUtils {
                 PackageInfo info = context
                         .getPackageManager()
                         .getPackageInfo(context.getPackageName(),
-                        PackageManager.GET_META_DATA);
+                                PackageManager.GET_META_DATA);
                 return info.versionCode;
             } else return defaultVersion;
         } catch (PackageManager.NameNotFoundException ignored) {
@@ -151,7 +156,7 @@ public final class AndroidUtils {
                 PackageInfo info = context
                         .getPackageManager()
                         .getPackageInfo(context.getPackageName(),
-                        PackageManager.GET_META_DATA);
+                                PackageManager.GET_META_DATA);
                 return info.packageName;
             } else return null;
         } catch (PackageManager.NameNotFoundException ignored) {
@@ -170,13 +175,13 @@ public final class AndroidUtils {
         String id = tmgr == null ? null : tmgr.getDeviceId();
         if (TextUtils.isEmpty(id)) {
             id = Settings.Secure.getString(
-                context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                    context.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
         return TextUtils.isEmpty(id) ? null : IOUtils.md5(id);
     }
 
-     @SuppressWarnings("UnusedDeclaration")
-     public static void logScreenSize(Context context) {
+    @SuppressWarnings("UnusedDeclaration")
+    public static void logScreenSize(Context context) {
         switch (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) {
             case Configuration.SCREENLAYOUT_SIZE_SMALL:
                 Log.d("ScreenSize", "Current Screen Size : Small Screen");
@@ -222,8 +227,8 @@ public final class AndroidUtils {
      * @param context
      * @return
      */
-    public static String[] listEmails(Context context){
-        HashMap<String,Integer> map = new HashMap<String,Integer>();
+    public static String[] listEmails(Context context) {
+        HashMap<String, Integer> map = new HashMap<String, Integer>();
         Account[] accounts = AccountManager.get(context).getAccounts();
         for (Account account : accounts) {
             if (ScTextUtils.isEmail(account.name)) {
@@ -237,7 +242,8 @@ public final class AndroidUtils {
         return returnKeysSortedByValue(map);
     }
 
-    /* package */ static String[] returnKeysSortedByValue(HashMap<String, Integer> map) {
+    /* package */
+    static String[] returnKeysSortedByValue(HashMap<String, Integer> map) {
         TreeMap<String, Integer> sortedMap = new TreeMap<String, Integer>(new MapValueComparator(map));
         sortedMap.putAll(map);
         return sortedMap.keySet().toArray(new String[map.size()]);
@@ -271,6 +277,7 @@ public final class AndroidUtils {
 
     private static class MapValueComparator implements Comparator<String> {
         Map<String, Integer> map;
+
         public MapValueComparator(Map<String, Integer> map) {
             this.map = map;
         }
@@ -283,4 +290,5 @@ public final class AndroidUtils {
             } // returning 0 would merge keys
         }
     }
+
 }

@@ -7,7 +7,7 @@ import android.app.Activity;
 import android.view.View;
 
 public enum Showcase {
-    EXPLORE(1, ShowcaseView.TYPE_ONE_SHOT, R.string.showcase_explore_title, R.string.showcase_explore_message);
+    EXPLORE(1, ShowcaseView.TYPE_ONE_SHOT, R.string.showcase_discover_title, R.string.showcase_discover_message);
 
     private final int id;
     private final int shotType;
@@ -21,12 +21,12 @@ public enum Showcase {
         this.messageId = messageId;
     }
 
-    public void insertShowcase(Activity activity, View view){
+    public ShowcaseView insertShowcase(Activity activity, View view){
         ShowcaseView.ConfigOptions co = createBaseConfigOptions(activity);
         co.shotType = shotType;
         co.showcaseId = id;
 
-        ShowcaseView.insertShowcaseView(view, activity,
+        return ShowcaseView.insertShowcaseView(view, activity,
                 activity.getResources().getString(titleId),
                 activity.getResources().getString(messageId),
                 co);

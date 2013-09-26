@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="69" android:versionName="2.7.0" package="com.soundcloud.android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.soundcloud.android"
+      android:versionName="2.7.0"
+      android:installLocation="auto"
+      android:versionCode="71">
 
     <supports-screens android:anyDensity="true"/>
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
@@ -135,7 +139,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:label="@string/side_menu_explore" android:name=".activity.landing.ExploreActivity">
+        <activity android:label="@string/side_menu_discover" android:name=".activity.landing.ExploreActivity">
             <intent-filter android:priority="10">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
