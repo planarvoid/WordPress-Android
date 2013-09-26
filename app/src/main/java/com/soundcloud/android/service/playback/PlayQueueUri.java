@@ -2,6 +2,7 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.tracking.eventlogger.TrackingInfo;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -11,6 +12,8 @@ public class PlayQueueUri {
     private static final String PARAM_PLAYLIST_POS = "playlistPos";
     private static final String PARAM_SEEK_POS = "seekPos";
     private static final String PARAM_TRACK_ID = "trackId";
+
+    private static final String PARAM_TRACKING = "tracking";
 
     public final Uri uri;
 
@@ -42,17 +45,24 @@ public class PlayQueueUri {
         return extractValue(PARAM_TRACK_ID, 0);
     }
 
-    public Uri toUri(Track track, int mPlayPos, long seekPos) {
-        return toUri(track == null ? -1l : track.getId(), mPlayPos, seekPos);
+    public TrackingInfo getTrackingInfo() {
+        return TrackingInfo.fromUriParams(uri);
     }
 
-    public Uri toUri(long trackId, int mPlayPos, long seekPos) {
+    public Uri toUri(Track track, int mPlayPos, long seekPos, TrackingInfo trackingInfo) {
+        return toUri(track == null ? -1l : track.getId(), mPlayPos, seekPos, trackingInfo);
+    }
+
+    public Uri toUri(long trackId, int mPlayPos, long seekPos, TrackingInfo trackingInfo) {
         Uri.Builder builder = uri.buildUpon().query(null); //clear the query for the new params
         if (trackId != -1l) {
             builder.appendQueryParameter(PARAM_TRACK_ID, String.valueOf(trackId));
         }
         builder.appendQueryParameter(PARAM_PLAYLIST_POS, String.valueOf(mPlayPos));
         builder.appendQueryParameter(PARAM_SEEK_POS, String.valueOf(seekPos));
+        if (trackingInfo != null){
+            trackingInfo.appendAsQueryParams(builder);
+        }
         return builder.build();
     }
 

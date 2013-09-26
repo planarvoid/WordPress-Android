@@ -46,7 +46,6 @@ public class PlayQueueManagerTest {
 
     @Mock
     ExploreTracksOperations exploreTracksOperations;
-    @Mock
     TrackingInfo trackingInfo;
 
     @Before
@@ -55,6 +54,8 @@ public class PlayQueueManagerTest {
 
         pm = new PlayQueueManager(Robolectric.application, USER_ID, exploreTracksOperations);
         TestHelper.setUserId(USER_ID);
+
+        trackingInfo = new TrackingInfo("contextSource", "exploreTag");
     }
 
     @Test
@@ -169,7 +170,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSupportSetPlaylistWithTrackObjects() throws Exception {
-        pm.setPlayQueue(createTracks(3, true, 0), 0);
+        pm.setPlayQueue(createTracks(3, true, 0), 0, trackingInfo);
         expect(pm.length()).toEqual(3);
 
         Track track = pm.getCurrentTrack();
@@ -196,7 +197,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldClearPlaylist() throws Exception {
-        pm.setPlayQueue(createTracks(10, true, 0), 0);
+        pm.setPlayQueue(createTracks(10, true, 0), 0, trackingInfo);
         pm.clear();
         expect(pm.isEmpty()).toBeTrue();
         expect(pm.length()).toEqual(0);
@@ -206,7 +207,7 @@ public class PlayQueueManagerTest {
     public void shouldSaveCurrentTracksToDB() throws Exception {
         expect(Content.PLAY_QUEUE).toBeEmpty();
         expect(Content.PLAY_QUEUE.uri).toBeEmpty();
-        pm.setPlayQueue(createTracks(10, true, 0), 0);
+        pm.setPlayQueue(createTracks(10, true, 0), 0, trackingInfo);
         expect(Content.PLAY_QUEUE.uri).toHaveCount(10);
     }
 
@@ -229,10 +230,13 @@ public class PlayQueueManagerTest {
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56143158L);
         expect(pm.getPosition()).toEqual(1);
+        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
+
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56143158L);
         expect(pm.getPosition()).toEqual(1);
+        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
     }
 
     @Test
@@ -241,10 +245,12 @@ public class PlayQueueManagerTest {
         pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962l), trackingInfo);
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
+        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56142962l);
         expect(pm.getPosition()).toEqual(0);
+        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
 
         // test overwrite
         expect(pm.next()).toBeTrue();
@@ -253,6 +259,7 @@ public class PlayQueueManagerTest {
         expect(pm.reloadQueue()).toEqual(2000l);
         expect(pm.getCurrentTrackId()).toEqual(56143158l);
         expect(pm.getPosition()).toEqual(1);
+        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
     }
 
     @Test
@@ -276,16 +283,16 @@ public class PlayQueueManagerTest {
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlayQueueState(123L)).toEqual(
-          Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=1&seekPos=123"
+          Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=1&seekPos=123&tracking-sourceContext=contextSource&tracking-exploreTag=exploreTag"
         );
     }
 
     @Test
     public void shouldSavePlaylistStateInUriWithSetPlaylist() throws Exception {
-        pm.setPlayQueue(createTracks(10, true, 0), 5);
+        pm.setPlayQueue(createTracks(10, true, 0), 5, trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(5L);
         expect(pm.getPlayQueueState(123L)).toEqual(
-                Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123"
+                Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123&tracking-sourceContext=contextSource&tracking-exploreTag=exploreTag"
         );
     }
 
@@ -295,12 +302,12 @@ public class PlayQueueManagerTest {
         playables.addAll(createTracks(1, true, 0));
         playables.addAll(createTracks(1, false, 1));
 
-        pm.setPlayQueue(playables, 0);
+        pm.setPlayQueue(playables, 0, trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(0L);
         expect(pm.next()).toEqual(false);
 
         playables.addAll(createTracks(1, true, 2));
-        pm.setPlayQueue(playables, 0);
+        pm.setPlayQueue(playables, 0, trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(0L);
         expect(pm.next()).toEqual(true);
         expect(pm.getCurrentTrack().getId()).toEqual(2L);
@@ -312,12 +319,12 @@ public class PlayQueueManagerTest {
         playables.addAll(createTracks(1, false, 0));
         playables.addAll(createTracks(1, true, 1));
 
-        pm.setPlayQueue(playables, 1);
+        pm.setPlayQueue(playables, 1, trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(1L);
         expect(pm.prev()).toEqual(false);
 
         playables.addAll(0, createTracks(1, true, 2));
-        pm.setPlayQueue(playables, 2);
+        pm.setPlayQueue(playables, 2, trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(1L);
         expect(pm.prev()).toEqual(true);
         expect(pm.getCurrentTrack().getId()).toEqual(2L);
@@ -345,7 +352,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldClearPlaylistState() throws Exception {
-        pm.setPlayQueue(createTracks(10, true, 0), 5);
+        pm.setPlayQueue(createTracks(10, true, 0), 5, trackingInfo);
         pm.saveQueue(1235);
 
         pm.clearState();

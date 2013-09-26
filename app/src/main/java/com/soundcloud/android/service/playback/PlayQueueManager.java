@@ -214,8 +214,7 @@ public class PlayQueueManager {
     public void loadUri(Uri uri, int position, List<? extends PlayableHolder> initialPlayQueue, int initialPlayPos, TrackingInfo trackingInfo) {
         stopLoadingTasks();
 
-        setPlayQueue(initialPlayQueue, initialPlayPos);
-        mCurrentTrackingInfo = trackingInfo;
+        setPlayQueue(initialPlayQueue, initialPlayPos, trackingInfo);
         mPlayQueueUri = new PlayQueueUri(uri);
 
         // if playlist, adjust load uri to request the tracks instead of meta_data
@@ -332,7 +331,7 @@ public class PlayQueueManager {
         mContext.sendBroadcast(intent);
     }
 
-    public void setPlayQueue(final List<? extends PlayableHolder> playQueue, int playPos) {
+    public void setPlayQueue(final List<? extends PlayableHolder> playQueue, int playPos, TrackingInfo trackingInfo) {
         mPlayQueue.clear();
         if (playQueue != null) {
             for (PlayableHolder playable : playQueue) {
@@ -343,6 +342,8 @@ public class PlayQueueManager {
         }
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = Math.max(0, Math.min(mPlayQueue.size(), playPos));
+        mCurrentTrackingInfo = trackingInfo;
+
         // TODO, only do this on exit???
         saveQueue(0, true);
         broadcastPlayQueueChanged();
@@ -381,7 +382,7 @@ public class PlayQueueManager {
             if (!TextUtils.isEmpty(lastUri)){
                 PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
                 if (playQueueUri.uri.getPath().equals(oldUri.getPath())) {
-                    Uri replacement = new PlayQueueUri(newUri).toUri(playQueueUri.getTrackId(), playQueueUri.getPos(), playQueueUri.getSeekPos());
+                    Uri replacement = new PlayQueueUri(newUri).toUri(playQueueUri.getTrackId(), playQueueUri.getPos(), playQueueUri.getSeekPos(), playQueueUri.getTrackingInfo());
                     SharedPreferencesUtils.apply(preferences.edit().putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, replacement.toString()));
                 }
             }
@@ -411,7 +412,7 @@ public class PlayQueueManager {
     }
 
     /* package */ Uri getPlayQueueState(long seekPos) {
-        return mPlayQueueUri.toUri(getCurrentTrack(), mPlayPos, seekPos);
+        return mPlayQueueUri.toUri(getCurrentTrack(), mPlayPos, seekPos, mCurrentTrackingInfo);
     }
 
     /**
@@ -435,6 +436,7 @@ public class PlayQueueManager {
                     if (newPos == -1) seekPos = 0;
                     setPosition(Math.max(newPos, 0));
                 }
+                mCurrentTrackingInfo = playQueueUri.getTrackingInfo();
             }
             return seekPos;
         } else {

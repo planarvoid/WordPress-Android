@@ -192,10 +192,11 @@ public class PlaybackReceiverTest {
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
         intent.putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, trackingInfo);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).setPlayQueue(transferList, 2);
+        verify(playQueueManager).setPlayQueue(transferList, 2, trackingInfo);
     }
 
     @Test
@@ -225,11 +226,12 @@ public class PlaybackReceiverTest {
         intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
         intent.putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, trackingInfo);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).setPlayQueue(transferList, 2);
+        verify(playQueueManager).setPlayQueue(transferList, 2, trackingInfo);
     }
 
     @Test

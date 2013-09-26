@@ -7,6 +7,8 @@ import org.apache.commons.lang.SerializationUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.net.Uri;
+
 import java.io.Serializable;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -45,6 +47,12 @@ public class TrackingInfoTest {
         Serializable original = new TrackingInfo("source-context");
         Serializable copy = (Serializable) SerializationUtils.clone(original);
         expect(original).toEqual(copy);
+    }
 
+    @Test
+    public void shouldPersistFromParams() throws Exception {
+        Uri uri = Uri.parse("http://something.com");
+        final TrackingInfo expected = new TrackingInfo("source-context", "explore-tag");
+        expect(TrackingInfo.fromUriParams(expected.appendAsQueryParams(uri.buildUpon()).build())).toEqual(expected);
     }
 }
