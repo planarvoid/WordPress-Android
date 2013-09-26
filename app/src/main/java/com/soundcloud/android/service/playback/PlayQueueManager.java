@@ -2,6 +2,7 @@ package com.soundcloud.android.service.playback;
 
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ExploreTracksOperations;
@@ -12,6 +13,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ParallelAsyncTask;
+import com.soundcloud.android.tracking.eventlogger.TrackingInfo;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
@@ -44,6 +46,7 @@ public class PlayQueueManager {
     private AppendState mAppendingState = AppendState.IDLE;
     private Subscription mRelatedSubscription;
     private Observable<Track> mRelatedTracksObservable;
+    private TrackingInfo mCurrentTrackingInfo;
 
     private enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
@@ -173,8 +176,14 @@ public class PlayQueueManager {
         }
     }
 
-    public void loadTrack(Track toBePlayed, boolean saveQueue) {
-        stopLoadingRelatedTracks();
+    public TrackingInfo getCurrentTrackingInfo(){
+        return mCurrentTrackingInfo;
+    }
+
+    public void loadTrack(Track toBePlayed, boolean saveQueue, TrackingInfo trackingInfo) {
+        stopLoadingTasks();
+
+        mCurrentTrackingInfo = trackingInfo;
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
         mPlayQueue.add(toBePlayed);
@@ -185,45 +194,28 @@ public class PlayQueueManager {
         if (saveQueue) saveQueue(0, true);
     }
 
-    public void loadUri(Uri uri, int position, long initialTrackId) {
-        Track t = null;
-        if (initialTrackId != -1) {
-            t = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(initialTrackId);
-            // ensure that we have an initial track to load, should be cached to avoid this db hit on the UI
-            if (t == null) {
-                t = SoundCloudApplication.MODEL_MANAGER.getTrack(initialTrackId);
-            }
+    public void loadUri(Uri uri, int position, @Nullable Track initialTrack, TrackingInfo trackingInfo) {
+        List initialQueue;
+        if (initialTrack != null) {
+            initialQueue = Lists.<PlayableHolder>newArrayList(initialTrack);
+        } else {
+            initialQueue = Lists.<PlayableHolder>newArrayList();
         }
-        loadUri(uri, position, t);
-    }
-
-    public void loadUri(Uri uri, int position, @Nullable Track initialTrack) {
-        List<PlayableHolder> initialQueue = new ArrayList<PlayableHolder>();
-        if (initialTrack != null) initialQueue.add(initialTrack);
-        loadUri(uri, position, initialQueue, 0);
+        loadUri(uri, position, initialQueue, 0, trackingInfo);
     }
 
     /**
      * @param uri               the playqueue uri to load
      * @param position          position within playqueue
      * @param initialPlayQueue  initial queue, load full uri asynchronously.
-     * @param initialPlayPos    initial play position for initial queue.
+     * @param initialPlayPos    initial play position for initial queue (play position might be different after loading)
+     * @param trackingInfo      data with this current queue to be passed to the {@link com.soundcloud.android.tracking.eventlogger.PlayEventTracker}
      */
-    public void loadUri(Uri uri, int position, List<? extends PlayableHolder> initialPlayQueue, int initialPlayPos) {
-        stopLoadingRelatedTracks();
+    public void loadUri(Uri uri, int position, List<? extends PlayableHolder> initialPlayQueue, int initialPlayPos, TrackingInfo trackingInfo) {
+        stopLoadingTasks();
 
-        if (mLoadTask != null && !AndroidUtils.isTaskFinished(mLoadTask)){
-            mLoadTask.cancel(false);
-        }
-
-        if (initialPlayQueue != null) {
-            setPlayQueue(initialPlayQueue, initialPlayPos);
-        } else {
-            // no track yet, load async
-            mPlayQueue.clear();
-            mPlayPos = 0;
-        }
-
+        setPlayQueue(initialPlayQueue, initialPlayPos);
+        mCurrentTrackingInfo = trackingInfo;
         mPlayQueueUri = new PlayQueueUri(uri);
 
         // if playlist, adjust load uri to request the tracks instead of meta_data
@@ -232,6 +224,13 @@ public class PlayQueueManager {
         }
         if (uri != null) {
             mLoadTask = loadCursor(uri, position);
+        }
+    }
+
+    private void stopLoadingTasks() {
+        stopLoadingRelatedTracks();
+        if (mLoadTask != null && !AndroidUtils.isTaskFinished(mLoadTask)){
+            mLoadTask.cancel(false);
         }
     }
 
@@ -429,7 +428,7 @@ public class PlayQueueManager {
             final int trackId = playQueueUri.getTrackId();
             if (trackId > 0) {
                 Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(trackId);
-                loadUri(playQueueUri.uri, playQueueUri.getPos(), t);
+                loadUri(playQueueUri.uri, playQueueUri.getPos(), t, null); // TODO, cache the tracking info
                 // adjust play position if it has changed
                 if (getCurrentTrack() != null && getCurrentTrack().getId() != trackId && playQueueUri.isCollectionUri()) {
                     final int newPos = mPlayQueueDAO.getPlayQueuePositionFromUri(playQueueUri.uri, trackId);

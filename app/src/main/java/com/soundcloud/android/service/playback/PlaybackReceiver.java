@@ -10,6 +10,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.tracking.eventlogger.TrackingInfo;
 import org.jetbrains.annotations.NotNull;
 
 import android.appwidget.AppWidgetManager;
@@ -153,7 +154,8 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private void playViaUri(Intent intent, boolean startPlayback, int position) {
-        mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position);
+        mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position,
+                (TrackingInfo) intent.getSerializableExtra(PlayExtras.trackingInfo));
         if (startPlayback) mPlaybackService.openCurrent();
     }
 
@@ -167,7 +169,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         // go to the cache to ensure 1 copy of each track app wide
         final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
-        mPlayQueueManager.loadTrack(cachedTrack, true);
+        mPlayQueueManager.loadTrack(cachedTrack, true, (TrackingInfo) intent.getSerializableExtra(PlayExtras.trackingInfo));
 
         if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)) {
             mPlayQueueManager.fetchRelatedTracks(cachedTrack);

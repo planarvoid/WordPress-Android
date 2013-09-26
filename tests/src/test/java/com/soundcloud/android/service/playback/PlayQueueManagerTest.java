@@ -17,6 +17,7 @@ import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.tracking.eventlogger.TrackingInfo;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,8 @@ public class PlayQueueManagerTest {
 
     @Mock
     ExploreTracksOperations exploreTracksOperations;
+    @Mock
+    TrackingInfo trackingInfo;
 
     @Before
     public void before() {
@@ -56,22 +59,24 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldHandleEmptyPlaylistWithAddItemsFromUri() throws Exception {
-        pm.loadUri(Content.TRACKS.uri, 0, null);
+        pm.loadUri(Content.TRACKS.uri, 0, null, trackingInfo);
         expect(pm.length()).toEqual(0);
         expect(pm.isEmpty()).toBeTrue();
         expect(pm.next()).toBeFalse();
         expect(pm.getNext()).toBeNull();
+        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
     }
 
     @Test
     public void shouldAddItemsFromUri() throws Exception {
         List<Track> tracks = createTracks(3, true, 0);
-        pm.loadUri(Content.TRACKS.uri, 0, null);
+        pm.loadUri(Content.TRACKS.uri, 0, null, trackingInfo);
 
         expect(pm.getUri()).not.toBeNull();
         expect(pm.getUri()).toEqual(Content.TRACKS.uri);
 
         expect(pm.length()).toEqual(tracks.size());
+        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
 
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
@@ -98,7 +103,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldAddItemsFromUriWithPosition() throws Exception {
         List<Track> tracks = createTracks(3, true, 0);
-        pm.loadUri(Content.TRACKS.uri, 1, null);
+        pm.loadUri(Content.TRACKS.uri, 1, null, trackingInfo);
 
         expect(pm.length()).toEqual(tracks.size());
         expect(pm.isEmpty()).toBeFalse();
@@ -121,7 +126,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldAddItemsFromUriWithInvalidPosition() throws Exception {
         List<Track> tracks = createTracks(3, true, 0);
-        pm.loadUri(Content.TRACKS.uri, tracks.size() + 100, null); // out of range
+        pm.loadUri(Content.TRACKS.uri, tracks.size() + 100, null, trackingInfo); // out of range
 
         expect(pm.length()).toEqual(tracks.size());
         Track track = pm.getCurrentTrack();
@@ -132,7 +137,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldAddItemsFromUriWithIncorrectPositionDown() throws Exception {
         List<Track> tracks = createTracks(10, true, 0);
-        pm.loadUri(Content.TRACKS.uri, 7, 5L);
+        pm.loadUri(Content.TRACKS.uri, 7, new Track(5L), trackingInfo);
 
         expect(pm.length()).toEqual(tracks.size());
         Track track = pm.getCurrentTrack();
@@ -143,7 +148,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldAddItemsFromUriWithIncorrectPositionUp() throws Exception {
         List<Track> tracks = createTracks(10, true, 0);
-        pm.loadUri(Content.TRACKS.uri, 5, 7L);
+        pm.loadUri(Content.TRACKS.uri, 5, new Track(7L), trackingInfo);
 
         expect(pm.length()).toEqual(tracks.size());
         Track track = pm.getCurrentTrack();
@@ -154,7 +159,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldAddItemsFromUriWithNegativePosition() throws Exception {
         List<Track> tracks = createTracks(3, true, 0);
-        pm.loadUri(Content.TRACKS.uri, -10, null); // out of range
+        pm.loadUri(Content.TRACKS.uri, -10, null, trackingInfo); // out of range
 
         expect(pm.length()).toEqual(tracks.size());
         Track track = pm.getCurrentTrack();
@@ -208,18 +213,19 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldLoadLikesAsPlaylist() throws Exception {
         insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 1, 56142962);
+        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962), trackingInfo);
 
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().getId()).toEqual(56143158l);
+        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
     }
 
     @Test
     public void shouldSaveAndRestoreLikesAsPlaylist() throws Exception {
         insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 0, 56143158L);
+        pm.loadUri(Content.ME_LIKES.uri, 0, new Track(56143158L), trackingInfo);
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56143158L);
         expect(pm.getPosition()).toEqual(1);
@@ -232,7 +238,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSaveAndRestoreLikesAsPlaylistTwice() throws Exception {
         insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962l), trackingInfo);
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         pm.saveQueue(1000l);
@@ -252,7 +258,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSaveAndRestoreLikesAsPlaylistWithMovedTrack() throws Exception {
         insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962l), trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
 
@@ -266,7 +272,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSavePlaylistStateInUri() throws Exception {
         insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 1, 56142962l);
+        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962l), trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlayQueueState(123L)).toEqual(
@@ -325,7 +331,7 @@ public class PlayQueueManagerTest {
         Uri playlistUri = p.toUri();
         expect(playlistUri).toEqual(Content.PLAYLIST.forQuery(String.valueOf(2524386)));
 
-        pm.loadUri(playlistUri, 5, 7L);
+        pm.loadUri(playlistUri, 5, new Track(7L), trackingInfo);
         pm.saveQueue(1000l);
 
         expect(pm.reloadQueue()).toEqual(1000l);
@@ -354,7 +360,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSetSingleTrack() throws Exception {
         List<Track> tracks = createTracks(1, true, 0);
-        pm.loadTrack(tracks.get(0), true);
+        pm.loadTrack(tracks.get(0), true, trackingInfo);
         expect(pm.length()).toEqual(1);
         expect(pm.getCurrentTrack()).toBe(tracks.get(0));
     }
@@ -365,7 +371,7 @@ public class PlayQueueManagerTest {
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<Track>never());
 
         expect(pm.length()).toBe(0);
-        pm.loadTrack(track, false);
+        pm.loadTrack(track, false, trackingInfo);
         pm.fetchRelatedTracks(track);
         expect(pm.length()).toBe(1);
         expect(pm.isFetchingRelated()).toBeTrue();
@@ -390,7 +396,7 @@ public class PlayQueueManagerTest {
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<Track>just(track));
 
         expect(pm.length()).toBe(0);
-        pm.loadTrack(track, false);
+        pm.loadTrack(track, false, trackingInfo);
         pm.fetchRelatedTracks(track);
         expect(pm.length()).toBe(2);
 
@@ -430,7 +436,7 @@ public class PlayQueueManagerTest {
         when(observable.subscribe(any(Observer.class))).thenReturn(subscription);
 
         pm.fetchRelatedTracks(track);
-        pm.loadTrack(track, false);
+        pm.loadTrack(track, false, trackingInfo);
 
         expect(pm.isFetchingRelated()).toBeFalse();
         verify(subscription).unsubscribe();
@@ -446,7 +452,7 @@ public class PlayQueueManagerTest {
         when(observable.subscribe(any(Observer.class))).thenReturn(subscription);
 
         pm.fetchRelatedTracks(track);
-        pm.loadUri(Content.TRACKS.uri, 0, null);
+        pm.loadUri(Content.TRACKS.uri, 0, null, trackingInfo);
 
         expect(pm.isFetchingRelated()).toBeFalse();
         verify(subscription).unsubscribe();
