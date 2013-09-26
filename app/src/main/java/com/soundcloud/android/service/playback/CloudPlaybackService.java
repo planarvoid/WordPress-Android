@@ -200,6 +200,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String playFromXferList = "play_from_xfer_list";
         String unmute = "unmute"; // used by alarm clock
         String fetchRelated = "fetch_related";
+        String trackingInfo = "tracking_info";
     }
 
     public interface BroadcastExtras{

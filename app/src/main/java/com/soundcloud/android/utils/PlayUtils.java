@@ -103,6 +103,7 @@ public final class PlayUtils {
     private void configureIntentViaPlayInfo(PlayInfo info, Track initialTrack, Intent intent) {
         intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
         intent.putExtra(CloudPlaybackService.PlayExtras.track, initialTrack);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, info.trackingInfo);
         CloudPlaybackService.playlistXfer = info.playables;
 
         if (info.uri != null) {

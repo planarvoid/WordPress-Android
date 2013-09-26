@@ -15,6 +15,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.tracking.eventlogger.TrackingInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,6 +69,13 @@ public class PlayUtilsTest {
         playInfo.fetchRelated = true;
         final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
         expect(playIntent.getBooleanExtra(CloudPlaybackService.PlayExtras.fetchRelated, false)).toBeTrue();
+    }
+
+    @Test
+    public void getPlayIntentShouldAddTrackingFromInfo() throws Exception {
+        playInfo.trackingInfo = new TrackingInfo("source-context", "explore-tag");
+        final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
+        expect(playIntent.getSerializableExtra(CloudPlaybackService.PlayExtras.trackingInfo)).toEqual(playInfo.trackingInfo);
     }
 
     @Test
