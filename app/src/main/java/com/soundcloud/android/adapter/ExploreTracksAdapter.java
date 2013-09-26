@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
 
     public static final int INITIAL_LIST_SIZE = 20;
@@ -47,8 +49,8 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<Track> {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         final Track track = getItem(position);
         viewHolder.username.setText(track.getUserName());
-        viewHolder.title.setText(track.getTitle());
-        viewHolder.genre.setText(track.genre);
+        viewHolder.title.setText(track.getTitle().toUpperCase(Locale.getDefault()));
+        viewHolder.genre.setText(track.genre.toUpperCase(Locale.getDefault()));
         viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, track.playback_count));
         ImageLoader.getInstance().displayImage(ImageSize.formatUriForPlayer(itemView.getContext(), track.getArtwork()), viewHolder.imageView, mDisplayImageOptions);
         mGridSpacer.configureItemPadding(itemView, position, getCount());

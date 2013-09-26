@@ -12,6 +12,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 
+import java.util.Locale;
+
 public class ExploreActivity extends ScActivity implements ScLandingPage
 {
     private TabPageIndicator mIndicator;
@@ -66,11 +68,11 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
         public CharSequence getPageTitle(int position) {
             switch (position){
                 case 0:
-                    return getString(R.string.explore_categories);
+                    return getString(R.string.explore_categories).toUpperCase(Locale.getDefault());
                 case 1:
-                    return getString(R.string.explore_category_popular_music);
+                    return getString(R.string.explore_category_popular_music).toUpperCase(Locale.getDefault());
                 case 2:
-                    return getString(R.string.explore_category_popular_audio);
+                    return getString(R.string.explore_category_popular_audio).toUpperCase(Locale.getDefault());
             }
             throw new RuntimeException("Unexpected position for getPageTitle " + position);
 
