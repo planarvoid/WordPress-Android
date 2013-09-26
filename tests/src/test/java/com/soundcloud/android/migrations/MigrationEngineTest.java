@@ -1,6 +1,5 @@
 package com.soundcloud.android.migrations;
 
-import static com.soundcloud.android.utils.AndroidUtils.AndroidPackageUtils;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -27,27 +26,23 @@ public class MigrationEngineTest {
     private Migration migrationOne;
     @Mock
     private Migration migrationTwo;
-    @Mock
-    private AndroidPackageUtils packageUtils;
 
     @Before
     public void setUp(){
         when(sharedPreferences.edit()).thenReturn(editor);
-        when(packageUtils.appIsInstalledForTheFirstTime()).thenReturn(false);
     }
 
     @Test
-    public void shouldNotPerformMigrationIfAppIsInstalledForTheFirstTime() {
-        when(packageUtils.appIsInstalledForTheFirstTime()).thenReturn(true);
-        when(sharedPreferences.getInt("chaneLogVersionCode", -1)).thenReturn(11);
-        new MigrationEngine(12, sharedPreferences, packageUtils, migrationOne, migrationTwo).migrate();
+    public void shouldNotPerformMigrationIfNoPreviousVersionCodeExistsInSharedPreferences() {
+        when(sharedPreferences.getInt("changeLogVersionCode", -1)).thenReturn(-1);
+        new MigrationEngine(12, sharedPreferences, migrationOne, migrationTwo).migrate();
         verifyZeroInteractions(migrationOne, migrationTwo);
     }
 
     @Test
     public void shouldNotPerformMigrationIfThePreviousAppVersionCodeIsTheSameAsTheCurrentAppVersionCode() {
         when(sharedPreferences.getInt("changeLogVersionCode", -1)).thenReturn(44);
-        new MigrationEngine(44, sharedPreferences, packageUtils, migrationOne, migrationTwo).migrate();
+        new MigrationEngine(44, sharedPreferences, migrationOne, migrationTwo).migrate();
         verifyZeroInteractions(migrationOne, migrationTwo);
     }
 
@@ -56,7 +51,7 @@ public class MigrationEngineTest {
         when(migrationOne.getApplicableAppVersionCode()).thenReturn(55);
         when(migrationTwo.getApplicableAppVersionCode()).thenReturn(56);
         when(sharedPreferences.getInt("changeLogVersionCode", -1)).thenReturn(40);
-        new MigrationEngine(54, sharedPreferences, packageUtils, migrationOne, migrationTwo).migrate();
+        new MigrationEngine(54, sharedPreferences, migrationOne, migrationTwo).migrate();
         verify(migrationOne, never()).applyMigration();
         verify(migrationTwo, never()).applyMigration();
     }
@@ -65,7 +60,7 @@ public class MigrationEngineTest {
     public void shouldPerformMigrationIfApplicableVersionCodeForMigrationsIsEqualToTheCurrentAppVersionCodeButGreaterThanThePreviousAppVersionCode() {
         when(migrationOne.getApplicableAppVersionCode()).thenReturn(56);
         when(sharedPreferences.getInt("changeLogVersionCode", -1)).thenReturn(54);
-        new MigrationEngine(56, sharedPreferences, packageUtils, migrationOne).migrate();
+        new MigrationEngine(56, sharedPreferences, migrationOne).migrate();
         verify(migrationOne).applyMigration();
     }
 
@@ -73,7 +68,7 @@ public class MigrationEngineTest {
     public void shouldPerformMigrationIfApplicableVersionCodeForMigrationsIsLessThanTheCurrentAppVersionCodeButGreaterThanThePreviousAppVersionCode() {
         when(migrationOne.getApplicableAppVersionCode()).thenReturn(56);
         when(sharedPreferences.getInt("changeLogVersionCode", -1)).thenReturn(54);
-        new MigrationEngine(57, sharedPreferences, packageUtils, migrationOne).migrate();
+        new MigrationEngine(57, sharedPreferences, migrationOne).migrate();
         verify(migrationOne).applyMigration();
     }
 
@@ -81,7 +76,7 @@ public class MigrationEngineTest {
     public void shouldNotPerformMigrationIfApplicableVersionCodeForMigrationsIsLessThanTheCurrentAppVersionCodeButEqualToThePreviousAppVersionCode() {
         when(migrationOne.getApplicableAppVersionCode()).thenReturn(54);
         when(sharedPreferences.getInt("changeLogVersionCode", -1)).thenReturn(54);
-        new MigrationEngine(57, sharedPreferences, packageUtils, migrationOne).migrate();
+        new MigrationEngine(57, sharedPreferences, migrationOne).migrate();
         verify(migrationOne, never()).applyMigration();
     }
 
@@ -90,7 +85,7 @@ public class MigrationEngineTest {
         when(migrationOne.getApplicableAppVersionCode()).thenReturn(54);
         when(migrationTwo.getApplicableAppVersionCode()).thenReturn(53);
         when(sharedPreferences.getInt("changeLogVersionCode", -1)).thenReturn(52);
-        new MigrationEngine(57, sharedPreferences, packageUtils, migrationOne, migrationTwo).migrate();
+        new MigrationEngine(57, sharedPreferences, migrationOne, migrationTwo).migrate();
         InOrder inOrder = inOrder(migrationOne, migrationTwo);
         inOrder.verify(migrationTwo).applyMigration();
         inOrder.verify(migrationOne).applyMigration();
@@ -100,7 +95,7 @@ public class MigrationEngineTest {
     public void shouldUpdateTheCurrentVersionCodeAfterMigrations(){
         when(migrationOne.getApplicableAppVersionCode()).thenReturn(56);
         when(sharedPreferences.getInt("changeLogVersionCode", -1)).thenReturn(54);
-        new MigrationEngine(57, sharedPreferences, packageUtils, migrationOne).migrate();
+        new MigrationEngine(57, sharedPreferences, migrationOne).migrate();
         InOrder inOrder = inOrder(migrationOne, editor);
         inOrder.verify(migrationOne).applyMigration();
         inOrder.verify(editor).putInt("changeLogVersionCode", 57);
