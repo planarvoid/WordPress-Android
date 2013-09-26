@@ -80,6 +80,7 @@
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsAdapterView.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/IcsProgressBar.class"/>
         <ignore path="target/classes/com/actionbarsherlock/internal/widget/ActionBarView$HomeView.class"/>
+        <ignore path="target/classes/com/github/espiandev/showcaseview/ShowcaseView.class"/>
     </issue>
     <issue id="InlinedApi" severity="error"/>
 
