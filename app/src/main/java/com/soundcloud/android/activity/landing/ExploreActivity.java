@@ -36,7 +36,7 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
 
     @Override
     protected int getSelectedMenuId() {
-        return R.id.nav_explore;
+        return R.id.nav_discover;
     }
 
     class ExplorePagerAdapter extends FragmentPagerAdapter {
@@ -72,11 +72,11 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
         public CharSequence getPageTitle(int position) {
             switch (position){
                 case 0:
-                    return getString(R.string.explore_genres);
+                    return getString(R.string.discover_genres);
                 case 1:
-                    return getString(R.string.explore_category_popular_music);
+                    return getString(R.string.discover_category_trending_music);
                 case 2:
-                    return getString(R.string.explore_category_popular_audio);
+                    return getString(R.string.discover_category_trending_audio);
             }
             throw new RuntimeException("Unexpected position for getPageTitle " + position);
 

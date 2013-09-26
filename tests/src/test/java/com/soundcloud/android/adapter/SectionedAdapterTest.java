@@ -87,8 +87,8 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldSetSectionViewTypes() {
-        adapter.onNext(new Section(R.string.explore_category_header_audio, Lists.newArrayList(1,2)));
-        adapter.onNext(new Section(R.string.explore_category_header_music, Lists.newArrayList(1)));
+        adapter.onNext(new Section(R.string.discover_category_header_audio, Lists.newArrayList(1,2)));
+        adapter.onNext(new Section(R.string.discover_category_header_music, Lists.newArrayList(1)));
 
         expect(adapter.getItemViewType(0)).toEqual(SectionedAdapter.ViewTypes.SECTION.ordinal());
         expect(adapter.getItemViewType(1)).toEqual(SectionedAdapter.ViewTypes.DEFAULT.ordinal());
@@ -97,8 +97,8 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldSetSectionHeaderOnViews() {
-        adapter.onNext(new Section(R.string.explore_category_header_audio, Lists.newArrayList(1,2)));
-        adapter.onNext(new Section(R.string.explore_category_header_music, Lists.newArrayList(1)));
+        adapter.onNext(new Section(R.string.discover_category_header_audio, Lists.newArrayList(1,2)));
+        adapter.onNext(new Section(R.string.discover_category_header_music, Lists.newArrayList(1)));
 
         SectionedTestListRow sectionedRow = mock(SectionedTestListRow.class);
         when(sectionedRow.getResources()).thenReturn(Robolectric.application.getResources());

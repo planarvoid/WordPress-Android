@@ -36,8 +36,8 @@ public class ExploreTracksCategoriesFragmentTest {
         fragment = new ExploreTracksCategoriesFragment(adapter, Observable.just(sections));
         fragment.onCreate(null);
 
-        verify(adapter).onNext(eq(new Section(R.string.explore_category_header_music, musicCategories)));
-        verify(adapter).onNext(eq(new Section(R.string.explore_category_header_audio, audioCategories)));
+        verify(adapter).onNext(eq(new Section(R.string.discover_category_header_music, musicCategories)));
+        verify(adapter).onNext(eq(new Section(R.string.discover_category_header_audio, audioCategories)));
         verify(adapter).onCompleted();
     }
 
