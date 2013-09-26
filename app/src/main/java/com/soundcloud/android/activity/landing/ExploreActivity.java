@@ -29,6 +29,8 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
         mExplorePagerAdapter = new ExplorePagerAdapter(getSupportFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(mExplorePagerAdapter);
+        mPager.setPageMarginDrawable(R.drawable.pager_separator);
+        mPager.setPageMargin((int) (1 * getResources().getDisplayMetrics().density));
 
         mIndicator = (TabPageIndicator) findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
