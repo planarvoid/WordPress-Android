@@ -38,12 +38,12 @@ public class Waiter {
     }
 
     public boolean waitForListContent(){
-        View progress = solo.waitForViewId(com.soundcloud.android.R.id.loading, 3000);
+        View progress = solo.waitForViewId(com.soundcloud.android.R.id.list_item_loading_layout, 3000);
         if (progress != null){
             return solo.waitForCondition(new Condition() {
                 @Override
                 public boolean isSatisfied() {
-                    final View view = solo.getView(R.id.loading);
+                    final View view = solo.getView(R.id.list_item_loading_layout);
                     return view == null || !view.isShown();
                 }
             }, this.NETWORK_TIMEOUT);

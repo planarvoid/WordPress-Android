@@ -58,7 +58,7 @@ public class AnalyticsEngineTest {
 
     private void setAnalyticsPropertyEnabledPreferenceDisabled() {
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
-        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(false);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true)).thenReturn(false);
     }
 
     @Test
@@ -72,13 +72,13 @@ public class AnalyticsEngineTest {
 
     private void setAnalyticsPropertyDisabledPreferenceEnabled() {
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
-        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true)).thenReturn(true);
     }
 
     @Test
     public void shouldNotOpenCloseSessionOnAnyProvidersIfAnalyticsDisabled(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
-        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(false);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true)).thenReturn(false);
         initialiseAnalyticsEngine();
         analyticsEngine.openSessionForActivity();
         verifyZeroInteractions(analyticsProviderOne);
@@ -98,7 +98,7 @@ public class AnalyticsEngineTest {
     @Test
     public void shouldNotCallCloseSessionOnAllProvidersIfAnalyticsEnabledAndPlayerIsPlaying(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
-        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true)).thenReturn(true);
         when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
         initialiseAnalyticsEngine();
         analyticsEngine.closeSessionForActivity();
@@ -149,7 +149,7 @@ public class AnalyticsEngineTest {
     @Test
     public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsDisabledAndPlayerIsNotPlaying(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
-        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(false);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true)).thenReturn(false);
         when(playbackWrapper.isPlayerPlaying()).thenReturn(false);
         initialiseAnalyticsEngine();
         analyticsEngine.closeSessionForActivity();
@@ -160,7 +160,7 @@ public class AnalyticsEngineTest {
     @Test
     public void shouldNotCallCloseSessionOnAnyProvidersIfAnalyticsDisabledAndPlayerIsPlaying(){
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
-        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(false);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true)).thenReturn(false);
         when(playbackWrapper.isPlayerPlaying()).thenReturn(true);
         initialiseAnalyticsEngine();
         analyticsEngine.closeSessionForActivity();
@@ -178,8 +178,8 @@ public class AnalyticsEngineTest {
     public void shouldUpdateAnalyticsPreferenceWhenChangeOccurs(){
         initialiseAnalyticsEngine();
         expect(analyticsEngine.isAnalyticsPreferenceEnabled()).toBeFalse();
-        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
-        analyticsEngine.onSharedPreferenceChanged(sharedPreferences,Settings.ANALYTICS);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true)).thenReturn(true);
+        analyticsEngine.onSharedPreferenceChanged(sharedPreferences,Settings.ANALYTICS_ENABLED);
         expect(analyticsEngine.isAnalyticsPreferenceEnabled()).toBeTrue();
     }
 
@@ -297,7 +297,7 @@ public class AnalyticsEngineTest {
 
     private void setAnalyticsPreferenceAndPropertyEnabled() {
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
-        when(sharedPreferences.getBoolean(Settings.ANALYTICS, true)).thenReturn(true);
+        when(sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true)).thenReturn(true);
     }
 
     private void initialiseAnalyticsEngineWithActivitySessionState(boolean state) {
