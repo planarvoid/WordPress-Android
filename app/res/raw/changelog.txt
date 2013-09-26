@@ -1,3 +1,9 @@
+$ 70
+  % v 2.6.7
+  _ 2013-09-26
+  ! Maintenance
+      * Fixed 2.2 migration issue
+
 $ 68
   % v 2.6.5
   _ 2013-09-4
