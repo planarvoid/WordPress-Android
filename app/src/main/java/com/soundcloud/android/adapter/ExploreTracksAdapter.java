@@ -54,12 +54,12 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
         if (track == null) throw new IllegalArgumentException("TRACK IS NULL");
 
         viewHolder.username.setText(track.getUserName());
-        viewHolder.title.setText(track.getTitle().toUpperCase(Locale.getDefault()));
+        viewHolder.title.setText(track.getTitle());
 
-        if (TextUtils.isEmpty(track.getGenre().toUpperCase(Locale.getDefault()))){
+        if (TextUtils.isEmpty(track.getGenre())){
             viewHolder.genre.setVisibility(View.GONE);
         } else {
-            viewHolder.genre.setText(track.getGenre());
+            viewHolder.genre.setText(track.getGenre().toUpperCase(Locale.getDefault()));
             viewHolder.genre.setVisibility(View.VISIBLE);
         }
         final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getStats().getPlaybackCount());
