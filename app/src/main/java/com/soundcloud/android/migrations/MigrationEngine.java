@@ -2,7 +2,6 @@ package com.soundcloud.android.migrations;
 
 import static android.content.SharedPreferences.Editor;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.soundcloud.android.utils.AndroidUtils.AndroidPackageUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
@@ -24,27 +23,25 @@ public class MigrationEngine {
     private final SharedPreferences mSharedPreferences;
     private final int mCurrentVersion;
     private final List<Migration> mMigrations;
-    private final AndroidPackageUtils mPackageUtils;
 
     public MigrationEngine(Context context) {
         this(AndroidUtils.getAppVersionCode(context,0) ,PreferenceManager.getDefaultSharedPreferences(context),
-                new AndroidPackageUtils(context), new SettingsMigration(context));
+                new SettingsMigration(context));
     }
 
     @VisibleForTesting
-    protected MigrationEngine(int currentVersion, SharedPreferences sharedPreferences, AndroidPackageUtils androidPackageUtils,
+    protected MigrationEngine(int currentVersion, SharedPreferences sharedPreferences,
                               Migration... migrationsToApply) {
         mSharedPreferences = sharedPreferences;
         mCurrentVersion = currentVersion;
         mMigrations = newArrayList(migrationsToApply);
-        mPackageUtils = androidPackageUtils;
     }
 
     public void migrate() {
 
         int previousVersionCode = mSharedPreferences.getInt(VERSION_KEY, DEFAULT_APP_VERSION_CODE);
 
-        if (previousVersionCode < mCurrentVersion && !mPackageUtils.appIsInstalledForTheFirstTime()) {
+        if (previousVersionCode != DEFAULT_APP_VERSION_CODE && previousVersionCode < mCurrentVersion) {
             List<Migration> applicableMigrations = newArrayList(Collections2.filter(mMigrations,
                     new ApplicableMigrationsPredicate(previousVersionCode, mCurrentVersion)));
             Collections.sort(applicableMigrations, Migration.APPLICABLE_VERSION_COMPARATOR);
