@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.landing;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.github.espiandev.showcaseview.ShowcaseView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -37,6 +38,7 @@ public class Home extends ScActivity implements ScLandingPage {
 
     private AndroidCloudAPI oldCloudAPI;
     private ApplicationProperties mApplicationProperties;
+    private ShowcaseView mCurrentMenuShowcase;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -131,8 +133,15 @@ public class Home extends ScActivity implements ScLandingPage {
 
         final View viewById = mRootView.getMenuItemViewById(R.id.nav_explore);
         if (viewById != null){
-            Showcase.EXPLORE.insertShowcase(this, viewById);
+            mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(this, viewById);
         }
     }
 
+    @Override
+    public void onMenuClosed() {
+        super.onMenuClosed();
+        if (mCurrentMenuShowcase != null && mCurrentMenuShowcase.isShown()){
+            mCurrentMenuShowcase.hide();
+        }
+    }
 }
