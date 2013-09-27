@@ -55,7 +55,17 @@ public class ExploreTracksOperations extends ScheduledOperations {
         }
     }
 
-    private TrackSummariesNextPageFunc nextPageGenerator = new TrackSummariesNextPageFunc() {
+    private Observable<Page<TrackSummary>> getSuggestedTracks(String endpoint) {
+        APIRequest<TrackSummaries> request = SoundCloudAPIRequest.RequestBuilder.<TrackSummaries>get(endpoint)
+                .addQueryParameters("limit", String.valueOf(PAGE_SIZE))
+                .forPrivateAPI(1)
+                .forResource(new SuggestionsModelCollectionToken()).build();
+
+        final Observable<TrackSummaries> source = mRxHttpClient.fetchModels(request);
+        return Observable.create(paged(source, nextPageGenerator));
+    }
+
+    private final TrackSummariesNextPageFunc nextPageGenerator = new TrackSummariesNextPageFunc() {
         @Override
         public Observable<Page<TrackSummary>> call(TrackSummaries trackSummaries) {
             final Optional<Link> nextLink = trackSummaries.getNextLink();
@@ -66,16 +76,6 @@ public class ExploreTracksOperations extends ScheduledOperations {
             }
         }
     };
-
-    private Observable<Page<TrackSummary>> getSuggestedTracks(String endpoint) {
-        APIRequest<TrackSummaries> request = SoundCloudAPIRequest.RequestBuilder.<TrackSummaries>get(endpoint)
-                .addQueryParameters("limit", String.valueOf(PAGE_SIZE))
-                .forPrivateAPI(1)
-                .forResource(new SuggestionsModelCollectionToken()).build();
-
-        final Observable<TrackSummaries> source = mRxHttpClient.fetchModels(request);
-        return Observable.create(paged(source, nextPageGenerator));
-    }
 
     public Observable<Track> getRelatedTracks(final Track seedTrack) {
         final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), seedTrack.getUrn().toEncodedString());
