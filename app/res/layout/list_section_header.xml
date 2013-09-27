@@ -8,6 +8,6 @@
           android:layout_height="wrap_content"
           android:visibility="gone"
           android:textColor="@color/scOrange"
-          android:background="@drawable/orange_list_divider"/>
+          android:background="@drawable/divider_list_orange"/>
 
     

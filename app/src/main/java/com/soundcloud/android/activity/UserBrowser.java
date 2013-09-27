@@ -133,7 +133,12 @@ public class UserBrowser extends ScActivity implements
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(mDelayContent ? new TempAdapter() : mAdapter);
         mPager.setCurrentItem(Tab.tracks.ordinal());
+
+        //TODO, is this really necessary?
         mPager.setBackgroundColor(Color.WHITE);
+
+        mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
+        mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
         mIndicator = (TitlePageIndicator) findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
