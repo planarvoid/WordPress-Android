@@ -55,8 +55,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
         }
     }
 
-    private Func1<TrackSummaries, Observable<Page<TrackSummary>>> nextPageGenerator =
-            new Func1<TrackSummaries, Observable<Page<TrackSummary>>>() {
+    private TrackSummariesNextPageFunc nextPageGenerator = new TrackSummariesNextPageFunc() {
         @Override
         public Observable<Page<TrackSummary>> call(TrackSummaries trackSummaries) {
             final Optional<Link> nextLink = trackSummaries.getNextLink();
@@ -103,4 +102,6 @@ public class ExploreTracksOperations extends ScheduledOperations {
     }
 
     private static class TrackSummaries extends ModelCollection<TrackSummary> {}
+
+    private interface TrackSummariesNextPageFunc extends Func1<TrackSummaries, Observable<Page<TrackSummary>>> {}
 }
