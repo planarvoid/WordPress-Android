@@ -4,7 +4,7 @@ import android.net.Uri;
 
 import java.io.Serializable;
 
-public class TrackingInfo implements Serializable {
+public class PlaySourceTrackingInfo implements Serializable {
 
     private static String KEY_ORIGIN_URL = "tracking-originUrl";
     private static String KEY_EXPLORE_TAG = "tracking-exploreTag";
@@ -12,11 +12,11 @@ public class TrackingInfo implements Serializable {
     private String originUrl;
     private String exploreTag;
 
-    public TrackingInfo(String originUrl) {
+    public PlaySourceTrackingInfo(String originUrl) {
         this(originUrl, null);
     }
 
-    public TrackingInfo(String originUrl, String exploreTag) {
+    public PlaySourceTrackingInfo(String originUrl, String exploreTag) {
         this.originUrl = originUrl;
         this.exploreTag = exploreTag;
     }
@@ -25,8 +25,8 @@ public class TrackingInfo implements Serializable {
      * This exist purely for the PlayQueueUri to persist and recreate tracking through app lifecycles
      * {@link com.soundcloud.android.service.playback.PlayQueueUri}
      */
-    public static TrackingInfo fromUriParams(Uri uri) {
-        return new TrackingInfo(uri.getQueryParameter(KEY_ORIGIN_URL), uri.getQueryParameter(KEY_EXPLORE_TAG));
+    public static PlaySourceTrackingInfo fromUriParams(Uri uri) {
+        return new PlaySourceTrackingInfo(uri.getQueryParameter(KEY_ORIGIN_URL), uri.getQueryParameter(KEY_EXPLORE_TAG));
     }
 
     public String getOriginUrl() {
@@ -42,7 +42,7 @@ public class TrackingInfo implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TrackingInfo that = (TrackingInfo) o;
+        PlaySourceTrackingInfo that = (PlaySourceTrackingInfo) o;
 
         if (exploreTag != null ? !exploreTag.equals(that.exploreTag) : that.exploreTag != null) return false;
         if (originUrl != null ? !originUrl.equals(that.originUrl) : that.originUrl != null)

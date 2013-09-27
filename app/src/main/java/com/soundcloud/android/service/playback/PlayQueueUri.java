@@ -2,7 +2,7 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.tracking.eventlogger.TrackingInfo;
+import com.soundcloud.android.tracking.eventlogger.PlaySourceTrackingInfo;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -45,15 +45,15 @@ public class PlayQueueUri {
         return extractValue(PARAM_TRACK_ID, 0);
     }
 
-    public TrackingInfo getTrackingInfo() {
-        return TrackingInfo.fromUriParams(uri);
+    public PlaySourceTrackingInfo getTrackingInfo() {
+        return PlaySourceTrackingInfo.fromUriParams(uri);
     }
 
-    public Uri toUri(Track track, int mPlayPos, long seekPos, TrackingInfo trackingInfo) {
+    public Uri toUri(Track track, int mPlayPos, long seekPos, PlaySourceTrackingInfo trackingInfo) {
         return toUri(track == null ? -1l : track.getId(), mPlayPos, seekPos, trackingInfo);
     }
 
-    public Uri toUri(long trackId, int mPlayPos, long seekPos, TrackingInfo trackingInfo) {
+    public Uri toUri(long trackId, int mPlayPos, long seekPos, PlaySourceTrackingInfo trackingInfo) {
         Uri.Builder builder = uri.buildUpon().query(null); //clear the query for the new params
         if (trackId != -1l) {
             builder.appendQueryParameter(PARAM_TRACK_ID, String.valueOf(trackId));

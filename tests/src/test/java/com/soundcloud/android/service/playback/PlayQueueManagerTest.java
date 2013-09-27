@@ -17,7 +17,7 @@ import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.tracking.eventlogger.TrackingInfo;
+import com.soundcloud.android.tracking.eventlogger.PlaySourceTrackingInfo;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class PlayQueueManagerTest {
 
     @Mock
     ExploreTracksOperations exploreTracksOperations;
-    TrackingInfo trackingInfo;
+    PlaySourceTrackingInfo trackingInfo;
 
     @Before
     public void before() {
@@ -55,7 +55,7 @@ public class PlayQueueManagerTest {
         pm = new PlayQueueManager(Robolectric.application, USER_ID, exploreTracksOperations);
         TestHelper.setUserId(USER_ID);
 
-        trackingInfo = new TrackingInfo("origin-url", "exploreTag");
+        trackingInfo = new PlaySourceTrackingInfo("origin-url", "exploreTag");
     }
 
     @Test

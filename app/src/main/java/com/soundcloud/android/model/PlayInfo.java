@@ -1,6 +1,6 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.tracking.eventlogger.TrackingInfo;
+import com.soundcloud.android.tracking.eventlogger.PlaySourceTrackingInfo;
 
 import android.net.Uri;
 
@@ -13,7 +13,7 @@ public class PlayInfo {
     public Uri uri;
     public Track initialTrack;
     public boolean fetchRelated;
-    public TrackingInfo trackingInfo;
+    public PlaySourceTrackingInfo trackingInfo;
 
     public PlayInfo() { }
 

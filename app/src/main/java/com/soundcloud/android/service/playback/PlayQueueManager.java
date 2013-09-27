@@ -13,7 +13,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ParallelAsyncTask;
-import com.soundcloud.android.tracking.eventlogger.TrackingInfo;
+import com.soundcloud.android.tracking.eventlogger.PlaySourceTrackingInfo;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
@@ -46,7 +46,7 @@ public class PlayQueueManager {
     private AppendState mAppendingState = AppendState.IDLE;
     private Subscription mRelatedSubscription;
     private Observable<Track> mRelatedTracksObservable;
-    private TrackingInfo mCurrentTrackingInfo;
+    private PlaySourceTrackingInfo mCurrentPlaySourceTrackingInfo;
 
     private enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
@@ -176,14 +176,14 @@ public class PlayQueueManager {
         }
     }
 
-    public TrackingInfo getCurrentTrackingInfo(){
-        return mCurrentTrackingInfo;
+    public PlaySourceTrackingInfo getCurrentTrackingInfo(){
+        return mCurrentPlaySourceTrackingInfo;
     }
 
-    public void loadTrack(Track toBePlayed, boolean saveQueue, TrackingInfo trackingInfo) {
+    public void loadTrack(Track toBePlayed, boolean saveQueue, PlaySourceTrackingInfo trackingInfo) {
         stopLoadingTasks();
 
-        mCurrentTrackingInfo = trackingInfo;
+        mCurrentPlaySourceTrackingInfo = trackingInfo;
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
         mPlayQueue.add(toBePlayed);
@@ -194,7 +194,7 @@ public class PlayQueueManager {
         if (saveQueue) saveQueue(0, true);
     }
 
-    public void loadUri(Uri uri, int position, @Nullable Track initialTrack, TrackingInfo trackingInfo) {
+    public void loadUri(Uri uri, int position, @Nullable Track initialTrack, PlaySourceTrackingInfo trackingInfo) {
         List initialQueue;
         if (initialTrack != null) {
             initialQueue = Lists.<PlayableHolder>newArrayList(initialTrack);
@@ -211,7 +211,7 @@ public class PlayQueueManager {
      * @param initialPlayPos    initial play position for initial queue (play position might be different after loading)
      * @param trackingInfo      data with this current queue to be passed to the {@link com.soundcloud.android.tracking.eventlogger.PlayEventTracker}
      */
-    public void loadUri(Uri uri, int position, List<? extends PlayableHolder> initialPlayQueue, int initialPlayPos, TrackingInfo trackingInfo) {
+    public void loadUri(Uri uri, int position, List<? extends PlayableHolder> initialPlayQueue, int initialPlayPos, PlaySourceTrackingInfo trackingInfo) {
         stopLoadingTasks();
 
         setPlayQueue(initialPlayQueue, initialPlayPos, trackingInfo);
@@ -331,7 +331,7 @@ public class PlayQueueManager {
         mContext.sendBroadcast(intent);
     }
 
-    public void setPlayQueue(final List<? extends PlayableHolder> playQueue, int playPos, TrackingInfo trackingInfo) {
+    public void setPlayQueue(final List<? extends PlayableHolder> playQueue, int playPos, PlaySourceTrackingInfo trackingInfo) {
         mPlayQueue.clear();
         if (playQueue != null) {
             for (PlayableHolder playable : playQueue) {
@@ -342,7 +342,7 @@ public class PlayQueueManager {
         }
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = Math.max(0, Math.min(mPlayQueue.size(), playPos));
-        mCurrentTrackingInfo = trackingInfo;
+        mCurrentPlaySourceTrackingInfo = trackingInfo;
 
         // TODO, only do this on exit???
         saveQueue(0, true);
@@ -412,7 +412,7 @@ public class PlayQueueManager {
     }
 
     /* package */ Uri getPlayQueueState(long seekPos) {
-        return mPlayQueueUri.toUri(getCurrentTrack(), mPlayPos, seekPos, mCurrentTrackingInfo);
+        return mPlayQueueUri.toUri(getCurrentTrack(), mPlayPos, seekPos, mCurrentPlaySourceTrackingInfo);
     }
 
     /**
@@ -436,7 +436,7 @@ public class PlayQueueManager {
                     if (newPos == -1) seekPos = 0;
                     setPosition(Math.max(newPos, 0));
                 }
-                mCurrentTrackingInfo = playQueueUri.getTrackingInfo();
+                mCurrentPlaySourceTrackingInfo = playQueueUri.getTrackingInfo();
             }
             return seekPos;
         } else {

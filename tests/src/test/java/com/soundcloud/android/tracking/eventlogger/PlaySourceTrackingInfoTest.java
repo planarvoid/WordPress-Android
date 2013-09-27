@@ -12,39 +12,39 @@ import android.net.Uri;
 import java.io.Serializable;
 
 @RunWith(SoundCloudTestRunner.class)
-public class TrackingInfoTest {
+public class PlaySourceTrackingInfoTest {
 
     @Test
     public void shouldBeEqualWithJustSourceContext() throws Exception {
-        final TrackingInfo actual = new TrackingInfo("origin-url");
-        final TrackingInfo expected = new TrackingInfo("origin-url");
+        final PlaySourceTrackingInfo actual = new PlaySourceTrackingInfo("origin-url");
+        final PlaySourceTrackingInfo expected = new PlaySourceTrackingInfo("origin-url");
         expect(actual).toEqual(expected);
     }
 
     @Test
     public void shouldBeEqualWithSourceAndExplore() throws Exception {
-        final TrackingInfo actual = new TrackingInfo("origin-url", "explore-tag");
-        final TrackingInfo expected = new TrackingInfo("origin-url", "explore-tag");
+        final PlaySourceTrackingInfo actual = new PlaySourceTrackingInfo("origin-url", "explore-tag");
+        final PlaySourceTrackingInfo expected = new PlaySourceTrackingInfo("origin-url", "explore-tag");
         expect(actual).toEqual(expected);
     }
 
     @Test
     public void shouldNotBeEqualWithDifferentExplore() throws Exception {
-        final TrackingInfo actual = new TrackingInfo("origin-url", "explore-tag");
-        final TrackingInfo expected = new TrackingInfo("origin-url", "explore-tag2");
+        final PlaySourceTrackingInfo actual = new PlaySourceTrackingInfo("origin-url", "explore-tag");
+        final PlaySourceTrackingInfo expected = new PlaySourceTrackingInfo("origin-url", "explore-tag2");
         expect(actual).not.toEqual(expected);
     }
 
     @Test
     public void shouldNotBeEqualWithDifferentSource() throws Exception {
-        final TrackingInfo actual = new TrackingInfo("origin-url", "explore-tag");
-        final TrackingInfo expected = new TrackingInfo("origin-url2", "explore-tag");
+        final PlaySourceTrackingInfo actual = new PlaySourceTrackingInfo("origin-url", "explore-tag");
+        final PlaySourceTrackingInfo expected = new PlaySourceTrackingInfo("origin-url2", "explore-tag");
         expect(actual).not.toEqual(expected);
     }
 
     @Test
     public void shouldBeSerializableFromJustExploreTag() throws Exception {
-        Serializable original = new TrackingInfo("origin-url");
+        Serializable original = new PlaySourceTrackingInfo("origin-url");
         Serializable copy = (Serializable) SerializationUtils.clone(original);
         expect(original).toEqual(copy);
     }
@@ -52,7 +52,7 @@ public class TrackingInfoTest {
     @Test
     public void shouldPersistFromParams() throws Exception {
         Uri uri = Uri.parse("http://something.com");
-        final TrackingInfo expected = new TrackingInfo("origin-url", "explore-tag");
-        expect(TrackingInfo.fromUriParams(expected.appendAsQueryParams(uri.buildUpon()).build())).toEqual(expected);
+        final PlaySourceTrackingInfo expected = new PlaySourceTrackingInfo("origin-url", "explore-tag");
+        expect(PlaySourceTrackingInfo.fromUriParams(expected.appendAsQueryParams(uri.buildUpon()).build())).toEqual(expected);
     }
 }
