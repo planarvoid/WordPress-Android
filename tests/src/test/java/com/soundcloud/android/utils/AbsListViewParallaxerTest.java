@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -39,7 +40,7 @@ public class AbsListViewParallaxerTest {
 
     @Before
     public void setUp() throws Exception {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.FROYO);
+        TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB);
         absListViewParallaxer = new AbsListViewParallaxer(onScrollListener);
         when(absListView.getHeight()).thenReturn(100);
         when(absListView.getChildCount()).thenReturn(1);
@@ -79,7 +80,7 @@ public class AbsListViewParallaxerTest {
     }
 
     @Test
-    public void shouldApplyMiddleParallax() throws Exception {
+    public void shouldApplyImageParallax() throws Exception {
         ParallaxImageView parallaxImageView = Mockito.mock(ParallaxImageView.class);
         when(viewGroup.getChildAt(0)).thenReturn(parallaxImageView);
 
@@ -92,5 +93,22 @@ public class AbsListViewParallaxerTest {
         when(view.getTag()).thenReturn(AbsListViewParallaxer.VIEW_FOREGROUND_TAG);
         absListViewParallaxer.onScroll(absListView, 0, 0, 0);
         verify(view).setTranslationY(6.0f);
+    }
+
+    @Test
+    public void shouldNotApplyImageParallaxPreHoneycomb() throws Exception {
+        TestHelper.setSdkVersion(Build.VERSION_CODES.GINGERBREAD);
+        ParallaxImageView parallaxImageView = Mockito.mock(ParallaxImageView.class);
+        when(viewGroup.getChildAt(0)).thenReturn(parallaxImageView);
+        absListViewParallaxer.onScroll(absListView, 0, 0, 0);
+        verify(parallaxImageView, never()).setParallaxOffset(anyDouble());
+    }
+
+    @Test
+    public void shouldNotApplyForegroundParallaxPreHoneycomb() throws Exception {
+        TestHelper.setSdkVersion(Build.VERSION_CODES.GINGERBREAD);
+        when(view.getTag()).thenReturn(AbsListViewParallaxer.VIEW_FOREGROUND_TAG);
+        absListViewParallaxer.onScroll(absListView, 0, 0, 0);
+        verify(view, never()).setTranslationY(anyFloat());
     }
 }
