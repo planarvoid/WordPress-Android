@@ -13,6 +13,7 @@ import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.migrations.MigrationEngine;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
@@ -60,6 +61,9 @@ public class SoundCloudApplication extends Application implements Tracker {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        new MigrationEngine(this).migrate();
+
         ApplicationProperties appProperties = new ApplicationProperties(getResources());
         AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources());
 

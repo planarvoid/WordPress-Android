@@ -22,7 +22,7 @@
     </FrameLayout>
 
     <include layout="@layout/list_loading_item"
-             android:id="@android:id/progress"
+             android:id="@+id/playlist_tracks_loading_layout"
              android:layout_width="match_parent"
              android:layout_height="match_parent"/>
 

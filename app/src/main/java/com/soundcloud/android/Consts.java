@@ -117,7 +117,6 @@ public final class Consts {
         String NOTIFICATIONS_REPOSTS                = "notificationsReposts";
         String NOTIFICATIONS_COMMENTS               = "notificationsComments";
         String NOTIFICATIONS_FREQUENCY              = "notificationsFrequency";
-        String VERSION_KEY                          = "changeLogVersionCode";
         String PLAYBACK_ERROR_REPORTING_ENABLED     = "playbackErrorReportingEnabled";
         String LAST_USER_SYNC                       = "lastUserSync";
 

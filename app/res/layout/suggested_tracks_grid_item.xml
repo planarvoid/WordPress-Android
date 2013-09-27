@@ -12,7 +12,8 @@
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignBottom="@id/suggested_track_image"
-                    android:layout_alignTop="@id/suggested_track_image">
+                    android:layout_alignTop="@id/suggested_track_image"
+                    android:padding="13dp">
 
         <LinearLayout style="@style/ExploreGridItemTextHolder"
                       android:layout_marginLeft="@dimen/explore_suggested_track_parallax_margin_right_left"

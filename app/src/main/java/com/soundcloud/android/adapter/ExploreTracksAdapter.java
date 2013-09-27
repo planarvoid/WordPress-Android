@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import java.util.Locale;
 public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
     public static final int INITIAL_LIST_SIZE = 20;
@@ -57,7 +57,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
         if (TextUtils.isEmpty(track.getGenre())){
             viewHolder.genre.setVisibility(View.GONE);
         } else {
-            viewHolder.genre.setText(track.getGenre());
+            viewHolder.genre.setText(track.getGenre().toUpperCase(Locale.getDefault()));
             viewHolder.genre.setVisibility(View.VISIBLE);
         }
         final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getStats().getPlaybackCount());
