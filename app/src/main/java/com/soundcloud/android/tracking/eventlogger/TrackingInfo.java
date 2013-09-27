@@ -6,18 +6,18 @@ import java.io.Serializable;
 
 public class TrackingInfo implements Serializable {
 
-    private static String KEY_SOURCE_CONTEXT = "tracking-sourceContext";
+    private static String KEY_ORIGIN_URL = "tracking-originUrl";
     private static String KEY_EXPLORE_TAG = "tracking-exploreTag";
 
-    private String sourceContext;
+    private String originUrl;
     private String exploreTag;
 
-    public TrackingInfo(String sourceContext) {
-        this(sourceContext, null);
+    public TrackingInfo(String originUrl) {
+        this(originUrl, null);
     }
 
-    public TrackingInfo(String sourceContext, String exploreTag) {
-        this.sourceContext = sourceContext;
+    public TrackingInfo(String originUrl, String exploreTag) {
+        this.originUrl = originUrl;
         this.exploreTag = exploreTag;
     }
 
@@ -26,11 +26,11 @@ public class TrackingInfo implements Serializable {
      * {@link com.soundcloud.android.service.playback.PlayQueueUri}
      */
     public static TrackingInfo fromUriParams(Uri uri) {
-        return new TrackingInfo(uri.getQueryParameter(KEY_SOURCE_CONTEXT), uri.getQueryParameter(KEY_EXPLORE_TAG));
+        return new TrackingInfo(uri.getQueryParameter(KEY_ORIGIN_URL), uri.getQueryParameter(KEY_EXPLORE_TAG));
     }
 
-    public String getSourceContext() {
-        return sourceContext;
+    public String getOriginUrl() {
+        return originUrl;
     }
 
     public String getExploreTag() {
@@ -45,7 +45,7 @@ public class TrackingInfo implements Serializable {
         TrackingInfo that = (TrackingInfo) o;
 
         if (exploreTag != null ? !exploreTag.equals(that.exploreTag) : that.exploreTag != null) return false;
-        if (sourceContext != null ? !sourceContext.equals(that.sourceContext) : that.sourceContext != null)
+        if (originUrl != null ? !originUrl.equals(that.originUrl) : that.originUrl != null)
             return false;
 
         return true;
@@ -53,13 +53,13 @@ public class TrackingInfo implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = sourceContext != null ? sourceContext.hashCode() : 0;
+        int result = originUrl != null ? originUrl.hashCode() : 0;
         result = 31 * result + (exploreTag != null ? exploreTag.hashCode() : 0);
         return result;
     }
 
     public Uri.Builder appendAsQueryParams(Uri.Builder builder) {
-        return builder.appendQueryParameter(KEY_SOURCE_CONTEXT, sourceContext)
+        return builder.appendQueryParameter(KEY_ORIGIN_URL, originUrl)
                 .appendQueryParameter(KEY_EXPLORE_TAG, exploreTag);
     }
 }
