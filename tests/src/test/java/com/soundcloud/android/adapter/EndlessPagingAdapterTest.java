@@ -1,41 +1,23 @@
 package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Observer;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.android.BufferingObserver;
 import rx.android.concurrency.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.FrameLayout;
 
 @RunWith(SoundCloudTestRunner.class)
 public class EndlessPagingAdapterTest {
@@ -61,12 +43,12 @@ public class EndlessPagingAdapterTest {
         when (pageObservable.observeOn(AndroidSchedulers.mainThread())).thenReturn(pageObservable);
     }
 
-//    @Test
-//    public void shouldReportAllItemsEnabledAsFalseSinceLoadingItemIsDisabled() {
-//        //createAdapter();
-//        expect(adapter.areAllItemsEnabled()).toBeFalse();
-//    }
-//
+    @Ignore @Test
+    public void shouldReportAllItemsEnabledAsFalseSinceLoadingItemIsDisabled() {
+        //createAdapter();
+        expect(adapter.areAllItemsEnabled()).toBeFalse();
+    }
+
 //    @Test
 //    public void appendRowShouldBeProgressRowWhenLoadingData() {
 //        createAdapter(createPagingObservable(2, Observable.<Integer>never()));
