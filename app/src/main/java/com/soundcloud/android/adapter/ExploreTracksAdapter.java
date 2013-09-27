@@ -9,8 +9,6 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.view.adapter.GridSpacer;
-import rx.Observable;
-import rx.Observer;
 
 import android.text.TextUtils;
 import android.view.View;
@@ -25,8 +23,8 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
     private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.gridView();
     private GridSpacer mGridSpacer;
 
-    public ExploreTracksAdapter(Observable<Observable<TrackSummary>> pagingObservable, Observer<TrackSummary> itemObserver) {
-        super(pagingObservable, itemObserver, INITIAL_LIST_SIZE, R.layout.grid_loading_item);
+    public ExploreTracksAdapter() {
+        super(INITIAL_LIST_SIZE, R.layout.grid_loading_item);
         mGridSpacer = new GridSpacer();
     }
 
