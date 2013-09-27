@@ -32,7 +32,7 @@ public class PlayEventTrackerTest {
         tracker.getTrackingDbHelper().execute(new PlayEventTracker.TrackingDbHelper.ExecuteBlock() {
             @Override
             public void call(SQLiteDatabase database) {
-                database.delete(PlayEventTracker.TrackingDbHelper.EVENTS_TABLE, null, null);
+                database.execSQL("DROP TABLE IF EXISTS " + PlayEventTracker.TrackingDbHelper.EVENTS_TABLE);
             }
         });
     }
