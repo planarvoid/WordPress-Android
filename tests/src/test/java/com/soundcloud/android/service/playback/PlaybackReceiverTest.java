@@ -54,6 +54,7 @@ public class PlaybackReceiverTest {
     @Before
     public void setup() {
         SoundCloudApplication.MODEL_MANAGER.clear();
+        CloudPlaybackService.playlistXfer = null;
         playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager, accountOperations);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);

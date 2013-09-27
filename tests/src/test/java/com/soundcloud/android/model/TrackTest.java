@@ -293,6 +293,7 @@ public class TrackTest {
         expect(t.created_at).toEqual(suggestion.getCreatedAt());
         expect(t.duration).toEqual(suggestion.getDuration());
         expect(t.sharing).toEqual(suggestion.getSharing());
+        expect(t.permalink_url).toEqual(suggestion.getPermalinkUrl());
 
         expect(t.likes_count).toEqual(suggestion.getStats().getLikesCount());
         expect(t.playback_count).toEqual(suggestion.getStats().getPlaybackCount());

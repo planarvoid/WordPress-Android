@@ -34,6 +34,7 @@ public class TrackSummaryTest {
         expect(trackSummary.getCreatedAt()).toEqual(Wrapper.CloudDateFormat.fromString("2013/08/17 07:50:03 +0000"));
         expect(trackSummary.getSharing()).toBe(Sharing.PRIVATE);
         expect(trackSummary.getStats().getPlaybackCount()).toEqual(4901L);
+        expect(trackSummary.getPermalinkUrl()).toEqual("http://soundcloud.com/asdffdsa");
 
     }
 
@@ -82,6 +83,7 @@ public class TrackSummaryTest {
         expect(track1.getWaveformUrl()).toEqual(track2.getWaveformUrl());
         expect(track1.getUserTags()).toEqual(track2.getUserTags());
         expect(track1.getCreatedAt()).toEqual(track2.getCreatedAt());
+        expect(track1.getPermalinkUrl()).toEqual(track2.getPermalinkUrl());
     }
 
 }

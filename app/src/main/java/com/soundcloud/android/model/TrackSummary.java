@@ -22,6 +22,7 @@ public class TrackSummary extends ScModel {
     private List<String>    mUserTags;
     private Date            mCreatedAt;
     private String          mArtworkUrl;
+    private String          mPermalinkUrl;
 
     private Sharing         mSharing = Sharing.UNDEFINED;
 
@@ -42,7 +43,7 @@ public class TrackSummary extends ScModel {
         this.mUserTags = new ArrayList<String>();
         in.readStringList(this.mUserTags);
         this.mCreatedAt = (Date) in.readSerializable();
-
+        this.mPermalinkUrl = in.readString();
     }
 
     public TrackSummary(String urn) {
@@ -83,6 +84,10 @@ public class TrackSummary extends ScModel {
 
     public String getArtworkUrl() {
         return mArtworkUrl;
+    }
+
+    public String getPermalinkUrl() {
+        return mPermalinkUrl;
     }
 
     public String getArtworkOrAvatar(ImageSize imageSize) {
@@ -149,6 +154,11 @@ public class TrackSummary extends ScModel {
         this.mWaveformUrl = waveformUrl;
     }
 
+    @JsonProperty("permalink_url")
+    public void setPermalinkUrl(String permalinkUrl) {
+        this.mPermalinkUrl = permalinkUrl;
+    }
+
     @JsonProperty("user_tags")
     public void setUserTags(List<String> userTags) {
         this.mUserTags = userTags;
@@ -189,6 +199,7 @@ public class TrackSummary extends ScModel {
         dest.writeString(this.mArtworkUrl);
         dest.writeStringList(this.mUserTags);
         dest.writeSerializable(this.mCreatedAt);
+        dest.writeString(this.mPermalinkUrl);
     }
 
     public static Creator<TrackSummary> CREATOR = new Creator<TrackSummary>() {
