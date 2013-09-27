@@ -5,7 +5,6 @@
                 android:layout_height="wrap_content">
 
     <include layout="@layout/adapter_view_loading_item"/>
-
     <TextView android:id="@+id/txt_list_loading_retry"
               android:layout_width="wrap_content"
               android:layout_height="?android:attr/listPreferredItemHeight"

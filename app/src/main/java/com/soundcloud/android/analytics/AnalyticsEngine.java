@@ -49,7 +49,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         mAnalyticsProviders = Lists.newArrayList(analyticsProviders);
         mAnalyticsProperties = analyticsProperties;
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS, true);
+        mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true);
         mCloudPlaybackStateWrapper = cloudPlaybackStateWrapper;
     }
 
@@ -130,8 +130,8 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (Settings.ANALYTICS.equalsIgnoreCase(key)) {
-            mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS, true);
+        if (Settings.ANALYTICS_ENABLED.equalsIgnoreCase(key)) {
+            mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true);
 
             if (!mAnalyticsPreferenceEnabled){
                 closeSession();

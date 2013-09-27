@@ -2,14 +2,11 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -51,21 +48,7 @@ public class ChangeLog {
      */
     public ChangeLog(Context context) {
         mContext = context;
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        mOldVersion = sp.getInt(Consts.PrefKeys.VERSION_KEY, 0);
-        mThisVersion = AndroidUtils.getAppVersionCode(context, 0);
-        if (mThisVersion != 0) {
-            sp.edit().putInt(Consts.PrefKeys.VERSION_KEY, mThisVersion).commit();
-        }
     }
-
-    /**
-     * @return true if this version of your app is started the first time
-     */
-    public boolean isFirstRun() {
-        return mOldVersion > 0 && mOldVersion < mThisVersion;
-    }
-
 
     public AlertDialog getDialog(boolean full) {
         WebView wv = new WebView(mContext);

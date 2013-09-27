@@ -81,7 +81,7 @@ public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeList
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         preferences.registerOnSharedPreferenceChangeListener(this);
-        mIsEnabled = preferences.getBoolean(Settings.ANALYTICS, true);
+        mIsEnabled = preferences.getBoolean(Settings.ANALYTICS_ENABLED, true);
     }
 
     public void track(Event event, Object... args) {
@@ -133,8 +133,8 @@ public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeList
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (Settings.ANALYTICS.equals(s)) {
-            mIsEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS, true);
+        if (Settings.ANALYTICS_ENABLED.equals(s)) {
+            mIsEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true);
         }
     }
 
