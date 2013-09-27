@@ -5,7 +5,7 @@
                 android:layout_height="match_parent"
                 android:background="@color/playerControlBackground">
 
-    <LinearLayout android:id="@+id/loading"
+    <LinearLayout android:id="@+id/empty_view_progress"
                   android:gravity="center_horizontal"
                   android:layout_height="match_parent"
                   android:layout_width="match_parent"
