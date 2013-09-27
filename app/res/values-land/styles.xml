@@ -11,4 +11,8 @@
         <item name="tabWeight">.33</item>
     </style>
 
+    <style name="ExploreGridItemImageView" parent="ExploreGridItemImageViewBase">
+        <item name="movement">-18dp</item>
+    </style>
+
 </resources>
