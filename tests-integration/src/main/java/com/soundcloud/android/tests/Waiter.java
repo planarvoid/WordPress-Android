@@ -9,7 +9,7 @@ import android.webkit.WebView;
 public class Waiter {
     public Han solo;
     public final int TIMEOUT = 5000;
-    public final int NETWORK_TIMEOUT = 15000;
+    public final int NETWORK_TIMEOUT = 20000;
 
     public Waiter(Han driver) {
         solo = driver;
@@ -38,12 +38,12 @@ public class Waiter {
     }
 
     public boolean waitForListContent(){
-        View progress = solo.waitForViewId(com.soundcloud.android.R.id.list_item_loading_layout, 3000);
+        View progress = solo.waitForViewId(com.soundcloud.android.R.id.empty_view_progress, 3000);
         if (progress != null){
             return solo.waitForCondition(new Condition() {
                 @Override
                 public boolean isSatisfied() {
-                    final View view = solo.getView(R.id.list_item_loading_layout);
+                    final View view = solo.getView(R.id.empty_view_progress);
                     return view == null || !view.isShown();
                 }
             }, this.NETWORK_TIMEOUT);
