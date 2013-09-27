@@ -35,10 +35,6 @@ public final class OperationPaged {
             this.mNextPageObservable = nextPageObservable;
         }
 
-        public Iterable<ItemT> getContent() {
-            return mPagedCollection;
-        }
-
         public boolean hasNextPage() {
             return mNextPageObservable != EMPTY_OBSERVABLE;
         }
