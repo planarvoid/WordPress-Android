@@ -26,6 +26,11 @@ public class PullToRefreshObserver<FragmentType extends Fragment, ModelType>
         mAdapter = adapter;
     }
 
+    public <AdapterT extends Observer<ModelType> & ItemAdapter<?>> PullToRefreshObserver(
+            FragmentType fragment, int ptrViewId, AdapterT adapter) {
+        this(fragment, ptrViewId, adapter, adapter);
+    }
+
     @Override
     public void onCompleted() {
         mAdapter.clear();

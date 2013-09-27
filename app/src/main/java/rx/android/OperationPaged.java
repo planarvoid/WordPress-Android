@@ -72,9 +72,7 @@ public final class OperationPaged {
                     public void onNext(CollT pagedCollection) {
                         final Observable<Page<ItemT>> nextPageObservable = nextPageGenerator.call(pagedCollection);
                         observer.onNext(new Page<ItemT>(pagedCollection, nextPageObservable));
-                        if (nextPageObservable == EMPTY_OBSERVABLE) {
-                            observer.onCompleted();
-                        }
+                        observer.onCompleted();
                     }
                 });
             }

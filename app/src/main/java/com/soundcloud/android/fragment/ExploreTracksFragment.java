@@ -16,12 +16,15 @@ import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
+import com.soundcloud.android.rx.observers.PullToRefreshObserver;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.EmptyListView;
-import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.observables.ConnectableObservable;
+import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -36,6 +39,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     private static final int GRID_VIEW_ID = R.id.suggested_tracks_grid;
     private EmptyListView mEmptyListView;
     private ExploreTracksAdapter mExploreTracksAdapter;
+    private Subscription mSubscription = Subscriptions.empty();
 
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
@@ -64,14 +68,15 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
             mExploreTracksAdapter = new ExploreTracksAdapter();
         }
 
-        loadTrackSuggestions();
+        loadTrackSuggestions(new ListFragmentObserver<ExploreTracksFragment, Page<TrackSummary>>(this));
     }
 
-    private void loadTrackSuggestions() {
+    private void loadTrackSuggestions(Observer<Page<TrackSummary>> fragmentObserver) {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
         final ConnectableObservable<Page<TrackSummary>> suggestedTracks = buildGetSuggestedTracksObservable();
         suggestedTracks.subscribe(mExploreTracksAdapter);
-        suggestedTracks.connect();
+        suggestedTracks.subscribe(fragmentObserver);
+        mSubscription = suggestedTracks.connect();
     }
 
     private ConnectableObservable<Page<TrackSummary>> buildGetSuggestedTracksObservable() {
@@ -79,7 +84,6 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         ConnectableObservable<Page<TrackSummary>> observable = new ExploreTracksOperations().getSuggestedTracks(category)
                 .observeOn(AndroidSchedulers.mainThread())
                 .publish();
-        observable.subscribe(new ListFragmentObserver<Page<TrackSummary>, ExploreTracksFragment>(this));
         return observable;
     }
 
@@ -102,7 +106,8 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                loadTrackSuggestions();
+                loadTrackSuggestions(
+                        new ListFragmentObserver<ExploreTracksFragment, Page<TrackSummary>>(ExploreTracksFragment.this));
             }
         });
 
@@ -118,9 +123,15 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSubscription.unsubscribe();
+    }
+
+    @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
-//        mExploreTracksAdapter.subscribe(new PullToRefreshObserver<ExploreTracksFragment, TrackSummary>(
-//                this, GRID_VIEW_ID, mExploreTracksAdapter, mExploreTracksAdapter));
+        loadTrackSuggestions(
+                new PullToRefreshObserver<ExploreTracksFragment, Page<TrackSummary>>(this, GRID_VIEW_ID, mExploreTracksAdapter));
     }
 
     @Override

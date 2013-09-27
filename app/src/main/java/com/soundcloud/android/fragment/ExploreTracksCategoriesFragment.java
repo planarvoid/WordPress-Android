@@ -37,8 +37,8 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     private int mListViewID = R.id.suggested_tracks_categories_list;
 
     public ExploreTracksCategoriesFragment() {
-        ListFragmentObserver<Section<ExploreTracksCategory>, ExploreTracksCategoriesFragment> observer =
-                new ListFragmentObserver<Section<ExploreTracksCategory>, ExploreTracksCategoriesFragment>(this);
+        ListFragmentObserver<ExploreTracksCategoriesFragment, Section<ExploreTracksCategory>> observer =
+                new ListFragmentObserver<ExploreTracksCategoriesFragment, Section<ExploreTracksCategory>>(this);
 
         init(new ExploreTracksCategoriesAdapter(observer),
                 new ExploreTracksOperations().getCategories().observeOn(AndroidSchedulers.mainThread()));
