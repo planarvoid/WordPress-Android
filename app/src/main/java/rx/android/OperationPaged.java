@@ -49,8 +49,8 @@ public final class OperationPaged {
         }
     }
 
-    public static <ItemT, CollT extends Iterable<ItemT>> Func1<Observer<Page<ItemT>>, Subscription> paged(final Observable<CollT> source,
-                                                                                                          final Func1<CollT, Observable<Page<ItemT>>> nextPageGenerator) {
+    public static <ItemT, CollT extends Iterable<ItemT>> Func1<Observer<Page<ItemT>>, Subscription> paged(
+            final Observable<CollT> source, final Func1<CollT, Observable<Page<ItemT>>> nextPageGenerator) {
         return new Func1<Observer<Page<ItemT>>, Subscription>() {
             @Override
             public Subscription call(final Observer<Page<ItemT>> observer) {
