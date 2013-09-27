@@ -357,7 +357,7 @@ namespace :beta do
   desc "tag the current beta"
   task :tag do
     version_with_build = version_name('beta')
-    sh "git tag -a #{version_with_build} -m #{version_with_build} && git push --tags && git push"
+    sh "git tag -a #{version_with_build} -m #{version_with_build} && git push --tags"
   end
 end
 
