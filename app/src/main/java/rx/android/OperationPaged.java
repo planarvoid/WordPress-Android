@@ -74,4 +74,14 @@ public final class OperationPaged {
             }
         };
     }
+
+    public static <ItemT, CollT extends Iterable<ItemT>> Func1<CollT, Observable<Page<ItemT>>> nextPageFrom(final Observable<CollT> observable) {
+        return new Func1<CollT, Observable<Page<ItemT>>>() {
+            @Override
+            public Observable<Page<ItemT>> call(CollT collection) {
+                return Observable.create(paged(observable, nextPageFrom(observable)));
+            }
+        };
+    }
+
 }
