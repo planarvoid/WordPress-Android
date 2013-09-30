@@ -12,6 +12,7 @@ public class PlaySourceTrackingInfo implements Serializable {
     private String originUrl;
     private String exploreTag;
 
+
     public PlaySourceTrackingInfo(String originUrl) {
         this(originUrl, null);
     }
@@ -56,6 +57,10 @@ public class PlaySourceTrackingInfo implements Serializable {
         int result = originUrl != null ? originUrl.hashCode() : 0;
         result = 31 * result + (exploreTag != null ? exploreTag.hashCode() : 0);
         return result;
+    }
+
+    public String toQueryParams() {
+        return appendAsQueryParams(new Uri.Builder()).build().getQuery().toString();
     }
 
     public Uri.Builder appendAsQueryParams(Uri.Builder builder) {

@@ -44,8 +44,10 @@ public class PlayEventTrackerTest {
         track.duration = 123;
         track.setId(10);
 
-        tracker.trackEvent(track, Action.PLAY, 1l, new PlaySourceTrackingInfo("originUrl", "exploreTag"));
-        tracker.trackEvent(track, Action.STOP, 2l, new PlaySourceTrackingInfo("originUrl2", "exploreTag2"));
+        final PlaySourceTrackingInfo sourceTrackingInfo1 = new PlaySourceTrackingInfo("originUrl", "exploreTag");
+        tracker.trackEvent(track, Action.PLAY, 1l, sourceTrackingInfo1);
+        final PlaySourceTrackingInfo sourceTrackingInfo2 = new PlaySourceTrackingInfo("originUrl2", "exploreTag2");
+        tracker.trackEvent(track, Action.STOP, 2l, sourceTrackingInfo2);
 
         Cursor cursor = tracker.eventsCursor();
 
@@ -56,16 +58,13 @@ public class PlayEventTrackerTest {
         expect(cursor).toHaveColumn(TrackingEvents.SOUND_URN, "soundcloud:sounds:10");
         expect(cursor).toHaveColumn(TrackingEvents.USER_URN, "soundcloud:users:1");
         expect(cursor).toHaveColumn(TrackingEvents.ACTION, "play");
-        expect(cursor).toHaveColumn(TrackingEvents.ORIGIN_URL, "originUrl");
-        expect(cursor).toHaveColumn(TrackingEvents.EXPLORE_TAG, "exploreTag");
+        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, sourceTrackingInfo1.toQueryParams());
         expect(cursor).toHaveColumn(TrackingEvents.TIMESTAMP);
 
         expect(cursor).toHaveNext();
         expect(cursor).toHaveColumn(TrackingEvents.ACTION, "stop");
         expect(cursor).toHaveColumn(TrackingEvents.USER_URN, "soundcloud:users:2");
-        expect(cursor).toHaveColumn(TrackingEvents.ORIGIN_URL, "originUrl2");
-        expect(cursor).toHaveColumn(TrackingEvents.EXPLORE_TAG, "exploreTag2");
-
+        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, sourceTrackingInfo2.toQueryParams());
         expect(cursor).not.toHaveNext();
     }
 
@@ -73,8 +72,8 @@ public class PlayEventTrackerTest {
     public void shouldFlushEventsToApi() throws Exception {
         when(api.pushToRemote(anyList())).thenReturn(new String[]{"1"});
 
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, new PlaySourceTrackingInfo("originUrl", "exploreTag"));
-        tracker.trackEvent(new Track(), Action.STOP, 2l, new PlaySourceTrackingInfo("originUrl", "exploreTag"));
+        tracker.trackEvent(new Track(), Action.PLAY, 1l, new PlaySourceTrackingInfo("originUrl"));
+        tracker.trackEvent(new Track(), Action.STOP, 2l, new PlaySourceTrackingInfo("originUrl"));
 
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
 

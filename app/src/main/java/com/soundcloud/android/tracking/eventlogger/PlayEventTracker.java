@@ -152,9 +152,7 @@ public class PlayEventTracker {
         final String SOUND_URN = "sound_urn";
         final String USER_URN  = "user_urn";
         final String SOUND_DURATION = "sound_duration";
-        final String ORIGIN_URL     = "origin_url";
-        final String LEVEL          = "level";
-        final String EXPLORE_TAG    = "explore_tag";
+        final String SOURCE_INFO = "source_info";
     }
 
     static class TrackingParams {
@@ -162,18 +160,14 @@ public class PlayEventTracker {
         final Action action;
         final long timestamp;
         final long userId;
-        final String originUrl;
-        final String exploreTag;
-        final String level;
+        final PlaySourceTrackingInfo sourceInfo;
 
         TrackingParams(Track track, Action action, long userId, PlaySourceTrackingInfo sourceTrackingInfo) {
             this.track = track;
             this.action = action;
             this.userId = userId;
-            this.originUrl = sourceTrackingInfo.getOriginUrl();
-            this.exploreTag = sourceTrackingInfo.getExploreTag();
-            this.level = ""; // TODO, remove once we migrate completely to eventlogger 2
             this.timestamp = System.currentTimeMillis();
+            this.sourceInfo = sourceTrackingInfo;
         }
 
         public ContentValues toContentValues() {
@@ -183,9 +177,7 @@ public class PlayEventTracker {
             values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(track.getId()).toString());
             values.put(TrackingEvents.SOUND_DURATION, track.duration);
             values.put(TrackingEvents.USER_URN, buildUserUrn(userId));
-            values.put(TrackingEvents.ORIGIN_URL, originUrl);
-            values.put(TrackingEvents.EXPLORE_TAG, exploreTag);
-            values.put(TrackingEvents.LEVEL, level);
+            values.put(TrackingEvents.SOURCE_INFO, sourceInfo.toQueryParams());
             return values;
 
         }
@@ -205,8 +197,7 @@ public class PlayEventTracker {
                     ", action=" + action.name() +
                     ", timestamp=" + timestamp +
                     ", userId=" + userId +
-                    ", originUrl='" + originUrl + '\'' +
-                    ", exploreTag='" + exploreTag + '\'' +
+                    ", sourceInfo='" + sourceInfo + '\'' +
                     '}';
         }
     }
@@ -232,9 +223,7 @@ public class PlayEventTracker {
                 TrackingEvents.SOUND_URN + " TEXT NOT NULL," +
                 TrackingEvents.USER_URN + " TEXT NOT NULL," + // soundcloud:users:123 for logged in, anonymous:<UUID> for logged out
                 TrackingEvents.SOUND_DURATION + " INTEGER NOT NULL," + // this it the total sound length in millis
-                TrackingEvents.ORIGIN_URL + " TEXT NOT NULL," + // figure out what this means in our app
-                TrackingEvents.LEVEL + " TEXT NOT NULL," +
-                TrackingEvents.EXPLORE_TAG + " TEXT NOT NULL," +
+                TrackingEvents.SOURCE_INFO + " TEXT NOT NULL," +
                 "UNIQUE (" + TrackingEvents.TIMESTAMP + ", " + TrackingEvents.ACTION + ") ON CONFLICT IGNORE" +
                 ")";
 

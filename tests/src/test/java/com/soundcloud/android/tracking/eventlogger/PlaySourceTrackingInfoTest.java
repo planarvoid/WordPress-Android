@@ -50,6 +50,12 @@ public class PlaySourceTrackingInfoTest {
     }
 
     @Test
+    public void shouldCreateParams() throws Exception {
+        final PlaySourceTrackingInfo playInfo = new PlaySourceTrackingInfo("origin-url", "explore-tag");
+        expect(playInfo.toQueryParams()).toEqual("tracking-originUrl=origin-url&tracking-exploreTag=explore-tag");
+    }
+
+    @Test
     public void shouldPersistFromParams() throws Exception {
         Uri uri = Uri.parse("http://something.com");
         final PlaySourceTrackingInfo expected = new PlaySourceTrackingInfo("origin-url", "explore-tag");
