@@ -6,6 +6,10 @@ import java.util.HashMap;
 
 public class ParamsMap extends HashMap<String, String> {
 
+    public ParamsMap(int expectedSize){
+        super(expectedSize);
+    }
+
     public String toQueryParams() {
         return appendAsQueryParams(new Uri.Builder()).build().getQuery().toString();
     }

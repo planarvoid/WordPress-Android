@@ -7,11 +7,13 @@ public class PlaySourceTrackingInfo extends ParamsMap {
     private static String KEY_ORIGIN_URL = "tracking-originUrl";
     private static String KEY_EXPLORE_TAG = "tracking-exploreTag";
 
-    public PlaySourceTrackingInfo(String context) {
-        this(context, null);
+    public PlaySourceTrackingInfo(String originUrl) {
+        super(1);
+        put(KEY_ORIGIN_URL, originUrl);
     }
 
     public PlaySourceTrackingInfo(String originUrl, String exploreTag) {
+        super(2);
         put(KEY_ORIGIN_URL, originUrl);
         put(KEY_EXPLORE_TAG, exploreTag);
     }
