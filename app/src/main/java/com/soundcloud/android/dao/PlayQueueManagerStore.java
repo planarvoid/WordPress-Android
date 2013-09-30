@@ -1,16 +1,20 @@
 package com.soundcloud.android.dao;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.playback.PlayQueueItem;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class PlayQueueManagerStore {
@@ -43,13 +47,20 @@ public class PlayQueueManagerStore {
         return position;
     }
 
-    public void insertQueue(List<Track> tracks, long userId) {
-        mTrackDAO.createCollection(tracks);
-        ContentValues[] contentValues = new ContentValues[tracks.size()];
-        for (int i=0; i<tracks.size(); i++) {
+    public void insertQueue(List<PlayQueueItem> playQueueItems, long userId) {
+        mTrackDAO.createCollection(Lists.transform(playQueueItems, new Function<PlayQueueItem, Track>() {
+            @Nullable
+            @Override
+            public Track apply(@Nullable PlayQueueItem input) {
+                return input.getTrack();
+            }
+        }));
+
+        ContentValues[] contentValues = new ContentValues[playQueueItems.size()];
+        for (int i = 0; i < playQueueItems.size(); i++) {
             ContentValues cv = new ContentValues();
             cv.put(DBHelper.PlayQueue.POSITION, i);
-            cv.put(DBHelper.PlayQueue.TRACK_ID, tracks.get(i).getId());
+            cv.put(DBHelper.PlayQueue.TRACK_ID, playQueueItems.get(i).getTrack().getId());
             cv.put(DBHelper.CollectionItems.USER_ID, userId);
 
             contentValues[i] = cv;
