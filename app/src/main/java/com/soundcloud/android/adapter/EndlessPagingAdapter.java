@@ -138,6 +138,7 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
 
     @Override
     public void onError(Throwable e) {
+        e.printStackTrace();
         setNewAppendState(AppendState.ERROR);
     }
 
