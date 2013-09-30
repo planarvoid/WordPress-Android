@@ -300,28 +300,30 @@ public class PlayQueueManager {
             @Override protected void onPostExecute(List<Track> newQueue) {
                 if (newQueue != null && !isCancelled()){
                     final long playingId = getCurrentTrackId();
-                    long trackIdAt = newQueue.get(position).getId();
-                    if (trackIdAt != -1L && playingId == trackIdAt){
+                    if (position >= 0 && position < newQueue.size() &&  newQueue.get(position).getId() == playingId){
                         setPlayQueueInternal(newQueue, position);
                     } else {
-                        // adjust if the track has moved positions
-                        int adjustedPosition = -1;
-                        if (Content.match(uri).isCollectionItem()){
-                            adjustedPosition = mPlayQueueDAO.getPlayQueuePositionFromUri(uri, playingId);
-                        } else {
-                            /* adjust for deletions or new items. find the original track
-                             this is a really dumb sequential search. If there are duplicates in the list, it will probably
-                             find the wrong one. This should be more intelligent after refactoring for sets */
-                            adjustedPosition = 0;
-                            while (adjustedPosition < newQueue.size() && newQueue.get(adjustedPosition).getId() != playingId) {
-                                adjustedPosition++;
-                            }
-                        }
-                        int finalPosition = adjustedPosition == -1 || adjustedPosition >= newQueue.size() ? position : adjustedPosition;
-                        setPlayQueueInternal(newQueue, Math.max(0, Math.min(finalPosition, newQueue.size() - 1)));
+                        setPlayQueueInternal(newQueue, getAdjustedTrackPosition(newQueue, playingId));
                     }
                 }
             }
+
+            private int getAdjustedTrackPosition(List<Track> newQueue, long playingId) {
+                int adjustedPosition = -1;
+                if (Content.match(uri).isCollectionItem()){
+                    adjustedPosition = mPlayQueueDAO.getPlayQueuePositionFromUri(uri, playingId);
+                } else {
+                    /* adjust for deletions or new items and find the original track.
+                    This is a really dumb sequential search. If there are duplicates in the list, it will probably
+                     find the wrong one. */
+                    adjustedPosition = 0;
+                    while (adjustedPosition < newQueue.size() && newQueue.get(adjustedPosition).getId() != playingId) {
+                        adjustedPosition++;
+                    }
+                }
+                return adjustedPosition == -1 || adjustedPosition >= newQueue.size() ? position : adjustedPosition;
+            }
+
         }.executeOnThreadPool(uri);
     }
 
@@ -349,7 +351,7 @@ public class PlayQueueManager {
                 }
             }
         }
-        mPlayPos = Math.max(0, Math.min(mPlayQueue.size(), playPos));
+        mPlayPos = Math.max(0, Math.min(mPlayQueue.size() - 1, playPos));
     }
 
     private void persistPlayQueue() {
