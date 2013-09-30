@@ -334,12 +334,9 @@ public class PlayQueueManager {
     }
 
     public void setPlayQueue(final List<? extends PlayableHolder> playQueue, int playPos) {
-        setPlayQueueInternal(playQueue, playPos);
         mPlayQueueUri = new PlayQueueUri();
-
-        // TODO, only do this on exit???
+        setPlayQueueInternal(playQueue, playPos);
         saveQueue(0, true);
-        broadcastPlayQueueChanged();
     }
 
     private void setPlayQueueInternal(List<? extends PlayableHolder> playQueue, int playPos) {
@@ -352,6 +349,7 @@ public class PlayQueueManager {
             }
         }
         mPlayPos = Math.max(0, Math.min(mPlayQueue.size() - 1, playPos));
+        broadcastPlayQueueChanged();
     }
 
     private void persistPlayQueue() {

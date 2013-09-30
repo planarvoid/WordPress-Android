@@ -14,7 +14,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class PlayQueueManagerStore {
@@ -49,9 +48,8 @@ public class PlayQueueManagerStore {
 
     public void insertQueue(List<PlayQueueItem> playQueueItems, long userId) {
         mTrackDAO.createCollection(Lists.transform(playQueueItems, new Function<PlayQueueItem, Track>() {
-            @Nullable
             @Override
-            public Track apply(@Nullable PlayQueueItem input) {
+            public Track apply(PlayQueueItem input) {
                 return input.getTrack();
             }
         }));
@@ -62,7 +60,6 @@ public class PlayQueueManagerStore {
             cv.put(DBHelper.PlayQueue.POSITION, i);
             cv.put(DBHelper.PlayQueue.TRACK_ID, playQueueItems.get(i).getTrack().getId());
             cv.put(DBHelper.CollectionItems.USER_ID, userId);
-
             contentValues[i] = cv;
         }
         mResolver.bulkInsert(Content.PLAY_QUEUE.uri, contentValues);
