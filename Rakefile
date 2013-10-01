@@ -244,7 +244,10 @@ end
 namespace :test do
     desc "Run unit tests"
     task :unit do
-        sh "mvn clean install -Dandroid.proguard.skip=true --projects app,tests -Pdebug"
+      Mvn.install.projects('app','tests').
+        with_profiles('debug').
+        skip_proguard.
+      execute()
     end
 end
 
@@ -454,9 +457,18 @@ namespace :ci do
   task :build_app do
     Mvn.install.projects('app').
       with_profiles('sign','static-analysis','debug').
+      skip_proguard.
       with_lint.
       use_local_repo.
     execute()
+  end
+
+  task :test_app do
+    Mvn.install.projects('tests').
+      with_profiles('debug').
+      skip_proguard.
+      use_local_repo.
+      execute()
   end
 end
 
@@ -517,6 +529,10 @@ class Mvn
   def with_lint
     @command << " -Dandroid.lint.skip=false"
     self
+  end
+
+  def skip_proguard
+    @command << " -Dandroid.proguard.skip=true"
   end
 
   def execute
