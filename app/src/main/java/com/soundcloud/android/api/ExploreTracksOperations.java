@@ -77,22 +77,34 @@ public class ExploreTracksOperations extends ScheduledOperations {
         }
     };
 
-    public Observable<Track> getRelatedTracks(final Track seedTrack) {
+    public Observable<RelatedTrack> getRelatedTracks(final Track seedTrack) {
         final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), seedTrack.getUrn().toEncodedString());
         final APIRequest<TrackSummaries> request = SoundCloudAPIRequest.RequestBuilder.<TrackSummaries>get(endpoint)
                 .forPrivateAPI(1)
                 .forResource(new SuggestionsModelCollectionToken()).build();
 
-        return mRxHttpClient.<ModelCollection<TrackSummary>>fetchModels(request).mapMany(new Func1<ModelCollection<TrackSummary>, Observable<Track>>() {
+        return mRxHttpClient.<ModelCollection<TrackSummary>>fetchModels(request).mapMany(new Func1<ModelCollection<TrackSummary>, Observable<RelatedTrack>>() {
             @Override
-            public Observable<Track> call(ModelCollection<TrackSummary> exploreTracksSuggestionModelCollection) {
-                List<Track> toEmit = Lists.newArrayListWithCapacity(PAGE_SIZE);
+            public Observable<RelatedTrack> call(ModelCollection<TrackSummary> exploreTracksSuggestionModelCollection) {
+                // TODO : real recommender version when returned from mobile api
+                String recommenderVersion = "FakeVersion_C";
+                List<RelatedTrack> toEmit = Lists.newArrayListWithCapacity(PAGE_SIZE);
                 for (TrackSummary item : exploreTracksSuggestionModelCollection) {
-                    toEmit.add(new Track(item));
+                    toEmit.add(new RelatedTrack(new Track(item), recommenderVersion));
                 }
                 return Observable.from(toEmit);
             }
         });
+    }
+
+    public static class RelatedTrack {
+        public Track track;
+        public String recommenderVersion;
+
+        public RelatedTrack(Track track, String recommenderVersion) {
+            this.track = track;
+            this.recommenderVersion = recommenderVersion;
+        }
     }
 
     private static class SuggestionsModelCollectionToken extends TypeToken<TrackSummaries> {

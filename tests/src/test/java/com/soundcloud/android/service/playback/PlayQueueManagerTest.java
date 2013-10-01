@@ -375,7 +375,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldAddSeedTrackAndSetLoadingStateWhileLoadingExploreTracks() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<Track>never());
+        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<ExploreTracksOperations.RelatedTrack>never());
 
         expect(pm.length()).toBe(0);
         pm.loadTrack(track, false, trackingInfo);
@@ -387,7 +387,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSetFailureStateAfterFailedRelatedLoad() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<Track>error(new Exception()));
+        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<ExploreTracksOperations.RelatedTrack>error(new Exception()));
 
         pm.fetchRelatedTracks(track);
         expect(pm.isFetchingRelated()).toBeFalse();
@@ -400,7 +400,8 @@ public class PlayQueueManagerTest {
         pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
 
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<Track>just(track));
+        ExploreTracksOperations.RelatedTrack relatedTrack = new ExploreTracksOperations.RelatedTrack(track, "version_1");
+        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<ExploreTracksOperations.RelatedTrack>just(relatedTrack));
 
         expect(pm.length()).toBe(0);
         pm.loadTrack(track, false, trackingInfo);
@@ -425,7 +426,7 @@ public class PlayQueueManagerTest {
         pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
 
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final Observable<Track> observable = Mockito.mock(Observable.class);
+        final Observable<ExploreTracksOperations.RelatedTrack> observable = Mockito.mock(Observable.class);
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
 
         pm.fetchRelatedTracks(track);
@@ -436,7 +437,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldUnsubscribeAndNotBeLoadingAfterCallingSetTrack() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final Observable<Track> observable = Mockito.mock(Observable.class);
+        final Observable<ExploreTracksOperations.RelatedTrack> observable = Mockito.mock(Observable.class);
         final Subscription subscription = Mockito.mock(Subscription.class);
 
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
@@ -452,7 +453,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldUnsubscribeAndNotBeLoadingAfterCallingloadUri() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final Observable<Track> observable = Mockito.mock(Observable.class);
+        final Observable<ExploreTracksOperations.RelatedTrack> observable = Mockito.mock(Observable.class);
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
 
         final Subscription subscription = Mockito.mock(Subscription.class);

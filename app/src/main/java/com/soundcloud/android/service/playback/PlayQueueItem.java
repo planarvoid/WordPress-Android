@@ -1,10 +1,12 @@
 package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 
 public class PlayQueueItem {
     private Track mTrack;
     private int mPlayQueuePosition;
+    private TrackSourceInfo mTrackSourceInfo;
 
     public static PlayQueueItem empty(int position){
         return new PlayQueueItem(position);
@@ -14,9 +16,14 @@ public class PlayQueueItem {
         mPlayQueuePosition = pos;
     }
 
-    public PlayQueueItem(Track track, int pos) {
+    public PlayQueueItem(Track track, int position) {
+        this(track, position, TrackSourceInfo.EMPTY);
+    }
+
+    public PlayQueueItem(Track track, int pos, TrackSourceInfo trackSourceInfo) {
         this(pos);
         mTrack = track;
+        mTrackSourceInfo = trackSourceInfo;
 
     }
 

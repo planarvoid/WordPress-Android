@@ -14,6 +14,7 @@ import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +46,7 @@ public class PlayQueueManager {
     private AsyncTask mLoadTask;
     private AppendState mAppendingState = AppendState.IDLE;
     private Subscription mRelatedSubscription;
-    private Observable<Track> mRelatedTracksObservable;
+    private Observable<ExploreTracksOperations.RelatedTrack> mRelatedTracksObservable;
     private PlaySourceInfo mCurrentPlaySourceInfo;
 
     private enum AppendState {
@@ -181,7 +182,7 @@ public class PlayQueueManager {
         mCurrentPlaySourceInfo = trackingInfo;
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
-        mPlayQueue.add(new PlayQueueItem(toBePlayed, 0));
+        mPlayQueue.add(new PlayQueueItem(toBePlayed, 0, TrackSourceInfo.manual()));
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = 0;
 
@@ -240,7 +241,7 @@ public class PlayQueueManager {
     private void loadRelatedTracks() {
         mAppendingState = AppendState.LOADING;
         mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
-        mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<Track>() {
+        mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<ExploreTracksOperations.RelatedTrack>() {
 
             private boolean mGotRelatedTracks;
 
@@ -257,8 +258,8 @@ public class PlayQueueManager {
             }
 
             @Override
-            public void onNext(Track track) {
-                mPlayQueue.add(new PlayQueueItem(track, mPlayQueue.size()));
+            public void onNext(ExploreTracksOperations.RelatedTrack relatedTrack) {
+                mPlayQueue.add(new PlayQueueItem(relatedTrack.track, mPlayQueue.size(), TrackSourceInfo.fromRecommender(relatedTrack.recommenderVersion)));
                 mGotRelatedTracks = true;
             }
         });
@@ -334,14 +335,16 @@ public class PlayQueueManager {
     }
 
     private void setPlayQueueInternal(List<? extends PlayableHolder> playQueue, int playPos) {
+        // TODO , set manual play queue position based on passed in position
         mPlayQueue.clear();
         if (playQueue != null) {
             for (PlayableHolder playable : playQueue) {
                 if (playable.getPlayable() instanceof Track){
-                    mPlayQueue.add(new PlayQueueItem((Track) playable.getPlayable(), mPlayQueue.size()));
+                    mPlayQueue.add(new PlayQueueItem((Track) playable.getPlayable(), mPlayQueue.size(), TrackSourceInfo.auto()));
                 }
             }
         }
+
         mPlayPos = Math.max(0, Math.min(mPlayQueue.size() - 1, playPos));
         broadcastPlayQueueChanged();
     }

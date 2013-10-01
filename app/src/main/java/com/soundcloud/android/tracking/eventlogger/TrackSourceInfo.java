@@ -2,6 +2,8 @@ package com.soundcloud.android.tracking.eventlogger;
 
 public class TrackSourceInfo extends ParamsMap {
 
+    public static final TrackSourceInfo EMPTY = new TrackSourceInfo(0);
+
     private static final String KEY_SOURCE = "source";
     private static final String KEY_SOURCE_VERSION = "source_version";
     private static final String KEY_TRIGGER = "trigger";
