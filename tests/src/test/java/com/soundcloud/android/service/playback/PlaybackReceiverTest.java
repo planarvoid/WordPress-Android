@@ -19,7 +19,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.task.fetch.FetchModelTask;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceTrackingInfo;
+import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -49,7 +49,7 @@ public class PlaybackReceiverTest {
     private @Mock PlayerAppWidgetProvider playerAppWidgetProvider;
     private @Mock AccountOperations accountOperations;
 
-    private PlaySourceTrackingInfo trackingInfo;
+    private PlaySourceInfo trackingInfo;
 
     @Before
     public void setup() {
@@ -58,7 +58,7 @@ public class PlaybackReceiverTest {
         playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager, accountOperations);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);
-        trackingInfo = new PlaySourceTrackingInfo("origin-url", "exploreTag");
+        trackingInfo = new PlaySourceInfo("origin-url", "exploreTag");
     }
 
     @Test

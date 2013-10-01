@@ -53,7 +53,7 @@ public class PlayEventTracker {
     }
 
     public void trackEvent(final @Nullable Track track, final Action action, final long userId,
-                           final PlaySourceTrackingInfo sourceTrackingInfo) {
+                           final PlaySourceInfo sourceTrackingInfo) {
 
         if (track == null) return;
 
@@ -160,9 +160,9 @@ public class PlayEventTracker {
         final Action action;
         final long timestamp;
         final long userId;
-        final PlaySourceTrackingInfo sourceInfo;
+        final PlaySourceInfo sourceInfo;
 
-        TrackingParams(Track track, Action action, long userId, PlaySourceTrackingInfo sourceTrackingInfo) {
+        TrackingParams(Track track, Action action, long userId, PlaySourceInfo sourceTrackingInfo) {
             this.track = track;
             this.action = action;
             this.userId = userId;

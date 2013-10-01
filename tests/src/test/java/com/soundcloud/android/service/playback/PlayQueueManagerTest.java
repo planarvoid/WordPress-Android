@@ -17,7 +17,7 @@ import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceTrackingInfo;
+import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class PlayQueueManagerTest {
 
     @Mock
     ExploreTracksOperations exploreTracksOperations;
-    PlaySourceTrackingInfo trackingInfo;
+    PlaySourceInfo trackingInfo;
 
     @Before
     public void before() {
@@ -55,7 +55,7 @@ public class PlayQueueManagerTest {
         pm = new PlayQueueManager(Robolectric.application, USER_ID, exploreTracksOperations);
         TestHelper.setUserId(USER_ID);
 
-        trackingInfo = new PlaySourceTrackingInfo("origin-url", "exploreTag");
+        trackingInfo = new PlaySourceInfo("origin-url", "exploreTag");
     }
 
     @Test
@@ -283,7 +283,7 @@ public class PlayQueueManagerTest {
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlayQueueState(123L)).toEqual(
-          Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=1&seekPos=123&tracking-originUrl=origin-url&tracking-exploreTag=exploreTag"
+          Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=1&seekPos=123&playSource-originUrl=origin-url&playSource-exploreTag=exploreTag"
         );
     }
 
@@ -292,7 +292,7 @@ public class PlayQueueManagerTest {
         pm.setPlayQueue(createTracks(10, true, 0), 5, trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(5L);
         expect(pm.getPlayQueueState(123L)).toEqual(
-                Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123&tracking-originUrl=origin-url&tracking-exploreTag=exploreTag"
+                Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123&playSource-originUrl=origin-url&playSource-exploreTag=exploreTag"
         );
     }
 

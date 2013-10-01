@@ -55,7 +55,7 @@ public class PlayEventTrackerIntegrationTest {
         service = new CloudPlaybackService();
         service.onCreate();
 
-        service.getPlayQueueManager().loadUri(Content.ME_LIKES.uri, 0, currentTrack, new PlaySourceTrackingInfo("asdf"));
+        service.getPlayQueueManager().loadUri(Content.ME_LIKES.uri, 0, currentTrack, new PlaySourceInfo("asdf"));
 
         tracker = service.getPlayEventTracker();
     }
