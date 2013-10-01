@@ -10,7 +10,7 @@ public class PlayQueueItem {
         return new PlayQueueItem(position);
     }
 
-    private PlayQueueItem(int pos) {
+    PlayQueueItem(int pos) {
         mPlayQueuePosition = pos;
     }
 
