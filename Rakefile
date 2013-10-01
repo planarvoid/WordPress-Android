@@ -468,7 +468,14 @@ namespace :ci do
       with_profiles('debug').
       skip_proguard.
       use_local_repo.
-      execute()
+    execute()
+  end
+
+  task :test_acceptance do
+    Mvn.install.projects('tests-integration').
+      with_profiles('sign', 'debug').
+      use_local_repo.
+    execute()
   end
 end
 
