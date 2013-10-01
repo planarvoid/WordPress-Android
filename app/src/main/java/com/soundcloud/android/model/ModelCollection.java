@@ -4,10 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class ModelCollection<T> {
+public class ModelCollection<T> implements Iterable<T> {
 
     public static final String NEXT_LINK_REL = "next";
     public static final String SELF_LINK_REL = "self";
@@ -23,8 +24,9 @@ public class ModelCollection<T> {
         /* deserialization */
     }
 
-    public List<T> getCollection() {
-        return mCollection;
+    @Override
+    public Iterator<T> iterator() {
+        return mCollection.iterator();
     }
 
     public void setCollection(List<T> collection) {

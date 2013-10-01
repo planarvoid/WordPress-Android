@@ -9,7 +9,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -20,8 +19,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.json.JsonTransformer;
-import com.soundcloud.android.model.Link;
-import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -38,15 +35,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import rx.Observable;
 import rx.Observer;
 import rx.concurrency.Schedulers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -366,72 +360,5 @@ public class SoundCloudRxHttpClientTest {
 
         rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
-    }
-
-    @Test
-    public void fetchPagedModelsShouldReturnFirstPageAndComplete() throws Exception {
-        User userOne = mock(User.class);
-        User userTwo = mock(User.class);
-        List<User> users = newArrayList(userOne, userTwo);
-        TypeToken<ModelCollection<User>> resourceType = new TypeToken<ModelCollection<User>>() {};
-        when(apiRequest.getResourceType()).thenReturn(resourceType);
-        when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
-        when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(new ModelCollection(users));
-
-        rxHttpClient.fetchPagedModels(apiRequest).subscribe(observer);
-
-        ArgumentCaptor<Observable> argumentCaptor = ArgumentCaptor.forClass(Observable.class);
-        verify(observer).onNext(argumentCaptor.capture());
-        Observable observable = argumentCaptor.getValue();
-
-        Observer itemObserver = mock(Observer.class);
-        observable.subscribe(itemObserver);
-        verify(itemObserver).onNext(userOne);
-        verify(itemObserver).onNext(userTwo);
-        verify(itemObserver).onCompleted();
-        verify(observer).onCompleted();
-    }
-
-    @Test
-    public void fetchPagedModelsShouldReturnTwoPageObservables() throws Exception {
-        TypeToken<ModelCollection<User>> resourceType = new TypeToken<ModelCollection<User>>() {};
-        when(apiRequest.getResourceType()).thenReturn(resourceType);
-        when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(STREAM_DATA.getBytes()));
-
-        final ModelCollection collectionHolder = new ModelCollection();
-
-        Map<String, Link> links = new HashMap<String,Link>();
-        links.put(ModelCollection.NEXT_LINK_REL, new Link("http://url.com"));
-        collectionHolder.setLinks(links);
-        when(jsonTransformer.fromJson(STREAM_DATA, resourceType)).thenReturn(collectionHolder);
-
-        rxHttpClient.fetchPagedModels(apiRequest).subscribe(observer);
-
-        ArgumentCaptor<Observable> argumentCaptor = ArgumentCaptor.forClass(Observable.class);
-        verify(observer).onNext(argumentCaptor.capture());
-
-        Observable<Observable<User>> pageObservable = argumentCaptor.getValue();
-        Observer<User> userObserver = mock(Observer.class);
-        pageObservable.subscribe(userObserver);
-
-        verify(observer, times(2)).onNext(any(Observable.class));
-        verify(observer, never()).onCompleted();
-    }
-
-    @Test
-    public void fetchPagedModelsShouldReturnFirstPageAndError(){
-        when(statusLine.getStatusCode()).thenReturn(400);
-        rxHttpClient.fetchPagedModels(apiRequest).subscribe(observer);
-
-        ArgumentCaptor<Observable> argumentCaptor = ArgumentCaptor.forClass(Observable.class);
-        verify(observer).onNext(argumentCaptor.capture());
-
-        Observable<Observable<User>> pageObservable = argumentCaptor.getValue();
-        Observer<User> userObserver = mock(Observer.class);
-        pageObservable.subscribe(userObserver);
-
-        verify(userObserver).onError(any(APIRequestException.class));
-        verify(observer, never()).onError(any(APIRequestException.class));
-
     }
 }

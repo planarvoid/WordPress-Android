@@ -244,7 +244,10 @@ end
 namespace :test do
     desc "Run unit tests"
     task :unit do
-        sh "mvn clean install -Dandroid.proguard.skip=true --projects app,tests -Pdebug"
+      Mvn.install.projects('app','tests').
+        with_profiles('debug').
+        skip_proguard.
+      execute()
     end
 end
 
@@ -313,7 +316,7 @@ namespace :beta do
       curl \
         -H "X-HockeyAppToken: #{BETA_TOKEN}" \
         -F "status=2" \
-        -F "notify=0" \
+        -F "notify=1" \
         -F "notes_type=1" \
         -F "notes=#{last_release_notes}" \
         -F "ipa=@#{BETA_APK}" \
@@ -357,7 +360,7 @@ namespace :beta do
   desc "tag the current beta"
   task :tag do
     version_with_build = version_name('beta')
-    sh "git tag -a #{version_with_build} -m #{version_with_build} && git push --tags && git push"
+    sh "git tag -a #{version_with_build} -m #{version_with_build} && git push --tags"
   end
 end
 
@@ -450,6 +453,32 @@ task :setup_codestyle do
   end
 end
 
+namespace :ci do
+  task :build_app do
+    Mvn.install.projects('app').
+      with_profiles('sign','static-analysis','debug').
+      skip_proguard.
+      with_lint.
+      use_local_repo.
+    execute()
+  end
+
+  task :test_app do
+    Mvn.install.projects('tests').
+      with_profiles('debug').
+      skip_proguard.
+      use_local_repo.
+    execute()
+  end
+
+  task :test_acceptance do
+    Mvn.install.projects('tests-integration').
+      with_profiles('sign', 'debug').
+      use_local_repo.
+    execute()
+  end
+end
+
 
 class Mvn
 
@@ -494,8 +523,23 @@ class Mvn
     self
   end
 
+  def use_local_repo
+    @command << " -Dmaven.repo.local=.repository"
+    self
+  end
+
   def set_debuggable
     @command << " -Dandroid.manifest.debuggable=true"
+    self
+  end
+
+  def with_lint
+    @command << " -Dandroid.lint.skip=false"
+    self
+  end
+
+  def skip_proguard
+    @command << " -Dandroid.proguard.skip=true"
     self
   end
 
