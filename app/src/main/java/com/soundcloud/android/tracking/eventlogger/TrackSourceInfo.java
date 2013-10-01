@@ -36,4 +36,7 @@ public class TrackSourceInfo extends ParamsMap {
         return trackSourceInfo;
     }
 
+    public String getTrigger(){
+        return get(KEY_TRIGGER);
+    }
 }

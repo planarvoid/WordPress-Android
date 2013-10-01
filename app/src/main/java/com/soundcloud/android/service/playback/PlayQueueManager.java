@@ -16,6 +16,7 @@ import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -97,6 +98,10 @@ public class PlayQueueManager {
         } else {
             return false;
         }
+    }
+
+    public PlayQueueItem getCurrentPlayQueueItem() {
+        return getPlayQueueItem(mPlayPos);
     }
 
     public Track getCurrentTrack() {
@@ -294,9 +299,12 @@ public class PlayQueueManager {
             @Override protected void onPostExecute(List<Track> newQueue) {
                 if (newQueue != null && !isCancelled()){
                     final long playingId = getCurrentTrackId();
-                    if (position >= 0 && position < newQueue.size() &&  newQueue.get(position).getId() == playingId){
+                    final boolean positionWithinBounds = position >= 0 && position < newQueue.size();
+
+                    if (playingId == -1 || (positionWithinBounds && newQueue.get(position).getId() == playingId)){
                         setPlayQueueInternal(newQueue, position);
                     } else {
+                        // correct play position as it has changed since it seems to be different than expected
                         setPlayQueueInternal(newQueue, getAdjustedTrackPosition(newQueue, playingId));
                     }
                 }
@@ -315,7 +323,7 @@ public class PlayQueueManager {
                         adjustedPosition++;
                     }
                 }
-                return adjustedPosition == -1 || adjustedPosition >= newQueue.size() ? position : adjustedPosition;
+                return adjustedPosition == -1 || adjustedPosition >= newQueue.size() ? 0 : adjustedPosition;
             }
 
         }.executeOnThreadPool(uri);
@@ -345,7 +353,14 @@ public class PlayQueueManager {
             }
         }
 
-        mPlayPos = Math.max(0, Math.min(mPlayQueue.size() - 1, playPos));
+        if (playPos >= 0 && playPos <= mPlayQueue.size() - 1){
+            mPlayPos = playPos;
+            mPlayQueue.get(playPos).setTrackSourceInfo(TrackSourceInfo.manual());
+        } else {
+            // invalid play position, default to 0 and keep track source to auto
+            mPlayPos = 0;
+            Log.e(PlayQueueManager.class.getSimpleName(), "Unexpected queue position [" + playPos + "]");
+        }
         broadcastPlayQueueChanged();
     }
 

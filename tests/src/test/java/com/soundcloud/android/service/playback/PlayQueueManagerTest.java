@@ -82,6 +82,7 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #0");
+        checkCurrentItemTrackingTriggerIsManual();
 
         expect(pm.next()).toBeTrue();
         track = pm.getCurrentTrack();
@@ -115,6 +116,8 @@ public class PlayQueueManagerTest {
         expect(pm.getPrev()).not.toBeNull();
         expect(pm.getPrev().title).toEqual("track #0");
 
+        checkCurrentItemTrackingTriggerIsManual();
+
         expect(pm.next()).toBeTrue();
         track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
@@ -122,6 +125,15 @@ public class PlayQueueManagerTest {
         expect(pm.getPrev()).not.toBeNull();
         expect(pm.getPrev().title).toEqual("track #1");
         expect(pm.getNext()).toBeNull();
+    }
+
+    private void checkCurrentItemTrackingTriggerIsManual() {
+        final PlayQueueItem currentPlayQueueItem = pm.getCurrentPlayQueueItem();
+        expect(currentPlayQueueItem.getTrackSourceInfo().getTrigger()).toEqual("manual");
+    }
+
+    private void checkCurrentItemTrackingTriggerIsAuto() {
+        expect(pm.getCurrentPlayQueueItem().getTrackSourceInfo().getTrigger()).toEqual("auto");
     }
 
     @Test
@@ -132,7 +144,8 @@ public class PlayQueueManagerTest {
         expect(pm.length()).toEqual(tracks.size());
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #2");
+        expect(track.title).toEqual("track #0");
+        checkCurrentItemTrackingTriggerIsAuto();
     }
 
     @Test
@@ -144,6 +157,7 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #5");
+        checkCurrentItemTrackingTriggerIsManual();
     }
 
     @Test
@@ -155,6 +169,7 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #7");
+        checkCurrentItemTrackingTriggerIsManual();
     }
 
     @Test
@@ -166,6 +181,7 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #0");
+        checkCurrentItemTrackingTriggerIsAuto();
     }
 
     @Test
@@ -176,6 +192,7 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #0");
+        checkCurrentItemTrackingTriggerIsManual();
 
         expect(pm.next()).toBeTrue();
         track = pm.getCurrentTrack();
@@ -183,6 +200,7 @@ public class PlayQueueManagerTest {
         expect(track.title).toEqual("track #1");
         expect(pm.getPrev().title).toEqual("track #0");
         expect(pm.getNext().title).toEqual("track #2");
+        checkCurrentItemTrackingTriggerIsAuto();
 
         expect(pm.next()).toBeTrue();
         track = pm.getCurrentTrack();
@@ -190,6 +208,7 @@ public class PlayQueueManagerTest {
         expect(track.title).toEqual("track #2");
         expect(pm.getPrev().title).toEqual("track #1");
         expect(pm.getNext()).toBeNull();
+        checkCurrentItemTrackingTriggerIsAuto();
 
         expect(pm.getNext()).toBeNull();
         expect(pm.next()).toBeFalse();
@@ -218,9 +237,12 @@ public class PlayQueueManagerTest {
 
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
+        checkCurrentItemTrackingTriggerIsManual();
+
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().getId()).toEqual(56143158l);
         expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
+        checkCurrentItemTrackingTriggerIsAuto();
     }
 
     @Test

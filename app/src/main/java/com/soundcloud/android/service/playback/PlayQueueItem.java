@@ -27,6 +27,10 @@ public class PlayQueueItem {
 
     }
 
+    public void setTrackSourceInfo(TrackSourceInfo trackSourceInfo) {
+        mTrackSourceInfo = trackSourceInfo;
+    }
+
     public Track getTrack() {
         return mTrack;
     }
@@ -37,6 +41,10 @@ public class PlayQueueItem {
 
     public int getPlayQueuePosition() {
         return mPlayQueuePosition;
+    }
+
+    public TrackSourceInfo getTrackSourceInfo() {
+        return mTrackSourceInfo;
     }
 
     @Override
