@@ -533,6 +533,7 @@ class Mvn
 
   def skip_proguard
     @command << " -Dandroid.proguard.skip=true"
+    self
   end
 
   def execute
