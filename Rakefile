@@ -450,6 +450,16 @@ task :setup_codestyle do
   end
 end
 
+namespace :ci do
+  task :build_app do
+    Mvn.install.projects('app').
+      with_profiles('sign','static-analysis','debug').
+      with_lint.
+      use_local_repo.
+    execute()
+  end
+end
+
 
 class Mvn
 
@@ -494,8 +504,18 @@ class Mvn
     self
   end
 
+  def use_local_repo
+    @command << " -Dmaven.repo.local=.repository"
+    self
+  end
+
   def set_debuggable
     @command << " -Dandroid.manifest.debuggable=true"
+    self
+  end
+
+  def with_lint
+    @command << " -Dandroid.lint.skip=false"
     self
   end
 
