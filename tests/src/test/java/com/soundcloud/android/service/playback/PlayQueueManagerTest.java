@@ -259,6 +259,8 @@ public class PlayQueueManagerTest {
         expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
 
         pm.saveQueue(1000l);
+        pm.clear();
+
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56143158L);
         expect(pm.getPosition()).toEqual(1);
@@ -273,6 +275,8 @@ public class PlayQueueManagerTest {
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
         pm.saveQueue(1000l);
+        pm.clear();
+
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56142962l);
         expect(pm.getPosition()).toEqual(0);
