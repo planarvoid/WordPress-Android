@@ -1,10 +1,10 @@
 package com.soundcloud.android.model;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 
 import android.net.Uri;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class PlayInfo {
@@ -20,13 +20,14 @@ public class PlayInfo {
 
     private PlayInfo(Track track, boolean fetchRelated, PlaySourceInfo playSourceInfo) {
         this.initialTrack = track;
-        this.iniitalTracklist = Arrays.asList(new Track[]{track});
+        this.iniitalTracklist = Lists.newArrayList(track);
         this.fetchRelated = fetchRelated;
         this.sourceInfo = playSourceInfo;
     }
 
     public static PlayInfo fromTrack(Track track){
-        return new PlayInfo(track, false, new PlaySourceInfo.Builder(track.getId()).build());
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(track.getId()).build();
+        return new PlayInfo(track, false, playSourceInfo);
     }
 
     public static PlayInfo fromExploreTrack(Track track, String exploreTag){

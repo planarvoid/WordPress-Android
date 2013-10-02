@@ -473,7 +473,7 @@ public class PlayQueueManager {
             final int trackId = playQueueUri.getTrackId();
             if (trackId > 0) {
                 Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(trackId);
-                loadUri(playQueueUri.uri, playQueueUri.getPos(), t, null); // TODO, cache the tracking info
+                loadUri(playQueueUri.uri, playQueueUri.getPos(), t, null);
                 // adjust play position if it has changed
                 if (getCurrentTrack() != null && getCurrentTrack().getId() != trackId && playQueueUri.isCollectionUri()) {
                     final int newPos = mPlayQueueDAO.getPlayQueuePositionFromUri(playQueueUri.uri, trackId);

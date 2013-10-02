@@ -24,11 +24,6 @@ public class PlayQueueItem {
         this(pos);
         mTrack = track;
         mTrackSourceInfo = trackSourceInfo;
-
-    }
-
-    public void setTrackSourceInfo(TrackSourceInfo trackSourceInfo) {
-        mTrackSourceInfo = trackSourceInfo;
     }
 
     public Track getTrack() {

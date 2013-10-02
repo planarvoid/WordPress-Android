@@ -13,8 +13,6 @@ public class PlayQueueUri {
     private static final String PARAM_SEEK_POS = "seekPos";
     private static final String PARAM_TRACK_ID = "trackId";
 
-    private static final String PARAM_TRACKING = "tracking";
-
     public final Uri uri;
 
     public PlayQueueUri() {
