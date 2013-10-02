@@ -63,4 +63,12 @@ public class PlaySourceInfoTest {
         final PlaySourceInfo expected = new PlaySourceInfo("origin-url", 1234L, "explore-tag", "version-a");
         expect(PlaySourceInfo.fromUriParams(expected.appendAsQueryParams(uri.buildUpon()).build())).toEqual(expected);
     }
+
+    @Test
+    public void shouldSetRecommenderVersion() throws Exception {
+        final PlaySourceInfo playInfo = new PlaySourceInfo("origin-url", 1234L, "explore-tag", "version-a");
+        playInfo.setRecommenderVersion("version-b");
+        expect(playInfo.toQueryParams()).toEqual("playSource-originUrl=origin-url&playSource-exploreTag=explore-tag&playSource-recommenderVersion=version-b&playSource-initialTrackId=1234");
+
+    }
 }

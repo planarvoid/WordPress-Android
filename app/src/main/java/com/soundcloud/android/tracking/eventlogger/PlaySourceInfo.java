@@ -39,4 +39,8 @@ public class PlaySourceInfo extends ParamsMap {
                 uri.getQueryParameter(KEY_RECOMMENDER_VERSION)
         );
     }
+
+    public void setRecommenderVersion(String version) {
+        put(KEY_RECOMMENDER_VERSION, version);
+    }
 }

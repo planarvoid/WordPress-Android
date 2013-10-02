@@ -266,7 +266,7 @@ public class PlayQueueManager {
 
             @Override
             public void onNext(ModelCollection<TrackSummary> relatedTracks) {
-                //String recommenderVersion = "FakeVersion_C";
+                mCurrentPlaySourceInfo.setRecommenderVersion("FakeVersion_C");
                 for (TrackSummary item : relatedTracks) {
                     mPlayQueue.add(new PlayQueueItem(new Track(item), mPlayQueue.size(), TrackSourceInfo.auto()));
                 }
