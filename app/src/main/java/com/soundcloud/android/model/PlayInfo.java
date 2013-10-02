@@ -21,13 +21,14 @@ public class PlayInfo {
         this.position = position;
         this.uri = uri;
         this.initialTrack = initialTrack;
+        this.trackingInfo = new PlaySourceInfo.Builder(initialTrack.getId()).build();
     }
 
     public PlayInfo(Track track) {
-        this(track, false);
+        this(track, false,  new PlaySourceInfo.Builder(track.getId()).build());
     }
 
-    public PlayInfo(Track track, boolean fetchRelated) {
+    public PlayInfo(Track track, boolean fetchRelated, PlaySourceInfo playSourceInfo) {
         this.playables = Arrays.asList(new Track[]{track});
         this.initialTrack = track;
         this.fetchRelated = fetchRelated;

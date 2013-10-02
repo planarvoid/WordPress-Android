@@ -58,7 +58,7 @@ public class PlayQueueManagerTest {
         pm = new PlayQueueManager(Robolectric.application, USER_ID, exploreTracksOperations);
         TestHelper.setUserId(USER_ID);
 
-        trackingInfo = new PlaySourceInfo("origin-url", 123L, "explore-tag", "version_1");
+        trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();
     }
 
     @Test
@@ -174,7 +174,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSetPlaySourceTriggerBasedOnInitalId() throws Exception {
-        pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo("url1", 2L, "exploreTag"));
+        pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).build());
         expect(pm.getPlayQueueItem(0).getTrackSourceInfo().getTrigger()).toEqual("auto");
         expect(pm.getPlayQueueItem(1).getTrackSourceInfo().getTrigger()).toEqual("auto");
         expect(pm.getPlayQueueItem(2).getTrackSourceInfo().getTrigger()).toEqual("manual");
@@ -182,7 +182,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSetPlaySourceRecommenderVersion() throws Exception {
-        pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo("url1", 2L, "exploreTag", "version1"));
+        pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).recommenderVersion("version1").build());
         expect(pm.getPlayQueueItem(0).getTrackSourceInfo().getRecommenderVersion()).toEqual("version1");
         expect(pm.getPlayQueueItem(1).getTrackSourceInfo().getRecommenderVersion()).toEqual("version1");
         expect(pm.getPlayQueueItem(2).getTrackSourceInfo().getRecommenderVersion()).toBeNull();
@@ -190,7 +190,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSupportSetPlaylistWithTrackObjects() throws Exception {
-        pm.setPlayQueue(createTracks(3, true, 0), 2, new PlaySourceInfo("originUrl", 2L));
+        pm.setPlayQueue(createTracks(3, true, 0), 2, new PlaySourceInfo.Builder(2L).build());
         expect(pm.length()).toEqual(3);
 
         Track track = pm.getCurrentTrack();
@@ -238,7 +238,9 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldLoadLikesAsPlaylist() throws Exception {
         insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962), trackingInfo);
+
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(56142962l).build();
+        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962), playSourceInfo);
 
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
@@ -246,7 +248,7 @@ public class PlayQueueManagerTest {
 
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().getId()).toEqual(56143158l);
-        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentPlaySourceInfo()).toEqual(playSourceInfo);
         checkCurrentItemTrackingTriggerIsAuto();
     }
 

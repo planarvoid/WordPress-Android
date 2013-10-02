@@ -58,7 +58,7 @@ public class PlaybackReceiverTest {
         playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager, accountOperations);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);
-        trackingInfo = new PlaySourceInfo("origin-url", 123L, "explore-tag", "version_1");
+        trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();
     }
 
     @Test
