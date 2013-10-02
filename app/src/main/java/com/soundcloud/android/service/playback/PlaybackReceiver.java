@@ -5,6 +5,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.Broad
 import static com.soundcloud.android.service.playback.CloudPlaybackService.PlayExtras;
 import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playable;
@@ -156,7 +157,13 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private void playViaUri(Intent intent, boolean startPlayback, int position, PlaySourceInfo trackingInfo) {
-        mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position, trackingInfo);
+        if (mPlaybackService.playlistXfer != null) {
+            mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position, trackingInfo);
+        } else {
+            Track track = getTrackFromIntent(intent);
+            mPlayQueueManager.loadUri(intent.getData(), position, Lists.newArrayList(track), 0, trackingInfo);
+        }
+
         if (startPlayback) mPlaybackService.openCurrent();
     }
 
@@ -169,7 +176,7 @@ class PlaybackReceiver extends BroadcastReceiver {
     private void playSingleTrack(Intent intent, boolean startPlayback, PlaySourceInfo trackingInfo) {
 
         // go to the cache to ensure 1 copy of each track app wide
-        final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
+        final Track cachedTrack = getTrackFromIntent(intent);
         mPlayQueueManager.loadTrack(cachedTrack, true, trackingInfo);
 
         if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)) {
@@ -180,5 +187,9 @@ class PlaybackReceiver extends BroadcastReceiver {
             mPlaybackService.openCurrent();
         }
 
+    }
+
+    private Track getTrackFromIntent(Intent intent) {
+        return SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
     }
 }
