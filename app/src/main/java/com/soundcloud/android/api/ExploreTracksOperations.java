@@ -5,7 +5,6 @@ import static rx.android.OperationPaged.paged;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
@@ -20,8 +19,6 @@ import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.android.OperationPaged;
 import rx.util.functions.Func1;
-
-import java.util.List;
 
 public class ExploreTracksOperations extends ScheduledOperations {
 
@@ -77,34 +74,13 @@ public class ExploreTracksOperations extends ScheduledOperations {
         }
     };
 
-    public Observable<RelatedTrack> getRelatedTracks(final Track seedTrack) {
+    public Observable<ModelCollection<TrackSummary>> getRelatedTracks(final Track seedTrack) {
         final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), seedTrack.getUrn().toEncodedString());
         final APIRequest<TrackSummaries> request = SoundCloudAPIRequest.RequestBuilder.<TrackSummaries>get(endpoint)
                 .forPrivateAPI(1)
                 .forResource(new SuggestionsModelCollectionToken()).build();
 
-        return mRxHttpClient.<ModelCollection<TrackSummary>>fetchModels(request).mapMany(new Func1<ModelCollection<TrackSummary>, Observable<RelatedTrack>>() {
-            @Override
-            public Observable<RelatedTrack> call(ModelCollection<TrackSummary> exploreTracksSuggestionModelCollection) {
-                // TODO : real recommender version when returned from mobile api
-                String recommenderVersion = "FakeVersion_C";
-                List<RelatedTrack> toEmit = Lists.newArrayListWithCapacity(PAGE_SIZE);
-                for (TrackSummary item : exploreTracksSuggestionModelCollection) {
-                    toEmit.add(new RelatedTrack(new Track(item), recommenderVersion));
-                }
-                return Observable.from(toEmit);
-            }
-        });
-    }
-
-    public static class RelatedTrack {
-        public Track track;
-        public String recommenderVersion;
-
-        public RelatedTrack(Track track, String recommenderVersion) {
-            this.track = track;
-            this.recommenderVersion = recommenderVersion;
-        }
+        return mRxHttpClient.fetchModels(request);
     }
 
     private static class SuggestionsModelCollectionToken extends TypeToken<TrackSummaries> {

@@ -8,8 +8,10 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.dao.PlayQueueManagerStore;
 import com.soundcloud.android.dao.TrackStorage;
+import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ParallelAsyncTask;
@@ -47,7 +49,7 @@ public class PlayQueueManager {
     private AsyncTask mLoadTask;
     private AppendState mAppendingState = AppendState.IDLE;
     private Subscription mRelatedSubscription;
-    private Observable<ExploreTracksOperations.RelatedTrack> mRelatedTracksObservable;
+    private Observable<ModelCollection<TrackSummary>> mRelatedTracksObservable;
     private PlaySourceInfo mCurrentPlaySourceInfo;
 
     private enum AppendState {
@@ -246,7 +248,7 @@ public class PlayQueueManager {
     private void loadRelatedTracks() {
         mAppendingState = AppendState.LOADING;
         mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
-        mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<ExploreTracksOperations.RelatedTrack>() {
+        mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<ModelCollection<TrackSummary>>() {
 
             private boolean mGotRelatedTracks;
 
@@ -263,8 +265,11 @@ public class PlayQueueManager {
             }
 
             @Override
-            public void onNext(ExploreTracksOperations.RelatedTrack relatedTrack) {
-                mPlayQueue.add(new PlayQueueItem(relatedTrack.track, mPlayQueue.size(), TrackSourceInfo.fromRecommender(relatedTrack.recommenderVersion)));
+            public void onNext(ModelCollection<TrackSummary> relatedTracks) {
+                //String recommenderVersion = "FakeVersion_C";
+                for (TrackSummary item : relatedTracks) {
+                    mPlayQueue.add(new PlayQueueItem(new Track(item), mPlayQueue.size(), TrackSourceInfo.auto()));
+                }
                 mGotRelatedTracks = true;
             }
         });
