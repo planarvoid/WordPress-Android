@@ -9,6 +9,7 @@ import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.dao.PlayQueueManagerStore;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.ModelCollection;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
@@ -179,7 +180,7 @@ public class PlayQueueManager {
         }
     }
 
-    public PlaySourceInfo getCurrentTrackingInfo(){
+    public PlaySourceInfo getCurrentPlaySourceInfo(){
         return mCurrentPlaySourceInfo;
     }
 
@@ -351,22 +352,39 @@ public class PlayQueueManager {
         // TODO , set manual play queue position based on passed in position
         mPlayQueue.clear();
         if (playQueue != null) {
-            for (PlayableHolder playable : playQueue) {
-                if (playable.getPlayable() instanceof Track){
-                    mPlayQueue.add(new PlayQueueItem((Track) playable.getPlayable(), mPlayQueue.size(), TrackSourceInfo.auto()));
+            for (PlayableHolder playableHolder : playQueue) {
+                final Playable playable = playableHolder.getPlayable();
+                if (playable instanceof Track){
+                    mPlayQueue.add(new PlayQueueItem((Track) playable, mPlayQueue.size(), getTrackSourceById(playable.getId())));
                 }
             }
         }
 
         if (playPos >= 0 && playPos <= mPlayQueue.size() - 1){
             mPlayPos = playPos;
-            mPlayQueue.get(playPos).setTrackSourceInfo(TrackSourceInfo.manual());
         } else {
             // invalid play position, default to 0 and keep track source to auto
             mPlayPos = 0;
             Log.e(PlayQueueManager.class.getSimpleName(), "Unexpected queue position [" + playPos + "]");
         }
         broadcastPlayQueueChanged();
+    }
+
+    /**
+     * WARNING : This makes a lot of assumptions about what is possible with the current system of playback, namely that
+     * explore will only have 1 manually triggered track, and the entire rest of the list will be recommended
+     * @param trackId
+     * @return
+     */
+    private TrackSourceInfo getTrackSourceById(long trackId) {
+        if (mCurrentPlaySourceInfo != null) {
+            if (mCurrentPlaySourceInfo.getInitialTrackId() == trackId) {
+                return TrackSourceInfo.manual();
+            } else if (mCurrentPlaySourceInfo.getRecommenderVersion() != null) {
+                return TrackSourceInfo.fromRecommender(mCurrentPlaySourceInfo.getRecommenderVersion());
+            }
+        }
+        return TrackSourceInfo.auto();
     }
 
     private void persistPlayQueue() {

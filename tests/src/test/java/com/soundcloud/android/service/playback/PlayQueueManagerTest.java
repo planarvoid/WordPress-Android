@@ -68,7 +68,7 @@ public class PlayQueueManagerTest {
         expect(pm.isEmpty()).toBeTrue();
         expect(pm.next()).toBeFalse();
         expect(pm.getNext()).toBeNull();
-        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class PlayQueueManagerTest {
         expect(pm.getUri()).toEqual(Content.TRACKS.uri);
 
         expect(pm.length()).toEqual(tracks.size());
-        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
 
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
@@ -188,6 +188,22 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void shouldSetPlaySourceTriggerBasedOnInitalId() throws Exception {
+        pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo("url1", 2L, "exploreTag"));
+        expect(pm.getPlayQueueItem(0).getTrackSourceInfo().getTrigger()).toEqual("auto");
+        expect(pm.getPlayQueueItem(1).getTrackSourceInfo().getTrigger()).toEqual("auto");
+        expect(pm.getPlayQueueItem(2).getTrackSourceInfo().getTrigger()).toEqual("manual");
+    }
+
+    @Test
+    public void shouldSetPlaySourceRecommenderVersion() throws Exception {
+        pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo("url1", 2L, "exploreTag", "version1"));
+        expect(pm.getPlayQueueItem(0).getTrackSourceInfo().getRecommenderVersion()).toEqual("version1");
+        expect(pm.getPlayQueueItem(1).getTrackSourceInfo().getRecommenderVersion()).toEqual("version1");
+        expect(pm.getPlayQueueItem(2).getTrackSourceInfo().getRecommenderVersion()).toBeNull();
+    }
+
+    @Test
     public void shouldSupportSetPlaylistWithTrackObjects() throws Exception {
         pm.setPlayQueue(createTracks(3, true, 0), 0, trackingInfo);
         expect(pm.length()).toEqual(3);
@@ -223,7 +239,7 @@ public class PlayQueueManagerTest {
         pm.clear();
         expect(pm.isEmpty()).toBeTrue();
         expect(pm.length()).toEqual(0);
-        expect(pm.getCurrentTrackingInfo()).toBeNull();
+        expect(pm.getCurrentPlaySourceInfo()).toBeNull();
     }
 
     @Test
@@ -245,7 +261,7 @@ public class PlayQueueManagerTest {
 
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().getId()).toEqual(56143158l);
-        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
         checkCurrentItemTrackingTriggerIsAuto();
     }
 
@@ -256,7 +272,7 @@ public class PlayQueueManagerTest {
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56143158L);
         expect(pm.getPosition()).toEqual(1);
-        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
 
         pm.saveQueue(1000l);
         pm.clear();
@@ -264,7 +280,7 @@ public class PlayQueueManagerTest {
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56143158L);
         expect(pm.getPosition()).toEqual(1);
-        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
     }
 
     @Test
@@ -273,14 +289,14 @@ public class PlayQueueManagerTest {
         pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962l), trackingInfo);
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
-        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
         pm.saveQueue(1000l);
         pm.clear();
 
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56142962l);
         expect(pm.getPosition()).toEqual(0);
-        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
 
         // test overwrite
         expect(pm.next()).toBeTrue();
@@ -289,7 +305,7 @@ public class PlayQueueManagerTest {
         expect(pm.reloadQueue()).toEqual(2000l);
         expect(pm.getCurrentTrackId()).toEqual(56143158l);
         expect(pm.getPosition()).toEqual(1);
-        expect(pm.getCurrentTrackingInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
     }
 
     @Test

@@ -5,7 +5,7 @@ public class TrackSourceInfo extends ParamsMap {
     public static final TrackSourceInfo EMPTY = new TrackSourceInfo(0);
 
     private static final String KEY_SOURCE = "source";
-    private static final String KEY_SOURCE_VERSION = "source_version";
+    private static final String KEY_RECOMMENDER_VERSION = "source_version";
     private static final String KEY_TRIGGER = "trigger";
 
     private static final String SOURCE_RECOMMENDER = "recommender";
@@ -19,7 +19,7 @@ public class TrackSourceInfo extends ParamsMap {
     public static TrackSourceInfo fromRecommender(String recommenderVersion){
         TrackSourceInfo trackSourceInfo = new TrackSourceInfo(2);
         trackSourceInfo.put(KEY_SOURCE, SOURCE_RECOMMENDER);
-        trackSourceInfo.put(KEY_SOURCE_VERSION, recommenderVersion);
+        trackSourceInfo.put(KEY_RECOMMENDER_VERSION, recommenderVersion);
         trackSourceInfo.put(KEY_TRIGGER, TRIGGER_AUTO);
         return trackSourceInfo;
     }
@@ -38,5 +38,9 @@ public class TrackSourceInfo extends ParamsMap {
 
     public String getTrigger(){
         return get(KEY_TRIGGER);
+    }
+
+    public String getRecommenderVersion() {
+        return get(KEY_RECOMMENDER_VERSION);
     }
 }

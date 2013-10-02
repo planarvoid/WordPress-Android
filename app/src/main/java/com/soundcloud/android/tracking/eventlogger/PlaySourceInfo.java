@@ -43,4 +43,12 @@ public class PlaySourceInfo extends ParamsMap {
     public void setRecommenderVersion(String version) {
         put(KEY_RECOMMENDER_VERSION, version);
     }
+
+    public String getRecommenderVersion() {
+        return get(KEY_RECOMMENDER_VERSION);
+    }
+
+    public Long getInitialTrackId() {
+        return Longs.tryParse(get(KEY_INITIAL_TRACK_ID));
+    }
 }
