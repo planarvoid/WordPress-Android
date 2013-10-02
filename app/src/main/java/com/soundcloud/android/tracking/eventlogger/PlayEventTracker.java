@@ -53,7 +53,7 @@ public class PlayEventTracker {
     }
 
     public void trackEvent(final @Nullable Track track, final Action action, final long userId,
-                           final PlaySourceInfo sourceTrackingInfo) {
+                           final PlaySourceInfo playSourceInfo, final TrackSourceInfo trackSourceInfo) {
 
         if (track == null) return;
 
@@ -63,7 +63,7 @@ public class PlayEventTracker {
                 thread.start();
                 handler = new TrackerHandler(thread.getLooper());
             }
-            TrackingParams params = new TrackingParams(track, action, userId, sourceTrackingInfo);
+            TrackingParams params = new TrackingParams(track, action, userId, playSourceInfo, trackSourceInfo);
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + params.toString());
 
             Message insert = handler.obtainMessage(INSERT_TOKEN, params);
@@ -160,14 +160,16 @@ public class PlayEventTracker {
         final Action action;
         final long timestamp;
         final long userId;
-        final PlaySourceInfo sourceInfo;
+        final PlaySourceInfo playSourceInfo;
+        final TrackSourceInfo trackSourceInfo;
 
-        TrackingParams(Track track, Action action, long userId, PlaySourceInfo sourceTrackingInfo) {
+        TrackingParams(Track track, Action action, long userId, PlaySourceInfo sourceTrackingInfo, TrackSourceInfo trackSourceInfo) {
             this.track = track;
             this.action = action;
             this.userId = userId;
             this.timestamp = System.currentTimeMillis();
-            this.sourceInfo = sourceTrackingInfo;
+            this.playSourceInfo = sourceTrackingInfo;
+            this.trackSourceInfo = trackSourceInfo;
         }
 
         public ContentValues toContentValues() {
@@ -177,7 +179,7 @@ public class PlayEventTracker {
             values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(track.getId()).toString());
             values.put(TrackingEvents.SOUND_DURATION, track.duration);
             values.put(TrackingEvents.USER_URN, buildUserUrn(userId));
-            values.put(TrackingEvents.SOURCE_INFO, sourceInfo.toQueryParams());
+            values.put(TrackingEvents.SOURCE_INFO, playSourceInfo.toEventLoggerParams() + "&" + trackSourceInfo.toEventLoggerParams());
             return values;
 
         }
@@ -197,7 +199,8 @@ public class PlayEventTracker {
                     ", action=" + action.name() +
                     ", timestamp=" + timestamp +
                     ", userId=" + userId +
-                    ", sourceInfo='" + sourceInfo + '\'' +
+                    ", playSourceInfo='" + playSourceInfo + '\'' +
+                    ", trackSourceInfo='" + trackSourceInfo + '\'' +
                     '}';
         }
     }

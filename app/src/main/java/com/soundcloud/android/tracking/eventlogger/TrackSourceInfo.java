@@ -1,6 +1,10 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-public class TrackSourceInfo extends ParamsMap {
+import com.soundcloud.android.utils.ScTextUtils;
+
+import android.net.Uri;
+
+public class TrackSourceInfo extends EventLoggerParamsMap {
 
     public static final TrackSourceInfo EMPTY = new TrackSourceInfo(0);
 
@@ -14,6 +18,18 @@ public class TrackSourceInfo extends ParamsMap {
 
     public TrackSourceInfo(int expectedSize) {
         super(expectedSize);
+    }
+
+    @Override
+    protected Uri.Builder appendEventLoggerParams(Uri.Builder builder) {
+        builder.appendQueryParameter(ExternalKeys.TRIGGER, get(KEY_TRIGGER));
+
+        final String recommenderVersion = get(KEY_RECOMMENDER_VERSION);
+        if (ScTextUtils.isNotBlank(recommenderVersion)){
+            builder.appendQueryParameter(ExternalKeys.SOURCE, SOURCE_RECOMMENDER);
+            builder.appendQueryParameter(ExternalKeys.SOURCE_VERSION, recommenderVersion);
+        }
+        return builder;
     }
 
     public static TrackSourceInfo fromRecommender(String recommenderVersion){

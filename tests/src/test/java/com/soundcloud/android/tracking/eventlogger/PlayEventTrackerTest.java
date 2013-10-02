@@ -44,10 +44,13 @@ public class PlayEventTrackerTest {
         track.duration = 123;
         track.setId(10);
 
-        final PlaySourceInfo sourceTrackingInfo1 = new PlaySourceInfo("origin-url", 123L, "explore-tag", "version_1");
-        tracker.trackEvent(track, Action.PLAY, 1l, sourceTrackingInfo1);
+        final PlaySourceInfo playSourceInfo1 = new PlaySourceInfo("origin-url", 123L, "explore-tag", "version_1");
+        final TrackSourceInfo trackSourceInfo = TrackSourceInfo.auto();
+        tracker.trackEvent(track, Action.PLAY, 1l, playSourceInfo1, trackSourceInfo);
+
         final PlaySourceInfo sourceTrackingInfo2 = new PlaySourceInfo("origin-url2", 456L, "explore-tag2", "version_2");
-        tracker.trackEvent(track, Action.STOP, 2l, sourceTrackingInfo2);
+        final TrackSourceInfo trackSourceInfo2 = TrackSourceInfo.fromRecommender("version_3");
+        tracker.trackEvent(track, Action.STOP, 2l, sourceTrackingInfo2, trackSourceInfo2);
 
         Cursor cursor = tracker.eventsCursor();
 
@@ -58,13 +61,13 @@ public class PlayEventTrackerTest {
         expect(cursor).toHaveColumn(TrackingEvents.SOUND_URN, "soundcloud:sounds:10");
         expect(cursor).toHaveColumn(TrackingEvents.USER_URN, "soundcloud:users:1");
         expect(cursor).toHaveColumn(TrackingEvents.ACTION, "play");
-        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, sourceTrackingInfo1.toQueryParams());
+        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, "context=origin-url&exploreTag=explore-tag&trigger=auto");
         expect(cursor).toHaveColumn(TrackingEvents.TIMESTAMP);
 
         expect(cursor).toHaveNext();
         expect(cursor).toHaveColumn(TrackingEvents.ACTION, "stop");
         expect(cursor).toHaveColumn(TrackingEvents.USER_URN, "soundcloud:users:2");
-        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, sourceTrackingInfo2.toQueryParams());
+        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, "context=origin-url2&exploreTag=explore-tag2&trigger=auto&source=recommender&source_version=version_3");
         expect(cursor).not.toHaveNext();
     }
 
@@ -72,13 +75,12 @@ public class PlayEventTrackerTest {
     public void shouldFlushEventsToApi() throws Exception {
         when(api.pushToRemote(anyList())).thenReturn(new String[]{"1"});
 
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, new PlaySourceInfo("originUrl", 1L));
-        tracker.trackEvent(new Track(), Action.STOP, 2l, new PlaySourceInfo("originUrl", 1L));
+        tracker.trackEvent(new Track(), Action.PLAY, 1l, new PlaySourceInfo("originUrl", 1L), TrackSourceInfo.auto());
+        tracker.trackEvent(new Track(), Action.STOP, 2l, new PlaySourceInfo("originUrl", 1L), TrackSourceInfo.auto());
 
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
 
         Cursor cursor = tracker.eventsCursor();
-
         expect(cursor).toHaveCount(1);
         expect(cursor).toHaveNext();
         expect(cursor).toHaveColumn(TrackingEvents.ACTION, "stop");
@@ -87,7 +89,7 @@ public class PlayEventTrackerTest {
 
     @Test
     public void shouldNotFlushIfNoActiveNetwork() throws Exception {
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, new PlaySourceInfo("origin-url", 123L, "explore-tag", "version_1"));
+        tracker.trackEvent(new Track(), Action.PLAY, 1l, new PlaySourceInfo("origin-url", 123L, "explore-tag", "version_1"), TrackSourceInfo.auto());
 
         TestHelper.simulateOffline();
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();

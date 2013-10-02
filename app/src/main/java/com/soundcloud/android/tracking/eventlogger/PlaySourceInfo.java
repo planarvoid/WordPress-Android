@@ -4,7 +4,7 @@ import com.google.common.primitives.Longs;
 
 import android.net.Uri;
 
-public class PlaySourceInfo extends ParamsMap {
+public class PlaySourceInfo extends EventLoggerParamsMap {
 
     private static final String KEY_ORIGIN_URL = "playSource-originUrl";
     private static final String KEY_EXPLORE_TAG = "playSource-exploreTag";
@@ -40,6 +40,10 @@ public class PlaySourceInfo extends ParamsMap {
         );
     }
 
+    public void setInitialTrackId(long id){
+        put(KEY_INITIAL_TRACK_ID, String.valueOf(id));
+    }
+
     public void setRecommenderVersion(String version) {
         put(KEY_RECOMMENDER_VERSION, version);
     }
@@ -50,5 +54,12 @@ public class PlaySourceInfo extends ParamsMap {
 
     public Long getInitialTrackId() {
         return Longs.tryParse(get(KEY_INITIAL_TRACK_ID));
+    }
+
+    @Override
+    public Uri.Builder appendEventLoggerParams(Uri.Builder builder) {
+        builder.appendQueryParameter(ExternalKeys.ORIGIN_URL, get(KEY_ORIGIN_URL));
+        builder.appendQueryParameter(ExternalKeys.EXPLORE_TAG, get(KEY_EXPLORE_TAG));
+        return builder;
     }
 }

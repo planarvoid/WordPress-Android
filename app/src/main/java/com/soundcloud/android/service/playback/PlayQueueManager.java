@@ -55,8 +55,8 @@ public class PlayQueueManager {
 
     private enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
-    }
 
+    }
     private static PlayQueueManager instance;
 
     public static PlayQueueManager get(Context context){
@@ -82,10 +82,10 @@ public class PlayQueueManager {
         mPlayQueueDAO = new PlayQueueManagerStore();
 
     }
+
     public int length() {
         return mPlayQueue.size();
     }
-
     public boolean isEmpty() {
         return mPlayQueue.size() == 0;
     }
@@ -182,6 +182,11 @@ public class PlayQueueManager {
 
     public PlaySourceInfo getCurrentPlaySourceInfo(){
         return mCurrentPlaySourceInfo;
+    }
+
+    public TrackSourceInfo getCurrentTrackSourceInfo() {
+        final PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
+        return currentPlayQueueItem == null ? TrackSourceInfo.EMPTY : currentPlayQueueItem.getTrackSourceInfo();
     }
 
     public void loadTrack(Track toBePlayed, boolean saveQueue, PlaySourceInfo trackingInfo) {

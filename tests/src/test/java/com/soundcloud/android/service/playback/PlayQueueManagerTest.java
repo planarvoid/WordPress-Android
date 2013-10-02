@@ -85,7 +85,6 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #0");
-        checkCurrentItemTrackingTriggerIsManual();
 
         expect(pm.next()).toBeTrue();
         track = pm.getCurrentTrack();
@@ -119,8 +118,6 @@ public class PlayQueueManagerTest {
         expect(pm.getPrev()).not.toBeNull();
         expect(pm.getPrev().title).toEqual("track #0");
 
-        checkCurrentItemTrackingTriggerIsManual();
-
         expect(pm.next()).toBeTrue();
         track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
@@ -128,15 +125,6 @@ public class PlayQueueManagerTest {
         expect(pm.getPrev()).not.toBeNull();
         expect(pm.getPrev().title).toEqual("track #1");
         expect(pm.getNext()).toBeNull();
-    }
-
-    private void checkCurrentItemTrackingTriggerIsManual() {
-        final PlayQueueItem currentPlayQueueItem = pm.getCurrentPlayQueueItem();
-        expect(currentPlayQueueItem.getTrackSourceInfo().getTrigger()).toEqual("manual");
-    }
-
-    private void checkCurrentItemTrackingTriggerIsAuto() {
-        expect(pm.getCurrentPlayQueueItem().getTrackSourceInfo().getTrigger()).toEqual("auto");
     }
 
     @Test
@@ -160,7 +148,6 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #5");
-        checkCurrentItemTrackingTriggerIsManual();
     }
 
     @Test
@@ -172,7 +159,6 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #7");
-        checkCurrentItemTrackingTriggerIsManual();
     }
 
     @Test
@@ -184,7 +170,6 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #0");
-        checkCurrentItemTrackingTriggerIsAuto();
     }
 
     @Test
@@ -205,15 +190,15 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSupportSetPlaylistWithTrackObjects() throws Exception {
-        pm.setPlayQueue(createTracks(3, true, 0), 0, trackingInfo);
+        pm.setPlayQueue(createTracks(3, true, 0), 2, new PlaySourceInfo("originUrl", 2L));
         expect(pm.length()).toEqual(3);
 
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #0");
+        expect(track.title).toEqual("track #2");
         checkCurrentItemTrackingTriggerIsManual();
 
-        expect(pm.next()).toBeTrue();
+        expect(pm.prev()).toBeTrue();
         track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #1");
@@ -221,16 +206,16 @@ public class PlayQueueManagerTest {
         expect(pm.getNext().title).toEqual("track #2");
         checkCurrentItemTrackingTriggerIsAuto();
 
-        expect(pm.next()).toBeTrue();
+        expect(pm.prev()).toBeTrue();
         track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #2");
-        expect(pm.getPrev().title).toEqual("track #1");
-        expect(pm.getNext()).toBeNull();
+        expect(track.title).toEqual("track #0");
+        expect(pm.getNext().title).toEqual("track #1");
+        expect(pm.getPrev()).toBeNull();
         checkCurrentItemTrackingTriggerIsAuto();
 
-        expect(pm.getNext()).toBeNull();
-        expect(pm.next()).toBeFalse();
+        expect(pm.getPrev()).toBeNull();
+        expect(pm.prev()).toBeFalse();
     }
 
     @Test
@@ -395,7 +380,6 @@ public class PlayQueueManagerTest {
         expect(pm.getUri().getPath()).toEqual(newUri.getPath());
     }
 
-
     @Test
     public void shouldClearPlaylistState() throws Exception {
         pm.setPlayQueue(createTracks(10, true, 0), 5, trackingInfo);
@@ -409,6 +393,7 @@ public class PlayQueueManagerTest {
         expect(pm2.getPosition()).toEqual(0);
         expect(pm2.length()).toEqual(0);
     }
+
 
     @Test
     public void shouldSetSingleTrack() throws Exception {
@@ -512,6 +497,14 @@ public class PlayQueueManagerTest {
 
         expect(pm.isFetchingRelated()).toBeFalse();
         verify(subscription).unsubscribe();
+    }
+
+    private void checkCurrentItemTrackingTriggerIsManual() {
+        expect(pm.getCurrentTrackSourceInfo().getTrigger()).toEqual("manual");
+    }
+
+    private void checkCurrentItemTrackingTriggerIsAuto() {
+        expect(pm.getCurrentTrackSourceInfo().getTrigger()).toEqual("auto");
     }
 
 
