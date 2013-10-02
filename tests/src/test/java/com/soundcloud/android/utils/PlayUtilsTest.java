@@ -73,7 +73,7 @@ public class PlayUtilsTest {
 
     @Test
     public void getPlayIntentShouldAddTrackingFromInfo() throws Exception {
-        playInfo.trackingInfo = new PlaySourceInfo("source-context", "explore-tag");
+        playInfo.trackingInfo = new PlaySourceInfo("source-context", 123L, "explore-tag");
         final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
         expect(playIntent.getSerializableExtra(CloudPlaybackService.PlayExtras.trackingInfo)).toEqual(playInfo.trackingInfo);
     }

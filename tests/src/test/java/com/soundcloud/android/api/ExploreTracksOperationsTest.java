@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -64,6 +65,7 @@ public class ExploreTracksOperationsTest {
     }
 
     @Test
+    @Ignore
     public void getRelatedTracksShouldEmitTracksFromSuggestions() {
 
         Observer<Track> relatedObserver = Mockito.mock(Observer.class);

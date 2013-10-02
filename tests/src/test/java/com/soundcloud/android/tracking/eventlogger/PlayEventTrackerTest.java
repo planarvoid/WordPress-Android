@@ -44,9 +44,9 @@ public class PlayEventTrackerTest {
         track.duration = 123;
         track.setId(10);
 
-        final PlaySourceInfo sourceTrackingInfo1 = new PlaySourceInfo("originUrl", "exploreTag");
+        final PlaySourceInfo sourceTrackingInfo1 = new PlaySourceInfo("origin-url", 123L, "explore-tag", "version_1");
         tracker.trackEvent(track, Action.PLAY, 1l, sourceTrackingInfo1);
-        final PlaySourceInfo sourceTrackingInfo2 = new PlaySourceInfo("originUrl2", "exploreTag2");
+        final PlaySourceInfo sourceTrackingInfo2 = new PlaySourceInfo("origin-url2", 456L, "explore-tag2", "version_2");
         tracker.trackEvent(track, Action.STOP, 2l, sourceTrackingInfo2);
 
         Cursor cursor = tracker.eventsCursor();
@@ -72,8 +72,8 @@ public class PlayEventTrackerTest {
     public void shouldFlushEventsToApi() throws Exception {
         when(api.pushToRemote(anyList())).thenReturn(new String[]{"1"});
 
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, new PlaySourceInfo("originUrl"));
-        tracker.trackEvent(new Track(), Action.STOP, 2l, new PlaySourceInfo("originUrl"));
+        tracker.trackEvent(new Track(), Action.PLAY, 1l, new PlaySourceInfo("originUrl", 1L));
+        tracker.trackEvent(new Track(), Action.STOP, 2l, new PlaySourceInfo("originUrl", 1L));
 
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
 
@@ -87,7 +87,7 @@ public class PlayEventTrackerTest {
 
     @Test
     public void shouldNotFlushIfNoActiveNetwork() throws Exception {
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, new PlaySourceInfo("originUrl", "exploreTag"));
+        tracker.trackEvent(new Track(), Action.PLAY, 1l, new PlaySourceInfo("origin-url", 123L, "explore-tag", "version_1"));
 
         TestHelper.simulateOffline();
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
