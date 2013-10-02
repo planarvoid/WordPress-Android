@@ -9,6 +9,7 @@ import com.soundcloud.android.adapter.PlaylistTracksAdapter;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncStateManager;
@@ -138,10 +139,10 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        PlayInfo info = new PlayInfo();
-        info.initialTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        info.uri = mPlaylist.toUri();
-        info.position = position - mListView.getRefreshableView().getHeaderViewsCount();
+        final int startPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
+        PlayInfo info = PlayInfo.fromUri(mPlaylist.toUri(), startPosition, track);
+
         new PlayUtils(getActivity()).playTrack(info);
     }
 

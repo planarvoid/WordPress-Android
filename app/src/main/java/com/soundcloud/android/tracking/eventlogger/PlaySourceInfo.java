@@ -1,30 +1,40 @@
 package com.soundcloud.android.tracking.eventlogger;
 
+import com.google.common.base.Objects;
 import com.google.common.primitives.Longs;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class PlaySourceInfo extends EventLoggerParamsMap {
+/**
+ * Used to track the origin of play events. This will eventually be passed to {@link PlayEventTracker}
+ */
+public class PlaySourceInfo implements EventLoggerParams, Parcelable {
 
-    public static final PlaySourceInfo EMPTY = new PlaySourceInfo(0);
+    public static final PlaySourceInfo EMPTY = new PlaySourceInfo();
 
     private static final String KEY_ORIGIN_URL = "playSource-originUrl";
     private static final String KEY_EXPLORE_TAG = "playSource-exploreTag";
     private static final String KEY_INITIAL_TRACK_ID = "playSource-initialTrackId";
     private static final String KEY_RECOMMENDER_VERSION = "playSource-recommenderVersion";
 
-    public PlaySourceInfo(int capacity) {
-        super(capacity);
+    private Bundle mData = new Bundle();
+
+    public PlaySourceInfo() {
     }
 
     private PlaySourceInfo(Builder builder) {
-        super(4); // expect capacity set to key count. Up this if we add more keys
-        put(KEY_INITIAL_TRACK_ID, String.valueOf(builder.mInitialTrackId));
-        if (ScTextUtils.isNotBlank(builder.mOriginUrl)) put(KEY_ORIGIN_URL, builder.mOriginUrl);
-        if (ScTextUtils.isNotBlank(builder.mExploreTag)) put(KEY_EXPLORE_TAG, builder.mExploreTag);
-        if (ScTextUtils.isNotBlank(builder.mRecommenderVersion)) put(KEY_RECOMMENDER_VERSION, builder.mRecommenderVersion);
+        mData.putLong(KEY_INITIAL_TRACK_ID, builder.mInitialTrackId);
+        if (ScTextUtils.isNotBlank(builder.mOriginUrl)) mData.putString(KEY_ORIGIN_URL, builder.mOriginUrl);
+        if (ScTextUtils.isNotBlank(builder.mExploreTag)) mData.putString(KEY_EXPLORE_TAG, builder.mExploreTag);
+        if (ScTextUtils.isNotBlank(builder.mRecommenderVersion)) mData.putString(KEY_RECOMMENDER_VERSION, builder.mRecommenderVersion);
+    }
 
+    public PlaySourceInfo(Parcel parcel) {
+        mData = parcel.readBundle();
     }
 
     /**
@@ -40,29 +50,72 @@ public class PlaySourceInfo extends EventLoggerParamsMap {
         );
     }
 
-    public void setInitialTrackId(long id){
-        put(KEY_INITIAL_TRACK_ID, String.valueOf(id));
-    }
-
     public void setRecommenderVersion(String version) {
-        put(KEY_RECOMMENDER_VERSION, version);
+        mData.putString(KEY_RECOMMENDER_VERSION, version);
     }
 
     public String getRecommenderVersion() {
-        return get(KEY_RECOMMENDER_VERSION);
+        return mData.getString(KEY_RECOMMENDER_VERSION);
     }
 
     public Long getInitialTrackId() {
-        return Longs.tryParse(get(KEY_INITIAL_TRACK_ID));
+        return mData.getLong(KEY_INITIAL_TRACK_ID);
     }
 
-    @Override
+    public Uri.Builder appendAsQueryParams(Uri.Builder builder) {
+        for (String key : mData.keySet()) {
+            builder.appendQueryParameter(key, String.valueOf(mData.get(key)));
+        }
+        return builder;
+
+    }
+
     public Uri.Builder appendEventLoggerParams(Uri.Builder builder) {
-        builder.appendQueryParameter(ExternalKeys.ORIGIN_URL, get(KEY_ORIGIN_URL));
-        builder.appendQueryParameter(ExternalKeys.EXPLORE_TAG, get(KEY_EXPLORE_TAG));
+        builder.appendQueryParameter(ExternalKeys.ORIGIN_URL, mData.getString(KEY_ORIGIN_URL));
+        builder.appendQueryParameter(ExternalKeys.EXPLORE_TAG, mData.getString(KEY_EXPLORE_TAG));
         return builder;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeBundle(mData);
+    }
+
+    public static final Parcelable.Creator<PlaySourceInfo> CREATOR = new Parcelable.Creator<PlaySourceInfo>() {
+        public PlaySourceInfo createFromParcel(Parcel in) {
+            return new PlaySourceInfo(in);
+        }
+
+        public PlaySourceInfo[] newArray(int size) {
+            return new PlaySourceInfo[size];
+        }
+    };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        return Objects.equal(mData, ((PlaySourceInfo) o).mData);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mData);
+    }
+
+    @Override
+    public String toString() {
+        final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(getClass());
+        for (String key : mData.keySet()){
+            toStringHelper.add(key, mData.get(key));
+        }
+        return toStringHelper.toString();
+    }
 
     public static class Builder {
         private long mInitialTrackId;
@@ -70,26 +123,26 @@ public class PlaySourceInfo extends EventLoggerParamsMap {
         private String mExploreTag;
         private String mRecommenderVersion;
 
-        public Builder(long initialTrackId){
+        public Builder(long initialTrackId) {
             mInitialTrackId = initialTrackId;
         }
 
-        public Builder originUrl(String originUrl){
+        public Builder originUrl(String originUrl) {
             mOriginUrl = originUrl;
             return this;
         }
 
-        public Builder exploreTag(String exploreTag){
+        public Builder exploreTag(String exploreTag) {
             mExploreTag = exploreTag;
             return this;
         }
 
-        public Builder recommenderVersion(String recommenderVersion){
+        public Builder recommenderVersion(String recommenderVersion) {
             mRecommenderVersion = recommenderVersion;
             return this;
         }
 
-        public PlaySourceInfo build(){
+        public PlaySourceInfo build() {
             return new PlaySourceInfo(this);
         }
     }

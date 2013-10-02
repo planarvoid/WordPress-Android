@@ -45,7 +45,7 @@ public final class PlayUtils {
     public Intent getPlayIntent(PlayInfo info, boolean changingTracks) {
         Intent intent = new Intent(Actions.PLAY).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         if (changingTracks) {
-            configureIntentViaPlayInfo(info, info.initialTrack, intent);
+            configureIntentViaPlayInfo(info, intent);
         }
         return intent;
     }
@@ -57,12 +57,8 @@ public final class PlayUtils {
 
         Playable playable = ((PlayableHolder) data.get(position)).getPlayable();
         if (playable instanceof Track) {
-            PlayInfo info = new PlayInfo();
-            info.initialTrack = (Track) ((PlayableHolder) data.get(position)).getPlayable();
-            info.uri = streamUri;
 
             List<Track> tracks = new ArrayList<Track>(data.size());
-
             // Required for mixed adapters (e.g. mix of users and tracks, we only want tracks)
             int adjustedPosition = position;
             for (int i = 0; i < data.size(); i++) {
@@ -73,9 +69,7 @@ public final class PlayUtils {
                 }
             }
 
-            info.position = adjustedPosition;
-            info.playables = tracks;
-
+            PlayInfo info = PlayInfo.fromUri(streamUri, adjustedPosition, tracks.get(adjustedPosition), tracks);
             mContext.startActivity(getPlayIntent(info));
 
         } else if (playable instanceof Playlist) {
@@ -100,11 +94,11 @@ public final class PlayUtils {
         return null;
     }
 
-    private void configureIntentViaPlayInfo(PlayInfo info, Track initialTrack, Intent intent) {
+    private void configureIntentViaPlayInfo(PlayInfo info, Intent intent) {
         intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
-        intent.putExtra(CloudPlaybackService.PlayExtras.track, initialTrack);
-        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, info.trackingInfo);
-        CloudPlaybackService.playlistXfer = info.playables;
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, info.sourceInfo);
+        intent.putExtra(CloudPlaybackService.PlayExtras.track, info.initialTrack);
+        CloudPlaybackService.playlistXfer = info.iniitalTracklist;
 
         if (info.uri != null) {
             mModelManager.cache(info.initialTrack);
@@ -112,7 +106,7 @@ public final class PlayUtils {
                     .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                     .setData(info.uri);
 
-        } else if (info.playables.size() > 1) {
+        } else if (info.iniitalTracklist.size() > 1) {
             intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                     .putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
         }

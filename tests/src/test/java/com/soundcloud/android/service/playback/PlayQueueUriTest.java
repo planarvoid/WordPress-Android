@@ -22,7 +22,7 @@ public class PlayQueueUriTest {
         PlayQueueUri playQueueUri = new PlayQueueUri(Content.ME_SOUND_STREAM.uri);
 
         expect(playQueueUri.toUri(new Track(123l), 0, 100l, playSourceInfo).toString())
-                .toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/stream?trackId=123&playlistPos=0&seekPos=100&playSource-originUrl=1&playSource-exploreTag=2&playSource-recommenderVersion=v1&playSource-initialTrackId=1");
+                .toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/stream?trackId=123&playlistPos=0&seekPos=100&playSource-recommenderVersion=v1&playSource-exploreTag=2&playSource-originUrl=1&playSource-initialTrackId=1");
     }
 
     @Test
@@ -38,7 +38,7 @@ public class PlayQueueUriTest {
     public void shouldOverwriteOldParams() throws Exception {
         Uri oldUri = new PlayQueueUri(Content.ME_SOUND_STREAM.uri).toUri(new Track(123l), 1, 200l, playSourceInfo);
         Uri newUri = new PlayQueueUri(oldUri).toUri(new Track(456l), 2, 400l, playSourceInfo2);
-        expect(newUri.toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/stream?trackId=456&playlistPos=2&seekPos=400&playSource-originUrl=3&playSource-exploreTag=4&playSource-recommenderVersion=v2&playSource-initialTrackId=2");
+        expect(newUri.toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/stream?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v2&playSource-exploreTag=4&playSource-originUrl=3&playSource-initialTrackId=2");
     }
 
 }

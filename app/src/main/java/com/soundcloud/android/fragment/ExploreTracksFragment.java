@@ -17,7 +17,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.rx.observers.PullToRefreshObserver;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.EmptyListView;
@@ -96,9 +95,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mExploreTracksAdapter.getItem(position));
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(track.getId()).exploreTag("EXPLORE").build();
-        final PlayInfo playInfo = new PlayInfo(track, true, playSourceInfo);
-        new PlayUtils(getActivity()).playTrack(playInfo);
+        new PlayUtils(getActivity()).playTrack(PlayInfo.fromExploreTrack(track, "EXPLORE-TAG"));
     }
 
     @Override

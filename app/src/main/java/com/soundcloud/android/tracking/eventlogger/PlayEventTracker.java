@@ -13,6 +13,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -179,7 +180,11 @@ public class PlayEventTracker {
             values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(track.getId()).toString());
             values.put(TrackingEvents.SOUND_DURATION, track.duration);
             values.put(TrackingEvents.USER_URN, buildUserUrn(userId));
-            values.put(TrackingEvents.SOURCE_INFO, playSourceInfo.toEventLoggerParams() + "&" + trackSourceInfo.toEventLoggerParams());
+
+            final Uri.Builder builder = new Uri.Builder();
+            playSourceInfo.appendEventLoggerParams(builder);
+            trackSourceInfo.appendEventLoggerParams(builder);
+            values.put(TrackingEvents.SOURCE_INFO, builder.build().getQuery().toString());
             return values;
 
         }

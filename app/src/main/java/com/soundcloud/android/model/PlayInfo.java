@@ -8,29 +8,48 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PlayInfo {
-    public List<Track> playables;
     public int position;
     public Uri uri;
     public Track initialTrack;
+    public List<Track> iniitalTracklist;
     public boolean fetchRelated;
-    public PlaySourceInfo trackingInfo;
+    public PlaySourceInfo sourceInfo;
 
-    public PlayInfo() { }
-
-    public PlayInfo(Uri uri, int position, Track initialTrack) {
-        this.position = position;
-        this.uri = uri;
-        this.initialTrack = initialTrack;
-        this.trackingInfo = new PlaySourceInfo.Builder(initialTrack.getId()).build();
+    private PlayInfo() {
     }
 
-    public PlayInfo(Track track) {
-        this(track, false,  new PlaySourceInfo.Builder(track.getId()).build());
-    }
-
-    public PlayInfo(Track track, boolean fetchRelated, PlaySourceInfo playSourceInfo) {
-        this.playables = Arrays.asList(new Track[]{track});
+    private PlayInfo(Track track, boolean fetchRelated, PlaySourceInfo playSourceInfo) {
         this.initialTrack = track;
+        this.iniitalTracklist = Arrays.asList(new Track[]{track});
         this.fetchRelated = fetchRelated;
+        this.sourceInfo = playSourceInfo;
+    }
+
+    public static PlayInfo fromTrack(Track track){
+        return new PlayInfo(track, false, new PlaySourceInfo.Builder(track.getId()).build());
+    }
+
+    public static PlayInfo fromExploreTrack(Track track, String exploreTag){
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(track.getId()).exploreTag(exploreTag).build();
+        return new PlayInfo(track, true, playSourceInfo);
+    }
+
+    private static PlayInfo fromUri(Uri uri, int startPosition){
+        PlayInfo playInfo = new PlayInfo();
+        playInfo.uri = uri;
+        playInfo.position = startPosition;
+        return playInfo;
+    }
+
+    public static PlayInfo fromUri(Uri uri, int startPosition, Track initialTrack){
+        PlayInfo playInfo = fromUri(uri, startPosition);
+        playInfo.initialTrack = initialTrack;
+        playInfo.sourceInfo = new PlaySourceInfo.Builder(initialTrack.getId()).build();
+        return playInfo;
+    }
+    public static PlayInfo fromUri(Uri uri, int startPosition, Track initialTrack, List<Track> initialTrackList){
+        PlayInfo playInfo = fromUri(uri, startPosition, initialTrack);
+        playInfo.iniitalTracklist = initialTrackList;
+        return playInfo;
     }
 }

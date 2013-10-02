@@ -3,13 +3,11 @@ package com.soundcloud.android.tracking.eventlogger;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import org.apache.commons.lang.SerializationUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.net.Uri;
-
-import java.io.Serializable;
+import android.os.Parcel;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaySourceInfoTest {
@@ -31,16 +29,17 @@ public class PlaySourceInfoTest {
     }
 
     @Test
-    public void shouldBeSerializeable() throws Exception {
-        final Serializable original = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version-1").build();
-        Serializable copy = (Serializable) SerializationUtils.clone(original);
-        expect(original).toEqual(copy);
+    public void shouldBeParcelable() throws Exception {
+        final PlaySourceInfo original = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version-1").build();
+        Parcel parcel = Parcel.obtain();
+        original.writeToParcel(parcel, 0);
+        expect(original).toEqual(new PlaySourceInfo(parcel));
     }
 
     @Test
     public void shouldCreateParams() throws Exception {
         final PlaySourceInfo playInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version-1").build();
-        expect(playInfo.toQueryParams()).toEqual("playSource-originUrl=origin-url&playSource-exploreTag=explore-tag&playSource-recommenderVersion=version-1&playSource-initialTrackId=123");
+        expect(toQueryParams(playInfo)).toEqual("playSource-recommenderVersion=version-1&playSource-exploreTag=explore-tag&playSource-originUrl=origin-url&playSource-initialTrackId=123");
     }
 
     @Test
@@ -54,7 +53,13 @@ public class PlaySourceInfoTest {
     public void shouldSetRecommenderVersion() throws Exception {
         final PlaySourceInfo playInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version-1").build();
         playInfo.setRecommenderVersion("version-2");
-        expect(playInfo.toQueryParams()).toEqual("playSource-originUrl=origin-url&playSource-exploreTag=explore-tag&playSource-recommenderVersion=version-2&playSource-initialTrackId=123");
+        expect(toQueryParams(playInfo)).toEqual("playSource-recommenderVersion=version-2&playSource-exploreTag=explore-tag&playSource-originUrl=origin-url&playSource-initialTrackId=123");
 
     }
+
+    private String toQueryParams(PlaySourceInfo playSourceInfo) {
+        return playSourceInfo.appendAsQueryParams(new Uri.Builder()).build().getQuery().toString();
+    }
+
+
 }

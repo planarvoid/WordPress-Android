@@ -130,7 +130,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         final boolean startPlayback = intent.getBooleanExtra(PlayExtras.startPlayback, true);
         final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
-        final PlaySourceInfo trackingInfo = (PlaySourceInfo) intent.getSerializableExtra(PlayExtras.trackingInfo);
+        final PlaySourceInfo trackingInfo = intent.getParcelableExtra(PlayExtras.trackingInfo);
 
         if (intent.getData() != null) {
             playViaUri(intent, startPlayback, position, trackingInfo);
@@ -161,7 +161,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position, trackingInfo);
         } else {
             Track track = getTrackFromIntent(intent);
-            mPlayQueueManager.loadUri(intent.getData(), position, Lists.newArrayList(track), 0, trackingInfo);
+            mPlayQueueManager.loadUri(intent.getData(), position, track == null ? null : Lists.newArrayList(track), 0, trackingInfo);
         }
 
         if (startPlayback) mPlaybackService.openCurrent();
@@ -190,6 +190,6 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private Track getTrackFromIntent(Intent intent) {
-        return SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
+        return SoundCloudApplication.MODEL_MANAGER.cache(Track.nullableTrackfromIntent(intent), ScResource.CacheUpdateMode.NONE);
     }
 }

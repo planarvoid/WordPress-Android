@@ -316,7 +316,7 @@ public class PlayQueueManagerTest {
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlayQueueState(123L)).toEqual(
-          Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=1&seekPos=123&playSource-originUrl=origin-url&playSource-exploreTag=explore-tag&playSource-recommenderVersion=version_1&playSource-initialTrackId=123"
+          Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=1&seekPos=123&playSource-recommenderVersion=version_1&playSource-exploreTag=explore-tag&playSource-originUrl=origin-url&playSource-initialTrackId=123"
         );
     }
 
@@ -325,7 +325,8 @@ public class PlayQueueManagerTest {
         pm.setPlayQueue(createTracks(10, true, 0), 5, trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(5L);
         expect(pm.getPlayQueueState(123L)).toEqual(
-                Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123&playSource-originUrl=origin-url&playSource-exploreTag=explore-tag&playSource-recommenderVersion=version_1&playSource-initialTrackId=123"
+                Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123&playSource-recommenderVersion=version_1&playSource-exploreTag=explore-tag&playSource-originUrl=origin-url&playSource-initialTrackId=123"
+
         );
     }
 

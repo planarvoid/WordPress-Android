@@ -45,7 +45,7 @@ public class PlayUtilsTest {
     public void setUp() throws Exception {
         playUtils = new PlayUtils(context, modelManager);
         track = TestHelper.getModelFactory().createModel(Track.class);
-        playInfo = new PlayInfo(track);
+        playInfo = PlayInfo.fromTrack(track);
     }
 
     @Test
@@ -73,9 +73,9 @@ public class PlayUtilsTest {
 
     @Test
     public void getPlayIntentShouldAddTrackingFromInfo() throws Exception {
-        playInfo.trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version-1").build();
+        playInfo.sourceInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version-1").build();
         final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
-        expect(playIntent.getSerializableExtra(CloudPlaybackService.PlayExtras.trackingInfo)).toEqual(playInfo.trackingInfo);
+        expect(playIntent.getParcelableExtra(CloudPlaybackService.PlayExtras.trackingInfo)).toEqual(playInfo.sourceInfo);
     }
 
     @Test
@@ -87,25 +87,25 @@ public class PlayUtilsTest {
         expect(playIntent.getData()).toEqual(Content.ME_LIKES.uri);
         expect(playIntent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, 0)).toEqual(4);
         expect(playIntent.getLongExtra(CloudPlaybackService.PlayExtras.trackId, -1L)).toEqual(track.getId());
-        expect(CloudPlaybackService.playlistXfer).toBe(playInfo.playables);
+        expect(CloudPlaybackService.playlistXfer).toBe(playInfo.iniitalTracklist);
         verify(modelManager).cache(track);
     }
 
     @Test
     public void getPlayIntentShouldConfigureIntentViaPlayablesList() throws Exception {
-        playInfo.playables = Lists.newArrayList(track, TestHelper.getModelFactory().createModel(Track.class), TestHelper.getModelFactory().createModel(Track.class));
+        playInfo.iniitalTracklist = Lists.newArrayList(track, TestHelper.getModelFactory().createModel(Track.class), TestHelper.getModelFactory().createModel(Track.class));
         playInfo.position = 2;
 
         final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
         expect(playIntent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList, false)).toBeTrue();
-        expect(CloudPlaybackService.playlistXfer).toBe(playInfo.playables);
+        expect(CloudPlaybackService.playlistXfer).toBe(playInfo.iniitalTracklist);
     }
 
     @Test
     public void getPlayIntentShouldNotAddPlayablesListIfPlaying1ItemList() throws Exception {
-        playInfo.playables = Lists.newArrayList(track);
+        playInfo.iniitalTracklist = Lists.newArrayList(track);
         final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
-        expect(CloudPlaybackService.playlistXfer).toBe(playInfo.playables);
+        expect(CloudPlaybackService.playlistXfer).toBe(playInfo.iniitalTracklist);
         expect(playIntent.getExtras().containsKey(CloudPlaybackService.PlayExtras.playPosition)).toBeFalse();
         expect(playIntent.getExtras().containsKey(CloudPlaybackService.PlayExtras.playFromXferList)).toBeFalse();
     }
