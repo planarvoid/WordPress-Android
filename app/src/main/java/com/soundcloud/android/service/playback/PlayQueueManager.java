@@ -417,6 +417,7 @@ public class PlayQueueManager {
 
     public void clear() {
         mPlayQueue.clear();
+        mCurrentPlaySourceInfo = null;
     }
 
     public void saveQueue(long seekPos) {

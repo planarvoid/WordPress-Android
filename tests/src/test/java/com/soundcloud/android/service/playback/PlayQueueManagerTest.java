@@ -223,6 +223,7 @@ public class PlayQueueManagerTest {
         pm.clear();
         expect(pm.isEmpty()).toBeTrue();
         expect(pm.length()).toEqual(0);
+        expect(pm.getCurrentTrackingInfo()).toBeNull();
     }
 
     @Test
