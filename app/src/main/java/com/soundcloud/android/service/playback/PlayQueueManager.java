@@ -357,13 +357,15 @@ public class PlayQueueManager {
     }
 
     private void setPlayQueueInternal(List<? extends PlayableHolder> playQueue, int playPos) {
-        // TODO , set manual play queue position based on passed in position
         mPlayQueue.clear();
+
+        final PlaySourceInfo currentPlaySourceInfo = mCurrentPlaySourceInfo == null ? PlaySourceInfo.EMPTY : mCurrentPlaySourceInfo;
         if (playQueue != null) {
             for (PlayableHolder playableHolder : playQueue) {
                 final Playable playable = playableHolder.getPlayable();
                 if (playable instanceof Track){
-                    mPlayQueue.add(new PlayQueueItem((Track) playable, mPlayQueue.size(), getTrackSourceById(playable.getId())));
+                    final TrackSourceInfo trackSourceInfo = currentPlaySourceInfo.getTrackSourceById(playable.getId());
+                    mPlayQueue.add(new PlayQueueItem((Track) playable, mPlayQueue.size(), trackSourceInfo));
                 }
             }
         }
@@ -376,23 +378,6 @@ public class PlayQueueManager {
             Log.e(PlayQueueManager.class.getSimpleName(), "Unexpected queue position [" + playPos + "]");
         }
         broadcastPlayQueueChanged();
-    }
-
-    /**
-     * WARNING : This makes a lot of assumptions about what is possible with the current system of playback, namely that
-     * explore will only have 1 manually triggered track, and the entire rest of the list will be recommended
-     * @param trackId
-     * @return
-     */
-    private TrackSourceInfo getTrackSourceById(long trackId) {
-        if (mCurrentPlaySourceInfo != null) {
-            if (mCurrentPlaySourceInfo.getInitialTrackId() == trackId) {
-                return TrackSourceInfo.manual();
-            } else if (mCurrentPlaySourceInfo.getRecommenderVersion() != null) {
-                return TrackSourceInfo.fromRecommender(mCurrentPlaySourceInfo.getRecommenderVersion());
-            }
-        }
-        return TrackSourceInfo.auto();
     }
 
     private void persistPlayQueue() {

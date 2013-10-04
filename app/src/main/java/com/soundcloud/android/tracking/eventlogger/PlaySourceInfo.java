@@ -67,7 +67,6 @@ public class PlaySourceInfo implements Parcelable {
             builder.appendQueryParameter(key, String.valueOf(mData.get(key)));
         }
         return builder;
-
     }
 
     public Uri.Builder appendEventLoggerParams(Uri.Builder builder) {
@@ -81,6 +80,21 @@ public class PlaySourceInfo implements Parcelable {
             builder.appendQueryParameter(PlayEventTracker.EventLoggerKeys.EXPLORE_TAG, exploreTag);
         }
         return builder;
+    }
+
+    /**
+     * WARNING : This makes a lot of assumptions about what is possible with the current system of playback, namely that
+     * explore will only have 1 manually triggered track, and the entire rest of the list will be recommended
+     * @param trackId the track that the user clicked on originalliy, which should be set to "manual" trigger
+     * @return the proper TrackSourceInfo based on the given
+     */
+    public TrackSourceInfo getTrackSourceById(long trackId) {
+        if (getInitialTrackId() == trackId) {
+            return TrackSourceInfo.manual();
+        } else if (getRecommenderVersion() != null) {
+            return TrackSourceInfo.fromRecommender(getRecommenderVersion());
+        }
+        return TrackSourceInfo.auto();
     }
 
     @Override

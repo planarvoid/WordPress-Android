@@ -61,4 +61,18 @@ public class TrackSourceInfo {
         return Objects.toStringHelper(getClass()).add("trigger", getTrigger())
                 .add("recommender_v", getRecommenderVersion()).toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TrackSourceInfo that = (TrackSourceInfo) o;
+        return Objects.equal(mRecommenderVersion, that.mRecommenderVersion) && Objects.equal(mTrigger, that.mTrigger);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mTrigger, mRecommenderVersion);
+    }
 }

@@ -57,6 +57,24 @@ public class PlaySourceInfoTest {
 
     }
 
+    @Test
+    public void shouldCreateManualTrackSourceInfo() throws Exception {
+        final PlaySourceInfo playInfo = new PlaySourceInfo.Builder(123L).build();
+        expect(playInfo.getTrackSourceById(123L)).toEqual(TrackSourceInfo.manual());
+    }
+
+    @Test
+    public void shouldCreateAutoTrackSourceInfo() throws Exception {
+        final PlaySourceInfo playInfo = new PlaySourceInfo.Builder(123L).build();
+        expect(playInfo.getTrackSourceById(321L)).toEqual(TrackSourceInfo.auto());
+    }
+
+    @Test
+    public void shouldCreateRecommenderTrackSourceInfo() throws Exception {
+        final PlaySourceInfo playInfo = new PlaySourceInfo.Builder(123L).recommenderVersion("version_a").build();
+        expect(playInfo.getTrackSourceById(321L)).toEqual(TrackSourceInfo.fromRecommender("version_a"));
+    }
+
     private String toQueryParams(PlaySourceInfo playSourceInfo) {
         return playSourceInfo.appendAsQueryParams(new Uri.Builder()).build().getQuery().toString();
     }
