@@ -2,8 +2,9 @@
 
 ## Building
 
-Make sure the [Android SDK][], [Android NDK][] and Maven (3.0.4+ required) are installed.
-Beware! You need Maven > 3.0.4 but < 3.1.0 due to [this issue](https://code.google.com/p/appengine-maven-plugin/issues/detail?id=31) breaking the build
+Make sure the [Android SDK][] and Maven (3.0.4+ required) are installed.
+Beware! You need Maven > 3.0.4 but < 3.1.0 due to 
+[this issue](https://code.google.com/p/appengine-maven-plugin/issues/detail?id=31) breaking the build
 
     $ brew tap homebrew/versions
     $ brew install android-sdk android-ndk homebrew/versions/maven30 # OSX - you'll also need XCode CLI tools
@@ -17,7 +18,6 @@ Add thess lines to your .zshrc (or bash or whatever) [version numbers may change
     export ANDROID_HOME=/usr/local/Cellar/android-sdk/r20
     export ANDROID_SDK_ROOT=/usr/local/Cellar/android-sdk/r20
     export ANDROID_SDK_HOME=/usr/local/Cellar/android-sdk/r20
-    export ANDROID_NDK_HOME=/usr/local/Cellar/android-ndk/r7b/
 
 Run
 
@@ -64,7 +64,7 @@ Change the default JUnit Run/Debug configuration to look like this:
 
 Add a file `local.properties` to the app directory containing the path to the Android SDK:
 
-    $ echo "sdk.dir=/usr/local/Cellar/android-sdk/r20" > app/local.properties
+    $ echo "sdk.dir=$ANDROID_HOME" > app/local.properties
 
 ## Integration tests
 
@@ -79,7 +79,6 @@ Documented on the wiki: [releasing][], [betas][].
 Documented on the [wiki][].
 
 [Android SDK]: http://developer.android.com/sdk/index.html
-[Android NDK]: http://developer.android.com/sdk/ndk/index.html
 [wiki]: https://github.com/soundcloud/SoundCloud-Android/wiki/
 [releasing]: https://github.com/soundcloud/SoundCloud-Android/wiki/Releasing
 [betas]: https://github.com/soundcloud/SoundCloud-Android/wiki/Betas
