@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.soundcloud.android.service.sync.CollectionSyncRequestTest.NON_INTERACTIVE;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
@@ -36,8 +37,9 @@ public class SyncAdapterServicePushTest extends SyncAdapterServiceTestBase {
         TestHelper.addIdResponse("/me/followers/ids?linked_partitioning=1" + NON_INTERACTIVE, 792584, 1255758, 308291);
         addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE + NON_INTERACTIVE, "users.json");
 
-        addHttpResponseRule("GET", "/users/12345",
-                new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("user.json"))));
+        addHttpResponseRule(
+            createRegexRequestMatcherForUriWithClientId("GET", "/users/12345"),
+            new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("user.json"))));
 
         Bundle extras = new Bundle();
         extras.putString(SyncAdapterService.EXTRA_C2DM_EVENT, PushEvent.FOLLOWER.type);
