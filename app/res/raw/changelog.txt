@@ -1,8 +1,8 @@
 $ 71
   % v 2.7.0
-  _ 2013-10-01
+  _ 2013-10-04
   ! Explore
-    * Some UI adjustments and background refactoring
+    * More UI adjustments
     - Explore functionality added
     - Bugfixes and playback optimisations
 
