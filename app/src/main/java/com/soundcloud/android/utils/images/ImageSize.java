@@ -3,6 +3,7 @@ package com.soundcloud.android.utils.images;
 import com.soundcloud.android.R;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -81,12 +82,12 @@ public enum ImageSize {
         }
     }
 
-    public static String formatUriForPlayer(Context c, String uri) {
-        return getPlayerImageSize(c).formatUri(uri);
+    public static String formatUriForPlayer(Resources resources, String uri) {
+        return getPlayerImageSize(resources).formatUri(uri);
     }
 
-    public static ImageSize getPlayerImageSize(Context c) {
-        ImageSize imageSize = ImageSize.fromString(c.getString(R.string.full_image_size));
+    public static ImageSize getPlayerImageSize(Resources resources) {
+        ImageSize imageSize = ImageSize.fromString(resources.getString(R.string.full_image_size));
         if (imageSize != Unknown){
             return imageSize;
         } else {
