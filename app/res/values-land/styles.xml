@@ -12,7 +12,7 @@
     </style>
 
     <style name="ExploreGridItemImageView" parent="ExploreGridItemImageViewBase">
-        <item name="movement">-18dp</item>
+        <item name="movement">-8dp</item>
     </style>
 
 </resources>

@@ -1320,7 +1320,7 @@
         <item name="aspectRatioEnabled">true</item>
     </style>
     <style name="ExploreGridItemImageView" parent="ExploreGridItemImageViewBase">
-        <item name="movement">-30dp</item>
+        <item name="movement">-15dp</item>
     </style>
     <style name="ExploreGridItemTextHolder">
         <item name="android:layout_width">wrap_content</item>

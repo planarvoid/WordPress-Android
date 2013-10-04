@@ -78,9 +78,9 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
                 case 0:
                     return getString(R.string.explore_genres).toUpperCase(Locale.getDefault());
                 case 1:
-                    return getString(R.string.explore_category_popular_music).toUpperCase(Locale.getDefault());
+                    return getString(R.string.explore_category_trending_music).toUpperCase(Locale.getDefault());
                 case 2:
-                    return getString(R.string.explore_category_popular_audio).toUpperCase(Locale.getDefault());
+                    return getString(R.string.explore_category_trending_audio).toUpperCase(Locale.getDefault());
             }
             throw new RuntimeException("Unexpected position for getPageTitle " + position);
 
