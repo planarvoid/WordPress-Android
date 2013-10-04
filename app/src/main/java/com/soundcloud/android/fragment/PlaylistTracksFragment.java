@@ -141,7 +141,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int startPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
         final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        PlayInfo info = PlayInfo.fromUri(mPlaylist.toUri(), startPosition, track);
+        PlayInfo info = PlayInfo.fromUriWithTrack(mPlaylist.toUri(), startPosition, track);
 
         new PlayUtils(getActivity()).playTrack(info);
     }

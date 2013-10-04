@@ -69,7 +69,7 @@ public final class PlayUtils {
                 }
             }
 
-            PlayInfo info = PlayInfo.fromUri(streamUri, adjustedPosition, tracks.get(adjustedPosition), tracks);
+            PlayInfo info = PlayInfo.fromUriWithInitialTracklist(streamUri, adjustedPosition, tracks.get(adjustedPosition), tracks);
             mContext.startActivity(getPlayIntent(info));
 
         } else if (playable instanceof Playlist) {
