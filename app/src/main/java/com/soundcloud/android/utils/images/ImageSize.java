@@ -1,5 +1,7 @@
 package com.soundcloud.android.utils.images;
 
+import com.soundcloud.android.R;
+
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -84,8 +86,13 @@ public enum ImageSize {
     }
 
     public static ImageSize getPlayerImageSize(Context c) {
-        // for now, just return T500. logic will come with more screen support
-        return ImageSize.T500;
+        ImageSize imageSize = ImageSize.fromString(c.getString(R.string.full_image_size));
+        if (imageSize != Unknown){
+            return imageSize;
+        } else {
+            return ImageSize.T500;
+        }
+
     }
 
     public String formatUri(String uri) {
