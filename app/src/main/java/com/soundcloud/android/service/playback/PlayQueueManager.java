@@ -21,6 +21,7 @@ import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
@@ -51,7 +52,8 @@ public class PlayQueueManager {
     private AppendState mAppendingState = AppendState.IDLE;
     private Subscription mRelatedSubscription;
     private Observable<ModelCollection<TrackSummary>> mRelatedTracksObservable;
-    private PlaySourceInfo mCurrentPlaySourceInfo;
+    @NotNull
+    private PlaySourceInfo mCurrentPlaySourceInfo = PlaySourceInfo.EMPTY;
 
     private enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
@@ -284,7 +286,6 @@ public class PlayQueueManager {
         });
     }
 
-
     private void stopLoadingRelatedTracks() {
         mAppendingState = AppendState.IDLE;
         if (mRelatedSubscription != null){
@@ -359,12 +360,11 @@ public class PlayQueueManager {
     private void setPlayQueueInternal(List<? extends PlayableHolder> playQueue, int playPos) {
         mPlayQueue.clear();
 
-        final PlaySourceInfo currentPlaySourceInfo = mCurrentPlaySourceInfo == null ? PlaySourceInfo.EMPTY : mCurrentPlaySourceInfo;
         if (playQueue != null) {
             for (PlayableHolder playableHolder : playQueue) {
                 final Playable playable = playableHolder.getPlayable();
                 if (playable instanceof Track){
-                    final TrackSourceInfo trackSourceInfo = currentPlaySourceInfo.getTrackSourceById(playable.getId());
+                    final TrackSourceInfo trackSourceInfo = mCurrentPlaySourceInfo.getTrackSourceById(playable.getId());
                     mPlayQueue.add(new PlayQueueItem((Track) playable, mPlayQueue.size(), trackSourceInfo));
                 }
             }
@@ -373,7 +373,7 @@ public class PlayQueueManager {
         if (playPos >= 0 && playPos <= mPlayQueue.size() - 1){
             mPlayPos = playPos;
         } else {
-            // invalid play position, default to 0 and keep track source to auto
+            // invalid play position, default to 0
             mPlayPos = 0;
             Log.e(PlayQueueManager.class.getSimpleName(), "Unexpected queue position [" + playPos + "]");
         }
@@ -428,7 +428,7 @@ public class PlayQueueManager {
 
     public void clear() {
         mPlayQueue.clear();
-        mCurrentPlaySourceInfo = null;
+        mCurrentPlaySourceInfo = PlaySourceInfo.EMPTY;
     }
 
     public void saveQueue(long seekPos) {

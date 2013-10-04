@@ -21,6 +21,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -233,7 +234,8 @@ public class PlayQueueManagerTest {
         pm.clear();
         expect(pm.isEmpty()).toBeTrue();
         expect(pm.length()).toEqual(0);
-        expect(pm.getCurrentPlaySourceInfo()).toBeNull();
+        expect(pm.getCurrentPlaySourceInfo()).toEqual(PlaySourceInfo.EMPTY);
+        expect(pm.getCurrentEventLoggerParams()).toEqual(ScTextUtils.EMPTY_STRING);
     }
 
     @Test

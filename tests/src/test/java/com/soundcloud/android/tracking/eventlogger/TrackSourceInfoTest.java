@@ -3,6 +3,7 @@ package com.soundcloud.android.tracking.eventlogger;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -23,6 +24,11 @@ public class TrackSourceInfoTest {
     @Test
     public void shouldCreateRecommenderSourceParams() throws Exception {
         expect(toQueryParams(TrackSourceInfo.fromRecommender("version1"))).toEqual("trigger=auto&source=recommender&source_version=version1");
+    }
+
+    @Test
+    public void shouldMakeEmptyParams() throws Exception {
+        expect(toQueryParams(TrackSourceInfo.EMPTY)).toEqual(ScTextUtils.EMPTY_STRING);
     }
 
     @Test

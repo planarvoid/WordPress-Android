@@ -48,12 +48,15 @@ public class TrackSourceInfo {
     public String createEventLoggerParams(PlaySourceInfo playSourceInfo){
         final Uri.Builder builder = new Uri.Builder();
         playSourceInfo.appendEventLoggerParams(builder);
-        builder.appendQueryParameter(EventLoggerKeys.TRIGGER, mTrigger);
+        if (ScTextUtils.isNotBlank(mTrigger)){
+            builder.appendQueryParameter(EventLoggerKeys.TRIGGER, mTrigger);
+        }
         if (ScTextUtils.isNotBlank(mRecommenderVersion)){
             builder.appendQueryParameter(EventLoggerKeys.SOURCE, SOURCE_RECOMMENDER);
             builder.appendQueryParameter(EventLoggerKeys.SOURCE_VERSION, mRecommenderVersion);
         }
-        return builder.build().getQuery().toString();
+        final String query = builder.build().getQuery();
+        return ScTextUtils.isBlank(query) ? ScTextUtils.EMPTY_STRING : query.toString();
     }
 
     @Override

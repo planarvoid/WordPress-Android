@@ -58,9 +58,7 @@ public class PlayQueueUri {
         }
         builder.appendQueryParameter(PARAM_PLAYLIST_POS, String.valueOf(mPlayPos));
         builder.appendQueryParameter(PARAM_SEEK_POS, String.valueOf(seekPos));
-        if (trackingInfo != null){
-            trackingInfo.appendAsQueryParams(builder);
-        }
+        trackingInfo.appendAsQueryParams(builder);
         return builder.build();
     }
 
