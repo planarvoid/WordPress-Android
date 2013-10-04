@@ -13,7 +13,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -30,6 +29,15 @@ import java.util.UUID;
 
 public class PlayEventTracker {
     private static final String TAG = PlayEventTracker.class.getSimpleName();
+
+    public static interface EventLoggerKeys {
+        String ORIGIN_URL = "context";
+        String TRIGGER = "trigger";
+        String SOURCE = "source";
+        String SOURCE_VERSION = "source_version";
+        String EXPLORE_TAG = "exploreTag";
+        String SET = "set";
+    }
 
     private static final int INSERT_TOKEN = 0;
     private static final int FLUSH_TOKEN = 1;
@@ -54,7 +62,7 @@ public class PlayEventTracker {
     }
 
     public void trackEvent(final @Nullable Track track, final Action action, final long userId,
-                           final PlaySourceInfo playSourceInfo, final TrackSourceInfo trackSourceInfo) {
+                           String sourceParams) {
 
         if (track == null) return;
 
@@ -64,7 +72,7 @@ public class PlayEventTracker {
                 thread.start();
                 handler = new TrackerHandler(thread.getLooper());
             }
-            TrackingParams params = new TrackingParams(track, action, userId, playSourceInfo, trackSourceInfo);
+            TrackingParams params = new TrackingParams(track, action, userId, sourceParams);
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + params.toString());
 
             Message insert = handler.obtainMessage(INSERT_TOKEN, params);
@@ -161,16 +169,14 @@ public class PlayEventTracker {
         final Action action;
         final long timestamp;
         final long userId;
-        final PlaySourceInfo playSourceInfo;
-        final TrackSourceInfo trackSourceInfo;
+        final String sourceParams;
 
-        TrackingParams(Track track, Action action, long userId, PlaySourceInfo sourceTrackingInfo, TrackSourceInfo trackSourceInfo) {
+        TrackingParams(Track track, Action action, long userId, String sourceParams) {
             this.track = track;
             this.action = action;
             this.userId = userId;
             this.timestamp = System.currentTimeMillis();
-            this.playSourceInfo = sourceTrackingInfo;
-            this.trackSourceInfo = trackSourceInfo;
+            this.sourceParams = sourceParams;
         }
 
         public ContentValues toContentValues() {
@@ -180,11 +186,7 @@ public class PlayEventTracker {
             values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(track.getId()).toString());
             values.put(TrackingEvents.SOUND_DURATION, track.duration);
             values.put(TrackingEvents.USER_URN, buildUserUrn(userId));
-
-            final Uri.Builder builder = new Uri.Builder();
-            playSourceInfo.appendEventLoggerParams(builder);
-            trackSourceInfo.appendEventLoggerParams(builder);
-            values.put(TrackingEvents.SOURCE_INFO, builder.build().getQuery().toString());
+            values.put(TrackingEvents.SOURCE_INFO, sourceParams);
             return values;
 
         }
@@ -204,8 +206,7 @@ public class PlayEventTracker {
                     ", action=" + action.name() +
                     ", timestamp=" + timestamp +
                     ", userId=" + userId +
-                    ", playSourceInfo='" + playSourceInfo + '\'' +
-                    ", trackSourceInfo='" + trackSourceInfo + '\'' +
+                    ", sourceParams='" + sourceParams + '\'' +
                     '}';
         }
     }

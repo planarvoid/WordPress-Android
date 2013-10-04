@@ -29,4 +29,8 @@ public class TrackSummaryBlueprint {
 
     @Mapped
     TrackStats stats;
+
+    @Default
+    String streamUrl = "http://media.soundcloud.com/stream/whVhoRw2gpUh";
+
 }

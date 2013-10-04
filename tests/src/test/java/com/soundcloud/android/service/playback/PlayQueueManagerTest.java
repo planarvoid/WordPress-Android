@@ -21,6 +21,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,7 +137,7 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #0");
-        checkCurrentItemTrackingTriggerIsAuto();
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=origin-url&exploreTag=explore-tag&trigger=auto&source=recommender&source_version=version_1");
     }
 
     @Test
@@ -196,7 +197,6 @@ public class PlayQueueManagerTest {
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #2");
-        checkCurrentItemTrackingTriggerIsManual();
 
         expect(pm.prev()).toBeTrue();
         track = pm.getCurrentTrack();
@@ -204,7 +204,6 @@ public class PlayQueueManagerTest {
         expect(track.title).toEqual("track #1");
         expect(pm.getPrev().title).toEqual("track #0");
         expect(pm.getNext().title).toEqual("track #2");
-        checkCurrentItemTrackingTriggerIsAuto();
 
         expect(pm.prev()).toBeTrue();
         track = pm.getCurrentTrack();
@@ -212,10 +211,20 @@ public class PlayQueueManagerTest {
         expect(track.title).toEqual("track #0");
         expect(pm.getNext().title).toEqual("track #1");
         expect(pm.getPrev()).toBeNull();
-        checkCurrentItemTrackingTriggerIsAuto();
 
         expect(pm.getPrev()).toBeNull();
         expect(pm.prev()).toBeFalse();
+    }
+
+    @Test
+    public void shouldSetEventLoggerParamsWhenSettingPlaylist() throws Exception {
+        pm.setPlayQueue(createTracks(3, true, 0), 2, new PlaySourceInfo.Builder(2L).exploreTag("exploreTag").originUrl("originUrl").build());
+        expect(pm.length()).toEqual(3);
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=manual");
+        expect(pm.prev()).toBeTrue();
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=auto");
+        expect(pm.prev()).toBeTrue();
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=auto");
     }
 
     @Test
@@ -244,22 +253,31 @@ public class PlayQueueManagerTest {
 
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
-        checkCurrentItemTrackingTriggerIsManual();
-
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().getId()).toEqual(56143158l);
         expect(pm.getCurrentPlaySourceInfo()).toEqual(playSourceInfo);
-        checkCurrentItemTrackingTriggerIsAuto();
+    }
+
+    @Test
+    public void shouldSetTrackingInfoWhenLoadingPlaylistFromLikes() throws Exception {
+        insertLikes();
+
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(56142962l).exploreTag("exploreTag").originUrl("originUrl").build();
+        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962), playSourceInfo);
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=manual");
+        expect(pm.next()).toBeTrue();
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=auto");
     }
 
     @Test
     public void shouldSaveAndRestoreLikesAsPlaylist() throws Exception {
         insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 0, new Track(56143158L), trackingInfo);
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(56143158L).exploreTag("exploreTag").originUrl("originUrl").build();
+        pm.loadUri(Content.ME_LIKES.uri, 0, new Track(56143158L), playSourceInfo);
         expect(pm.length()).toEqual(2);
         expect(pm.getCurrentTrack().getId()).toEqual(56143158L);
         expect(pm.getPosition()).toEqual(1);
-        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=manual");
 
         pm.saveQueue(1000l);
         pm.clear();
@@ -267,7 +285,7 @@ public class PlayQueueManagerTest {
         expect(pm.reloadQueue()).toEqual(1000l);
         expect(pm.getCurrentTrackId()).toEqual(56143158L);
         expect(pm.getPosition()).toEqual(1);
-        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=manual");
     }
 
     @Test
@@ -397,13 +415,13 @@ public class PlayQueueManagerTest {
         expect(pm2.length()).toEqual(0);
     }
 
-
     @Test
     public void shouldSetSingleTrack() throws Exception {
         List<Track> tracks = createTracks(1, true, 0);
         pm.loadTrack(tracks.get(0), true, trackingInfo);
         expect(pm.length()).toEqual(1);
         expect(pm.getCurrentTrack()).toBe(tracks.get(0));
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=origin-url&exploreTag=explore-tag&trigger=manual");
     }
 
     @Test
@@ -431,14 +449,9 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldAddTrackSetIdleStateAndBroadcastChangeAfterSuccessfulRelatedLoad() throws Exception {
         Context context = Mockito.mock(Context.class);
-        pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
-
-        TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        ModelCollection<TrackSummary> relatedTracks = new ModelCollection<TrackSummary>(Lists.newArrayList(trackSummary));
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<ModelCollection<TrackSummary>>just(relatedTracks));
+        setupSuccesfulRelatedLoad(context);
 
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-
         expect(pm.length()).toBe(0);
         pm.loadTrack(track, false, trackingInfo);
         pm.fetchRelatedTracks(track);
@@ -454,6 +467,26 @@ public class PlayQueueManagerTest {
         assertThat(allValues.get(0).getAction(), is(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED));
         assertThat(allValues.get(1).getAction(), is(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
         assertThat(allValues.get(2).getAction(), is(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
+    }
+
+    @Test
+    public void shouldSetEventLoggerParamsOnRelatedTracks() throws Exception {
+        Context context = Mockito.mock(Context.class);
+        setupSuccesfulRelatedLoad(context);
+
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        pm.loadTrack(track, false, trackingInfo);
+        pm.fetchRelatedTracks(track);
+        expect(pm.next()).toBeTrue();
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=origin-url&exploreTag=explore-tag&trigger=auto&source=recommender&source_version=FakeVersion_C");
+    }
+
+    private void setupSuccesfulRelatedLoad(Context context) throws CreateModelException {
+        pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
+
+        TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        ModelCollection<TrackSummary> relatedTracks = new ModelCollection<TrackSummary>(Lists.newArrayList(trackSummary));
+        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<ModelCollection<TrackSummary>>just(relatedTracks));
     }
 
     @Test
@@ -501,15 +534,6 @@ public class PlayQueueManagerTest {
         expect(pm.isFetchingRelated()).toBeFalse();
         verify(subscription).unsubscribe();
     }
-
-    private void checkCurrentItemTrackingTriggerIsManual() {
-        expect(pm.getCurrentTrackSourceInfo().getTrigger()).toEqual("manual");
-    }
-
-    private void checkCurrentItemTrackingTriggerIsAuto() {
-        expect(pm.getCurrentTrackSourceInfo().getTrigger()).toEqual("auto");
-    }
-
 
     private void insertLikes() throws IOException {
         List<Playable> likes = TestHelper.readResourceList("/com/soundcloud/android/service/sync/e1_likes.json");

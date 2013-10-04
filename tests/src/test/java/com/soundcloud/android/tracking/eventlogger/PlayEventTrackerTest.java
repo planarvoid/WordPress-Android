@@ -25,8 +25,8 @@ public class PlayEventTrackerTest {
     PlayEventTracker tracker;
     PlayEventTrackingApi api;
 
-    final PlaySourceInfo playSourceInfo1 = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();
-    final PlaySourceInfo playSourceInfo2 = new PlaySourceInfo.Builder(456L).originUrl("origin-url2").exploreTag("explore-tag2").recommenderVersion("version_2").build();
+    final String trackingParams1 = "tracking=params";
+    final String trackingParams2 = "tracking=params2";
 
     @Before
     public void before() {
@@ -48,12 +48,8 @@ public class PlayEventTrackerTest {
         track.setId(10);
 
 
-        final TrackSourceInfo trackSourceInfo = TrackSourceInfo.auto();
-        tracker.trackEvent(track, Action.PLAY, 1l, playSourceInfo1, trackSourceInfo);
-
-
-        final TrackSourceInfo trackSourceInfo2 = TrackSourceInfo.fromRecommender("version_3");
-        tracker.trackEvent(track, Action.STOP, 2l, playSourceInfo2, trackSourceInfo2);
+        tracker.trackEvent(track, Action.PLAY, 1l, trackingParams1);
+        tracker.trackEvent(track, Action.STOP, 2l, trackingParams2);
 
         Cursor cursor = tracker.eventsCursor();
 
@@ -64,13 +60,13 @@ public class PlayEventTrackerTest {
         expect(cursor).toHaveColumn(TrackingEvents.SOUND_URN, "soundcloud:sounds:10");
         expect(cursor).toHaveColumn(TrackingEvents.USER_URN, "soundcloud:users:1");
         expect(cursor).toHaveColumn(TrackingEvents.ACTION, "play");
-        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, "context=origin-url&exploreTag=explore-tag&trigger=auto");
+        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, "tracking=params");
         expect(cursor).toHaveColumn(TrackingEvents.TIMESTAMP);
 
         expect(cursor).toHaveNext();
         expect(cursor).toHaveColumn(TrackingEvents.ACTION, "stop");
         expect(cursor).toHaveColumn(TrackingEvents.USER_URN, "soundcloud:users:2");
-        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, "context=origin-url2&exploreTag=explore-tag2&trigger=auto&source=recommender&source_version=version_3");
+        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, "tracking=params2");
         expect(cursor).not.toHaveNext();
     }
 
@@ -78,8 +74,8 @@ public class PlayEventTrackerTest {
     public void shouldFlushEventsToApi() throws Exception {
         when(api.pushToRemote(anyList())).thenReturn(new String[]{"1"});
 
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, playSourceInfo1, TrackSourceInfo.auto());
-        tracker.trackEvent(new Track(), Action.STOP, 2l, playSourceInfo1, TrackSourceInfo.auto());
+        tracker.trackEvent(new Track(), Action.PLAY, 1l, trackingParams1);
+        tracker.trackEvent(new Track(), Action.STOP, 2l, trackingParams2);
 
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
 
@@ -92,7 +88,7 @@ public class PlayEventTrackerTest {
 
     @Test
     public void shouldNotFlushIfNoActiveNetwork() throws Exception {
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, playSourceInfo1, TrackSourceInfo.auto());
+        tracker.trackEvent(new Track(), Action.PLAY, 1l, trackingParams1);
 
         TestHelper.simulateOffline();
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();

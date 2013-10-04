@@ -214,7 +214,7 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).loadUri(eq(Content.ME_LIKES.uri), eq(2), eq(Lists.newArrayList(track)), eq(2), eq(trackingInfo));
+        verify(playQueueManager).loadUri(eq(Content.ME_LIKES.uri), eq(2), eq(Lists.newArrayList(track)), eq(0), eq(trackingInfo));
     }
 
     @Test

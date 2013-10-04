@@ -12,7 +12,7 @@ import android.os.Parcelable;
 /**
  * Used to track the origin of play events. This will eventually be passed to {@link PlayEventTracker}
  */
-public class PlaySourceInfo implements EventLoggerParams, Parcelable {
+public class PlaySourceInfo implements Parcelable {
 
     public static final PlaySourceInfo EMPTY = new PlaySourceInfo();
 
@@ -71,8 +71,15 @@ public class PlaySourceInfo implements EventLoggerParams, Parcelable {
     }
 
     public Uri.Builder appendEventLoggerParams(Uri.Builder builder) {
-        builder.appendQueryParameter(ExternalKeys.ORIGIN_URL, mData.getString(KEY_ORIGIN_URL));
-        builder.appendQueryParameter(ExternalKeys.EXPLORE_TAG, mData.getString(KEY_EXPLORE_TAG));
+        final String originUrl = mData.getString(KEY_ORIGIN_URL);
+        if (ScTextUtils.isNotBlank(originUrl)){
+            builder.appendQueryParameter(PlayEventTracker.EventLoggerKeys.ORIGIN_URL, originUrl);
+        }
+
+        final String exploreTag = mData.getString(KEY_EXPLORE_TAG);
+        if (ScTextUtils.isNotBlank(exploreTag)){
+            builder.appendQueryParameter(PlayEventTracker.EventLoggerKeys.EXPLORE_TAG, exploreTag);
+        }
         return builder;
     }
 

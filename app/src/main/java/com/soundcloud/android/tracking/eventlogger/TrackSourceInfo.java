@@ -1,11 +1,13 @@
 package com.soundcloud.android.tracking.eventlogger;
 
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.EventLoggerKeys;
+
 import com.google.common.base.Objects;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.net.Uri;
 
-public class TrackSourceInfo implements EventLoggerParams {
+public class TrackSourceInfo {
 
     public static final TrackSourceInfo EMPTY = new TrackSourceInfo();
 
@@ -15,17 +17,6 @@ public class TrackSourceInfo implements EventLoggerParams {
 
     private String mTrigger;
     private String mRecommenderVersion;
-
-
-    @Override
-    public Uri.Builder appendEventLoggerParams(Uri.Builder builder) {
-        builder.appendQueryParameter(ExternalKeys.TRIGGER, mTrigger);
-        if (ScTextUtils.isNotBlank(mRecommenderVersion)){
-            builder.appendQueryParameter(ExternalKeys.SOURCE, SOURCE_RECOMMENDER);
-            builder.appendQueryParameter(ExternalKeys.SOURCE_VERSION, mRecommenderVersion);
-        }
-        return builder;
-    }
 
     public static TrackSourceInfo fromRecommender(String recommenderVersion){
         TrackSourceInfo trackSourceInfo = new TrackSourceInfo();
@@ -52,6 +43,17 @@ public class TrackSourceInfo implements EventLoggerParams {
 
     public String getRecommenderVersion() {
         return mRecommenderVersion;
+    }
+
+    public String createEventLoggerParams(PlaySourceInfo playSourceInfo){
+        final Uri.Builder builder = new Uri.Builder();
+        playSourceInfo.appendEventLoggerParams(builder);
+        builder.appendQueryParameter(EventLoggerKeys.TRIGGER, mTrigger);
+        if (ScTextUtils.isNotBlank(mRecommenderVersion)){
+            builder.appendQueryParameter(EventLoggerKeys.SOURCE, SOURCE_RECOMMENDER);
+            builder.appendQueryParameter(EventLoggerKeys.SOURCE_VERSION, mRecommenderVersion);
+        }
+        return builder.build().getQuery().toString();
     }
 
     @Override

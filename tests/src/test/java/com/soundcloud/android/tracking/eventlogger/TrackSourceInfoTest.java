@@ -5,8 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.net.Uri;
+import org.mockito.Mockito;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackSourceInfoTest {
@@ -27,6 +26,6 @@ public class TrackSourceInfoTest {
     }
 
     private String toQueryParams(TrackSourceInfo trackSourceInfo) {
-        return trackSourceInfo.appendEventLoggerParams(new Uri.Builder()).build().getQuery().toString();
+        return trackSourceInfo.createEventLoggerParams(Mockito.mock(PlaySourceInfo.class));
     }
 }

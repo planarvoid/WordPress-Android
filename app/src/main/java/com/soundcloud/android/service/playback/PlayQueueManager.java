@@ -116,6 +116,12 @@ public class PlayQueueManager {
         return currentTrack == null ? -1 : currentTrack.getId();
     }
 
+    public String getCurrentEventLoggerParams() {
+        final PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
+        final TrackSourceInfo trackSourceInfo = currentPlayQueueItem == null ? TrackSourceInfo.EMPTY : currentPlayQueueItem.getTrackSourceInfo();
+        return trackSourceInfo.createEventLoggerParams(getCurrentPlaySourceInfo());
+    }
+
     public PlayQueueItem getPlayQueueItem(int pos) {
         if (pos >= 0 && pos < mPlayQueue.size()) {
             return mPlayQueue.get(pos);
@@ -180,13 +186,9 @@ public class PlayQueueManager {
         }
     }
 
-    public PlaySourceInfo getCurrentPlaySourceInfo(){
+    @VisibleForTesting
+    PlaySourceInfo getCurrentPlaySourceInfo(){
         return mCurrentPlaySourceInfo;
-    }
-
-    public TrackSourceInfo getCurrentTrackSourceInfo() {
-        final PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
-        return currentPlayQueueItem == null ? TrackSourceInfo.EMPTY : currentPlayQueueItem.getTrackSourceInfo();
     }
 
     public void loadTrack(Track toBePlayed, boolean saveQueue, PlaySourceInfo trackingInfo) {
@@ -272,9 +274,10 @@ public class PlayQueueManager {
 
             @Override
             public void onNext(ModelCollection<TrackSummary> relatedTracks) {
-                mCurrentPlaySourceInfo.setRecommenderVersion("FakeVersion_C");
+                final String recommenderVersion = "FakeVersion_C"; // TODO, replace with real versioning from ModelCollection
+                mCurrentPlaySourceInfo.setRecommenderVersion(recommenderVersion);
                 for (TrackSummary item : relatedTracks) {
-                    mPlayQueue.add(new PlayQueueItem(new Track(item), mPlayQueue.size(), TrackSourceInfo.auto()));
+                    mPlayQueue.add(new PlayQueueItem(new Track(item), mPlayQueue.size(), TrackSourceInfo.fromRecommender(recommenderVersion)));
                 }
                 mGotRelatedTracks = true;
             }
@@ -473,14 +476,13 @@ public class PlayQueueManager {
             final int trackId = playQueueUri.getTrackId();
             if (trackId > 0) {
                 Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(trackId);
-                loadUri(playQueueUri.uri, playQueueUri.getPos(), t, null);
+                loadUri(playQueueUri.uri, playQueueUri.getPos(), t, playQueueUri.getTrackingInfo());
                 // adjust play position if it has changed
                 if (getCurrentTrack() != null && getCurrentTrack().getId() != trackId && playQueueUri.isCollectionUri()) {
                     final int newPos = mPlayQueueDAO.getPlayQueuePositionFromUri(playQueueUri.uri, trackId);
                     if (newPos == -1) seekPos = 0;
                     setPosition(Math.max(newPos, 0));
                 }
-                mCurrentPlaySourceInfo = playQueueUri.getTrackingInfo();
             }
             return seekPos;
         } else {

@@ -517,13 +517,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private void trackPlayEvent(Track newTrack) {
         final long userId = SoundCloudApplication.getUserId();
         mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId,
-                mPlayQueueManager.getCurrentPlaySourceInfo(), mPlayQueueManager.getCurrentTrackSourceInfo());
+                mPlayQueueManager.getCurrentEventLoggerParams());
     }
 
     private void trackStopEvent() {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId,
-                mPlayQueueManager.getCurrentPlaySourceInfo(), mPlayQueueManager.getCurrentTrackSourceInfo());
+        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId, mPlayQueueManager.getCurrentEventLoggerParams());
     }
 
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
