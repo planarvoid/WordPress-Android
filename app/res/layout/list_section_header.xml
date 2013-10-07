@@ -2,12 +2,12 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
           android:id="@+id/list_section_header"
           style="?android:attr/listSeparatorTextViewStyle"
-          android:paddingTop="15dp"
-          android:paddingLeft="15dp"
-          android:paddingRight="15dp"
-          android:layout_height="wrap_content"
+          android:paddingLeft="20dp"
+          android:paddingRight="20dp"
+          android:layout_height="50dp"
           android:visibility="gone"
           android:textColor="@color/scOrange"
-          android:background="@drawable/orange_list_divider"/>
+          android:gravity="bottom"
+          android:background="@drawable/divider_list_orange"/>
 
     

@@ -9,15 +9,13 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.view.adapter.GridSpacer;
-import rx.Observable;
-import rx.Observer;
 
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import java.util.Locale;
 public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
     public static final int INITIAL_LIST_SIZE = 20;
@@ -25,8 +23,8 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
     private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.gridView();
     private GridSpacer mGridSpacer;
 
-    public ExploreTracksAdapter(Observable<Observable<TrackSummary>> pagingObservable, Observer<TrackSummary> itemObserver) {
-        super(pagingObservable, itemObserver, INITIAL_LIST_SIZE, R.layout.grid_loading_item);
+    public ExploreTracksAdapter() {
+        super(INITIAL_LIST_SIZE, R.layout.grid_loading_item);
         mGridSpacer = new GridSpacer();
     }
 
@@ -59,14 +57,14 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
         if (TextUtils.isEmpty(track.getGenre())){
             viewHolder.genre.setVisibility(View.GONE);
         } else {
-            viewHolder.genre.setText(track.getGenre());
+            viewHolder.genre.setText(track.getGenre().toUpperCase(Locale.getDefault()));
             viewHolder.genre.setVisibility(View.VISIBLE);
         }
         final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getStats().getPlaybackCount());
         viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, playcountWithCommas));
 
         viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
-        final String artworkUri = track.getArtworkOrAvatar(ImageSize.getPlayerImageSize(itemView.getContext()));
+        final String artworkUri = track.getArtworkOrAvatar(ImageSize.getPlayerImageSize(itemView.getResources()));
         ImageLoader.getInstance().displayImage(artworkUri, viewHolder.imageView, mDisplayImageOptions);
 
         mGridSpacer.configureItemPadding(itemView, position, getCount());

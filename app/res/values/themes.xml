@@ -21,6 +21,8 @@
         <item name="actionDropDownStyle">@style/next_DropDownNav</item>
         <item name="android:actionDropDownStyle">@style/next_DropDownNav</item>
 
+        <item name="android:listViewStyle">@style/ScListViewStyle</item>
+
         <item name="dropDownListViewStyle">@style/next_DropDownListView</item>
         <item name="android:dropDownListViewStyle">@style/next_DropDownListView</item>
 
@@ -203,6 +205,11 @@
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
     <style name="next_SpinnerItem" parent="@style/Widget.Sherlock.TextView.SpinnerItem">
         <item name="android:textAppearance">?android:attr/textAppearanceInverse</item>
+    </style>
+
+    <style name="ScListViewStyle" parent="@android:style/Widget.ListView">
+        <item name="android:divider">@drawable/divider_list_grey</item>
+        <item name="android:dividerHeight">1px</item>
     </style>
 
 </resources>

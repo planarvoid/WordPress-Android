@@ -5,22 +5,20 @@
                 android:layout_height="wrap_content">
 
     <com.soundcloud.android.view.adapter.SuggestedTrackImageView android:id="@+id/suggested_track_image"
-                                                                 sc:movement="-42dp"
+                                                                 android:src="@drawable/placeholder_cells"
                                                                  sc:focalPoint=".45"
                                                                  style="@style/ExploreGridItemImageView"/>
 
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignBottom="@id/suggested_track_image"
-                    android:layout_alignTop="@id/suggested_track_image">
+                    android:layout_alignTop="@id/suggested_track_image"
+                    android:padding="13dp">
 
-        <LinearLayout style="@style/ExploreGridItemTextHolder"
-                      android:layout_marginLeft="@dimen/explore_suggested_track_parallax_margin_right_left"
-                      android:layout_marginRight="@dimen/explore_suggested_track_parallax_margin_right_left"
-                      android:layout_marginTop="@dimen/explore_suggested_track_parallax_margin_top_bottom">
+        <LinearLayout style="@style/ExploreGridItemTextHolder">
 
             <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/title"
-                                                             style="@style/BlackOverlayText.Regular"/>
+                                                             style="@style/BlackOverlayText.Regular.Title"/>
             <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/username"
                                                              style="@style/BlackOverlayText.RegularSubtext"/>
         </LinearLayout>

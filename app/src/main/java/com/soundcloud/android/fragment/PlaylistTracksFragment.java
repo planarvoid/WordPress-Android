@@ -90,7 +90,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.playlist_fragment, container, false);
 
         mListViewContainer = layout.findViewById(R.id.listContainer);
-        mProgressView = layout.findViewById(android.R.id.progress);
+        mProgressView = layout.findViewById(R.id.playlist_loading_view);
 
         mListView = (ScListView) layout.findViewById(R.id.list);
         mListView.setOnRefreshListener(this);
@@ -142,7 +142,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         info.initialTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
         info.uri = mPlaylist.toUri();
         info.position = position - mListView.getRefreshableView().getHeaderViewsCount();
-        PlayUtils.playTrack(getActivity(), info);
+        new PlayUtils(getActivity()).playTrack(info);
     }
 
     @Override

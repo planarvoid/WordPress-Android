@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="69" android:versionName="2.7.0" package="com.soundcloud.android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.soundcloud.android"
+      android:versionName="2.7.0"
+      android:installLocation="auto"
+      android:versionCode="71">
 
     <supports-screens android:anyDensity="true"/>
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
@@ -483,6 +487,8 @@
         </receiver>
 
         <meta-data android:name="android.app.default_searchable" android:value=".activity.landing.ScSearch"/>
+
+        <meta-data android:name="com.crashlytics.ApiKey" android:value="3ec813b4091b6da31a39af4d414c8b7f816ae817"/>
     </application>
 
 </manifest>

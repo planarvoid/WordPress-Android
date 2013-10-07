@@ -7,6 +7,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.utils.images.ImageSize;
@@ -46,7 +47,11 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     };
 
     public static void start(Context context, @NotNull Playlist playlist) {
-        SoundCloudApplication.MODEL_MANAGER.cache(playlist);
+        start(context, playlist, SoundCloudApplication.MODEL_MANAGER);
+    }
+
+    public static void start(Context context, @NotNull Playlist playlist, ScModelManager modelManager) {
+        modelManager.cache(playlist);
         context.startActivity(getIntent(playlist));
     }
 

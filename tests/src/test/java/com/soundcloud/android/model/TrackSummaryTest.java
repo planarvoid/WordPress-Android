@@ -34,6 +34,7 @@ public class TrackSummaryTest {
         expect(trackSummary.getCreatedAt()).toEqual(Wrapper.CloudDateFormat.fromString("2013/08/17 07:50:03 +0000"));
         expect(trackSummary.getSharing()).toBe(Sharing.PRIVATE);
         expect(trackSummary.getStats().getPlaybackCount()).toEqual(4901L);
+        expect(trackSummary.getPermalinkUrl()).toEqual("http://soundcloud.com/asdffdsa");
 
     }
 
@@ -58,8 +59,10 @@ public class TrackSummaryTest {
     @Test
     public void shouldReturnAvatarUrlInCorrectSize(){
         TrackSummary suggestion = new TrackSummary();
-        suggestion.setUser(new UserSummary("soundcloud:users:123"));
-        expect(suggestion.getArtworkOrAvatar(ImageSize.T500)).toEqual("https://api.soundcloud.com/resolve/image?url=soundcloud%3Ausers%3A123&client_id=40ccfee680a844780a41fbe23ea89934&size=t500x500");
+        final UserSummary user = new UserSummary("soundcloud:users:123");
+        user.setAvatarUrl("http://i1.sndcdn.com/avatars-000018614344-2p78eh-large.jpg?f34f187");
+        suggestion.setUser(user);
+        expect(suggestion.getArtworkOrAvatar(ImageSize.T500)).toEqual("http://i1.sndcdn.com/avatars-000018614344-2p78eh-t500x500.jpg?f34f187");
     }
 
     @Test
@@ -80,6 +83,7 @@ public class TrackSummaryTest {
         expect(track1.getWaveformUrl()).toEqual(track2.getWaveformUrl());
         expect(track1.getUserTags()).toEqual(track2.getUserTags());
         expect(track1.getCreatedAt()).toEqual(track2.getCreatedAt());
+        expect(track1.getPermalinkUrl()).toEqual(track2.getPermalinkUrl());
     }
 
 }

@@ -1,11 +1,11 @@
 package com.soundcloud.android.adapter;
 
+import static rx.android.OperationPaged.Page;
+
 import com.soundcloud.android.R;
-import com.soundcloud.android.rx.observers.ScObserver;
-import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.android.BufferingObserver;
+import rx.android.OperationPaged;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
@@ -13,13 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
-public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements AbsListView.OnScrollListener, Observer<T> {
+public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements AbsListView.OnScrollListener, Observer<Page<T>> {
 
     private final int mProgressItemLayoutResId;
 
-    private final Observable<Observable<T>> mPagingObservable;
-    private Observable<T> mNextPageObservable;
-    private Observer<T> mDelegateObserver;
+    private Page<T> mCurrentPage = OperationPaged.emptyPage();
 
     private AppendState mAppendState = AppendState.IDLE;
 
@@ -27,14 +25,12 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         IDLE, LOADING, ERROR;
     }
 
-    public EndlessPagingAdapter(Observable<Observable<T>> pageEmittingObservable, Observer<T> delegateObserver, int pageSize) {
-        this(pageEmittingObservable, delegateObserver, pageSize, R.layout.list_loading_item);
+    public EndlessPagingAdapter(int pageSize) {
+        this(pageSize, R.layout.list_loading_item);
     }
 
-    public EndlessPagingAdapter(Observable<Observable<T>> pageEmittingObservable, Observer<T> delegateObserver, int pageSize, int progressItemLayoutResId) {
+    public EndlessPagingAdapter(int pageSize, int progressItemLayoutResId) {
         super(pageSize);
-        mPagingObservable = pageEmittingObservable;
-        mDelegateObserver = delegateObserver;
         mProgressItemLayoutResId = progressItemLayoutResId;
     }
 
@@ -75,14 +71,14 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         switch (mAppendState) {
             case LOADING:
                 appendingLayout.setBackgroundResource(android.R.color.transparent);
-                appendingLayout.findViewById(R.id.loading).setVisibility(View.VISIBLE);
-                appendingLayout.findViewById(R.id.txt_list_loading_retry).setVisibility(View.GONE);
+                appendingLayout.findViewById(R.id.list_loading_view).setVisibility(View.VISIBLE);
+                appendingLayout.findViewById(R.id.list_loading_retry_view).setVisibility(View.GONE);
                 appendingLayout.setOnClickListener(null);
                 break;
             case ERROR:
                 appendingLayout.setBackgroundResource(R.drawable.list_selector_background);
-                appendingLayout.findViewById(R.id.loading).setVisibility(View.GONE);
-                appendingLayout.findViewById(R.id.txt_list_loading_retry).setVisibility(View.VISIBLE);
+                appendingLayout.findViewById(R.id.list_loading_view).setVisibility(View.GONE);
+                appendingLayout.findViewById(R.id.list_loading_retry_view).setVisibility(View.VISIBLE);
                 appendingLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -111,25 +107,13 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
                 : super.getItemViewType(position);
     }
 
-    public Subscription subscribe() {
-        return subscribe(this);
-    }
-
-    public Subscription subscribe(final Observer<T> itemObserver) {
-        return mPagingObservable.subscribe(new PagingObserver(itemObserver));
-    }
-
     public Subscription loadNextPage() {
-        if (mNextPageObservable != null) {
+        if (mCurrentPage.hasNextPage()) {
             setNewAppendState(AppendState.LOADING);
-            return mNextPageObservable.observeOn(AndroidSchedulers.mainThread()).subscribe(new BufferingObserver<T>(this));
+            return mCurrentPage.getNextPage().observeOn(AndroidSchedulers.mainThread()).subscribe(this);
         } else {
             return Subscriptions.empty();
         }
-    }
-
-    public boolean hasMorePages() {
-        return mNextPageObservable != null;
     }
 
     @Override
@@ -150,49 +134,21 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
 
     @Override
     public void onCompleted() {
-        notifyDataSetChanged();
-        setNewAppendState(AppendState.IDLE);
-        mDelegateObserver.onCompleted();
     }
 
     @Override
     public void onError(Throwable e) {
+        e.printStackTrace();
         setNewAppendState(AppendState.ERROR);
-        mDelegateObserver.onError(e);
     }
 
     @Override
-    public void onNext(T item) {
-        addItem(item);
-        mDelegateObserver.onNext(item);
-    }
-
-    private final class PagingObserver extends ScObserver<Observable<T>> {
-        private Observer<T> firstPageObserver;
-        private boolean isFirstPage = true;
-
-        public PagingObserver(Observer<T> firstPageObserver) {
-            this.firstPageObserver = firstPageObserver;
+    public void onNext(Page<T> page) {
+        mCurrentPage = page;
+        for (T item : page) {
+            addItem(item);
         }
-
-        @Override
-        public void onCompleted() {
-            EndlessPagingAdapter.this.mNextPageObservable = null;
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            super.onError(e);
-        }
-
-        @Override
-        public void onNext(Observable<T> nextPageObservable) {
-            if (isFirstPage) {
-                isFirstPage = false;
-                nextPageObservable.observeOn(AndroidSchedulers.mainThread()).subscribe(new BufferingObserver<T>(firstPageObserver));
-            } else {
-                EndlessPagingAdapter.this.mNextPageObservable = nextPageObservable;
-            }
-        }
+        notifyDataSetChanged();
+        setNewAppendState(AppendState.IDLE);
     }
 }

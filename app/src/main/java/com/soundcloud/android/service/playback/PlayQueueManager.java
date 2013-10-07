@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayQueueManager {
-    private List<Track> mPlayQueue = new ArrayList<Track>();
+    private List<PlayQueueItem> mPlayQueue = new ArrayList<PlayQueueItem>();
     private PlayQueueUri mPlayQueueUri = new PlayQueueUri();
     private final PlayQueueManagerStore mPlayQueueDAO;
     private final ExploreTracksOperations mExploreTrackOperations;
@@ -106,7 +106,7 @@ public class PlayQueueManager {
 
     public PlayQueueItem getPlayQueueItem(int pos) {
         if (pos >= 0 && pos < mPlayQueue.size()) {
-            return new PlayQueueItem(mPlayQueue.get(pos), pos);
+            return mPlayQueue.get(pos);
         } else {
             return null;
         }
@@ -115,7 +115,7 @@ public class PlayQueueManager {
     @Deprecated
     public Track getTrackAt(int pos) {
         if (pos >= 0 && pos < mPlayQueue.size()) {
-            return mPlayQueue.get(pos);
+            return mPlayQueue.get(pos).getTrack();
         } else {
             return null;
         }
@@ -177,7 +177,7 @@ public class PlayQueueManager {
         stopLoadingRelatedTracks();
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
-        mPlayQueue.add(toBePlayed);
+        mPlayQueue.add(new PlayQueueItem(toBePlayed, 0));
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = 0;
 
@@ -265,7 +265,7 @@ public class PlayQueueManager {
 
             @Override
             public void onNext(Track track) {
-                mPlayQueue.add(track);
+                mPlayQueue.add(new PlayQueueItem(track, mPlayQueue.size()));
                 mGotRelatedTracks = true;
             }
         });
@@ -299,31 +299,31 @@ public class PlayQueueManager {
 
             @Override protected void onPostExecute(List<Track> newQueue) {
                 if (newQueue != null && !isCancelled()){
-                    long playingId = getCurrentTrackId();
-                    mPlayQueue = newQueue;
-                    final Track t = getTrackAt(position);
-
-                    // adjust if the track has moved positions
-                    int adjustedPosition = -1;
-                    if (t != null && t.getId() != playingId) {
-                        if (Content.match(uri).isCollectionItem()){
-                            adjustedPosition = mPlayQueueDAO.getPlayQueuePositionFromUri(uri, playingId);
-                        } else {
-                            /* adjust for deletions or new items. find the original track
-                             this is a really dumb sequential search. If there are duplicates in the list, it will probably
-                             find the wrong one. This should be more intelligent after refactoring for sets */
-                            adjustedPosition = 0;
-                            while (adjustedPosition < length() && getTrackIdAt(adjustedPosition) != playingId) adjustedPosition++;
-                        }
+                    final long playingId = getCurrentTrackId();
+                    if (position >= 0 && position < newQueue.size() &&  newQueue.get(position).getId() == playingId){
+                        setPlayQueueInternal(newQueue, position);
+                    } else {
+                        setPlayQueueInternal(newQueue, getAdjustedTrackPosition(newQueue, playingId));
                     }
-                    mPlayPos = adjustedPosition == -1 || adjustedPosition >= length() ? position : adjustedPosition;
-
-
-                    // adjust to within bounds
-                    mPlayPos = Math.max(0, Math.min(mPlayPos, mPlayQueue.size()-1));
-                    broadcastPlayQueueChanged();
                 }
             }
+
+            private int getAdjustedTrackPosition(List<Track> newQueue, long playingId) {
+                int adjustedPosition = -1;
+                if (Content.match(uri).isCollectionItem()){
+                    adjustedPosition = mPlayQueueDAO.getPlayQueuePositionFromUri(uri, playingId);
+                } else {
+                    /* adjust for deletions or new items and find the original track.
+                    This is a really dumb sequential search. If there are duplicates in the list, it will probably
+                     find the wrong one. */
+                    adjustedPosition = 0;
+                    while (adjustedPosition < newQueue.size() && newQueue.get(adjustedPosition).getId() != playingId) {
+                        adjustedPosition++;
+                    }
+                }
+                return adjustedPosition == -1 || adjustedPosition >= newQueue.size() ? position : adjustedPosition;
+            }
+
         }.executeOnThreadPool(uri);
     }
 
@@ -334,18 +334,21 @@ public class PlayQueueManager {
     }
 
     public void setPlayQueue(final List<? extends PlayableHolder> playQueue, int playPos) {
+        mPlayQueueUri = new PlayQueueUri();
+        setPlayQueueInternal(playQueue, playPos);
+        saveQueue(0, true);
+    }
+
+    private void setPlayQueueInternal(List<? extends PlayableHolder> playQueue, int playPos) {
         mPlayQueue.clear();
         if (playQueue != null) {
             for (PlayableHolder playable : playQueue) {
                 if (playable.getPlayable() instanceof Track){
-                    mPlayQueue.add((Track) playable.getPlayable());
+                    mPlayQueue.add(new PlayQueueItem((Track) playable.getPlayable(), mPlayQueue.size()));
                 }
             }
         }
-        mPlayQueueUri = new PlayQueueUri();
-        mPlayPos = Math.max(0, Math.min(mPlayQueue.size(), playPos));
-        // TODO, only do this on exit???
-        saveQueue(0, true);
+        mPlayPos = Math.max(0, Math.min(mPlayQueue.size() - 1, playPos));
         broadcastPlayQueueChanged();
     }
 
@@ -355,8 +358,8 @@ public class PlayQueueManager {
         new ParallelAsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                final List<Track> tracks = new ArrayList<Track>(mPlayQueue);
-                mPlayQueueDAO.insertQueue(tracks, mUserId);
+                final List<PlayQueueItem> playQueueItems = new ArrayList<PlayQueueItem>(mPlayQueue);
+                mPlayQueueDAO.insertQueue(playQueueItems, mUserId);
                 return null;
             }
         }.executeOnThreadPool((Void[]) null);

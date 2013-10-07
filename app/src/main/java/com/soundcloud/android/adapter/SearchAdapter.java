@@ -63,7 +63,7 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
         int type = getItemViewType(position);
         switch (type) {
             case TYPE_TRACK:
-                PlayUtils.playFromAdapter(context, mData, position, null);
+                new PlayUtils(context).playFromAdapter(mData, position, null);
                 return ItemClickResults.LEAVING;
             case TYPE_USER:
                 context.startActivity(new Intent(context, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER, getItem(position)));

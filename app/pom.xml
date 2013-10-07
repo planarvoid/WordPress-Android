@@ -6,7 +6,6 @@
         <groupId>com.soundcloud.android</groupId>
         <artifactId>parent</artifactId>
         <version>2.7.0</version>
-
     </parent>
 
     <artifactId>soundcloud-android</artifactId>
@@ -137,6 +136,26 @@
                     </includes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.crashlytics</groupId>
+                <artifactId>crashlytics-maven</artifactId>
+                <version>1.0.3</version>
+                <executions>
+                    <execution>
+                        <id>GenerateResources</id>
+                        <goals>
+                            <goal>GenerateResources</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>CleanupResources</id>
+                        <goals>
+                            <goal>CleanupResources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
     <dependencies>
@@ -169,10 +188,9 @@
             <version>14.0.1</version>
         </dependency>
         <dependency>
-            <groupId>org.acra</groupId>
-            <artifactId>acra</artifactId>
-            <version>4.3.0-filter</version>
-            <scope>compile</scope>
+            <groupId>com.crashlytics.android</groupId>
+            <artifactId>crashlytics</artifactId>
+            <version>[1.0.2,)</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -195,7 +213,7 @@
         <dependency>
             <groupId>com.soundcloud</groupId>
             <artifactId>java-api-wrapper</artifactId>
-            <version>1.3.1.1</version>
+            <version>1.3.1</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>

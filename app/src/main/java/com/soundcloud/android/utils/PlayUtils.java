@@ -7,6 +7,7 @@ import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -20,64 +21,37 @@ import java.util.List;
 
 public final class PlayUtils {
 
-    // TODO, Playlists...
+    private Context mContext;
+    private ScModelManager mModelManager;
 
-    private PlayUtils() {}
-
-    public static void playTrack(Context context, PlayInfo info) {
-        playTrack(context, info, true, false);
+    public PlayUtils(Context context) {
+        this(context, SoundCloudApplication.MODEL_MANAGER);
     }
 
-    public static void playTrack(Context context, PlayInfo info, boolean goToPlayer, boolean commentMode) {
-        final Track t = info.initialTrack;
-        Intent intent = new Intent();
-        if (CloudPlaybackService.getCurrentTrackId() != t.getId()) {
-            // changing tracks
-            intent.putExtra(CloudPlaybackService.PlayExtras.track, t);
-            CloudPlaybackService.playlistXfer = info.playables;
-            intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
-
-            if (info.uri != null) {
-                SoundCloudApplication.MODEL_MANAGER.cache(info.initialTrack);
-                intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.initialTrack.getId())
-                        .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                        .setData(info.uri);
-
-            } else if (info.playables.size() > 1) {
-                intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                        .putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
-            }
-        }
-
-        if (goToPlayer) {
-            intent.setAction(Actions.PLAY)
-                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                .putExtra("commentMode", commentMode);
-
-            context.startActivity(intent);
-        } else {
-            intent.setAction(CloudPlaybackService.Actions.PLAY_ACTION);
-            context.startService(intent);
-        }
+    public PlayUtils(Context context, ScModelManager modelManager) {
+        mContext = context;
+        mModelManager = modelManager;
     }
 
-    public static Track getTrackFromIntent(Intent intent){
-        if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList,false)){
-            final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
-            final List<Track> list = CloudPlaybackService.playlistXfer;
-            if (list != null && position > -1 && position < list.size() && list.get(position).getPlayable() instanceof Track){
-                return (Track) list.get(position).getPlayable();
-            }
-        } else if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
-            return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
-        } else if (intent.getParcelableExtra(Track.EXTRA) != null) {
-            return intent.getParcelableExtra(Track.EXTRA);
-        }
-        return null;
+    public void playTrack(PlayInfo playInfo) {
+        final Intent playIntent = getPlayIntent(playInfo);
+        mContext.startActivity(playIntent);
     }
 
-    public static void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri streamUri) {
-        if (position > data.size() || !(data.get(position) instanceof PlayableHolder)) {
+    public Intent getPlayIntent(PlayInfo info) {
+        return getPlayIntent(info, CloudPlaybackService.getCurrentTrackId() != info.initialTrack.getId());
+    }
+
+    public Intent getPlayIntent(PlayInfo info, boolean changingTracks) {
+        Intent intent = new Intent(Actions.PLAY).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        if (changingTracks) {
+            configureIntentViaPlayInfo(info, info.initialTrack, intent);
+        }
+        return intent;
+    }
+
+    public void playFromAdapter(List<? extends ScModel> data, int position, Uri streamUri) {
+        if (position >= data.size() || !(data.get(position) instanceof PlayableHolder)) {
             throw new AssertionError("Invalid item " + position + ", must be a playable");
         }
 
@@ -102,12 +76,44 @@ public final class PlayUtils {
             info.position = adjustedPosition;
             info.playables = tracks;
 
-            playTrack(context, info);
+            mContext.startActivity(getPlayIntent(info));
 
         } else if (playable instanceof Playlist) {
-            PlaylistDetailActivity.start(context, (Playlist) playable);
+            PlaylistDetailActivity.start(mContext, (Playlist) playable, mModelManager);
         } else {
             throw new AssertionError("Unexpected playable type");
+        }
+    }
+
+    public static Track getTrackFromIntent(Intent intent){
+        if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList,false)){
+            final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
+            final List<Track> list = CloudPlaybackService.playlistXfer;
+            if (list != null && position > -1 && position < list.size() && list.get(position).getPlayable() instanceof Track){
+                return (Track) list.get(position).getPlayable();
+            }
+        } else if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
+            return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
+        } else if (intent.getParcelableExtra(Track.EXTRA) != null) {
+            return intent.getParcelableExtra(Track.EXTRA);
+        }
+        return null;
+    }
+
+    private void configureIntentViaPlayInfo(PlayInfo info, Track initialTrack, Intent intent) {
+        intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
+        intent.putExtra(CloudPlaybackService.PlayExtras.track, initialTrack);
+        CloudPlaybackService.playlistXfer = info.playables;
+
+        if (info.uri != null) {
+            mModelManager.cache(info.initialTrack);
+            intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.initialTrack.getId())
+                    .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
+                    .setData(info.uri);
+
+        } else if (info.playables.size() > 1) {
+            intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
+                    .putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
         }
     }
 }

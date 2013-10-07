@@ -114,7 +114,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     @Override
-    public void onPageSettling() {
+    public void onPageChanged() {
         for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
             ptv.onScrollComplete();
         }
@@ -390,6 +390,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private final View.OnClickListener mPrevListener = new View.OnClickListener() {
         public void onClick(View v) {
+            if (mTrackPager.isScrolling()) return;
+
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
             if (mPlaybackService != null) {
@@ -423,6 +425,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private final View.OnClickListener mNextListener = new View.OnClickListener() {
         public void onClick(View v) {
+            if (mTrackPager.isScrolling()) return;
+
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
             final Track currentTrack = CloudPlaybackService.getCurrentTrack();

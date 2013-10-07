@@ -13,7 +13,6 @@ import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ExploreTracksCategorySection;
 import com.soundcloud.android.model.Section;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
-import com.soundcloud.android.rx.observers.PullToRefreshObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.android.concurrency.AndroidSchedulers;
@@ -38,8 +37,8 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     private int mListViewID = R.id.suggested_tracks_categories_list;
 
     public ExploreTracksCategoriesFragment() {
-        ListFragmentObserver<Section<ExploreTracksCategory>, ExploreTracksCategoriesFragment> observer =
-                new ListFragmentObserver<Section<ExploreTracksCategory>, ExploreTracksCategoriesFragment>(this);
+        ListFragmentObserver<ExploreTracksCategoriesFragment, Section<ExploreTracksCategory>> observer =
+                new ListFragmentObserver<ExploreTracksCategoriesFragment, Section<ExploreTracksCategory>>(this);
 
         init(new ExploreTracksCategoriesAdapter(observer),
                 new ExploreTracksOperations().getCategories().observeOn(AndroidSchedulers.mainThread()));
@@ -67,7 +66,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCategoriesObservable.subscribe(mCategoriesAdapter);
+        loadCategories();
     }
 
     @Override
@@ -113,8 +112,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     }
 
     private void loadCategories() {
-        mCategoriesObservable.subscribe(new PullToRefreshObserver<ExploreTracksCategoriesFragment, Section<ExploreTracksCategory>>(
-                        this, mListViewID, mCategoriesAdapter, mCategoriesAdapter));
+        mCategoriesObservable.subscribe(mCategoriesAdapter);
     }
 
 }

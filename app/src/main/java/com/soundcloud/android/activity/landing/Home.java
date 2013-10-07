@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.landing;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.github.espiandev.showcaseview.ShowcaseView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -18,7 +19,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.auth.AuthenticatorService;
 import com.soundcloud.android.showcases.Showcase;
 import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -37,6 +37,7 @@ public class Home extends ScActivity implements ScLandingPage {
 
     private AndroidCloudAPI oldCloudAPI;
     private ApplicationProperties mApplicationProperties;
+    private ShowcaseView mCurrentMenuShowcase;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -56,12 +57,6 @@ public class Home extends ScActivity implements ScLandingPage {
                 getSupportFragmentManager().beginTransaction()
                         .add(mRootView.getContentHolderId(), ScListFragment.newInstance(build))
                         .commit();
-                if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
-                    ChangeLog changeLog = new ChangeLog(this);
-                    if (changeLog.isFirstRun()) {
-                        changeLog.getDialog(true).show();
-                    }
-                }
             }
 
             if (IOUtils.isConnected(this) &&
@@ -131,8 +126,15 @@ public class Home extends ScActivity implements ScLandingPage {
 
         final View viewById = mRootView.getMenuItemViewById(R.id.nav_explore);
         if (viewById != null){
-            Showcase.EXPLORE.insertShowcase(this, viewById);
+            mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(this, viewById);
         }
     }
 
+    @Override
+    public void onMenuClosed() {
+        super.onMenuClosed();
+        if (mCurrentMenuShowcase != null && mCurrentMenuShowcase.isShown()){
+            mCurrentMenuShowcase.hide();
+        }
+    }
 }
