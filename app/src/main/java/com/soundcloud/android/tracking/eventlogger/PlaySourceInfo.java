@@ -62,6 +62,11 @@ public class PlaySourceInfo implements Parcelable {
         return mData.getLong(KEY_INITIAL_TRACK_ID);
     }
 
+    public String getExploreTag() {
+        return mData.getString(KEY_EXPLORE_TAG);
+    }
+
+
     public Uri.Builder appendAsQueryParams(Uri.Builder builder) {
         for (String key : mData.keySet()) {
             builder.appendQueryParameter(key, String.valueOf(mData.get(key)));
