@@ -196,7 +196,7 @@ public class PlayQueueManager {
     public void loadTrack(Track toBePlayed, boolean saveQueue, PlaySourceInfo trackingInfo) {
         stopLoadingTasks();
 
-        mCurrentPlaySourceInfo = trackingInfo;
+        mCurrentPlaySourceInfo = trackingInfo == null ? PlaySourceInfo.EMPTY : trackingInfo;
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
         mPlayQueue.add(new PlayQueueItem(toBePlayed, 0, TrackSourceInfo.manual()));
