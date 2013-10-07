@@ -105,10 +105,6 @@ public class PlayQueueManager {
         }
     }
 
-    public PlayQueueItem getCurrentPlayQueueItem() {
-        return getPlayQueueItem(mPlayPos);
-    }
-
     public Track getCurrentTrack() {
         return getTrackAt(mPlayPos);
     }
@@ -119,7 +115,7 @@ public class PlayQueueManager {
     }
 
     public String getCurrentEventLoggerParams() {
-        final PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
+        final PlayQueueItem currentPlayQueueItem = getPlayQueueItem(mPlayPos);
         final TrackSourceInfo trackSourceInfo = currentPlayQueueItem == null ? TrackSourceInfo.EMPTY : currentPlayQueueItem.getTrackSourceInfo();
         return trackSourceInfo.createEventLoggerParams(getCurrentPlaySourceInfo());
     }
@@ -208,11 +204,11 @@ public class PlayQueueManager {
     }
 
     public void loadUri(Uri uri, int position, @Nullable Track initialTrack, PlaySourceInfo trackingInfo) {
-        List initialQueue;
+        List<PlayableHolder> initialQueue;
         if (initialTrack != null) {
             initialQueue = Lists.<PlayableHolder>newArrayList(initialTrack);
         } else {
-            initialQueue = Lists.<PlayableHolder>newArrayList();
+            initialQueue = Lists.newArrayList();
         }
         loadUri(uri, position, initialQueue, 0, trackingInfo);
     }
@@ -375,7 +371,7 @@ public class PlayQueueManager {
         } else {
             // invalid play position, default to 0
             mPlayPos = 0;
-            Log.e(PlayQueueManager.class.getSimpleName(), "Unexpected queue position [" + playPos + "]");
+            Log.e(this, "Unexpected queue position [" + playPos + "]");
         }
         broadcastPlayQueueChanged();
     }

@@ -30,13 +30,13 @@ import java.util.UUID;
 public class PlayEventTracker {
     private static final String TAG = PlayEventTracker.class.getSimpleName();
 
-    public static interface EventLoggerKeys {
+    public interface EventLoggerKeys {
         String ORIGIN_URL = "context";
         String TRIGGER = "trigger";
         String SOURCE = "source";
         String SOURCE_VERSION = "source_version";
         String EXPLORE_TAG = "exploreTag";
-        String SET = "set";
+        String SET = "set"; // currently unused, but a valid eventlogger param that we might add soon
     }
 
     private static final int INSERT_TOKEN = 0;
