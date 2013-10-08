@@ -42,6 +42,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     private EmptyListView mEmptyListView;
     private ExploreTracksAdapter mExploreTracksAdapter;
     private Subscription mSubscription = Subscriptions.empty();
+    private ExploreTracksObserver mObserver;
 
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
@@ -70,7 +71,8 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
             mExploreTracksAdapter = new ExploreTracksAdapter();
         }
 
-        loadTrackSuggestions(new ListFragmentObserver<ExploreTracksFragment, Page<SuggestedTracksCollection>>(this));
+        mObserver = new ExploreTracksObserver(this);
+        loadTrackSuggestions(mObserver);
     }
 
     private void loadTrackSuggestions(Observer<Page<SuggestedTracksCollection>> fragmentObserver) {
@@ -97,7 +99,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mExploreTracksAdapter.getItem(position));
-        new PlayUtils(getActivity()).playExploreTrack(track, "EXPLORE-TAG");
+        new PlayUtils(getActivity()).playExploreTrack(track, mObserver.getLastExploreTag());
     }
 
     @Override
@@ -142,6 +144,25 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         mEmptyViewStatus = status;
         if (mEmptyListView != null) {
             mEmptyListView.setStatus(status);
+        }
+    }
+
+    private static class ExploreTracksObserver extends ListFragmentObserver<ExploreTracksFragment, Page<SuggestedTracksCollection>>{
+
+        private String mLastExploreTag;
+
+        private ExploreTracksObserver(ExploreTracksFragment fragment) {
+            super(fragment);
+        }
+
+        @Override
+        public void onNext(ExploreTracksFragment fragment, Page<SuggestedTracksCollection> element) {
+            super.onNext(fragment, element);
+            mLastExploreTag = element.getPagedCollection().getTrackingTag();
+        }
+
+        private String getLastExploreTag() {
+            return mLastExploreTag;
         }
     }
 
