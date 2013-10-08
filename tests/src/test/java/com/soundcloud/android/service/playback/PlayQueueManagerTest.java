@@ -332,10 +332,11 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSavePlaylistStateInUri() throws Exception {
         insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962l), trackingInfo);
+        final Track track = new Track(56142962l);
+        pm.loadUri(Content.ME_LIKES.uri, 1, track, trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
         expect(pm.next()).toBeTrue();
-        expect(pm.getPlayQueueState(123L)).toEqual(
+        expect(pm.getPlayQueueState(123L, 56143158L)).toEqual(
           Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=1&seekPos=123&playSource-recommenderVersion=version_1&playSource-exploreTag=explore-tag&playSource-originUrl=origin-url&playSource-initialTrackId=123"
         );
     }
@@ -344,7 +345,7 @@ public class PlayQueueManagerTest {
     public void shouldSavePlaylistStateInUriWithSetPlaylist() throws Exception {
         pm.setPlayQueue(createTracks(10, true, 0), 5, trackingInfo);
         expect(pm.getCurrentTrack().getId()).toEqual(5L);
-        expect(pm.getPlayQueueState(123L)).toEqual(
+        expect(pm.getPlayQueueState(123L, 5L)).toEqual(
                 Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123&playSource-recommenderVersion=version_1&playSource-exploreTag=explore-tag&playSource-originUrl=origin-url&playSource-initialTrackId=123"
 
         );

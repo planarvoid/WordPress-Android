@@ -128,15 +128,6 @@ public class PlayQueueManager {
         }
     }
 
-    @Deprecated
-    public Track getTrackAt(int pos) {
-        if (pos >= 0 && pos < mPlayQueue.size()) {
-            return mPlayQueue.get(pos).getTrack();
-        } else {
-            return null;
-        }
-    }
-
     public boolean prev() {
         if (mPlayPos > 0) {
             int newPos = mPlayPos - 1;
@@ -232,6 +223,14 @@ public class PlayQueueManager {
         }
         if (uri != null) {
             mLoadTask = loadCursor(uri, position);
+        }
+    }
+
+    private Track getTrackAt(int pos) {
+        if (pos >= 0 && pos < mPlayQueue.size()) {
+            return mPlayQueue.get(pos).getTrack();
+        } else {
+            return null;
         }
     }
 
@@ -393,6 +392,9 @@ public class PlayQueueManager {
         return mPlayQueueUri.uri;
     }
 
+    /**
+     * Handles the case where a local playlist has been sent to the API and has a new ID (URI) locally
+     */
     public static void onPlaylistUriChanged(Context context, Uri oldUri, Uri newUri) {
         onPlaylistUriChanged(PlayQueueManager.get(context),context,oldUri,newUri);
     }
@@ -409,7 +411,7 @@ public class PlayQueueManager {
             if (!TextUtils.isEmpty(lastUri)){
                 PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
                 if (playQueueUri.uri.getPath().equals(oldUri.getPath())) {
-                    Uri replacement = new PlayQueueUri(newUri).toUri(playQueueUri.getTrackId(), playQueueUri.getPos(), playQueueUri.getSeekPos(), playQueueUri.getTrackingInfo());
+                    Uri replacement = new PlayQueueUri(newUri).toUri(playQueueUri.getTrackId(), playQueueUri.getPos(), playQueueUri.getSeekPos(), playQueueUri.getPlaySourceInfo());
                     SharedPreferencesUtils.apply(preferences.edit().putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, replacement.toString()));
                 }
             }
@@ -432,15 +434,16 @@ public class PlayQueueManager {
     }
 
     public void saveQueue(long seekPos, boolean persistTracks) {
-        if (SoundCloudApplication.getUserIdFromContext(mContext) >= 0) {
+        final long currentTrackId = getCurrentTrackId();
+        if (currentTrackId != -1 && SoundCloudApplication.getUserIdFromContext(mContext) >= 0) {
             if (persistTracks) persistPlayQueue();
             SharedPreferencesUtils.apply(PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                    .putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, getPlayQueueState(seekPos).toString()));
+                    .putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, getPlayQueueState(seekPos, currentTrackId).toString()));
         }
     }
 
-    /* package */ Uri getPlayQueueState(long seekPos) {
-        return mPlayQueueUri.toUri(getCurrentTrack(), mPlayPos, seekPos, mCurrentPlaySourceInfo);
+    /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {
+        return mPlayQueueUri.toUri(currentTrackId, mPlayPos, seekPos, mCurrentPlaySourceInfo);
     }
 
     /**
@@ -457,7 +460,7 @@ public class PlayQueueManager {
             final int trackId = playQueueUri.getTrackId();
             if (trackId > 0) {
                 Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(trackId);
-                loadUri(playQueueUri.uri, playQueueUri.getPos(), t, playQueueUri.getTrackingInfo());
+                loadUri(playQueueUri.uri, playQueueUri.getPos(), t, playQueueUri.getPlaySourceInfo());
                 // adjust play position if it has changed
                 if (getCurrentTrack() != null && getCurrentTrack().getId() != trackId && playQueueUri.isCollectionUri()) {
                     final int newPos = mPlayQueueDAO.getPlayQueuePositionFromUri(playQueueUri.uri, trackId);
