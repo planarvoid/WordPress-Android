@@ -12,10 +12,9 @@ import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.Link;
-import com.soundcloud.android.model.ModelCollection;
+import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.android.OperationPaged;
@@ -39,7 +38,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
     public Observable<ExploreTracksCategories> getCategories() {
         APIRequest<ExploreTracksCategories> request = SoundCloudAPIRequest.RequestBuilder.<ExploreTracksCategories>get(APIEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
                 .forPrivateAPI(1)
-                .forResource(new ExploreTracksCategoriesType()).build();
+                .forResource(TypeToken.of(ExploreTracksCategories.class)).build();
         return mRxHttpClient.fetchModels(request);
     }
 
@@ -57,7 +56,7 @@ public class ExploreTracksOperations extends ScheduledOperations {
         APIRequest<SuggestedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<SuggestedTracksCollection>get(endpoint)
                 .addQueryParameters("limit", String.valueOf(PAGE_SIZE))
                 .forPrivateAPI(1)
-                .forResource(new SuggestedTracksCollectionType()).build();
+                .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
 
         final Observable<SuggestedTracksCollection> source = mRxHttpClient.fetchModels(request);
         return Observable.create(paged(source, nextPageGenerator));
@@ -75,19 +74,13 @@ public class ExploreTracksOperations extends ScheduledOperations {
         }
     };
 
-    public Observable<ModelCollection<TrackSummary>> getRelatedTracks(final Track seedTrack) {
+    public Observable<RelatedTracksCollection> getRelatedTracks(final Track seedTrack) {
         final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), seedTrack.getUrn().toEncodedString());
-        final APIRequest<SuggestedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<SuggestedTracksCollection>get(endpoint)
+        final APIRequest<RelatedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RelatedTracksCollection>get(endpoint)
                 .forPrivateAPI(1)
-                .forResource(new SuggestedTracksCollectionType()).build();
+                .forResource(TypeToken.of(RelatedTracksCollection.class)).build();
 
         return mRxHttpClient.fetchModels(request);
-    }
-
-    private static class SuggestedTracksCollectionType extends TypeToken<SuggestedTracksCollection> {
-    }
-
-    private static class ExploreTracksCategoriesType extends TypeToken<ExploreTracksCategories> {
     }
 
     private interface TrackSummariesNextPageFunc extends Func1<SuggestedTracksCollection, Observable<Page<SuggestedTracksCollection>>> {}
