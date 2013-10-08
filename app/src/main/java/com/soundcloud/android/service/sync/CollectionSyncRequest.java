@@ -149,13 +149,6 @@ import java.io.IOException;
         Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
         mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
         mSharedPreferences.edit().putString(lastResultKey, ErrorUtils.getStackTrace(e)).commit();
-
-        /**
-         * Firehose beta exceptions for sync debugging purposes. we may want to turn this off
-         */
-        if (mApplicationProperties.isBetaBuildRunningOnDalvik() && mIsUi){
-            SoundCloudApplication.handleSilentException("Problem while syncing", e);
-        }
     }
 
     @Override @SuppressWarnings("RedundantIfStatement")
