@@ -13,11 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
-public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements AbsListView.OnScrollListener, Observer<Page<T>> {
+public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements AbsListView.OnScrollListener, Observer<Page<? extends Iterable<T>>> {
 
     private final int mProgressItemLayoutResId;
 
-    private Page<T> mCurrentPage = OperationPaged.emptyPage();
+    private Page<? extends Iterable<T>> mCurrentPage = OperationPaged.<T>emptyPage();
 
     private AppendState mAppendState = AppendState.IDLE;
 
@@ -143,9 +143,9 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
     }
 
     @Override
-    public void onNext(Page<T> page) {
+    public void onNext(Page<? extends Iterable<T>> page) {
         mCurrentPage = page;
-        for (T item : page) {
+        for (T item : page.getPagedCollection()) {
             addItem(item);
         }
         notifyDataSetChanged();
