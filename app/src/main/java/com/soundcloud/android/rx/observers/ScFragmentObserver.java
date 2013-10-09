@@ -12,7 +12,7 @@ public class ScFragmentObserver<T extends Fragment, R> extends RxFragmentObserve
 
     @Override
     public void onError(Throwable error) {
-        ErrorUtils.reportThrowable(error);
+        ErrorUtils.handleThrowable(error);
         super.onError(error);
     }
 }

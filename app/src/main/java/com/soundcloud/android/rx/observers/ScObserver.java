@@ -13,7 +13,7 @@ public abstract class ScObserver<T> implements Observer<T> {
 
     @Override
     public void onError(Throwable e) {
-        ErrorUtils.reportThrowable(e);
+        ErrorUtils.handleThrowable(e);
     }
 
     @Override
