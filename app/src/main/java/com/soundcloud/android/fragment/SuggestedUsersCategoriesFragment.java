@@ -108,8 +108,9 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         mListView.setOnItemClickListener(this);
         mListView.setAdapter(mAdapter);
 
+        // TODO: get rid of StateHolderFragment in favor of setRetainInstanceState or Memento
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
-        Observable<?> observable;
+        Observable<CategoryGroup> observable;
         if (savedState.has(KEY_OBSERVABLE)){
             observable = savedState.get(KEY_OBSERVABLE);
         } else {
@@ -138,7 +139,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         loadCategories(categoriesObservable);
     }
 
-    private void loadCategories(Observable<?> observable) {
+    private void loadCategories(Observable<CategoryGroup> observable) {
         if (mObserver == null) mObserver = new CategoryGroupsObserver(this);
         mSubscription = observable.subscribe(mObserver);
         setDisplayMode(DisplayMode.LOADING);

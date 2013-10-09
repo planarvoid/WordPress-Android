@@ -95,103 +95,103 @@ public class AccountRemovalFunctionTest {
     @Test
     public void shouldCallOnErrorIfAccountRemovalFails() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(false);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(observer).onError(isA(OperationFailedException.class));
     }
 
     @Test
     public void shouldCallOnErrorIfExceptionIsThrown() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenThrow(IOException.class);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(observer).onError(isA(IOException.class));
     }
 
     @Test
     public void shouldCallOnCompleteIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(observer).onCompleted();
     }
 
     @Test
     public void shouldReturnEmptySubscriptionAtEndOfProcessing(){
-        expect(function.call(observer)).toEqual(Subscriptions.empty());
+        expect(function.onSubscribe(observer)).toEqual(Subscriptions.empty());
     }
 
     @Test
     public void shouldClearSyncStateIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(syncStateManager).clear();
     }
 
     @Test
     public void shouldNotClearSyncStateIfAccountRemovalFails() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(false);
-        function.call(observer);
+        function.onSubscribe(observer);
         verifyZeroInteractions(syncStateManager);
     }
 
     @Test
     public void shouldClearCollectionStorageIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(collectionStorage).clear();
     }
 
     @Test
     public void shouldNotClearCollectionStorageIfAccountRemovalFails() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(false);
-        function.call(observer);
+        function.onSubscribe(observer);
         verifyZeroInteractions(collectionStorage);
     }
 
     @Test
     public void shouldClearActivitiesStorageIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(collectionStorage).clear();
     }
 
     @Test
     public void shouldNotClearActivitiesStorageIfAccountRemovalFails() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(false);
-        function.call(observer);
+        function.onSubscribe(observer);
         verifyZeroInteractions(collectionStorage);
     }
 
     @Test
     public void shouldResetSoundRecorderIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(soundRecorder).reset();
     }
 
     @Test
     public void shouldNotResetSoundRecorderIfAccountRemovalFails() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(false);
-        function.call(observer);
+        function.onSubscribe(observer);
         verifyZeroInteractions(soundRecorder);
     }
 
     @Test
     public void shouldClearPlayQueueManagersStateIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(playQueueManager).clearState();
     }
 
     @Test
     public void shouldNotClearPlayQueueManagersStateIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(false);
-        function.call(observer);
+        function.onSubscribe(observer);
         verifyZeroInteractions(playQueueManager);
     }
 
     @Test
     public void shouldBroadcastLogOutIntentIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
         Intent broadcastIntent = argumentCaptor.getAllValues().get(0);
@@ -201,7 +201,7 @@ public class AccountRemovalFunctionTest {
     @Test
     public void shouldBroadcastResetAllIntentIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
         Intent broadcastIntent = argumentCaptor.getAllValues().get(1);
@@ -211,42 +211,42 @@ public class AccountRemovalFunctionTest {
     @Test
     public void shouldNotBroadcastAnyIntentsIfAccountRemovalFails() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(false);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(context, never()).sendBroadcast(any(Intent.class));
     }
 
     @Test
     public void shouldUnregisterFromC2DMIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(c2DMReceiver).unregister(context);
     }
 
     @Test
     public void shouldNotUnregisterFromC2DMIfAccountRemovalFails() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(false);
-        function.call(observer);
+        function.onSubscribe(observer);
         verifyZeroInteractions(c2DMReceiver);
     }
 
     @Test
     public void shouldClearLoggedInUserIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(soundCloudApplication).clearLoggedInUser();
     }
 
     @Test
     public void shouldNotClearAnyStateOnApplicationAccountRemovalFails() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(false);
-        function.call(observer);
+        function.onSubscribe(observer);
         verifyZeroInteractions(soundCloudApplication);
     }
 
     @Test
     public void shouldClearUserAssociationStorageIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
-        function.call(observer);
+        function.onSubscribe(observer);
         verify(userAssociationStorage).clear();
     }
 

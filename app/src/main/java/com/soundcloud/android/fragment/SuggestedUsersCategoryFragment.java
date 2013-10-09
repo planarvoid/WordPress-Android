@@ -93,7 +93,7 @@ public class SuggestedUsersCategoryFragment extends SherlockFragment implements 
         }
     }
 
-    private static final class ToggleFollowingObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, Void> {
+    private static final class ToggleFollowingObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, UserAssociation> {
         public ToggleFollowingObserver(SuggestedUsersCategoryFragment fragment) {
             super(fragment);
         }

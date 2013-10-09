@@ -70,9 +70,9 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
 
     @Override
     public Observable<APIResponse> fetchResponse(final APIRequest apiRequest) {
-        return schedule(Observable.create(new Func1<Observer<APIResponse>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<APIResponse>() {
             @Override
-            public Subscription call(Observer<APIResponse> observer) {
+            public Subscription onSubscribe(Observer<? super APIResponse> observer) {
                 BooleanSubscription subscription = new BooleanSubscription();
                 final APIResponse response = executeRequest(apiRequest);
                 if (!subscription.isUnsubscribed()) {
@@ -96,9 +96,9 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     }
 
     private <ModelType> Observable<ModelType> mapResponseToModels(final APIRequest apiRequest, final APIResponse apiResponse) {
-        return Observable.create(new Func1<Observer<ModelType>, Subscription>() {
+        return Observable.create(new Observable.OnSubscribeFunc<ModelType>() {
             @Override
-            public Subscription call(Observer<ModelType> observer) {
+            public Subscription onSubscribe(Observer<? super ModelType> observer) {
                 TypeToken resourceType = apiRequest.getResourceType();
                 if (resourceType != null && apiResponse.hasResponseBody()) {
                     Object resource = parseJsonResponse(apiResponse, apiRequest);

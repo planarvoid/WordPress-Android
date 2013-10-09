@@ -12,7 +12,6 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -110,9 +109,9 @@ public class SoundAssociationStorage extends ScheduledOperations {
     }
 
     private Observable<SoundAssociation> addCreation(final Playable playable, final BaseDAO<SoundAssociation> dao, final SoundAssociation.Type assocType) {
-        return schedule(Observable.create(new Func1<Observer<SoundAssociation>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
             @Override
-            public Subscription call(Observer<SoundAssociation> observer) {
+            public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
                 playable.created_at = new Date();
                 SoundAssociation creation = new SoundAssociation(playable, playable.created_at, assocType);
                 dao.create(creation);

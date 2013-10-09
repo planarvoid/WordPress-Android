@@ -7,6 +7,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.UserHolder;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.observers.ScObserver;
@@ -139,7 +140,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     }
 
     private void toggleFollowing(final User user) {
-        mFollowingOperations.toggleFollowing(user).observeOn(AndroidSchedulers.mainThread()).subscribe(new ScObserver<Void>() {
+        mFollowingOperations.toggleFollowing(user).observeOn(AndroidSchedulers.mainThread()).subscribe(new ScObserver<UserAssociation>() {
             @Override
             public void onCompleted() {
                 setFollowingStatus();

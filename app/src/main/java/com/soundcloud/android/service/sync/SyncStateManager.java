@@ -109,9 +109,9 @@ public class SyncStateManager extends ScheduledOperations {
     }
 
     public Observable<Void> forceToStale(final Uri uri) {
-        return schedule(Observable.create(new Func1<Observer<Void>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Void>() {
             @Override
-            public Subscription call(Observer<Void> observer) {
+            public Subscription onSubscribe(Observer<? super Void> observer) {
                 LocalCollection lc = fromContent(uri);
                 ContentValues cv = new ContentValues();
                 cv.put(DBHelper.Collections.LAST_SYNC, 0);

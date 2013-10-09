@@ -190,9 +190,9 @@ public class FollowingOperations extends ScheduledOperations {
     //TODO: didn't have enough time porting this over, next time :)
     // couldn't write tests either since Activities.fetch isn't mockable :(
     private Observable<Boolean> fetchActivities(final OldCloudAPI api) {
-        return schedule(Observable.create(new Func1<Observer<Boolean>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
             @Override
-            public Subscription call(Observer<Boolean> observer) {
+            public Subscription onSubscribe(Observer<? super Boolean> observer) {
                 try {
                     boolean hasActivities = false;
                     int attempts = 15;
@@ -219,9 +219,9 @@ public class FollowingOperations extends ScheduledOperations {
     }
 
     private Observable<UserAssociation> getFollowingsNeedingSync() {
-        return schedule(Observable.create(new Func1<Observer<UserAssociation>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<UserAssociation>() {
             @Override
-            public Subscription call(Observer<UserAssociation> observer) {
+            public Subscription onSubscribe(Observer<? super UserAssociation> observer) {
                 RxUtils.emitIterable(observer, mUserAssociationStorage.getFollowingsNeedingSync());
                 observer.onCompleted();
                 return Subscriptions.empty();

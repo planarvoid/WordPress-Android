@@ -225,7 +225,7 @@ public class UserAssociationSyncer extends SyncStrategy {
         return result;
     }
 
-    protected static class BulkFollowObserver extends ScSuccessObserver<Void> {
+    protected static class BulkFollowObserver extends ScSuccessObserver {
 
         private final FollowingOperations mFollowingOperations;
         private UserAssociationStorage mUserAssociationStorage;

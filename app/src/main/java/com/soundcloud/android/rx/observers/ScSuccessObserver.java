@@ -7,7 +7,7 @@ import com.soundcloud.android.utils.Log;
  * be used with blocking observables.
  *
  */
-public class ScSuccessObserver<T> extends ScObserver<T> {
+public class ScSuccessObserver extends ScObserver<Object> {
     private static String TAG = ScSuccessObserver.class.getName();
     private boolean isSuccess;
     @Override
