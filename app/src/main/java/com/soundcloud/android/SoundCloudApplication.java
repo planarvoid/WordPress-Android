@@ -220,10 +220,18 @@ public class SoundCloudApplication extends Application implements Tracker {
         return ((SoundCloudApplication) instance).getCurrentUserId();
     }
 
+    /**
+     * To be replaced with Localytics tracking soon
+     */
+    @Deprecated
     public void track(Event event, Object... args) {
         if (mTracker != null) mTracker.track(event, args);
     }
 
+    /**
+     * To be replaced with Localytics tracking soon
+     */
+    @Deprecated
     public void track(Class<?> klazz, Object... args) {
         Tracking tracking = klazz.getAnnotation(Tracking.class);
         if (mTracker != null && tracking != null) {
