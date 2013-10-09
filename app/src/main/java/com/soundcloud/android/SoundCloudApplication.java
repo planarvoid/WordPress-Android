@@ -135,10 +135,6 @@ public class SoundCloudApplication extends Application implements Tracker {
         FacebookSSO.extendAccessTokenIfNeeded(this);
     }
 
-    public Long getLoggedInUsersId(){
-        return getLoggedInUser().getId();
-    }
-
     public synchronized User getLoggedInUser() {
         if (mLoggedInUser == null) {
             final long id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
@@ -281,11 +277,4 @@ public class SoundCloudApplication extends Application implements Tracker {
                     .build());
         }
     }
-
-    private static class SilentException extends Exception {
-        private SilentException(Throwable throwable) {
-            super(throwable);
-        }
-    }
-
 }
