@@ -6,8 +6,10 @@ import rx.Observer;
 /**
  * Adapter class for the RX Observer. Use this when you do not have to override all methods in an observer.
  */
-//TODO: replace with RxFragmentObserver
-public abstract class ScObserver<T> implements Observer<T> {
+public abstract class DefaultObserver<T> implements Observer<T> {
+
+    public static final DefaultObserver<Object> NOOP_OBSERVER = new DefaultObserver<Object>() {};
+
     @Override
     public void onCompleted() {}
 

@@ -21,7 +21,7 @@ import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.rx.observers.ScObserver;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.sync.SyncInitiator;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
@@ -314,7 +314,7 @@ public class UserBrowser extends ScActivity implements
     }
 
     private void toggleFollowing(User user) {
-        mFollowingOperations.toggleFollowing(user).subscribe(new ScObserver<UserAssociation>() {
+        mFollowingOperations.toggleFollowing(user).subscribe(new DefaultObserver<UserAssociation>() {
             @Override
             public void onCompleted() {
                 SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
