@@ -74,10 +74,14 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
             @Override
             public Subscription onSubscribe(Observer<? super APIResponse> observer) {
                 BooleanSubscription subscription = new BooleanSubscription();
-                final APIResponse response = executeRequest(apiRequest);
-                if (!subscription.isUnsubscribed()) {
-                    observer.onNext(response);
-                    observer.onCompleted();
+                try {
+                    final APIResponse response = executeRequest(apiRequest);
+                    if (!subscription.isUnsubscribed()) {
+                        observer.onNext(response);
+                        observer.onCompleted();
+                    }
+                } catch (APIRequestException e) {
+                    observer.onError(e);
                 }
                 return subscription;
             }
@@ -100,15 +104,19 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
             @Override
             public Subscription onSubscribe(Observer<? super ModelType> observer) {
                 TypeToken resourceType = apiRequest.getResourceType();
-                if (resourceType != null && apiResponse.hasResponseBody()) {
-                    Object resource = parseJsonResponse(apiResponse, apiRequest);
-                    @SuppressWarnings("unchecked")
-                    Collection<ModelType> resources = isRequestedResourceTypeOfCollection(resourceType) ? Collection.class.cast(resource) : Collections.singleton(resource);
-                    RxUtils.emitIterable(observer, resources);
-                } else if (resourceType != null && !apiResponse.hasResponseBody()) {
-                    throw APIRequestException.badResponse(apiRequest, apiResponse, "Response could not be unmarshaled into resource type as response is empty");
+                try {
+                    if (resourceType != null && apiResponse.hasResponseBody()) {
+                        Object resource = parseJsonResponse(apiResponse, apiRequest);
+                        @SuppressWarnings("unchecked")
+                        Collection<ModelType> resources = isRequestedResourceTypeOfCollection(resourceType) ? Collection.class.cast(resource) : Collections.singleton(resource);
+                        RxUtils.emitIterable(observer, resources);
+                    } else if (resourceType != null && !apiResponse.hasResponseBody()) {
+                        observer.onError(APIRequestException.badResponse(apiRequest, apiResponse, "Response could not be unmarshaled into resource type as response is empty"));
+                    }
+                    observer.onCompleted();
+                } catch (APIRequestException apiException) {
+                    observer.onError(apiException);
                 }
-                observer.onCompleted();
                 return Subscriptions.empty();
             }
         });
@@ -118,7 +126,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         return Collection.class.isAssignableFrom(resourceType.getRawType());
     }
 
-    private Object parseJsonResponse(APIResponse apiResponse, APIRequest apiRequest) {
+    private Object parseJsonResponse(APIResponse apiResponse, APIRequest apiRequest) throws APIRequestException {
         Object resource;
         try {
             resource = mJsonTransformer.fromJson(apiResponse.getResponseBody(), apiRequest.getResourceType());
@@ -135,7 +143,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     /*
     TODO Version headers, gzip acceptance, connectivity check, proxy information
      */
-    private APIResponse executeRequest(APIRequest apiRequest) {
+    private APIResponse executeRequest(APIRequest apiRequest) throws APIRequestException {
 
         ApiWrapper apiWrapper = mWrapperFactory.createWrapper(apiRequest);
         try {
