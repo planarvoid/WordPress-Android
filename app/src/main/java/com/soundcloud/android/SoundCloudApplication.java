@@ -79,7 +79,7 @@ public class SoundCloudApplication extends Application implements Tracker {
             mTracker = new ATTracker(this);
         }
 
-        if (ApplicationProperties.shouldReportToAcra()) {
+        if (ApplicationProperties.shouldReportCrashes()) {
             Crashlytics.start(this);
         }
         instance = this;
@@ -233,7 +233,7 @@ public class SoundCloudApplication extends Application implements Tracker {
     }
 
     public static void handleSilentException(@Nullable String message, Throwable e) {
-        if (ApplicationProperties.shouldReportToAcra()) {
+        if (ApplicationProperties.shouldReportCrashes()) {
             Log.e(TAG, "Handling silent exception L " + message, e);
             Crashlytics.logException(e);
         }

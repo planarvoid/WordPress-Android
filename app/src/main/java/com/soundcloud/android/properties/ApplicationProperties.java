@@ -84,7 +84,7 @@ public class ApplicationProperties {
     }
 
     //DO NOT USE THIS - Temporary until we remove ATInternet stuff
-    public static boolean shouldReportToAcra(){
+    public static boolean shouldReportCrashes(){
         return !mIsRunningOnEmulator && mIsRunningOnDalvik && !BuildType.DEBUG.equals(BUILD_TYPE);
     }
 }
