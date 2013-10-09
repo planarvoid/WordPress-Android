@@ -25,7 +25,7 @@ public class FriendFinder extends ScActivity implements ScLandingPage {
             mFragment = FriendFinderFragment.newInstance();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(mRootView.getContentHolderId(), mFragment, FRAG_TAG)
+                    .add(R.id.content_frame, mFragment, FRAG_TAG)
                     .commit();
         } else {
             mFragment = (FriendFinderFragment) getSupportFragmentManager().findFragmentByTag(FRAG_TAG);

@@ -11,9 +11,6 @@ public abstract class SuggestedUsersBaseActivity extends ScActivity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.frame_layout_holder);
-        if (mActionBarController != null) {
-            mActionBarController.hideMenuIndicator();
-        }
     }
 
     @Override
@@ -23,11 +20,6 @@ public abstract class SuggestedUsersBaseActivity extends ScActivity {
 
     @Override
     public void onHomePressed() {
-        // nop
-    }
-
-    @Override
-    public void onMenuClosed() {
         // nop
     }
 }

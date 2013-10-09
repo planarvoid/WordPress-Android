@@ -40,4 +40,12 @@ public class Legal extends SherlockPreferenceActivity implements ActionBarContro
     @Override
     public void onHomePressed() {
     }
+
+    @Override
+    public void block() {
+    }
+
+    @Override
+    public void unblock(boolean instantly) {
+    }
 }

@@ -12,7 +12,6 @@ import com.soundcloud.android.activity.track.PlaylistDetailActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.view.RootView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,12 +35,10 @@ import android.widget.TextView;
 public class ActionBarController {
     @NotNull protected ActionBarOwner mOwner;
     @NotNull protected Activity mActivity;
-    @NotNull protected RootView mRootView;
 
     @Nullable private View              mActionBarCustomView;
     @Nullable private RelativeLayout    mSearchCustomView;
     @Nullable private SearchView        mSearchView;
-    @Nullable private View              mMenuIndicator;
 
     private SuggestionsAdapter mSuggestionsAdapter;
     private final AndroidCloudAPI mAndroidCloudAPI;
@@ -57,27 +54,19 @@ public class ActionBarController {
         public void         invalidateOptionsMenu();
         public int          getMenuResourceId();
         public void         onHomePressed();
+        public void         block();
+        public void         unblock(boolean instantly);
     }
 
-    public ActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView, AndroidCloudAPI androidCloudAPI) {
+    public ActionBarController(@NotNull ActionBarOwner owner, AndroidCloudAPI androidCloudAPI) {
         mOwner    = owner;
         mActivity = owner.getActivity();
-        mRootView = rootView;
         mAndroidCloudAPI = androidCloudAPI;
         configureCustomView();
     }
 
-
     public void setTitle(CharSequence title) {
         ((TextView) getActionBarCustomView().findViewById(R.id.title)).setText(title);
-    }
-
-    public void hideMenuIndicator() {
-        getMenuIndicator().setVisibility(View.GONE);
-    }
-
-    public void showMenuIndicator() {
-        getMenuIndicator().setVisibility(View.VISIBLE);
     }
 
     public void onResume() {
@@ -108,7 +97,7 @@ public class ActionBarController {
 
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState.getBoolean("closeSearchOnResume")) {
-            mRootView.unBlock(true);
+            mOwner.unblock(true);
         } else {
             if (savedInstanceState.getBoolean("inSearchMode") != mInSearchMode) {
                 toggleSearch();
@@ -216,7 +205,7 @@ public class ActionBarController {
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
-                    if (TextUtils.isEmpty(newText) && !mCloseSearchOnResume) mRootView.unBlock(false);
+                    if (TextUtils.isEmpty(newText) && !mCloseSearchOnResume) mOwner.unblock(false);
                     return false;
                 }
             });
@@ -226,9 +215,9 @@ public class ActionBarController {
                     @Override
                     public void onChanged() {
                         if (mSuggestionsAdapter.getCount() > 0 && !TextUtils.isEmpty(search_text.getText())) {
-                            mRootView.block();
+                            mOwner.block();
                         } else if (!mCloseSearchOnResume) {
-                            mRootView.unBlock(false);
+                            mOwner.unblock(false);
                         }
                     }
                 });
@@ -250,7 +239,7 @@ public class ActionBarController {
         if (mSearchView != null) {
             mSearchView.clearFocus();
         }
-        mRootView.unBlock(instant);
+        mOwner.unblock(instant);
         if (mInSearchMode) toggleSearch();
     }
 
@@ -331,14 +320,6 @@ public class ActionBarController {
                 mOwner.onHomePressed();
             }
         });
-    }
-
-    @NotNull
-    public View getMenuIndicator() {
-        if (mMenuIndicator == null) {
-            mMenuIndicator = getActionBarCustomView().findViewById(R.id.custom_up);
-        }
-        return mMenuIndicator;
     }
 
     @NotNull

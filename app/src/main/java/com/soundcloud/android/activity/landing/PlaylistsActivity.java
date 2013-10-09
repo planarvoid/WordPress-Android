@@ -9,15 +9,15 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
-public class WhoToFollowActivity extends ScActivity implements ScLandingPage{
+public class PlaylistsActivity extends ScActivity implements ScLandingPage{
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        setTitle(getString(R.string.side_menu_who_to_follow));
+        setTitle(getString(R.string.side_menu_playlists));
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.content_frame, ScListFragment.newInstance(Content.SUGGESTED_USERS))
+                    .add(R.id.content_frame, ScListFragment.newInstance(Content.ME_PLAYLISTS))
                     .commit();
         }
     }
@@ -30,6 +30,6 @@ public class WhoToFollowActivity extends ScActivity implements ScLandingPage{
 
     @Override
     protected int getSelectedMenuId() {
-        return R.id.nav_suggested_users;
+        return R.id.nav_playlists;
     }
 }

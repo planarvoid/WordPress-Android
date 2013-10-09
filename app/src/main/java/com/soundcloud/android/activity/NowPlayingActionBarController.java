@@ -7,7 +7,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.NowPlayingIndicator;
-import com.soundcloud.android.view.RootView;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.BroadcastReceiver;
@@ -23,10 +22,11 @@ public class NowPlayingActionBarController extends ActionBarController {
 
     private boolean mListening;
 
-    public NowPlayingActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView, AndroidCloudAPI androidCloudAPI) {
-        super(owner, rootView, androidCloudAPI);
-        mNowPlaying = (NowPlayingIndicator) getActionBarCustomView().findViewById(R.id.waveform_progress);
+    public NowPlayingActionBarController(@NotNull ActionBarOwner owner, AndroidCloudAPI androidCloudAPI) {
+        super(owner, androidCloudAPI);
+        mNowPlayingHolder = View.inflate(owner.getActivity(), R.layout.action_bar_now_playing_custom_view, null);
         mNowPlayingHolder = getActionBarCustomView().findViewById(R.id.waveform_holder);
+        mNowPlaying = (NowPlayingIndicator) mNowPlayingHolder.findViewById(R.id.waveform_progress);
     }
 
     @Override
@@ -56,11 +56,7 @@ public class NowPlayingActionBarController extends ActionBarController {
         customView.findViewById(R.id.waveform_holder).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mRootView.isExpanded()) {
-                    ScActivity.startNavActivity(mActivity, ScPlayer.class, mRootView.getMenuBundle());
-                } else {
-                    mActivity.startActivity(new Intent(Actions.PLAYER));
-                }
+                mActivity.startActivity(new Intent(Actions.PLAYER));
             }
         });
         return customView;

@@ -51,11 +51,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -77,8 +75,6 @@ public class UserBrowser extends ScActivity implements
     private FetchUserTask mLoadUserTask;
     protected ViewPager mPager;
     protected TitlePageIndicator mIndicator;
-
-    private boolean mDelayContent;
 
     private UserDetailsFragment mUserDetailsFragment;
     private AndroidCloudAPI mOldCloudAPI;
@@ -127,12 +123,9 @@ public class UserBrowser extends ScActivity implements
         });
         mToggleFollow = (ToggleButton) findViewById(R.id.toggle_btn_follow);
 
-        // if root view is expanded, wait to instantiate the fragments until it is closed as it causes severe jank
-        mDelayContent = mRootView.isExpanded() && bundle == null;
-
         mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
-        mPager.setAdapter(mDelayContent ? new TempAdapter() : mAdapter);
+        mPager.setAdapter(mAdapter);
         mPager.setCurrentItem(Tab.tracks.ordinal());
 
         //TODO, is this really necessary?
@@ -173,19 +166,6 @@ public class UserBrowser extends ScActivity implements
         } else {
             // if the user is null at this stage there is nothing we can do, except finishing
             finish();
-        }
-    }
-
-    @Override
-    public void onMenuClosed() {
-        super.onMenuClosed();
-
-        if (mDelayContent){
-            mDelayContent = false;
-            // store selected item to restore on new adapter
-            final int currentItem = mPager.getCurrentItem();
-            mPager.setAdapter(mAdapter);
-            mPager.setCurrentItem(currentItem, false);
         }
     }
 
@@ -501,30 +481,6 @@ public class UserBrowser extends ScActivity implements
         @Override
         public CharSequence getPageTitle(int position) {
             return Tab.getTitle(getResources(),position,isYou());
-        }
-    }
-
-    class TempAdapter extends PagerAdapter {
-        @Override
-        public int getCount() {
-            return Tab.values().length;
-        }
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return Tab.getTitle(getResources(),position,isYou());
-        }
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            return new View(UserBrowser.this);
-        }
-        @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return object == view;
-        }
-
-        @Override
-        public void destroyItem(View collection, int position, Object view) {
-            ((ViewPager) collection).removeView((View) view);
         }
     }
 }

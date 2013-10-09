@@ -17,7 +17,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.auth.AuthenticatorService;
-import com.soundcloud.android.showcases.Showcase;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
@@ -28,7 +27,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 public class Home extends ScActivity implements ScLandingPage {
     public static final String EXTRA_ONBOARDING_USERS_RESULT  = "onboarding_users_result";
@@ -55,7 +53,7 @@ public class Home extends ScActivity implements ScLandingPage {
                                 .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
 
                 getSupportFragmentManager().beginTransaction()
-                        .add(mRootView.getContentHolderId(), ScListFragment.newInstance(build))
+                        .add(R.id.content_frame, ScListFragment.newInstance(build))
                         .commit();
             }
 
@@ -120,7 +118,11 @@ public class Home extends ScActivity implements ScLandingPage {
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
+    /*
+
+    TODO : something with this (add a new listener to the drawer)
     @Override
+
     public void onMenuOpenLeft() {
         super.onMenuOpenLeft();
 
@@ -137,4 +139,5 @@ public class Home extends ScActivity implements ScLandingPage {
             mCurrentMenuShowcase.hide();
         }
     }
+     */
 }

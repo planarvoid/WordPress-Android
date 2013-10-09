@@ -219,4 +219,9 @@
     <string name="showcase_explore_title">Explore</string>
     <string name="showcase_explore_message">Hear what\'s new and popular\nPick a track and listen to related sounds for hours.</string>
 
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+    <string name="side_menu_playlists">playlists</string>
+
 </resources>
