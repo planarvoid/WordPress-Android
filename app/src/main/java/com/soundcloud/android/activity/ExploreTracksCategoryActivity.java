@@ -27,6 +27,6 @@ public class ExploreTracksCategoryActivity extends ScActivity {
 
     @Override
     protected int getSelectedMenuId() {
-        return R.id.nav_discover;
+        return R.id.nav_explore;
     }
 }

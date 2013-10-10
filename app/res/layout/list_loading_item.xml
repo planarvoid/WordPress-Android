@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/track_info_row"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
 
-    <include layout="@layout/adapter_view_loading_item"/>
-    <TextView android:id="@+id/txt_list_loading_retry"
-              android:layout_width="wrap_content"
-              android:layout_height="?android:attr/listPreferredItemHeight"
-              style="@style/ErrorMessage"
-              android:layout_centerInParent="true"
-              android:gravity="center"
-              android:text="@string/appending_failed"
-              android:visibility="gone"/>
+    <RelativeLayout android:layout_width="fill_parent"
+                    android:layout_height="?android:attr/listPreferredItemHeight">
+
+        <ProgressBar android:id="@+id/list_loading_view"
+                     android:indeterminateOnly="true"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerInParent="true"
+                     android:gravity="center"/>
+
+        <TextView android:id="@+id/list_loading_retry_view"
+                  android:layout_width="wrap_content"
+                  android:layout_height="fill_parent"
+                  style="@style/ErrorMessage"
+                  android:layout_centerInParent="true"
+                  android:gravity="center"
+                  android:text="@string/appending_failed"
+                  android:visibility="gone"/>
+
+    </RelativeLayout>
+
 </RelativeLayout>

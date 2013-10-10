@@ -5,14 +5,14 @@ import rx.android.RxFragmentObserver;
 
 import android.support.v4.app.Fragment;
 
-public class ScFragmentObserver<T extends Fragment, R> extends RxFragmentObserver<T, R> {
-    public ScFragmentObserver(T fragment) {
+public class DefaultFragmentObserver<T extends Fragment, R> extends RxFragmentObserver<T, R> {
+    public DefaultFragmentObserver(T fragment) {
         super(fragment);
     }
 
     @Override
     public void onError(Throwable error) {
-        ErrorUtils.reportThrowable(error);
+        ErrorUtils.handleThrowable(error);
         super.onError(error);
     }
 }

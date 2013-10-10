@@ -42,7 +42,7 @@ end
     flag = (t == :device ? '-d' : '-e')
     adb_path = "#{android_home}/platform-tools/adb"
     if args.size == 1
-      sh "#{adb_path} #{flag} #{args.first}"
+      sh "'#{adb_path}' #{flag} #{args.first}"
     else
       sh adb_path, *args.unshift(flag)
     end

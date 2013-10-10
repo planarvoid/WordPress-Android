@@ -22,9 +22,9 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
 
     @Override
     public Observable<User> create(final User user) {
-        return schedule(Observable.create(new Func1<Observer<User>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<User>() {
             @Override
-            public Subscription call(Observer<User> observer) {
+            public Subscription onSubscribe(Observer<? super User> observer) {
                 mUserDAO.create(user.buildContentValues());
                 observer.onNext(user);
                 observer.onCompleted();

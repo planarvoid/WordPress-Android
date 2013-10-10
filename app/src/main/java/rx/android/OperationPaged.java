@@ -49,11 +49,11 @@ public final class OperationPaged {
         }
     }
 
-    public static <ItemT, CollT extends Iterable<ItemT>> Func1<Observer<Page<ItemT>>, Subscription> paged(
+    public static <ItemT, CollT extends Iterable<ItemT>> Observable.OnSubscribeFunc<Page<ItemT>> paged(
             final Observable<CollT> source, final Func1<CollT, Observable<Page<ItemT>>> nextPageGenerator) {
-        return new Func1<Observer<Page<ItemT>>, Subscription>() {
+        return new Observable.OnSubscribeFunc<Page<ItemT>>() {
             @Override
-            public Subscription call(final Observer<Page<ItemT>> observer) {
+            public Subscription onSubscribe(final Observer<? super Page<ItemT>> observer) {
                 return source.subscribe(new Observer<CollT>() {
                     @Override
                     public void onCompleted() {

@@ -18,9 +18,9 @@ import java.util.List;
 
 public class SuggestedUsersOperations extends ScheduledOperations {
 
-    private static final Func1<Exception, CategoryGroup> EMPTY_FACEBOOK_GROUP = new Func1<Exception, CategoryGroup>() {
+    private static final Func1<Throwable, CategoryGroup> EMPTY_FACEBOOK_GROUP = new Func1<Throwable, CategoryGroup>() {
         @Override
-        public CategoryGroup call(Exception e) {
+        public CategoryGroup call(Throwable e) {
             return CategoryGroup.createErrorGroup(CategoryGroup.KEY_FACEBOOK);
         }
     };

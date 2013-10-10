@@ -16,7 +16,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.rx.observers.ScSuccessObserver;
+import com.soundcloud.android.rx.observers.SuccessObserver;
 import com.soundcloud.android.service.sync.ApiSyncResult;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.Log;
@@ -225,7 +225,7 @@ public class UserAssociationSyncer extends SyncStrategy {
         return result;
     }
 
-    protected static class BulkFollowObserver extends ScSuccessObserver<Void> {
+    protected static class BulkFollowObserver extends SuccessObserver {
 
         private final FollowingOperations mFollowingOperations;
         private UserAssociationStorage mUserAssociationStorage;

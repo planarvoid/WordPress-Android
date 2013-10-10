@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
@@ -34,7 +33,7 @@ public class ExploreTracksOperationsTest {
     @Mock
     private SoundCloudRxHttpClient soundCloudRxHttpClient;
     @Mock
-    private Observer<ExploreTracksCategory> observer;
+    private Observer observer;
 
     @Before
     public void setUp() {

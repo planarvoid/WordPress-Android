@@ -1,12 +1,14 @@
 package com.soundcloud.android.task.fetch;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMatcherForUriWithClientId;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -21,8 +23,9 @@ public class FetchUserTaskTest {
     public void fetchLoadUserInfo() throws Exception {
         FetchUserTask task = new FetchUserTask(DefaultTestRunner.application.getCloudAPI());
 
-        addHttpResponseRule("GET", "/users/12345",
-                new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("../user.json"))));
+        addHttpResponseRule(
+            createRegexRequestMatcherForUriWithClientId("GET", "/users/12345"),
+            new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("../user.json"))));
 
         final User[] user = {null};
         FetchModelTask.Listener<User> listener = new FetchModelTask.Listener<User>() {

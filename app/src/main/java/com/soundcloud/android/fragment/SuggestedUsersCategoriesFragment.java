@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.ScActions;
-import com.soundcloud.android.rx.observers.ScFragmentObserver;
+import com.soundcloud.android.rx.observers.DefaultFragmentObserver;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
 import org.jetbrains.annotations.Nullable;
@@ -108,8 +108,9 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         mListView.setOnItemClickListener(this);
         mListView.setAdapter(mAdapter);
 
+        // TODO: get rid of StateHolderFragment in favor of setRetainInstanceState or Memento
         StateHolderFragment savedState = StateHolderFragment.obtain(getFragmentManager(), FRAGMENT_TAG);
-        Observable<?> observable;
+        Observable<CategoryGroup> observable;
         if (savedState.has(KEY_OBSERVABLE)){
             observable = savedState.get(KEY_OBSERVABLE);
         } else {
@@ -138,7 +139,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         loadCategories(categoriesObservable);
     }
 
-    private void loadCategories(Observable<?> observable) {
+    private void loadCategories(Observable<CategoryGroup> observable) {
         if (mObserver == null) mObserver = new CategoryGroupsObserver(this);
         mSubscription = observable.subscribe(mObserver);
         setDisplayMode(DisplayMode.LOADING);
@@ -189,7 +190,7 @@ public class SuggestedUsersCategoriesFragment extends SherlockFragment implement
         }
     }
 
-    private static final class CategoryGroupsObserver extends ScFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {
+    private static final class CategoryGroupsObserver extends DefaultFragmentObserver<SuggestedUsersCategoriesFragment, CategoryGroup> {
 
         public CategoryGroupsObserver(SuggestedUsersCategoriesFragment fragment) {
             super(fragment);
