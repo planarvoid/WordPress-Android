@@ -19,6 +19,7 @@ import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.EmptyListView;
+import org.jetbrains.annotations.NotNull;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.BufferingObserver;
@@ -28,7 +29,6 @@ import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,17 +70,20 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final ExploreTracksCategory category = getArguments().getParcelable(ExploreTracksCategory.EXTRA);
-
         mObserver = new ExploreTracksObserver(this);
-        mSuggestedTracksObservable = new ExploreTracksOperations().getSuggestedTracks(category)
+        mSuggestedTracksObservable = buildSuggestedTracksObservable();
+    }
+
+    private ConnectableObservable<Page<SuggestedTracksCollection>> buildSuggestedTracksObservable() {
+        final ExploreTracksCategory category = getArguments().getParcelable(ExploreTracksCategory.EXTRA);
+        return new ExploreTracksOperations().getSuggestedTracks(category)
                 .observeOn(AndroidSchedulers.mainThread())
                 .replay();
     }
 
-    private void loadTrackSuggestions(Observer<Page<SuggestedTracksCollection>> fragmentObserver) {
+    private void loadTrackSuggestions(ConnectableObservable<Page<SuggestedTracksCollection>> observable, Observer<Page<SuggestedTracksCollection>> fragmentObserver) {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
-        final ConnectableObservable<Page<SuggestedTracksCollection>> suggestedTracks = mSuggestedTracksObservable;
+        final ConnectableObservable<Page<SuggestedTracksCollection>> suggestedTracks = observable;
         suggestedTracks.subscribe(mExploreTracksAdapter);
         suggestedTracks.subscribe(fragmentObserver);
         mSubscription = suggestedTracks.connect();
@@ -108,7 +111,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                loadTrackSuggestions(mObserver);
+                loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
             }
         });
 
@@ -122,7 +125,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         gridView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(), false, true, mExploreTracksAdapter)));
 
-        loadTrackSuggestions(mObserver);
+        loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
     }
 
     @Override
@@ -133,8 +136,8 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
-        loadTrackSuggestions(
-                new PullToRefreshObserver<ExploreTracksFragment>(this, GRID_VIEW_ID, mExploreTracksAdapter));
+        final ConnectableObservable<Page<SuggestedTracksCollection>> refreshObservable = buildSuggestedTracksObservable();
+        loadTrackSuggestions(refreshObservable, new PullToRefreshObserver(this, mExploreTracksAdapter, refreshObservable));
     }
 
     @Override
@@ -143,6 +146,15 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         if (mEmptyListView != null) {
             mEmptyListView.setStatus(status);
         }
+    }
+
+    private void onRefreshComplete(@NotNull ConnectableObservable<Page<SuggestedTracksCollection>> newObservable){
+        ((PullToRefreshGridView) getView().findViewById(GRID_VIEW_ID)).onRefreshComplete();
+        mSuggestedTracksObservable = newObservable;
+    }
+
+    private void onRefreshFailed(){
+        ((PullToRefreshGridView) getView().findViewById(GRID_VIEW_ID)).onRefreshComplete();
     }
 
     private static class ExploreTracksObserver extends ListFragmentObserver<ExploreTracksFragment, Page<SuggestedTracksCollection>>{
@@ -166,14 +178,15 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
     /**
      * TODO: REPLACE ME
+     * Turn this into an RX operator if possible
      */
-    private static class PullToRefreshObserver<FragmentType extends Fragment>
-            extends BufferingObserver<Page<SuggestedTracksCollection>> {
+    private static class PullToRefreshObserver extends BufferingObserver<Page<SuggestedTracksCollection>> {
 
         private ItemAdapter<?> mAdapter;
 
-        public PullToRefreshObserver(FragmentType fragment, int ptrViewId, ExploreTracksAdapter adapter) {
-            super(new InnerObserver<FragmentType>(fragment, ptrViewId, adapter));
+        public PullToRefreshObserver(ExploreTracksFragment fragment, ExploreTracksAdapter adapter,
+                                     ConnectableObservable<Page<SuggestedTracksCollection>> observable) {
+            super(new InnerObserver(fragment, adapter, observable));
             mAdapter = adapter;
         }
 
@@ -185,37 +198,33 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         }
 
         // receives the actual observer calls from the outer buffering observer
-        private static final class InnerObserver<FragmentType extends Fragment>
-                extends RxFragmentObserver<FragmentType, Page<SuggestedTracksCollection>> {
+        private static final class InnerObserver extends RxFragmentObserver<ExploreTracksFragment, Page<SuggestedTracksCollection>> {
 
-            private final int mPtrViewId;
             private ExploreTracksAdapter mDelegate;
+            private ConnectableObservable<Page<SuggestedTracksCollection>> mNewObservable;
 
-            public InnerObserver(FragmentType fragment, int ptrViewId, ExploreTracksAdapter adapter) {
+            public InnerObserver(ExploreTracksFragment fragment, ExploreTracksAdapter adapter,
+                                 ConnectableObservable<Page<SuggestedTracksCollection>> observable) {
                 super(fragment);
-                mPtrViewId = ptrViewId;
                 mDelegate = adapter;
+                mNewObservable = observable;
             }
 
             @Override
-            public void onNext(FragmentType fragment, Page<SuggestedTracksCollection> item) {
+            public void onNext(ExploreTracksFragment fragment, Page<SuggestedTracksCollection> item) {
                 mDelegate.onNext(item);
             }
 
             @Override
-            public void onCompleted(FragmentType fragment) {
+            public void onCompleted(ExploreTracksFragment fragment) {
                 mDelegate.onCompleted();
-                findPullToRefreshView(fragment).onRefreshComplete();
+                fragment.onRefreshComplete(mNewObservable);
             }
 
             @Override
-            public void onError(FragmentType fragment, Throwable error) {
+            public void onError(ExploreTracksFragment fragment, Throwable error) {
                 mDelegate.onError(error);
-                findPullToRefreshView(fragment).onRefreshComplete();
-            }
-
-            private PullToRefreshBase<?> findPullToRefreshView(FragmentType fragment) {
-                return (PullToRefreshBase<?>) fragment.getView().findViewById(mPtrViewId);
+                fragment.onRefreshFailed();
             }
         }
     }
