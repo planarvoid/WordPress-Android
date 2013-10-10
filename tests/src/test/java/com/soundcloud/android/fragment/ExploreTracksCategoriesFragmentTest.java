@@ -41,6 +41,8 @@ public class ExploreTracksCategoriesFragmentTest {
         sections.setAudio(audioCategories);
 
         fragment = new ExploreTracksCategoriesFragment(Observable.just(sections));
+        Robolectric.shadowOf(fragment).setAttached(true);
+
         fragment.onCreate(null);
         View v = fragment.onCreateView(LayoutInflater.from(Robolectric.application), new FrameLayout(Robolectric.application), null);
 
