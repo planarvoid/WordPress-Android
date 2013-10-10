@@ -2,6 +2,7 @@ package com.soundcloud.android.api;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -86,6 +87,7 @@ public class ExploreTracksOperationsTest {
         expect(iterator.next()).toEqual(suggestion1);
         expect(iterator.next()).toEqual(suggestion2);
         verify(relatedObserver).onCompleted();
+        verify(relatedObserver, never()).onError(any(Throwable.class));
 
     }
 }

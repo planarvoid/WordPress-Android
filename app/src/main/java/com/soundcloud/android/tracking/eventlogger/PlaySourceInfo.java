@@ -126,14 +126,13 @@ public class PlaySourceInfo implements Parcelable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         return Objects.equal(mData, ((PlaySourceInfo) o).mData);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(mData);
+        return mData.hashCode();
     }
 
     @Override
