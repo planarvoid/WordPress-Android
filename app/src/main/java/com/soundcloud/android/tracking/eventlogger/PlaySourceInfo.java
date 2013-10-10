@@ -23,8 +23,7 @@ public class PlaySourceInfo implements Parcelable {
 
     private Bundle mData = new Bundle();
 
-    public PlaySourceInfo() {
-    }
+    private PlaySourceInfo() {}
 
     private PlaySourceInfo(Builder builder) {
         mData.putLong(KEY_INITIAL_TRACK_ID, builder.mInitialTrackId);
