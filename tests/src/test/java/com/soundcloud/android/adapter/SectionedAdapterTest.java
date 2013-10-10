@@ -34,7 +34,7 @@ public class SectionedAdapterTest {
 
     @Before
     public void setup() {
-        adapter = new SectionedAdapter(listFragmentObserver) {
+        adapter = new SectionedAdapter() {
             @Override
             protected View createItemView(int position, ViewGroup parent) {
                 return null;
@@ -43,29 +43,9 @@ public class SectionedAdapterTest {
     }
 
     @Test
-    public void onNextShouldCallThroughToFragmentObserver(){
-        final Section section = mock(Section.class);
-        adapter.onNext(section);
-        verify(listFragmentObserver).onNext(section);
-    }
-
-    @Test
-    public void onCompleteShouldCallThroughToFragmentObserver(){
-        adapter.onCompleted();
-        verify(listFragmentObserver).onCompleted();
-    }
-
-    @Test
-    public void onErrorShouldCallThroughToFragmentObserver(){
-        final Exception error = mock(Exception.class);
-        adapter.onError(error);
-        verify(listFragmentObserver).onError(error);
-    }
-
-    @Test
     public void shouldClearSectionsArrayOnClear(){
         final SparseArray listPositionsToSections = mock(SparseArray.class);
-        adapter = new SectionedAdapter(listPositionsToSections, listFragmentObserver) {
+        adapter = new SectionedAdapter(listPositionsToSections) {
             @Override
             protected View createItemView(int position, ViewGroup parent) {
                 return null;

@@ -18,16 +18,14 @@ public abstract class SectionedAdapter<ModelType> extends ScAdapter<ModelType> i
     private static final int INITIAL_LIST_CAPACITY = 30;
 
     private final SparseArray<Section<ModelType>> mListPositionsToSections;
-    private final Observer<Section<ModelType>> mDelegateObserver;
 
-    public SectionedAdapter(Observer<Section<ModelType>> delegateObserver) {
-        this(new SparseArray<Section<ModelType>>(), delegateObserver);
+    public SectionedAdapter() {
+        this(new SparseArray<Section<ModelType>>());
     }
 
-    protected SectionedAdapter(SparseArray<Section<ModelType>> listPositionsToSections, Observer<Section<ModelType>> delegateObserver) {
+    protected SectionedAdapter(SparseArray<Section<ModelType>> listPositionsToSections) {
         super(INITIAL_LIST_CAPACITY);
         mListPositionsToSections = listPositionsToSections;
-        mDelegateObserver = delegateObserver;
     }
 
     @Override
@@ -65,12 +63,6 @@ public abstract class SectionedAdapter<ModelType> extends ScAdapter<ModelType> i
     @Override
     public void onCompleted() {
         notifyDataSetChanged();
-        mDelegateObserver.onCompleted();
-    }
-
-    @Override
-    public void onError(Throwable error) {
-        mDelegateObserver.onError(error);
     }
 
     @Override
@@ -79,7 +71,10 @@ public abstract class SectionedAdapter<ModelType> extends ScAdapter<ModelType> i
         for (ModelType item : section.getItems()){
             addItem(item);
         }
-        mDelegateObserver.onNext(section);
     }
 
+    @Override
+    public void onError(Throwable t) {
+        t.printStackTrace();
+    }
 }

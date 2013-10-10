@@ -8,8 +8,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.dao.PlayQueueManagerStore;
 import com.soundcloud.android.dao.TrackStorage;
-import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
@@ -51,7 +51,7 @@ public class PlayQueueManager {
     private AsyncTask mLoadTask;
     private AppendState mAppendingState = AppendState.IDLE;
     private Subscription mRelatedSubscription;
-    private Observable<ModelCollection<TrackSummary>> mRelatedTracksObservable;
+    private Observable<RelatedTracksCollection> mRelatedTracksObservable;
     @NotNull
     private PlaySourceInfo mCurrentPlaySourceInfo = PlaySourceInfo.EMPTY;
 
@@ -256,7 +256,7 @@ public class PlayQueueManager {
     private void loadRelatedTracks() {
         mAppendingState = AppendState.LOADING;
         mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
-        mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<ModelCollection<TrackSummary>>() {
+        mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<RelatedTracksCollection>() {
 
             private boolean mGotRelatedTracks;
 
@@ -273,8 +273,8 @@ public class PlayQueueManager {
             }
 
             @Override
-            public void onNext(ModelCollection<TrackSummary> relatedTracks) {
-                final String recommenderVersion = "FakeVersion_C"; // TODO, replace with real versioning from ModelCollection
+            public void onNext(RelatedTracksCollection relatedTracks) {
+                final String recommenderVersion = relatedTracks.getSourceVersion();
                 mCurrentPlaySourceInfo.setRecommenderVersion(recommenderVersion);
                 for (TrackSummary item : relatedTracks) {
                     mPlayQueue.add(new PlayQueueItem(new Track(item), mPlayQueue.size(), TrackSourceInfo.fromRecommender(recommenderVersion)));

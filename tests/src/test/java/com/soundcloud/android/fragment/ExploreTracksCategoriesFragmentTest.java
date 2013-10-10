@@ -1,19 +1,24 @@
 package com.soundcloud.android.fragment;
 
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
+import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.ExploreTracksCategoriesAdapter;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
-import com.soundcloud.android.model.Section;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 
@@ -28,17 +33,25 @@ public class ExploreTracksCategoriesFragmentTest {
     @Test
     public void shouldAddMusicAndAudioSections(){
         final ExploreTracksCategories sections = new ExploreTracksCategories();
-        final ArrayList<ExploreTracksCategory> musicCategories = Lists.newArrayList(new ExploreTracksCategory("electronic"));
+        final ExploreTracksCategory electronicCategory = new ExploreTracksCategory("electronic");
+        final ArrayList<ExploreTracksCategory> musicCategories = Lists.newArrayList(electronicCategory);
         sections.setMusic(musicCategories);
-        final ArrayList<ExploreTracksCategory> audioCategories = Lists.newArrayList(new ExploreTracksCategory("electronic"));
+        final ExploreTracksCategory comedyCategory = new ExploreTracksCategory("comedy");
+        final ArrayList<ExploreTracksCategory> audioCategories = Lists.newArrayList(comedyCategory);
         sections.setAudio(audioCategories);
 
-        fragment = new ExploreTracksCategoriesFragment(adapter, Observable.just(sections));
+        fragment = new ExploreTracksCategoriesFragment(Observable.just(sections));
         fragment.onCreate(null);
+        View v = fragment.onCreateView(LayoutInflater.from(Robolectric.application), new FrameLayout(Robolectric.application), null);
 
-        verify(adapter).onNext(eq(new Section(R.string.explore_category_header_music, musicCategories)));
-        verify(adapter).onNext(eq(new Section(R.string.explore_category_header_audio, audioCategories)));
-        verify(adapter).onCompleted();
+        Robolectric.shadowOf(fragment).setView(v);
+        fragment.onViewCreated(v, null);
+
+        final ListView listView = (ListView) v.findViewById(R.id.suggested_tracks_categories_list);
+        final ListAdapter adapter1 = listView.getAdapter();
+        expect(adapter1.getCount()).toBe(2); // should have 2 sections
+        expect(adapter1.getItem(0)).toBe(electronicCategory);
+        expect(adapter1.getItem(1)).toBe(comedyCategory);
     }
 
 

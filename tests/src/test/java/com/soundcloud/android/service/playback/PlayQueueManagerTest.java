@@ -10,9 +10,9 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ExploreTracksOperations;
-import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.User;
@@ -430,7 +430,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldAddSeedTrackAndSetLoadingStateWhileLoadingExploreTracks() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<ModelCollection<TrackSummary>>never());
+        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<RelatedTracksCollection>never());
 
         expect(pm.length()).toBe(0);
         pm.loadTrack(track, false, trackingInfo);
@@ -442,7 +442,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldSetFailureStateAfterFailedRelatedLoad() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<ModelCollection<TrackSummary>>error(new Exception()));
+        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<RelatedTracksCollection>error(new Exception()));
 
         pm.fetchRelatedTracks(track);
         expect(pm.isFetchingRelated()).toBeFalse();
@@ -481,15 +481,15 @@ public class PlayQueueManagerTest {
         pm.loadTrack(track, false, trackingInfo);
         pm.fetchRelatedTracks(track);
         expect(pm.next()).toBeTrue();
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=origin-url&exploreTag=explore-tag&trigger=auto&source=recommender&source_version=FakeVersion_C");
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=origin-url&exploreTag=explore-tag&trigger=auto&source=recommender&source_version=recommenderVersion2");
     }
 
     private void setupSuccesfulRelatedLoad(Context context) throws CreateModelException {
         pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
 
         TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        ModelCollection<TrackSummary> relatedTracks = new ModelCollection<TrackSummary>(Lists.newArrayList(trackSummary));
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<ModelCollection<TrackSummary>>just(relatedTracks));
+        RelatedTracksCollection relatedTracks = new RelatedTracksCollection(Lists.newArrayList(trackSummary), "recommenderVersion2");
+        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<RelatedTracksCollection>just(relatedTracks));
     }
 
     @Test
@@ -498,7 +498,7 @@ public class PlayQueueManagerTest {
         pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
 
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final Observable<ModelCollection<TrackSummary>> observable = Mockito.mock(Observable.class);
+        final Observable<RelatedTracksCollection> observable = Mockito.mock(Observable.class);
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
 
         pm.fetchRelatedTracks(track);
@@ -509,7 +509,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldUnsubscribeAndNotBeLoadingAfterCallingSetTrack() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final Observable<ModelCollection<TrackSummary>> observable = Mockito.mock(Observable.class);
+        final Observable<RelatedTracksCollection> observable = Mockito.mock(Observable.class);
         final Subscription subscription = Mockito.mock(Subscription.class);
 
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
@@ -525,7 +525,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldUnsubscribeAndNotBeLoadingAfterCallingloadUri() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final Observable<ModelCollection<TrackSummary>> observable = Mockito.mock(Observable.class);
+        final Observable<RelatedTracksCollection> observable = Mockito.mock(Observable.class);
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
 
         final Subscription subscription = Mockito.mock(Subscription.class);
