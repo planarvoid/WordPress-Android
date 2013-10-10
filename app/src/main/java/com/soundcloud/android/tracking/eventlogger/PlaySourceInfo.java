@@ -21,11 +21,14 @@ public class PlaySourceInfo implements Parcelable {
     private static final String KEY_INITIAL_TRACK_ID = "playSource-initialTrackId";
     private static final String KEY_RECOMMENDER_VERSION = "playSource-recommenderVersion";
 
-    private Bundle mData = new Bundle();
+    private Bundle mData;
 
-    private PlaySourceInfo() {}
+    private PlaySourceInfo() {
+        mData = new Bundle();
+    }
 
     private PlaySourceInfo(Builder builder) {
+        this();
         mData.putLong(KEY_INITIAL_TRACK_ID, builder.mInitialTrackId);
         if (ScTextUtils.isNotBlank(builder.mOriginUrl)) mData.putString(KEY_ORIGIN_URL, builder.mOriginUrl);
         if (ScTextUtils.isNotBlank(builder.mExploreTag)) mData.putString(KEY_EXPLORE_TAG, builder.mExploreTag);
