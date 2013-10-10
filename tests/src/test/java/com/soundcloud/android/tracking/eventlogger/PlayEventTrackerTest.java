@@ -25,6 +25,9 @@ public class PlayEventTrackerTest {
     PlayEventTracker tracker;
     PlayEventTrackingApi api;
 
+    final String trackingParams1 = "tracking=params";
+    final String trackingParams2 = "tracking=params2";
+
     @Before
     public void before() {
         api = mock(PlayEventTrackingApi.class);
@@ -44,8 +47,9 @@ public class PlayEventTrackerTest {
         track.duration = 123;
         track.setId(10);
 
-        tracker.trackEvent(track, Action.PLAY, 1l, "originUrl", "level");
-        tracker.trackEvent(new Track(), Action.STOP, 2l, "originUrl", "level");
+
+        tracker.trackEvent(track, Action.PLAY, 1l, trackingParams1);
+        tracker.trackEvent(track, Action.STOP, 2l, trackingParams2);
 
         Cursor cursor = tracker.eventsCursor();
 
@@ -56,14 +60,13 @@ public class PlayEventTrackerTest {
         expect(cursor).toHaveColumn(TrackingEvents.SOUND_URN, "soundcloud:sounds:10");
         expect(cursor).toHaveColumn(TrackingEvents.USER_URN, "soundcloud:users:1");
         expect(cursor).toHaveColumn(TrackingEvents.ACTION, "play");
-        expect(cursor).toHaveColumn(TrackingEvents.ORIGIN_URL, "originUrl");
-        expect(cursor).toHaveColumn(TrackingEvents.LEVEL, "level");
+        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, "tracking=params");
         expect(cursor).toHaveColumn(TrackingEvents.TIMESTAMP);
 
         expect(cursor).toHaveNext();
         expect(cursor).toHaveColumn(TrackingEvents.ACTION, "stop");
         expect(cursor).toHaveColumn(TrackingEvents.USER_URN, "soundcloud:users:2");
-
+        expect(cursor).toHaveColumn(TrackingEvents.SOURCE_INFO, "tracking=params2");
         expect(cursor).not.toHaveNext();
     }
 
@@ -71,13 +74,12 @@ public class PlayEventTrackerTest {
     public void shouldFlushEventsToApi() throws Exception {
         when(api.pushToRemote(anyList())).thenReturn(new String[]{"1"});
 
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, "originUrl", "level");
-        tracker.trackEvent(new Track(), Action.STOP, 2l, "originUrl", "level");
+        tracker.trackEvent(new Track(), Action.PLAY, 1l, trackingParams1);
+        tracker.trackEvent(new Track(), Action.STOP, 2l, trackingParams2);
 
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
 
         Cursor cursor = tracker.eventsCursor();
-
         expect(cursor).toHaveCount(1);
         expect(cursor).toHaveNext();
         expect(cursor).toHaveColumn(TrackingEvents.ACTION, "stop");
@@ -86,7 +88,7 @@ public class PlayEventTrackerTest {
 
     @Test
     public void shouldNotFlushIfNoActiveNetwork() throws Exception {
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, "originUrl", "level");
+        tracker.trackEvent(new Track(), Action.PLAY, 1l, trackingParams1);
 
         TestHelper.simulateOffline();
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();

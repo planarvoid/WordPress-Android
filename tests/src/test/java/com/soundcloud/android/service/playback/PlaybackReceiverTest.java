@@ -14,10 +14,12 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.task.fetch.FetchModelTask;
+import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -33,6 +35,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class PlaybackReceiverTest {
@@ -46,6 +49,8 @@ public class PlaybackReceiverTest {
     private @Mock PlayerAppWidgetProvider playerAppWidgetProvider;
     private @Mock AccountOperations accountOperations;
 
+    private PlaySourceInfo trackingInfo;
+
     @Before
     public void setup() {
         SoundCloudApplication.MODEL_MANAGER.clear();
@@ -53,6 +58,7 @@ public class PlaybackReceiverTest {
         playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager, accountOperations);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);
+        trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();
     }
 
     @Test
@@ -110,10 +116,11 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, trackingInfo);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).loadTrack(eq(track), eq(true));
+        verify(playQueueManager).loadTrack(eq(track), eq(true), eq(trackingInfo));
         expect(SoundCloudApplication.MODEL_MANAGER.getCachedTrack(track.getId())).toEqual(track);
     }
 
@@ -125,10 +132,11 @@ public class PlaybackReceiverTest {
         intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
         intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, true);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, trackingInfo);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).loadTrack(eq(track), eq(true));
+        verify(playQueueManager).loadTrack(eq(track), eq(true), eq(trackingInfo));
         verify(playQueueManager).fetchRelatedTracks(eq(track));
         expect(SoundCloudApplication.MODEL_MANAGER.getCachedTrack(track.getId())).toEqual(track);
     }
@@ -141,10 +149,11 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.trackId, track.getId());
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, trackingInfo);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).loadTrack(eq(track), eq(true));
+        verify(playQueueManager).loadTrack(eq(track), eq(true), eq(trackingInfo));
     }
 
     @Test
@@ -152,11 +161,12 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, trackingInfo);
         intent.setData(Content.ME_LIKES.uri);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).loadUri(Content.ME_LIKES.uri, 2, null, 2);
+        verify(playQueueManager).loadUri(eq(Content.ME_LIKES.uri), eq(2), (List<? extends PlayableHolder>) eq(null), eq(0), eq(trackingInfo));
     }
 
     @Test
@@ -166,11 +176,12 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, trackingInfo);
         intent.setData(Content.ME_LIKES.uri);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).loadUri(Content.ME_LIKES.uri, 2, CloudPlaybackService.playlistXfer, 2);
+        verify(playQueueManager).loadUri(eq(Content.ME_LIKES.uri), eq(2), eq(CloudPlaybackService.playlistXfer), eq(2), eq(trackingInfo));
     }
 
     @Test
@@ -182,25 +193,28 @@ public class PlaybackReceiverTest {
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
         intent.putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, trackingInfo);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).setPlayQueue(transferList, 2);
+        verify(playQueueManager).setPlayQueue(transferList, 2, trackingInfo);
     }
 
     @Test
     public void shouldSetPlayQueueToLoadUriIfUriEvenWithInitalTrack() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
+        CloudPlaybackService.playlistXfer = null;
 
         Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, trackingInfo);
         intent.setData(Content.ME_LIKES.uri);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).loadUri(Content.ME_LIKES.uri, 2, null, 2);
+        verify(playQueueManager).loadUri(eq(Content.ME_LIKES.uri), eq(2), eq(Lists.newArrayList(track)), eq(0), eq(trackingInfo));
     }
 
     @Test
@@ -213,11 +227,12 @@ public class PlaybackReceiverTest {
         intent.putExtra(CloudPlaybackService.PlayExtras.track, track);
         intent.putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
         intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, 2);
+        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, trackingInfo);
         intent.putExtra(CloudPlaybackService.PlayExtras.startPlayback, false);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).setPlayQueue(transferList, 2);
+        verify(playQueueManager).setPlayQueue(transferList, 2, trackingInfo);
     }
 
     @Test

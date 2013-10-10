@@ -200,6 +200,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String playFromXferList = "play_from_xfer_list";
         String unmute = "unmute"; // used by alarm clock
         String fetchRelated = "fetch_related";
+        String trackingInfo = "tracking_info";
     }
 
     public interface BroadcastExtras{
@@ -515,16 +516,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private void trackPlayEvent(Track newTrack) {
         final long userId = SoundCloudApplication.getUserId();
-        final String originUrl = ""; //TODO
-        final String level = ""; //TODO
-        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId, originUrl, level);
+        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId, mPlayQueueManager.getCurrentEventLoggerParams());
     }
 
     private void trackStopEvent() {
         final long userId = SoundCloudApplication.getUserId();
-        final String originUrl = ""; //TODO
-        final String level = ""; //TODO
-        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId, originUrl, level);
+        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId, mPlayQueueManager.getCurrentEventLoggerParams());
     }
 
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {

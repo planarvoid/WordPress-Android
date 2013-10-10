@@ -3,10 +3,12 @@ package com.soundcloud.android.tracking.eventlogger;
 import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.ACTION;
 import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOUND_DURATION;
 import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOUND_URN;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOURCE_INFO;
 import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.TIMESTAMP;
 import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.USER_URN;
 
 import com.integralblue.httpresponsecache.compat.Charsets;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 
 import android.database.Cursor;
@@ -89,9 +91,10 @@ public class PlayEventTrackingApi {
         sb.append("&sound=").append(URLEncoder.encode(soundUrn, Charsets.UTF_8.name()));
         long soundDuration = trackingData.getLong(trackingData.getColumnIndex(SOUND_DURATION));
         sb.append("&duration=").append(soundDuration);
-
-        //TODO: url, level
-
+        String sourceInfo = trackingData.getString(trackingData.getColumnIndex(SOURCE_INFO));
+        if (ScTextUtils.isNotBlank(sourceInfo)){
+            sb.append("&").append(sourceInfo);
+        }
         return sb.toString();
     }
 }

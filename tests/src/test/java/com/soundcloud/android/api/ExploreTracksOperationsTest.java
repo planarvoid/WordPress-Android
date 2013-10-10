@@ -2,7 +2,7 @@ package com.soundcloud.android.api;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +24,7 @@ import rx.Observable;
 import rx.Observer;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreTracksOperationsTest {
@@ -65,7 +66,7 @@ public class ExploreTracksOperationsTest {
     @Test
     public void getRelatedTracksShouldEmitTracksFromSuggestions() {
 
-        Observer<Track> relatedObserver = Mockito.mock(Observer.class);
+        Observer<ModelCollection<TrackSummary>> relatedObserver = Mockito.mock(Observer.class);
 
         final ModelCollection<TrackSummary> collection = new ModelCollection<TrackSummary>();
         final TrackSummary suggestion1 = new TrackSummary("soundcloud:sounds:1");
@@ -78,9 +79,14 @@ public class ExploreTracksOperationsTest {
         when(soundCloudRxHttpClient.<ModelCollection<TrackSummary>>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
         final Track seedTrack = new Track(123L);
         exploreTracksOperations.getRelatedTracks(seedTrack).subscribe(relatedObserver);
-        verify(relatedObserver).onNext(eq(new Track(suggestion1)));
-        verify(relatedObserver).onNext(eq(new Track(suggestion2)));
+
+        ArgumentCaptor<ModelCollection> argumentCaptor = ArgumentCaptor.forClass(ModelCollection.class);
+        verify(relatedObserver).onNext(argumentCaptor.capture());
+        Iterator iterator = argumentCaptor.getValue().iterator();
+        expect(iterator.next()).toEqual(suggestion1);
+        expect(iterator.next()).toEqual(suggestion2);
         verify(relatedObserver).onCompleted();
+        verify(relatedObserver, never()).onError(any(Throwable.class));
 
     }
 }

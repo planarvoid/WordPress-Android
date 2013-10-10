@@ -7,8 +7,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.PlaylistTracksAdapter;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncStateManager;
@@ -57,6 +57,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     private SyncStateManager mSyncStateManager;
+    private PlayUtils mPlayUtils;
 
     public static PlaylistTracksFragment create(Uri playlistUri) {
         Bundle args = new Bundle();
@@ -73,6 +74,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
         mPlaylist = Playlist.fromBundle(getArguments());
         mLocalCollection = getLocalCollection();
+        mPlayUtils = new PlayUtils();
 
         if (mLocalCollection == null) {
             Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
@@ -138,11 +140,9 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        PlayInfo info = new PlayInfo();
-        info.initialTrack = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        info.uri = mPlaylist.toUri();
-        info.position = position - mListView.getRefreshableView().getHeaderViewsCount();
-        new PlayUtils(getActivity()).playTrack(info);
+        final int startPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
+        mPlayUtils.playFromUriWithInitialTrack(getActivity(), mPlaylist.toUri(), startPosition, track);
     }
 
     @Override
