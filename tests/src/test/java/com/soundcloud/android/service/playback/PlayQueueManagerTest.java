@@ -481,14 +481,14 @@ public class PlayQueueManagerTest {
         pm.loadTrack(track, false, trackingInfo);
         pm.fetchRelatedTracks(track);
         expect(pm.next()).toBeTrue();
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=origin-url&exploreTag=explore-tag&trigger=auto&source=recommender&source_version=FakeVersion_C");
+        expect(pm.getCurrentEventLoggerParams()).toEqual("context=origin-url&exploreTag=explore-tag&trigger=auto&source=recommender&source_version=recommenderVersion2");
     }
 
     private void setupSuccesfulRelatedLoad(Context context) throws CreateModelException {
         pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
 
         TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        RelatedTracksCollection relatedTracks = new RelatedTracksCollection(Lists.newArrayList(trackSummary));
+        RelatedTracksCollection relatedTracks = new RelatedTracksCollection(Lists.newArrayList(trackSummary), "recommenderVersion2");
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<RelatedTracksCollection>just(relatedTracks));
     }
 

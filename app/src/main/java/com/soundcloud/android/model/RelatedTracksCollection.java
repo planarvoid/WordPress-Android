@@ -8,8 +8,11 @@ public class RelatedTracksCollection extends ModelCollection<TrackSummary> {
 
     private String mSourceVersion;
 
-    public RelatedTracksCollection(List<TrackSummary> collection) {
+    public RelatedTracksCollection() {}
+
+    public RelatedTracksCollection(List<TrackSummary> collection, String sourceVersion) {
         super(collection);
+        mSourceVersion = sourceVersion;
     }
 
     public String getSourceVersion() {
