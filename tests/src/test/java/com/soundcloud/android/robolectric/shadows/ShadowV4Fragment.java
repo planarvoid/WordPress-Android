@@ -10,12 +10,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.View;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
 @Implements(Fragment.class)
 public class ShadowV4Fragment extends ShadowFragment {
+
+    private View mView;
 
     @Implementation
     public boolean isAdded() {
@@ -29,7 +32,14 @@ public class ShadowV4Fragment extends ShadowFragment {
     public LoaderManager getLoaderManager(){
         return new ShadowV4LoaderManager();
     }
+    @Implementation
+    public View getView() {
+        return mView;
+    }
 
+    public void setView(View view){
+        mView = view;
+    }
 
     @Implements(LoaderManager.class)
     public static class ShadowV4LoaderManager extends LoaderManager{
