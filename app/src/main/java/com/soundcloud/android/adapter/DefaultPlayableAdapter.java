@@ -11,8 +11,11 @@ import android.net.Uri;
 
 public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> {
 
+    private PlayUtils mPlayUtils;
+
     public DefaultPlayableAdapter(Uri uri) {
         super(uri);
+        mPlayUtils = new PlayUtils();
     }
 
     @Override
@@ -23,7 +26,7 @@ public class DefaultPlayableAdapter extends ScBaseAdapter<Playable> {
     @Override
     public int handleListItemClick(Context context, int position, long id) {
         Uri streamUri = mContent.isMine() ? mContentUri : null;
-        new PlayUtils(context).playFromAdapter(mData, position, streamUri);
+        mPlayUtils.playFromAdapter(context, mData, position, streamUri);
         return ItemClickResults.LEAVING;
     }
 }

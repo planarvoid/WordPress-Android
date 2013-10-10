@@ -41,6 +41,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     private Subscription mSubscription = Subscriptions.empty();
 
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+    private PlayUtils mPlayUtils;
 
     public static ExploreTracksFragment fromCategory(ExploreTracksCategory category) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
@@ -57,6 +58,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     protected ExploreTracksFragment(ExploreTracksAdapter adapter) {
         mExploreTracksAdapter = adapter;
         setRetainInstance(true);
+        mPlayUtils = new PlayUtils();
     }
 
     @Override
@@ -94,7 +96,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mExploreTracksAdapter.getItem(position));
-        new PlayUtils(getActivity()).playExploreTrack(track, "EXPLORE-TAG");
+        mPlayUtils.playExploreTrack(getActivity(), track, "EXPLORE-TAG");
     }
 
     @Override

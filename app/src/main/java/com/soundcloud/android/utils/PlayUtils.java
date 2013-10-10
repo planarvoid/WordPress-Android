@@ -22,46 +22,44 @@ import java.util.List;
 
 public final class PlayUtils {
 
-    private Context mContext;
     private ScModelManager mModelManager;
 
-    public PlayUtils(Context context) {
-        this(context, SoundCloudApplication.MODEL_MANAGER);
+    public PlayUtils() {
+        this(SoundCloudApplication.MODEL_MANAGER);
     }
 
-    public PlayUtils(Context context, ScModelManager modelManager) {
-        mContext = context;
+    public PlayUtils(ScModelManager modelManager) {
         mModelManager = modelManager;
     }
 
     /**
      * Single play, the tracklist will be of length 1
      */
-    public void playTrack(Track track) {
+    public void playTrack(Context context, Track track) {
         final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(track.getId()).build();
-        playFromInfo(new PlayInfo(track, false, playSourceInfo));
+        playFromInfo(context, new PlayInfo(track, false, playSourceInfo));
     }
 
     /**
      * Created by anything played from the {@link com.soundcloud.android.activity.landing.ExploreActivity} section.
      */
-    public void playExploreTrack(Track track, String exploreTag) {
+    public void playExploreTrack(Context context, Track track, String exploreTag) {
         final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(track.getId()).exploreTag(exploreTag).build();
-        playFromInfo(new PlayInfo(track, true, playSourceInfo));
+        playFromInfo(context, new PlayInfo(track, true, playSourceInfo));
     }
 
     /**
      * From a uri with an initial track to show while loading the full playlist from the DB.
      * Used in {@link com.soundcloud.android.fragment.PlaylistTracksFragment}
      */
-    public void playFromUriWithInitialTrack(Uri uri, int startPosition, Track initialTrack) {
+    public void playFromUriWithInitialTrack(Context context, Uri uri, int startPosition, Track initialTrack) {
         PlayInfo playInfo = PlayInfo.fromUri(uri, startPosition);
         playInfo.initialTrack = initialTrack;
         playInfo.sourceInfo = new PlaySourceInfo.Builder(initialTrack.getId()).build();
-        playFromInfo(playInfo);
+        playFromInfo(context, playInfo);
     }
 
-    public void playFromAdapter(List<? extends ScModel> data, int position, Uri uri) {
+    public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri) {
         if (position >= data.size() || !(data.get(position) instanceof PlayableHolder)) {
             throw new AssertionError("Invalid item " + position + ", must be a playable");
         }
@@ -82,10 +80,10 @@ public final class PlayUtils {
 
             PlayInfo playInfo = PlayInfo.fromUriWithTrack(uri, adjustedPosition, tracks.get(adjustedPosition));
             playInfo.iniitalTracklist = tracks;
-            playFromInfo(playInfo);
+            playFromInfo(context, playInfo);
 
         } else if (playable instanceof Playlist) {
-            PlaylistDetailActivity.start(mContext, (Playlist) playable, mModelManager);
+            PlaylistDetailActivity.start(context, (Playlist) playable, mModelManager);
         } else {
             throw new AssertionError("Unexpected playable type");
         }
@@ -106,12 +104,12 @@ public final class PlayUtils {
         return null;
     }
 
-    private void playFromInfo(PlayInfo playInfo){
+    private void playFromInfo(Context context, PlayInfo playInfo){
         Intent intent = new Intent(Actions.PLAY).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         if (CloudPlaybackService.getCurrentTrackId() != playInfo.initialTrack.getId()) {
             configureIntentViaPlayInfo(playInfo, intent);
         }
-        mContext.startActivity(intent);
+        context.startActivity(intent);
     }
 
     private void configureIntentViaPlayInfo(PlayInfo info, Intent intent) {

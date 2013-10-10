@@ -10,8 +10,12 @@ import android.content.Context;
 import android.net.Uri;
 
 public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> {
+
+    private PlayUtils mPlayUtils;
+
     public SoundAssociationAdapter(Uri uri) {
         super(uri);
+        mPlayUtils = new PlayUtils();
     }
 
     @Override
@@ -22,7 +26,7 @@ public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> {
     @Override
     public int handleListItemClick(Context context, int position, long id) {
         Uri streamUri = Content.match(mContentUri).isMine() ? mContentUri : null;
-        new PlayUtils(context).playFromAdapter(mData, position, streamUri);
+        mPlayUtils.playFromAdapter(context, mData, position, streamUri);
         return ItemClickResults.LEAVING;
     }
 
