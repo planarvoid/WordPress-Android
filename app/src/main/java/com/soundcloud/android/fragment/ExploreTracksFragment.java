@@ -18,12 +18,9 @@ import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.EmptyListView;
-import org.jetbrains.annotations.NotNull;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.AndroidObservables;
-import rx.android.BufferingObserver;
-import rx.android.OperationPaged;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
