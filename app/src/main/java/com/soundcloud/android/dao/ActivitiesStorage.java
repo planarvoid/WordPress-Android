@@ -38,9 +38,9 @@ public class ActivitiesStorage extends ScheduledOperations {
 
     @Deprecated
     public Observable<Activities> getCollectionSince(final Uri contentUri, final long since, final int limit)  {
-        return schedule(Observable.create(new Func1<Observer<Activities>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Activities>() {
             @Override
-            public Subscription call(Observer<Activities> observer) {
+            public Subscription onSubscribe(Observer<? super Activities> observer) {
                 log("get activities " + contentUri + ", since=" + since);
 
                 Activities activities = new Activities();
@@ -81,9 +81,9 @@ public class ActivitiesStorage extends ScheduledOperations {
 
     @Deprecated
     public Observable<Activity> getOldestActivity(final Content content) {
-        return schedule(Observable.create(new Func1<Observer<Activity>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Activity>() {
             @Override
-            public Subscription call(Observer<Activity> activityObserver) {
+            public Subscription onSubscribe(Observer<? super Activity> activityObserver) {
                 Activity activity = mActivitiesDAO.buildQuery(content.uri)
                         .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
                         .order(DBHelper.ActivityView.CREATED_AT + " ASC")
@@ -99,9 +99,9 @@ public class ActivitiesStorage extends ScheduledOperations {
 
     @Deprecated
     public Observable<Activity> getLatestActivity(final Content content) {
-        return schedule(Observable.create(new Func1<Observer<Activity>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Activity>() {
             @Override
-            public Subscription call(Observer<Activity> activityObserver) {
+            public Subscription onSubscribe(Observer<? super Activity> activityObserver) {
                 Activity activity = mActivitiesDAO.buildQuery(content.uri)
                         .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
                         .order(DBHelper.ActivityView.CREATED_AT + " DESC")
@@ -117,9 +117,9 @@ public class ActivitiesStorage extends ScheduledOperations {
 
     @Deprecated
     public Observable<Activities> getCollectionBefore(final Uri contentUri, final long before)  {
-        return schedule(Observable.create(new Func1<Observer<Activities>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Activities>() {
             @Override
-            public Subscription call(Observer<Activities> observer) {
+            public Subscription onSubscribe(Observer<? super Activities> observer) {
                 log("get activities " + contentUri + ", before=" + before);
 
                 BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
@@ -135,16 +135,6 @@ public class ActivitiesStorage extends ScheduledOperations {
                 return Subscriptions.empty();
             }
         }));
-    }
-
-    @Deprecated
-    public Observable<Activity> getActivitiesBefore(final Uri contentUri, final long since)  {
-        return getCollectionBefore(contentUri, since).mapMany(new Func1<Activities, Observable<Activity>>() {
-            @Override
-            public Observable<Activity> call(final Activities activities) {
-                return Observable.from(activities.collection);
-            }
-        });
     }
 
     @Deprecated

@@ -92,7 +92,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.playlist_fragment, container, false);
 
         mListViewContainer = layout.findViewById(R.id.listContainer);
-        mProgressView = layout.findViewById(R.id.playlist_tracks_loading_layout);
+        mProgressView = layout.findViewById(R.id.playlist_loading_view);
 
         mListView = (ScListView) layout.findViewById(R.id.list);
         mListView.setOnRefreshListener(this);

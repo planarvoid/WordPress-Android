@@ -40,9 +40,9 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
 
     @Override
     public Observable<Track> create(final Track track) {
-        return schedule(Observable.create(new Func1<Observer<Track>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Track>() {
             @Override
-            public Subscription call(Observer<Track> observer) {
+            public Subscription onSubscribe(Observer<? super Track> observer) {
                 mTrackDAO.create(track);
                 observer.onNext(track);
                 observer.onCompleted();

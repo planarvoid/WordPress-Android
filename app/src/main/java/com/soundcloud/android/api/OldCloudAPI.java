@@ -93,10 +93,6 @@ public class OldCloudAPI implements AndroidCloudAPI {
         mCloudApi.setTokenListener(listener);
     }
 
-    public Token exchangeOAuth1Token(String oauth1AccessToken) throws IOException {
-        return mCloudApi.exchangeOAuth1Token(oauth1AccessToken);
-    }
-
     public Token invalidateToken() {
         return mCloudApi.invalidateToken();
     }

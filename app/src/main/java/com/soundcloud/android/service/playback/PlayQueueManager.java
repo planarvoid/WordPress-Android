@@ -114,6 +114,9 @@ public class PlayQueueManager {
         return currentTrack == null ? -1 : currentTrack.getId();
     }
 
+    /**
+     * TODO : We need to figure out how to decouple event logger params from the playqueue
+     */
     public String getCurrentEventLoggerParams() {
         final PlayQueueItem currentPlayQueueItem = getPlayQueueItem(mPlayPos);
         final TrackSourceInfo trackSourceInfo = currentPlayQueueItem == null ? TrackSourceInfo.EMPTY : currentPlayQueueItem.getTrackSourceInfo();

@@ -124,7 +124,7 @@ public class Home extends ScActivity implements ScLandingPage {
     public void onMenuOpenLeft() {
         super.onMenuOpenLeft();
 
-        final View viewById = mRootView.getMenuItemViewById(R.id.nav_discover);
+        final View viewById = mRootView.getMenuItemViewById(R.id.nav_explore);
         if (viewById != null){
             mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(this, viewById);
         }

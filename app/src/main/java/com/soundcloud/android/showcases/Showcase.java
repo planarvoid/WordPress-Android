@@ -7,7 +7,7 @@ import android.app.Activity;
 import android.view.View;
 
 public enum Showcase {
-    EXPLORE(1, ShowcaseView.TYPE_ONE_SHOT, R.string.showcase_discover_title, R.string.showcase_discover_message);
+    EXPLORE(1, ShowcaseView.TYPE_ONE_SHOT, R.string.showcase_explore_title, R.string.showcase_explore_message);
 
     private final int id;
     private final int shotType;

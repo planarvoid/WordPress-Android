@@ -2,13 +2,13 @@ package com.soundcloud.android.api;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
@@ -33,7 +33,7 @@ public class ExploreTracksOperationsTest {
     @Mock
     private SoundCloudRxHttpClient soundCloudRxHttpClient;
     @Mock
-    private Observer<ExploreTracksCategory> observer;
+    private Observer observer;
 
     @Before
     public void setUp() {
@@ -86,6 +86,7 @@ public class ExploreTracksOperationsTest {
         expect(iterator.next()).toEqual(suggestion1);
         expect(iterator.next()).toEqual(suggestion2);
         verify(relatedObserver).onCompleted();
+        verify(relatedObserver, never()).onError(any(Throwable.class));
 
     }
 }

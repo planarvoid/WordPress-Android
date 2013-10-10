@@ -113,7 +113,7 @@ public class SuggestedUsersOperationsTest {
 
     @Test
     public void shouldReturnEmptyCategoryWhenFacebookFails() {
-        when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(TestObservables.errorThrowingObservable(new RuntimeException()));
+        when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(TestObservables.errorThrowingObservable());
         suggestedUsersOperations.getFacebookSuggestions().subscribe(observer);
         verify(observer, never()).onError(any(Exception.class));
     }

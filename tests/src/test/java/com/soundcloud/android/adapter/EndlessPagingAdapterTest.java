@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
 import rx.android.OperationPaged;
 import rx.android.concurrency.AndroidSchedulers;
@@ -138,8 +139,8 @@ public class EndlessPagingAdapterTest {
 
         View progressView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
         expect(progressView).not.toBeNull();
-        expect(progressView.findViewById(R.id.list_item_loading_layout).getVisibility()).toBe(View.VISIBLE);
-        expect(progressView.findViewById(R.id.txt_list_loading_retry).getVisibility()).toBe(View.GONE);
+        expect(progressView.findViewById(R.id.list_loading_view).getVisibility()).toBe(View.VISIBLE);
+        expect(progressView.findViewById(R.id.list_loading_retry_view).getVisibility()).toBe(View.GONE);
     }
 
     @Test
@@ -161,8 +162,8 @@ public class EndlessPagingAdapterTest {
 
         View errorView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
         expect(errorView).not.toBeNull();
-        expect(errorView.findViewById(R.id.list_item_loading_layout).getVisibility()).toBe(View.GONE);
-        expect(errorView.findViewById(R.id.txt_list_loading_retry).getVisibility()).toBe(View.VISIBLE);
+        expect(errorView.findViewById(R.id.list_loading_view).getVisibility()).toBe(View.GONE);
+        expect(errorView.findViewById(R.id.list_loading_retry_view).getVisibility()).toBe(View.VISIBLE);
     }
 
     @Test
@@ -182,7 +183,7 @@ public class EndlessPagingAdapterTest {
 
         //TODO: this didn't pass when testing against the adapter instance, but looking at the references they
         //were actually identical? WTF?
-        verify(failedSequence, times(2)).subscribe(any());
+        verify(failedSequence, times(2)).subscribe(any(Observer.class));
     }
 
     @Test
@@ -191,7 +192,7 @@ public class EndlessPagingAdapterTest {
         pagingObservable(Observable.from(1, 2, 3).toList(), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 5, 5);
-        verify(nextPage).subscribe(any());
+        verify(nextPage).subscribe(any(Observer.class));
     }
 
     @Test
@@ -200,7 +201,7 @@ public class EndlessPagingAdapterTest {
         pagingObservable(Observable.from(1, 2, 3).toList(), nextPage).subscribe(adapter);
         adapter.loadNextPage();
         adapter.onScroll(absListView, 0, 5, 5); // should not trigger load again, already loading
-        verify(nextPage, times(1)).subscribe(any());
+        verify(nextPage, times(1)).subscribe(any(Observer.class));
     }
 
     @Test

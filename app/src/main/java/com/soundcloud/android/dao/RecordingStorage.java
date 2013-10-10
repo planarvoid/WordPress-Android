@@ -15,7 +15,6 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -44,9 +43,9 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
 
     @Override
     public Observable<Recording> create(final Recording recording) {
-        return schedule(Observable.create(new Func1<Observer<Recording>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Recording>() {
             @Override
-            public Subscription call(Observer<Recording> observer) {
+            public Subscription onSubscribe(Observer<? super Recording> observer) {
                 mRecordingDAO.create(recording);
                 observer.onNext(recording);
                 observer.onCompleted();
@@ -125,9 +124,9 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
     }
 
     public Observable<Boolean> delete(final Recording recording) {
-        return schedule(Observable.create(new Func1<Observer<Boolean>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
             @Override
-            public Subscription call(Observer<Boolean> observer) {
+            public Subscription onSubscribe(Observer<? super Boolean> observer) {
                 boolean deleted = false;
                 if (!recording.external_upload || recording.isLegacyRecording()) {
                     deleted = IOUtils.deleteFile(recording.audio_path);

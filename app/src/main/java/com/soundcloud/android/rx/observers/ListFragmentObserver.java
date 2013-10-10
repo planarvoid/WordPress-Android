@@ -7,7 +7,7 @@ import com.soundcloud.android.view.EmptyListView;
 import android.support.v4.app.Fragment;
 
 public class ListFragmentObserver<FragmentType extends Fragment & EmptyViewAware, ModelType>
-        extends ScFragmentObserver<FragmentType, ModelType> {
+        extends DefaultFragmentObserver<FragmentType, ModelType> {
 
     public ListFragmentObserver(FragmentType fragment) {
         super(fragment);

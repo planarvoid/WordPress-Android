@@ -2,6 +2,7 @@ package com.soundcloud.android.tracking.eventlogger;
 
 import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.EventLoggerKeys;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -37,10 +38,12 @@ public class TrackSourceInfo {
         return trackSourceInfo;
     }
 
+    @VisibleForTesting
     public String getTrigger(){
         return mTrigger;
     }
 
+    @VisibleForTesting
     public String getRecommenderVersion() {
         return mRecommenderVersion;
     }
@@ -67,7 +70,6 @@ public class TrackSourceInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         TrackSourceInfo that = (TrackSourceInfo) o;

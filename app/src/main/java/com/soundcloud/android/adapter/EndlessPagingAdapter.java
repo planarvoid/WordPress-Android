@@ -71,14 +71,14 @@ public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements Ab
         switch (mAppendState) {
             case LOADING:
                 appendingLayout.setBackgroundResource(android.R.color.transparent);
-                appendingLayout.findViewById(R.id.list_item_loading_layout).setVisibility(View.VISIBLE);
-                appendingLayout.findViewById(R.id.txt_list_loading_retry).setVisibility(View.GONE);
+                appendingLayout.findViewById(R.id.list_loading_view).setVisibility(View.VISIBLE);
+                appendingLayout.findViewById(R.id.list_loading_retry_view).setVisibility(View.GONE);
                 appendingLayout.setOnClickListener(null);
                 break;
             case ERROR:
                 appendingLayout.setBackgroundResource(R.drawable.list_selector_background);
-                appendingLayout.findViewById(R.id.list_item_loading_layout).setVisibility(View.GONE);
-                appendingLayout.findViewById(R.id.txt_list_loading_retry).setVisibility(View.VISIBLE);
+                appendingLayout.findViewById(R.id.list_loading_view).setVisibility(View.GONE);
+                appendingLayout.findViewById(R.id.list_loading_retry_view).setVisibility(View.VISIBLE);
                 appendingLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

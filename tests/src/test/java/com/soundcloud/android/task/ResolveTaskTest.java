@@ -5,8 +5,11 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static org.junit.Assert.fail;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Env;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +23,9 @@ public class ResolveTaskTest {
     public void testResolve() throws Exception {
         ResolveTask task = new ResolveTask(DefaultTestRunner.application.getCloudAPI());
 
-        addHttpResponseRule("GET", "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ffoo%2Fbar",
+        addHttpResponseRule(
+                TestHelper.createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME,
+                        "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ffoo%2Fbar"),
                 new TestHttpResponse(302, "", new BasicHeader("Location", "http://foo.com")));
 
         expect(task.execute(Uri.parse("http://soundcloud.com/foo/bar")).get()).toEqual(Uri.parse("http://foo.com"));
@@ -30,7 +35,10 @@ public class ResolveTaskTest {
     public void testResolvingWithListener() throws Exception {
         ResolveTask task = new ResolveTask(DefaultTestRunner.application.getCloudAPI());
 
-        addHttpResponseRule("GET", "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ffoo%2Fbar",
+        addHttpResponseRule(
+                TestHelper.createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME,
+                        "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ffoo%2Fbar"),
+
                 new TestHttpResponse(302, "", new BasicHeader("Location", "http://foo.com")));
 
         final Uri[] result = {null};

@@ -42,7 +42,7 @@ public class MenuScreen {
     }
 
     public void openExplore() {
-        View item = rootMenu().findViewById(R.id.nav_discover);
+        View item = rootMenu().findViewById(R.id.nav_explore);
         solo.clickOnView(R.id.custom_home);
         solo.clickOnView(item);
         waiter.waitForListContent();

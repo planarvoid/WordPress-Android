@@ -49,9 +49,9 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
      */
     @Override
     public Observable<Playlist> create(final Playlist playlist) {
-        return schedule(Observable.create(new Func1<Observer<Playlist>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Playlist>() {
             @Override
-            public Subscription call(Observer<Playlist> observer) {
+            public Subscription onSubscribe(Observer<? super Playlist> observer) {
                 mPlaylistDAO.create(playlist);
                 observer.onNext(playlist);
                 observer.onCompleted();
@@ -77,9 +77,9 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     }
 
     public Observable<Playlist> loadPlaylistWithTracks(final long playlistId) {
-        return schedule(Observable.create(new Func1<Observer<Playlist>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Playlist>() {
             @Override
-            public Subscription call(final Observer<Playlist> observer) {
+            public Subscription onSubscribe(final Observer<? super Playlist> observer) {
                 final Playlist playlist = mPlaylistDAO.queryById(playlistId);
                 if (playlist != null) {
                     loadPlaylistTracks(playlistId).toList().subscribe(new Action1<List<Track>>() {
@@ -100,9 +100,9 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
 
     //TODO: use DAO, not ContentResolver
     public Observable<Track> loadPlaylistTracks(final long playlistId) {
-        return schedule(Observable.create(new Func1<Observer<Track>, Subscription>() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Track>() {
             @Override
-            public Subscription call(Observer<Track> observer) {
+            public Subscription onSubscribe(Observer<? super Track> observer) {
                 Cursor cursor = mResolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)), null, null, null, null);
                 if (cursor != null) {
                     while (cursor.moveToNext()) {

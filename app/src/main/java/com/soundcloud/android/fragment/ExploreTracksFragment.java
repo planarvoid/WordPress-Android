@@ -129,6 +129,12 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     }
 
     @Override
+    public void onDestroyView() {
+        ((PullToRefreshGridView) getView().findViewById(GRID_VIEW_ID)).setAdapter(null);
+        super.onDestroyView();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         mSubscription.unsubscribe();

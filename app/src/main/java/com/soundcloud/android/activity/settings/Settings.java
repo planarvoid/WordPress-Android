@@ -12,7 +12,7 @@ import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.observers.ScObserver;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -358,7 +358,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
             final ProgressDialog progressDialog = AndroidUtils.showProgress(mActivityContext, R.string.settings_logging_out);
 
             mSoundCloudApplication.track(Click.Log_out_box_ok);
-            mAccountOperations.removeSoundCloudAccount().subscribe(new ScObserver<Void>() {
+            mAccountOperations.removeSoundCloudAccount().subscribe(new DefaultObserver<Void>() {
                 @Override
                 public void onCompleted() {
                     mAccountOperations.addSoundCloudAccountManually(mActivityContext);
@@ -368,6 +368,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
 
                 @Override
                 public void onError(Throwable e) {
+                    super.onError(e);
                     progressDialog.dismiss();
                     new AlertDialog.Builder(mActivityContext)
                             .setIcon(android.R.drawable.ic_dialog_alert)

@@ -7,7 +7,7 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.operations.following.FollowingOperations;
-import com.soundcloud.android.rx.observers.ScObserver;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.SingleLineCollectionTextView;
 import rx.android.concurrency.AndroidSchedulers;
 
@@ -263,7 +263,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         }
     }
 
-    private final ScObserver mNotifyWhenDoneObserver = new ScObserver() {
+    private final DefaultObserver mNotifyWhenDoneObserver = new DefaultObserver() {
         @Override
         public void onCompleted() {
             notifyDataSetChanged();
@@ -271,6 +271,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
         @Override
         public void onError(Throwable e) {
+            super.onError(e);
             notifyDataSetChanged();
         }
     };

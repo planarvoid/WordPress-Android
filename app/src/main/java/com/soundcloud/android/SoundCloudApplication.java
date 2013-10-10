@@ -79,7 +79,7 @@ public class SoundCloudApplication extends Application implements Tracker {
             mTracker = new ATTracker(this);
         }
 
-        if (ApplicationProperties.shouldReportToAcra()) {
+        if (ApplicationProperties.shouldReportCrashes()) {
             Crashlytics.start(this);
         }
         instance = this;
@@ -133,10 +133,6 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
 
         FacebookSSO.extendAccessTokenIfNeeded(this);
-    }
-
-    public Long getLoggedInUsersId(){
-        return getLoggedInUser().getId();
     }
 
     public synchronized User getLoggedInUser() {
@@ -220,10 +216,18 @@ public class SoundCloudApplication extends Application implements Tracker {
         return ((SoundCloudApplication) instance).getCurrentUserId();
     }
 
+    /**
+     * To be replaced with Localytics tracking soon
+     */
+    @Deprecated
     public void track(Event event, Object... args) {
         if (mTracker != null) mTracker.track(event, args);
     }
 
+    /**
+     * To be replaced with Localytics tracking soon
+     */
+    @Deprecated
     public void track(Class<?> klazz, Object... args) {
         Tracking tracking = klazz.getAnnotation(Tracking.class);
         if (mTracker != null && tracking != null) {
@@ -233,7 +237,7 @@ public class SoundCloudApplication extends Application implements Tracker {
     }
 
     public static void handleSilentException(@Nullable String message, Throwable e) {
-        if (ApplicationProperties.shouldReportToAcra()) {
+        if (ApplicationProperties.shouldReportCrashes()) {
             Log.e(TAG, "Handling silent exception L " + message, e);
             Crashlytics.logException(e);
         }
@@ -273,11 +277,4 @@ public class SoundCloudApplication extends Application implements Tracker {
                     .build());
         }
     }
-
-    private static class SilentException extends Exception {
-        private SilentException(Throwable throwable) {
-            super(throwable);
-        }
-    }
-
 }

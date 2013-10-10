@@ -85,7 +85,9 @@ public class PollerTest {
 
     @Test
     public void testPollUploadedProcess400Failure() throws Exception {
-        Robolectric.addHttpResponseRule("GET", "/tracks/12345", new TestHttpResponse(400, "failed"));
+        Robolectric.addHttpResponseRule(
+            TestHelper.createRegexRequestMatcherForUriWithClientId("GET", "/tracks/12345"),
+            new TestHttpResponse(400, "failed"));
         addProcessingTrackAndRunPoll(TRACK_ID);
         expectLocalTracksNotStreamable(TRACK_ID);
     }

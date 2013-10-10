@@ -109,6 +109,12 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     }
 
     @Override
+    public void onDestroyView() {
+        ((ListView) getView().findViewById(R.id.suggested_tracks_categories_list)).setAdapter(null);
+        super.onDestroyView();
+    }
+
+    @Override
     public void setEmptyViewStatus(int status) {
         mEmptyViewStatus = status;
         if (mEmptyListView != null) {
