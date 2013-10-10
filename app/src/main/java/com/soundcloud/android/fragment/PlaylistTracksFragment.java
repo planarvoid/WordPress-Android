@@ -57,6 +57,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
     private SyncStateManager mSyncStateManager;
+    private PlayUtils mPlayUtils;
 
     public static PlaylistTracksFragment create(Uri playlistUri) {
         Bundle args = new Bundle();
@@ -73,6 +74,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
         mPlaylist = Playlist.fromBundle(getArguments());
         mLocalCollection = getLocalCollection();
+        mPlayUtils = new PlayUtils();
 
         if (mLocalCollection == null) {
             Toast.makeText(getActivity(), R.string.playlist_removed, Toast.LENGTH_SHORT).show();
@@ -140,7 +142,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int startPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
         final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        new PlayUtils(getActivity()).playFromUriWithInitialTrack(mPlaylist.toUri(), startPosition, track);
+        mPlayUtils.playFromUriWithInitialTrack(getActivity(), mPlaylist.toUri(), startPosition, track);
     }
 
     @Override

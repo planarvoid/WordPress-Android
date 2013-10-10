@@ -31,11 +31,13 @@ import java.util.List;
 
 public class ActivityAdapter extends ScBaseAdapter<Activity> {
     private ActivitiesStorage mActivitiesStorage;
+    private PlayUtils mPlayUtils;
 
 
     public ActivityAdapter(Uri uri) {
         super(uri);
         mActivitiesStorage = new ActivitiesStorage();
+        mPlayUtils = new PlayUtils();
     }
 
     @Override
@@ -136,7 +138,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
             case TRACK_SHARING:
             case PLAYLIST:
             case PLAYLIST_SHARING:
-                new PlayUtils(context).playFromAdapter(mData, position, mContentUri);
+                mPlayUtils.playFromAdapter(context, mData, position, mContentUri);
                 return ItemClickResults.LEAVING;
 
             case COMMENT:
@@ -148,7 +150,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
                             .putExtra(Track.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    new PlayUtils(context).playFromAdapter(mData, position, mContentUri);
+                    mPlayUtils.playFromAdapter(context, mData, position, mContentUri);
                 }
                 return ItemClickResults.LEAVING;
             case PLAYLIST_LIKE:
@@ -159,7 +161,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
                             .putExtra(Playlist.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    new PlayUtils(context).playFromAdapter(mData, position, mContentUri);
+                    mPlayUtils.playFromAdapter(context, mData, position, mContentUri);
                 }
                 return ItemClickResults.LEAVING;
 

@@ -262,9 +262,11 @@ public class PlayEventTracker {
             try {
                 block.call(writableDatabase);
             } catch (SQLException ex){
-                Log.i("asdf","exception " , ex);
+                Log.i(TAG, "Sql exception " , ex);
+            } finally {
+                close();
             }
-            close();
+
         }
     }
 

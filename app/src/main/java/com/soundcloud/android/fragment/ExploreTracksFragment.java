@@ -45,6 +45,8 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     private ExploreTracksObserver mObserver;
 
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+    private PlayUtils mPlayUtils;
+    private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
 
     public static ExploreTracksFragment fromCategory(ExploreTracksCategory category) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
@@ -61,35 +63,29 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     protected ExploreTracksFragment(ExploreTracksAdapter adapter) {
         mExploreTracksAdapter = adapter;
         setRetainInstance(true);
+        mPlayUtils = new PlayUtils();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (mExploreTracksAdapter == null){
-            mExploreTracksAdapter = new ExploreTracksAdapter();
-        }
+        final ExploreTracksCategory category = getArguments().getParcelable(ExploreTracksCategory.EXTRA);
 
         mObserver = new ExploreTracksObserver(this);
-        loadTrackSuggestions(mObserver);
+        mSuggestedTracksObservable = new ExploreTracksOperations().getSuggestedTracks(category)
+                .observeOn(AndroidSchedulers.mainThread())
+                .replay();
     }
 
     private void loadTrackSuggestions(Observer<Page<SuggestedTracksCollection>> fragmentObserver) {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
-        final ConnectableObservable<Page<SuggestedTracksCollection>> suggestedTracks = buildGetSuggestedTracksObservable();
+        final ConnectableObservable<Page<SuggestedTracksCollection>> suggestedTracks = mSuggestedTracksObservable;
         suggestedTracks.subscribe(mExploreTracksAdapter);
         suggestedTracks.subscribe(fragmentObserver);
         mSubscription = suggestedTracks.connect();
     }
 
-    private ConnectableObservable<Page<SuggestedTracksCollection>> buildGetSuggestedTracksObservable() {
-        final ExploreTracksCategory category = getArguments().getParcelable(ExploreTracksCategory.EXTRA);
-        ConnectableObservable<Page<SuggestedTracksCollection>> observable = new ExploreTracksOperations().getSuggestedTracks(category)
-                .observeOn(AndroidSchedulers.mainThread())
-                .publish();
-        return observable;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -99,20 +95,20 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mExploreTracksAdapter.getItem(position));
-        new PlayUtils(getActivity()).playExploreTrack(track, mObserver.getLastExploreTag());
+        mPlayUtils.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag());
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mExploreTracksAdapter = new ExploreTracksAdapter();
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                loadTrackSuggestions(
-                        new ListFragmentObserver<ExploreTracksFragment, Page<SuggestedTracksCollection>>(ExploreTracksFragment.this));
+                loadTrackSuggestions(mObserver);
             }
         });
 
@@ -125,6 +121,8 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         gridView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(), false, true, mExploreTracksAdapter)));
+
+        loadTrackSuggestions(mObserver);
     }
 
     @Override
