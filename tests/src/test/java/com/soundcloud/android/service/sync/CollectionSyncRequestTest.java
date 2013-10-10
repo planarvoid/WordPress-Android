@@ -3,8 +3,6 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -23,7 +21,6 @@ import org.apache.http.StatusLine;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -36,7 +33,7 @@ import java.net.URLEncoder;
 public class CollectionSyncRequestTest {
 
     public static final String SOME_ACTION = "someAction";
-    public static final String RESULT_PREF_KEY = CollectionSyncRequest.PREFIX_LAST_SYNC_RESULT + Content.ME_FOLLOWINGS.uri.toString();
+
     CollectionSyncRequest collectionSyncRequest;
 
     @Mock
@@ -131,18 +128,6 @@ public class CollectionSyncRequestTest {
     }
 
     @Test
-    public void shouldRecordErrorOnIOException() throws IOException {
-        final IOException ioException = new IOException();
-        setupExceptionThrowingSync(ioException);
-
-        collectionSyncRequest.onQueued();
-        collectionSyncRequest.execute();
-
-        verify(sharedPreferencesEditor).putString(eq(RESULT_PREF_KEY), contains(ioException.getClass().getSimpleName()));
-        verify(sharedPreferencesEditor).commit();
-    }
-
-    @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsForBadResponseException() throws IOException {
         final AndroidCloudAPI.UnexpectedResponseException unexpectedResponseException = new AndroidCloudAPI.UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
         setupExceptionThrowingSync(unexpectedResponseException);
@@ -155,18 +140,6 @@ public class CollectionSyncRequestTest {
     }
 
     @Test
-    public void shouldRecordErrorOnBadResponseException() throws IOException {
-        final AndroidCloudAPI.UnexpectedResponseException unexpectedResponseException = new AndroidCloudAPI.UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
-        setupExceptionThrowingSync(unexpectedResponseException);
-
-        collectionSyncRequest.onQueued();
-        collectionSyncRequest.execute();
-
-        verify(sharedPreferencesEditor).putString(eq(RESULT_PREF_KEY), contains(AndroidCloudAPI.UnexpectedResponseException.class.getSimpleName()));
-        verify(sharedPreferencesEditor).commit();
-    }
-
-    @Test
     public void shouldCallOnSyncComplete() throws IOException {
         setupSuccessfulSync();
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
@@ -174,48 +147,6 @@ public class CollectionSyncRequestTest {
         collectionSyncRequest.onQueued();
         collectionSyncRequest.execute();
         verify(syncStateManager).onSyncComplete(apiSyncResult, localCollection);
-    }
-
-    @Test
-    public void shouldSetLastResultToSuccessInPrefsWithSuccessResult() throws IOException {
-        setupSuccessfulSync();
-
-        collectionSyncRequest.onQueued();
-        collectionSyncRequest.execute();
-
-        verify(sharedPreferencesEditor).putString(RESULT_PREF_KEY, CollectionSyncRequest.PREF_VAL_SUCCESS);
-        verify(sharedPreferencesEditor).commit();
-    }
-
-    @Test
-    public void shouldSetLastResultToFailureInPrefsWithFailureResult() throws IOException {
-        setupFailedSync();
-        collectionSyncRequest.onQueued();
-        collectionSyncRequest.execute();
-
-        verify(sharedPreferencesEditor).putString(RESULT_PREF_KEY, CollectionSyncRequest.PREF_VAL_FAILED);
-        verify(sharedPreferencesEditor).commit();
-    }
-
-    @Test
-    public void shouldSendSilentRetryViolationWithLastResult() throws IOException {
-        setupSuccessfulSync();
-
-        localCollection.last_sync_attempt = System.currentTimeMillis();
-
-        final String some_kind_of_error = "SOME_KIND_OF_ERROR";
-        when(sharedPreferences.getString(RESULT_PREF_KEY, CollectionSyncRequest.PREF_VAL_NULL)).thenReturn(some_kind_of_error);
-
-        CollectionSyncRequest spyRequest = Mockito.spy(collectionSyncRequest);
-        spyRequest.onQueued();
-        spyRequest.execute();
-
-        ArgumentCaptor<CollectionSyncRequest.SyncRetryViolation> captor = ArgumentCaptor.forClass(CollectionSyncRequest.SyncRetryViolation.class);
-        verify(spyRequest).sendRetryViolation(anyString(), captor.capture());
-
-        final String exceptionString = captor.getValue().toString();
-        expect(exceptionString.contains(Content.ME_FOLLOWINGS.uri.toString())).toBeTrue();
-        expect(exceptionString.contains(some_kind_of_error)).toBeTrue();
     }
 
     private void setupSuccessfulSync() throws IOException {
