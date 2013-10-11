@@ -5,6 +5,10 @@ import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observer;
 
+/**
+ * Base observer class meant to be used in list fragments which control an {@link EmptyListView}. It automatically puts
+ * it in success or errors states based on the outcome of the observable call.
+ */
 public class ListFragmentObserver<T> implements Observer<T> {
 
     private final EmptyViewAware mEmptyViewHolder;

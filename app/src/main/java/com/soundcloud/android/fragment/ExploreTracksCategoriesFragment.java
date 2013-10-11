@@ -44,10 +44,10 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
                 }
             };
 
-
-    private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;
+
+    private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
     private Subscription mSubscription = Subscriptions.empty();
 
     public ExploreTracksCategoriesFragment() {

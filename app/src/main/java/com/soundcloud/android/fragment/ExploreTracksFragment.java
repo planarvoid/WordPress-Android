@@ -35,14 +35,15 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
 
     private static final int GRID_VIEW_ID = R.id.suggested_tracks_grid;
+    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
+
     private EmptyListView mEmptyListView;
     private ExploreTracksAdapter mAdapter;
-    private Subscription mSubscription = Subscriptions.empty();
     private ExploreTracksObserver mObserver;
-
-    private int mEmptyViewStatus = EmptyListView.Status.WAITING;
     private PlayUtils mPlayUtils;
+
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
+    private Subscription mSubscription = Subscriptions.empty();
 
     public static ExploreTracksFragment fromCategory(ExploreTracksCategory category) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
