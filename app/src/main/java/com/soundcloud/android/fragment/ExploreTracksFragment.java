@@ -54,11 +54,6 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     }
 
     public ExploreTracksFragment() {
-        this(null);
-    }
-
-    protected ExploreTracksFragment(ExploreTracksAdapter adapter) {
-        mAdapter = adapter;
         setRetainInstance(true);
         mPlayUtils = new PlayUtils();
     }

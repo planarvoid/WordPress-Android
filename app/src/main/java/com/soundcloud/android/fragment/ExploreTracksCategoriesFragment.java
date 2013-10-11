@@ -51,16 +51,21 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     private Subscription mSubscription = Subscriptions.empty();
 
     public ExploreTracksCategoriesFragment() {
-        init(new ExploreTracksOperations().getCategories());
+        this(new ExploreTracksOperations());
     }
 
     @VisibleForTesting
-    protected ExploreTracksCategoriesFragment(Observable<ExploreTracksCategories> observable) {
+    protected ExploreTracksCategoriesFragment(ExploreTracksOperations operations) {
+        init(AndroidObservables.fromFragment(this, operations.getCategories()).mapMany(CATEGORIES_TO_SECTIONS).replay());
+    }
+
+    @VisibleForTesting
+    protected ExploreTracksCategoriesFragment(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
         init(observable);
     }
 
-    private void init(Observable<ExploreTracksCategories> observable) {
-        mCategoriesObservable = AndroidObservables.fromFragment(this, observable).mapMany(CATEGORIES_TO_SECTIONS).replay();
+    private void init(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
+        mCategoriesObservable = observable;
         setRetainInstance(true);
     }
 
