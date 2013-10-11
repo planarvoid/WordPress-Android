@@ -130,6 +130,10 @@ public class SoundCloudApplication extends Application implements Tracker {
             });
 
             ContentStats.init(this);
+
+            if (appProperties.isBetaBuildRunningOnDalvik()){
+                Crashlytics.setUserIdentifier(getLoggedInUser().username);
+            }
         }
 
         FacebookSSO.extendAccessTokenIfNeeded(this);
