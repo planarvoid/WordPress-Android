@@ -830,12 +830,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         return mPlayQueueManager.getState();
     }
 
-    public int getCurrentPlayQueuePosition() {
-        return mPlayQueueManager.getPosition();
-    }
-
-
-
     /* package */ int getDuration() {
         return mCurrentTrack == null ? -1 : mCurrentTrack.duration;
     }

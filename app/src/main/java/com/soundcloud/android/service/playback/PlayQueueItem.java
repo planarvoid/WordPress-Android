@@ -7,10 +7,6 @@ class PlayQueueItem {
     private Track mTrack;
     private TrackSourceInfo mTrackSourceInfo;
 
-    public PlayQueueItem(Track track) {
-        this(track, TrackSourceInfo.EMPTY);
-    }
-
     public PlayQueueItem(Track track, TrackSourceInfo trackSourceInfo) {
         mTrack = track;
         mTrackSourceInfo = trackSourceInfo;

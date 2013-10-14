@@ -445,7 +445,7 @@ public class PlayQueueManagerTest {
         pm.loadTrack(track, false, trackingInfo);
         pm.fetchRelatedTracks(track);
         expect(pm.length()).toBe(1);
-        expect(pm.getState().isFetchingRelated()).toBeTrue();
+        expect(pm.getState().isLoading()).toBeTrue();
     }
 
     @Test
@@ -455,8 +455,8 @@ public class PlayQueueManagerTest {
 
         pm.fetchRelatedTracks(track);
         final PlayQueueState state = pm.getState();
-        expect(state.isFetchingRelated()).toBeFalse();
-        expect(state.lastRelatedFetchFailed()).toBeTrue();
+        expect(state.isLoading()).toBeFalse();
+        expect(state.lastLoadFailed()).toBeTrue();
     }
 
     @Test
@@ -471,8 +471,8 @@ public class PlayQueueManagerTest {
         expect(pm.length()).toBe(2);
 
         final PlayQueueState state = pm.getState();
-        expect(state.isFetchingRelated()).toBeFalse();
-        expect(state.lastRelatedFetchFailed()).toBeFalse();
+        expect(state.isLoading()).toBeFalse();
+        expect(state.lastLoadFailed()).toBeFalse();
 
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(context, times(3)).sendBroadcast(argumentCaptor.capture());
@@ -529,7 +529,7 @@ public class PlayQueueManagerTest {
         pm.fetchRelatedTracks(track);
         pm.loadTrack(track, false, trackingInfo);
 
-        expect(pm.getState().isFetchingRelated()).toBeFalse();
+        expect(pm.getState().isLoading()).toBeFalse();
         verify(subscription).unsubscribe();
     }
 
@@ -545,7 +545,7 @@ public class PlayQueueManagerTest {
         pm.fetchRelatedTracks(track);
         pm.loadUri(Content.TRACKS.uri, 0, null, trackingInfo);
 
-        expect(pm.getState().isFetchingRelated()).toBeFalse();
+        expect(pm.getState().isLoading()).toBeFalse();
         verify(subscription).unsubscribe();
     }
 

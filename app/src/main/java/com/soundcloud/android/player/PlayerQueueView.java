@@ -21,9 +21,9 @@ public class PlayerQueueView extends FrameLayout {
         // TODO, replace these with viewStubs
         if (playQueueItem.isEmpty()){
             showEmptyView();
-//            if (mPlayQueueManager.isFetchingRelated()){
+//            if (mPlayQueueManager.isLoading()){
 //                mEmptyView.setStatus(EmptyListView.Status.WAITING);
-//            } else if (mPlayQueueManager.lastRelatedFetchFailed()){
+//            } else if (mPlayQueueManager.lastLoadFailed()){
 //                mEmptyView.setStatus(EmptyListView.Status.ERROR);
 //            } else {
 //                mEmptyView.setStatus(EmptyListView.Status.OK);

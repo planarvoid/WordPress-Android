@@ -2,6 +2,7 @@ package com.soundcloud.android.dao;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -24,11 +25,19 @@ import java.util.List;
 
 public class TrackStorage extends ScheduledOperations implements Storage<Track> {
     private TrackDAO mTrackDAO;
-    private final ContentResolver mResolver;
+    private ContentResolver mResolver;
+    private ScModelManager mModelManager;
 
     public TrackStorage() {
-        mResolver = SoundCloudApplication.instance.getContentResolver();
-        mTrackDAO = new TrackDAO(mResolver);
+        this(SoundCloudApplication.instance.getContentResolver(),
+                new TrackDAO(SoundCloudApplication.instance.getContentResolver()),
+                SoundCloudApplication.MODEL_MANAGER);
+    }
+
+    public TrackStorage(ContentResolver contentResolver, TrackDAO trackDAO, ScModelManager modelManager){
+        mResolver = contentResolver;
+        mTrackDAO = trackDAO;
+        mModelManager = modelManager;
     }
 
     public boolean markTrackAsPlayed(Track track) {
@@ -58,7 +67,12 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         return schedule(Observable.create(new Observable.OnSubscribeFunc<Track>() {
             @Override
             public Subscription onSubscribe(Observer<? super Track> observer) {
-                observer.onNext(mTrackDAO.queryById(id));
+                final Track cachedTrack = mModelManager.getCachedTrack(id);
+                if (cachedTrack != null){
+                    observer.onNext(cachedTrack);
+                } else {
+                    observer.onNext(mTrackDAO.queryById(id));
+                }
                 observer.onCompleted();
                 return Subscriptions.empty();
             }
@@ -84,8 +98,8 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
             List<Track> newQueue = new ArrayList<Track>(cursor.getCount());
             while (cursor.moveToNext()) {
                 final Track trackFromCursor = isActivityCursor ?
-                        SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID) :
-                        SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor);
+                        mModelManager.getCachedTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID) :
+                        mModelManager.getCachedTrackFromCursor(cursor);
                 newQueue.add(trackFromCursor);
             }
             cursor.close();

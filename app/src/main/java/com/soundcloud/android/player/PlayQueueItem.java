@@ -1,13 +1,14 @@
 package com.soundcloud.android.player;
 
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 import rx.Observable;
 
 class PlayQueueItem {
-    private Track mTrack;
+
+    private Observable<Track> mTrackObservable;
     private int mPlayQueuePosition;
 
+    // TODO, try to use a static instance since we only have 1 empty item
     public static PlayQueueItem empty(int position){
         return new PlayQueueItem(position);
     }
@@ -16,28 +17,17 @@ class PlayQueueItem {
         mPlayQueuePosition = pos;
     }
 
-    public PlayQueueItem(Track track, int pos) {
-        this(pos);
-        mTrack = track;
-    }
-
     public PlayQueueItem(Observable<Track> trackObservable, int pos) {
         this(pos);
-        trackObservable.subscribe(new DefaultObserver<Track>() {
-            @Override
-            public void onNext(Track track) {
-                mTrack = track;
-            }
-            // TODO, error case
-        });
+        mTrackObservable = trackObservable;
     }
 
-    public Track getTrack() {
-        return mTrack;
+    public Observable<Track> getTrack() {
+        return mTrackObservable;
     }
 
     public boolean isEmpty() {
-        return mTrack == null;
+        return mTrackObservable == null;
     }
 
     public int getPlayQueuePosition() {

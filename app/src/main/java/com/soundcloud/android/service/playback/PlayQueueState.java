@@ -1,5 +1,7 @@
 package com.soundcloud.android.service.playback;
 
+import com.google.common.base.Objects;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -12,7 +14,6 @@ public class PlayQueueState {
 
     public enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
-
     }
     public PlayQueueState(List<Long> currentTrackIds, int playPosition, AppendState currentAppendState) {
         mTrackIds = currentTrackIds;
@@ -32,15 +33,24 @@ public class PlayQueueState {
         return mAppendState;
     }
 
-    public boolean isFetchingRelated() {
+    public boolean isLoading() {
         return mAppendState == PlayQueueState.AppendState.LOADING;
     }
 
-    public boolean lastRelatedFetchFailed() {
+    public boolean lastLoadFailed() {
         return mAppendState == PlayQueueState.AppendState.ERROR;
     }
 
-    public boolean lastRelatedFetchWasEmpty() {
+    public boolean lastLoadWasEmpty() {
         return mAppendState == PlayQueueState.AppendState.EMPTY;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(getClass())
+                .add("Track IDs", mTrackIds)
+                .add("Play Position", mPlayPosition)
+                .add("Append State", mAppendState)
+                .toString();
     }
 }

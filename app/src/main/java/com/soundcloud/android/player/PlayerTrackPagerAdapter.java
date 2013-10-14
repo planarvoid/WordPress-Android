@@ -11,6 +11,7 @@ import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.PlayQueueState;
 import com.soundcloud.android.utils.Log;
+import rx.Observable;
 
 import android.content.Context;
 import android.view.View;
@@ -114,7 +115,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
 
     private boolean shouldDisplayExtraItem() {
-        return mPlayQueueState.isFetchingRelated() || mPlayQueueState.lastRelatedFetchFailed() || mPlayQueueState.lastRelatedFetchWasEmpty();
+        return mPlayQueueState.isLoading() || mPlayQueueState.lastLoadFailed() || mPlayQueueState.lastLoadWasEmpty();
     }
 
     public void clearCommentingPosition(boolean animated) {
@@ -127,7 +128,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     @Override
     protected PlayQueueItem getItem(int position) {
         if (position == 0 && mPlaceholderTrack != null){
-            return new PlayQueueItem(mPlaceholderTrack, 0);
+            return new PlayQueueItem(Observable.<Track>just(mPlaceholderTrack), 0);
         } else {
             if (position >= mPlayQueueState.getCurrentTrackIds().size()){
                 return PlayQueueItem.empty(position);
@@ -138,14 +139,14 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     }
 
     @Override
-    protected View getView(PlayQueueItem dataItem, View convertView, ViewGroup parent) {
+    protected View getView(PlayQueueItem playQueueItem, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = createPlayerQueueView(parent.getContext());
         }
 
         final PlayerQueueView queueView = (PlayerQueueView) convertView;
-        queueView.setPlayQueueItem(dataItem, mCommentingPosition == dataItem.getPlayQueuePosition());
-        mQueueViewsByPosition.forcePut(queueView, dataItem.getPlayQueuePosition());
+        queueView.setPlayQueueItem(playQueueItem, mCommentingPosition == playQueueItem.getPlayQueuePosition());
+        mQueueViewsByPosition.forcePut(queueView, playQueueItem.getPlayQueuePosition());
         return convertView;
     }
 
@@ -171,7 +172,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         if (playerQueueView != null){
             return playerQueueView.getTrackView();
         } else {
-            Log.i("asdf", "Null trackview at position " + position);
+            // this is expected to happen, for instance if we try to refresh a play position that is not on screen
             return null;
         }
     }

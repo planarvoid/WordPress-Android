@@ -273,6 +273,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             }
         }
         if (displayTrack != null) {
+            // set whatever track was sent in with the intent on the viewpager to remove transition from old playqueue
             mTrackPagerAdapter.setPlaceholderTrack(displayTrack);
             mTrackPagerAdapter.notifyDataSetChanged();
             mIgnoreServiceQueue = true;

@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.tracking.Page;
@@ -55,6 +56,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     private @Nullable
     PlayerTrackDetails mTrackDetailsView; // ditto
 
+    @NotNull
     protected Track mTrack;
     private int mQueuePosition;
     private long mDuration;
@@ -127,12 +129,14 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     public void setPlayQueueItem(@NotNull PlayQueueItem playQueueItem){
-        setPlayQueueItem(playQueueItem, true);
-    }
-
-    public void setPlayQueueItem(@NotNull PlayQueueItem playQueueItem, boolean priority){
         mQueuePosition = playQueueItem.getPlayQueuePosition();
-        setTrackInternal(playQueueItem.getTrack(), priority);
+        playQueueItem.getTrack().subscribe(new DefaultObserver<Track>() {
+            @Override
+            public void onNext(Track args) {
+                // GET RID OF PRIORITY OR IMPLEMENT IT PROPERLY
+                setTrackInternal(args, true);
+            }
+        });
     }
 
     @Override

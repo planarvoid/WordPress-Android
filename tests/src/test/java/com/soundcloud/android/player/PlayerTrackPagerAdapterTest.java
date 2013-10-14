@@ -58,7 +58,7 @@ public class PlayerTrackPagerAdapterTest {
         final Track placeholderTrack = Mockito.mock(Track.class);
         adapter.setPlaceholderTrack(placeholderTrack);
         expect(adapter.getCount()).toEqual(1);
-        expect(adapter.getItem(0).getTrack()).toBe(placeholderTrack);
+        expect(adapter.getItem(0).getTrack().toBlockingObservable().lastOrDefault(null)).toBe(placeholderTrack);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class PlayerTrackPagerAdapterTest {
 
         adapter.setPlayQueueState(playQueueState);
         expect(adapter.getCount()).toEqual(1);
-        expect(adapter.getItem(0).getTrack()).toBe(track);
+        expect(adapter.getItem(0).getTrack().toBlockingObservable().lastOrDefault(null)).toBe(track);
     }
 //
 //    @Test
@@ -214,27 +214,27 @@ public class PlayerTrackPagerAdapterTest {
 //    @Test
 //    public void shouldReturnExtraItemWhenQueueFetching() throws Exception {
 //        when(playQueueManager.length()).thenReturn(1);
-//        when(playQueueManager.getState().isFetchingRelated()).thenReturn(true);
+//        when(playQueueManager.getState().isLoading()).thenReturn(true);
 //        expect(adapter.getCount()).toBe(2);
 //    }
 //
 //    @Test
 //    public void shouldReturnExtraItemWhenLastQueueFetchFailed() throws Exception {
 //        when(playQueueManager.length()).thenReturn(1);
-//        //when(playQueueManager.lastRelatedFetchFailed()).thenReturn(true);
+//        //when(playQueueManager.lastLoadFailed()).thenReturn(true);
 //        expect(adapter.getCount()).toBe(2);
 //    }
 //
 //    public void shouldReturnUnchangedPositionForEmptyItemWhenFetching() throws Exception {
 //        when(playQueueManager.length()).thenReturn(1);
-//        //when(playQueueManager.isFetchingRelated()).thenReturn(true);
+//        //when(playQueueManager.isLoading()).thenReturn(true);
 //        expect(adapter.getItemPosition(PlayQueueItem.empty(0))).toBe(PagerAdapter.POSITION_UNCHANGED);
 //    }
 //
 //    @Test
 //    public void shouldReturnNoItemPositionForEmptyItemWhenNotFetching() throws Exception {
 //        when(playQueueManager.length()).thenReturn(1);
-//        //when(playQueueManager.isFetchingRelated()).thenReturn(false);
+//        //when(playQueueManager.isLoading()).thenReturn(false);
 //        expect(adapter.getItemPosition(PlayQueueItem.empty(0))).toBe(PagerAdapter.POSITION_NONE);
 //    }
 
@@ -250,8 +250,11 @@ public class PlayerTrackPagerAdapterTest {
         when(playerQueueView2.getTrackView()).thenReturn(trackView2);
         when(playerQueueView2.isShowingPlayerTrackView()).thenReturn(true);
 
-        expect((PlayerQueueView) adapter.getView(new PlayQueueItem(Mockito.mock(Track.class), 0), playerQueueView1, parent)).toBe(playerQueueView1);
-        expect((PlayerQueueView) adapter.getView(new PlayQueueItem(Mockito.mock(Track.class), 0), playerQueueView2, parent)).toBe(playerQueueView2);
+        final Observable<Track> trackObservable = Observable.just(Mockito.mock(Track.class));
+        expect((PlayerQueueView) adapter.getView(new PlayQueueItem(trackObservable, 0), playerQueueView1, parent)).toBe(playerQueueView1);
+
+        final Observable<Track> trackObservable2 = Observable.just(Mockito.mock(Track.class));
+        expect((PlayerQueueView) adapter.getView(new PlayQueueItem(trackObservable2, 0), playerQueueView2, parent)).toBe(playerQueueView2);
     }
 
 }

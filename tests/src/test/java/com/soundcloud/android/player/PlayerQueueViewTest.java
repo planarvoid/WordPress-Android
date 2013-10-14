@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
 
 import android.content.Context;
 
@@ -50,7 +51,7 @@ public class PlayerQueueViewTest {
     @Test
     public void shouldCreateNewPlayerTrackViewFromPlayQueueItem() throws Exception {
         final Track track = new Track(123L);
-        final PlayQueueItem playQueueItem = new PlayQueueItem(track, 0);
+        final PlayQueueItem playQueueItem = new PlayQueueItem(Observable.just(track), 0);
 
         playerQueueView.setPlayQueueItem(playQueueItem, false);
         verify(playerTrackView).setPlayQueueItem(playQueueItem);
@@ -60,7 +61,7 @@ public class PlayerQueueViewTest {
     @Test
     public void shouldSetWaitingStateOnEmptyView() throws Exception {
         final PlayQueueItem playQueueItem = PlayQueueItem.empty(0);
-        //when(playQueueManager.isFetchingRelated()).thenReturn(true);
+        //when(playQueueManager.isLoading()).thenReturn(true);
 
         playerQueueView.setPlayQueueItem(playQueueItem, false);
         verify(emptyListView).setStatus(EmptyListView.Status.WAITING);
@@ -69,8 +70,8 @@ public class PlayerQueueViewTest {
     @Test
     public void shouldSetUnknownErrorStateOnEmptyView() throws Exception {
         final PlayQueueItem playQueueItem = PlayQueueItem.empty(0);
-        //when(playQueueManager.isFetchingRelated()).thenReturn(false);
-        //when(playQueueManager.lastRelatedFetchFailed()).thenReturn(true);
+        //when(playQueueManager.isLoading()).thenReturn(false);
+        //when(playQueueManager.lastLoadFailed()).thenReturn(true);
 
         playerQueueView.setPlayQueueItem(playQueueItem, false);
         verify(emptyListView).setStatus(EmptyListView.Status.ERROR);
@@ -86,7 +87,7 @@ public class PlayerQueueViewTest {
     @Test
     public void shouldSetCommentingPosition() throws Exception {
         final Track track = new Track(123L);
-        final PlayQueueItem playQueueItem = new PlayQueueItem(track, 0);
+        final PlayQueueItem playQueueItem = new PlayQueueItem(Observable.just(track), 0);
 
         playerQueueView.setPlayQueueItem(playQueueItem, true);
         verify(playerTrackView).setCommentMode(true);
