@@ -11,7 +11,6 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -55,8 +54,15 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         return mTrackDAO.createOrUpdate(track);
     }
 
-    public Track getTrack(long id) {
-        return mTrackDAO.queryById(id);
+    public Observable<Track> getTrack(final long id) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Track>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super Track> observer) {
+                observer.onNext(mTrackDAO.queryById(id));
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     public Track getTrack(Uri uri) {
