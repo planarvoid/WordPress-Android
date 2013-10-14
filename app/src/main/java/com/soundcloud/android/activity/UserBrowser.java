@@ -319,7 +319,7 @@ public class UserBrowser extends ScActivity implements
         new Thread(new Runnable() {
             @Override
             public void run() {
-                new UserStorage().create(mUser);
+                new UserStorage().storeAsync(mUser);
             }
         }).start();
         mUserDetailsFragment.onSuccess(mUser);

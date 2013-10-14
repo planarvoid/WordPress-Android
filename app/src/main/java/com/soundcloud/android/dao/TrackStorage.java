@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,17 +48,39 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     }
 
     @Override
-    public Observable<Track> create(final Track track) {
+    public Track store(Track track) {
+        mTrackDAO.create(track);
+        return track;
+    }
+
+    @Override
+    public Observable<Track> storeAsync(final Track track) {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<Track>() {
             @Override
             public Subscription onSubscribe(Observer<? super Track> observer) {
-                mTrackDAO.create(track);
-                observer.onNext(track);
+                observer.onNext(store(track));
                 observer.onCompleted();
                 return Subscriptions.empty();
             }
         }));
     }
+
+    public Observable<Collection<Track>> storeCollectionAsync(final Collection<Track> tracks) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Collection<Track>>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super Collection<Track>> observer) {
+                storeCollection(tracks);
+                observer.onNext(tracks);
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
+    private int storeCollection(Collection<Track> tracks) {
+        return mTrackDAO.createCollection(tracks);
+    }
+
 
     public long createOrUpdate(Track track) {
         return mTrackDAO.createOrUpdate(track);

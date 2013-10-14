@@ -280,7 +280,7 @@ public class UploadServiceTest {
         stuck.upload_status = Recording.Status.UPLOADING;
 
         RecordingStorage recordings = new RecordingStorage();
-        recordings.create(stuck).toBlockingObservable().last();
+        recordings.storeAsync(stuck).toBlockingObservable().last();
 
         UploadService service = startService();
         Recording r = recordings.getRecordingByUri(stuck.toUri());

@@ -5,7 +5,8 @@ import rx.Observable;
 
 
 public interface Storage<T extends Identifiable> {
+    T store(T resource);
 
-    Observable<T> create(T resource);
+    Observable<T> storeAsync(T resource);
 
 }

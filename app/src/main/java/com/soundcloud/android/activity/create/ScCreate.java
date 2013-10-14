@@ -995,7 +995,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
         for (int i = 0; i < recordings.size(); i++) {
             if (checked[i]) {
                 DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                storage.create(recordings.get(i)).subscribe(ScActions.NO_OP);
+                storage.storeAsync(recordings.get(i)).subscribe(ScActions.NO_OP);
             } else {
                 storage.delete(recordings.get(i)).subscribe(ScActions.NO_OP);
             }

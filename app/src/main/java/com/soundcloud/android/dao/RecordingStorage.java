@@ -42,16 +42,22 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
     }
 
     @Override
-    public Observable<Recording> create(final Recording recording) {
+    public Observable<Recording> storeAsync(final Recording recording) {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<Recording>() {
             @Override
             public Subscription onSubscribe(Observer<? super Recording> observer) {
-                mRecordingDAO.create(recording);
+                store(recording);
                 observer.onNext(recording);
                 observer.onCompleted();
                 return Subscriptions.empty();
             }
         }));
+    }
+
+    @Override
+    public Recording store(Recording recording) {
+        mRecordingDAO.create(recording);
+        return recording;
     }
 
     public void createFromBaseValues(Recording recording) {

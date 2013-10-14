@@ -423,7 +423,7 @@ public class UploadService extends Service {
         }
 
         if (!recording.isSaved()){
-            recording = mRecordingStorage.create(recording).toBlockingObservable().last();
+            recording = mRecordingStorage.store(recording);
         }
 
         if (recording.isSaved()){

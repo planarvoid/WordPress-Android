@@ -37,7 +37,7 @@ public class PlaylistStorageTest {
         expect(playlist.user.username).toEqual("Natalie");
         expect(playlist.tracks.size()).toEqual(41);
 
-        playlist = storage.create(playlist).toBlockingObservable().last();
+        playlist = storage.storeAsync(playlist).toBlockingObservable().last();
         expect(playlist.getId()).toEqual(2524386L);
         expect(Content.TRACKS).toHaveCount(41);
         expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41);
