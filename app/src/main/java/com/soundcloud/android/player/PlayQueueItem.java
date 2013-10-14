@@ -17,6 +17,7 @@ class PlayQueueItem {
     }
 
     public PlayQueueItem(Track track, int pos) {
+        this(pos);
         mTrack = track;
     }
 

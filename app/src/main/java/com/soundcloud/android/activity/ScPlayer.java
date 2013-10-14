@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.service.playback.PlayQueueState;
 import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
@@ -584,7 +585,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private void refreshTrackPager() {
-        mTrackPagerAdapter.setPlaceholderTrack(null);
+        final PlayQueueState playQueueState = mPlaybackService == null ? PlayQueueState.EMPTY : mPlaybackService.getPlayQueueState();
+        mTrackPagerAdapter.setPlayQueueState(playQueueState);
         mTrackPager.refreshAdapter();
         mTrackPager.setCurrentItem(mPlayQueueManager.getPosition());
 

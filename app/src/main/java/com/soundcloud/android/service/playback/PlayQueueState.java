@@ -1,8 +1,11 @@
 package com.soundcloud.android.service.playback;
 
+import java.util.Collections;
 import java.util.List;
 
 public class PlayQueueState {
+    public static final PlayQueueState EMPTY = new PlayQueueState(Collections.<Long>emptyList(), 0, AppendState.IDLE);
+
     private final int mPlayPosition;
     private List<Long> mTrackIds;
     private AppendState mAppendState;

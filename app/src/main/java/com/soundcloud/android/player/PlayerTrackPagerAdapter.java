@@ -29,7 +29,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     private TrackStorage mTrackStorage;
     private Track mPlaceholderTrack;
-    private PlayQueueState mPlayQueueState;
+    private PlayQueueState mPlayQueueState = PlayQueueState.EMPTY;
 
     private List<PlayQueueItem> mPlayQueueItems = Collections.emptyList();
 
@@ -57,6 +57,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     public void setPlayQueueState(PlayQueueState playQueueState) {
         this.mPlayQueueState = playQueueState;
+        setPlaceholderTrack(null);
 
         mPlayQueueItems = new ArrayList<PlayQueueItem>(playQueueState.getCurrentTrackIds().size());
         for (Long id : mPlayQueueState.getCurrentTrackIds()){
