@@ -175,6 +175,12 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void shouldReturnPlayQueueIds() throws Exception {
+        pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).build());
+        expect(pm.getCurrentQueueIds()).toContainExactly(0L, 1L, 2L);
+    }
+
+    @Test
     public void shouldSetPlaySourceTriggerBasedOnInitalId() throws Exception {
         pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).build());
         expect(pm.getPlayQueueItem(0).getTrackSourceInfo().getTrigger()).toEqual("auto");

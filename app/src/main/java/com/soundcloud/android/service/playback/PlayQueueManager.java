@@ -2,6 +2,7 @@ package com.soundcloud.android.service.playback;
 
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -59,8 +60,8 @@ public class PlayQueueManager {
         IDLE, LOADING, ERROR, EMPTY;
 
     }
-    private static PlayQueueManager instance;
 
+    private static PlayQueueManager instance;
     public static PlayQueueManager get(Context context){
         return get(context, SoundCloudApplication.getUserId());
     }
@@ -83,6 +84,15 @@ public class PlayQueueManager {
         mExploreTrackOperations = exploreTracksOperations;
         mPlayQueueDAO = new PlayQueueManagerStore();
 
+    }
+
+    public List<Long> getCurrentQueueIds() {
+        return Lists.transform(mPlayQueue,new Function<PlayQueueItem, Long>() {
+            @Override
+            public Long apply(PlayQueueItem input) {
+                return input.getTrack().getId();
+            }
+        });
     }
 
     public int length() {
