@@ -1,6 +1,7 @@
 package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
@@ -15,7 +16,10 @@ import com.soundcloud.android.model.Section;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
-import rx.android.concurrency.AndroidSchedulers;
+import rx.Subscription;
+import rx.android.AndroidObservables;
+import rx.observables.ConnectableObservable;
+import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import android.content.Intent;
@@ -29,44 +33,40 @@ import android.widget.ListView;
 public class ExploreTracksCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
         EmptyViewAware {
 
+    private static final Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>> CATEGORIES_TO_SECTIONS =
+            new Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>>() {
+                @Override
+                public Observable<Section<ExploreTracksCategory>> call(ExploreTracksCategories categories) {
+                    return Observable.from(
+                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.MUSIC.getTitleId(), categories.getMusic()),
+                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.AUDIO.getTitleId(), categories.getAudio())
+                    );
+                }
+            };
 
-    private Observable<Section<ExploreTracksCategory>> mCategoriesObservable;
-    private ExploreTracksCategoriesAdapter mCategoriesAdapter;
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;
-    private int mListViewID = R.id.suggested_tracks_categories_list;
+
+    private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
+    private Subscription mSubscription = Subscriptions.empty();
 
     public ExploreTracksCategoriesFragment() {
-        ListFragmentObserver<ExploreTracksCategoriesFragment, Section<ExploreTracksCategory>> observer =
-                new ListFragmentObserver<ExploreTracksCategoriesFragment, Section<ExploreTracksCategory>>(this);
-
-        init(new ExploreTracksCategoriesAdapter(observer),
-                new ExploreTracksOperations().getCategories().observeOn(AndroidSchedulers.mainThread()));
+        this(new ExploreTracksOperations());
     }
 
-    protected ExploreTracksCategoriesFragment(ExploreTracksCategoriesAdapter adapter,
-                                              Observable<ExploreTracksCategories> observable) {
-        init(adapter, observable);
+    @VisibleForTesting
+    protected ExploreTracksCategoriesFragment(ExploreTracksOperations operations) {
+        init(AndroidObservables.fromFragment(this, operations.getCategories()).mapMany(CATEGORIES_TO_SECTIONS).replay());
     }
 
-    private void init(ExploreTracksCategoriesAdapter adapter, Observable<ExploreTracksCategories> observable) {
-        mCategoriesAdapter = adapter;
-        mCategoriesObservable = observable.mapMany(new Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>>() {
-            @Override
-            public Observable<Section<ExploreTracksCategory>> call(ExploreTracksCategories categories) {
-                return Observable.from(
-                        new Section<ExploreTracksCategory>(ExploreTracksCategorySection.MUSIC.getTitleId(), categories.getMusic()),
-                        new Section<ExploreTracksCategory>(ExploreTracksCategorySection.AUDIO.getTitleId(), categories.getAudio())
-                );
-            }
-        });
+    @VisibleForTesting
+    protected ExploreTracksCategoriesFragment(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
+        init(observable);
+    }
+
+    private void init(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
+        mCategoriesObservable = observable;
         setRetainInstance(true);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        loadCategories();
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Intent intent = new Intent(getActivity(), ExploreTracksCategoryActivity.class);
         final int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
-        intent.putExtra(ExploreTracksCategory.EXTRA, mCategoriesAdapter.getItem(adjustedPosition));
+        intent.putExtra(ExploreTracksCategory.EXTRA, getListAdapter().getItem(adjustedPosition));
         startActivity(intent);
     }
 
@@ -92,15 +92,37 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
             @Override
             public void onEmptyViewRetry() {
                 setEmptyViewStatus(FriendFinderFragment.Status.WAITING);
-                loadCategories();
+                mSubscription = loadCategories();
             }
         });
 
-        ListView listview = (ListView) view.findViewById(mListViewID);
+        ListView listview = getListView();
         listview.setOnItemClickListener(this);
-        listview.setAdapter(mCategoriesAdapter);
+        listview.setAdapter(new ExploreTracksCategoriesAdapter());
         listview.setEmptyView(mEmptyListView);
         listview.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), false, true));
+
+        mSubscription = loadCategories();
+    }
+
+    private ListView getListView() {
+        return (ListView) getView().findViewById(R.id.suggested_tracks_categories_list);
+    }
+
+    private ExploreTracksCategoriesAdapter getListAdapter() {
+        return (ExploreTracksCategoriesAdapter) getListView().getAdapter();
+    }
+
+    @Override
+    public void onDestroy() {
+        mSubscription.unsubscribe();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        ((ListView) getView().findViewById(R.id.suggested_tracks_categories_list)).setAdapter(null);
+        super.onDestroyView();
     }
 
     @Override
@@ -111,8 +133,10 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
         }
     }
 
-    private void loadCategories() {
-        mCategoriesObservable.subscribe(mCategoriesAdapter);
+    private Subscription loadCategories() {
+        mCategoriesObservable.subscribe(getListAdapter());
+        mCategoriesObservable.subscribe(new ListFragmentObserver<Section<ExploreTracksCategory>>(this));
+        return mCategoriesObservable.connect();
     }
 
 }

@@ -10,7 +10,7 @@ import com.soundcloud.api.CloudAPI;
 
 import java.io.IOException;
 
-public class APIRequestException extends RuntimeException {
+public class APIRequestException extends Exception {
 
     private APIResponse mResponse;
     private APIRequest mRequest;

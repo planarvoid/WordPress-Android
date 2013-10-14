@@ -3,28 +3,36 @@ package com.soundcloud.android.rx.observers;
 import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.view.EmptyListView;
+import rx.Observer;
 
-import android.support.v4.app.Fragment;
+/**
+ * Base observer class meant to be used in list fragments which control an {@link EmptyListView}. It automatically puts
+ * it in success or errors states based on the outcome of the observable call.
+ */
+public class ListFragmentObserver<T> implements Observer<T> {
 
-public class ListFragmentObserver<FragmentType extends Fragment & EmptyViewAware, ModelType>
-        extends ScFragmentObserver<FragmentType, ModelType> {
+    private final EmptyViewAware mEmptyViewHolder;
 
-    public ListFragmentObserver(FragmentType fragment) {
-        super(fragment);
+    public ListFragmentObserver(EmptyViewAware emptyViewHolder) {
+        mEmptyViewHolder = emptyViewHolder;
     }
 
     @Override
-    public void onCompleted(FragmentType fragment) {
-        fragment.setEmptyViewStatus(EmptyListView.Status.OK);
+    public void onCompleted() {
+        mEmptyViewHolder.setEmptyViewStatus(EmptyListView.Status.OK);
     }
 
     @Override
-    public void onError(FragmentType fragment, Throwable error) {
+    public void onError(Throwable error) {
         if (error instanceof APIRequestException){
             boolean commsError= ((APIRequestException) error).reason() == APIRequestException.APIErrorReason.NETWORK_COMM_ERROR;
-            fragment.setEmptyViewStatus(commsError ? EmptyListView.Status.CONNECTION_ERROR : EmptyListView.Status.SERVER_ERROR);
+            mEmptyViewHolder.setEmptyViewStatus(commsError ? EmptyListView.Status.CONNECTION_ERROR : EmptyListView.Status.SERVER_ERROR);
         } else {
-            fragment.setEmptyViewStatus(EmptyListView.Status.ERROR);
+            mEmptyViewHolder.setEmptyViewStatus(EmptyListView.Status.ERROR);
         }
+    }
+
+    @Override
+    public void onNext(T item) {
     }
 }

@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity.track;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -13,6 +12,9 @@ import android.os.Bundle;
 import android.view.View;
 
 public class TrackInteractionActivity extends PlayableInteractionActivity {
+
+    private PlayUtils mPlayUtils;
+
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -29,12 +31,13 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
                 break;
         }
 
+        mPlayUtils = new PlayUtils();
         mPlayableInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // if it comes from a mention, might not have a user
                 if (mPlayable.user != null) {
-                    new PlayUtils(TrackInteractionActivity.this).playTrack(new PlayInfo((Track) mPlayable));
+                    mPlayUtils.playTrack(TrackInteractionActivity.this, (Track) mPlayable);
                 }
             }
         });

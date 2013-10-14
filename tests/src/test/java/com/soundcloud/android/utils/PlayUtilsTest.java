@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.model.PlayInfo;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
@@ -15,6 +14,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,13 +26,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayUtilsTest {
 
     PlayUtils playUtils;
-    PlayInfo playInfo;
     Track track;
 
     @Mock
@@ -42,77 +42,98 @@ public class PlayUtilsTest {
 
     @Before
     public void setUp() throws Exception {
-        playUtils = new PlayUtils(context, modelManager);
+        playUtils = new PlayUtils(modelManager);
         track = TestHelper.getModelFactory().createModel(Track.class);
-        playInfo = new PlayInfo(track);
     }
 
     @Test
-    public void getPlayIntentShouldUsePlayAction() throws Exception {
-        expect(playUtils.getPlayIntent(playInfo).getAction()).toBe(Actions.PLAY);
+    public void playTrackShouldUsePlayAction() throws Exception {
+        playUtils.playTrack(context, track);
+        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startActivity(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getAction()).toBe(Actions.PLAY);
     }
 
     @Test
-    public void getPlayIntentShouldNotAddAnyExtrasIfNotChangingTracks() throws Exception {
-        expect(playUtils.getPlayIntent(playInfo, false).getExtras()).toBeNull();
+    public void playTrackShouldAddInitialTrackAsParcelableFromInfo() throws Exception {
+        playUtils.playTrack(context, track);
+        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startActivity(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getParcelableExtra(CloudPlaybackService.PlayExtras.track)).toEqual(track);
     }
 
     @Test
-    public void getPlayIntentShouldAddInitialTrackAsParcelableFromInfo() throws Exception {
-        final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
-        expect(playIntent.getParcelableExtra(CloudPlaybackService.PlayExtras.track)).toEqual(track);
+    public void playExtraTrackShouldAddFetchRelatedFromInfo() throws Exception {
+        playUtils.playExploreTrack(context, track, "related_tag");
+        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startActivity(argumentCaptor.capture());
+        expect(argumentCaptor.getValue().getBooleanExtra(CloudPlaybackService.PlayExtras.fetchRelated, false)).toBeTrue();
     }
 
     @Test
-    public void getPlayIntentShouldAddFetchRelatedFromInfo() throws Exception {
-        playInfo.fetchRelated = true;
-        final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
-        expect(playIntent.getBooleanExtra(CloudPlaybackService.PlayExtras.fetchRelated, false)).toBeTrue();
+    public void getPlayIntentShouldAddTrackingFromInfo() throws Exception {
+        playUtils.playExploreTrack(context, track, "related_tag");
+        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startActivity(argumentCaptor.capture());
+        PlaySourceInfo playSourceInfo = argumentCaptor.getValue().getParcelableExtra(CloudPlaybackService.PlayExtras.trackingInfo);
+        expect(playSourceInfo.getExploreTag()).toEqual("related_tag");
     }
 
     @Test
     public void getPlayIntentShouldConfigureIntentViaUri() throws Exception {
-        playInfo.uri = Content.ME_LIKES.uri;
-        playInfo.position = 4;
 
-        final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
+        playUtils.playFromUriWithInitialTrack(context, Content.ME_LIKES.uri, 4, track);
+        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startActivity(argumentCaptor.capture());
+
+        final Intent playIntent = argumentCaptor.getValue();
+        expect(playIntent.getParcelableExtra(CloudPlaybackService.PlayExtras.track)).toEqual(track);
         expect(playIntent.getData()).toEqual(Content.ME_LIKES.uri);
         expect(playIntent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, 0)).toEqual(4);
         expect(playIntent.getLongExtra(CloudPlaybackService.PlayExtras.trackId, -1L)).toEqual(track.getId());
-        expect(CloudPlaybackService.playlistXfer).toBe(playInfo.playables);
+        expect(CloudPlaybackService.playlistXfer).toBeNull();
         verify(modelManager).cache(track);
     }
 
     @Test
     public void getPlayIntentShouldConfigureIntentViaPlayablesList() throws Exception {
-        playInfo.playables = Lists.newArrayList(track, TestHelper.getModelFactory().createModel(Track.class), TestHelper.getModelFactory().createModel(Track.class));
-        playInfo.position = 2;
+        ArrayList<Track> playables = Lists.newArrayList(track, TestHelper.getModelFactory().createModel(Track.class), TestHelper.getModelFactory().createModel(Track.class));
 
-        final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
+        playUtils.playFromAdapter(context, playables, 2, null);
+        expect(CloudPlaybackService.playlistXfer).toEqual(playables);
+
+        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startActivity(argumentCaptor.capture());
+
+        final Intent playIntent = argumentCaptor.getValue();
         expect(playIntent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList, false)).toBeTrue();
-        expect(CloudPlaybackService.playlistXfer).toBe(playInfo.playables);
     }
 
     @Test
     public void getPlayIntentShouldNotAddPlayablesListIfPlaying1ItemList() throws Exception {
-        playInfo.playables = Lists.newArrayList(track);
-        final Intent playIntent = playUtils.getPlayIntent(playInfo, true);
-        expect(CloudPlaybackService.playlistXfer).toBe(playInfo.playables);
+        final ArrayList<Track> playables = Lists.newArrayList(track);
+        playUtils.playFromAdapter(context, playables, 0, null);
+        expect(CloudPlaybackService.playlistXfer).toEqual(playables);
+
+        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).startActivity(argumentCaptor.capture());
+
+        final Intent playIntent = argumentCaptor.getValue();
         expect(playIntent.getExtras().containsKey(CloudPlaybackService.PlayExtras.playPosition)).toBeFalse();
-        expect(playIntent.getExtras().containsKey(CloudPlaybackService.PlayExtras.playFromXferList)).toBeFalse();
+        expect(playIntent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList, false)).toBeFalse();
     }
 
     @Test(expected=AssertionError.class)
     public void playFromAdapterShouldThrowAssertionErrorWhenPositionGreaterThanSize() throws Exception {
         List<Playable> playables = Lists.<Playable>newArrayList(track);
-        playUtils.playFromAdapter(playables, 1, Content.ME_LIKES.uri);
+        playUtils.playFromAdapter(context, playables, 1, Content.ME_LIKES.uri);
     }
 
     @Test
     public void playFromAdapterShouldSetInitialTrackFromPosition() throws Exception {
         final Track track2 = TestHelper.getModelFactory().createModel(Track.class);
         List<Playable> playables = Lists.<Playable>newArrayList(track, track2);
-        playUtils.playFromAdapter(playables, 1, Content.ME_LIKES.uri);
+        playUtils.playFromAdapter(context, playables, 1, Content.ME_LIKES.uri);
 
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).startActivity(captor.capture());
@@ -122,7 +143,7 @@ public class PlayUtilsTest {
     @Test
     public void playFromAdapterShouldSetPlayablesFromItemList() throws Exception {
         List<Track> playables = Lists.newArrayList(track, TestHelper.getModelFactory().createModel(Track.class));
-        playUtils.playFromAdapter(playables, 1, Content.ME_LIKES.uri);
+        playUtils.playFromAdapter(context, playables, 1, Content.ME_LIKES.uri);
         expect(CloudPlaybackService.playlistXfer).toEqual(playables);
     }
 
@@ -132,7 +153,7 @@ public class PlayUtilsTest {
         final Playlist playlist = Mockito.mock(Playlist.class);
         List<Playable> playables = Lists.newArrayList(track, playlist, track2);
 
-        playUtils.playFromAdapter(playables, 2, Content.ME_LIKES.uri);
+        playUtils.playFromAdapter(context, playables, 2, Content.ME_LIKES.uri);
 
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).startActivity(captor.capture());
@@ -148,7 +169,7 @@ public class PlayUtilsTest {
         when(playlist.getPlayable()).thenReturn(playlist);
 
         List<Playable> playables = Lists.newArrayList(track, playlist);
-        playUtils.playFromAdapter(playables, 1, Content.ME_SOUND_STREAM.uri);
+        playUtils.playFromAdapter(context, playables, 1, Content.ME_SOUND_STREAM.uri);
 
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).startActivity(captor.capture());

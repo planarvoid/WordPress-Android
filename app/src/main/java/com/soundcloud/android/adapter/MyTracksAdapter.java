@@ -33,12 +33,14 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
+    private PlayUtils mPlayUtils;
 
     public MyTracksAdapter(ScActivity activity) {
         super(Content.ME_SOUNDS.uri);
         ContentResolver contentResolver = activity.getApplicationContext().getContentResolver();
         refreshCursor(contentResolver);
 
+        mPlayUtils = new PlayUtils();
         mChangeObserver = new ChangeObserver(activity);
         contentResolver.registerContentObserver(Content.RECORDINGS.uri, true, mChangeObserver);
     }
@@ -167,7 +169,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
                 context.startActivity(new Intent(context,(r.external_upload ? ScUpload.class : ScCreate.class)).setData(r.toUri()));
             }
         } else {
-            new PlayUtils(context).playFromAdapter(mData, position - mRecordingData.size(), mContentUri);
+            mPlayUtils.playFromAdapter(context, mData, position - mRecordingData.size(), mContentUri);
         }
         return ItemClickResults.LEAVING;
     }

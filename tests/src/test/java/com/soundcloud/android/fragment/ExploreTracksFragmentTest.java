@@ -25,7 +25,7 @@ public class ExploreTracksFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = new ExploreTracksFragment(adapter);
+        fragment = new ExploreTracksFragment();
         Robolectric.shadowOf(fragment).setActivity(activity);
     }
 

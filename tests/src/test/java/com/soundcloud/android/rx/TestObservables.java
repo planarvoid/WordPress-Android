@@ -3,14 +3,13 @@ package com.soundcloud.android.rx;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.util.functions.Func1;
 
 public class TestObservables {
 
-    public static <T> Observable<T> errorThrowingObservable(final Exception error) {
-        return Observable.create(new Func1<Observer<T>, Subscription>() {
+    public static <T> Observable<T> errorThrowingObservable() {
+        return Observable.create(new Observable.OnSubscribeFunc<T>() {
             @Override
-            public Subscription call(Observer<T> observer) {
+            public Subscription onSubscribe(Observer<? super T> observer) {
                 throw new RuntimeException();
             }
         });

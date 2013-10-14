@@ -1,18 +1,14 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.service.playback.CloudPlaybackService.TAG;
-
-import com.soundcloud.android.rx.observers.ScObserver;
 import rx.Observer;
 
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public class MediaPlayerDataSourceObserver extends ScObserver<Uri> {
+public class MediaPlayerDataSourceObserver implements Observer<Uri> {
     private WeakReference<MediaPlayer> mMediaPlayer;
     private WeakReference<MediaPlayer.OnErrorListener> mErrorListener;
 
@@ -22,9 +18,12 @@ public class MediaPlayerDataSourceObserver extends ScObserver<Uri> {
     }
 
     @Override
-    public void onError(Throwable e) {
-        Log.e(TAG, "error", e);
+    public void onCompleted() {
+        // NOOP
+    }
 
+    @Override
+    public void onError(Throwable e) {
         MediaPlayer.OnErrorListener errorListener = mErrorListener.get();
         MediaPlayer mediaPlayer = mMediaPlayer.get();
 

@@ -1,6 +1,7 @@
 package com.soundcloud.android.accounts;
 
 import static com.soundcloud.android.activity.auth.FacebookSSO.FBToken;
+import static rx.Observable.OnSubscribeFunc;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
@@ -18,7 +19,6 @@ import com.soundcloud.android.service.sync.SyncStateManager;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -26,7 +26,7 @@ import android.accounts.AccountManagerFuture;
 import android.content.Context;
 import android.content.Intent;
 
-class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
+class AccountRemovalFunction implements OnSubscribeFunc<Void> {
     private final Context mContext;
     private final Account mSoundCloudAccount;
     private final CollectionStorage mCollectionStorage;
@@ -38,8 +38,8 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
     private final PlayQueueManager mPlayQueueManager;
     private final C2DMReceiver mC2DMReceiver;
 
-    public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context){
-        this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context),new ActivitiesStorage(context),
+    public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context) {
+        this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context), new ActivitiesStorage(context),
                 new UserAssociationStorage(), SoundRecorder.getInstance(context), PlayQueueManager.get(context), new C2DMReceiver());
     }
 
@@ -59,11 +59,10 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
     }
 
 
-
     @Override
-    public Subscription call(Observer<Void> observer) {
+    public Subscription onSubscribe(Observer<? super Void> observer) {
         try {
-            AccountManagerFuture<Boolean> accountRemovalFuture = mAccountManager.removeAccount(mSoundCloudAccount,null,null);
+            AccountManagerFuture<Boolean> accountRemovalFuture = mAccountManager.removeAccount(mSoundCloudAccount, null, null);
 
             if (accountRemovalFuture.getResult()) {
                 finaliseAccountRemoval();
@@ -101,7 +100,7 @@ class AccountRemovalFunction implements Func1<Observer<Void>, Subscription> {
         mC2DMReceiver.unregister(mContext);
         FollowingOperations.clearState();
         ConnectionsCache.reset();
-        SoundCloudApplication applicationContext = (SoundCloudApplication)mContext.getApplicationContext();
+        SoundCloudApplication applicationContext = (SoundCloudApplication) mContext.getApplicationContext();
         applicationContext.clearLoggedInUser();
     }
 

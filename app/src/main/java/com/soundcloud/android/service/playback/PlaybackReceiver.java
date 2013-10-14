@@ -5,11 +5,13 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.Broad
 import static com.soundcloud.android.service.playback.CloudPlaybackService.PlayExtras;
 import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import org.jetbrains.annotations.NotNull;
 
 import android.appwidget.AppWidgetManager;
@@ -128,14 +130,16 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         final boolean startPlayback = intent.getBooleanExtra(PlayExtras.startPlayback, true);
         final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
+        final PlaySourceInfo trackingInfo = intent.getParcelableExtra(PlayExtras.trackingInfo);
+
         if (intent.getData() != null) {
-            playViaUri(intent, startPlayback, position);
+            playViaUri(intent, startPlayback, position, trackingInfo);
 
         } else if (intent.getBooleanExtra(PlayExtras.playFromXferList, false)) {
-            playViaTransferList(startPlayback, position);
+            playViaTransferList(startPlayback, position, trackingInfo);
 
         } else if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)) {
-            playSingleTrack(intent, startPlayback);
+            playSingleTrack(intent, startPlayback, trackingInfo);
 
         } else if (!mPlayQueueManager.isEmpty() || mPlaybackService.configureLastPlaylist()) {
             // random play intent, play whatever we had last
@@ -152,22 +156,28 @@ class PlaybackReceiver extends BroadcastReceiver {
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
     }
 
-    private void playViaUri(Intent intent, boolean startPlayback, int position) {
-        mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position);
+    private void playViaUri(Intent intent, boolean startPlayback, int position, PlaySourceInfo trackingInfo) {
+        if (mPlaybackService.playlistXfer != null) {
+            mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position, trackingInfo);
+        } else {
+            Track track = getTrackFromIntent(intent);
+            mPlayQueueManager.loadUri(intent.getData(), position, track == null ? null : Lists.newArrayList(track), 0, trackingInfo);
+        }
+
         if (startPlayback) mPlaybackService.openCurrent();
     }
 
-    private void playViaTransferList(boolean startPlayback, int position) {
-        mPlayQueueManager.setPlayQueue(mPlaybackService.playlistXfer, position);
+    private void playViaTransferList(boolean startPlayback, int position, PlaySourceInfo trackingInfo) {
+        mPlayQueueManager.setPlayQueue(mPlaybackService.playlistXfer, position, trackingInfo);
         mPlaybackService.playlistXfer = null;
         if (startPlayback) mPlaybackService.openCurrent();
     }
 
-    private void playSingleTrack(Intent intent, boolean startPlayback) {
+    private void playSingleTrack(Intent intent, boolean startPlayback, PlaySourceInfo trackingInfo) {
 
         // go to the cache to ensure 1 copy of each track app wide
-        final Track cachedTrack = SoundCloudApplication.MODEL_MANAGER.cache(Track.fromIntent(intent), ScResource.CacheUpdateMode.NONE);
-        mPlayQueueManager.loadTrack(cachedTrack, true);
+        final Track cachedTrack = getTrackFromIntent(intent);
+        mPlayQueueManager.loadTrack(cachedTrack, true, trackingInfo);
 
         if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)) {
             mPlayQueueManager.fetchRelatedTracks(cachedTrack);
@@ -177,5 +187,9 @@ class PlaybackReceiver extends BroadcastReceiver {
             mPlaybackService.openCurrent();
         }
 
+    }
+
+    private Track getTrackFromIntent(Intent intent) {
+        return SoundCloudApplication.MODEL_MANAGER.cache(Track.nullableTrackfromIntent(intent), ScResource.CacheUpdateMode.NONE);
     }
 }

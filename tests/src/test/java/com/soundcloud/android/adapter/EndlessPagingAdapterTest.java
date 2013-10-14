@@ -58,7 +58,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldAddAllItemsFromAnEmittedPage() {
-        final Observable<Page<Integer>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Integer>>> finish = OperationPaged.emptyPageObservable();
 
         loadFirstPageThen(finish);
 
@@ -67,7 +67,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void itemRowsShouldBeClickable() {
-        final Observable<Page<Integer>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Integer>>> finish = OperationPaged.emptyPageObservable();
 
         loadFirstPageThen(finish);
 
@@ -79,7 +79,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void appendRowShouldBeProgressRowWhenLoadingData() {
-        Observable<Page<Integer>> neverReturn = Observable.never();
+        Observable<Page<List<Integer>>> neverReturn = Observable.never();
 
         loadFirstPageThen(neverReturn);
 
@@ -89,7 +89,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void appendRowShouldBeErrorRowWhenLoadingData() {
-        Observable<Page<Integer>> fail = Observable.error(new Exception("fail!"));
+        Observable<Page<List<Integer>>> fail = Observable.error(new Exception("fail!"));
 
         loadFirstPageThen(fail);
 
@@ -99,7 +99,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void errorRowShouldBeClickable() {
-        Observable<Page<Integer>> fail = Observable.error(new Exception("fail!"));
+        Observable<Page<List<Integer>>> fail = Observable.error(new Exception("fail!"));
 
         loadFirstPageThen(fail);
 
@@ -108,7 +108,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldReturnImmediatelyWhenNoNextPageAvailable() {
-        final Observable<Page<Integer>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Integer>>> finish = OperationPaged.emptyPageObservable();
 
         Subscription subscription = loadFirstPageThen(finish);
 
@@ -123,7 +123,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldCreateItemRow() {
-        final Observable<Page<Integer>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Integer>>> finish = OperationPaged.emptyPageObservable();
 
         loadFirstPageThen(finish);
 
@@ -133,7 +133,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldCreateProgressRow() {
-        Observable<Page<Integer>> neverReturn = Observable.never();
+        Observable<Page<List<Integer>>> neverReturn = Observable.never();
 
         loadFirstPageThen(neverReturn);
 
@@ -145,7 +145,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldConvertProgressRow() {
-        Observable<Page<Integer>> neverReturn = Observable.never();
+        Observable<Page<List<Integer>>> neverReturn = Observable.never();
 
         loadFirstPageThen(neverReturn);
 
@@ -156,7 +156,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldCreateErrorRow() {
-        Observable<Page<Integer>> fail = Observable.error(new Exception("fail!"));
+        Observable<Page<List<Integer>>> fail = Observable.error(new Exception("fail!"));
 
         loadFirstPageThen(fail);
 
@@ -169,7 +169,7 @@ public class EndlessPagingAdapterTest {
     @Test
     public void shouldRetryRequestWhenClickingOnErrorRow() {
         final Observable<List<Integer>> sourceSequence = Observable.from(1, 2, 3).toList();
-        Observable<Page<Integer>> failedSequence = mockObservable;
+        Observable<Page<List<Integer>>> failedSequence = mockObservable;
 
         // loads page 1 successfully
         pagingObservable(sourceSequence, failedSequence).subscribe(adapter);
@@ -188,7 +188,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldTriggerNextPageLoad() {
-        Observable<Page<Integer>> nextPage = mockObservable;
+        Observable<Page<List<Integer>>> nextPage = mockObservable;
         pagingObservable(Observable.from(1, 2, 3).toList(), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 5, 5);
@@ -197,7 +197,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldNotDoAnythingIfAlreadyLoading() {
-        Observable<Page<Integer>> nextPage = mockObservable;
+        Observable<Page<List<Integer>>> nextPage = mockObservable;
         pagingObservable(Observable.from(1, 2, 3).toList(), nextPage).subscribe(adapter);
         adapter.loadNextPage();
         adapter.onScroll(absListView, 0, 5, 5); // should not trigger load again, already loading
@@ -206,7 +206,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldNotDoAnythingIfLastAppendWasError() {
-        Observable<Page<Integer>> nextPage = mockObservable;
+        Observable<Page<List<Integer>>> nextPage = mockObservable;
         pagingObservable(Observable.<List<Integer>>error(new Exception()), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 5, 5);
@@ -215,23 +215,23 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldNotLoadNextPageIfZeroItems() {
-        Observable<Page<Integer>> nextPage = mockObservable;
+        Observable<Page<List<Integer>>> nextPage = mockObservable;
         pagingObservable(Observable.<List<Integer>>empty(), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 0, 0);
         verifyZeroInteractions(mockObservable);
     }
 
-    private <T> Observable<Page<T>> pagingObservable(Observable<List<T>> source, final Observable<Page<T>> nextPage) {
-        return Observable.create(paged(source, new Func1<List<T>, Observable<Page<T>>>() {
+    private <T> Observable<Page<List<T>>> pagingObservable(Observable<List<T>> source, final Observable<Page<List<T>>> nextPage) {
+        return Observable.create(paged(source, new Func1<List<T>, Observable<Page<List<T>>>>() {
             @Override
-            public Observable<Page<T>> call(List<T> objects) {
+            public Observable<Page<List<T>>> call(List<T> objects) {
                 return nextPage;
             }
         }));
     }
 
-    private Subscription loadFirstPageThen(final Observable<Page<Integer>> nextPage) {
+    private Subscription loadFirstPageThen(final Observable<Page<List<Integer>>> nextPage) {
         final Observable<List<Integer>> sourceSequence = Observable.from(1, 2, 3).toList();
 
         // loads page 1 successfully

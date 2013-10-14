@@ -22,12 +22,22 @@ import android.util.Log;
 import android.util.Pair;
 
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class PlayEventTracker {
     private static final String TAG = PlayEventTracker.class.getSimpleName();
+
+    public interface EventLoggerKeys {
+        String ORIGIN_URL = "context";
+        String TRIGGER = "trigger";
+        String SOURCE = "source";
+        String SOURCE_VERSION = "source_version";
+        String EXPLORE_TAG = "exploreTag";
+        String SET = "set"; // currently unused, but a valid eventlogger param that we might add soon
+    }
 
     private static final int INSERT_TOKEN = 0;
     private static final int FLUSH_TOKEN = 1;
@@ -51,8 +61,8 @@ public class PlayEventTracker {
         trackingDbHelper = new TrackingDbHelper(mContext);
     }
 
-    public void trackEvent(final @Nullable Track track, final Action action, final long userId, final String originUrl,
-                           final String level) {
+    public void trackEvent(final @Nullable Track track, final Action action, final long userId,
+                           String sourceParams) {
 
         if (track == null) return;
 
@@ -62,7 +72,7 @@ public class PlayEventTracker {
                 thread.start();
                 handler = new TrackerHandler(thread.getLooper());
             }
-            TrackingParams params = new TrackingParams(track, action, userId, originUrl, level);
+            TrackingParams params = new TrackingParams(track, action, userId, sourceParams);
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + params.toString());
 
             Message insert = handler.obtainMessage(INSERT_TOKEN, params);
@@ -151,8 +161,7 @@ public class PlayEventTracker {
         final String SOUND_URN = "sound_urn";
         final String USER_URN  = "user_urn";
         final String SOUND_DURATION = "sound_duration";
-        final String ORIGIN_URL     = "origin_url";
-        final String LEVEL          = "level";
+        final String SOURCE_INFO = "source_info";
     }
 
     static class TrackingParams {
@@ -160,16 +169,14 @@ public class PlayEventTracker {
         final Action action;
         final long timestamp;
         final long userId;
-        final String originUrl;
-        final String level;
+        final String sourceParams;
 
-        TrackingParams(Track track, Action action, long userId, String originUrl, String level) {
+        TrackingParams(Track track, Action action, long userId, String sourceParams) {
             this.track = track;
             this.action = action;
             this.userId = userId;
-            this.originUrl = originUrl;
-            this.level = level;
             this.timestamp = System.currentTimeMillis();
+            this.sourceParams = sourceParams;
         }
 
         public ContentValues toContentValues() {
@@ -179,8 +186,7 @@ public class PlayEventTracker {
             values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(track.getId()).toString());
             values.put(TrackingEvents.SOUND_DURATION, track.duration);
             values.put(TrackingEvents.USER_URN, buildUserUrn(userId));
-            values.put(TrackingEvents.ORIGIN_URL, originUrl);
-            values.put(TrackingEvents.LEVEL, level);
+            values.put(TrackingEvents.SOURCE_INFO, sourceParams);
             return values;
 
         }
@@ -200,8 +206,7 @@ public class PlayEventTracker {
                     ", action=" + action.name() +
                     ", timestamp=" + timestamp +
                     ", userId=" + userId +
-                    ", originUrl='" + originUrl + '\'' +
-                    ", level='" + level + '\'' +
+                    ", sourceParams='" + sourceParams + '\'' +
                     '}';
         }
     }
@@ -209,11 +214,11 @@ public class PlayEventTracker {
 
     public static class TrackingDbHelper extends SQLiteOpenHelper {
         private static final String DATABASE_NAME = "SoundCloud-tracking.sqlite";
-        private static final int DATABASE_VERSION = 1;
+        private static final int DATABASE_VERSION = 2;
         static final String EVENTS_TABLE = "events";
 
         public interface ExecuteBlock {
-            void call(SQLiteDatabase database);
+            void call(SQLiteDatabase database) throws SQLException;
         }
 
 
@@ -227,8 +232,7 @@ public class PlayEventTracker {
                 TrackingEvents.SOUND_URN + " TEXT NOT NULL," +
                 TrackingEvents.USER_URN + " TEXT NOT NULL," + // soundcloud:users:123 for logged in, anonymous:<UUID> for logged out
                 TrackingEvents.SOUND_DURATION + " INTEGER NOT NULL," + // this it the total sound length in millis
-                TrackingEvents.ORIGIN_URL + " TEXT NOT NULL," + // figure out what this means in our app
-                TrackingEvents.LEVEL + " TEXT NOT NULL," +
+                TrackingEvents.SOURCE_INFO + " TEXT NOT NULL," +
                 "UNIQUE (" + TrackingEvents.TIMESTAMP + ", " + TrackingEvents.ACTION + ") ON CONFLICT IGNORE" +
                 ")";
 
@@ -243,13 +247,26 @@ public class PlayEventTracker {
         }
 
         @Override
-        public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int currentVersion) {
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int currentVersion) {
+            // for now just recreate table and drop any local tracking events
+            onRecreateDb(db);
+        }
+
+        private void onRecreateDb(SQLiteDatabase db){
+            db.execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE);
+            onCreate(db);
         }
 
         public void execute(ExecuteBlock block) {
             final SQLiteDatabase writableDatabase = getWritableDatabase();
-            block.call(writableDatabase);
-            close();
+            try {
+                block.call(writableDatabase);
+            } catch (SQLException ex){
+                Log.i(TAG, "Sql exception " , ex);
+            } finally {
+                close();
+            }
+
         }
     }
 
@@ -275,7 +292,7 @@ public class PlayEventTracker {
                     trackingDbHelper.execute(new TrackingDbHelper.ExecuteBlock() {
                         @Override
                         public void call(SQLiteDatabase database) {
-                            long id = database.insert(TrackingDbHelper.EVENTS_TABLE, null, params.toContentValues());
+                            long id = database.insertOrThrow(TrackingDbHelper.EVENTS_TABLE, null, params.toContentValues());
                             if (id < 0) {
                                 Log.w(TAG, "error inserting tracking event");
                             }

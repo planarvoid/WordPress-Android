@@ -1,12 +1,9 @@
 package com.soundcloud.android.service.sync;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
@@ -27,7 +24,6 @@ import java.io.IOException;
 /* package */  class CollectionSyncRequest {
 
     public static final String TAG = ApiSyncService.class.getSimpleName();
-    public static final int SYNC_REPEAT_TOLERANCE = 60 * 1000;
     public static final String PREFIX_LAST_SYNC_RESULT = "last_sync_result_";
 
     public static final String PREF_VAL_SUCCESS = "success";
@@ -36,12 +32,10 @@ import java.io.IOException;
 
     private final Context mContext;
     private final Uri mContentUri;
-    private final String mAction, mResultKey;
+    private final String mAction;
     private final boolean mIsUi;
     private final SyncStateManager mSyncStateManager;
     private ApiSyncerFactory mApiSyncerFactory;
-    private SharedPreferences mSharedPreferences;
-    private ApplicationProperties mApplicationProperties;
 
     private LocalCollection localCollection;
     private ApiSyncResult mResult;
@@ -60,11 +54,8 @@ import java.io.IOException;
         mResult = new ApiSyncResult(mContentUri);
         mIsUi = isUI;
 
-        mResultKey = PREFIX_LAST_SYNC_RESULT + mContentUri.toString();
         mSyncStateManager = syncStateManager;
         mApiSyncerFactory = apiSyncerFactory;
-        mSharedPreferences = sharedPreferences;
-        mApplicationProperties = applicationProperties;
     }
 
     public void onQueued() {
@@ -89,36 +80,23 @@ import java.io.IOException;
         // make sure all requests going out on this thread have the background parameter set
         Wrapper.setBackgroundMode(!mIsUi);
 
-        /**
-         *  if we have synced this uri within a certain amount of time, send a silent exception as this might be a
-            symptom of a sync loop (battery/data drain)
-         */
-        if (System.currentTimeMillis() - localCollection.last_sync_attempt < SYNC_REPEAT_TOLERANCE && !mIsUi){
-            String message = mContentUri.toString() + " " + mSharedPreferences.getString(mResultKey, PREF_VAL_NULL);
-            sendRetryViolation(mContentUri.toString(), new SyncRetryViolation(message));
-        }
-
         try {
             Log.d(TAG, "syncing " + mContentUri);
             mResult = mApiSyncerFactory.forContentUri(mContext, mContentUri).syncContent(mContentUri, mAction);
             mSyncStateManager.onSyncComplete(mResult, localCollection);
 
-            // update shared prefs for debugging repeat syncs
-            mSharedPreferences.edit().putString(mResultKey, mResult.success ? PREF_VAL_SUCCESS : PREF_VAL_FAILED).commit();
-
         } catch (CloudAPI.InvalidTokenException e) {
-            handleException(e, mResultKey);
+            mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             mResult = ApiSyncResult.fromAuthException(mContentUri);
             mContext.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
 
         } catch (AndroidCloudAPI.UnexpectedResponseException e) {
-            handleException(e, mResultKey);
+            mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             mResult = ApiSyncResult.fromUnexpectedResponseException(mContentUri);
 
         } catch (IOException e) {
-            handleException(e, mResultKey);
+            mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             mResult = ApiSyncResult.fromIOException(mContentUri);
-
         } finally {
             // should be taken care of when thread dies, but needed for tests
             Wrapper.setBackgroundMode(false);
@@ -138,24 +116,6 @@ import java.io.IOException;
 
     public void setmResult(ApiSyncResult mResult) {
         this.mResult = mResult;
-    }
-
-    @VisibleForTesting
-    protected void sendRetryViolation(String message, SyncRetryViolation syncRetryViolationException) {
-        SoundCloudApplication.handleSilentException(message, syncRetryViolationException);
-    }
-
-    private void handleException(IOException e, String lastResultKey) {
-        Log.e(ApiSyncService.LOG_TAG, "Problem while syncing", e);
-        mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
-        mSharedPreferences.edit().putString(lastResultKey, ErrorUtils.getStackTrace(e)).commit();
-
-        /**
-         * Firehose beta exceptions for sync debugging purposes. we may want to turn this off
-         */
-        if (mApplicationProperties.isBetaBuildRunningOnDalvik() && mIsUi){
-            SoundCloudApplication.handleSilentException("Problem while syncing", e);
-        }
     }
 
     @Override @SuppressWarnings("RedundantIfStatement")
