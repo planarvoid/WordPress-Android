@@ -175,9 +175,12 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldReturnPlayQueueIds() throws Exception {
-        pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).build());
-        expect(pm.getCurrentQueueIds()).toContainExactly(0L, 1L, 2L);
+    public void shouldReturnPlayQueueState() throws Exception {
+        pm.setPlayQueue(createTracks(3, true, 0), 1, new PlaySourceInfo.Builder(2L).build());
+        final PlayQueueState state = pm.getState();
+        expect(state.getCurrentTrackIds()).toContainExactly(0L, 1L, 2L);
+        expect(state.getPlayPosition()).toBe(1);
+        expect(state.getCurrentAppendState()).toBe(PlayQueueState.AppendState.IDLE);
     }
 
     @Test
@@ -442,7 +445,7 @@ public class PlayQueueManagerTest {
         pm.loadTrack(track, false, trackingInfo);
         pm.fetchRelatedTracks(track);
         expect(pm.length()).toBe(1);
-        expect(pm.isFetchingRelated()).toBeTrue();
+        expect(pm.getState().isFetchingRelated()).toBeTrue();
     }
 
     @Test
@@ -451,8 +454,9 @@ public class PlayQueueManagerTest {
         when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<RelatedTracksCollection>error(new Exception()));
 
         pm.fetchRelatedTracks(track);
-        expect(pm.isFetchingRelated()).toBeFalse();
-        expect(pm.lastRelatedFetchFailed()).toBeTrue();
+        final PlayQueueState state = pm.getState();
+        expect(state.isFetchingRelated()).toBeFalse();
+        expect(state.lastRelatedFetchFailed()).toBeTrue();
     }
 
     @Test
@@ -466,8 +470,9 @@ public class PlayQueueManagerTest {
         pm.fetchRelatedTracks(track);
         expect(pm.length()).toBe(2);
 
-        expect(pm.isFetchingRelated()).toBeFalse();
-        expect(pm.lastRelatedFetchFailed()).toBeFalse();
+        final PlayQueueState state = pm.getState();
+        expect(state.isFetchingRelated()).toBeFalse();
+        expect(state.lastRelatedFetchFailed()).toBeFalse();
 
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(context, times(3)).sendBroadcast(argumentCaptor.capture());
@@ -524,7 +529,7 @@ public class PlayQueueManagerTest {
         pm.fetchRelatedTracks(track);
         pm.loadTrack(track, false, trackingInfo);
 
-        expect(pm.isFetchingRelated()).toBeFalse();
+        expect(pm.getState().isFetchingRelated()).toBeFalse();
         verify(subscription).unsubscribe();
     }
 
@@ -540,7 +545,7 @@ public class PlayQueueManagerTest {
         pm.fetchRelatedTracks(track);
         pm.loadUri(Content.TRACKS.uri, 0, null, trackingInfo);
 
-        expect(pm.isFetchingRelated()).toBeFalse();
+        expect(pm.getState().isFetchingRelated()).toBeFalse();
         verify(subscription).unsubscribe();
     }
 

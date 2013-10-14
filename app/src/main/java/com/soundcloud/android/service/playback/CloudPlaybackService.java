@@ -817,7 +817,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         status = notification;
     }
 
-    /* package */
     public void setQueuePosition(int pos) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setQueuePosition("+pos+")");
 
@@ -825,6 +824,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             mPlayQueueManager.setPosition(pos)) {
             openCurrent();
         }
+    }
+
+    public PlayQueueState getPlayQueueState() {
+        return mPlayQueueManager.getState();
+    }
+
+    public int getCurrentPlayQueuePosition() {
+        return mPlayQueueManager.getPosition();
     }
 
 

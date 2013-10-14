@@ -1,8 +1,6 @@
-package com.soundcloud.android.view.play;
+package com.soundcloud.android.player;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.service.playback.PlayQueueItem;
-import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.view.EmptyListView;
 
 import android.content.Context;
@@ -12,26 +10,24 @@ import android.widget.FrameLayout;
 
 public class PlayerQueueView extends FrameLayout {
 
-    private final PlayQueueManager mPlayQueueManager;
     private EmptyListView mEmptyView;
     private PlayerTrackView mTrackView;
 
-    public PlayerQueueView(Context context, PlayQueueManager playQueueManager) {
+    public PlayerQueueView(Context context) {
         super(context);
-        mPlayQueueManager = playQueueManager;
     }
 
     public void setPlayQueueItem(PlayQueueItem playQueueItem, boolean inCommentingMode){
         // TODO, replace these with viewStubs
         if (playQueueItem.isEmpty()){
             showEmptyView();
-            if (mPlayQueueManager.isFetchingRelated()){
-                mEmptyView.setStatus(EmptyListView.Status.WAITING);
-            } else if (mPlayQueueManager.lastRelatedFetchFailed()){
-                mEmptyView.setStatus(EmptyListView.Status.ERROR);
-            } else {
-                mEmptyView.setStatus(EmptyListView.Status.OK);
-            }
+//            if (mPlayQueueManager.isFetchingRelated()){
+//                mEmptyView.setStatus(EmptyListView.Status.WAITING);
+//            } else if (mPlayQueueManager.lastRelatedFetchFailed()){
+//                mEmptyView.setStatus(EmptyListView.Status.ERROR);
+//            } else {
+//                mEmptyView.setStatus(EmptyListView.Status.OK);
+//            }
 
 
         } else {
@@ -50,7 +46,7 @@ public class PlayerQueueView extends FrameLayout {
         mEmptyView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                mPlayQueueManager.retryRelatedTracksFetch();
+                //mPlayQueueManager.retryRelatedTracksFetch();
             }
         });
         if (mEmptyView.getParent() != this){

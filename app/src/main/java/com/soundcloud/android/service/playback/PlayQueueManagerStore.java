@@ -1,13 +1,13 @@
-package com.soundcloud.android.dao;
+package com.soundcloud.android.service.playback;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.dao.TrackDAO;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.playback.PlayQueueItem;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;

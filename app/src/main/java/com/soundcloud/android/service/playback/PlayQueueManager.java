@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ExploreTracksOperations;
-import com.soundcloud.android.dao.PlayQueueManagerStore;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RelatedTracksCollection;
@@ -50,16 +49,11 @@ public class PlayQueueManager {
 
     private long mUserId;
     private AsyncTask mLoadTask;
-    private AppendState mAppendingState = AppendState.IDLE;
+    private PlayQueueState.AppendState mAppendingState = PlayQueueState.AppendState.IDLE;
     private Subscription mRelatedSubscription;
     private Observable<RelatedTracksCollection> mRelatedTracksObservable;
     @NotNull
     private PlaySourceInfo mCurrentPlaySourceInfo = PlaySourceInfo.EMPTY;
-
-    private enum AppendState {
-        IDLE, LOADING, ERROR, EMPTY;
-
-    }
 
     private static PlayQueueManager instance;
     public static PlayQueueManager get(Context context){
@@ -86,13 +80,13 @@ public class PlayQueueManager {
 
     }
 
-    public List<Long> getCurrentQueueIds() {
-        return Lists.transform(mPlayQueue,new Function<PlayQueueItem, Long>() {
+    public PlayQueueState getState() {
+        return new PlayQueueState(Lists.transform(mPlayQueue,new Function<PlayQueueItem, Long>() {
             @Override
             public Long apply(PlayQueueItem input) {
                 return input.getTrack().getId();
             }
-        });
+        }), mPlayPos, mAppendingState);
     }
 
     public int length() {
@@ -199,7 +193,7 @@ public class PlayQueueManager {
         mCurrentPlaySourceInfo = trackingInfo == null ? PlaySourceInfo.EMPTY : trackingInfo;
         SoundCloudApplication.MODEL_MANAGER.cache(toBePlayed, ScResource.CacheUpdateMode.NONE);
         mPlayQueue.clear();
-        mPlayQueue.add(new PlayQueueItem(toBePlayed, 0, TrackSourceInfo.manual()));
+        mPlayQueue.add(new PlayQueueItem(toBePlayed, TrackSourceInfo.manual()));
         mPlayQueueUri = new PlayQueueUri();
         mPlayPos = 0;
 
@@ -264,7 +258,7 @@ public class PlayQueueManager {
     }
 
     private void loadRelatedTracks() {
-        mAppendingState = AppendState.LOADING;
+        mAppendingState = PlayQueueState.AppendState.LOADING;
         mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
         mRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<RelatedTracksCollection>() {
 
@@ -272,13 +266,13 @@ public class PlayQueueManager {
 
             @Override
             public void onCompleted() {
-                mAppendingState = mGotRelatedTracks ? AppendState.IDLE : AppendState.EMPTY;
+                mAppendingState = mGotRelatedTracks ? PlayQueueState.AppendState.IDLE : PlayQueueState.AppendState.EMPTY;
                 mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
             }
 
             @Override
             public void onError(Throwable e) {
-                mAppendingState = AppendState.ERROR;
+                mAppendingState = PlayQueueState.AppendState.ERROR;
                 mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
             }
 
@@ -287,7 +281,7 @@ public class PlayQueueManager {
                 final String recommenderVersion = relatedTracks.getSourceVersion();
                 mCurrentPlaySourceInfo.setRecommenderVersion(recommenderVersion);
                 for (TrackSummary item : relatedTracks) {
-                    mPlayQueue.add(new PlayQueueItem(new Track(item), mPlayQueue.size(), TrackSourceInfo.fromRecommender(recommenderVersion)));
+                    mPlayQueue.add(new PlayQueueItem(new Track(item), TrackSourceInfo.fromRecommender(recommenderVersion)));
                 }
                 mGotRelatedTracks = true;
             }
@@ -295,22 +289,10 @@ public class PlayQueueManager {
     }
 
     private void stopLoadingRelatedTracks() {
-        mAppendingState = AppendState.IDLE;
+        mAppendingState = PlayQueueState.AppendState.IDLE;
         if (mRelatedSubscription != null){
             mRelatedSubscription.unsubscribe();
         }
-    }
-
-    public boolean isFetchingRelated() {
-        return mAppendingState == AppendState.LOADING;
-    }
-
-    public boolean lastRelatedFetchFailed() {
-        return mAppendingState == AppendState.ERROR;
-    }
-
-    public boolean lastRelatedFetchWasEmpty() {
-        return mAppendingState == AppendState.EMPTY;
     }
 
     private AsyncTask loadCursor(final Uri uri, final int position) {
@@ -373,7 +355,7 @@ public class PlayQueueManager {
                 final Playable playable = playableHolder.getPlayable();
                 if (playable instanceof Track){
                     final TrackSourceInfo trackSourceInfo = mCurrentPlaySourceInfo.getTrackSourceById(playable.getId());
-                    mPlayQueue.add(new PlayQueueItem((Track) playable, mPlayQueue.size(), trackSourceInfo));
+                    mPlayQueue.add(new PlayQueueItem((Track) playable, trackSourceInfo));
                 }
             }
         }

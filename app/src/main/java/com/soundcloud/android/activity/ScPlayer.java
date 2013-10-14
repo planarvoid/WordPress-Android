@@ -7,7 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.player.PlayerTrackPagerAdapter;
+import com.soundcloud.android.player.PlayerTrackPagerAdapter;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
 import com.soundcloud.android.model.Comment;
@@ -21,7 +21,7 @@ import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.PlayerTrackPager;
-import com.soundcloud.android.view.play.PlayerTrackView;
+import com.soundcloud.android.player.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBarView;
 import com.soundcloud.android.view.play.WaveformController;
 import org.jetbrains.annotations.NotNull;
@@ -84,7 +84,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         mTrackPager.setListener(this);
 
         mPlayQueueManager = PlayQueueManager.get(this);
-        mTrackPagerAdapter = new PlayerTrackPagerAdapter(mPlayQueueManager);
+        mTrackPagerAdapter = new PlayerTrackPagerAdapter();
         mTrackPager.setAdapter(mTrackPagerAdapter);
 
         mTransportBar = (TransportBarView) findViewById(R.id.transport_bar);

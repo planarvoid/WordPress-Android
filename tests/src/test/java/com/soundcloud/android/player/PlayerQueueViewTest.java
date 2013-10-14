@@ -1,4 +1,4 @@
-package com.soundcloud.android.adapter.player;
+package com.soundcloud.android.player;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -6,17 +6,13 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.view.EmptyListView;
-import com.soundcloud.android.view.play.PlayerQueueView;
-import com.soundcloud.android.view.play.PlayerTrackView;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import scala.xml.dtd.EMPTY;
 
 import android.content.Context;
 
@@ -34,7 +30,7 @@ public class PlayerQueueViewTest {
 
     @Before
     public void setUp() throws Exception {
-        playerQueueView = new PlayerQueueView(Robolectric.application, playQueueManager) {
+        playerQueueView = new PlayerQueueView(Robolectric.application) {
             @Override
             protected PlayerTrackView createPlayerTrackView(Context context) {
                 return playerTrackView;
@@ -64,7 +60,7 @@ public class PlayerQueueViewTest {
     @Test
     public void shouldSetWaitingStateOnEmptyView() throws Exception {
         final PlayQueueItem playQueueItem = PlayQueueItem.empty(0);
-        when(playQueueManager.isFetchingRelated()).thenReturn(true);
+        //when(playQueueManager.isFetchingRelated()).thenReturn(true);
 
         playerQueueView.setPlayQueueItem(playQueueItem, false);
         verify(emptyListView).setStatus(EmptyListView.Status.WAITING);
@@ -73,8 +69,8 @@ public class PlayerQueueViewTest {
     @Test
     public void shouldSetUnknownErrorStateOnEmptyView() throws Exception {
         final PlayQueueItem playQueueItem = PlayQueueItem.empty(0);
-        when(playQueueManager.isFetchingRelated()).thenReturn(false);
-        when(playQueueManager.lastRelatedFetchFailed()).thenReturn(true);
+        //when(playQueueManager.isFetchingRelated()).thenReturn(false);
+        //when(playQueueManager.lastRelatedFetchFailed()).thenReturn(true);
 
         playerQueueView.setPlayQueueItem(playQueueItem, false);
         verify(emptyListView).setStatus(EmptyListView.Status.ERROR);

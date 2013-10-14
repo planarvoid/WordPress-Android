@@ -1,4 +1,4 @@
-package com.soundcloud.android.adapter.player;
+package com.soundcloud.android.player;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -7,29 +7,38 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.adapter.BasePagerAdapter;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.PlayQueueItem;
-import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.service.playback.PlayQueueState;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.view.play.PlayerQueueView;
-import com.soundcloud.android.view.play.PlayerTrackView;
 
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
-    private PlayQueueManager mPlayQueueManager;
     private int mCommentingPosition = -1;
 
     private final BiMap<PlayerQueueView, Integer> mQueueViewsByPosition = HashBiMap.create(3);
-    private Track mPlaceholderTrack;
 
-    public PlayerTrackPagerAdapter(PlayQueueManager playQueueManager) {
-        this.mPlayQueueManager = playQueueManager;
+    private TrackStorage mTrackStorage;
+    private Track mPlaceholderTrack;
+    private PlayQueueState mPlayQueueState;
+
+    private List<PlayQueueItem> mPlayQueueItems = Collections.emptyList();
+
+    public PlayerTrackPagerAdapter() {
+        this(new TrackStorage());
+    }
+
+    public PlayerTrackPagerAdapter(TrackStorage trackStorage) {
+        mTrackStorage = trackStorage;
     }
 
     public Collection<PlayerTrackView> getPlayerTrackViews() {
@@ -44,8 +53,15 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
                 return input.getTrackView();
             }
         });
+    }
 
+    public void setPlayQueueState(PlayQueueState playQueueState) {
+        this.mPlayQueueState = playQueueState;
 
+        mPlayQueueItems = new ArrayList<PlayQueueItem>(playQueueState.getCurrentTrackIds().size());
+        for (Long id : mPlayQueueState.getCurrentTrackIds()){
+            mPlayQueueItems.add(new PlayQueueItem(mTrackStorage.getTrack(id), mPlayQueueItems.size()));
+        }
     }
 
     public int getCommentingPosition() {
@@ -91,13 +107,13 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         if (mPlaceholderTrack != null){
             return 1;
         } else {
-            return shouldDisplayExtraItem() ? mPlayQueueManager.length() + 1 : mPlayQueueManager.length();
+            return shouldDisplayExtraItem() ? mPlayQueueState.getCurrentTrackIds().size() + 1 : mPlayQueueState.getCurrentTrackIds().size();
         }
     }
 
 
     private boolean shouldDisplayExtraItem() {
-        return mPlayQueueManager.isFetchingRelated() || mPlayQueueManager.lastRelatedFetchFailed() || mPlayQueueManager.lastRelatedFetchWasEmpty();
+        return mPlayQueueState.isFetchingRelated() || mPlayQueueState.lastRelatedFetchFailed() || mPlayQueueState.lastRelatedFetchWasEmpty();
     }
 
     public void clearCommentingPosition(boolean animated) {
@@ -112,10 +128,10 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         if (position == 0 && mPlaceholderTrack != null){
             return new PlayQueueItem(mPlaceholderTrack, 0);
         } else {
-            if (position >= mPlayQueueManager.length()){
+            if (position >= mPlayQueueState.getCurrentTrackIds().size()){
                 return PlayQueueItem.empty(position);
             } else {
-                return mPlayQueueManager.getPlayQueueItem(position);
+                return mPlayQueueItems.get(position);
             }
         }
     }
@@ -134,7 +150,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     @VisibleForTesting
     protected PlayerQueueView createPlayerQueueView(Context context) {
-        return new PlayerQueueView(context, mPlayQueueManager);
+        return new PlayerQueueView(context);
     }
 
     @Override
@@ -167,4 +183,5 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
             }
         }
     }
+
 }

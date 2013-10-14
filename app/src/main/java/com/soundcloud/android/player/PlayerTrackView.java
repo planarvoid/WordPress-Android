@@ -1,4 +1,4 @@
-package com.soundcloud.android.view.play;
+package com.soundcloud.android.player;
 
 
 import static com.soundcloud.android.service.playback.CloudPlaybackService.BroadcastExtras;
@@ -16,12 +16,13 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueueItem;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.PlayableActionButtonsController;
 import com.soundcloud.android.view.adapter.PlayableBar;
+import com.soundcloud.android.view.play.PlayerTrackDetails;
+import com.soundcloud.android.view.play.WaveformController;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +52,8 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
     private PlayableBar mTrackInfoBar;
     private @Nullable ViewFlipper mTrackFlipper;            // can be null in landscape mode
-    private @Nullable PlayerTrackDetails mTrackDetailsView; // ditto
+    private @Nullable
+    PlayerTrackDetails mTrackDetailsView; // ditto
 
     protected Track mTrack;
     private int mQueuePosition;
