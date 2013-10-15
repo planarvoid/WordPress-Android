@@ -497,7 +497,7 @@
                                 <include>com/soundcloud/android/**/*.java</include>
                             </includes>
                             <excludes>
-                                <exclude>com/soundcloud/android/R.java</exclude>
+                                <exclude>com/soundcloud/android/**/R.java</exclude>
                             </excludes>
                         </configuration>
                         <executions>
