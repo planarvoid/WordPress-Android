@@ -5,7 +5,6 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.Broad
 import static com.soundcloud.android.service.playback.CloudPlaybackService.PlayExtras;
 import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playable;
@@ -128,24 +127,22 @@ class PlaybackReceiver extends BroadcastReceiver {
             configureVolume();
         }
 
-        final boolean startPlayback = intent.getBooleanExtra(PlayExtras.startPlayback, true);
         final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
         final PlaySourceInfo trackingInfo = intent.getParcelableExtra(PlayExtras.trackingInfo);
 
         if (intent.getData() != null) {
-            playViaUri(intent, startPlayback, position, trackingInfo);
+            playViaUri(intent, position, trackingInfo);
 
-        } else if (intent.getBooleanExtra(PlayExtras.playFromXferList, false)) {
-            playViaTransferList(startPlayback, position, trackingInfo);
+        } else if (intent.hasExtra(PlayExtras.trackIdList)) {
+            playViaTransferList(intent.getLongArrayExtra(PlayExtras.trackIdList), position, trackingInfo);
 
         } else if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)) {
-            playSingleTrack(intent, startPlayback, trackingInfo);
+            playSingleTrack(intent, trackingInfo);
 
         } else if (!mPlayQueueManager.isEmpty() || mPlaybackService.configureLastPlaylist()) {
             // random play intent, play whatever we had last
-            if (startPlayback) mPlaybackService.play();
+            mPlaybackService.play();
         }
-
     }
 
     private void configureVolume() {
@@ -156,24 +153,18 @@ class PlaybackReceiver extends BroadcastReceiver {
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
     }
 
-    private void playViaUri(Intent intent, boolean startPlayback, int position, PlaySourceInfo trackingInfo) {
-        if (mPlaybackService.playlistXfer != null) {
-            mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position, trackingInfo);
-        } else {
-            Track track = getTrackFromIntent(intent);
-            mPlayQueueManager.loadUri(intent.getData(), position, track == null ? null : Lists.newArrayList(track), 0, trackingInfo);
-        }
-
-        if (startPlayback) mPlaybackService.openCurrent();
+    private void playViaUri(Intent intent, int position, PlaySourceInfo trackingInfo) {
+        Track track = getTrackFromIntent(intent);
+        mPlayQueueManager.loadUri(intent.getData(), position, track == null ? null : new long[]{track.getId()}, 0, trackingInfo);
+        mPlaybackService.openCurrent();
     }
 
-    private void playViaTransferList(boolean startPlayback, int position, PlaySourceInfo trackingInfo) {
-        mPlayQueueManager.setPlayQueue(mPlaybackService.playlistXfer, position, trackingInfo);
-        mPlaybackService.playlistXfer = null;
-        if (startPlayback) mPlaybackService.openCurrent();
+    private void playViaTransferList(long[] trackIds, int position, PlaySourceInfo trackingInfo) {
+        mPlayQueueManager.setPlayQueueFromTrackIds(trackIds, position, trackingInfo);
+        mPlaybackService.openCurrent();
     }
 
-    private void playSingleTrack(Intent intent, boolean startPlayback, PlaySourceInfo trackingInfo) {
+    private void playSingleTrack(Intent intent, PlaySourceInfo trackingInfo) {
 
         // go to the cache to ensure 1 copy of each track app wide
         final Track cachedTrack = getTrackFromIntent(intent);
@@ -182,11 +173,7 @@ class PlaybackReceiver extends BroadcastReceiver {
         if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)) {
             mPlayQueueManager.fetchRelatedTracks(cachedTrack);
         }
-
-        if (startPlayback) {
-            mPlaybackService.openCurrent();
-        }
-
+        mPlaybackService.openCurrent();
     }
 
     private Track getTrackFromIntent(Intent intent) {

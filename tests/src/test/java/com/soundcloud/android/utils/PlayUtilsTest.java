@@ -106,7 +106,7 @@ public class PlayUtilsTest {
         verify(context).startActivity(argumentCaptor.capture());
 
         final Intent playIntent = argumentCaptor.getValue();
-        expect(playIntent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList, false)).toBeTrue();
+        expect(playIntent.getBooleanExtra(CloudPlaybackService.PlayExtras.trackIdList, false)).toBeTrue();
     }
 
     @Test
@@ -120,7 +120,7 @@ public class PlayUtilsTest {
 
         final Intent playIntent = argumentCaptor.getValue();
         expect(playIntent.getExtras().containsKey(CloudPlaybackService.PlayExtras.playPosition)).toBeFalse();
-        expect(playIntent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList, false)).toBeFalse();
+        expect(playIntent.getBooleanExtra(CloudPlaybackService.PlayExtras.trackIdList, false)).toBeFalse();
     }
 
     @Test(expected=AssertionError.class)

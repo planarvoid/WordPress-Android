@@ -1,5 +1,6 @@
 package com.soundcloud.android.dao;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModelManager;
@@ -19,7 +20,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -106,24 +106,25 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         return mTrackDAO.queryByUri(uri);
     }
 
-    public List<Track> getTracksForUri(Uri uri) {
+    public List<Long> getTrackIdsForUri(Uri uri) {
+        final boolean isActivityCursor = Content.match(uri).isActivitiesItem();
+        final String idColumn = isActivityCursor ? DBHelper.ActivityView.SOUND_ID : DBHelper.SoundView._ID;
+
         Cursor cursor;
         try {
-            cursor = mResolver.query(uri, null, DBHelper.SoundView._TYPE + " = ?",
+
+            cursor = mResolver.query(uri, new String[]{idColumn}, DBHelper.SoundView._TYPE + " = ?",
                     new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
         } catch (IllegalArgumentException e) {
             // in case we load a deprecated URI, just don't load the playlist
             Log.e(PlayQueueManager.class.getSimpleName(), "Tried to load an invalid uri " + uri);
             return Collections.emptyList();
         }
+
         if (cursor != null) {
-            boolean isActivityCursor = Content.match(uri).isActivitiesItem();
-            List<Track> newQueue = new ArrayList<Track>(cursor.getCount());
+            List<Long> newQueue = Lists.newArrayListWithExpectedSize(cursor.getCount());
             while (cursor.moveToNext()) {
-                final Track trackFromCursor = isActivityCursor ?
-                        mModelManager.getCachedTrackFromCursor(cursor, DBHelper.ActivityView.SOUND_ID) :
-                        mModelManager.getCachedTrackFromCursor(cursor);
-                newQueue.add(trackFromCursor);
+                newQueue.add(cursor.getLong(cursor.getColumnIndex(idColumn)));
             }
             cursor.close();
             return newQueue;

@@ -1,6 +1,8 @@
 package com.soundcloud.android.utils;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.PlaylistDetailActivity;
@@ -78,8 +80,10 @@ public final class PlayUtils {
                 }
             }
 
+
+
             PlayInfo playInfo = PlayInfo.fromUriWithTrack(uri, adjustedPosition, tracks.get(adjustedPosition));
-            playInfo.iniitalTracklist = tracks;
+            playInfo.initialTracklist = tracks;
             playFromInfo(context, playInfo);
 
         } else if (playable instanceof Playlist) {
@@ -90,13 +94,7 @@ public final class PlayUtils {
     }
 
     public static Track getTrackFromIntent(Intent intent){
-        if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList,false)){
-            final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
-            final List<Track> list = CloudPlaybackService.playlistXfer;
-            if (list != null && position > -1 && position < list.size() && list.get(position).getPlayable() instanceof Track){
-                return (Track) list.get(position).getPlayable();
-            }
-        } else if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
+        if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
             return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
         } else if (intent.getParcelableExtra(Track.EXTRA) != null) {
             return intent.getParcelableExtra(Track.EXTRA);
@@ -116,7 +114,6 @@ public final class PlayUtils {
         intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
         intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, info.sourceInfo);
         intent.putExtra(CloudPlaybackService.PlayExtras.track, info.initialTrack);
-        CloudPlaybackService.playlistXfer = info.iniitalTracklist;
 
         if (info.uri != null) {
             mModelManager.cache(info.initialTrack);
@@ -124,9 +121,15 @@ public final class PlayUtils {
                     .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                     .setData(info.uri);
 
-        } else if (info.iniitalTracklist.size() > 1) {
+        } else if (info.initialTracklist.size() > 1) {
+            final List<Long> idList = Lists.transform(info.initialTracklist, new Function<Track, Long>() {
+                @Override
+                public Long apply(Track input) {
+                    return input.getId();
+                }
+            });
             intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                    .putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
+                    .putExtra(CloudPlaybackService.PlayExtras.trackIdList, Longs.toArray(idList));
         }
     }
 
@@ -135,7 +138,7 @@ public final class PlayUtils {
         private int position;
         private Uri uri;
         private Track initialTrack;
-        private List<Track> iniitalTracklist;
+        private List<Track> initialTracklist;
         private boolean fetchRelated;
         private PlaySourceInfo sourceInfo;
 
@@ -144,7 +147,7 @@ public final class PlayUtils {
 
         private PlayInfo(Track track, boolean fetchRelated, PlaySourceInfo playSourceInfo) {
             this.initialTrack = track;
-            this.iniitalTracklist = Lists.newArrayList(track);
+            this.initialTracklist = Lists.newArrayList(track);
             this.fetchRelated = fetchRelated;
             this.sourceInfo = playSourceInfo;
         }

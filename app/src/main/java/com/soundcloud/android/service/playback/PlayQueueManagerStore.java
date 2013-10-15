@@ -1,11 +1,8 @@
 package com.soundcloud.android.service.playback;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.TrackDAO;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
@@ -46,19 +43,12 @@ public class PlayQueueManagerStore {
         return position;
     }
 
-    public void insertQueue(List<PlayQueueItem> playQueueItems, long userId) {
-        mTrackDAO.createCollection(Lists.transform(playQueueItems, new Function<PlayQueueItem, Track>() {
-            @Override
-            public Track apply(PlayQueueItem input) {
-                return input.getTrack();
-            }
-        }));
-
+    public void insertQueue(List<Long> playQueueItems, long userId) {
         ContentValues[] contentValues = new ContentValues[playQueueItems.size()];
         for (int i = 0; i < playQueueItems.size(); i++) {
             ContentValues cv = new ContentValues();
             cv.put(DBHelper.PlayQueue.POSITION, i);
-            cv.put(DBHelper.PlayQueue.TRACK_ID, playQueueItems.get(i).getTrack().getId());
+            cv.put(DBHelper.PlayQueue.TRACK_ID, playQueueItems.get(i));
             cv.put(DBHelper.CollectionItems.USER_ID, userId);
             contentValues[i] = cv;
         }
