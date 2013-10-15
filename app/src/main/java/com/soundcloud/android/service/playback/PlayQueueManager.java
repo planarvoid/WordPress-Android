@@ -11,23 +11,21 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ParallelAsyncTask;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
@@ -37,7 +35,7 @@ import java.util.List;
 public class PlayQueueManager {
     private List<Long> mPlayQueue = new ArrayList<Long>();
     private PlayQueueUri mPlayQueueUri = new PlayQueueUri();
-    private final PlayQueueStorage mPlayQueueDAO;
+    private final PlayQueueStorage mPlayQueueStorage;
 
     private final ExploreTracksOperations mExploreTrackOperations;
     private final TrackStorage mTrackStorage;
@@ -46,7 +44,8 @@ public class PlayQueueManager {
     private final Context mContext;
 
     private long mUserId;
-    private AsyncTask mLoadTask;
+    private Subscription mLoadingSubscription = Subscriptions.empty();
+
     private PlayQueueState.AppendState mAppendingState = PlayQueueState.AppendState.IDLE;
     private Subscription mRelatedSubscription;
     private Observable<RelatedTracksCollection> mRelatedTracksObservable;
@@ -62,7 +61,7 @@ public class PlayQueueManager {
         mContext = context;
         mUserId = userId;
         mExploreTrackOperations = exploreTracksOperations;
-        mPlayQueueDAO = new PlayQueueStorage();
+        mPlayQueueStorage = new PlayQueueStorage();
         mTrackStorage = trackStorage;
 
     }
@@ -163,36 +162,6 @@ public class PlayQueueManager {
         if (saveQueue) saveQueue(0, true);
     }
 
-    public void loadUri(Uri uri, int position, PlaySourceInfo playSourceInfo) {
-        loadUri(uri, position, null, playSourceInfo);
-    }
-
-    public void loadUri(Uri uri, int position, Track initialTrack, PlaySourceInfo trackingInfo) {
-        loadUri(uri, position, initialTrack == null ? null : new long[]{initialTrack.getId()}, 0, trackingInfo);
-    }
-
-    /**
-     * @param uri               the playqueue uri to load
-     * @param position          position within playqueue
-     * @param initialPlayQueue  initial queue, load full uri asynchronously.
-     * @param initialPlayPos    initial play position for initial queue (play position might be different after loading)
-     * @param trackingInfo      data with this current queue to be passed to the {@link com.soundcloud.android.tracking.eventlogger.PlayEventTracker}
-     */
-    public void loadUri(Uri uri, int position, long[] initialPlayQueue, int initialPlayPos, PlaySourceInfo trackingInfo) {
-        stopLoadingTasks();
-
-        setPlayQueueFromTrackIds(initialPlayQueue, initialPlayPos, trackingInfo);
-        mPlayQueueUri = new PlayQueueUri(uri);
-
-        // if playlist, adjust load uri to request the tracks instead of meta_data
-        if (Content.match(uri) == Content.PLAYLIST){
-            uri = Content.PLAYLIST_TRACKS.forQuery(uri.getLastPathSegment());
-        }
-        if (uri != null) {
-            mLoadTask = loadCursor(uri, position);
-        }
-    }
-
     private Observable<Track> getTrackAt(int pos) {
         if (pos >= 0 && pos < mPlayQueue.size()) {
             return mTrackStorage.getTrack(mPlayQueue.get(pos));
@@ -203,9 +172,7 @@ public class PlayQueueManager {
 
     private void stopLoadingTasks() {
         stopLoadingRelatedTracks();
-        if (mLoadTask != null && !AndroidUtils.isTaskFinished(mLoadTask)){
-            mLoadTask.cancel(false);
-        }
+        mLoadingSubscription.unsubscribe();
     }
 
     public void fetchRelatedTracks(Track track){
@@ -256,45 +223,6 @@ public class PlayQueueManager {
         }
     }
 
-    private AsyncTask loadCursor(final Uri uri, final int position) {
-        return new ParallelAsyncTask<Uri,Void,List<Long>>() {
-            @Override protected List<Long> doInBackground(Uri... params) {
-                return new TrackStorage().getTrackIdsForUri(params[0]);
-            }
-
-            @Override protected void onPostExecute(List<Long> newQueue) {
-                if (newQueue != null && !isCancelled()){
-                    final long playingId = getCurrentTrackId();
-                    final boolean positionWithinBounds = position >= 0 && position < newQueue.size();
-
-                    if (playingId == -1 || (positionWithinBounds && newQueue.get(position) == playingId)){
-                        setPlayQueueInternal(newQueue, position);
-                    } else {
-                        // correct play position as it has changed since it seems to be different than expected
-                        setPlayQueueInternal(newQueue, getAdjustedTrackPosition(newQueue, playingId));
-                    }
-                }
-            }
-
-            private int getAdjustedTrackPosition(List<Long> newQueue, long playingId) {
-                int adjustedPosition = -1;
-                if (Content.match(uri).isCollectionItem()){
-                    adjustedPosition = mPlayQueueDAO.getPlayQueuePositionFromUri(uri, playingId);
-                } else {
-                    /* adjust for deletions or new items and find the original track.
-                    This is a really dumb sequential search. If there are duplicates in the list, it will probably
-                     find the wrong one. */
-                    adjustedPosition = 0;
-                    while (adjustedPosition < newQueue.size() && newQueue.get(adjustedPosition) != playingId) {
-                        adjustedPosition++;
-                    }
-                }
-                return adjustedPosition == -1 || adjustedPosition >= newQueue.size() ? 0 : adjustedPosition;
-            }
-
-        }.executeOnThreadPool(uri);
-    }
-
     private void broadcastPlayQueueChanged() {
         Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
             .putExtra(CloudPlaybackService.BroadcastExtras.queuePosition, mPlayPos);
@@ -331,7 +259,7 @@ public class PlayQueueManager {
             @Override
             protected Void doInBackground(Void... params) {
                 final List<Long> playQueueItems = new ArrayList<Long>(mPlayQueue);
-                mPlayQueueDAO.insertQueue(playQueueItems, mUserId);
+                mPlayQueueStorage.insertQueue(playQueueItems, mUserId);
                 return null;
             }
         }.executeOnThreadPool((Void[]) null);
@@ -403,27 +331,28 @@ public class PlayQueueManager {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         final String lastUri = preferences.getString(Consts.PrefKeys.SC_PLAYQUEUE_URI, null);
 
-        if (AndroidUtils.isTaskFinished(mLoadTask) && !TextUtils.isEmpty(lastUri)) {
-            PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
-            long seekPos      = playQueueUri.getSeekPos();
-            final long trackId = playQueueUri.getTrackId();
-            if (trackId > 0) {
-                loadUri(playQueueUri.uri, playQueueUri.getPos(), new long[]{trackId}, playQueueUri.getPos(), playQueueUri.getPlaySourceInfo());
-                // adjust play position if it has changed
-                if (getCurrentTrack() != null && getCurrentTrackId() != trackId && playQueueUri.isCollectionUri()) {
-                    final int newPos = mPlayQueueDAO.getPlayQueuePositionFromUri(playQueueUri.uri, trackId);
-                    if (newPos == -1) seekPos = 0;
-                    setPosition(Math.max(newPos, 0));
-                }
-            }
-            return seekPos;
-        } else {
-            if (TextUtils.isEmpty(lastUri)) {
-                // this is so the player can finish() instead of display waiting to the user
-                broadcastPlayQueueChanged();
-            }
-            return -1; // seekpos
-        }
+//        if (AndroidUtils.isTaskFinished(mLoadTask) && !TextUtils.isEmpty(lastUri)) {
+//            PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
+//            long seekPos      = playQueueUri.getSeekPos();
+//            final long trackId = playQueueUri.getTrackId();
+//            if (trackId > 0) {
+//                loadUri(playQueueUri.uri, playQueueUri.getPos(), new long[]{trackId}, playQueueUri.getPos(), playQueueUri.getPlaySourceInfo());
+//                // adjust play position if it has changed
+//                if (getCurrentTrack() != null && getCurrentTrackId() != trackId && playQueueUri.isCollectionUri()) {
+//                    final int newPos = mPlayQueueStorage.getPlayQueuePositionFromUri(playQueueUri.uri, trackId);
+//                    if (newPos == -1) seekPos = 0;
+//                    setPosition(Math.max(newPos, 0));
+//                }
+//            }
+//            return seekPos;
+//        } else {
+//            if (TextUtils.isEmpty(lastUri)) {
+//                // this is so the player can finish() instead of display waiting to the user
+//                broadcastPlayQueueChanged();
+//            }
+//            return -1; // seekpos
+//        }
+        return -1;
     }
 
     public void clearAllLocalState() {

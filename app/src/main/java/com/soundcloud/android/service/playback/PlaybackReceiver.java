@@ -130,11 +130,8 @@ class PlaybackReceiver extends BroadcastReceiver {
         final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
         final PlaySourceInfo trackingInfo = intent.getParcelableExtra(PlayExtras.trackingInfo);
 
-        if (intent.getData() != null) {
-            playViaUri(intent, position, trackingInfo);
-
-        } else if (intent.hasExtra(PlayExtras.trackIdList)) {
-            playViaTransferList(intent.getLongArrayExtra(PlayExtras.trackIdList), position, trackingInfo);
+        if (intent.hasExtra(PlayExtras.trackIdList)) {
+            playViaIdList(intent.getLongArrayExtra(PlayExtras.trackIdList), position, trackingInfo);
 
         } else if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)) {
             playSingleTrack(intent, trackingInfo);
@@ -153,13 +150,7 @@ class PlaybackReceiver extends BroadcastReceiver {
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
     }
 
-    private void playViaUri(Intent intent, int position, PlaySourceInfo trackingInfo) {
-        Track track = getTrackFromIntent(intent);
-        mPlayQueueManager.loadUri(intent.getData(), position, track == null ? null : new long[]{track.getId()}, 0, trackingInfo);
-        mPlaybackService.openCurrent();
-    }
-
-    private void playViaTransferList(long[] trackIds, int position, PlaySourceInfo trackingInfo) {
+    private void playViaIdList(long[] trackIds, int position, PlaySourceInfo trackingInfo) {
         mPlayQueueManager.setPlayQueueFromTrackIds(trackIds, position, trackingInfo);
         mPlaybackService.openCurrent();
     }

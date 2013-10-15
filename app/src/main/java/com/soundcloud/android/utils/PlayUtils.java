@@ -6,12 +6,14 @@ import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.PlaylistDetailActivity;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 
@@ -25,13 +27,15 @@ import java.util.List;
 public final class PlayUtils {
 
     private ScModelManager mModelManager;
+    private TrackStorage mTrackStorage;
 
     public PlayUtils() {
-        this(SoundCloudApplication.MODEL_MANAGER);
+        this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage());
     }
 
-    public PlayUtils(ScModelManager modelManager) {
+    public PlayUtils(ScModelManager modelManager, TrackStorage trackStorage) {
         mModelManager = modelManager;
+        mTrackStorage = trackStorage;
     }
 
     /**
@@ -80,8 +84,6 @@ public final class PlayUtils {
                 }
             }
 
-
-
             PlayInfo playInfo = PlayInfo.fromUriWithTrack(uri, adjustedPosition, tracks.get(adjustedPosition));
             playInfo.initialTracklist = tracks;
             playFromInfo(context, playInfo);
@@ -103,33 +105,44 @@ public final class PlayUtils {
     }
 
     private void playFromInfo(Context context, PlayInfo playInfo){
-        Intent intent = new Intent(Actions.PLAY).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        mModelManager.cache(playInfo.initialTrack);
+
+        // intent for player activity
+        context.startActivity(new Intent(Actions.PLAYER)
+                .putExtra(Track.EXTRA_ID, playInfo.initialTrack.getId())
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+
+        // intent for playback service
         if (CloudPlaybackService.getCurrentTrackId() != playInfo.initialTrack.getId()) {
-            configureIntentViaPlayInfo(playInfo, intent);
+            sendIntentViaPlayInfo(context, playInfo);
         }
-        context.startActivity(intent);
     }
 
-    private void configureIntentViaPlayInfo(PlayInfo info, Intent intent) {
+    private void sendIntentViaPlayInfo(final Context context, final PlayInfo info) {
+        final Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
         intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, info.sourceInfo);
-        intent.putExtra(CloudPlaybackService.PlayExtras.track, info.initialTrack);
+        intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position);
 
-        if (info.uri != null) {
-            mModelManager.cache(info.initialTrack);
-            intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.initialTrack.getId())
-                    .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                    .setData(info.uri);
+        if (info.isStoredCollection()) {
+             mTrackStorage.getTrackIdsForUriAsync(info.uri).subscribe(new DefaultObserver<List<Long>>() {
+                @Override
+                public void onNext(List<Long> idList) {
+                    intent.putExtra(CloudPlaybackService.PlayExtras.trackIdList, Longs.toArray(idList));
+                    context.startService(intent);
+                }
+            });
 
-        } else if (info.initialTracklist.size() > 1) {
+        } else {
+
             final List<Long> idList = Lists.transform(info.initialTracklist, new Function<Track, Long>() {
                 @Override
                 public Long apply(Track input) {
                     return input.getId();
                 }
             });
-            intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                    .putExtra(CloudPlaybackService.PlayExtras.trackIdList, Longs.toArray(idList));
+            intent.putExtra(CloudPlaybackService.PlayExtras.trackIdList, Longs.toArray(idList));
+            context.startService(intent);
         }
     }
 
@@ -164,6 +177,10 @@ public final class PlayUtils {
             playInfo.uri = uri;
             playInfo.position = startPosition;
             return playInfo;
+        }
+
+        public boolean isStoredCollection(){
+            return uri != null;
         }
     }
 }

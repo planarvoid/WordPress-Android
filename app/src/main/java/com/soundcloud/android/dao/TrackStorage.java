@@ -8,17 +8,16 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.ScheduledOperations;
-import com.soundcloud.android.service.playback.PlayQueueManager;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -106,32 +105,41 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         return mTrackDAO.queryByUri(uri);
     }
 
-    public List<Long> getTrackIdsForUri(Uri uri) {
-        final boolean isActivityCursor = Content.match(uri).isActivitiesItem();
-        final String idColumn = isActivityCursor ? DBHelper.ActivityView.SOUND_ID : DBHelper.SoundView._ID;
+    public Observable<List<Long>> getTrackIdsForUriAsync(final Uri uri) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<List<Long>>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super List<Long>> observer) {
 
-        Cursor cursor;
-        try {
+                final boolean isActivityCursor = Content.match(uri).isActivitiesItem();
+                final String idColumn = isActivityCursor ? DBHelper.ActivityView.SOUND_ID : DBHelper.SoundView._ID;
+                final BooleanSubscription subscription = new BooleanSubscription();
 
-            cursor = mResolver.query(uri, new String[]{idColumn}, DBHelper.SoundView._TYPE + " = ?",
-                    new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
-        } catch (IllegalArgumentException e) {
-            // in case we load a deprecated URI, just don't load the playlist
-            Log.e(PlayQueueManager.class.getSimpleName(), "Tried to load an invalid uri " + uri);
-            return Collections.emptyList();
-        }
+                Cursor cursor = mResolver.query(uri, new String[]{idColumn}, DBHelper.SoundView._TYPE + " = ?",
+                        new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
+                if (!subscription.isUnsubscribed()) {
+                    if (cursor == null) {
+                        observer.onNext(Collections.<Long>emptyList());
+                        observer.onCompleted();
 
-        if (cursor != null) {
-            List<Long> newQueue = Lists.newArrayListWithExpectedSize(cursor.getCount());
-            while (cursor.moveToNext()) {
-                newQueue.add(cursor.getLong(cursor.getColumnIndex(idColumn)));
+                    } else {
+                            List<Long> newQueue = Lists.newArrayListWithExpectedSize(cursor.getCount());
+                        try {
+                            while (cursor.moveToNext()) {
+                                newQueue.add(cursor.getLong(cursor.getColumnIndex(idColumn)));
+                            }
+                            observer.onNext(newQueue);
+                            observer.onCompleted();
+
+                        } finally {
+                            cursor.close();
+                        }
+                    }
+                }
+                return subscription;
             }
-            cursor.close();
-            return newQueue;
-        } else {
-            return Collections.emptyList();
-        }
+        }));
     }
+
 }
 
 

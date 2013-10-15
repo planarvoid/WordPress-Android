@@ -94,12 +94,14 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        if (bundle == null) {
-            handleIntent(getIntent());
-        } else {
-            // orientation change, activity got recreated
-            mIgnoreServiceQueue = false;
-        }
+//        if (bundle == null) {
+//            handleIntent(getIntent());
+//        } else {
+//            // orientation change, activity got recreated
+//            mIgnoreServiceQueue = false;
+//        }
+
+        mIgnoreServiceQueue = true;
     }
 
     @Override
