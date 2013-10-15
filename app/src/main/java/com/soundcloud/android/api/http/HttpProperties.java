@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.ScTextUtils;
 
+import android.content.Context;
 import android.content.res.Resources;
 
 import java.io.UnsupportedEncodingException;
@@ -22,7 +23,11 @@ public class HttpProperties {
     private final String apiMobileBaseUriPath;
 
     public HttpProperties(){
-        this(SoundCloudApplication.instance.getResources());
+        this(SoundCloudApplication.instance);
+    }
+
+    public HttpProperties(Context context){
+        this(context.getResources());
     }
 
     public HttpProperties(Resources resources){

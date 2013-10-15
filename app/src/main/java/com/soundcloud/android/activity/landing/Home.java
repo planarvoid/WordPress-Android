@@ -74,10 +74,6 @@ public class Home extends ScActivity implements ScLandingPage {
         }
     }
 
-    private boolean startedFromOnboardingError() {
-        return !getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();

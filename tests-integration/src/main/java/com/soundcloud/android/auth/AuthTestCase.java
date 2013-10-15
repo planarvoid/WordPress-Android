@@ -1,12 +1,12 @@
 package com.soundcloud.android.auth;
 
 import com.soundcloud.android.activity.auth.Onboard;
-import com.soundcloud.android.screens.auth.OnboardScreen;
+import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 
 public class AuthTestCase extends ActivityTestCase<Onboard> {
 
-    protected OnboardScreen onboardScreen;
+    protected SignUpScreen signupScreen;
 
     public AuthTestCase() {
         super(Onboard.class);
@@ -15,7 +15,7 @@ public class AuthTestCase extends ActivityTestCase<Onboard> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        onboardScreen = new OnboardScreen(solo);
+        signupScreen = new SignUpScreen(solo);
     }
 
     protected String generateEmail() {

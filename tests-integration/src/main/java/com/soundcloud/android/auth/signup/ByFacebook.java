@@ -19,7 +19,7 @@ public class ByFacebook extends SignUpTestCase {
     }
 
     public void testUserFollowSingleSuccess() throws Exception {
-        onboardScreen.clickSignUpButton();
+        signupScreen.clickSignUpButton();
 
         signUpScreen.clickFacebookButton();
         signUpScreen.acceptTerms();

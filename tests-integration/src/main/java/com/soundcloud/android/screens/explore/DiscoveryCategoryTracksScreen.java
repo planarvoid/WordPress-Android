@@ -16,4 +16,5 @@ public class DiscoveryCategoryTracksScreen extends Screen {
         return tracksList.getRefreshableView().getAdapter().getCount();
     }
 
+
 }

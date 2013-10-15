@@ -12,4 +12,12 @@ public class Screen {
     public void swipeRight(){
         solo.swipeRight();
     }
+
+    public void swipeLeft(){
+        solo.swipeLeft();
+    }
+
+    public void pullToRefresh() {
+        solo.swipeDownToRefresh();
+    }
 }

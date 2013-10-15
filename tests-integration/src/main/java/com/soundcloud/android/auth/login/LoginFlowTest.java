@@ -52,7 +52,7 @@ public class LoginFlowTest extends LoginTestCase {
      * So that I can listen to my favourite tracks
      */
     public void testSCUserLoginFlow()  {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
 
         assertEquals(scTestAccount.getUsername(), menuScreen.getUserName());
@@ -65,7 +65,7 @@ public class LoginFlowTest extends LoginTestCase {
     */
     public void testGPlusLoginFlow()  {
 
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
 
         //FIXME Assuming that we have more than one g+ account, there should be another test for this
@@ -85,7 +85,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to sign in even if I don't have g+ profile
     */
     public void testNoGooglePlusAccountLogin()  {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
         loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
 
@@ -110,7 +110,7 @@ public class LoginFlowTest extends LoginTestCase {
             log("Facebook SSO is available, not testing WebFlow");
 
         }
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.clickOnFBSignInButton();
 
         //Then termsOfUse dialog should be shown
@@ -148,7 +148,7 @@ public class LoginFlowTest extends LoginTestCase {
      * So that I can correct myself
      */
     public void testLoginWithWrongCredentials() {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), "wrong-password", false);
 
         solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
@@ -165,7 +165,7 @@ public class LoginFlowTest extends LoginTestCase {
      * So that I am sure no one can modify my account
      */
     public void testLoginAndLogout()  {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
         waiter.waitForListContent();
         menuScreen.logout();
@@ -180,7 +180,7 @@ public class LoginFlowTest extends LoginTestCase {
     * So that I don't need to recreate my account
     */
     public void testRecoverPassword() throws Throwable {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.clickForgotPassword();
         recoveryScreen.typeEmail("some-email-" + System.currentTimeMillis() + "@baz" + System.currentTimeMillis() + ".com");
         recoveryScreen.clickOkButton();
@@ -195,7 +195,7 @@ public class LoginFlowTest extends LoginTestCase {
     * So that I know what went wrong
     */
     public void testRecoverPasswordNoInput()  {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.clickForgotPassword();
         loginScreen.clickOkButton();
 

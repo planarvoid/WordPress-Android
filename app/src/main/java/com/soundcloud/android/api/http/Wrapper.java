@@ -86,7 +86,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Deprecated
     public Wrapper(Context context) {
-        this(context,  new HttpProperties(), new AccountOperations(context), new ApplicationProperties(context.getResources()));
+        this(context,  new HttpProperties(context), new AccountOperations(context), new ApplicationProperties(context.getResources()));
     }
     @Deprecated
     protected Wrapper(Context context, HttpProperties properties, AccountOperations accountOperations,

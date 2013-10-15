@@ -42,16 +42,18 @@ public class MenuScreen {
     }
 
     public void openExplore() {
-        View item = rootMenu().findViewById(R.id.nav_explore);
-        solo.clickOnView(R.id.custom_home);
-        solo.clickOnView(item);
-        waiter.waitForListContent();
+        clickSideMenuOption(R.id.nav_explore, R.id.pager);
     }
 
     public void openStream() {
-        View item = rootMenu().findViewById(R.id.nav_stream);
+        clickSideMenuOption(R.id.nav_stream, R.id.content_frame);
+    }
+
+    private void clickSideMenuOption(int menuId, int viewToWaitForId){
         solo.clickOnView(R.id.custom_home);
-        solo.clickOnView(item);
+        View exploreMenuButton = rootMenu().findViewById(menuId);
+        solo.clickOnView(exploreMenuButton);
+        solo.waitForViewId(viewToWaitForId, 3000);
         waiter.waitForListContent();
     }
 }

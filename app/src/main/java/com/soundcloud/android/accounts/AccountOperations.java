@@ -65,7 +65,8 @@ public class AccountOperations {
     }
 
     public boolean soundCloudAccountExists() {
-        return getSoundCloudAccount() != null;
+        boolean b = getSoundCloudAccount() != null;
+        return b;
     }
 
     public void addSoundCloudAccountManually(Activity currentActivityContext) {

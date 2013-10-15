@@ -25,7 +25,7 @@ public class PopularMusic extends ActivityTestCase<Home> {
         super.setUp();
 
         waiter = new Waiter(solo);
-        discoveryScreen = new DiscoveryScreen(solo);
+        discoveryScreen = new DiscoveryScreen(solo, waiter, this);
     }
 
     public void testPopularMusicDisplaysTracks() {
@@ -40,7 +40,7 @@ public class PopularMusic extends ActivityTestCase<Home> {
     public void testPopularMusicRefresh() {
         menuScreen.openExplore();
         discoveryScreen.scrollDown();
-//        discoveryScreen.pullToRefresh();
+        discoveryScreen.pullToRefresh();
         assertEquals(15, discoveryScreen.getItemsOnList());
     }
 
@@ -48,7 +48,7 @@ public class PopularMusic extends ActivityTestCase<Home> {
         menuScreen.openExplore();
         turnWifi(false);
         discoveryScreen.scrollDown();
-//        discoveryScreen.pullToRefresh();
+        discoveryScreen.pullToRefresh();
         assertEquals(15, discoveryScreen.getItemsOnList());
 
     }

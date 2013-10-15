@@ -166,6 +166,21 @@ public class Han  {
         solo.sleep(500);
     }
 
+    public void performClick(InstrumentationTestCase test, final View view) {
+        assertNotNull("view is null", view);
+        try {
+            test.runTestOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    view.performClick();
+                }
+            });
+        } catch (Throwable throwable) {
+            throw new RuntimeException("Could not click on view on UI Thread", throwable);
+        }
+        solo.sleep(500);
+    }
+
 
     public String getString(int resId, Object... args) {
         return solo.getCurrentActivity().getString(resId, args);
@@ -195,12 +210,23 @@ public class Han  {
     }
 
     public void swipeLeft() {
-        swipe(Solo.LEFT);
+        swipeHorizontal(Solo.LEFT);
         solo.sleep(SWIPE_SLEEP);
     }
 
     public void swipeRight() {
-        swipe(Solo.RIGHT);
+        swipeHorizontal(Solo.RIGHT);
+        solo.sleep(SWIPE_SLEEP);
+    }
+
+    public void swipeDownToRefresh() {
+        Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
+
+        final int screenHeight = display.getHeight();
+        final int screenWidth = display.getWidth();
+
+        drag(screenWidth/4, screenWidth/4, screenHeight/4, screenHeight/2, 10);
+
         solo.sleep(SWIPE_SLEEP);
     }
 
@@ -211,7 +237,7 @@ public class Han  {
         } else fail("could not find edit text with id " + resId);
     }
 
-    public void swipe(int side) {
+    public void swipeHorizontal(int side) {
         Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
 
         final int screenHeight = display.getHeight();

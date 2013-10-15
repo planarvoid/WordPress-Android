@@ -7,7 +7,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
@@ -16,13 +15,11 @@ import com.soundcloud.api.Token;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import java.io.IOException;
 
 public final class IntegrationTestHelper {
     public static final String USERNAME = "android-testing";
@@ -43,45 +40,56 @@ public final class IntegrationTestHelper {
 
         final Account account = getAccount(instrumentation.getTargetContext());
         if (account != null && !account.name.equals(username)) {
-            Log.d(TAG, "clearing account and logging in again");
-            if (logOut(instrumentation.getTargetContext())) {
-                return loginAs(instrumentation, username, password);
-            } else {
-                throw new RuntimeException("Could not log out");
-            }
-        } else if (account == null) {
-            Log.d(TAG, "logging in");
-            Context context = instrumentation.getTargetContext();
-            Wrapper wrapper = new Wrapper(context);
-            Token token;
-            try {
-                token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
-            } catch (IOException e) {
-                Log.w(IntegrationTestHelper.class.getSimpleName(), e);
-                throw new AssertionError("error logging in: "+e.getMessage());
-            }
-            User user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
-            assertNotNull("could not get test user", user);
-            assertNotNull("addAccount failed", new AccountOperations(instrumentation.getTargetContext()).addOrReplaceSoundCloudAccount(user, token, SignupVia.NONE));
+            Log.i(TAG, "Already logged in");
             return account;
-        } else {
-            Log.d(TAG, "already logged in as user "+account);
-            return account;
+        } else if (account != null && !account.name.equals(username)) {
+            if(!logOut(instrumentation)){
+                throw new RuntimeException("Could not log out of SoundCloud Account");
+            }
         }
+
+        return login(username, password, instrumentation);
+
     }
+
+    private static Account login(String username, String password, Instrumentation instrumentation) {
+
+
+        Log.i(TAG, "Logging in");
+        Context context = instrumentation.getTargetContext();
+        Wrapper wrapper = new Wrapper(context);
+        Token token;
+        User user;
+        try {
+            token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
+            user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
+        } catch (Exception e) {
+            Log.w(IntegrationTestHelper.class.getSimpleName(), e);
+            throw new AssertionError("error logging in: "+e.getMessage());
+        }
+        assertNotNull("could not get test user", user);
+        Account account = new AccountOperations(instrumentation.getTargetContext()).addOrReplaceSoundCloudAccount(user, token, SignupVia.NONE);
+        assertNotNull("Account creation failed", account);
+        return account;
+
+    }
+
+
 
     public static boolean logOut(Instrumentation instrumentation) throws Exception {
         return logOut(instrumentation.getTargetContext());
     }
 
     public static boolean logOut(Context context) throws Exception {
-        Account account = getAccount(context);
-        if (account != null) {
-            new AccountOperations(context).removeSoundCloudAccount().subscribe(DefaultObserver.NOOP_OBSERVER);
-            return true;
-        } else {
+        Log.i(TAG, "Logging out");
+        AccountOperations accountOperations = new AccountOperations(context);
+        if(!accountOperations.soundCloudAccountExists()){
             return false;
         }
+
+        AccountManager am = AccountManager.get(context);
+        AccountManagerFuture<Boolean> removeAccountFuture = am.removeAccount(accountOperations.getSoundCloudAccount(),null,null);
+        return removeAccountFuture.getResult();
     }
 
     public static Account getAccount(Context context) {
@@ -94,17 +102,6 @@ public final class IntegrationTestHelper {
         } else {
             throw new AssertionError("More than one account found");
         }
-    }
-
-    public static void clearDb(Instrumentation instrumentation) {
-        Log.d(TAG, "clearing out database");
-        final Context context = instrumentation.getTargetContext();
-        // clear out db
-
-        DBHelper helper = new DBHelper(context);
-        final SQLiteDatabase db = helper.getWritableDatabase();
-        helper.onRecreateDb(db);
-        db.close();
     }
 
     /**
