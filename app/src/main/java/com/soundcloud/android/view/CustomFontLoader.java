@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +45,7 @@ public class CustomFontLoader {
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.CustomFontTextView);
         String path = array.getString(R.styleable.CustomFontTextView_custom_font);
 
-        if (path != null) {
+        if (path != null && Consts.SdkSwitches.useCustomFonts) {
             Typeface typeface = CustomFontLoader.getFont(context, path);
             textView.setTypeface(typeface);
         }
