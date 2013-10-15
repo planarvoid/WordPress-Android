@@ -92,7 +92,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             if (playlistChanged) refresh();
 
             if (getIntent().getBooleanExtra(EXTRA_SCROLL_TO_PLAYING_TRACK, false)) {
-                mFragment.scrollToPosition(CloudPlaybackService.getPlaylistManager().getPosition());
+                mFragment.scrollToPosition(CloudPlaybackService.getPlayPosition());
             }
         } else {
             Toast.makeText(this, R.string.playlist_removed, Toast.LENGTH_SHORT).show();
