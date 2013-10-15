@@ -88,7 +88,9 @@
         <ignore path="res/values/keys.xml"/>
         <ignore path="res/values/sigs.xml"/>
         <ignore path="res/layout/abs__search_view.xml"/> <!-- overrides default abs searchview -->
+        <ignore path="res/layout/pull_to_refresh_header_vertical.xml"/> <!-- overrides PTR header -->
         <ignore path="res/values/strings_record_tips.xml"/>
+        <ignore path="res/values/strings_onboarding_categories.xml"/>
     </issue>
 
     <issue id="SetJavaScriptEnabled">
