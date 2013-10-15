@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ExploreTracksOperations;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.RelatedTracksCollection;
@@ -51,13 +52,15 @@ public class PlayQueueManagerTest {
 
     @Mock
     ExploreTracksOperations exploreTracksOperations;
+    @Mock
+    TrackStorage trackStorage;
     PlaySourceInfo trackingInfo;
 
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
 
-        pm = new PlayQueueManager(Robolectric.application, USER_ID, exploreTracksOperations);
+        pm = new PlayQueueManager(Robolectric.application, USER_ID, exploreTracksOperations, trackStorage);
         TestHelper.setUserId(USER_ID);
 
         trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();
@@ -418,7 +421,7 @@ public class PlayQueueManagerTest {
         pm.setPlayQueueFromTrackIds(createTracks(10, true, 0), 5, trackingInfo);
         pm.saveQueue(1235);
 
-        pm.clearState();
+        pm.clearAllLocalState();
         expect(pm.reloadQueue()).toEqual(-1L);
 
         PlayQueueManager pm2 = new PlayQueueManager(Robolectric.application, USER_ID, exploreTracksOperations);

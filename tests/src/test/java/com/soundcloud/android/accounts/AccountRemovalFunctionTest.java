@@ -84,7 +84,7 @@ public class AccountRemovalFunctionTest {
     public void setup(){
         initMocks(this);
         function = new AccountRemovalFunction(soundCloudAccount, context, accountManager, syncStateManager,
-                collectionStorage, activitiesStorage, userAssociationStorage, soundRecorder, playQueueManager, c2DMReceiver);
+                collectionStorage, activitiesStorage, userAssociationStorage, soundRecorder, c2DMReceiver);
 
         when(accountManager.removeAccount(soundCloudAccount,null,null)).thenReturn(future);
         when(context.getSharedPreferences(anyString(),anyInt())).thenReturn(sharedPreferences);
@@ -178,7 +178,7 @@ public class AccountRemovalFunctionTest {
     public void shouldClearPlayQueueManagersStateIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
         function.onSubscribe(observer);
-        verify(playQueueManager).clearState();
+        verify(playQueueManager).clearAllLocalState();
     }
 
     @Test

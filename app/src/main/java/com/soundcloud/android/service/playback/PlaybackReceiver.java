@@ -54,7 +54,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
-            mPlayQueueManager.clear();
+            mPlayQueueManager.clearAllLocalState();
 
         } else if (mAccountOperations.soundCloudAccountExists()) {
 

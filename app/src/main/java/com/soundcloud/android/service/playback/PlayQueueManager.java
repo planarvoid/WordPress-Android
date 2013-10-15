@@ -418,9 +418,10 @@ public class PlayQueueManager {
         }
     }
 
-    public void clearState() {
-        new PlayQueueManagerStore().clearState();
+    public void clearAllLocalState() {
+        clear();
         clearLastPlayed(mContext);
+        new PlayQueueManagerStore().clearState();
     }
 
     public void clearLastPlayed(Context context) {
