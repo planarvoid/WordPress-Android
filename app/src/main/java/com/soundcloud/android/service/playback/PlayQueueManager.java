@@ -37,7 +37,7 @@ import java.util.List;
 public class PlayQueueManager {
     private List<Long> mPlayQueue = new ArrayList<Long>();
     private PlayQueueUri mPlayQueueUri = new PlayQueueUri();
-    private final PlayQueueManagerStore mPlayQueueDAO;
+    private final PlayQueueStorage mPlayQueueDAO;
 
     private final ExploreTracksOperations mExploreTrackOperations;
     private final TrackStorage mTrackStorage;
@@ -62,7 +62,7 @@ public class PlayQueueManager {
         mContext = context;
         mUserId = userId;
         mExploreTrackOperations = exploreTracksOperations;
-        mPlayQueueDAO = new PlayQueueManagerStore();
+        mPlayQueueDAO = new PlayQueueStorage();
         mTrackStorage = trackStorage;
 
     }
@@ -429,7 +429,7 @@ public class PlayQueueManager {
     public void clearAllLocalState() {
         clear();
         clearLastPlayed(mContext);
-        new PlayQueueManagerStore().clearState();
+        new PlayQueueStorage().clearState();
     }
 
     public void clearLastPlayed(Context context) {

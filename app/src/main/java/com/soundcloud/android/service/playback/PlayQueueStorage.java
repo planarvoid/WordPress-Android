@@ -13,11 +13,11 @@ import android.net.Uri;
 
 import java.util.List;
 
-public class PlayQueueManagerStore {
+public class PlayQueueStorage {
     private final ContentResolver mResolver;
     private final TrackDAO mTrackDAO;
 
-    public PlayQueueManagerStore() {
+    public PlayQueueStorage() {
         mResolver = SoundCloudApplication.instance.getContentResolver();
         mTrackDAO = new TrackDAO(mResolver);
     }
