@@ -163,6 +163,14 @@ public class PlayQueueManager {
         if (saveQueue) saveQueue(0, true);
     }
 
+    public void loadUri(Uri uri, int position, PlaySourceInfo playSourceInfo) {
+        loadUri(uri, position, null, playSourceInfo);
+    }
+
+    public void loadUri(Uri uri, int position, Track initialTrack, PlaySourceInfo trackingInfo) {
+        loadUri(uri, position, initialTrack == null ? null : new long[]{initialTrack.getId()}, 0, trackingInfo);
+    }
+
     /**
      * @param uri               the playqueue uri to load
      * @param position          position within playqueue
