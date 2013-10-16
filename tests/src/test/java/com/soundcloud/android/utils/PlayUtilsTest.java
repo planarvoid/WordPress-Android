@@ -41,7 +41,7 @@ public class PlayUtilsTest {
 
     @Before
     public void setUp() throws Exception {
-        playUtils = new PlayUtils(modelManager);
+        playUtils = new PlayUtils();
         track = TestHelper.getModelFactory().createModel(Track.class);
     }
 
