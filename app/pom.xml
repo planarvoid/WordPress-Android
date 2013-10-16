@@ -485,7 +485,9 @@
 
 
                                 <ruleset>rulesets/java/naming.xml</ruleset>
-                                <ruleset>rulesets/java/optimizations.xml</ruleset>
+                                <rule ref="rulesets/java/optimizations.xml">
+                                    <exclude name="MethodArgumentCouldBeFinal"/>
+                                </rule>
                                 <ruleset>rulesets/java/strictexception.xml</ruleset>
                                 <ruleset>rulesets/java/strings.xml</ruleset>
 
@@ -497,7 +499,7 @@
                                 <include>com/soundcloud/android/**/*.java</include>
                             </includes>
                             <excludes>
-                                <exclude>com/soundcloud/android/R.java</exclude>
+                                <exclude>com/soundcloud/android/**/R.java</exclude>
                             </excludes>
                         </configuration>
                         <executions>

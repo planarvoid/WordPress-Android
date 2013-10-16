@@ -1,10 +1,17 @@
-$ 71
+$ 72
   % v 2.7.0
   _ 2013-10-04
   ! Explore
     * More UI adjustments
     - Explore functionality added
     - Bugfixes and playback optimisations
+
+$ 71
+  % v 2.6.8
+  _ 2013-10-15
+  ! Maintenance
+      * Fixed startup crash for certain 2.2 devices
+      * Fixed close button not clearing notifications
 
 $ 70
   % v 2.6.7
