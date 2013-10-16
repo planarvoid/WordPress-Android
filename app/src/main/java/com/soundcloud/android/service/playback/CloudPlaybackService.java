@@ -149,6 +149,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     /* package */ PlayQueue mPlayQueue;
     /* package */ AccountOperations mAccountOperations;
     private PlayQueueOperations mPlayQueueOperations;
+    private TrackStorage mTrackStorage;
 
     // TODO: this doesn't really belong here. It's only used to PUT likes and reposts, and isn't playback specific.
     /* package */ AssociationManager mAssociationManager;
@@ -231,6 +232,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mOldCloudApi = new OldCloudAPI(this);
         mAnalyticsEngine = new AnalyticsEngine(getApplicationContext());
         mAccountOperations = new AccountOperations(this);
+        mTrackStorage = new TrackStorage();
 
         mPlayQueue = new PlayQueue(this);
         mPlayQueueOperations = new PlayQueueOperations(this, new PlayQueueStorage(), PreferenceManager.getDefaultSharedPreferences(this));
@@ -480,8 +482,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         openCurrent(Media.Action.Stop);
     }
     /* package */ void openCurrent(final Media.Action action) {
-
-        final Observable<Track> currentTrack = mPlayQueue.getCurrentTrack();
+        final long currentTrackId = mPlayQueue.getCurrentTrackId();
+        final Observable<Track> currentTrack = mTrackStorage.getTrack(currentTrackId);
         if (currentTrack != null){
             currentTrack.subscribe(new Action1<Track>() {
                 @Override
@@ -490,7 +492,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 }
             });
         } else {
-            Log.d(TAG, "playlist is empty");
+            Log.d(TAG, "Track not available " + currentTrackId);
             state = EMPTY_PLAYLIST;
         }
     }
@@ -584,7 +586,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         new Thread() {
             @Override
             public void run() {
-                new TrackStorage().markTrackAsPlayed(mCurrentTrack);
+                mTrackStorage.markTrackAsPlayed(mCurrentTrack);
             }
         }.start();
         startTrack(track);

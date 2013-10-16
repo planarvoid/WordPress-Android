@@ -5,7 +5,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ExploreTracksOperations;
-import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
@@ -33,7 +32,6 @@ public class PlayQueue {
     private PlayQueueUri mPlayQueueUri = new PlayQueueUri();
 
     private final ExploreTracksOperations mExploreTrackOperations;
-    private final TrackStorage mTrackStorage;
 
     private int mPlayPos;
     private final Context mContext;
@@ -47,15 +45,13 @@ public class PlayQueue {
     private PlaySourceInfo mCurrentPlaySourceInfo = PlaySourceInfo.EMPTY;
 
     public PlayQueue(Context context){
-        this(context, SoundCloudApplication.getUserId(), new ExploreTracksOperations(), new TrackStorage());
+        this(context, new ExploreTracksOperations());
     }
 
     @VisibleForTesting
-    protected PlayQueue(Context context, long userId, ExploreTracksOperations exploreTracksOperations, TrackStorage trackStorage) {
+    protected PlayQueue(Context context, ExploreTracksOperations exploreTracksOperations) {
         mContext = context;
         mExploreTrackOperations = exploreTracksOperations;
-        mTrackStorage = trackStorage;
-
     }
 
     public List<Long> getTrackIds() {
@@ -86,10 +82,6 @@ public class PlayQueue {
         }
     }
 
-    public Observable<Track> getCurrentTrack() {
-        return getTrackAt(mPlayPos);
-    }
-
     public long getCurrentTrackId() {
         return getTrackIdAt(mPlayPos);
     }
@@ -102,7 +94,6 @@ public class PlayQueue {
      * TODO : We need to figure out how to decouple event logger params from the playqueue
      */
     public String getCurrentEventLoggerParams() {
-
         final TrackSourceInfo trackSourceInfo = mCurrentPlaySourceInfo.getTrackSourceById(getCurrentTrackId());
         return trackSourceInfo.createEventLoggerParams(getCurrentPlaySourceInfo());
     }
@@ -123,33 +114,10 @@ public class PlayQueue {
         return false;
     }
 
-    public Observable<Track> getPrev() {
-        if (mPlayPos > 0) {
-            return getTrackAt(mPlayPos - 1);
-        } else {
-            return null;
-        }
-    }
-
-    public Observable<Track> getNext() {
-        if (mPlayPos < length() - 1) {
-            return getTrackAt(mPlayPos + 1);
-        } else {
-            return null;
-        }
-    }
 
     @VisibleForTesting
     PlaySourceInfo getCurrentPlaySourceInfo(){
         return mCurrentPlaySourceInfo;
-    }
-
-    private Observable<Track> getTrackAt(int pos) {
-        if (pos >= 0 && pos < mTrackIds.size()) {
-            return mTrackStorage.getTrack(mTrackIds.get(pos));
-        } else {
-            return null;
-        }
     }
 
     private void stopLoadingTasks() {
