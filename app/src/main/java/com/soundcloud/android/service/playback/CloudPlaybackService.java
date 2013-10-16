@@ -44,6 +44,7 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.play.NotificationPlaybackRemoteViews;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.util.functions.Action1;
 
@@ -233,7 +234,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mAccountOperations = new AccountOperations(this);
 
         mPlayQueue = new PlayQueue(this);
-        mPlayQueueOperations = new PlayQueueOperations(this, new PlayQueueStorage(), PreferenceManager.getDefaultSharedPreferences(this), new TrackStorage());
+        mPlayQueueOperations = new PlayQueueOperations(this, new PlayQueueStorage(), PreferenceManager.getDefaultSharedPreferences(this));
 
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueue, mAudioManager, mPlayQueueOperations);
 
@@ -480,12 +481,19 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         openCurrent(Media.Action.Stop);
     }
     /* package */ void openCurrent(final Media.Action action) {
-        mPlayQueue.getCurrentTrack().subscribe(new Action1<Track>() {
-            @Override
-            public void call(Track track) {
-                openCurrent(track, action);
-            }
-        });
+
+        final Observable<Track> currentTrack = mPlayQueue.getCurrentTrack();
+        if (currentTrack != null){
+            currentTrack.subscribe(new Action1<Track>() {
+                @Override
+                public void call(Track track) {
+                    openCurrent(track, action);
+                }
+            });
+        } else {
+            Log.d(TAG, "playlist is empty");
+            state = EMPTY_PLAYLIST;
+        }
     }
 
     /* package */ void openCurrent(Track track, Media.Action action) {
@@ -522,8 +530,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 }
             }
         } else {
-            Log.d(TAG, "playlist is empty");
-            state = EMPTY_PLAYLIST;
+            Log.e(TAG, "openCurrent with no available track");
         }
     }
 

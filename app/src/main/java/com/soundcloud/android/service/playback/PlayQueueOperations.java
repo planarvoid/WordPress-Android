@@ -2,12 +2,11 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.util.functions.Action1;
 
@@ -23,13 +22,11 @@ public class PlayQueueOperations {
     private Context mContext;
     private PlayQueueStorage mPlayQueueStorage;
     private SharedPreferences mSharedPreferences;
-    private TrackStorage mTrackStorage;
 
-    public PlayQueueOperations(Context mContext, PlayQueueStorage mPlayQueueStorage, SharedPreferences mSharedPreferences, TrackStorage mTrackStorage) {
+    public PlayQueueOperations(Context mContext, PlayQueueStorage mPlayQueueStorage, SharedPreferences mSharedPreferences) {
         this.mContext = mContext;
         this.mPlayQueueStorage = mPlayQueueStorage;
         this.mSharedPreferences = mSharedPreferences;
-        this.mTrackStorage = mTrackStorage;
     }
 
     public void loadTrack(Track track, PlaySourceInfo trackingInfo, PlayQueue playQueue) {
@@ -46,8 +43,9 @@ public class PlayQueueOperations {
     public void savePlayQueueMetadata(PlayQueue playQueue, long seekPos) {
         final long currentTrackId = playQueue.getCurrentTrackId();
         if (currentTrackId != -1) {
-            SharedPreferencesUtils.apply(mSharedPreferences.edit()
-                    .putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, playQueue.getPlayQueueState(seekPos, currentTrackId).toString()));
+            final String playQueueState = playQueue.getPlayQueueState(seekPos, currentTrackId).toString();
+            Log.d(CloudPlaybackService.TAG, "Saving playqueue state: " + playQueueState);
+            SharedPreferencesUtils.apply(mSharedPreferences.edit().putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, playQueueState));
         }
     }
 
@@ -67,7 +65,7 @@ public class PlayQueueOperations {
             final long seekPos = playQueueUri.getSeekPos();
             final long trackId = playQueueUri.getTrackId();
             if (trackId > 0) {
-                mTrackStorage.getTrackIdsForUriAsync(Content.PLAY_QUEUE.uri).subscribe(new Action1<List<Long>>() {
+                mPlayQueueStorage.getTrackIds().subscribe(new Action1<List<Long>>() {
                     @Override
                     public void call(List<Long> trackIds) {
                         loadTracksFromIds(trackIds, playQueueUri.getPos(), playQueueUri.getPlaySourceInfo(), playQueue);
