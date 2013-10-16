@@ -1,10 +1,9 @@
 package com.soundcloud.android.dao;
 
-import com.soundcloud.android.model.behavior.Identifiable;
 import rx.Observable;
 
 
-public interface Storage<T extends Identifiable> {
+public interface Storage<T> {
     T store(T resource);
 
     Observable<T> storeAsync(T resource);
