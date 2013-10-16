@@ -434,7 +434,8 @@ desc "run lint"
 task :lint do
   result = "app/target/lint-result.html"
   rm_f result
-  lint_ok = system("#{android_home}/tools/lint --config app/lint.xml --exitcode --html #{result} app")
+  lint_ok = system("#{android_home}/tools/lint --config app/lint.xml --exitcode --html #{result} app \
+   --showall --sources app/src/main/java/")
   if File.exists?(result) && RUBY_PLATFORM =~ /darwin/
     sh "open #{result}"
   end
@@ -478,7 +479,6 @@ namespace :ci do
     execute()
   end
 end
-
 
 class Mvn
 
