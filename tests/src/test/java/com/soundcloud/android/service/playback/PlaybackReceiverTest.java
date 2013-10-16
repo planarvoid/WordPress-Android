@@ -38,7 +38,8 @@ public class PlaybackReceiverTest {
 
     private @Mock CloudPlaybackService playbackService;
     private @Mock AssociationManager associationManager;
-    private @Mock PlayQueueManager playQueueManager;
+    private @Mock
+    PlayQueue playQueue;
     private @Mock AudioManager audioManager;
     private @Mock PlayerAppWidgetProvider playerAppWidgetProvider;
     private @Mock AccountOperations accountOperations;
@@ -49,7 +50,7 @@ public class PlaybackReceiverTest {
     public void setup() {
         SoundCloudApplication.MODEL_MANAGER.clear();
         //CloudPlaybackService.playlistXfer = null;
-        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueueManager, audioManager, accountOperations);
+        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueue, audioManager, accountOperations);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);
         trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();
@@ -114,7 +115,7 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).loadTrack(eq(track), eq(true), eq(trackingInfo));
+        verify(playQueue).loadTrack(eq(track), eq(true), eq(trackingInfo));
         expect(SoundCloudApplication.MODEL_MANAGER.getCachedTrack(track.getId())).toEqual(track);
     }
 
@@ -130,8 +131,8 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).loadTrack(eq(track), eq(true), eq(trackingInfo));
-        verify(playQueueManager).fetchRelatedTracks(eq(track));
+        verify(playQueue).loadTrack(eq(track), eq(true), eq(trackingInfo));
+        verify(playQueue).fetchRelatedTracks(eq(track));
         expect(SoundCloudApplication.MODEL_MANAGER.getCachedTrack(track.getId())).toEqual(track);
     }
 
@@ -147,7 +148,7 @@ public class PlaybackReceiverTest {
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
-        verify(playQueueManager).loadTrack(eq(track), eq(true), eq(trackingInfo));
+        verify(playQueue).loadTrack(eq(track), eq(true), eq(trackingInfo));
     }
 
 //    @Test
@@ -191,7 +192,7 @@ public class PlaybackReceiverTest {
 //
 //        playbackReceiver.onReceive(Robolectric.application, intent);
 //
-//        verify(playQueueManager).setPlayQueueFromTrackIds(transferList, 2, trackingInfo);
+//        verify(playQueueManager).setFromTrackIds(transferList, 2, trackingInfo);
 //    }
 //
 //    @Test
@@ -226,7 +227,7 @@ public class PlaybackReceiverTest {
 //
 //        playbackReceiver.onReceive(Robolectric.application, intent);
 //
-//        verify(playQueueManager).setPlayQueueFromTrackIds(transferList, 2, trackingInfo);
+//        verify(playQueueManager).setFromTrackIds(transferList, 2, trackingInfo);
 //    }
 
     @Test
@@ -338,7 +339,7 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.RESET_ALL);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).resetAll();
-        verify(playQueueManager).clear();
+        verify(playQueue).clear();
     }
 
     @Test
@@ -370,7 +371,7 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.RESET_ALL);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).resetAll();
-        verify(playQueueManager).clear();
+        verify(playQueue).clear();
         verifyZeroInteractions(accountOperations);
     }
 
@@ -403,7 +404,7 @@ public class PlaybackReceiverTest {
         when(accountOperations.soundCloudAccountExists()).thenReturn(false);
         Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
-        verifyZeroInteractions(playQueueManager);
+        verifyZeroInteractions(playQueue);
     }
 
     @Test

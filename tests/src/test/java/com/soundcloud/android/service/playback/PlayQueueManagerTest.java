@@ -43,7 +43,7 @@ import java.util.List;
 @RunWith(DefaultTestRunner.class)
 public class PlayQueueManagerTest {
     ContentResolver resolver;
-    PlayQueueManager pm;
+    PlayQueue pm;
     static final long USER_ID = 1L;
 
     @Mock
@@ -56,7 +56,7 @@ public class PlayQueueManagerTest {
     public void before() {
         resolver = Robolectric.application.getContentResolver();
 
-        pm = new PlayQueueManager(Robolectric.application, USER_ID, exploreTracksOperations, trackStorage);
+        pm = new PlayQueue(Robolectric.application, USER_ID, exploreTracksOperations, trackStorage);
         TestHelper.setUserId(USER_ID);
 
         trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();
@@ -175,7 +175,7 @@ public class PlayQueueManagerTest {
 
 //    @Test
 //    public void shouldReturnPlayQueueState() throws Exception {
-//        pm.setPlayQueueFromTrackIds(createTracks(3, true, 0), 1, new PlaySourceInfo.Builder(2L).build());
+//        pm.setFromTrackIds(createTracks(3, true, 0), 1, new PlaySourceInfo.Builder(2L).build());
 //        final PlayQueueState state = pm.getState();
 //        expect(state.getCurrentTrackIds()).toContainExactly(0L, 1L, 2L);
 //        expect(state.getPlayPosition()).toBe(1);
@@ -184,7 +184,7 @@ public class PlayQueueManagerTest {
 //
 //    @Test
 //    public void shouldSetPlaySourceTriggerBasedOnInitalId() throws Exception {
-//        pm.setPlayQueueFromTrackIds(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).build());
+//        pm.setFromTrackIds(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).build());
 //        expect(pm.getPlayQueueItem(0).getTrackSourceInfo().getTrigger()).toEqual("auto");
 //        expect(pm.getPlayQueueItem(1).getTrackSourceInfo().getTrigger()).toEqual("auto");
 //        expect(pm.getPlayQueueItem(2).getTrackSourceInfo().getTrigger()).toEqual("manual");
@@ -192,7 +192,7 @@ public class PlayQueueManagerTest {
 //
 //    @Test
 //    public void shouldSetPlaySourceRecommenderVersion() throws Exception {
-//        pm.setPlayQueueFromTrackIds(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).recommenderVersion("version1").build());
+//        pm.setFromTrackIds(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).recommenderVersion("version1").build());
 //        expect(pm.getPlayQueueItem(0).getTrackSourceInfo().getRecommenderVersion()).toEqual("version1");
 //        expect(pm.getPlayQueueItem(1).getTrackSourceInfo().getRecommenderVersion()).toEqual("version1");
 //        expect(pm.getPlayQueueItem(2).getTrackSourceInfo().getRecommenderVersion()).toBeNull();
@@ -200,7 +200,7 @@ public class PlayQueueManagerTest {
 //
 //    @Test
 //    public void shouldSupportSetPlaylistWithTrackObjects() throws Exception {
-//        pm.setPlayQueueFromTrackIds(createTracks(3, true, 0), 2, new PlaySourceInfo.Builder(2L).build());
+//        pm.setFromTrackIds(createTracks(3, true, 0), 2, new PlaySourceInfo.Builder(2L).build());
 //        expect(pm.length()).toEqual(3);
 //
 //        Track track = pm.getCurrentTrack().toBlockingObservable().lastOrDefault(null);
@@ -227,7 +227,7 @@ public class PlayQueueManagerTest {
 //
 //    @Test
 //    public void shouldSetEventLoggerParamsWhenSettingPlaylist() throws Exception {
-//        pm.setPlayQueueFromTrackIds(createTracks(3, true, 0), 2, new PlaySourceInfo.Builder(2L).exploreTag("exploreTag").originUrl("originUrl").build());
+//        pm.setFromTrackIds(createTracks(3, true, 0), 2, new PlaySourceInfo.Builder(2L).exploreTag("exploreTag").originUrl("originUrl").build());
 //        expect(pm.length()).toEqual(3);
 //        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=manual");
 //        expect(pm.prev()).toBeTrue();
@@ -238,7 +238,7 @@ public class PlayQueueManagerTest {
 //
 //    @Test
 //    public void shouldClearPlaylist() throws Exception {
-//        pm.setPlayQueueFromTrackIds(createTracks(10, true, 0), 0, trackingInfo);
+//        pm.setFromTrackIds(createTracks(10, true, 0), 0, trackingInfo);
 //        pm.clear();
 //        expect(pm.isEmpty()).toBeTrue();
 //        expect(pm.length()).toEqual(0);
@@ -250,7 +250,7 @@ public class PlayQueueManagerTest {
 //    public void shouldSaveCurrentTracksToDB() throws Exception {
 //        expect(Content.PLAY_QUEUE).toBeEmpty();
 //        expect(Content.PLAY_QUEUE.uri).toBeEmpty();
-//        pm.setPlayQueueFromTrackIds(createTracks(10, true, 0), 0, trackingInfo);
+//        pm.setFromTrackIds(createTracks(10, true, 0), 0, trackingInfo);
 //        expect(Content.PLAY_QUEUE.uri).toHaveCount(10);
 //    }
 
@@ -351,7 +351,7 @@ public class PlayQueueManagerTest {
 
 //    @Test
 //    public void shouldSavePlaylistStateInUriWithSetPlaylist() throws Exception {
-//        pm.setPlayQueueFromTrackIds(createTracks(10, true, 0), 5, trackingInfo);
+//        pm.setFromTrackIds(createTracks(10, true, 0), 5, trackingInfo);
 //        expect(pm.getCurrentTrack().toBlockingObservable().lastOrDefault(null).getId()).toEqual(5L);
 //        expect(pm.getPlayQueueState(123L, 5L)).toEqual(
 //                Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123&playSource-recommenderVersion=version_1&playSource-exploreTag=explore-tag&playSource-originUrl=origin-url&playSource-initialTrackId=123"
@@ -365,12 +365,12 @@ public class PlayQueueManagerTest {
 //        playables.addAll(createTracks(1, true, 0));
 //        playables.addAll(createTracks(1, false, 1));
 //
-//        pm.setPlayQueueFromTrackIds(playables, 0, trackingInfo);
+//        pm.setFromTrackIds(playables, 0, trackingInfo);
 //        expect(pm.getCurrentTrack().toBlockingObservable().lastOrDefault(null).getId()).toEqual(0L);
 //        expect(pm.next()).toEqual(false);
 //
 //        playables.addAll(createTracks(1, true, 2));
-//        pm.setPlayQueueFromTrackIds(playables, 0, trackingInfo);
+//        pm.setFromTrackIds(playables, 0, trackingInfo);
 //        expect(pm.getCurrentTrack().toBlockingObservable().lastOrDefault(null).getId()).toEqual(0L);
 //        expect(pm.next()).toEqual(true);
 //        expect(pm.getCurrentTrack().toBlockingObservable().lastOrDefault(null).getId()).toEqual(2L);
@@ -382,12 +382,12 @@ public class PlayQueueManagerTest {
 //        playables.addAll(createTracks(1, false, 0));
 //        playables.addAll(createTracks(1, true, 1));
 //
-//        pm.setPlayQueueFromTrackIds(playables, 1, trackingInfo);
+//        pm.setFromTrackIds(playables, 1, trackingInfo);
 //        expect(pm.getCurrentTrack().toBlockingObservable().lastOrDefault(null).getId()).toEqual(1L);
 //        expect(pm.prev()).toEqual(false);
 //
 //        playables.addAll(0, createTracks(1, true, 2));
-//        pm.setPlayQueueFromTrackIds(playables, 2, trackingInfo);
+//        pm.setFromTrackIds(playables, 2, trackingInfo);
 //        expect(pm.getCurrentTrack().toBlockingObservable().lastOrDefault(null).getId()).toEqual(1L);
 //        expect(pm.prev()).toEqual(true);
 //        expect(pm.getCurrentTrack().toBlockingObservable().lastOrDefault(null).getId()).toEqual(2L);
@@ -414,7 +414,7 @@ public class PlayQueueManagerTest {
 //
 //    @Test
 //    public void shouldClearPlaylistState() throws Exception {
-//        pm.setPlayQueueFromTrackIds(createTracks(10, true, 0), 5, trackingInfo);
+//        pm.setFromTrackIds(createTracks(10, true, 0), 5, trackingInfo);
 //        pm.saveQueue(1235);
 //
 //        pm.clearAllLocalState();
@@ -495,7 +495,7 @@ public class PlayQueueManagerTest {
     }
 
     private void setupSuccesfulRelatedLoad(Context context) throws CreateModelException {
-        pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations, trackStorage);
+        pm = new PlayQueue(context, USER_ID, exploreTracksOperations, trackStorage);
 
         TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
         RelatedTracksCollection relatedTracks = new RelatedTracksCollection(Lists.newArrayList(trackSummary), "recommenderVersion2");
@@ -505,7 +505,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldRetryRelatedLoadWithSameObservable() throws Exception {
         Context context = Mockito.mock(Context.class);
-        pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations, trackStorage);
+        pm = new PlayQueue(context, USER_ID, exploreTracksOperations, trackStorage);
 
         Track track = TestHelper.getModelFactory().createModel(Track.class);
         final Observable<RelatedTracksCollection> observable = Mockito.mock(Observable.class);

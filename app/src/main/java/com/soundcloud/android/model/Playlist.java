@@ -14,7 +14,7 @@ import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.api.Params;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -352,7 +352,7 @@ public class Playlist extends Playable {
 
         // do not call notifyChangeListeners directly as we may be on a thread
         resolver.notifyChange(toUri(),null);
-        PlayQueueManager.onPlaylistUriChanged(context,oldUri,toUri());
+        PlayQueue.onPlaylistUriChanged(context, oldUri, toUri());
     }
 
 

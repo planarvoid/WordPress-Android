@@ -16,7 +16,7 @@ import com.soundcloud.android.player.PlayerTrackPagerAdapter;
 import com.soundcloud.android.player.PlayerTrackView;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
@@ -367,9 +367,9 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     private final View.OnClickListener mPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
             final CloudPlaybackService playbackService = mPlaybackService;
-            final PlayQueueManager playQueueManager = CloudPlaybackService.getPlaylistManager();
-            if (playbackService != null && playQueueManager != null) {
-                if (getCurrentDisplayedTrackPosition() != playQueueManager.getPosition()) {
+            final PlayQueue playQueue = CloudPlaybackService.getPlayQueue();
+            if (playbackService != null && playQueue != null) {
+                if (getCurrentDisplayedTrackPosition() != playQueue.getPosition()) {
                     playbackService.setQueuePosition(getCurrentDisplayedTrackPosition());
                 } else {
                     playbackService.togglePlayback();
@@ -508,7 +508,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             String action = intent.getAction();
             if (action.equals(Broadcasts.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-                if (CloudPlaybackService.getPlaylistManager().isEmpty()){
+                if (CloudPlaybackService.getPlayQueue().isEmpty()){
                     // Service has no playlist. Probably came from the widget. Kick them out to home
                     onHomePressed();
                 } else {

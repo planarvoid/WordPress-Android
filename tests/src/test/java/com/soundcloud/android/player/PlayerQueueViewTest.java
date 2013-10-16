@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.android.view.EmptyListView;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -23,7 +23,7 @@ public class PlayerQueueViewTest {
     PlayerQueueView playerQueueView;
 
     @Mock
-    PlayQueueManager playQueueManager;
+    PlayQueue playQueue;
     @Mock
     PlayerTrackView playerTrackView;
     @Mock

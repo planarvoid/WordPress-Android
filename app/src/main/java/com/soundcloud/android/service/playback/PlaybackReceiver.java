@@ -5,6 +5,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.Broad
 import static com.soundcloud.android.service.playback.CloudPlaybackService.PlayExtras;
 import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playable;
@@ -21,27 +22,32 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.util.Log;
 
+import java.util.List;
+
 class PlaybackReceiver extends BroadcastReceiver {
 
     private CloudPlaybackService mPlaybackService;
     private AssociationManager mAssociationManager;
-    private PlayQueueManager mPlayQueueManager;
+    private PlayQueue mPlayQueue;
     private AudioManager mAudioManager;
     private final AccountOperations mAccountOperations;
+    private final PlayQueueOperations mPlayQueueOperations;
 
     public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
-                            PlayQueueManager playQueueManager, AudioManager audioManager) {
-        this(playbackService, associationManager, playQueueManager, audioManager, new AccountOperations(playbackService));
+                            PlayQueue playQueue, AudioManager audioManager, PlayQueueOperations playQueueOperations) {
+        this(playbackService, associationManager, playQueue, audioManager, new AccountOperations(playbackService), playQueueOperations);
     }
 
     public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
-                            PlayQueueManager playQueueManager, AudioManager audioManager, AccountOperations accountOperations) {
+                            PlayQueue playQueue, AudioManager audioManager, AccountOperations accountOperations, PlayQueueOperations playQueueOperations) {
         this.mPlaybackService = playbackService;
         this.mAssociationManager = associationManager;
-        this.mPlayQueueManager = playQueueManager;
+        this.mPlayQueue = playQueue;
         this.mAudioManager = audioManager;
         this.mAccountOperations = accountOperations;
+        mPlayQueueOperations = playQueueOperations;
     }
+
 
     @Override
 
@@ -54,7 +60,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
-            mPlayQueueManager.clearAllLocalState();
+            mPlayQueue.clearAllLocalState();
 
         } else if (mAccountOperations.soundCloudAccountExists()) {
 
@@ -136,7 +142,7 @@ class PlaybackReceiver extends BroadcastReceiver {
         } else if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)) {
             playSingleTrack(intent, trackingInfo);
 
-        } else if (!mPlayQueueManager.isEmpty() || mPlaybackService.configureLastPlaylist()) {
+        } else if (!mPlayQueue.isEmpty() || mPlaybackService.configureLastPlaylist()) {
             // random play intent, play whatever we had last
             mPlaybackService.play();
         }
@@ -151,7 +157,11 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private void playViaIdList(long[] trackIds, int position, PlaySourceInfo trackingInfo) {
-        mPlayQueueManager.setPlayQueueFromTrackIds(trackIds, position, trackingInfo);
+        List<Long> newQueue = Lists.newArrayListWithExpectedSize(trackIds.length);
+        for (long n : trackIds) newQueue.add(n);
+
+        mPlayQueueOperations.loadTracksFromIds(newQueue, position, trackingInfo, mPlayQueue);
+        mPlayQueueOperations.savePlayQueue(mPlayQueue, 0);
         mPlaybackService.openCurrent();
     }
 
@@ -159,10 +169,11 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         // go to the cache to ensure 1 copy of each track app wide
         final Track cachedTrack = getTrackFromIntent(intent);
-        mPlayQueueManager.loadTrack(cachedTrack, true, trackingInfo);
+        mPlayQueueOperations.loadTrack(cachedTrack, trackingInfo, mPlayQueue);
+        mPlayQueueOperations.savePlayQueue(mPlayQueue, 0);
 
         if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)) {
-            mPlayQueueManager.fetchRelatedTracks(cachedTrack);
+            mPlayQueue.fetchRelatedTracks(cachedTrack);
         }
         mPlaybackService.openCurrent();
     }
