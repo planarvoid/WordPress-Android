@@ -23,8 +23,12 @@ public class PlaySourceInfo implements Parcelable {
 
     private Bundle mData;
 
+    public PlaySourceInfo(Bundle data) {
+        mData = data;
+    }
+
     private PlaySourceInfo() {
-        mData = new Bundle();
+        this(new Bundle());
     }
 
     private PlaySourceInfo(Builder builder) {
@@ -68,6 +72,9 @@ public class PlaySourceInfo implements Parcelable {
         return mData.getString(KEY_EXPLORE_TAG);
     }
 
+    public Bundle getData(){
+        return mData;
+    }
 
     public Uri.Builder appendAsQueryParams(Uri.Builder builder) {
         for (String key : mData.keySet()) {

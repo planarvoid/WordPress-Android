@@ -199,7 +199,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public interface PlayExtras{
         String track = Track.EXTRA;
         String trackId = Track.EXTRA_ID;
-        String playPosition = "play_position";
         String startPlayback = "start_playback";
         String trackIdList = "track_id_list";
         String unmute = "unmute"; // used by alarm clock

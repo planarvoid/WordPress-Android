@@ -11,7 +11,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
@@ -206,29 +205,11 @@ public class PlayQueue {
         }
     }
 
-    public void setFromTrack(Track track, PlaySourceInfo playSourceInfo) {
-        mTrackIds.clear();
-        mTrackIds.add(track.getId());
+    public void setFromNewQueueState(PlayQueueState playQueueState) {
+        mCurrentPlaySourceInfo = playQueueState.getPlaySourceInfo();
         mPlayQueueUri = new PlayQueueUri();
-        mPlayPos = 0;
-        mCurrentPlaySourceInfo = playSourceInfo == null ? PlaySourceInfo.EMPTY : playSourceInfo;
-    }
-
-    public void setFromTrackIds(final List<Long> trackIds, int playPos, PlaySourceInfo trackingInfo) {
-        mCurrentPlaySourceInfo = trackingInfo;
-        mPlayQueueUri = new PlayQueueUri();
-        setPlayQueueInternal(trackIds, playPos);
-    }
-
-    private void setPlayQueueInternal(List<Long> playQueue, int playPos) {
-        mTrackIds = playQueue;
-        if (playPos >= 0 && playPos <= mTrackIds.size() - 1){
-            mPlayPos = playPos;
-        } else {
-            // invalid play position, default to 0
-            mPlayPos = 0;
-            Log.e(this, "Unexpected queue position [" + playPos + "]");
-        }
+        mTrackIds = playQueueState.getCurrentTrackIds();
+        mPlayPos = playQueueState.getPlayPosition();
     }
 
     public Uri getUri() {

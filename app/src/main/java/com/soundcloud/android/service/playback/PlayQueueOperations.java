@@ -1,11 +1,7 @@
 package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.util.functions.Action1;
@@ -29,14 +25,8 @@ public class PlayQueueOperations {
         this.mSharedPreferences = mSharedPreferences;
     }
 
-    public void loadTrack(Track track, PlaySourceInfo trackingInfo, PlayQueue playQueue) {
-        playQueue.setFromTrack(track, trackingInfo);
-        SoundCloudApplication.MODEL_MANAGER.cache(track, ScResource.CacheUpdateMode.NONE);
-        broadcastPlayQueueChanged(playQueue);
-    }
-
-    public void loadTracksFromIds(List<Long> trackIds, int playPosition, PlaySourceInfo trackingInfo, PlayQueue playQueue) {
-        playQueue.setFromTrackIds(trackIds, playPosition, trackingInfo);
+    public void loadFromNewQueue(PlayQueueState playQueueState, PlayQueue playQueue) {
+        playQueue.setFromNewQueueState(playQueueState);
         broadcastPlayQueueChanged(playQueue);
     }
 
@@ -68,7 +58,7 @@ public class PlayQueueOperations {
                 mPlayQueueStorage.getTrackIds().subscribe(new Action1<List<Long>>() {
                     @Override
                     public void call(List<Long> trackIds) {
-                        loadTracksFromIds(trackIds, playQueueUri.getPos(), playQueueUri.getPlaySourceInfo(), playQueue);
+                        loadFromNewQueue(new PlayQueueState(trackIds, playQueueUri.getPos(), playQueueUri.getPlaySourceInfo()), playQueue);
                     }
                 });
             }

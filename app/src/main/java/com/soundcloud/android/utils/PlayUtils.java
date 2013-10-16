@@ -2,7 +2,6 @@ package com.soundcloud.android.utils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.PlaylistDetailActivity;
@@ -15,6 +14,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.PlayQueueState;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 
 import android.content.Context;
@@ -119,29 +119,28 @@ public final class PlayUtils {
     }
 
     private void sendIntentViaPlayInfo(final Context context, final PlayInfo info) {
+
         final Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
         intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, info.sourceInfo);
-        intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position);
 
         if (info.isStoredCollection()) {
              mTrackStorage.getTrackIdsForUriAsync(info.uri).subscribe(new DefaultObserver<List<Long>>() {
-                @Override
-                public void onNext(List<Long> idList) {
-                    intent.putExtra(CloudPlaybackService.PlayExtras.trackIdList, Longs.toArray(idList));
-                    context.startService(intent);
-                }
-            });
+                 @Override
+                 public void onNext(List<Long> idList) {
+                     intent.putExtra(CloudPlaybackService.PlayExtras.trackIdList, new PlayQueueState(idList, info.position, info.sourceInfo));
+                     context.startService(intent);
+                 }
+             });
 
         } else {
-
             final List<Long> idList = Lists.transform(info.initialTracklist, new Function<Track, Long>() {
                 @Override
                 public Long apply(Track input) {
                     return input.getId();
                 }
             });
-            intent.putExtra(CloudPlaybackService.PlayExtras.trackIdList, Longs.toArray(idList));
+            intent.putExtra(CloudPlaybackService.PlayExtras.trackIdList, new PlayQueueState(idList, info.position, info.sourceInfo));
             context.startService(intent);
         }
     }

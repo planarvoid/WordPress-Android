@@ -5,13 +5,11 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.Broad
 import static com.soundcloud.android.service.playback.CloudPlaybackService.PlayExtras;
 import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import org.jetbrains.annotations.NotNull;
 
 import android.appwidget.AppWidgetManager;
@@ -21,8 +19,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.util.Log;
-
-import java.util.List;
 
 class PlaybackReceiver extends BroadcastReceiver {
 
@@ -133,14 +129,8 @@ class PlaybackReceiver extends BroadcastReceiver {
             configureVolume();
         }
 
-        final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
-        final PlaySourceInfo trackingInfo = intent.getParcelableExtra(PlayExtras.trackingInfo);
-
         if (intent.hasExtra(PlayExtras.trackIdList)) {
-            playViaIdList(intent.getLongArrayExtra(PlayExtras.trackIdList), position, trackingInfo);
-
-        } else if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)) {
-            playSingleTrack(intent, trackingInfo);
+            playViaNewQueue(intent.<PlayQueueState>getParcelableExtra(PlayExtras.trackIdList));
 
         } else if (!mPlayQueue.isEmpty() || mPlaybackService.configureLastPlaylist()) {
             // random play intent, play whatever we had last
@@ -156,25 +146,9 @@ class PlaybackReceiver extends BroadcastReceiver {
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
     }
 
-    private void playViaIdList(long[] trackIds, int position, PlaySourceInfo trackingInfo) {
-        List<Long> newQueue = Lists.newArrayListWithExpectedSize(trackIds.length);
-        for (long n : trackIds) newQueue.add(n);
-
-        mPlayQueueOperations.loadTracksFromIds(newQueue, position, trackingInfo, mPlayQueue);
+    private void playViaNewQueue(PlayQueueState playQueueState) {
+        mPlayQueueOperations.loadFromNewQueue(playQueueState, mPlayQueue);
         mPlayQueueOperations.savePlayQueue(mPlayQueue, 0);
-        mPlaybackService.openCurrent();
-    }
-
-    private void playSingleTrack(Intent intent, PlaySourceInfo trackingInfo) {
-
-        // go to the cache to ensure 1 copy of each track app wide
-        final Track cachedTrack = getTrackFromIntent(intent);
-        mPlayQueueOperations.loadTrack(cachedTrack, trackingInfo, mPlayQueue);
-        mPlayQueueOperations.savePlayQueue(mPlayQueue, 0);
-
-        if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)) {
-            mPlayQueue.fetchRelatedTracks(cachedTrack);
-        }
         mPlaybackService.openCurrent();
     }
 
