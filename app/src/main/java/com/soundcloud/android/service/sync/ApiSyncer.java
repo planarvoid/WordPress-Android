@@ -455,7 +455,7 @@ public class ApiSyncer extends SyncStrategy {
         ApiSyncResult result = new ApiSyncResult(contentUri);
         T resource = mApi.read(Content.match(contentUri).request(contentUri));
 
-        storage.storeAsync(resource);
+        storage.store(resource);
 
         final Uri insertedUri = resource.toUri();
 
