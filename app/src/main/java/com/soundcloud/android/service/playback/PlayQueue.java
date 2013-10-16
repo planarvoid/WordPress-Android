@@ -22,7 +22,7 @@ public class PlayQueue implements Parcelable {
     private List<Long> mTrackIds = Collections.emptyList();
     private AppendState mAppendState = AppendState.IDLE;
     private PlaySourceInfo mPlaySourceInfo;
-    private Uri mSourceUri; // just for "back to set" functionality
+    private Uri mSourceUri; // just for "back to set" functionality in the Action Bar
 
     public enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
@@ -129,6 +129,7 @@ public class PlayQueue implements Parcelable {
         return mTrackIds.size();
     }
 
+    // TODO, set this to the source URI
     public void setSourceUri(Uri uri){
         mSourceUri = uri;
     }
@@ -163,11 +164,15 @@ public class PlayQueue implements Parcelable {
     }
 
     public Boolean next() {
-        if (mPlayPosition < mTrackIds.size() - 1) {
+        if (!onLastTrack()) {
             mPlayPosition++;
             return true;
         }
         return false;
+    }
+
+    public boolean onLastTrack(){
+        return mPlayPosition < mTrackIds.size() - 1;
     }
 
     @Override

@@ -52,7 +52,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         });
     }
 
-    public void setPlayQueueState(PlayQueue playQueue) {
+    public void setPlayQueue(PlayQueue playQueue) {
         this.mPlayQueueState = playQueue;
 
         mPlayQueueItems = new ArrayList<PlayQueueItem>(playQueue.getCurrentTrackIds().size());

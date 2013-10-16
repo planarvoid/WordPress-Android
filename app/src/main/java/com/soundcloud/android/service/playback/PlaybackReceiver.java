@@ -8,8 +8,8 @@ import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 
 import android.appwidget.AppWidgetManager;
@@ -18,7 +18,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.util.Log;
 
 class PlaybackReceiver extends BroadcastReceiver {
 
@@ -48,9 +47,7 @@ class PlaybackReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         String action = intent.getAction();
-        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-            Log.d(CloudPlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
-        }
+        Log.d(CloudPlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
 
         if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
@@ -119,35 +116,25 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private void handlePlayAction(Intent intent) {
-        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-            Log.d(CloudPlaybackService.TAG, "handlePlayAction(" + intent + ")");
+        if (intent.hasExtra(PlayQueue.EXTRA)) {
+            PlayQueue playQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
+            Log.d(CloudPlaybackService.TAG, "Loading Playqueue " + playQueue);
+
+            mPlayQueueManager.loadFromNewQueue(playQueue);
+            mPlayQueueManager.savePlayQueue(playQueue, 0);
+            mPlaybackService.openCurrent();
+
+            // TODO, trigger fetchRelated based on intent extra
         }
 
         if (intent.getBooleanExtra(PlayExtras.unmute, false)) {
             configureVolume();
         }
-
-        if (intent.hasExtra(PlayQueue.EXTRA)) {
-            playViaNewQueue(intent.<PlayQueue>getParcelableExtra(PlayQueue.EXTRA));
-
-        }
     }
 
     private void configureVolume() {
         final int volume = (int) Math.round(mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * 0.75d);
-        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-            Log.d(CloudPlaybackService.TAG, "setting volume to " + volume);
-        }
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
     }
 
-    private void playViaNewQueue(PlayQueue playQueue) {
-        mPlayQueueManager.loadFromNewQueue(playQueue);
-        mPlayQueueManager.savePlayQueue(playQueue, 0);
-        mPlaybackService.openCurrent();
-    }
-
-    private Track getTrackFromIntent(Intent intent) {
-        return SoundCloudApplication.MODEL_MANAGER.cache(Track.nullableTrackfromIntent(intent), ScResource.CacheUpdateMode.NONE);
-    }
 }

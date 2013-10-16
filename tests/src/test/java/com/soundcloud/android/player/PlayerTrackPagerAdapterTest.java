@@ -48,7 +48,7 @@ public class PlayerTrackPagerAdapterTest {
     @Test
     public void shouldBeEmptyWhenQueueIsEmpty() throws Exception {
         when(playQueueState.getCurrentTrackIds()).thenReturn(Collections.<Long>emptyList());
-        adapter.setPlayQueueState(playQueueState);
+        adapter.setPlayQueue(playQueueState);
         expect(adapter.getCount()).toEqual(0);
     }
 
@@ -66,7 +66,7 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueueState.getCurrentTrackIds()).thenReturn(Lists.newArrayList(track.getId()));
         when(trackStorage.getTrack(track.getId())).thenReturn(Observable.just(track));
 
-        adapter.setPlayQueueState(playQueueState);
+        adapter.setPlayQueue(playQueueState);
         expect(adapter.getCount()).toEqual(1);
         expect(adapter.getItem(0).getTrack().toBlockingObservable().lastOrDefault(null)).toBe(track);
     }

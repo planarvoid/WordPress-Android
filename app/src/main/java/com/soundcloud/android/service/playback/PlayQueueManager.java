@@ -1,6 +1,6 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.service.playback.PlayQueue.*;
+import static com.soundcloud.android.service.playback.PlayQueue.AppendState;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -9,7 +9,6 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.Observable;
 import rx.Observer;
@@ -26,41 +25,41 @@ import java.util.List;
 
 public class PlayQueueManager {
 
-    private Context mContext;
-    private PlayQueueStorage mPlayQueueStorage;
-    private SharedPreferences mSharedPreferences;
+    private final Context mContext;
+    private final PlayQueueStorage mPlayQueueStorage;
+    private final SharedPreferences mSharedPreferences;
     private final ExploreTracksOperations mExploreTrackOperations;
-    private PlayQueue mPlayQueue = PlayQueue.EMPTY;
 
-    private Subscription mLoadingSubscription;
+    private PlayQueue mPlayQueue = PlayQueue.EMPTY;
     private Subscription mFetchRelatedSubscription;
     private Observable<RelatedTracksCollection> mRelatedTracksObservable;
 
-    public PlayQueueManager(Context mContext, PlayQueueStorage mPlayQueueStorage, ExploreTracksOperations exploreTracksOperations, SharedPreferences mSharedPreferences) {
-        this.mContext = mContext;
-        this.mPlayQueueStorage = mPlayQueueStorage;
-        this.mSharedPreferences = mSharedPreferences;
-        this.mExploreTrackOperations = exploreTracksOperations;
+    public PlayQueueManager(Context context, PlayQueueStorage playQueueStorage, ExploreTracksOperations exploreTracksOperations, SharedPreferences sharedPreferences) {
+        mContext = context;
+        mPlayQueueStorage = playQueueStorage;
+        mExploreTrackOperations = exploreTracksOperations;
+        mSharedPreferences = sharedPreferences;
     }
 
     public void loadFromNewQueue(PlayQueue playQueue) {
-        stopLoadingRelatedTracks();
+        if (mFetchRelatedSubscription != null){
+            mFetchRelatedSubscription.unsubscribe();
+        }
+
         mPlayQueue = playQueue;
         broadcastPlayQueueChanged(playQueue);
-    }
-
-    public void savePlayQueueMetadata(PlayQueue playQueue, long seekPos) {
-        final long currentTrackId = playQueue.getCurrentTrackId();
-        if (currentTrackId != -1) {
-            final String playQueueState = playQueue.getPlayQueueState(seekPos, currentTrackId).toString();
-            Log.d(CloudPlaybackService.TAG, "Saving playqueue state: " + playQueueState);
-            SharedPreferencesUtils.apply(mSharedPreferences.edit().putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, playQueueState));
-        }
     }
 
     public void savePlayQueue(PlayQueue playQueue, long seekPos) {
         savePlayQueueMetadata(playQueue, seekPos);
         mPlayQueueStorage.storeAsync(playQueue).subscribe(DefaultObserver.NOOP_OBSERVER);
+    }
+
+    public void savePlayQueueMetadata(PlayQueue playQueue, long seekPos) {
+        if (!mPlayQueue.isEmpty()) {
+            final String playQueueState = playQueue.getPlayQueueState(seekPos, playQueue.getCurrentTrackId()).toString();
+            SharedPreferencesUtils.apply(mSharedPreferences.edit().putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, playQueueState));
+        }
     }
 
     /**
@@ -91,6 +90,7 @@ public class PlayQueueManager {
         }
     }
 
+    // TODO, fetch related tracks from PlaybackReceiver
     public void fetchRelatedTracks(Track track){
         mRelatedTracksObservable = mExploreTrackOperations.getRelatedTracks(track);
         loadRelatedTracks();
@@ -112,16 +112,14 @@ public class PlayQueueManager {
     }
 
     public PlayQueue getCurrentPlayQueue() {
-        return mPlayQueue;  //To change body of created methods use File | Settings | File Templates.
+        return mPlayQueue;
     }
 
     private void loadRelatedTracks() {
 
         mPlayQueue.setRelatedLoadingState(AppendState.LOADING);
         mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
-
         mFetchRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<RelatedTracksCollection>() {
-
             private boolean mGotRelatedTracks;
 
             @Override
@@ -147,13 +145,6 @@ public class PlayQueueManager {
                 mGotRelatedTracks = true;
             }
         });
-    }
-
-    private void stopLoadingRelatedTracks() {
-        mPlayQueue.setRelatedLoadingState(AppendState.IDLE);
-        if (mFetchRelatedSubscription != null){
-            mFetchRelatedSubscription.unsubscribe();
-        }
     }
 
     private void broadcastPlayQueueChanged(PlayQueue playQueue) {

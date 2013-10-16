@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.view.play.WaveformController;
 
 import android.os.Build;
 import android.os.Environment;
@@ -64,6 +65,9 @@ public final class Consts {
         boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         boolean canDetermineActivityBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         boolean useCustomFonts = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
+        // Gingerbread delivers proper playback buffering events
+        boolean useSmoothProgress = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
+
     }
 
     public interface Dialogs {
