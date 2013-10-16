@@ -94,14 +94,12 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-//        if (bundle == null) {
-//            handleIntent(getIntent());
-//        } else {
-//            // orientation change, activity got recreated
-//            mIgnoreServiceQueue = false;
-//        }
-
-        mIgnoreServiceQueue = true;
+        if (bundle == null) {
+            handleIntent(getIntent());
+        } else {
+            // orientation change, activity got recreated
+            mIgnoreServiceQueue = false;
+        }
     }
 
     @Override
@@ -231,6 +229,25 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     protected void onPlaybackServiceBound(@NotNull CloudPlaybackService service) {
+
+        if (!mIgnoreServiceQueue) {
+
+            // this will configure the playlist from the service
+            if (!mPlaybackService.getPlayQueueManager().isEmpty()) {
+                // everything is fine, configure from service
+                refreshTrackPager();
+
+            } else {
+                /* service doesn't exist or playqueue is empty and not loading.
+                   start it, it will reload queue and broadcast changes */
+                startService(new Intent(this, CloudPlaybackService.class));
+            }
+
+        } else {
+            // set to false for coming back from lock screen
+            mIgnoreServiceQueue = false;
+        }
+
         if (mPendingPlayPosition != -1) {
             service.setQueuePosition(mPendingPlayPosition);
             mPendingPlayPosition = -1;
@@ -255,12 +272,12 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private void handleIntent(Intent intent) {
         final String action = intent.getAction();
-        Track displayTrack = null;
+        Track displayTrack = PlayUtils.getTrackFromIntent(intent);
         if (!TextUtils.isEmpty(action)) {
             if (Actions.PLAY.equals(action)) {
                 // play from a normal play intent (created by PlayUtils)
                 startService(new Intent(CloudPlaybackService.Actions.PLAY_ACTION, intent.getData()).putExtras(intent));
-                displayTrack = PlayUtils.getTrackFromIntent(intent);
+
             } else if (Intent.ACTION_VIEW.equals(action)) {
                 // Play from a View Intent, this probably came from quicksearch
                 if (intent.getData() != null) {
@@ -304,24 +321,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     protected void onStart() {
         super.onStart();
         mActivityPaused = false;
-
-        if (!mIgnoreServiceQueue) {
-
-            // this will configure the playlist from the service
-            if (!mPlaybackService.getPlayQueueManager().isEmpty()) {
-                // everything is fine, configure from service
-                onMetaChanged(mPlaybackService.getPlayQueueManager().getPosition());
-
-            } else {
-                /* service doesn't exist or playqueue is empty and not loading.
-                   start it, it will reload queue and broadcast changes */
-                startService(new Intent(this, CloudPlaybackService.class));
-            }
-
-        } else {
-            // set to false for coming back from lock screen
-            mIgnoreServiceQueue = false;
-        }
 
         bindService(new Intent(this, CloudPlaybackService.class), osc, 0);
         IntentFilter f = new IntentFilter();
