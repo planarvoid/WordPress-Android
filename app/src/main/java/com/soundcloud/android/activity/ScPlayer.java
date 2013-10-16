@@ -17,6 +17,7 @@ import com.soundcloud.android.player.PlayerTrackView;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueue;
+import com.soundcloud.android.service.playback.PlayQueueState;
 import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.PlayUtils;
@@ -57,12 +58,13 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     public static final boolean SMOOTH_PROGRESS = Build.VERSION.SDK_INT >= WaveformController.MINIMUM_SMOOTH_PROGRESS_SDK;
 
     private long mSeekPos = -1;
-    private boolean mActivityPaused, mChangeTrackFast, mIgnoreServiceQueue;
+    private boolean mActivityPaused, mChangeTrackFast;
     private PlayerTrackPager mTrackPager;
     private TransportBarView mTransportBar;
     private @CheckForNull CloudPlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
+    private Track mIntentTrack;
 
     public interface PlayerError {
         int PLAYBACK_ERROR    = 0;
@@ -96,9 +98,6 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
         if (bundle == null) {
             handleIntent(getIntent());
-        } else {
-            // orientation change, activity got recreated
-            mIgnoreServiceQueue = false;
         }
     }
 
@@ -229,23 +228,15 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     protected void onPlaybackServiceBound(@NotNull CloudPlaybackService service) {
-
-        if (!mIgnoreServiceQueue) {
-
-            // this will configure the playlist from the service
-            if (!mPlaybackService.getPlayQueueManager().isEmpty()) {
-                // everything is fine, configure from service
-                refreshTrackPager();
-
-            } else {
+        final PlayQueueState playQueueState = mPlaybackService.getPlayQueueState();
+        // this will configure the playlist from the service
+        if (!playQueueState.isEmpty()) {
+            // everything is fine, configure from service
+            refreshTrackPagerFromPlayQueue(playQueueState);
+        } else {
                 /* service doesn't exist or playqueue is empty and not loading.
                    start it, it will reload queue and broadcast changes */
-                startService(new Intent(this, CloudPlaybackService.class));
-            }
-
-        } else {
-            // set to false for coming back from lock screen
-            mIgnoreServiceQueue = false;
+            startService(new Intent(this, CloudPlaybackService.class));
         }
 
         if (mPendingPlayPosition != -1) {
@@ -272,7 +263,8 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private void handleIntent(Intent intent) {
         final String action = intent.getAction();
-        Track displayTrack = PlayUtils.getTrackFromIntent(intent);
+
+        mIntentTrack = PlayUtils.getTrackFromIntent(intent);
         if (!TextUtils.isEmpty(action)) {
             if (Actions.PLAY.equals(action)) {
                 // play from a normal play intent (created by PlayUtils)
@@ -282,19 +274,19 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
                 // Play from a View Intent, this probably came from quicksearch
                 if (intent.getData() != null) {
                     //FIXME: DB access on UI thread
-                    displayTrack = new TrackStorage().getTrack(intent.getData());
-                    if (displayTrack == null) {
-                        displayTrack = SoundCloudApplication.MODEL_MANAGER.cache(new Track(UriUtils.getLastSegmentAsLong(intent.getData())));
+                    mIntentTrack = new TrackStorage().getTrack(intent.getData());
+                    if (mIntentTrack == null) {
+                        mIntentTrack = SoundCloudApplication.MODEL_MANAGER.cache(new Track(UriUtils.getLastSegmentAsLong(intent.getData())));
                     }
-                    startService(new Intent(CloudPlaybackService.Actions.PLAY_ACTION).putExtra(Track.EXTRA, displayTrack));
+                    startService(new Intent(CloudPlaybackService.Actions.PLAY_ACTION).putExtra(Track.EXTRA, mIntentTrack));
                 }
             }
         }
-        if (displayTrack != null) {
+
+        if (mIntentTrack != null) {
             // set whatever track was sent in with the intent on the viewpager to remove transition from old playqueue
-            mTrackPagerAdapter.setPlaceholderTrack(displayTrack);
+            mTrackPagerAdapter.setPlaceholderTrack(mIntentTrack);
             mTrackPagerAdapter.notifyDataSetChanged();
-            mIgnoreServiceQueue = true;
         }
 
         // only handle intent once for now (currently they are just one shot playback requests)
@@ -508,11 +500,13 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             String action = intent.getAction();
             if (action.equals(Broadcasts.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-                if (CloudPlaybackService.getPlayQueue().isEmpty()){
+
+                PlayQueueState playQueueState = intent.getParcelableExtra(PlayQueueState.EXTRA);
+                if (playQueueState.isEmpty()){
                     // Service has no playlist. Probably came from the widget. Kick them out to home
                     onHomePressed();
                 } else {
-                    refreshTrackPager();
+                    refreshTrackPagerFromPlayQueue(playQueueState);
                 }
             } else if (action.equals(Broadcasts.META_CHANGED)) {
                 onMetaChanged(queuePos);
@@ -581,14 +575,21 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
 
     private void refreshTrackPager() {
         if (mPlaybackService != null){
-            mTrackPagerAdapter.setPlayQueueState(mPlaybackService.getPlayQueueState());
-            mTrackPager.refreshAdapter();
-            mTrackPager.setCurrentItem(mPlaybackService.getPlayQueueManager().getPosition());
+            refreshTrackPagerFromPlayQueue(mPlaybackService.getPlayQueueState());
+        }
+    }
 
-            setCommentMode(false, false);
+    private void refreshTrackPagerFromPlayQueue(PlayQueueState playQueueState) {
+        mTrackPagerAdapter.setPlayQueueState(playQueueState);
+        mTrackPager.refreshAdapter();
+        mTrackPager.setCurrentItem(playQueueState.getPlayPosition());
+
+        setCommentMode(false, false);
+        if (mPlaybackService != null){
             setBufferingState();
             setPlaybackState();
         }
+
     }
 
     private void setBufferingState() {

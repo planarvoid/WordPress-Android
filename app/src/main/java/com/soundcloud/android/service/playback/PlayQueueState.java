@@ -12,10 +12,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class PlayQueueState implements Parcelable {
+    public static String EXTRA = "PlayQueueState";
     public static final PlayQueueState EMPTY = new PlayQueueState(Collections.<Long>emptyList(), 0, AppendState.IDLE);
 
     private final int mPlayPosition;
-    private List<Long> mTrackIds;
+    private List<Long> mTrackIds = Collections.emptyList();
     private AppendState mAppendState = AppendState.EMPTY;
     private PlaySourceInfo mPlaySourceInfo;
 
@@ -44,6 +45,10 @@ public class PlayQueueState implements Parcelable {
         mPlayPosition = in.readInt();
         mAppendState = AppendState.valueOf(in.readString());
         mPlaySourceInfo = new PlaySourceInfo(in.readBundle());
+    }
+
+    public boolean isEmpty(){
+        return mTrackIds.isEmpty();
     }
 
     public int getSize() {
@@ -106,6 +111,7 @@ public class PlayQueueState implements Parcelable {
     public String toString() {
         return Objects.toStringHelper(getClass())
                 .add("Track IDs", mTrackIds)
+                .add("Size", getSize())
                 .add("Play Position", mPlayPosition)
                 .add("Append State", mAppendState)
                 .toString();
