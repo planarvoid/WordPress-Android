@@ -42,7 +42,8 @@ public class PlaybackReceiverTest {
     private @Mock AudioManager audioManager;
     private @Mock PlayerAppWidgetProvider playerAppWidgetProvider;
     private @Mock AccountOperations accountOperations;
-    private @Mock PlayQueueOperations playQueueOperations;
+    private @Mock
+    PlayQueueManager playQueueManager;
 
     private PlaySourceInfo trackingInfo;
 
@@ -50,7 +51,7 @@ public class PlaybackReceiverTest {
     public void setup() {
         SoundCloudApplication.MODEL_MANAGER.clear();
         //CloudPlaybackService.playlistXfer = null;
-        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueue, audioManager, accountOperations, playQueueOperations);
+        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueue, audioManager, accountOperations, playQueueManager);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);
         trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();

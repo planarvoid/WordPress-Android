@@ -8,10 +8,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.adapter.BasePagerAdapter;
 import com.soundcloud.android.dao.TrackStorage;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.PlayQueueState;
-import com.soundcloud.android.utils.Log;
-import rx.Observable;
+import com.soundcloud.android.service.playback.PlayQueue;
 
 import android.content.Context;
 import android.view.View;
@@ -29,8 +26,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     private final BiMap<PlayerQueueView, Integer> mQueueViewsByPosition = HashBiMap.create(3);
 
     private TrackStorage mTrackStorage;
-    private Track mPlaceholderTrack;
-    private PlayQueueState mPlayQueueState = PlayQueueState.EMPTY;
+    private PlayQueue mPlayQueueState = PlayQueue.EMPTY;
 
     private List<PlayQueueItem> mPlayQueueItems = Collections.emptyList();
 
@@ -56,11 +52,10 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         });
     }
 
-    public void setPlayQueueState(PlayQueueState playQueueState) {
-        this.mPlayQueueState = playQueueState;
-        setPlaceholderTrack(null);
+    public void setPlayQueueState(PlayQueue playQueue) {
+        this.mPlayQueueState = playQueue;
 
-        mPlayQueueItems = new ArrayList<PlayQueueItem>(playQueueState.getCurrentTrackIds().size());
+        mPlayQueueItems = new ArrayList<PlayQueueItem>(playQueue.getCurrentTrackIds().size());
         for (Long id : mPlayQueueState.getCurrentTrackIds()){
             mPlayQueueItems.add(new PlayQueueItem(mTrackStorage.getTrack(id), mPlayQueueItems.size()));
         }
@@ -100,17 +95,9 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
         }
     }
 
-    public void setPlaceholderTrack(Track displayTrack) {
-        mPlaceholderTrack = displayTrack;
-    }
-
     @Override
     public int getCount() {
-        if (mPlaceholderTrack != null){
-            return 1;
-        } else {
-            return shouldDisplayExtraItem() ? mPlayQueueState.getCurrentTrackIds().size() + 1 : mPlayQueueState.getCurrentTrackIds().size();
-        }
+        return shouldDisplayExtraItem() ? mPlayQueueState.getCurrentTrackIds().size() + 1 : mPlayQueueState.getCurrentTrackIds().size();
     }
 
 
@@ -127,14 +114,10 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     @Override
     protected PlayQueueItem getItem(int position) {
-        if (position == 0 && mPlaceholderTrack != null){
-            return new PlayQueueItem(Observable.<Track>just(mPlaceholderTrack), 0);
+        if (position >= mPlayQueueState.getCurrentTrackIds().size()) {
+            return PlayQueueItem.empty(position);
         } else {
-            if (position >= mPlayQueueState.getCurrentTrackIds().size()){
-                return PlayQueueItem.empty(position);
-            } else {
-                return mPlayQueueItems.get(position);
-            }
+            return mPlayQueueItems.get(position);
         }
     }
 

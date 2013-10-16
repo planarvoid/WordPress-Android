@@ -14,7 +14,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueueState;
+import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 
 import android.content.Context;
@@ -95,15 +95,6 @@ public final class PlayUtils {
         }
     }
 
-    public static Track getTrackFromIntent(Intent intent){
-        if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
-            return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
-        } else if (intent.getParcelableExtra(Track.EXTRA) != null) {
-            return intent.getParcelableExtra(Track.EXTRA);
-        }
-        return null;
-    }
-
     private void playFromInfo(Context context, PlayInfo playInfo){
         mModelManager.cache(playInfo.initialTrack);
 
@@ -128,7 +119,7 @@ public final class PlayUtils {
              mTrackStorage.getTrackIdsForUriAsync(info.uri).subscribe(new DefaultObserver<List<Long>>() {
                  @Override
                  public void onNext(List<Long> idList) {
-                     intent.putExtra(CloudPlaybackService.PlayExtras.trackIdList, new PlayQueueState(idList, info.position, info.sourceInfo));
+                     intent.putExtra(PlayQueue.EXTRA, new PlayQueue(idList, info.position, info.sourceInfo));
                      context.startService(intent);
                  }
              });
@@ -140,7 +131,7 @@ public final class PlayUtils {
                     return input.getId();
                 }
             });
-            intent.putExtra(CloudPlaybackService.PlayExtras.trackIdList, new PlayQueueState(idList, info.position, info.sourceInfo));
+            intent.putExtra(PlayQueue.EXTRA, new PlayQueue(idList, info.position, info.sourceInfo));
             context.startService(intent);
         }
     }

@@ -24,24 +24,22 @@ class PlaybackReceiver extends BroadcastReceiver {
 
     private CloudPlaybackService mPlaybackService;
     private AssociationManager mAssociationManager;
-    private PlayQueue mPlayQueue;
     private AudioManager mAudioManager;
     private final AccountOperations mAccountOperations;
-    private final PlayQueueOperations mPlayQueueOperations;
+    private final PlayQueueManager mPlayQueueManager;
 
     public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
-                            PlayQueue playQueue, AudioManager audioManager, PlayQueueOperations playQueueOperations) {
-        this(playbackService, associationManager, playQueue, audioManager, new AccountOperations(playbackService), playQueueOperations);
+                            AudioManager audioManager, PlayQueueManager playQueueManager) {
+        this(playbackService, associationManager, audioManager, new AccountOperations(playbackService), playQueueManager);
     }
 
     public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
-                            PlayQueue playQueue, AudioManager audioManager, AccountOperations accountOperations, PlayQueueOperations playQueueOperations) {
+                            AudioManager audioManager, AccountOperations accountOperations, PlayQueueManager playQueueManager) {
         this.mPlaybackService = playbackService;
         this.mAssociationManager = associationManager;
-        this.mPlayQueue = playQueue;
         this.mAudioManager = audioManager;
         this.mAccountOperations = accountOperations;
-        mPlayQueueOperations = playQueueOperations;
+        mPlayQueueManager = playQueueManager;
     }
 
 
@@ -56,7 +54,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
-            mPlayQueue.clearAllLocalState();
+            mPlayQueueManager.clearLastPlayed(context);
 
         } else if (mAccountOperations.soundCloudAccountExists()) {
 
@@ -129,12 +127,9 @@ class PlaybackReceiver extends BroadcastReceiver {
             configureVolume();
         }
 
-        if (intent.hasExtra(PlayExtras.trackIdList)) {
-            playViaNewQueue(intent.<PlayQueueState>getParcelableExtra(PlayExtras.trackIdList));
+        if (intent.hasExtra(PlayQueue.EXTRA)) {
+            playViaNewQueue(intent.<PlayQueue>getParcelableExtra(PlayQueue.EXTRA));
 
-        } else if (!mPlayQueue.isEmpty() || mPlaybackService.configureLastPlaylist()) {
-            // random play intent, play whatever we had last
-            mPlaybackService.play();
         }
     }
 
@@ -146,9 +141,9 @@ class PlaybackReceiver extends BroadcastReceiver {
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
     }
 
-    private void playViaNewQueue(PlayQueueState playQueueState) {
-        mPlayQueueOperations.loadFromNewQueue(playQueueState, mPlayQueue);
-        mPlayQueueOperations.savePlayQueue(mPlayQueue, 0);
+    private void playViaNewQueue(PlayQueue playQueue) {
+        mPlayQueueManager.loadFromNewQueue(playQueue);
+        mPlayQueueManager.savePlayQueue(playQueue, 0);
         mPlaybackService.openCurrent();
     }
 

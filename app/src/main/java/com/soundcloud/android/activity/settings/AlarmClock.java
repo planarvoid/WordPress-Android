@@ -133,7 +133,7 @@ public final class AlarmClock {
 
     /* package */ void play(Context context, Uri uri) {
         // TODO: should be handled via intent parameter
-        CloudPlaybackService.getPlayQueue().clearLastPlayed(context);
+        //CloudPlaybackService.getPlayQueue().clearLastPlayed(context);
 
         if (!IOUtils.isConnected(context)) {
             // just use cached items if there is no network connection

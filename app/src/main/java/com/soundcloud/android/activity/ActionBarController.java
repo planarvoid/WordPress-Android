@@ -261,7 +261,7 @@ public class ActionBarController {
         if (backToSetItem != null) {
             boolean visible = false;
             if ((mOwner.getActivity() instanceof ScPlayer)) {
-                final Uri uri = CloudPlaybackService.getUri();
+                final Uri uri = CloudPlaybackService.getPlayQueue().getSourceUri();
                 if (uri != null && Content.match(uri) == Content.PLAYLIST) {
                     visible = true;
                 }
@@ -287,7 +287,7 @@ public class ActionBarController {
             case R.id.menu_backToSet:
                 final Intent intent = new Intent(mOwner.getActivity(), PlaylistDetailActivity.class);
                 intent.putExtra(PlaylistDetailActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
-                final Uri uri = CloudPlaybackService.getUri();
+                final Uri uri = CloudPlaybackService.getPlayQueue().getSourceUri();
                 if (Content.match(uri) == Content.PLAYLIST) {
                     intent.setData(uri);
                 } else {
