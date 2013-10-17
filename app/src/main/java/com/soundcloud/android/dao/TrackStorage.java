@@ -114,7 +114,11 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
                 final String idColumn = isActivityCursor ? DBHelper.ActivityView.SOUND_ID : DBHelper.SoundView._ID;
                 final BooleanSubscription subscription = new BooleanSubscription();
 
-                Cursor cursor = mResolver.query(uri, new String[]{idColumn}, DBHelper.SoundView._TYPE + " = ?",
+                // if playlist, adjust load uri to request the tracks instead of meta_data
+                final Uri adjustedUri = (Content.match(uri) == Content.PLAYLIST) ?
+                        Content.PLAYLIST_TRACKS.forQuery(uri.getLastPathSegment()) : uri;
+
+                Cursor cursor = mResolver.query(adjustedUri, new String[]{idColumn}, DBHelper.SoundView._TYPE + " = ?",
                         new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
                 if (!subscription.isUnsubscribed()) {
                     if (cursor == null) {
