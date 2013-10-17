@@ -38,7 +38,7 @@ public class PlayQueueManagerTest {
     public void before() {
         resolver = Robolectric.application.getContentResolver();
 
-        pm = new PlayQueue(Robolectric.application, exploreTracksOperations);
+        //pm = new PlayQueue(Robolectric.application, exploreTracksOperations);
         TestHelper.setUserId(USER_ID);
 
         trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();

@@ -43,13 +43,14 @@ public class PlayQueue implements Parcelable {
         mPlaySourceInfo = playSourceInfo;
     }
 
-    public PlayQueue(List<Long> currentTrackIds, int playPosition, AppendState currentAppendState) {
+    public PlayQueue(List<Long> currentTrackIds, int playPosition, AppendState appendState) {
         this(currentTrackIds, playPosition, PlaySourceInfo.EMPTY);
-        mAppendState = currentAppendState;
+        mAppendState = appendState;
     }
 
     public PlayQueue(Parcel in) {
-        long[] trackIds = new long[in.readInt()];
+        final int size = in.readInt();
+        long[] trackIds = new long[size];
         in.readLongArray(trackIds);
 
         mTrackIds = Lists.newArrayListWithExpectedSize(trackIds.length);

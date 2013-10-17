@@ -59,10 +59,12 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Parcel;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -80,7 +82,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
     public static long getCurrentTrackId() { return instance == null || instance.mCurrentTrack == null ? -1L : instance.mCurrentTrack.getId(); }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
-    public static PlayQueue getPlayQueue() { return instance == null ? null : instance.getPlayQueueInternal(); }
+    public static PlayQueue getPlayQueue() { return instance == null ? null : instance.clonePlayQueue(); }
+    public static Uri getPlayQueueUri() { return instance == null ? null : instance.getPlayQueueInternal().getSourceUri(); }
     public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPlayPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
@@ -958,6 +961,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private PlayQueue getPlayQueueInternal() {
         return mPlayQueueManager.getCurrentPlayQueue();
+    }
+
+    private PlayQueue clonePlayQueue(){
+        PlayQueue original = mPlayQueueManager.getCurrentPlayQueue();
+        Parcel parcel = Parcel.obtain();
+        original.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
+        return PlayQueue.CREATOR.createFromParcel(parcel);
     }
 
 

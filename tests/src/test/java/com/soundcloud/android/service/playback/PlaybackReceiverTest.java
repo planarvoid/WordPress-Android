@@ -51,7 +51,7 @@ public class PlaybackReceiverTest {
     public void setup() {
         SoundCloudApplication.MODEL_MANAGER.clear();
         //CloudPlaybackService.playlistXfer = null;
-        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, playQueue, audioManager, accountOperations, playQueueManager);
+        playbackReceiver = new PlaybackReceiver(playbackService, associationManager, audioManager, accountOperations, playQueueManager);
         when(accountOperations.soundCloudAccountExists()).thenReturn(true);
         when(playbackService.getAppWidgetProvider()).thenReturn(playerAppWidgetProvider);
         trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();
@@ -340,7 +340,7 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.RESET_ALL);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).resetAll();
-        verify(playQueue).clear();
+        //verify(playQueue).clear();
     }
 
     @Test
@@ -372,7 +372,7 @@ public class PlaybackReceiverTest {
         Intent intent = new Intent(CloudPlaybackService.Actions.RESET_ALL);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).resetAll();
-        verify(playQueue).clear();
+        //verify(playQueue).clear();
         verifyZeroInteractions(accountOperations);
     }
 

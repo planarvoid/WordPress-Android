@@ -124,7 +124,9 @@ class PlaybackReceiver extends BroadcastReceiver {
             mPlayQueueManager.savePlayQueue(playQueue, 0);
             mPlaybackService.openCurrent();
 
-            // TODO, trigger fetchRelated based on intent extra
+            if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)){
+                mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
+            }
         }
 
         if (intent.getBooleanExtra(PlayExtras.unmute, false)) {

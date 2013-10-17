@@ -26,7 +26,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     private final BiMap<PlayerQueueView, Integer> mQueueViewsByPosition = HashBiMap.create(3);
 
     private TrackStorage mTrackStorage;
-    private PlayQueue mPlayQueueState = PlayQueue.EMPTY;
+    private PlayQueue mPlayQueue = PlayQueue.EMPTY;
 
     private List<PlayQueueItem> mPlayQueueItems = Collections.emptyList();
 
@@ -53,10 +53,9 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     }
 
     public void setPlayQueue(PlayQueue playQueue) {
-        this.mPlayQueueState = playQueue;
-
+        mPlayQueue = playQueue;
         mPlayQueueItems = new ArrayList<PlayQueueItem>(playQueue.getCurrentTrackIds().size());
-        for (Long id : mPlayQueueState.getCurrentTrackIds()){
+        for (Long id : mPlayQueue.getCurrentTrackIds()){
             mPlayQueueItems.add(new PlayQueueItem(mTrackStorage.getTrack(id), mPlayQueueItems.size()));
         }
     }
@@ -97,12 +96,12 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     @Override
     public int getCount() {
-        return shouldDisplayExtraItem() ? mPlayQueueState.getCurrentTrackIds().size() + 1 : mPlayQueueState.getCurrentTrackIds().size();
+        return shouldDisplayExtraItem() ? mPlayQueue.getCurrentTrackIds().size() + 1 : mPlayQueue.getCurrentTrackIds().size();
     }
 
 
     private boolean shouldDisplayExtraItem() {
-        return mPlayQueueState.isLoading() || mPlayQueueState.lastLoadFailed() || mPlayQueueState.lastLoadWasEmpty();
+        return mPlayQueue.isLoading() || mPlayQueue.lastLoadFailed() || mPlayQueue.lastLoadWasEmpty();
     }
 
     public void clearCommentingPosition(boolean animated) {
@@ -114,7 +113,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     @Override
     protected PlayQueueItem getItem(int position) {
-        if (position >= mPlayQueueState.getCurrentTrackIds().size()) {
+        if (position >= mPlayQueue.getCurrentTrackIds().size()) {
             return PlayQueueItem.empty(position);
         } else {
             return mPlayQueueItems.get(position);

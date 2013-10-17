@@ -90,9 +90,8 @@ public class PlayQueueManager {
         }
     }
 
-    // TODO, fetch related tracks from PlaybackReceiver
-    public void fetchRelatedTracks(Track track){
-        mRelatedTracksObservable = mExploreTrackOperations.getRelatedTracks(track);
+    public void fetchRelatedTracks(long trackId){
+        mRelatedTracksObservable = mExploreTrackOperations.getRelatedTracks(trackId);
         loadRelatedTracks();
     }
 
