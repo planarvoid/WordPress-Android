@@ -76,11 +76,7 @@ public class Settings extends SherlockPreferenceActivity implements ActionBarCon
         addPreferencesFromResource(R.xml.settings);
         mApplicationProperties = new ApplicationProperties(getResources());
         PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
-        if (AlarmClock.isFeatureEnabled(this)) {
-            AlarmClock.get(getApplicationContext()).addPrefs(this, extras);
-        } else {
-            getPreferenceScreen().removePreference(extras);
-        }
+        getPreferenceScreen().removePreference(extras);
 
         findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
