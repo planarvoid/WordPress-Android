@@ -47,7 +47,7 @@ public class PlayQueueManager {
         }
 
         mPlayQueue = playQueue;
-        broadcastPlayQueueChanged(playQueue);
+        broadcastPlayQueueChanged();
     }
 
     public void savePlayQueue(PlayQueue playQueue, long seekPos) {
@@ -84,7 +84,7 @@ public class PlayQueueManager {
         } else {
             if (TextUtils.isEmpty(lastUri)) {
                 // this is so the player can finish() instead of display waiting to the user
-                broadcastPlayQueueChanged(playQueue);
+                broadcastPlayQueueChanged();
             }
             return -1; // seekpos
         }
@@ -117,20 +117,22 @@ public class PlayQueueManager {
     private void loadRelatedTracks() {
 
         mPlayQueue.setRelatedLoadingState(AppendState.LOADING);
-        mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
+        broadcastRelatedLoadStateChanged();
+
         mFetchRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<RelatedTracksCollection>() {
             private boolean mGotRelatedTracks;
 
             @Override
             public void onCompleted() {
-                mPlayQueue.setRelatedLoadingState(mGotRelatedTracks ? AppendState.IDLE : AppendState.EMPTY);
-                mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
+                final AppendState appendState = mGotRelatedTracks ? AppendState.IDLE : AppendState.EMPTY;
+                mPlayQueue.setRelatedLoadingState(appendState);
+                broadcastRelatedLoadStateChanged();
             }
 
             @Override
             public void onError(Throwable e) {
                 mPlayQueue.setRelatedLoadingState(AppendState.ERROR);
-                mContext.sendBroadcast(new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
+                broadcastRelatedLoadStateChanged();
             }
 
             @Override
@@ -146,8 +148,15 @@ public class PlayQueueManager {
         });
     }
 
-    private void broadcastPlayQueueChanged(PlayQueue playQueue) {
-        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED).putExtra(PlayQueue.EXTRA, playQueue);
+    private void broadcastPlayQueueChanged() {
+        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
+                .putExtra(PlayQueue.EXTRA, mPlayQueue);
+        mContext.sendBroadcast(intent);
+    }
+
+    private void broadcastRelatedLoadStateChanged() {
+        final Intent intent = new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED)
+                .putExtra(PlayQueue.EXTRA, mPlayQueue);
         mContext.sendBroadcast(intent);
     }
 

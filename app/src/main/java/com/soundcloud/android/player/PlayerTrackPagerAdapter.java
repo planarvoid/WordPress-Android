@@ -14,12 +14,9 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
-public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
+public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     private int mCommentingPosition = -1;
 
@@ -27,8 +24,6 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     private TrackStorage mTrackStorage;
     private PlayQueue mPlayQueue = PlayQueue.EMPTY;
-
-    private List<PlayQueueItem> mPlayQueueItems = Collections.emptyList();
 
     public PlayerTrackPagerAdapter() {
         this(new TrackStorage());
@@ -54,10 +49,6 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     public void setPlayQueue(PlayQueue playQueue) {
         mPlayQueue = playQueue;
-        mPlayQueueItems = new ArrayList<PlayQueueItem>(playQueue.getCurrentTrackIds().size());
-        for (Long id : mPlayQueue.getCurrentTrackIds()){
-            mPlayQueueItems.add(new PlayQueueItem(mTrackStorage.getTrack(id), mPlayQueueItems.size()));
-        }
     }
 
     public int getCommentingPosition() {
@@ -112,23 +103,26 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     }
 
     @Override
-    protected PlayQueueItem getItem(int position) {
+    protected Long getItem(int position) {
         if (position >= mPlayQueue.getCurrentTrackIds().size()) {
-            return PlayQueueItem.empty(position);
+            return -1L;
         } else {
-            return mPlayQueueItems.get(position);
+            return mPlayQueue.getTrackIdAt(position);
         }
     }
 
     @Override
-    protected View getView(PlayQueueItem playQueueItem, View convertView, ViewGroup parent) {
+    protected View getView(Long id, View convertView, ViewGroup parent) {
+
         if (convertView == null) {
             convertView = createPlayerQueueView(parent.getContext());
         }
 
         final PlayerQueueView queueView = (PlayerQueueView) convertView;
-        queueView.setPlayQueueItem(playQueueItem, mCommentingPosition == playQueueItem.getPlayQueuePosition());
-        mQueueViewsByPosition.forcePut(queueView, playQueueItem.getPlayQueuePosition());
+        final int playQueuePosition = id == -1 ? mPlayQueue.getCurrentTrackIds().size() : mPlayQueue.getCurrentTrackIds().indexOf(id);
+
+        queueView.setPlayQueueItem(id == -1 ? null : mTrackStorage.getTrack(id), playQueuePosition, mCommentingPosition == playQueuePosition);
+        mQueueViewsByPosition.forcePut(queueView, playQueuePosition);
         return convertView;
     }
 
@@ -139,7 +133,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
 
     @Override
     public int getItemPosition(Object object) {
-        return ((PlayQueueItem) object).isEmpty() && !shouldDisplayExtraItem() ? POSITION_NONE : super.getItemPosition(object);
+        return ((Long) object) == -1 && !shouldDisplayExtraItem() ? POSITION_NONE : super.getItemPosition(object);
     }
 
     public PlayerTrackView getPlayerTrackViewById(long id){
@@ -162,8 +156,9 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<PlayQueueItem> {
     public void reloadEmptyView(){
         for (PlayerQueueView playerQueueView : mQueueViewsByPosition.keySet()){
             if (!playerQueueView.isShowingPlayerTrackView()){
-                final PlayQueueItem playQueueItem = getItem(mQueueViewsByPosition.get(playerQueueView));
-                playerQueueView.setPlayQueueItem(playQueueItem, mCommentingPosition == playQueueItem.getPlayQueuePosition());
+                final Integer position = mQueueViewsByPosition.get(playerQueueView);
+                final Long id = getItem(position);
+                playerQueueView.setPlayQueueItem(id == -1 ? null : mTrackStorage.getTrack(id), position, mCommentingPosition == position);
             }
         }
     }

@@ -21,7 +21,6 @@ import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.PlayerTrackPager;
 import com.soundcloud.android.view.play.TransportBarView;
-import com.soundcloud.android.view.play.WaveformController;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +30,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -499,15 +497,20 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
             } else if (action.equals(Broadcasts.META_CHANGED)) {
                 onMetaChanged(queuePos);
             } else if (action.equals(Broadcasts.RELATED_LOAD_STATE_CHANGED)) {
-                boolean wasOnEmptyView = getCurrentDisplayedTrackView() == null;
+                if (mPlayQueue != null){
 
-                mTrackPagerAdapter.reloadEmptyView();
-                // TODO, this needs a test. Running to demos :?
-                if (wasOnEmptyView && getCurrentDisplayedTrackView() != null &&
-                        CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()){
-                    sendTrackChangeOnDelay();
+                    mPlayQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
+                    mTrackPagerAdapter.setPlayQueue(mPlayQueue);
+                    mTrackPagerAdapter.reloadEmptyView();
+                    mTrackPagerAdapter.notifyDataSetChanged();
+
+                    boolean wasOnEmptyView = getCurrentDisplayedTrackView() == null;
+                    if (wasOnEmptyView && getCurrentDisplayedTrackView() != null &&
+                            CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()){
+                        sendTrackChangeOnDelay();
+                    }
+                    setPlaybackState();
                 }
-                setPlaybackState();
 
             } else if (action.equals(Comment.ACTION_CREATE_COMMENT)) {
                 addNewComment(intent.<Comment>getParcelableExtra(Comment.EXTRA));

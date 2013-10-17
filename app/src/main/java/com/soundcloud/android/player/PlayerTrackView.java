@@ -26,6 +26,7 @@ import com.soundcloud.android.view.play.PlayerTrackDetails;
 import com.soundcloud.android.view.play.WaveformController;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -128,9 +129,9 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mWaveformController.setOnScreen(onScreen);
     }
 
-    public void setPlayQueueItem(@NotNull PlayQueueItem playQueueItem){
-        mQueuePosition = playQueueItem.getPlayQueuePosition();
-        playQueueItem.getTrack().subscribe(new DefaultObserver<Track>() {
+    public void setPlayQueueItem(Observable<Track> trackObservable, int queuePosition){
+        mQueuePosition = queuePosition;
+        trackObservable.subscribe(new DefaultObserver<Track>() {
             @Override
             public void onNext(Track args) {
                 // GET RID OF PRIORITY OR IMPLEMENT IT PROPERLY

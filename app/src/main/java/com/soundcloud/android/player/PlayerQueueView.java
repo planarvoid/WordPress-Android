@@ -1,7 +1,9 @@
 package com.soundcloud.android.player;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.EmptyListView;
+import rx.Observable;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -17,9 +19,9 @@ public class PlayerQueueView extends FrameLayout {
         super(context);
     }
 
-    public void setPlayQueueItem(PlayQueueItem playQueueItem, boolean inCommentingMode){
+    public void setPlayQueueItem(Observable<Track> trackObservable, int queuePosition, boolean inCommentingMode){
         // TODO, replace these with viewStubs
-        if (playQueueItem.isEmpty()){
+        if (trackObservable == null){
             showEmptyView();
 //            if (mPlayQueueManager.isLoading()){
 //                mEmptyView.setStatus(EmptyListView.Status.WAITING);
@@ -32,7 +34,7 @@ public class PlayerQueueView extends FrameLayout {
 
         } else {
             showTrackView();
-            mTrackView.setPlayQueueItem(playQueueItem);
+            mTrackView.setPlayQueueItem(trackObservable, queuePosition);
             mTrackView.setCommentMode(inCommentingMode);
             mTrackView.setOnScreen(true);
         }
