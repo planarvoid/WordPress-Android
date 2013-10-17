@@ -438,19 +438,6 @@
           <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_player"/>
         </receiver>
 
-        <receiver android:name=".activity.settings.AlarmClock$Receiver">
-            <intent-filter>
-                <action android:name="com.soundcloud.android.actions.ALARM"/>
-                <action android:name="com.soundcloud.android.actions.CANCEL_ALARM"/>
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SECRET_CODE"/>
-                <!-- *#*#ALARM#*#* -->
-                <data android:host="25276" android:scheme="android_secret_code"/>
-            </intent-filter>
-        </receiver>
-
         <receiver android:label="SoundCloud Recorder" android:name=".service.record.RecordAppWidgetProvider">
 
              <intent-filter>
