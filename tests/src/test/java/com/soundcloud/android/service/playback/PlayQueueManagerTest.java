@@ -2,20 +2,26 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.RelatedTracksCollection;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,10 +39,13 @@ import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
+    String playQueueUri = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v1&playSource-exploreTag=2&playSource-originUrl=1&playSource-initialTrackId=1";
+
     PlayQueueManager playQueueManager;
 
     @Mock
@@ -50,13 +59,15 @@ public class PlayQueueManagerTest {
     @Mock
     PlaySourceInfo trackingInfo;
     @Mock
+    ScModelManager modelManager;
+    @Mock
     SharedPreferences sharedPreferences;
     @Mock
     SharedPreferences.Editor sharedPreferencesEditor;
 
     @Before
     public void before() {
-        playQueueManager = new PlayQueueManager(context, playQueueStorage, exploreTracksOperations, sharedPreferences);
+        playQueueManager = new PlayQueueManager(context, playQueueStorage, exploreTracksOperations, sharedPreferences, modelManager);
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.just(PlayQueue.EMPTY));
@@ -131,8 +142,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldReturnResumeInfoWhenReloadingPlayQueue(){
-        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
-        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(uriString);
+        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(playQueueUri);
         when(playQueueStorage.getTrackIds()).thenReturn(Mockito.mock(Observable.class));
 
         PlayQueueManager.ResumeInfo resumeInfo = playQueueManager.reloadPlayQueue();
@@ -142,13 +152,21 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldLoadTrackIdsWhenReloadingPlayQueue(){
-        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
         Observable<List<Long>> observable = Mockito.mock(Observable.class);
-        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(uriString);
+        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(playQueueUri);
         when(playQueueStorage.getTrackIds()).thenReturn(observable);
 
         playQueueManager.reloadPlayQueue();
         verify(observable).subscribe(any(Action1.class));
+    }
+
+    @Test
+    public void shouldAddIdsWhenReloadingPlayQueueReturns(){
+
+        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(playQueueUri);
+        when(playQueueStorage.getTrackIds()).thenReturn(Observable.<List<Long>>just(Lists.newArrayList(1L, 2L, 3L)));
+        playQueueManager.reloadPlayQueue();
+        expect(playQueueManager.getCurrentPlayQueue().getCurrentTrackIds()).toContainExactly(1L,2L,3L);
     }
 
     @Test
@@ -180,10 +198,102 @@ public class PlayQueueManagerTest {
         expect(playQueueManager.shouldReloadQueue()).toBeFalse();
     }
 
+    @Test
+    public void shouldGetRelatedTracksObservableWhenFetchingRelatedTracks(){
+        final Observable mock = Mockito.mock(Observable.class);
+        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(mock);
+
+        playQueueManager.fetchRelatedTracks(123L);
+        verify(exploreTracksOperations).getRelatedTracks(123L);
+    }
+
+    @Test
+    public void shouldSubscribeToRelatedTracksObservableWhenFetchingRelatedTracks(){
+        final Observable<RelatedTracksCollection> mock = Mockito.mock(Observable.class);
+        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(mock);
+
+        playQueueManager.fetchRelatedTracks(123L);
+        verify(mock).subscribe(playQueueManager);
+    }
+
+    @Test
+    public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks(){
+        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(Mockito.mock(Observable.class));
+        playQueueManager.fetchRelatedTracks(123L);
+        expect(playQueueManager.getCurrentPlayQueue().getCurrentAppendState()).toEqual(PlayQueue.AppendState.LOADING);
+        expectBroadcastRelatedLoadChanges();
+    }
+
+    @Test
+    public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
+        final TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        playQueueManager.setNewPlayQueue(new PlayQueue(123L));
+        playQueueManager.onNext(new RelatedTracksCollection(Lists.<TrackSummary>newArrayList(trackSummary), "123"));
+
+        expect(playQueueManager.getCurrentPlayQueue().getCurrentTrackIds()).toContainExactly(123L, trackSummary.getId());
+
+        ArgumentCaptor<Track> captor = ArgumentCaptor.forClass(Track.class);
+        verify(modelManager).cache(captor.capture());
+        expect(captor.getValue().getId()).toEqual(trackSummary.getId());
+    }
+
+    @Test
+    public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad(){
+        playQueueManager.onNext(new RelatedTracksCollection(Collections.<TrackSummary>emptyList(), "123"));
+        playQueueManager.onCompleted();
+        expect(playQueueManager.getCurrentPlayQueue().getCurrentAppendState()).toEqual(PlayQueue.AppendState.IDLE);
+        expectBroadcastRelatedLoadChanges();
+    }
+
+    @Test
+    public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad(){
+        playQueueManager.onCompleted();
+        expect(playQueueManager.getCurrentPlayQueue().getCurrentAppendState()).toEqual(PlayQueue.AppendState.EMPTY);
+        expectBroadcastRelatedLoadChanges();
+    }
+
+    @Test
+    public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled(){
+        playQueueManager.onError(new Throwable());
+        expect(playQueueManager.getCurrentPlayQueue().getCurrentAppendState()).toEqual(PlayQueue.AppendState.ERROR);
+        expectBroadcastRelatedLoadChanges();
+    }
+
+    @Test
+    public void clearAllShouldClearPreferences() throws Exception {
+        when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+        playQueueManager.clearAll();
+        verify(sharedPreferencesEditor).remove(PlayQueueManager.SC_PLAYQUEUE_URI);
+        verify(sharedPreferencesEditor).apply();
+    }
+
+    @Test
+    public void clearAllShouldClearStorage() throws Exception {
+        when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+        playQueueManager.clearAll();
+        verify(playQueueStorage).clearState();
+    }
+
+    @Test
+    public void clearAllShouldSetPlayQueueToEmpty() throws Exception {
+        when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+        playQueueManager.setNewPlayQueue(new PlayQueue(1L));
+        expect(playQueueManager.getCurrentPlayQueue()).not.toBe(PlayQueue.EMPTY);
+        playQueueManager.clearAll();
+        expect(playQueueManager.getCurrentPlayQueue()).toBe(PlayQueue.EMPTY);
+
+    }
+
     private void expectBroadcastPlayqueueChanged() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
         expect(captor.getValue().getAction()).toEqual(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+    }
+
+    private void expectBroadcastRelatedLoadChanges() {
+        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).sendBroadcast(captor.capture());
+        expect(captor.getValue().getAction()).toEqual(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED);
     }
 
 

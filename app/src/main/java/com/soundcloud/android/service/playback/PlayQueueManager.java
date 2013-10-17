@@ -7,6 +7,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.model.RelatedTracksCollection;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -24,7 +25,7 @@ import android.text.TextUtils;
 
 import java.util.List;
 
-public class PlayQueueManager {
+public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     @VisibleForTesting
     protected static String SC_PLAYQUEUE_URI = "sc_playlist_uri";
@@ -33,16 +34,21 @@ public class PlayQueueManager {
     private final PlayQueueStorage mPlayQueueStorage;
     private final SharedPreferences mSharedPreferences;
     private final ExploreTracksOperations mExploreTrackOperations;
+    private final ScModelManager mModelManager;
 
     private PlayQueue mPlayQueue = PlayQueue.EMPTY;
     private Subscription mFetchRelatedSubscription, mReloadSubscription;
     private Observable<RelatedTracksCollection> mRelatedTracksObservable;
 
-    public PlayQueueManager(Context context, PlayQueueStorage playQueueStorage, ExploreTracksOperations exploreTracksOperations, SharedPreferences sharedPreferences) {
+    private boolean mGotRelatedTracks;
+
+    public PlayQueueManager(Context context, PlayQueueStorage playQueueStorage, ExploreTracksOperations exploreTracksOperations,
+                            SharedPreferences sharedPreferences, ScModelManager modelManager) {
         mContext = context;
         mPlayQueueStorage = playQueueStorage;
         mExploreTrackOperations = exploreTracksOperations;
         mSharedPreferences = sharedPreferences;
+        mModelManager = modelManager;
     }
 
     public void setNewPlayQueue(PlayQueue playQueue) {
@@ -108,13 +114,54 @@ public class PlayQueueManager {
     }
 
     public void clearAll(){
-        mSharedPreferences.edit().remove(SC_PLAYQUEUE_URI).commit();
+        SharedPreferencesUtils.apply(mSharedPreferences.edit().remove(SC_PLAYQUEUE_URI));
         mPlayQueueStorage.clearState();
         mPlayQueue = PlayQueue.EMPTY;
     }
 
     public PlayQueue getCurrentPlayQueue() {
         return mPlayQueue;
+    }
+
+    private void loadRelatedTracks() {
+        setNewRelatedLoadingState(AppendState.LOADING);
+        mGotRelatedTracks = false;
+        mFetchRelatedSubscription = mRelatedTracksObservable.subscribe(this);
+    }
+
+    @Override
+    public void onNext(RelatedTracksCollection relatedTracks) {
+        mPlayQueue.getPlaySourceInfo().setRecommenderVersion(relatedTracks.getSourceVersion());
+        for (TrackSummary item : relatedTracks) {
+            final Track track = new Track(item);
+            mModelManager.cache(track);
+            mPlayQueue.addTrack(track.getId());
+        }
+        mGotRelatedTracks = true;
+    }
+
+    @Override
+    public void onCompleted() {
+        // TODO, save new tracks to database
+        setNewRelatedLoadingState(mGotRelatedTracks ? AppendState.IDLE : AppendState.EMPTY);
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        setNewRelatedLoadingState(AppendState.ERROR);
+    }
+
+    private void setNewRelatedLoadingState(AppendState appendState) {
+        mPlayQueue.setRelatedLoadingState(appendState);
+        final Intent intent = new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED)
+                .putExtra(PlayQueue.EXTRA, mPlayQueue);
+        mContext.sendBroadcast(intent);
+    }
+
+    private void broadcastPlayQueueChanged() {
+        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
+                .putExtra(PlayQueue.EXTRA, mPlayQueue);
+        mContext.sendBroadcast(intent);
     }
 
     private void stopLoadingOperations() {
@@ -127,53 +174,6 @@ public class PlayQueueManager {
             /** do not null out this subscription as it is used to determine {@link this#shouldReloadQueue()} */
             mReloadSubscription.unsubscribe();
         }
-    }
-
-    private void loadRelatedTracks() {
-
-        mPlayQueue.setRelatedLoadingState(AppendState.LOADING);
-        broadcastRelatedLoadStateChanged();
-
-        mFetchRelatedSubscription = mRelatedTracksObservable.subscribe(new Observer<RelatedTracksCollection>() {
-            private boolean mGotRelatedTracks;
-
-            @Override
-            public void onCompleted() {
-                // TODO, save new tracks to database
-                final AppendState appendState = mGotRelatedTracks ? AppendState.IDLE : AppendState.EMPTY;
-                mPlayQueue.setRelatedLoadingState(appendState);
-                broadcastRelatedLoadStateChanged();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                mPlayQueue.setRelatedLoadingState(AppendState.ERROR);
-                broadcastRelatedLoadStateChanged();
-            }
-
-            @Override
-            public void onNext(RelatedTracksCollection relatedTracks) {
-                final String recommenderVersion = relatedTracks.getSourceVersion();
-                mPlayQueue.getPlaySourceInfo().setRecommenderVersion(recommenderVersion);
-                for (TrackSummary item : relatedTracks) {
-                    SoundCloudApplication.MODEL_MANAGER.cache(new Track(item));
-                    mPlayQueue.addTrack(item.getId());
-                }
-                mGotRelatedTracks = true;
-            }
-        });
-    }
-
-    private void broadcastPlayQueueChanged() {
-        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
-                .putExtra(PlayQueue.EXTRA, mPlayQueue);
-        mContext.sendBroadcast(intent);
-    }
-
-    private void broadcastRelatedLoadStateChanged() {
-        final Intent intent = new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED)
-                .putExtra(PlayQueue.EXTRA, mPlayQueue);
-        mContext.sendBroadcast(intent);
     }
 
     public static class ResumeInfo {

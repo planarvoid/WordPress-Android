@@ -234,7 +234,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mTrackStorage = new TrackStorage();
 
         mPlayQueueManager = new PlayQueueManager(this, new PlayQueueStorage(), new ExploreTracksOperations(),
-                PreferenceManager.getDefaultSharedPreferences(this));
+                PreferenceManager.getDefaultSharedPreferences(this), SoundCloudApplication.MODEL_MANAGER);
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mAudioManager, mPlayQueueManager);
 
         IntentFilter commandFilter = new IntentFilter();
