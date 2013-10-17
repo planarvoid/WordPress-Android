@@ -394,6 +394,7 @@
                 <action android:name="com.soundcloud.android.playback.stop"/>
                 <action android:name="com.soundcloud.android.reloadqueue"/>
                 <action android:name="com.soundcloud.android.loadTrackInfo"/>
+                <action android:name="com.soundcloud.android.retryRelatedTracks"/>
             </intent-filter>
 
           <intent-filter>

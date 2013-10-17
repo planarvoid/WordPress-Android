@@ -2,10 +2,12 @@ package com.soundcloud.android.player;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -48,7 +50,7 @@ public class PlayerQueueView extends FrameLayout {
         mEmptyView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                //mPlayQueueManager.retryRelatedTracksFetch();
+                getContext().startService(new Intent(CloudPlaybackService.Actions.RETRY_RELATED_TRACKS));
             }
         });
         if (mEmptyView.getParent() != this){

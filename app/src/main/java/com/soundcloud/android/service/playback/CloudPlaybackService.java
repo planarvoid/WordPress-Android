@@ -107,6 +107,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String REMOVE_REPOST_ACTION     = "com.soundcloud.android.repost.remove";
         String RELOAD_QUEUE             = "com.soundcloud.android.reloadqueue";
         String LOAD_TRACK_INFO          = "com.soundcloud.android.loadTrackInfo";
+        String RETRY_RELATED_TRACKS     = "com.soundcloud.android.retryRelatedTracks";
     }
 
     // broadcast notifications
@@ -248,6 +249,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         commandFilter.addAction(Broadcasts.PLAYQUEUE_CHANGED);
         commandFilter.addAction(Actions.RELOAD_QUEUE);
         commandFilter.addAction(Actions.LOAD_TRACK_INFO);
+        commandFilter.addAction(Actions.RETRY_RELATED_TRACKS);
 
         registerReceiver(mIntentReceiver, commandFilter);
         registerReceiver(mNoisyReceiver, new IntentFilter(Consts.AUDIO_BECOMING_NOISY));

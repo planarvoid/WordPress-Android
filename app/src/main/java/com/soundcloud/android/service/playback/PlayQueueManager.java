@@ -108,7 +108,6 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         loadRelatedTracks();
     }
 
-    // TODO
     public void retryRelatedTracksFetch(){
         loadRelatedTracks();
     }

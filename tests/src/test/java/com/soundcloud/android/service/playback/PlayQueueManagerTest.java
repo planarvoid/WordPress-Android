@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
+import rx.Observer;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
 
@@ -282,6 +284,15 @@ public class PlayQueueManagerTest {
         playQueueManager.clearAll();
         expect(playQueueManager.getCurrentPlayQueue()).toBe(PlayQueue.EMPTY);
 
+    }
+
+    @Test
+    public void shouldRetryWithSameObservable() throws Exception {
+        final Observable observable = Mockito.mock(Observable.class);
+        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(observable);
+        playQueueManager.fetchRelatedTracks(123L);
+        playQueueManager.retryRelatedTracksFetch();
+        verify(observable, times(2)).subscribe(any(Observer.class));
     }
 
     private void expectBroadcastPlayqueueChanged() {

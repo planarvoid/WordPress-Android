@@ -80,6 +80,8 @@ class PlaybackReceiver extends BroadcastReceiver {
                 setRepostStatus(intent.getData(), false);
             } else if (Actions.PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
+            } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
+                mPlayQueueManager.retryRelatedTracksFetch();
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
                 if (mPlaybackService.getState() == EMPTY_PLAYLIST) {
                     mPlaybackService.openCurrent();
@@ -98,7 +100,6 @@ class PlaybackReceiver extends BroadcastReceiver {
                     // make sure we go to a stopped stat. No-op if there already
                     mPlaybackService.stop();
                 }
-
             }
         } else {
             Log.e(CloudPlaybackService.TAG, "Aborting playback service action, no soundcloud account(" + intent + ")");
