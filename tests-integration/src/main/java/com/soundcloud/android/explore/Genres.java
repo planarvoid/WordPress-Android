@@ -65,20 +65,10 @@ public class Genres extends ActivityTestCase<Home> {
         assertEquals(15, discoveryCategoryTracksScreen.getItemsOnList());
         discoveryCategoryTracksScreen.pullToRefresh();
         assertEquals(15, discoveryCategoryTracksScreen.getItemsOnList());
-//        discoveryCategoryTracksScreen.scrollDown();
-//        assertTrue("There should be additional tracks on the list", discoveryCategoryTracksScreen.getItemsOnList() > 15);
+        discoveryCategoryTracksScreen.scrollToBottomOfTracksListAndLoadMoreItems();
+        assertEquals("There should be additional tracks on the list", 25, discoveryCategoryTracksScreen.getItemsOnList());
     }
 
-
-    public void testTabsShouldResetWhenVisitedFromMenu() {
-        menuScreen.openExplore();
-        discoveryScreen.touchTrendingAudioTab();
-        assertEquals("Could not get to genres section", "TRENDING AUDIO", discoveryScreen.currentTabTitle());
-        menuScreen.openStream();
-        menuScreen.openExplore();
-        assertEquals("Could not get to genres section", "TRENDING MUSIC", discoveryScreen.currentTabTitle());
-
-    }
 
     @Override
     protected void tearDown() throws Exception {

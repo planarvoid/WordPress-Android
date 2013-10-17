@@ -8,7 +8,6 @@ import static junit.framework.Assert.fail;
 import com.jayway.android.robotium.solo.By;
 import com.jayway.android.robotium.solo.Condition;
 import com.jayway.android.robotium.solo.Solo;
-import com.jayway.android.robotium.solo.WebElement;
 import com.soundcloud.android.R;
 
 import android.app.Activity;
@@ -21,12 +20,9 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -51,20 +47,12 @@ public class Han  {
         clickOnText(getString(android.R.string.ok));
     }
 
-    public boolean scrollDown() {
-        return solo.scrollDown();
-    }
-
     public void clickOnDone() {
         clickOnButtonResId(R.string.btn_done);
     }
 
     public void clickOnPublish() {
         clickOnButtonResId(R.string.btn_publish);
-    }
-
-    public WebElement getWebElement(By by, int index) {
-        return solo.getWebElement(by, index);
     }
 
     public void clearTextInWebElement(By by) {
@@ -106,10 +94,6 @@ public class Han  {
     public void assertText(int resId, Object... args) {
         final String text = getString(resId, args);
         assertTrue("Text '" + text + "' not found", solo.waitForText(Pattern.quote(text)));
-    }
-
-    public void assertVisibleTextId(int resId, Object... args) {
-        assertTrue(solo.waitForText(Pattern.quote(getString(resId, args)), 0, DEFAULT_TIMEOUT, false, true));
     }
 
     public void assertVisibleText(String text, long timeout) {
@@ -154,18 +138,6 @@ public class Han  {
         solo.clickOnButton(getString(resId));
     }
 
-    public void performClick(InstrumentationTestCase test, int resId) throws Throwable {
-        final View view = getView(resId);
-        assertNotNull("view is null", view);
-        test.runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                view.performClick();
-            }
-        });
-        solo.sleep(500);
-    }
-
     public void performClick(InstrumentationTestCase test, final View view) {
         assertNotNull("view is null", view);
         try {
@@ -186,27 +158,9 @@ public class Han  {
         return solo.getCurrentActivity().getString(resId, args);
     }
 
-    public List<ListView> getCurrentListViews(){
-        return solo.getCurrentViews(ListView.class);
-    }
-
-    public AbsListView getCurrentListView(){
-        final ArrayList<AbsListView> currentListViews = solo.getCurrentViews(AbsListView.class);
-        return currentListViews == null || currentListViews.isEmpty() ? null : currentListViews.get(0);
-    }
-
     public GridView getCurrentGridView(){
         final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
         return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
-    }
-
-
-    public ArrayList<TextView> clickInList(int line){
-        return solo.clickInList(line);
-    }
-
-    public ArrayList<TextView> clickInList(int line, int listIndex) {
-        return solo.clickInList(line, listIndex);
     }
 
     public void swipeLeft() {
@@ -256,11 +210,6 @@ public class Han  {
     }
 
     public int getScreenWidth() {
-        Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
-        return display.getWidth();
-    }
-
-    public int getScreenHeight() {
         Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
         return display.getWidth();
     }
@@ -319,10 +268,6 @@ public class Han  {
         return solo.waitForView(view);
     }
 
-    public void clickOnButton(String text) {
-        solo.clickOnButton(text);
-    }
-
     public void clickOnButton(Integer resource) {
         solo.clickOnButton(getString(resource));
     }
@@ -363,10 +308,6 @@ public class Han  {
         solo.sleep(time);
     }
 
-    public void assertCurrentActivity(String message, String name) {
-        solo.assertCurrentActivity(message, name);
-    }
-
     public <T extends View> T getView(Class<T> viewClass, int index) {
         T view = solo.getView(viewClass, index);
         assertNotNull(view);
@@ -386,42 +327,13 @@ public class Han  {
     }
 
 
-    /**
-     * Tell the CI/development machine (i.e. maven build process) to take a screenshot
-     * @see <a href="https://github.com/rtyley/android-screenshot-lib/blob/master/celebrity/src/main/java/com/github/rtyley/android/screenshot/celebrity/Screenshots.java">
-     *     android-screenshot-lib
-     *     </a>
-     */
-    public void poseForScreenshot() {
-        poseForScreenshotWithKeyValueString("");
-    }
-
-    public void poseForScreenshot(String name) {
-        poseForScreenshotWithKeyValue("name", name);
-    }
-
-    public boolean scrollUp() {
-        return solo.scrollUp();
-    }
 
     public boolean scrollListToTop(int index) {
         return solo.scrollListToTop(index);
     }
 
-    public void clickOnActionBarItem(int itemId) {
-        solo.clickOnActionBarItem(itemId);
-    }
-
-    private void poseForScreenshotWithKeyValue(String key, String value) {
-        poseForScreenshotWithKeyValueString(key + "=" + value);
-    }
-
-    private void poseForScreenshotWithKeyValueString(String keyValueString) {
-        /* Note that the log message can not be blank, otherwise it won't register with logcat. */
-        Log.d("screenshot_request", "{" + keyValueString + "}");
-
-        /* Wait for the development machine to take the screenshot (can take about 900ms) */
-        solo.sleep(1000);
+    public void scrollToBottom(AbsListView view) {
+        solo.scrollListToBottom(view);
     }
 
     public void assertTextFound(String text, boolean onlyVisible) {
@@ -445,10 +357,6 @@ public class Han  {
 
     public void clickOnWebElement(By by) {
         solo.clickOnWebElement(by);
-    }
-
-    public boolean waitForDialogToOpen(long timeout) {
-        return solo.waitForDialogToOpen(timeout);
     }
 
     public void takeScreenshot(String name) {

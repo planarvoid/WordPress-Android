@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.ListAdapter;
 
 public class Waiter {
     public Han solo;
@@ -50,5 +51,15 @@ public class Waiter {
         } else {
             return false;
         }
+    }
+
+    public boolean waitForItemCountToIncrease(final ListAdapter adapter, final int currentSize) {
+        return solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return adapter.getCount() > currentSize;
+            }
+        }, this.TIMEOUT);
+
     }
 }
