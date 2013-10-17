@@ -335,7 +335,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     public boolean configureLastPlaylist() {
-        mResumeTime = mPlayQueueManager.reloadPlayQueue(getPlayQueueInternal());
+        mResumeTime = mPlayQueueManager.reloadPlayQueue();
         if (mResumeTime > -1) {
 
             if (state.isSupposedToBePlaying()) pause();
@@ -448,7 +448,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     private void saveQueue(){
-        mPlayQueueManager.savePlayQueue(getPlayQueueInternal(), mCurrentTrack == null ? 0 : getProgress());
+        mPlayQueueManager.saveCurrentPosition(mCurrentTrack == null ? 0 : getProgress());
     }
 
     private void onTrackChanged(final Track track) {

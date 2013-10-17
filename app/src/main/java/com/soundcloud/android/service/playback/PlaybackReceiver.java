@@ -51,7 +51,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
         if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
-            mPlayQueueManager.clearLastPlayed(context);
+            mPlayQueueManager.clearAll();
 
         } else if (mAccountOperations.soundCloudAccountExists()) {
 
@@ -120,8 +120,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             PlayQueue playQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
             Log.d(CloudPlaybackService.TAG, "Loading Playqueue " + playQueue);
 
-            mPlayQueueManager.loadFromNewQueue(playQueue);
-            mPlayQueueManager.savePlayQueue(playQueue, 0);
+            mPlayQueueManager.setNewPlayQueue(playQueue);
             mPlaybackService.openCurrent();
 
             if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)){

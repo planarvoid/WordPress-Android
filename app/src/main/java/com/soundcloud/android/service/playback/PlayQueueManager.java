@@ -18,7 +18,6 @@ import rx.util.functions.Action1;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import java.util.List;
@@ -41,23 +40,21 @@ public class PlayQueueManager {
         mSharedPreferences = sharedPreferences;
     }
 
-    public void loadFromNewQueue(PlayQueue playQueue) {
+    public void setNewPlayQueue(PlayQueue playQueue) {
         if (mFetchRelatedSubscription != null){
             mFetchRelatedSubscription.unsubscribe();
         }
 
         mPlayQueue = playQueue;
         broadcastPlayQueueChanged();
+
+        saveCurrentPosition(0L);
+        mPlayQueueStorage.storeAsync(mPlayQueue).subscribe(DefaultObserver.NOOP_OBSERVER);
     }
 
-    public void savePlayQueue(PlayQueue playQueue, long seekPos) {
-        savePlayQueueMetadata(playQueue, seekPos);
-        mPlayQueueStorage.storeAsync(playQueue).subscribe(DefaultObserver.NOOP_OBSERVER);
-    }
-
-    public void savePlayQueueMetadata(PlayQueue playQueue, long seekPos) {
+    public void saveCurrentPosition(long currentTrackProgress) {
         if (!mPlayQueue.isEmpty()) {
-            final String playQueueState = playQueue.getPlayQueueState(seekPos, playQueue.getCurrentTrackId()).toString();
+            final String playQueueState = mPlayQueue.getPlayQueueState(currentTrackProgress, mPlayQueue.getCurrentTrackId()).toString();
             SharedPreferencesUtils.apply(mSharedPreferences.edit().putString(Consts.PrefKeys.SC_PLAYQUEUE_URI, playQueueState));
         }
     }
@@ -65,7 +62,7 @@ public class PlayQueueManager {
     /**
      * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
-    public long reloadPlayQueue(final PlayQueue playQueue) {
+    public long reloadPlayQueue() {
 
         final String lastUri = mSharedPreferences.getString(Consts.PrefKeys.SC_PLAYQUEUE_URI, null);
         if (!TextUtils.isEmpty(lastUri)) {
@@ -76,7 +73,7 @@ public class PlayQueueManager {
                 mPlayQueueStorage.getTrackIds().subscribe(new Action1<List<Long>>() {
                     @Override
                     public void call(List<Long> trackIds) {
-                        loadFromNewQueue(new PlayQueue(trackIds, playQueueUri.getPos(), playQueueUri.getPlaySourceInfo()));
+                        setNewPlayQueue(new PlayQueue(trackIds, playQueueUri.getPos(), playQueueUri.getPlaySourceInfo()));
                     }
                 });
             }
@@ -95,19 +92,14 @@ public class PlayQueueManager {
         loadRelatedTracks();
     }
 
+    // TODO
     public void retryRelatedTracksFetch(){
         loadRelatedTracks();
     }
 
-    public void clearAll(Context context){
-        clearLastPlayed(context);
+    public void clearAll(){
+        mSharedPreferences.edit().remove(Consts.PrefKeys.SC_PLAYQUEUE_URI).commit();
         mPlayQueueStorage.clearState();
-    }
-
-    public void clearLastPlayed(Context context) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .remove(Consts.PrefKeys.SC_PLAYQUEUE_URI)
-                .commit();
     }
 
     public PlayQueue getCurrentPlayQueue() {
@@ -124,6 +116,7 @@ public class PlayQueueManager {
 
             @Override
             public void onCompleted() {
+                // TODO, save new tracks to database
                 final AppendState appendState = mGotRelatedTracks ? AppendState.IDLE : AppendState.EMPTY;
                 mPlayQueue.setRelatedLoadingState(appendState);
                 broadcastRelatedLoadStateChanged();
