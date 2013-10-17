@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.playback;
 
+import static com.soundcloud.android.service.playback.PlayQueueManager.ResumeInfo;
 import static com.soundcloud.android.service.playback.State.COMPLETED;
 import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 import static com.soundcloud.android.service.playback.State.ERROR;
@@ -159,8 +160,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private @Nullable Track mCurrentTrack;
     private AndroidCloudAPI mOldCloudApi;
 
-    private long mResumeTime = -1;      // time of played track
-    private long mResumeTrackId = -1;   // id of last played track
+    private ResumeInfo mResumeInfo;      // info to resume a previous play session
     private long mSeekPos = -1;         // desired seek position
     private int mConnectRetries = 0;
     private long mLastRefresh;          // time last refresh hit was sent
@@ -323,8 +323,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         if (intent != null) {
             boolean hasAccount = mAccountOperations.soundCloudAccountExists();
-            if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && getPlayQueueInternal().isEmpty()){
-                configureLastPlaylist();
+            if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.shouldReloadQueue()){
+                mResumeInfo = mPlayQueueManager.reloadPlayQueue();
             }
             mIntentReceiver.onReceive(this, intent);
         }
@@ -332,21 +332,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         // make sure the service will shut down on its own if it was
         // just started but not bound to and nothing is playing
         return START_STICKY;
-    }
-
-    public boolean configureLastPlaylist() {
-        mResumeTime = mPlayQueueManager.reloadPlayQueue();
-        if (mResumeTime > -1) {
-
-            if (state.isSupposedToBePlaying()) pause();
-
-            //mCurrentTrack = mPlayQueueManager.getCurrentTrack();
-            if (mCurrentTrack != null) {
-                mResumeTrackId = mCurrentTrack.getId();
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -391,8 +376,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     public void saveProgressAndStop() {
         pause();
-        mResumeTime = getProgress();
-        mResumeTrackId = getCurrentTrackId();
+        mResumeInfo = new ResumeInfo(getProgress(), getCurrentTrackId());
         stop();
     }
 
@@ -863,8 +847,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     /* package */
     public long getProgress() {
 
-        if (mCurrentTrack != null && mResumeTrackId == mCurrentTrack.getId()) {
-            return mResumeTime; // either -1 or a valid resume time
+        if (mCurrentTrack != null && mResumeInfo != null && mResumeInfo.getTrackId() == mCurrentTrack.getId()) {
+            return mResumeInfo.getTime(); // either -1 or a valid resume time
         } else if (mWaitingForSeek && mSeekPos > 0) {
             return mSeekPos;
         } else if (mMediaPlayer != null && !state.isError() && state != PREPARING) {
@@ -1249,15 +1233,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             // mediaplayer seems to reset itself to 0 before this is called in certain builds, so if so,
             // pretend it's finished
             final long targetPosition = (mSeekPos != -1) ? mSeekPos :
-                                        (mResumeTime > -1 && mResumeTrackId == getTrackId()) ? mResumeTime :
+                                        (mResumeInfo != null && mResumeInfo.getTrackId() == getTrackId()) ? mResumeInfo.getTime() :
                                         (mp.getCurrentPosition() <= 0 && state == PLAYING) ? getDuration() : mp.getCurrentPosition();
             // premature track end ?
             if (isSeekable() && getDuration() - targetPosition > 3000) {
                 Log.w(TAG, "premature end of track (targetpos="+targetPosition+")");
                 // track ended prematurely (probably end of buffer, unreported IO error),
                 // so try to resume at last time
-                mResumeTrackId = getCurrentTrackId();
-                mResumeTime = targetPosition;
+                mResumeInfo = new ResumeInfo(getCurrentTrackId(), targetPosition);
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
             } else if (!state.isError()) {
                 trackStopEvent();
@@ -1280,15 +1263,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 if (state == PREPARING) {
                     state = PREPARED;
                     // do we need to resume a track position ?
-                    if (getCurrentTrackId() == mResumeTrackId && mResumeTime > 0) {
+                    if (getCurrentTrackId() == mResumeInfo.getTrackId() && mResumeInfo.getTime() > 0) {
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
-                            Log.d(TAG, "resuming to "+mResumeTime);
+                            Log.d(TAG, "resuming to "+mResumeInfo.getTrackId());
                         }
 
                         // play before seek to prevent ANR
                         play();
-                        seek(mResumeTime, true);
-                        mResumeTime = mResumeTrackId = -1;
+                        seek(mResumeInfo.getTime(), true);
+                        mResumeInfo = null;
 
 
                     // normal play, unless first start (autopause=true)
