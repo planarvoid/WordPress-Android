@@ -24,7 +24,7 @@ public class PlayQueue implements Parcelable {
     private PlaySourceInfo mPlaySourceInfo = PlaySourceInfo.EMPTY;
     private Uri mSourceUri; // just for "back to set" functionality in the Action Bar
 
-    enum AppendState {
+    public enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
     }
 

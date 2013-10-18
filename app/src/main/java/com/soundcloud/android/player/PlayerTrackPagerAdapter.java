@@ -18,6 +18,8 @@ import java.util.Collection;
 
 public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
+    private static final long EMPTY_VIEW_ID = -1;
+
     private int mCommentingPosition = -1;
 
     private final BiMap<PlayerQueueView, Integer> mQueueViewsByPosition = HashBiMap.create(3);
@@ -77,7 +79,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         mCommentingPosition = commentingPosition;
         PlayerTrackView commentingView = getPlayerTrackViewByPosition(commentingPosition);
         for (PlayerTrackView ptv : getPlayerTrackViews()) {
-            if (ptv != commentingView){
+            if (ptv != commentingView) {
                 ptv.setCommentMode(false);
             } else {
                 ptv.setCommentMode(true, animated);
@@ -97,7 +99,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     public void clearCommentingPosition(boolean animated) {
         mCommentingPosition = -1;
-        for (PlayerTrackView playerTrackView : getPlayerTrackViews()){
+        for (PlayerTrackView playerTrackView : getPlayerTrackViews()) {
             playerTrackView.setCommentMode(false, animated);
         }
     }
@@ -105,7 +107,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
     @Override
     protected Long getItem(int position) {
         if (position >= mPlayQueue.getCurrentTrackIds().size()) {
-            return -1L;
+            return EMPTY_VIEW_ID;
         } else {
             return mPlayQueue.getTrackIdAt(position);
         }
@@ -119,9 +121,15 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         }
 
         final PlayerQueueView queueView = (PlayerQueueView) convertView;
-        final int playQueuePosition = id == -1 ? mPlayQueue.getCurrentTrackIds().size() : mPlayQueue.getCurrentTrackIds().indexOf(id);
+        final int playQueuePosition;
 
-        queueView.setPlayQueueItem(id == -1 ? null : mTrackStorage.getTrack(id), playQueuePosition, mCommentingPosition == playQueuePosition);
+        if (id == EMPTY_VIEW_ID) {
+            playQueuePosition = mPlayQueue.getCurrentTrackIds().size();
+            queueView.showEmptyViewWithState(mPlayQueue.getAppendState());
+        } else {
+            playQueuePosition = mPlayQueue.getCurrentTrackIds().indexOf(id);
+            queueView.showTrack(mTrackStorage.getTrack(id), playQueuePosition, mCommentingPosition == playQueuePosition);
+        }
         mQueueViewsByPosition.forcePut(queueView, playQueuePosition);
         return convertView;
     }
@@ -136,16 +144,16 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         return ((Long) object) == -1 && !shouldDisplayExtraItem() ? POSITION_NONE : super.getItemPosition(object);
     }
 
-    public PlayerTrackView getPlayerTrackViewById(long id){
-        for (PlayerTrackView playerTrackView : getPlayerTrackViews()){
+    public PlayerTrackView getPlayerTrackViewById(long id) {
+        for (PlayerTrackView playerTrackView : getPlayerTrackViews()) {
             if (playerTrackView.getTrackId() == id) return playerTrackView;
         }
         return null;
     }
 
-    public PlayerTrackView getPlayerTrackViewByPosition(int position){
+    public PlayerTrackView getPlayerTrackViewByPosition(int position) {
         final PlayerQueueView playerQueueView = mQueueViewsByPosition.inverse().get(position);
-        if (playerQueueView != null){
+        if (playerQueueView != null) {
             return playerQueueView.getTrackView();
         } else {
             // this is expected to happen, for instance if we try to refresh a play position that is not on screen
@@ -153,12 +161,20 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         }
     }
 
-    public void reloadEmptyView(){
-        for (PlayerQueueView playerQueueView : mQueueViewsByPosition.keySet()){
-            if (!playerQueueView.isShowingPlayerTrackView()){
-                final Integer position = mQueueViewsByPosition.get(playerQueueView);
-                final Long id = getItem(position);
-                playerQueueView.setPlayQueueItem(id == -1 ? null : mTrackStorage.getTrack(id), position, mCommentingPosition == position);
+    // since the pager layouts can show 2 completely different things (track views and the empty/loading view),
+    // and since notifyDataSetChanged on ViewPager does not re-layout the page views, we have to do it manually
+    public void reloadEmptyView() {
+        for (PlayerQueueView playerQueueView : mQueueViewsByPosition.keySet()) {
+            if (playerQueueView.isShowingPlayerTrackView()) continue;
+
+            // here we have an EmptyView, check if it still should be one, or convert it to a track view,
+            // based on the latest adapter data
+            final Integer position = mQueueViewsByPosition.get(playerQueueView);
+            final Long id = getItem(position);
+            if (id == EMPTY_VIEW_ID) {
+                playerQueueView.showEmptyViewWithState(mPlayQueue.getAppendState());
+            } else {
+                playerQueueView.showTrack(mTrackStorage.getTrack(id), position, mCommentingPosition == position);
             }
         }
     }
