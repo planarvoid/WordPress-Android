@@ -9,6 +9,7 @@ import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.adapter.BasePagerAdapter;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.service.playback.PlayQueue;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.view.View;
@@ -18,7 +19,7 @@ import java.util.Collection;
 
 public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
-    private static final long EMPTY_VIEW_ID = -1;
+    static final long EMPTY_VIEW_ID = -1;
 
     private int mCommentingPosition = -1;
 
@@ -144,6 +145,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         return ((Long) object) == -1 && !shouldDisplayExtraItem() ? POSITION_NONE : super.getItemPosition(object);
     }
 
+    @Nullable
     public PlayerTrackView getPlayerTrackViewById(long id) {
         for (PlayerTrackView playerTrackView : getPlayerTrackViews()) {
             if (playerTrackView.getTrackId() == id) return playerTrackView;
@@ -151,6 +153,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         return null;
     }
 
+    @Nullable
     public PlayerTrackView getPlayerTrackViewByPosition(int position) {
         final PlayerQueueView playerQueueView = mQueueViewsByPosition.inverse().get(position);
         if (playerQueueView != null) {
