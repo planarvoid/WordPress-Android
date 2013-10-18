@@ -107,9 +107,6 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 23:
                             success = upgradeTo23(db, oldVersion);
                             break;
-                        case 24:
-                            success = upgradeTo24(db, oldVersion);
-                            break;
                         default:
                             break;
                     }
@@ -301,7 +298,9 @@ public class DBHelper extends SQLiteOpenHelper {
     static final String DATABASE_CREATE_PLAY_QUEUE = "("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "track_id INTEGER," +
-            "UNIQUE (track_id) ON CONFLICT IGNORE" +
+            "position INTEGER," +
+            "user_id INTEGER, "+
+            "UNIQUE (track_id, position, user_id) ON CONFLICT IGNORE" +
             ");";
 
     /**
@@ -1220,24 +1219,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
             return true;
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade23 " +
+            SoundCloudApplication.handleSilentException("error during upgrade21 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
     }
-
-    // Clean up play queue table (removed user ID and position)
-    private static boolean upgradeTo24(SQLiteDatabase db, int oldVersion) {
-        try {
-            Table.PLAY_QUEUE.alterColumns(db);
-        } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade24 " +
-                    "(from " + oldVersion + ")", e);
-            return false;
-        }
-        return true;
-    }
-
 
     private static void cleanActivities(SQLiteDatabase db){
         Table.ACTIVITIES.recreate(db);
