@@ -12,13 +12,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-public class PlayQueue implements Parcelable {
+public class PlayQueue implements Parcelable, Iterable<Long> {
     public static final String EXTRA = "PlayQueue";
     public static final PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1, PlaySourceInfo.EMPTY);
 
-    private int mPlayPosition;
+    private int mPosition;
     private List<Long> mTrackIds = Collections.emptyList();
     private AppendState mAppendState = AppendState.IDLE;
     private PlaySourceInfo mPlaySourceInfo = PlaySourceInfo.EMPTY;
@@ -30,12 +31,12 @@ public class PlayQueue implements Parcelable {
 
     public PlayQueue(Long id) {
         mTrackIds = Lists.newArrayList(id);
-        mPlayPosition = 0;
+        mPosition = 0;
     }
 
     public PlayQueue(List<Long> trackIds, int playPosition) {
         mTrackIds = trackIds;
-        mPlayPosition = playPosition;
+        mPosition = playPosition;
     }
 
     public PlayQueue(List<Long> trackIds, int playPosition, PlaySourceInfo playSourceInfo) {
@@ -56,9 +57,14 @@ public class PlayQueue implements Parcelable {
         mTrackIds = Lists.newArrayListWithExpectedSize(trackIds.length);
         for (long n : trackIds) mTrackIds.add(n);
 
-        mPlayPosition = in.readInt();
+        mPosition = in.readInt();
         mAppendState = AppendState.valueOf(in.readString());
         mPlaySourceInfo = new PlaySourceInfo(in.readBundle());
+    }
+
+    @Override
+    public Iterator<Long> iterator() {
+        return mTrackIds.iterator();
     }
 
     /* package */ void setAppendState(AppendState appendState) {
@@ -69,24 +75,50 @@ public class PlayQueue implements Parcelable {
         return mAppendState;
     }
 
-    public void addTrack(long id) {
-        mTrackIds.add(id);
-    }
-
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return mTrackIds.isEmpty();
     }
 
-    public int getSize() {
+    public int size() {
         return mTrackIds.size();
     }
 
-    public List<Long> getCurrentTrackIds() {
-        return mTrackIds;
+    public int getPosition() {
+        return mPosition;
     }
 
-    public int getPlayPosition() {
-        return mPlayPosition;
+    public boolean setPosition(int position) {
+        if (position < mTrackIds.size()) {
+            mPosition = position;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void addTrackId(long id) {
+        mTrackIds.add(id);
+    }
+
+    public long getCurrentTrackId() {
+        return getTrackIdAt(mPosition);
+    }
+
+    public long getTrackIdAt(int position) {
+        return mTrackIds.get(position);
+    }
+
+    public int getPositionOfTrackId(long trackId) {
+        return mTrackIds.indexOf(trackId);
+    }
+
+    // TODO, set this to the source URI
+    public void setSourceUri(Uri uri) {
+        mSourceUri = uri;
+    }
+
+    public Uri getSourceUri() {
+        return mSourceUri;
     }
 
     public PlaySourceInfo getPlaySourceInfo() {
@@ -105,11 +137,6 @@ public class PlayQueue implements Parcelable {
         return mAppendState == AppendState.EMPTY;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
     /**
      * TODO : We need to figure out how to decouple event logger params from the playqueue
      */
@@ -119,70 +146,41 @@ public class PlayQueue implements Parcelable {
     }
 
     /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {
-        return new PlayQueueUri().toUri(currentTrackId, mPlayPosition, seekPos, mPlaySourceInfo);
+        return new PlayQueueUri().toUri(currentTrackId, mPosition, seekPos, mPlaySourceInfo);
     }
 
-    public List<Long> getTrackIds() {
-        return mTrackIds;
-    }
-
-    public int length() {
-        return mTrackIds.size();
-    }
-
-    // TODO, set this to the source URI
-    public void setSourceUri(Uri uri){
-        mSourceUri = uri;
-    }
-
-    public Uri getSourceUri(){
-        return mSourceUri;
-    }
-
-    public boolean setPosition(int playPos) {
-        if (playPos < mTrackIds.size()) {
-            mPlayPosition = playPos;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public long getCurrentTrackId() {
-        return getTrackIdAt(mPlayPosition);
-    }
-
-    public long getTrackIdAt(int playPos){
-        return mTrackIds.get(playPos);
-    }
-
-    public boolean prev() {
-        if (mPlayPosition > 0) {
-            mPlayPosition--;
+    public boolean moveToPrevious() {
+        if (mPosition > 0) {
+            mPosition--;
             return true;
         }
         return false;
     }
 
-    public Boolean next() {
-        if (!onLastTrack()) {
-            mPlayPosition++;
+    public boolean moveToNext() {
+        if (!isLastTrack()) {
+            mPosition++;
             return true;
         }
         return false;
     }
 
-    public boolean onLastTrack(){
-        return mPlayPosition < mTrackIds.size() - 1;
+    public boolean isLastTrack() {
+        return mPosition >= mTrackIds.size() - 1;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mTrackIds.size());
         dest.writeLongArray(Longs.toArray(mTrackIds));
-        dest.writeInt(mPlayPosition);
+        dest.writeInt(mPosition);
         dest.writeString(mAppendState.name());
         dest.writeBundle(mPlaySourceInfo.getData());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Parcelable.Creator<PlayQueue> CREATOR = new Parcelable.Creator<PlayQueue>() {
@@ -199,8 +197,8 @@ public class PlayQueue implements Parcelable {
     public String toString() {
         return Objects.toStringHelper(getClass())
                 .add("Track IDs", mTrackIds)
-                .add("Size", getSize())
-                .add("Play Position", mPlayPosition)
+                .add("Size", size())
+                .add("Play Position", mPosition)
                 .add("Append State", mAppendState)
                 .toString();
     }

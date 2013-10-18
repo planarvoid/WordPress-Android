@@ -349,7 +349,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             final CloudPlaybackService playbackService = mPlaybackService;
 
             if (playbackService != null && mPlayQueue != PlayQueue.EMPTY) {
-                if (getCurrentDisplayedTrackPosition() != mPlayQueue.getPlayPosition()) {
+                if (getCurrentDisplayedTrackPosition() != mPlayQueue.getPosition()) {
                     playbackService.setQueuePosition(getCurrentDisplayedTrackPosition());
                 } else {
                     playbackService.togglePlayback();
@@ -369,7 +369,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
             if (mPlaybackService != null) {
-                final int playPosition = mPlayQueue.getPlayPosition();
+                final int playPosition = mPlayQueue.getPosition();
                 if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
 
                     final Track currentTrack = CloudPlaybackService.getCurrentTrack();
@@ -409,8 +409,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             }
 
             if (mPlaybackService != null) {
-                final int playPosition = mPlayQueue.getPlayPosition();
-                if (mPlayQueue.length() > playPosition + 1) {
+                final int playPosition = mPlayQueue.getPosition();
+                if (mPlayQueue.size() > playPosition + 1) {
                     if (getCurrentDisplayedTrackPosition() == playPosition) {
                         mChangeTrackFast = true;
                         mTrackPager.next();
@@ -437,7 +437,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private long refreshNow() {
         long progress = CloudPlaybackService.getCurrentProgress();
         if (mPlaybackService != null){
-            final PlayerTrackView ptv = getTrackView(mPlayQueue.getPlayPosition());
+            final PlayerTrackView ptv = getTrackView(mPlayQueue.getPosition());
             if (ptv != null) {
                 ptv.setProgress(progress, CloudPlaybackService.getLoadingPercent(),
                         Consts.SdkSwitches.useSmoothProgress && CloudPlaybackService.getPlaybackState() == State.PLAYING);
@@ -568,7 +568,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private void refreshTrackPager() {
         mTrackPagerAdapter.setPlayQueue(mPlayQueue);
         mTrackPager.refreshAdapter();
-        mTrackPager.setCurrentItem(mPlayQueue.getPlayPosition());
+        mTrackPager.setCurrentItem(mPlayQueue.getPosition());
 
         setCommentMode(false, false);
         setBufferingState();
@@ -590,7 +590,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             queueNextRefresh(next);
         }
         mTransportBar.setPlaybackState(showPlayState);
-        mTransportBar.setNextEnabled(!mPlayQueue.onLastTrack());
+        mTransportBar.setNextEnabled(!mPlayQueue.isLastTrack());
     }
 
     private int getCurrentDisplayedTrackPosition() {

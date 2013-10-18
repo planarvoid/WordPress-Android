@@ -23,7 +23,6 @@ import rx.util.functions.Action1;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.text.TextUtils;
 
 public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
@@ -136,7 +135,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         for (TrackSummary item : relatedTracks) {
             final Track track = new Track(item);
             mModelManager.cache(track);
-            mPlayQueue.addTrack(track.getId());
+            mPlayQueue.addTrackId(track.getId());
         }
         mGotRelatedTracks = true;
     }

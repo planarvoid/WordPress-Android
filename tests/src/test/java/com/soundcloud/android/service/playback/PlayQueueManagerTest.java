@@ -165,7 +165,7 @@ public class PlayQueueManagerTest {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L, 3L), 2);
         when(playQueueStorage.getPlayQueueAsync(anyInt(), any(PlaySourceInfo.class))).thenReturn(Observable.<PlayQueue>just(playQueue));
         playQueueManager.loadPlayQueue();
-        expect(playQueueManager.getCurrentPlayQueue().getCurrentTrackIds()).toContainExactly(1L,2L,3L);
+        expect(playQueueManager.getCurrentPlayQueue()).toContainExactly(1L,2L,3L);
     }
 
     @Test
@@ -217,7 +217,7 @@ public class PlayQueueManagerTest {
         playQueueManager.setNewPlayQueue(new PlayQueue(123L));
         playQueueManager.onNext(new RelatedTracksCollection(Lists.<TrackSummary>newArrayList(trackSummary), "123"));
 
-        expect(playQueueManager.getCurrentPlayQueue().getCurrentTrackIds()).toContainExactly(123L, trackSummary.getId());
+        expect(playQueueManager.getCurrentPlayQueue()).toContainExactly(123L, trackSummary.getId());
 
         ArgumentCaptor<Track> captor = ArgumentCaptor.forClass(Track.class);
         verify(modelManager).cache(captor.capture());

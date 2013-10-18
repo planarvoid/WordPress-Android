@@ -89,7 +89,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     @Override
     public int getCount() {
-        return shouldDisplayExtraItem() ? mPlayQueue.getCurrentTrackIds().size() + 1 : mPlayQueue.getCurrentTrackIds().size();
+        return shouldDisplayExtraItem() ? mPlayQueue.size() + 1 : mPlayQueue.size();
     }
 
 
@@ -106,7 +106,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     @Override
     protected Long getItem(int position) {
-        if (position >= mPlayQueue.getCurrentTrackIds().size()) {
+        if (position >= mPlayQueue.size()) {
             return EMPTY_VIEW_ID;
         } else {
             return mPlayQueue.getTrackIdAt(position);
@@ -124,10 +124,10 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         final int playQueuePosition;
 
         if (id == EMPTY_VIEW_ID) {
-            playQueuePosition = mPlayQueue.getCurrentTrackIds().size();
+            playQueuePosition = mPlayQueue.size();
             queueView.showEmptyViewWithState(mPlayQueue.getAppendState());
         } else {
-            playQueuePosition = mPlayQueue.getCurrentTrackIds().indexOf(id);
+            playQueuePosition = mPlayQueue.getPositionOfTrackId(id);
             queueView.showTrack(mTrackStorage.getTrack(id), playQueuePosition, mCommentingPosition == playQueuePosition);
         }
         mQueueViewsByPosition.forcePut(queueView, playQueuePosition);

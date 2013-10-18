@@ -85,7 +85,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
     public static PlayQueue getPlayQueue() { return instance == null ? PlayQueue.EMPTY : instance.clonePlayQueue(); }
     public static Uri getPlayQueueUri() { return instance == null ? null : instance.getPlayQueueInternal().getSourceUri(); }
-    public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPlayPosition(); }
+    public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
     public static State getPlaybackState() { return state; }
@@ -411,7 +411,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             .putExtra(BroadcastExtras.isSupposedToBePlaying, state.isSupposedToBePlaying())
             .putExtra(BroadcastExtras.isBuffering, _isBuffering())
             .putExtra(BroadcastExtras.position, getProgress())
-            .putExtra(BroadcastExtras.queuePosition, getPlayQueueInternal().getPlayPosition())
+            .putExtra(BroadcastExtras.queuePosition, getPlayQueueInternal().getPosition())
             .putExtra(BroadcastExtras.isLike, getIsLike())
             .putExtra(BroadcastExtras.isRepost, getIsRepost());
 
@@ -761,7 +761,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     /* package */ boolean prev() {
-        if (getPlayQueueInternal().prev()) {
+        if (getPlayQueueInternal().moveToPrevious()) {
             openCurrent(Media.Action.Backward);
             return true;
         } else {
@@ -770,7 +770,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     /* package */ boolean next() {
-        if (getPlayQueueInternal().next()) {
+        if (getPlayQueueInternal().moveToNext()) {
             openCurrent(Media.Action.Forward);
             return true;
         } else {
@@ -830,7 +830,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public void setQueuePosition(int pos) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setQueuePosition("+pos+")");
 
-        if (getPlayQueueInternal().getPlayPosition() != pos && getPlayQueueInternal().setPosition(pos)) {
+        if (getPlayQueueInternal().getPosition() != pos && getPlayQueueInternal().setPosition(pos)) {
             openCurrent();
         }
     }
