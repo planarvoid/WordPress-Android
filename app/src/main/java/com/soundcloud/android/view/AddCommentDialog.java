@@ -5,8 +5,8 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.PlayerActivity;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
@@ -50,7 +50,7 @@ public class AddCommentDialog extends Dialog {
         setCancelable(true);
         setCanceledOnTouchOutside(true);
 
-        final Comment comment = ScPlayer.pendingComment;
+        final Comment comment = PlayerActivity.pendingComment;
 
         if (comment == null) {
             dismiss();
@@ -99,7 +99,7 @@ public class AddCommentDialog extends Dialog {
     @Override
     protected void onStart() {
         super.onStart();
-        final Comment comment = ScPlayer.pendingComment;
+        final Comment comment = PlayerActivity.pendingComment;
         if (comment != null) {
             mActivity.track(Page.Sounds_add_comment, comment.getPlayable());
         }
@@ -148,8 +148,8 @@ public class AddCommentDialog extends Dialog {
                 track.comment_count = Math.max(1, track.comment_count + 1); //take care of -1
             }
 
-            if (mActivity instanceof ScPlayer) {
-                ((ScPlayer) mActivity).onNewComment(comment);
+            if (mActivity instanceof PlayerActivity) {
+                ((PlayerActivity) mActivity).onNewComment(comment);
             }
 
             new AddCommentTask(mActivity.getApp(), oldCloudAPI).execute(comment);

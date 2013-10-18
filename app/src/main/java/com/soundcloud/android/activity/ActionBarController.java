@@ -260,7 +260,7 @@ public class ActionBarController {
         final MenuItem backToSetItem = menu.findItem(R.id.menu_backToSet);
         if (backToSetItem != null) {
             boolean visible = false;
-            if ((mOwner.getActivity() instanceof ScPlayer)) {
+            if ((mOwner.getActivity() instanceof PlayerActivity)) {
                 final Uri uri = CloudPlaybackService.getPlayQueueUri();
                 if (uri != null && Content.match(uri) == Content.PLAYLIST) {
                     visible = true;

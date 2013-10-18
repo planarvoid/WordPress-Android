@@ -47,16 +47,16 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     }
 
     public void ignore_testPlayer() throws Exception {
-        assertActivityStarted(ScPlayer.class, Actions.PLAYER);
-        assertActivityStarted(ScPlayer.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/1235"));
+        assertActivityStarted(PlayerActivity.class, Actions.PLAYER);
+        assertActivityStarted(PlayerActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/1235"));
     }
 
     public void ignore_testPlayWithPlaylist() throws Exception {
-        assertActivityStarted(ScPlayer.class, Actions.PLAY,  Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/tracks"));
+        assertActivityStarted(PlayerActivity.class, Actions.PLAY,  Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/tracks"));
     }
 
     public void ignore_testPlayEmpty() throws Exception {
-        assertActivityStarted(ScPlayer.class, Actions.PLAY);
+        assertActivityStarted(PlayerActivity.class, Actions.PLAY);
     }
 
     public void ignore_testShare() throws Exception {

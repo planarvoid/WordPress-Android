@@ -8,7 +8,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.activity.PlayerActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.Comment;
@@ -80,7 +80,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         View.inflate(context,R.layout.player_track, this);
 
-        mListener = (ScPlayer) context;// NO!!!
+        mListener = (PlayerActivity) context;// NO!!!
         oldCloudApi = new OldCloudAPI(context.getApplicationContext());
         mTrackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
@@ -309,10 +309,10 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                 if (mTrack == null || mTrack.isStreamable()) {
                     int errorMessage;
                     switch (mTrack == null ? -1 : mTrack.last_playback_error) {
-                        case ScPlayer.PlayerError.PLAYBACK_ERROR:
+                        case PlayerActivity.PlayerError.PLAYBACK_ERROR:
                             errorMessage = R.string.player_error;
                             break;
-                        case ScPlayer.PlayerError.TRACK_UNAVAILABLE:
+                        case PlayerActivity.PlayerError.TRACK_UNAVAILABLE:
                             errorMessage = R.string.player_track_unavailable;
                             break;
                         default:
@@ -385,13 +385,13 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                     intent.getLongExtra(BroadcastExtras.position, 0));
 
         } else if (Broadcasts.PLAYBACK_ERROR.equals(action)) {
-            mTrack.last_playback_error = ScPlayer.PlayerError.PLAYBACK_ERROR;
+            mTrack.last_playback_error = PlayerActivity.PlayerError.PLAYBACK_ERROR;
             onUnplayable(intent);
         } else if (Broadcasts.STREAM_DIED.equals(action)) {
-            mTrack.last_playback_error = ScPlayer.PlayerError.STREAM_ERROR;
+            mTrack.last_playback_error = PlayerActivity.PlayerError.STREAM_ERROR;
             onUnplayable(intent);
         } else if (Broadcasts.TRACK_UNAVAILABLE.equals(action)) {
-            mTrack.last_playback_error = ScPlayer.PlayerError.TRACK_UNAVAILABLE;
+            mTrack.last_playback_error = PlayerActivity.PlayerError.TRACK_UNAVAILABLE;
             onUnplayable(intent);
         } else if (Broadcasts.COMMENTS_LOADED.equals(action)) {
             mWaveformController.setComments(mTrack.comments, true);

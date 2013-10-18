@@ -41,7 +41,7 @@ import android.widget.CompoundButton;
 import javax.annotation.CheckForNull;
 import java.lang.ref.WeakReference;
 
-public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener {
+public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTrackPageListener, PlayerTrackView.PlayerTrackViewListener {
     public static final int REFRESH_DELAY = 1000;
 
     private static final String STATE_PAGER_QUEUE_POSITION = "pager_queue_position";
@@ -71,7 +71,7 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView(R.layout.sc_player);
+        setContentView(R.layout.player_activity);
 
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
         mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);
@@ -450,15 +450,15 @@ public class ScPlayer extends ScActivity implements PlayerTrackPager.OnTrackPage
     }
 
     private static final class PlayerHandler extends Handler {
-        private WeakReference<ScPlayer> mPlayerRef;
+        private WeakReference<PlayerActivity> mPlayerRef;
 
-        private PlayerHandler(ScPlayer context) {
-            this.mPlayerRef = new WeakReference<ScPlayer>(context);
+        private PlayerHandler(PlayerActivity context) {
+            this.mPlayerRef = new WeakReference<PlayerActivity>(context);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            final ScPlayer player = mPlayerRef.get();
+            final PlayerActivity player = mPlayerRef.get();
             if (player == null) {
                 return;
             }
