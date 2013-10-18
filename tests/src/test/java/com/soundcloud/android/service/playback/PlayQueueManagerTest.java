@@ -2,6 +2,7 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
@@ -37,30 +38,29 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 
 import java.util.Collections;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
-    String playQueueUri = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v1&playSource-exploreTag=2&playSource-originUrl=1&playSource-initialTrackId=1";
+    private final String playQueueUri = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v1&playSource-exploreTag=2&playSource-originUrl=1&playSource-initialTrackId=1";
 
-    PlayQueueManager playQueueManager;
+    private PlayQueueManager playQueueManager;
 
     @Mock
-    PlayQueue playQueue = Mockito.mock(PlayQueue.class);
+    private PlayQueue playQueue = Mockito.mock(PlayQueue.class);
     @Mock
-    Context context;
+    private Context context;
     @Mock
-    PlayQueueStorage playQueueStorage;
+    private PlayQueueStorage playQueueStorage;
     @Mock
-    ExploreTracksOperations exploreTracksOperations;
+    private ExploreTracksOperations exploreTracksOperations;
     @Mock
-    PlaySourceInfo trackingInfo;
+    private PlaySourceInfo trackingInfo;
     @Mock
-    ScModelManager modelManager;
+    private ScModelManager modelManager;
     @Mock
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
     @Mock
-    SharedPreferences.Editor sharedPreferencesEditor;
+    private SharedPreferences.Editor sharedPreferencesEditor;
 
     @Before
     public void before() {
@@ -107,7 +107,6 @@ public class PlayQueueManagerTest {
         when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
         playQueueManager.setNewPlayQueue(playQueue);
         verify(observable).subscribe(DefaultObserver.NOOP_OBSERVER);
-
     }
 
     @Test
@@ -119,55 +118,58 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldNotReloadPlayqueueFromStorageWhenLastUriDoesNotExist(){
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(null);
-        expect(playQueueManager.reloadPlayQueue()).toBeNull();
+        expect(playQueueManager.loadPlayQueue()).toBeNull();
         verifyZeroInteractions(playQueueStorage);
     }
 
     @Test
     public void shouldNotReloadPlayQueueWithInvalidUri(){
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn("asdf321");
-        expect(playQueueManager.reloadPlayQueue()).toBeNull();
+        expect(playQueueManager.loadPlayQueue()).toBeNull();
         verifyZeroInteractions(playQueueStorage);
     }
 
     @Test
     public void shouldBroadcastPlayQueueChangedWhenLastUriDoesNotExist(){
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(null);
-        expect(playQueueManager.reloadPlayQueue()).toBeNull();
+        expect(playQueueManager.loadPlayQueue()).toBeNull();
         expectBroadcastPlayqueueChanged();
     }
 
     @Test
     public void shouldReturnResumeInfoWhenReloadingPlayQueue(){
-        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(playQueueUri);
-        when(playQueueStorage.getTrackIds()).thenReturn(Mockito.mock(Observable.class));
+        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
+        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.EMPTY)).thenReturn(Mockito.mock(Observable.class));
 
-        PlayQueueManager.ResumeInfo resumeInfo = playQueueManager.reloadPlayQueue();
+        PlayQueueManager.ResumeInfo resumeInfo = playQueueManager.loadPlayQueue();
         expect(resumeInfo.getTrackId()).toEqual(456L);
         expect(resumeInfo.getTime()).toEqual(400L);
     }
 
     @Test
-    public void shouldLoadTrackIdsWhenReloadingPlayQueue(){
-        Observable<List<Long>> observable = Mockito.mock(Observable.class);
-        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(playQueueUri);
-        when(playQueueStorage.getTrackIds()).thenReturn(observable);
+    public void shouldReloadPlayQueueFromLocalStorage(){
+        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
+        Observable<PlayQueue> observable = Mockito.mock(Observable.class);
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
+        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.EMPTY)).thenReturn(observable);
 
-        playQueueManager.reloadPlayQueue();
+        playQueueManager.loadPlayQueue();
         verify(observable).subscribe(any(Action1.class));
     }
 
     @Test
-    public void shouldAddIdsWhenReloadingPlayQueueReturns(){
-
-        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(playQueueUri);
-        when(playQueueStorage.getTrackIds()).thenReturn(Observable.<List<Long>>just(Lists.newArrayList(1L, 2L, 3L)));
-        playQueueManager.reloadPlayQueue();
+    public void shouldSetNewPlayQueueWhenReloadingPlayQueueReturns(){
+        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L, 3L), 2);
+        when(playQueueStorage.getPlayQueueAsync(anyInt(), any(PlaySourceInfo.class))).thenReturn(Observable.<PlayQueue>just(playQueue));
+        playQueueManager.loadPlayQueue();
         expect(playQueueManager.getCurrentPlayQueue().getCurrentTrackIds()).toContainExactly(1L,2L,3L);
     }
 
     @Test
-    public void shouldReloadShouldBeTrue(){
+    public void shouldReloadShouldBeTrueIfThePlayQueueIsEmpty(){
         expect(playQueueManager.shouldReloadQueue()).toBeTrue();
     }
 
@@ -180,18 +182,6 @@ public class PlayQueueManagerTest {
         when(playQueue.getPlayQueueState(0, 3L)).thenReturn(Uri.parse(playQueueState));
 
         playQueueManager.setNewPlayQueue(playQueue);
-        expect(playQueueManager.shouldReloadQueue()).toBeFalse();
-    }
-
-    @Test
-    public void shouldReloadShouldBeFalseIfAlreadyReloading(){
-        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
-        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        final Observable mock = Mockito.mock(Observable.class);
-        when(playQueueStorage.getTrackIds()).thenReturn(mock);
-        when(mock.subscribe(any(Action1.class))).thenReturn(Subscriptions.empty());
-        playQueueManager.reloadPlayQueue();
-
         expect(playQueueManager.shouldReloadQueue()).toBeFalse();
     }
 

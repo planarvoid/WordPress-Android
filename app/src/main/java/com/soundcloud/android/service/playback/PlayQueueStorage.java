@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Observer;
@@ -19,7 +20,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-import java.util.Collections;
 import java.util.List;
 
 public class PlayQueueStorage extends ScheduledOperations implements Storage<PlayQueue> {
@@ -78,30 +78,24 @@ public class PlayQueueStorage extends ScheduledOperations implements Storage<Pla
         }));
     }
 
-    /**
-     * TODO : any way to be more DRY and combine with {@link com.soundcloud.android.dao.TrackStorage#getTrackIdsForUriAsync(android.net.Uri)}
-      */
-
-    public Observable<List<Long>> getTrackIds() {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<List<Long>>() {
+    public Observable<PlayQueue> getPlayQueueAsync(final int playPosition, final PlaySourceInfo playSourceInfo) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<PlayQueue>() {
             @Override
-            public Subscription onSubscribe(Observer<? super List<Long>> observer) {
+            public Subscription onSubscribe(Observer<? super PlayQueue> observer) {
                 final BooleanSubscription subscription = new BooleanSubscription();
                 Cursor cursor = mResolver.query(Content.PLAY_QUEUE.uri, new String[]{DBHelper.PlayQueue.TRACK_ID}, null, null, null);
                 if (!subscription.isUnsubscribed()) {
                     if (cursor == null) {
-                        observer.onNext(Collections.<Long>emptyList());
                         observer.onCompleted();
-
                     } else {
-                        List<Long> newQueue = Lists.newArrayListWithExpectedSize(cursor.getCount());
+                        List<Long> trackIds = Lists.newArrayListWithExpectedSize(cursor.getCount());
                         try {
                             while (cursor.moveToNext()) {
-                                newQueue.add(cursor.getLong(cursor.getColumnIndex(DBHelper.PlayQueue.TRACK_ID)));
+                                trackIds.add(cursor.getLong(cursor.getColumnIndex(DBHelper.PlayQueue.TRACK_ID)));
                             }
-                            observer.onNext(newQueue);
+                            PlayQueue playQueue = new PlayQueue(trackIds, playPosition, playSourceInfo);
+                            observer.onNext(playQueue);
                             observer.onCompleted();
-
                         } finally {
                             cursor.close();
                         }

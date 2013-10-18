@@ -101,10 +101,8 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         }));
     }
 
-    public Track getTrack(Uri uri) {
-        return mTrackDAO.queryByUri(uri);
-    }
-
+    // TODO: this should not depend on content URIs, since we're trying to move away from it. Difficult to do without
+    // migrating the front end first to not use content URIs
     public Observable<List<Long>> getTrackIdsForUriAsync(final Uri uri) {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<List<Long>>() {
             @Override

@@ -48,12 +48,15 @@ public class PlaySourceInfo implements Parcelable {
      * {@link com.soundcloud.android.service.playback.PlayQueueUri}
      */
     public static PlaySourceInfo fromUriParams(Uri uri) {
-        return new PlaySourceInfo(
-                new Builder(Longs.tryParse(uri.getQueryParameter(KEY_INITIAL_TRACK_ID)))
-                        .originUrl(uri.getQueryParameter(KEY_ORIGIN_URL))
-                        .exploreTag(uri.getQueryParameter(KEY_EXPLORE_TAG))
-                        .recommenderVersion(uri.getQueryParameter(KEY_RECOMMENDER_VERSION))
-        );
+        final String trackId = uri.getQueryParameter(KEY_INITIAL_TRACK_ID);
+        if (ScTextUtils.isBlank(trackId)) {
+            return PlaySourceInfo.EMPTY;
+        }
+        return new Builder(Longs.tryParse(trackId))
+                .originUrl(uri.getQueryParameter(KEY_ORIGIN_URL))
+                .exploreTag(uri.getQueryParameter(KEY_EXPLORE_TAG))
+                .recommenderVersion(uri.getQueryParameter(KEY_RECOMMENDER_VERSION))
+                .build();
     }
 
     public void setRecommenderVersion(String version) {

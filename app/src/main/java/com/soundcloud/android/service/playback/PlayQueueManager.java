@@ -24,8 +24,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import java.util.List;
-
 public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     @VisibleForTesting
@@ -39,7 +37,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     private PlayQueue mPlayQueue = PlayQueue.EMPTY;
     private Subscription mFetchRelatedSubscription = Subscriptions.empty();
-    private Subscription mReloadSubscription = Subscriptions.empty();
+    private Subscription mPlayQueueSubscription = Subscriptions.empty();
     private Observable<RelatedTracksCollection> mRelatedTracksObservable;
 
     private boolean mGotRelatedTracks;
@@ -73,17 +71,18 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     /**
      * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
-    public ResumeInfo reloadPlayQueue() {
+    public ResumeInfo loadPlayQueue() {
         final String lastUri = mSharedPreferences.getString(PLAYQUEUE_URI_PREF_KEY, null);
         if (ScTextUtils.isNotBlank(lastUri)) {
             final PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
             final long seekPos = playQueueUri.getSeekPos();
             final long trackId = playQueueUri.getTrackId();
             if (trackId > 0) {
-                mReloadSubscription = mPlayQueueStorage.getTrackIds().subscribe(new Action1<List<Long>>() {
+                mPlayQueueSubscription = mPlayQueueStorage.getPlayQueueAsync(
+                        playQueueUri.getPos(), playQueueUri.getPlaySourceInfo()).subscribe(new Action1<PlayQueue>() {
                     @Override
-                    public void call(List<Long> trackIds) {
-                        setNewPlayQueue(new PlayQueue(trackIds, playQueueUri.getPos(), playQueueUri.getPlaySourceInfo()));
+                    public void call(PlayQueue playQueue) {
+                        setNewPlayQueue(playQueue);
                     }
                 });
                 return new ResumeInfo(trackId, seekPos);
@@ -92,17 +91,15 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
                 SoundCloudApplication.handleSilentException(message, new IllegalArgumentException(message));
             }
         } else {
-            if (TextUtils.isEmpty(lastUri)) {
-                // this is so the player can finish() instead of display waiting to the user
-                broadcastPlayQueueChanged();
-            }
+            // this is so the player can finish() instead of display waiting to the user
+            broadcastPlayQueueChanged();
         }
 
         return null;
     }
 
     public boolean shouldReloadQueue(){
-        return mPlayQueue.isEmpty() && mReloadSubscription == Subscriptions.empty();
+        return mPlayQueue.isEmpty();
     }
 
     public void fetchRelatedTracks(long trackId){
@@ -169,7 +166,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         mFetchRelatedSubscription.unsubscribe();
         mFetchRelatedSubscription = Subscriptions.empty();
 
-        mReloadSubscription.unsubscribe();
+        mPlayQueueSubscription.unsubscribe();
     }
 
     public static class ResumeInfo {

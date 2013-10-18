@@ -326,7 +326,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         if (intent != null) {
             boolean hasAccount = mAccountOperations.soundCloudAccountExists();
             if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.shouldReloadQueue()){
-                mResumeInfo = mPlayQueueManager.reloadPlayQueue();
+                mResumeInfo = mPlayQueueManager.loadPlayQueue();
             }
             mIntentReceiver.onReceive(this, intent);
         }
