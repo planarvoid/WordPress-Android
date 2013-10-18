@@ -16,6 +16,7 @@ import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.android.concurrency.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
 
@@ -79,12 +80,14 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
             final long trackId = playQueueUri.getTrackId();
             if (trackId > 0) {
                 mPlayQueueSubscription = mPlayQueueStorage.getPlayQueueAsync(
-                        playQueueUri.getPos(), playQueueUri.getPlaySourceInfo()).subscribe(new Action1<PlayQueue>() {
-                    @Override
-                    public void call(PlayQueue playQueue) {
-                        setNewPlayQueue(playQueue);
-                    }
-                });
+                        playQueueUri.getPos(), playQueueUri.getPlaySourceInfo())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Action1<PlayQueue>() {
+                            @Override
+                            public void call(PlayQueue playQueue) {
+                                setNewPlayQueue(playQueue);
+                            }
+                        });
                 return new ResumeInfo(trackId, seekPos);
             } else {
                 final String message = "Unexpected track id when reloading playqueue: " + trackId;
