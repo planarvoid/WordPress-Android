@@ -17,7 +17,7 @@ public class PlayQueueTest {
     public void shouldBeParcelable() throws Exception {
         final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(1L).exploreTag("explore").originUrl("url/123").recommenderVersion("version1").build();
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L,2L,3L), 0, playSourceInfo);
-        playQueue.setRelatedLoadingState(PlayQueue.AppendState.IDLE);
+        playQueue.setAppendState(PlayQueue.AppendState.IDLE);
 
         Parcel parcel = Parcel.obtain();
         playQueue.writeToParcel(parcel, 0);
@@ -25,7 +25,7 @@ public class PlayQueueTest {
 
         expect(copy.getCurrentTrackIds()).toContainExactly(1L,2L,3L);
         expect(copy.getPlayPosition()).toBe(0);
-        expect(copy.getCurrentAppendState()).toEqual(PlayQueue.AppendState.IDLE);
+        expect(copy.getAppendState()).toEqual(PlayQueue.AppendState.IDLE);
         expect(copy.getPlaySourceInfo()).toEqual(playSourceInfo);
     }
 }

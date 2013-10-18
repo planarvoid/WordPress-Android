@@ -15,8 +15,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class PlayQueue implements Parcelable {
-    public static String EXTRA = "PlayQueue";
-    public static PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1, PlaySourceInfo.EMPTY);
+    public static final String EXTRA = "PlayQueue";
+    public static final PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1, PlaySourceInfo.EMPTY);
 
     private int mPlayPosition;
     private List<Long> mTrackIds = Collections.emptyList();
@@ -24,7 +24,7 @@ public class PlayQueue implements Parcelable {
     private PlaySourceInfo mPlaySourceInfo = PlaySourceInfo.EMPTY;
     private Uri mSourceUri; // just for "back to set" functionality in the Action Bar
 
-    public enum AppendState {
+    enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
     }
 
@@ -61,8 +61,12 @@ public class PlayQueue implements Parcelable {
         mPlaySourceInfo = new PlaySourceInfo(in.readBundle());
     }
 
-    public void setRelatedLoadingState(AppendState appendState) {
+    /* package */ void setAppendState(AppendState appendState) {
         mAppendState = appendState;
+    }
+
+    public AppendState getAppendState() {
+        return mAppendState;
     }
 
     public void addTrack(long id) {
@@ -83,10 +87,6 @@ public class PlayQueue implements Parcelable {
 
     public int getPlayPosition() {
         return mPlayPosition;
-    }
-
-    public AppendState getCurrentAppendState() {
-        return mAppendState;
     }
 
     public PlaySourceInfo getPlaySourceInfo() {

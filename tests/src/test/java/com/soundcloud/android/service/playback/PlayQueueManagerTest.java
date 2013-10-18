@@ -98,7 +98,7 @@ public class PlayQueueManagerTest {
         when(playQueue.getPlayQueueState(0, 3L)).thenReturn(Uri.parse(playQueueState));
 
         playQueueManager.setNewPlayQueue(playQueue);
-        verify(sharedPreferencesEditor).putString(PlayQueueManager.SC_PLAYQUEUE_URI, playQueueState);
+        verify(sharedPreferencesEditor).putString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, playQueueState);
     }
 
     @Test
@@ -118,28 +118,28 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldNotReloadPlayqueueFromStorageWhenLastUriDoesNotExist(){
-        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(null);
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(null);
         expect(playQueueManager.reloadPlayQueue()).toBeNull();
         verifyZeroInteractions(playQueueStorage);
     }
 
     @Test
     public void shouldNotReloadPlayQueueWithInvalidUri(){
-        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn("asdf321");
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn("asdf321");
         expect(playQueueManager.reloadPlayQueue()).toBeNull();
         verifyZeroInteractions(playQueueStorage);
     }
 
     @Test
     public void shouldBroadcastPlayQueueChangedWhenLastUriDoesNotExist(){
-        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(null);
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(null);
         expect(playQueueManager.reloadPlayQueue()).toBeNull();
         expectBroadcastPlayqueueChanged();
     }
 
     @Test
     public void shouldReturnResumeInfoWhenReloadingPlayQueue(){
-        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(playQueueUri);
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(playQueueUri);
         when(playQueueStorage.getTrackIds()).thenReturn(Mockito.mock(Observable.class));
 
         PlayQueueManager.ResumeInfo resumeInfo = playQueueManager.reloadPlayQueue();
@@ -150,7 +150,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldLoadTrackIdsWhenReloadingPlayQueue(){
         Observable<List<Long>> observable = Mockito.mock(Observable.class);
-        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(playQueueUri);
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(playQueueUri);
         when(playQueueStorage.getTrackIds()).thenReturn(observable);
 
         playQueueManager.reloadPlayQueue();
@@ -160,7 +160,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldAddIdsWhenReloadingPlayQueueReturns(){
 
-        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(playQueueUri);
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(playQueueUri);
         when(playQueueStorage.getTrackIds()).thenReturn(Observable.<List<Long>>just(Lists.newArrayList(1L, 2L, 3L)));
         playQueueManager.reloadPlayQueue();
         expect(playQueueManager.getCurrentPlayQueue().getCurrentTrackIds()).toContainExactly(1L,2L,3L);
@@ -186,7 +186,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldReloadShouldBeFalseIfAlreadyReloading(){
         String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
-        when(sharedPreferences.getString(PlayQueueManager.SC_PLAYQUEUE_URI, null)).thenReturn(uriString);
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
         final Observable mock = Mockito.mock(Observable.class);
         when(playQueueStorage.getTrackIds()).thenReturn(mock);
         when(mock.subscribe(any(Action1.class))).thenReturn(Subscriptions.empty());
@@ -217,7 +217,7 @@ public class PlayQueueManagerTest {
     public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks(){
         when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(Mockito.mock(Observable.class));
         playQueueManager.fetchRelatedTracks(123L);
-        expect(playQueueManager.getCurrentPlayQueue().getCurrentAppendState()).toEqual(PlayQueue.AppendState.LOADING);
+        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.LOADING);
         expectBroadcastRelatedLoadChanges();
     }
 
@@ -238,21 +238,21 @@ public class PlayQueueManagerTest {
     public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad(){
         playQueueManager.onNext(new RelatedTracksCollection(Collections.<TrackSummary>emptyList(), "123"));
         playQueueManager.onCompleted();
-        expect(playQueueManager.getCurrentPlayQueue().getCurrentAppendState()).toEqual(PlayQueue.AppendState.IDLE);
+        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.IDLE);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad(){
         playQueueManager.onCompleted();
-        expect(playQueueManager.getCurrentPlayQueue().getCurrentAppendState()).toEqual(PlayQueue.AppendState.EMPTY);
+        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.EMPTY);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled(){
         playQueueManager.onError(new Throwable());
-        expect(playQueueManager.getCurrentPlayQueue().getCurrentAppendState()).toEqual(PlayQueue.AppendState.ERROR);
+        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.ERROR);
         expectBroadcastRelatedLoadChanges();
     }
 
@@ -260,7 +260,7 @@ public class PlayQueueManagerTest {
     public void clearAllShouldClearPreferences() throws Exception {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
         playQueueManager.clearAll();
-        verify(sharedPreferencesEditor).remove(PlayQueueManager.SC_PLAYQUEUE_URI);
+        verify(sharedPreferencesEditor).remove(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY);
         verify(sharedPreferencesEditor).apply();
     }
 

@@ -16,6 +16,7 @@ import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
 
 import android.content.Context;
@@ -28,7 +29,7 @@ import java.util.List;
 public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     @VisibleForTesting
-    protected static String SC_PLAYQUEUE_URI = "sc_playlist_uri";
+    protected static final String PLAYQUEUE_URI_PREF_KEY = "sc_playlist_uri";
 
     private final Context mContext;
     private final PlayQueueStorage mPlayQueueStorage;
@@ -37,7 +38,8 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     private final ScModelManager mModelManager;
 
     private PlayQueue mPlayQueue = PlayQueue.EMPTY;
-    private Subscription mFetchRelatedSubscription, mReloadSubscription;
+    private Subscription mFetchRelatedSubscription = Subscriptions.empty();
+    private Subscription mReloadSubscription = Subscriptions.empty();
     private Observable<RelatedTracksCollection> mRelatedTracksObservable;
 
     private boolean mGotRelatedTracks;
@@ -64,7 +66,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     public void saveCurrentPosition(long currentTrackProgress) {
         if (!mPlayQueue.isEmpty()) {
             final String playQueueState = mPlayQueue.getPlayQueueState(currentTrackProgress, mPlayQueue.getCurrentTrackId()).toString();
-            SharedPreferencesUtils.apply(mSharedPreferences.edit().putString(SC_PLAYQUEUE_URI, playQueueState));
+            SharedPreferencesUtils.apply(mSharedPreferences.edit().putString(PLAYQUEUE_URI_PREF_KEY, playQueueState));
         }
     }
 
@@ -72,7 +74,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
      * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
     public ResumeInfo reloadPlayQueue() {
-        final String lastUri = mSharedPreferences.getString(SC_PLAYQUEUE_URI, null);
+        final String lastUri = mSharedPreferences.getString(PLAYQUEUE_URI_PREF_KEY, null);
         if (ScTextUtils.isNotBlank(lastUri)) {
             final PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
             final long seekPos = playQueueUri.getSeekPos();
@@ -100,7 +102,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     }
 
     public boolean shouldReloadQueue(){
-        return mPlayQueue.isEmpty() && mReloadSubscription == null;
+        return mPlayQueue.isEmpty() && mReloadSubscription == Subscriptions.empty();
     }
 
     public void fetchRelatedTracks(long trackId){
@@ -113,7 +115,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     }
 
     public void clearAll(){
-        SharedPreferencesUtils.apply(mSharedPreferences.edit().remove(SC_PLAYQUEUE_URI));
+        SharedPreferencesUtils.apply(mSharedPreferences.edit().remove(PLAYQUEUE_URI_PREF_KEY));
         mPlayQueueStorage.clearState();
         mPlayQueue = PlayQueue.EMPTY;
     }
@@ -151,7 +153,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     }
 
     private void setNewRelatedLoadingState(AppendState appendState) {
-        mPlayQueue.setRelatedLoadingState(appendState);
+        mPlayQueue.setAppendState(appendState);
         final Intent intent = new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED)
                 .putExtra(PlayQueue.EXTRA, mPlayQueue);
         mContext.sendBroadcast(intent);
@@ -164,15 +166,10 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     }
 
     private void stopLoadingOperations() {
-        if (mFetchRelatedSubscription != null){
-            mFetchRelatedSubscription.unsubscribe();
-            mFetchRelatedSubscription = null;
-        }
+        mFetchRelatedSubscription.unsubscribe();
+        mFetchRelatedSubscription = Subscriptions.empty();
 
-        if (mReloadSubscription != null){
-            /** do not null out this subscription as it is used to determine {@link this#shouldReloadQueue()} */
-            mReloadSubscription.unsubscribe();
-        }
+        mReloadSubscription.unsubscribe();
     }
 
     public static class ResumeInfo {
