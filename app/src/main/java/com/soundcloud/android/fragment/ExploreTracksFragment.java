@@ -101,6 +101,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
+                mSuggestedTracksObservable = buildSuggestedTracksObservable();
                 loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
             }
         });
