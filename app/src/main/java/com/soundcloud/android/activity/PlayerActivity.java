@@ -58,6 +58,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private int mPendingPlayPosition = -1;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
 
+    @NotNull
     private PlayQueue mPlayQueue = PlayQueue.EMPTY;
 
     public interface PlayerError {
@@ -248,7 +249,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private PlayQueue getPlayQueueFromIntent(Intent intent) {
 
         final String action = intent.getAction();
-        PlayQueue playQueue = null;
+        PlayQueue playQueue = PlayQueue.EMPTY;
 
         if (Intent.ACTION_VIEW.equals(action)) {
             // Play from a View Intent, this probably came from quicksearch
@@ -295,7 +296,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         f.addAction(Comment.ACTION_CREATE_COMMENT);
         registerReceiver(mStatusListener, new IntentFilter(f));
 
-        if (mPlayQueue == null || mPlayQueue.getCurrentTrackId() == CloudPlaybackService.getCurrentTrackId()){
+        if (mPlayQueue == PlayQueue.EMPTY || mPlayQueue.getCurrentTrackId() == CloudPlaybackService.getCurrentTrackId()){
             // In this case we are not waiting on a playqueue changed event, so set it from the service
             mPlayQueue = CloudPlaybackService.getPlayQueue();
         }
@@ -347,7 +348,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         public void onClick(View v) {
             final CloudPlaybackService playbackService = mPlaybackService;
 
-            if (playbackService != null && mPlayQueue != null) {
+            if (playbackService != null && mPlayQueue != PlayQueue.EMPTY) {
                 if (getCurrentDisplayedTrackPosition() != mPlayQueue.getPlayPosition()) {
                     playbackService.setQueuePosition(getCurrentDisplayedTrackPosition());
                 } else {
@@ -497,7 +498,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             } else if (action.equals(Broadcasts.META_CHANGED)) {
                 onMetaChanged(queuePos);
             } else if (action.equals(Broadcasts.RELATED_LOAD_STATE_CHANGED)) {
-                if (mPlayQueue != null){
+                if (mPlayQueue != PlayQueue.EMPTY){
 
                     mPlayQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
                     mTrackPagerAdapter.setPlayQueue(mPlayQueue);
