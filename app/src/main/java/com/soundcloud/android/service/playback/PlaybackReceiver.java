@@ -119,7 +119,6 @@ class PlaybackReceiver extends BroadcastReceiver {
     private void handlePlayAction(Intent intent) {
         if (intent.hasExtra(PlayQueue.EXTRA)) {
             PlayQueue playQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
-            Log.d(CloudPlaybackService.TAG, "Loading Playqueue " + playQueue);
 
             mPlayQueueManager.setNewPlayQueue(playQueue);
             mPlaybackService.openCurrent();
@@ -127,16 +126,8 @@ class PlaybackReceiver extends BroadcastReceiver {
             if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)){
                 mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
             }
-        }
-
-        if (intent.getBooleanExtra(PlayExtras.unmute, false)) {
-            configureVolume();
+        } else {
+            Log.w(CloudPlaybackService.TAG, "Received play intent without a play queue");
         }
     }
-
-    private void configureVolume() {
-        final int volume = (int) Math.round(mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * 0.75d);
-        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
-    }
-
 }
