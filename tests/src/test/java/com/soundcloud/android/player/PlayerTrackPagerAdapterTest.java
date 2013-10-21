@@ -204,7 +204,6 @@ public class PlayerTrackPagerAdapterTest {
         expect(adapter.getCount()).toBe(2);
     }
 
-    @Ignore
     @Test
     public void shouldReturnUnchangedPositionForEmptyItemWhenFetching() {
         adapter.setPlayQueue(new PlayQueue(Lists.newArrayList(1L), 0, PlayQueue.AppendState.LOADING));
@@ -212,7 +211,7 @@ public class PlayerTrackPagerAdapterTest {
     }
 
     @Test
-    public void shouldReturnNoItemPositionForEmptyItemWhenNotFetching() throws Exception {
+    public void shouldReturnNoItemPositionForEmptyItemWhenNotFetching() {
         adapter.setPlayQueue(new PlayQueue(Lists.newArrayList(1L), 0, PlayQueue.AppendState.IDLE));
         expect(adapter.getItemPosition(PlayerTrackPagerAdapter.EMPTY_VIEW_ID)).toBe(PagerAdapter.POSITION_NONE);
     }

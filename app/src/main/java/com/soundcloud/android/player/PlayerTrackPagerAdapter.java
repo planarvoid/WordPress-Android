@@ -8,6 +8,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.adapter.BasePagerAdapter;
 import com.soundcloud.android.dao.TrackStorage;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.PlayQueue;
 import org.jetbrains.annotations.Nullable;
 
@@ -142,7 +143,8 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
 
     @Override
     public int getItemPosition(Object object) {
-        return ((Long) object) == -1 && !shouldDisplayExtraItem() ? POSITION_NONE : super.getItemPosition(object);
+        long trackId = (Long) object;
+        return trackId == Track.NOT_SET && !shouldDisplayExtraItem() ? POSITION_NONE : POSITION_UNCHANGED;
     }
 
     @Nullable
