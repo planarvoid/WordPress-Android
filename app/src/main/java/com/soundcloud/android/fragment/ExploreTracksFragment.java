@@ -2,7 +2,6 @@ package com.soundcloud.android.fragment;
 
 import static rx.android.OperationPaged.Page;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -25,13 +24,14 @@ import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-public class ExploreTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
+public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
 
     private static final int GRID_VIEW_ID = R.id.suggested_tracks_grid;

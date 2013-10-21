@@ -3,7 +3,6 @@ package com.soundcloud.android.activity;
 import static android.text.TextUtils.isEmpty;
 import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
@@ -52,6 +51,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;

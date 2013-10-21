@@ -1,6 +1,5 @@
 package com.soundcloud.android.fragment;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.model.Category;
@@ -13,6 +12,7 @@ import rx.android.concurrency.AndroidSchedulers;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +21,7 @@ import android.widget.AdapterView;
 
 import java.util.Set;
 
-public class SuggestedUsersCategoryFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
+public class SuggestedUsersCategoryFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     private SuggestedUsersAdapter mAdapter;
     private Category mCategory;

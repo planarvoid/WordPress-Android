@@ -141,4 +141,6 @@
     <dimen name="explore_category_page_size">1px</dimen><!-- ratio used for pager adapter -->
 
     <dimen name="view_pager_divider_width">1dp</dimen>
+
+    <dimen name="navigation_drawer_width">240dp</dimen>
 </resources>

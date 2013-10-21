@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -18,9 +17,10 @@ import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 
-public abstract class AbstractLoginActivity extends SherlockFragmentActivity implements AuthTaskFragment.OnAuthResultListener {
+public abstract class AbstractLoginActivity extends FragmentActivity implements AuthTaskFragment.OnAuthResultListener {
     protected static final String LOGIN_DIALOG_TAG = "login_dialog";
 
     /**

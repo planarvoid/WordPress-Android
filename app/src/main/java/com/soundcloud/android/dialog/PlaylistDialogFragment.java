@@ -1,11 +1,11 @@
 package com.soundcloud.android.dialog;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.soundcloud.android.dao.PlaylistStorage;
 
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 
-public abstract class PlaylistDialogFragment extends SherlockDialogFragment {
+public abstract class PlaylistDialogFragment extends DialogFragment {
     public static final String KEY_TRACK_ID = "TRACK_ID";
 
     private PlaylistStorage mPlaylistStorage;

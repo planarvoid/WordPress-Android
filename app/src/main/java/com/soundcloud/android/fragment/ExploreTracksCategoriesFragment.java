@@ -1,6 +1,5 @@
 package com.soundcloud.android.fragment;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
@@ -24,13 +23,14 @@ import rx.util.functions.Func1;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class ExploreTracksCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
+public class ExploreTracksCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware {
 
     private static final Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>> CATEGORIES_TO_SECTIONS =

@@ -1,11 +1,5 @@
 package com.soundcloud.android.activity;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.internal.view.menu.ActionMenuView;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.track.PlaylistDetailActivity;
@@ -24,8 +18,14 @@ import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.internal.view.menu.ActionMenuView;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
@@ -38,7 +38,7 @@ public class ActionBarController {
 
     @Nullable private View              mActionBarCustomView;
     @Nullable private RelativeLayout    mSearchCustomView;
-    @Nullable private SearchView        mSearchView;
+    @Nullable private SearchView mSearchView;
 
     private SuggestionsAdapter mSuggestionsAdapter;
     private final AndroidCloudAPI mAndroidCloudAPI;
@@ -49,7 +49,7 @@ public class ActionBarController {
     public interface ActionBarOwner {
         @NotNull
         public Activity     getActivity();
-        public ActionBar    getSupportActionBar();
+        public ActionBar getSupportActionBar();
         public MenuInflater getSupportMenuInflater();
         public void         invalidateOptionsMenu();
         public int          getMenuResourceId();
@@ -141,7 +141,7 @@ public class ActionBarController {
 
         /* find and configure the search autocompletetextview */
         // actionbarsherlock view
-        final AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
+        final AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.search_src_text);
         if (search_text != null) {
             if (useFullScreenSearch()) {
                 // on a normal size device, use the whole action bar
@@ -149,15 +149,15 @@ public class ActionBarController {
                 if (mActivity.findViewById(identifier) != null) {
                     // native action bar (>= Honeycomb)
                     search_text.setDropDownAnchor(identifier);
-                } else if (mActivity.findViewById(R.id.abs__action_bar_container) != null) {
+                } else if (mActivity.findViewById(R.id.action_bar_container) != null) {
                     // abs action bar (< Honeycomb)
-                    search_text.setDropDownAnchor(R.id.abs__action_bar_container);
+                    search_text.setDropDownAnchor(R.id.action_bar_container);
                 }
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT);
 
             } else {
                 // on a large screen device, just anchor to the search bar itself
-                if (mActivity.findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
+                if (mActivity.findViewById(R.id.search_bar) != null) search_text.setDropDownAnchor(R.id.search_bar);
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
             }
         }

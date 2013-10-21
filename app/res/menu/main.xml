@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_backToSet"
-          android:icon="@drawable/ic_action_current_set"
-          android:showAsAction="always"
-          android:title="@string/accessibility_action_bar_playlist"/>
     <item android:id="@+id/menu_enter_search"
           android:icon="@drawable/ic_action_search"
           android:showAsAction="always"
           android:title="@string/accessibility_search"/>
+
+    <item android:id="@+id/action_settings"
+          android:title="@string/side_menu_settings"
+          android:orderInCategory="100"
+          android:showAsAction="never" />
 </menu>

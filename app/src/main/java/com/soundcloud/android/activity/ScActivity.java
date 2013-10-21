@@ -1,24 +1,11 @@
 package com.soundcloud.android.activity;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.create.ScCreate;
-import com.soundcloud.android.activity.landing.ExploreActivity;
-import com.soundcloud.android.activity.landing.FriendFinder;
-import com.soundcloud.android.activity.landing.Home;
-import com.soundcloud.android.activity.landing.LikesActivity;
-import com.soundcloud.android.activity.landing.News;
-import com.soundcloud.android.activity.landing.PlaylistsActivity;
-import com.soundcloud.android.activity.landing.ScLandingPage;
-import com.soundcloud.android.activity.landing.WhoToFollowActivity;
-import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -28,7 +15,6 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.AddCommentDialog;
-import com.soundcloud.android.view.MainMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,17 +26,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -61,9 +48,8 @@ import java.lang.ref.WeakReference;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends SherlockFragmentActivity implements Tracker, ActionBarController.ActionBarOwner {
+public abstract class ScActivity extends ActionBarActivity implements Tracker, ActionBarController.ActionBarOwner {
     protected static final int CONNECTIVITY_MSG = 0;
-    public static final String CLOSE_DRAWER = "CLOSE_DRAWER";
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
 
@@ -75,9 +61,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
     @Nullable
     private ActionBarController mActionBarController;
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private MainMenu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,81 +73,13 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        super.setContentView(R.layout.drawer_main);
-
-        // Locate DrawerLayout in drawer_main.xml
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        mMenu = (MainMenu) findViewById(R.id.left_drawer);
-        mMenu.setMenuItems(R.menu.main_nav);
-
-
-        mMenu = (MainMenu) findViewById(R.id.left_drawer);
-        mMenu.setMenuItems(R.menu.main_nav);
-
-        mMenu.setOnItemClickListener(new MainMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClicked(int id) {
-                mMenu.setSelectedMenuId(id);
-                switch (id) {
-                    case R.id.nav_stream:
-                        startNavActivity(ScActivity.this, Home.class);
-                        return true;
-                    case R.id.nav_explore:
-                        startNavActivity(ScActivity.this, ExploreActivity.class);
-                        return true;
-                    case R.id.nav_news:
-                        startNavActivity(ScActivity.this, News.class);
-                        return true;
-                    case R.id.nav_you:
-                        startNavActivity(ScActivity.this, You.class);
-                        return true;
-                    case R.id.nav_record:
-                        startNavActivity(ScActivity.this, ScCreate.class);
-                        return true;
-                    case R.id.nav_likes:
-                        startNavActivity(ScActivity.this, LikesActivity.class);
-                        return true;
-                    case R.id.nav_playlists:
-                        startNavActivity(ScActivity.this, PlaylistsActivity.class);
-                        return true;
-                    case R.id.nav_friend_finder:
-                        startNavActivity(ScActivity.this, FriendFinder.class);
-                        return true;
-                    case R.id.nav_suggested_users:
-                        startNavActivity(ScActivity.this, WhoToFollowActivity.class);
-                        return true;
-                    case R.id.nav_settings:
-                        startActivity(new Intent(ScActivity.this, Settings.class));
-                        return false;
-                }
-                return false;
-
-            }
-        });
+        super.setContentView(R.layout.container);
 
         if (getSupportActionBar() != null) {
             mActionBarController = createActionBarController();
             // Enable ActionBar app icon to behave as action to toggle nav drawer
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-            // ActionBarDrawerToggle ties together the the proper interactions
-            // between the sliding drawer and the action bar app icon
-            mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                    R.drawable.ic_drawer, R.string.drawer_open,
-                    R.string.drawer_close) {
-
-                public void onDrawerClosed(View view) {
-                    super.onDrawerClosed(view);
-                }
-
-                public void onDrawerOpened(View drawerView) {
-                    super.onDrawerOpened(drawerView);
-                }
-            };
-
-            mDrawerLayout.setDrawerListener(mDrawerToggle);
         }
 
         IntentFilter f = new IntentFilter();
@@ -173,22 +88,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         f.addAction(Actions.LOGGING_OUT);
         registerReceiver(mGeneralIntentListener, new IntentFilter(f));
 
-        if (getIntent().getBooleanExtra(CLOSE_DRAWER, false)){
-            mDrawerLayout.openDrawer(mMenu);
-        }
-
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     protected ActionBarController createActionBarController() {
@@ -471,25 +370,6 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         getApp().track(klazz, args);
     }
 
-    @Override
-    public void onHomePressed() {
-        if (mDrawerLayout.isDrawerOpen(mMenu)) {
-            mDrawerLayout.closeDrawer(mMenu);
-        } else {
-            if (this instanceof ScLandingPage){
-                mDrawerLayout.openDrawer(mMenu);
-            } else if (isTaskRoot()) {
-                // empty backstack and not a landing page, might be from a notification or deeplink
-                // just go to the home activity
-                startActivity(new Intent(this, Home.class));
-                finish();
-            } else {
-                super.onBackPressed();
-            }
-        }
-    }
-
-
     @NotNull
     @Override
     public Activity getActivity() {
@@ -500,9 +380,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED)) {
-                mMenu.refresh();
-            } else if (action.equals(Consts.GeneralIntents.UNAUTHORIZED) && mIsForeground) {
+            if (action.equals(Consts.GeneralIntents.UNAUTHORIZED) && mIsForeground) {
                 safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
             } else if (action.equals(Actions.LOGGING_OUT)){
                 finish();
@@ -522,5 +400,15 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     public void unblock(boolean instantly) {
     }
+
+    @Override
+    public void onHomePressed() {
+    }
+
+    @Override
+    public MenuInflater getSupportMenuInflater() {
+        return super.getMenuInflater();
+    }
+
 
 }

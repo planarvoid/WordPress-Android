@@ -61,16 +61,6 @@
         <item name="clipPadding">16dp</item>
     </style>
 
-    <style name="Widget.Light.AutoCompleteTextView" parent="Widget.Sherlock.Light.SearchAutoCompleteTextView">
-        <item name="android:textAppearance">@style/TextAppearance.Light.AutoCompleteTextView</item>
-    </style>
-
-    <style name="Widget.Light.DropDownItem" parent="Widget.Sherlock.Light.DropDownItem.Spinner">
-        <!-- DO NOT PUT THIS IN A TEXT APPEARNCE ITEM, THE TEXT COLOR WILL NOT WORK, I DONT KNOW WHY [JS] -->
-        <item name="android:textColor">?textColorPrimaryInverse</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">normal</item>
-    </style>
 
     <style name="Widget.TextView" />
 
@@ -182,7 +172,7 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="OnboardActionButtonStyle" parent="Widget.Sherlock.ActionButton">
+    <style name="OnboardActionButtonStyle" parent="Widget.AppCompat.ActionButton">
         <item name="android:paddingLeft">20dip</item>
         <item name="android:paddingRight">20dip</item>
         <item name="android:paddingTop">0dp</item>

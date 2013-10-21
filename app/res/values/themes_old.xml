@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Lots of style re-use between Theme.Next and Theme.Next.Dark, don't know how else to share these other than duplication -->
+    <style name="Theme.Next" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+
+        <item name="android:windowSoftInputMode">adjustPan</item>
+        <item name="android:windowBackground">@android:color/white</item>
+
+        <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
+        <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
+
+        <item name="android:windowAnimationStyle">@style/Theme.Next.Animation.Activity</item>
+        <item name="android:popupAnimationStyle">@style/Theme.Next.Animation.Popup</item>
+
+        <item name="android:listViewStyle">@style/ScListViewStyle</item>
+
+        <!-- PullToRefresh specific -->
+        <item name="ptrAnimationStyle">flip</item>
+
+        <!-- ViewPager -->
+        <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
+        <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
+        <item name="vpiFixedWeightTabIndicatorStyle">@style/Widget.ScFixedTabPageIndicator</item>
+
+        <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
+
+        <item name="showcaseViewStyle">@style/ScShowcaseTheme</item>
+
+    </style>
+
+    <style name="Theme.Next.Dark" parent="@style/Theme.AppCompat">
+
+        <item name="android:windowSoftInputMode">adjustPan</item>
+
+        <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
+        <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
+
+        <item name="android:windowAnimationStyle">@style/Theme.Next.Animation.Activity</item>
+        <item name="android:popupAnimationStyle">@style/Theme.Next.Animation.Popup</item>
+
+        <!-- PullToRefresh specific -->
+        <item name="ptrAnimationStyle">flip</item>
+
+        <!-- ViewPager -->
+        <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
+        <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
+
+        <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
+
+    </style>
+
+    <style name="Theme.Next.Settings" parent="Theme.Next.NoActionBar"/>
+    <style name="Theme.Next.NoActionBar" parent="Theme.Next.NoActionBar"/>
+    <style name="Theme.ScDialog" parent="android:Theme.Dialog"/>
+
+    <style name="Theme.Next.NoBg" parent="Theme.Next">
+        <item name="android:windowBackground">@null</item>
+    </style>
+
+    <style name="Theme.Next.Dark.NoBg" parent="Theme.Next.Dark">
+        <item name="android:windowBackground">@null</item>
+    </style>
+
+    <style name="Theme.ScMenu" parent="Theme.Next">
+        <item name="android:textColor">@drawable/txt_light_states</item>
+        <item name="android:background">@color/main_menu_bg</item>
+    </style>
+
+    <style name="Theme.ScAuth" parent="Theme.Next.NoActionBar">
+        <item name="android:buttonStyle">@style/btn_default</item>
+        <item name="android:windowBackground">@color/darkBg</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.Light.AutoCompleteTextView</item>
+        <item name="android:dropDownItemStyle">@style/Widget.AppCompat.Light.DropDownItem.Spinner</item>
+    </style>
+
+    <style name="Theme.ScCreate" parent="Theme.Next.Dark">
+        <item name="android:windowBackground">@drawable/bg_rec</item>
+    </style>
+
+    <style name="Theme.Recover" parent="Theme.Next.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_rec</item>
+    </style>
+
+    <style name="Theme.Onboard" parent="Theme.Next">
+        <item name="actionButtonStyle">@style/OnboardActionButtonStyle</item>
+        <item name="android:actionButtonStyle">@style/OnboardActionButtonStyle</item>
+    </style>
+
+    <style name="Theme.Next.Animation.Popup" parent="Theme.Next">
+        <item name="@android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="@android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="Theme.Next.Animation.Activity" parent="Theme.Next">
+        <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item>
+    </style>
+
+
+    <style name="ScListViewStyle" parent="@android:style/Widget.ListView">
+        <item name="android:divider">@drawable/divider_list_grey</item>
+        <item name="android:dividerHeight">1px</item>
+    </style>
+
+</resources>

@@ -40,7 +40,15 @@
     <uses-permission android:name="com.soundcloud.android.permission.C2D_MESSAGE"/>
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
 
-    <application android:allowBackup="true" android:configChanges="orientation|keyboardHidden|keyboard" android:debuggable="true" android:hardwareAccelerated="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:logo="@drawable/empty" android:name="SoundCloudApplication" android:theme="@style/Theme.Next">
+    <application android:allowBackup="true"
+                 android:configChanges="orientation|keyboardHidden|keyboard"
+                 android:debuggable="true"
+                 android:hardwareAccelerated="true"
+                 android:icon="@drawable/ic_launcher"
+                 android:label="@string/app_name"
+                 android:logo="@drawable/empty"
+                 android:name="SoundCloudApplication"
+                 android:theme="@style/Theme.SoundCloud">
 
         <activity android:name=".activity.Launch" android:noHistory="true" android:theme="@style/Theme.Next.NoActionBar">
             <intent-filter>
@@ -49,7 +57,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:label="@string/side_menu_stream" android:name=".activity.landing.Home">
+        <activity android:label="@string/side_menu_stream" android:name=".activity.MainActivity" android:theme="@style/Theme.SoundCloud">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>

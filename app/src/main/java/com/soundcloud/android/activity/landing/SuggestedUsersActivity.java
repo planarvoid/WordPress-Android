@@ -1,11 +1,11 @@
 package com.soundcloud.android.activity.landing;
 
-import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.R;
 import com.soundcloud.android.fragment.SuggestedUsersCategoriesFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 public class SuggestedUsersActivity extends SuggestedUsersBaseActivity {
 

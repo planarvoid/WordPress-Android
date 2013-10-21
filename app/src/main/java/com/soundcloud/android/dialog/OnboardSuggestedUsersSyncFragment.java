@@ -1,7 +1,6 @@
 package com.soundcloud.android.dialog;
 
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -15,11 +14,12 @@ import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
+public class OnboardSuggestedUsersSyncFragment extends Fragment {
 
     private FollowingOperations mFollowingOperations;
     private Subscription mSubscription;
