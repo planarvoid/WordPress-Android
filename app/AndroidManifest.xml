@@ -147,7 +147,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:label="@string/side_menu_explore" android:name=".activity.landing.ExploreActivity">
+        <activity android:label="@string/side_menu_explore" android:name=".fragment.ExploreFragment">
             <intent-filter android:priority="10">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>

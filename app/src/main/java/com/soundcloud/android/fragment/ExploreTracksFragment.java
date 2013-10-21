@@ -17,6 +17,7 @@ import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.PlayUtils;
 import com.soundcloud.android.view.EmptyListView;
+import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.AndroidObservables;
@@ -31,6 +32,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import java.util.Map;
+
 public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
 
@@ -44,6 +47,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
+    private Subscription mRefreshSubscription = Subscriptions.empty();
 
     public static ExploreTracksFragment fromCategory(ExploreTracksCategory category) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
@@ -54,7 +58,6 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     }
 
     public ExploreTracksFragment() {
-        setRetainInstance(true);
         mPlayUtils = new PlayUtils();
     }
 
@@ -63,21 +66,33 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
 
         mObserver = new ExploreTracksObserver();
-        mSuggestedTracksObservable = buildSuggestedTracksObservable();
+        mSuggestedTracksObservable = (ConnectableObservable<Page<SuggestedTracksCollection>>)
+                getObservableRegistry().get(getExploreCategory().getTitle());
+        if (mSuggestedTracksObservable == null) {
+            mSuggestedTracksObservable = buildSuggestedTracksObservable();
+        }
+    }
+
+    private Map<String, Observable<?>> getObservableRegistry() {
+        return ((ExploreFragment) getParentFragment()).getObservableRegistry();
     }
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> buildSuggestedTracksObservable() {
-        final ExploreTracksCategory category = getArguments().getParcelable(ExploreTracksCategory.EXTRA);
+        final ExploreTracksCategory category = getExploreCategory();
         final ExploreTracksOperations operations = new ExploreTracksOperations();
         return AndroidObservables.fromFragment(this, operations.getSuggestedTracks(category)).replay();
     }
 
-    private void loadTrackSuggestions(ConnectableObservable<Page<SuggestedTracksCollection>> observable,
+    private ExploreTracksCategory getExploreCategory() {
+        return getArguments().getParcelable(ExploreTracksCategory.EXTRA);
+    }
+
+    private Subscription loadTrackSuggestions(ConnectableObservable<Page<SuggestedTracksCollection>> observable,
                                       Observer<Page<SuggestedTracksCollection>> fragmentObserver) {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
         observable.subscribe(mAdapter);
         observable.subscribe(fragmentObserver);
-        mSubscription = observable.connect();
+        return observable.connect();
     }
 
     @Override
@@ -101,8 +116,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                mSuggestedTracksObservable = buildSuggestedTracksObservable();
-                loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
+                mSubscription = loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
             }
         });
 
@@ -116,7 +130,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         gridView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(), false, true, mAdapter)));
 
-        loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
+        mSubscription = loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
     }
 
     @Override
@@ -127,14 +141,17 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        // remember the last observable we ran in case we need to recover from a configuration change
+        getObservableRegistry().put(getExploreCategory().getTitle(), mSuggestedTracksObservable);
         mSubscription.unsubscribe();
+        mRefreshSubscription.unsubscribe();
+        super.onDestroy();
     }
 
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
         final ConnectableObservable<Page<SuggestedTracksCollection>> refreshObservable = buildSuggestedTracksObservable();
-        loadTrackSuggestions(refreshObservable, new PullToRefreshObserver(refreshObservable));
+        mRefreshSubscription = loadTrackSuggestions(refreshObservable, new PullToRefreshObserver(refreshObservable));
     }
 
     @Override

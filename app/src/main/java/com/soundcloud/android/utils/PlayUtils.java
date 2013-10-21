@@ -47,7 +47,7 @@ public final class PlayUtils {
     }
 
     /**
-     * Created by anything played from the {@link com.soundcloud.android.activity.landing.ExploreActivity} section.
+     * Created by anything played from the {@link com.soundcloud.android.fragment.ExploreFragment} section.
      */
     public void playExploreTrack(Context context, Track track, String exploreTag) {
         final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(track.getId()).exploreTag(exploreTag).build();

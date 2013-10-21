@@ -56,7 +56,11 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
 
     @VisibleForTesting
     protected ExploreTracksCategoriesFragment(ExploreTracksOperations operations) {
-        init(AndroidObservables.fromFragment(this, operations.getCategories()).mapMany(CATEGORIES_TO_SECTIONS).replay());
+
+
+        final ConnectableObservable<Section<ExploreTracksCategory>> replay = AndroidObservables.fromFragment(this, operations.getCategories()).mapMany(CATEGORIES_TO_SECTIONS).replay();
+
+        init(replay);
     }
 
     @VisibleForTesting
@@ -66,7 +70,6 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
 
     private void init(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
         mCategoriesObservable = observable;
-        setRetainInstance(true);
     }
 
     @Override
@@ -81,6 +84,8 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
         intent.putExtra(ExploreTracksCategory.EXTRA, getListAdapter().getItem(adjustedPosition));
         startActivity(intent);
     }
+
+
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {

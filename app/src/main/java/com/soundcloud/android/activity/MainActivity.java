@@ -2,9 +2,10 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.fragment.ExploreFragment;
 import com.soundcloud.android.activity.landing.ScSearch;
+import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.fragment.ExploreTracksCategoriesFragment;
 import com.soundcloud.android.fragment.NavigationDrawerFragment;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.provider.Content;
@@ -31,6 +32,8 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         setContentView(R.layout.activity_main);
         mLastTitle = getTitle();
 
+        getSupportActionBar().setLogo(R.drawable.ic_launcher);
+
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mNavigationDrawerFragment.setUp(
@@ -47,9 +50,10 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     public void onNavigationDrawerItemSelected(int position) {
 
         Fragment fragment = null;
+        String fragmentTag = null;
         switch(position){
             case 0:
-                fragment = ScListFragment.newInstance(Content.ME_SOUNDS.uri, R.string.side_menu_you);
+                startActivity(new Intent(this, You.class));
                 break;
 
             case 1:
@@ -58,31 +62,40 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
                         Content.ME_SOUND_STREAM.uri.buildUpon()
                                 .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
                 fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
+                attachFragment(fragment, "stream_fragment");
                 break;
 
             case 2:
-                fragment = new ExploreTracksCategoriesFragment();
+                fragment = getSupportFragmentManager().findFragmentByTag("explore_fragment");
+                if (fragment ==  null){
+                    fragment = new ExploreFragment();
+                }
+                attachFragment(fragment, "explore_fragment");
                 break;
 
             case 3:
                 fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
+                attachFragment(fragment, "likes_fragment");
                 break;
 
             case 4:
                 fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
+                attachFragment(fragment, "playlists_fragment");
                 break;
-        }
-
-        if (fragment != null){
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, fragment)
-                    .commit();
         }
 
     }
 
+    private void attachFragment(Fragment fragment, String tag) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, fragment, tag)
+                .commit();
+    }
+
     public void onSectionAttached(int resourceId) {
-        mLastTitle = getString(resourceId);
+        if (resourceId > 0){
+            mLastTitle = getString(resourceId);
+        }
     }
 
     public void restoreActionBar() {

@@ -1,46 +1,59 @@
-package com.soundcloud.android.activity.landing;
+package com.soundcloud.android.fragment;
 
+import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.fragment.ExploreTracksCategoriesFragment;
-import com.soundcloud.android.fragment.ExploreTracksFragment;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.viewpagerindicator.TabPageIndicator;
+import rx.Observable;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.Locale;
+import java.util.Map;
 
-public class ExploreActivity extends ScActivity implements ScLandingPage
+public class ExploreFragment extends Fragment
 {
     private TabPageIndicator mIndicator;
     private ViewPager mPager;
     private ExplorePagerAdapter mExplorePagerAdapter;
+    private final Map<String, Observable<?>> mObservableRegistry = Maps.newHashMapWithExpectedSize(3);
 
     @Override
-    protected void onCreate(Bundle state) {
+    public void onCreate(Bundle state) {
         super.onCreate(state);
-        setContentView(R.layout.explore_activity);
+        setRetainInstance(true);
+        mExplorePagerAdapter = new ExplorePagerAdapter(getChildFragmentManager());
+    }
 
-        mExplorePagerAdapter = new ExplorePagerAdapter(getSupportFragmentManager());
-        mPager = (ViewPager) findViewById(R.id.pager);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.explore_activity, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mPager = (ViewPager) view.findViewById(R.id.pager);
         mPager.setAdapter(mExplorePagerAdapter);
+        mExplorePagerAdapter.notifyDataSetChanged();
         mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        mIndicator = (TabPageIndicator) findViewById(R.id.indicator);
+        mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
 
         mPager.setCurrentItem(1);
     }
 
-    @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_explore;
+    /* package */ Map<String, Observable<?>> getObservableRegistry() {
+        return mObservableRegistry;
     }
 
     class ExplorePagerAdapter extends FragmentPagerAdapter {
@@ -56,6 +69,7 @@ public class ExploreActivity extends ScActivity implements ScLandingPage
 
         @Override
         public Fragment getItem(int position) {
+            System.out.println("adapter GetItem: " + position);
             switch (position) {
                 case 0:
                     return new ExploreTracksCategoriesFragment();
