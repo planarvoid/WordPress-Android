@@ -193,7 +193,7 @@
         </activity>
 
         <activity android:name=".activity.landing.LikesActivity"/>
-        <activity android:name=".activity.landing.SetsActivity"/>
+        <activity android:name=".activity.landing.PlaylistsActivity"/>
 
         <!-- new suggested users -->
         <activity android:label="" android:name=".activity.landing.SuggestedUsersActivity" android:theme="@style/Theme.Onboard"/>
