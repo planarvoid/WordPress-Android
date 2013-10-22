@@ -37,6 +37,8 @@
     <string name="side_menu_friend_finder">Find friends</string>
     <string name="side_menu_who_to_follow">Who to follow</string>
 
+    <string name="side_menu_profile">Profile</string>
+
     <string name="list_header_track_reposters">People who reposted this sound</string>
 
     <string name="started_following_you">started following you</string>

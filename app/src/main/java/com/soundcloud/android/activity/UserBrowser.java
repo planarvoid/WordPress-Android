@@ -107,6 +107,7 @@ public class UserBrowser extends ScActivity implements
         mTrackCount = (TextView) findViewById(R.id.tracks);
         mVrStats = findViewById(R.id.vr_stats);
 
+        setTitle(isYou() ? R.string.side_menu_you : R.string.side_menu_profile);
         setTextShadowForGrayBg(mUsername, mFullName, mFollowerCount, mTrackCount);
 
         mIcon.setOnClickListener(new View.OnClickListener() {
