@@ -19,6 +19,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
@@ -148,6 +149,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         ApiWrapper apiWrapper = mWrapperFactory.createWrapper(apiRequest);
         try {
             HttpMethod httpMethod = HttpMethod.valueOf(apiRequest.getMethod().toUpperCase());
+            Log.d(this, "executing request: " + apiRequest);
             HttpResponse response = httpMethod.execute(apiWrapper, createSCRequest(apiRequest));
             String responseBody = EntityUtils.toString(response.getEntity(), Charsets.UTF_8.name());
             APIResponse apiResponse = new APIResponse(response.getStatusLine().getStatusCode(),
