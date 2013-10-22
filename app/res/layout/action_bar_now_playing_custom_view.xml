@@ -9,7 +9,7 @@
                     android:layout_width="wrap_content"
                     android:orientation="horizontal"
                     android:layout_alignParentRight="true"
-                    android:background="@drawable/action_bar_item_selector"
+                    android:background="@drawable/action_item_background_selector"
                     android:id="@id/waveform_holder"
 
                     android:contentDescription="@string/accessibility_action_bar_waveform">

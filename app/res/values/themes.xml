@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.SoundCloud" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-
+    <style name="Theme.SoundCloud.Base" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowSoftInputMode">adjustPan</item>
         <item name="android:windowBackground">@android:color/white</item>
 
         <item name="android:windowAnimationStyle">@style/ScActivityAnimationStyle</item>
         <item name="android:popupAnimationStyle">@style/ScPopupAnimationStyle</item>
 
+        <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
         <item name="android:listViewStyle">@style/ScListViewStyle</item>
 
         <!-- PullToRefresh specific -->
@@ -18,17 +18,37 @@
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
         <item name="vpiFixedWeightTabIndicatorStyle">@style/Widget.ScFixedTabPageIndicator</item>
 
-        <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
-
         <item name="showcaseViewStyle">@style/ScShowcaseTheme</item>
 
     </style>
+
+    <style name="Theme.SoundCloud" parent="Theme.SoundCloud.Base">
+        <item name="actionBarItemBackground">@drawable/action_item_background_selector</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.SoundCloud</item>
+        <item name="actionDropDownStyle">@style/DropDownNav.SoundCloud</item>
+
+        <!-- Light.DarkActionBar specific -->
+        <item name="actionBarWidgetTheme">@style/Theme.SoundCloud.Widget</item>
+
+    </style>
+
+    <!-- this style is only referenced in a Light.DarkActionBar based theme -->
+    <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat">
+        <item name="popupMenuStyle">@style/PopupMenu.SoundCloud</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.SoundCloud</item>
+    </style>
+
 
     <style name="Theme.SoundCloud.Dark" parent="@style/Theme.AppCompat">
         <item name="android:windowSoftInputMode">adjustPan</item>
 
         <item name="android:windowAnimationStyle">@style/ScActivityAnimationStyle</item>
         <item name="android:popupAnimationStyle">@style/ScPopupAnimationStyle</item>
+
+        <item name="android:actionBarItemBackground">@drawable/action_item_background_selector</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.SoundCloud</item>
+        <item name="android:actionDropDownStyle">@style/DropDownNav.SoundCloud</item>
+        <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
 
         <!-- PullToRefresh specific -->
         <item name="ptrAnimationStyle">flip</item>
@@ -37,7 +57,7 @@
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
 
-        <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
+        <item name="showcaseViewStyle">@style/ScShowcaseTheme</item>
     </style>
 
     <style name="Theme.SoundCloud.NoBg">
