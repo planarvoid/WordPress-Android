@@ -6,7 +6,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -58,7 +58,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
         Intent activity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
         expect(activity).not.toBeNull();
-        expect(activity.getBooleanExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, !success)).toBeTrue();
+        expect(activity.getBooleanExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, !success)).toBeTrue();
     }
 
     @Test
@@ -75,7 +75,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
         Intent activity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
         expect(activity).not.toBeNull();
-        expect(activity.getBooleanExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, !success)).toBeFalse();
+        expect(activity.getBooleanExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, !success)).toBeFalse();
     }
 
     @Test
@@ -91,7 +91,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
         Intent activity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
         expect(activity).not.toBeNull();
-        expect(activity.getBooleanExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, true)).toBeFalse();
+        expect(activity.getBooleanExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, true)).toBeFalse();
     }
 
     @Test
@@ -107,7 +107,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
         Intent activity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
         expect(activity).not.toBeNull();
-        expect(activity.getBooleanExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, false)).toBeTrue();
+        expect(activity.getBooleanExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, false)).toBeTrue();
     }
 
     // catch case where both onNext and onCompleted would try to finish the activity

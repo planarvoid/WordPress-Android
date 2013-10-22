@@ -5,7 +5,6 @@ import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.activity.create.UploadMonitor;
 import com.soundcloud.android.activity.landing.FriendFinder;
-import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.ScSearch;
 import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
@@ -43,7 +42,7 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     }
 
     public void ignore_testStream() throws Exception {
-        assertActivityStarted(Home.class, Actions.STREAM);
+        assertActivityStarted(MainActivity.class, Actions.STREAM);
     }
 
     public void ignore_testPlayer() throws Exception {
