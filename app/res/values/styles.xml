@@ -2,6 +2,23 @@
 
 <resources>
 
+    <style name="ScListViewStyle" parent="@android:style/Widget.ListView">
+        <item name="android:divider">@drawable/divider_list_grey</item>
+        <item name="android:dividerHeight">1px</item>
+    </style>
+
+    <style name="ScPopupAnimationStyle">
+        <item name="@android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="@android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="ScActivityAnimationStyle">
+        <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item>
+    </style>
+
     <!-- ****** Dialogs ****** -->
 
     <style name="Dialog" parent="android:Theme.Dialog">
