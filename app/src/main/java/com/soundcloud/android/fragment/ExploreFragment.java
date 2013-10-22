@@ -1,10 +1,8 @@
 package com.soundcloud.android.fragment;
 
-import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.viewpagerindicator.TabPageIndicator;
-import rx.Observable;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.Locale;
-import java.util.Map;
 
 public class ExploreFragment extends Fragment {
 
@@ -24,15 +21,16 @@ public class ExploreFragment extends Fragment {
     private static final int TAB_POPULAR_MUSIC = 1;
     private static final int TAB_POPULAR_AUDIO = 2;
 
-    private TabPageIndicator mIndicator;
     private ViewPager mPager;
     private ExplorePagerAdapter mExplorePagerAdapter;
-    private final Map<String, Observable<?>> mObservableRegistry = Maps.newHashMapWithExpectedSize(3);
+
+    public ExploreFragment() {
+        setRetainInstance(true);
+    }
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-        setRetainInstance(true);
         mExplorePagerAdapter = new ExplorePagerAdapter(getChildFragmentManager());
     }
 
@@ -46,18 +44,21 @@ public class ExploreFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mPager = (ViewPager) view.findViewById(R.id.pager);
         mPager.setAdapter(mExplorePagerAdapter);
-        mExplorePagerAdapter.notifyDataSetChanged();
         mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-        mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
+        TabPageIndicator mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
 
         mPager.setCurrentItem(TAB_POPULAR_MUSIC);
     }
 
-    /* package */ Map<String, Observable<?>> getObservableRegistry() {
-        return mObservableRegistry;
+    @Override
+    public void onDestroyView() {
+        // it's important to reset the adapter here. since otherwise this will leak a Context reference through
+        // the dataset observer Android registers internally (and we're retaining the adapter instance)
+        mPager.setAdapter(null);
+        super.onDestroyView();
     }
 
     class ExplorePagerAdapter extends FragmentPagerAdapter {
