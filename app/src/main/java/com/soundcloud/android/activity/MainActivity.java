@@ -7,7 +7,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.EmailConfirm;
 import com.soundcloud.android.activity.landing.ScSearch;
 import com.soundcloud.android.activity.landing.You;
-import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ExploreFragment;
@@ -78,6 +77,8 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
                 UpdateManager.register(this, getString(R.string.hockey_app_id));
             }
         }
+
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -167,7 +168,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
             restoreActionBar();
             return true;
         }
-        return super.onCreateOptionsMenu(menu);
+        return false;
     }
 
     @Override
@@ -175,10 +176,6 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         switch (item.getItemId()) {
             case R.id.menu_enter_search:
                 startActivity(new Intent(this, ScSearch.class));
-                return true;
-
-            case R.id.action_settings:
-                startActivity(new Intent(this, Settings.class));
                 return true;
         }
         return super.onOptionsItemSelected(item);

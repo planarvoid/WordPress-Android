@@ -137,7 +137,9 @@ public class NavigationDrawerFragment extends Fragment {
                 }
 
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-                mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(getActivity(), mDrawerListView.getChildAt(2).findViewById(R.id.nav_item_text));
+
+                mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(getActivity(),
+                        mDrawerListView.getChildAt(2).findViewById(R.id.nav_item_text));
             }
         };
 

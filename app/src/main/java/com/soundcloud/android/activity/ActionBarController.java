@@ -2,6 +2,10 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.landing.News;
+import com.soundcloud.android.activity.landing.WhoToFollowActivity;
+import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.activity.track.PlaylistDetailActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
@@ -306,6 +310,22 @@ public class ActionBarController {
                     return false;
                 }
                 mOwner.getActivity().startActivity(intent);
+                return true;
+
+            case R.id.action_settings:
+                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), Settings.class));
+                return true;
+
+            case R.id.action_record:
+                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), ScCreate.class));
+                return true;
+
+            case R.id.action_who_to_follow:
+                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), WhoToFollowActivity.class));
+                return true;
+
+            case R.id.action_activity:
+                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), News.class));
                 return true;
 
             default:
