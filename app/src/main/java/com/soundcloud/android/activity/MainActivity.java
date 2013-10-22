@@ -51,6 +51,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         setContentView(R.layout.activity_main);
         mLastTitle = getTitle();
 
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setLogo(R.drawable.ic_launcher);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)

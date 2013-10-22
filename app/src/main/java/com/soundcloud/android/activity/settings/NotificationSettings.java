@@ -53,6 +53,12 @@ public class NotificationSettings extends PreferenceActivity {
     }
 
     @Override
+    public boolean onNavigateUp() {
+        finish();
+        return true;
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
     }

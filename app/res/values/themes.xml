@@ -26,10 +26,15 @@
         <item name="actionBarItemBackground">@drawable/action_item_background_selector</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.SoundCloud</item>
         <item name="actionDropDownStyle">@style/DropDownNav.SoundCloud</item>
+        <item name="actionBarStyle">@style/ActionBar.SoundCloud</item>
 
         <!-- Light.DarkActionBar specific -->
         <item name="actionBarWidgetTheme">@style/Theme.SoundCloud.Widget</item>
 
+    </style>
+
+    <style name="ActionBar.SoundCloud" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:displayOptions">homeAsUp|showTitle</item>
     </style>
 
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->

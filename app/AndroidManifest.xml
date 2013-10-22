@@ -345,17 +345,17 @@
         <activity android:name=".activity.track.PlaylistInteractionActivity"/>
 
         <!-- settings -->
-        <activity android:label="@string/title_settings" android:name=".activity.settings.Settings" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
+        <activity android:label="@string/title_settings" android:name=".activity.settings.Settings" android:theme="@style/Theme.SoundCloud"/>
 
-        <activity android:name=".activity.settings.AccountSettings" android:theme="@style/Theme.SoundCloud.NoActionBar">
+        <activity android:label="@string/title_settings" android:name=".activity.settings.AccountSettings" android:theme="@style/Theme.SoundCloud">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACCOUNT_PREF"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:label="Notifications Settings" android:name=".activity.settings.NotificationSettings" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
-        <activity android:name=".activity.settings.About" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
-        <activity android:name=".activity.settings.Legal" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
+        <activity android:label="@string/title_notification_settings" android:name=".activity.settings.NotificationSettings" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/title_about" android:name=".activity.settings.About" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/title_legal" android:name=".activity.settings.Legal" android:theme="@style/Theme.SoundCloud"/>
 
         <!-- settings -->
 

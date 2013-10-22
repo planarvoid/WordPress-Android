@@ -324,6 +324,12 @@ public class Settings extends PreferenceActivity implements ActionBarController.
                 .create();
     }
 
+    @Override
+    public boolean onNavigateUp() {
+        finish();
+        return true;
+    }
+
     @NotNull
     @Override
     public Activity getActivity() {

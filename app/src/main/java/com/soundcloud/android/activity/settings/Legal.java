@@ -56,4 +56,10 @@ public class Legal extends PreferenceActivity implements ActionBarController.Act
     @Override
     public void unblock(boolean instantly) {
     }
+
+    @Override
+    public boolean onNavigateUp() {
+        finish();
+        return true;
+    }
 }
