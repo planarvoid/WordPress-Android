@@ -107,7 +107,8 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
+        // Keep null check. This might fire as a result of setContentView in which case this var won't be assigned
+        if (mNavigationDrawerFragment != null && !mNavigationDrawerFragment.isDrawerOpen()) {
             getMenuInflater().inflate(R.menu.main, menu);
             restoreActionBar();
             return true;
