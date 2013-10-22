@@ -5,9 +5,6 @@
         <item name="android:windowSoftInputMode">adjustPan</item>
         <item name="android:windowBackground">@android:color/white</item>
 
-        <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
-        <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
-
         <item name="android:windowAnimationStyle">@style/ScActivityAnimationStyle</item>
         <item name="android:popupAnimationStyle">@style/ScPopupAnimationStyle</item>
 
@@ -29,9 +26,6 @@
 
     <style name="Theme.SoundCloud.Dark" parent="@style/Theme.AppCompat">
         <item name="android:windowSoftInputMode">adjustPan</item>
-
-        <item name="actionBarItemBackground">@drawable/action_bar_item_selector</item>
-        <item name="android:actionBarItemBackground">@drawable/action_bar_item_selector</item>
 
         <item name="android:windowAnimationStyle">@style/ScActivityAnimationStyle</item>
         <item name="android:popupAnimationStyle">@style/ScPopupAnimationStyle</item>
