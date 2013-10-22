@@ -19,7 +19,7 @@ public abstract class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter 
 
     protected static final String EXTRA_KEY_ITEMS = "adapter.items";
 
-    protected final ArrayList<ItemT> mItems;
+    protected ArrayList<ItemT> mItems;
 
     protected ItemAdapter(int initalDataSize) {
         mItems = new ArrayList<ItemT>(initalDataSize);
@@ -57,8 +57,20 @@ public abstract class ItemAdapter<ItemT extends Parcelable> extends BaseAdapter 
         return convertView;
     }
 
+    /**
+     * Saves this adapter's state to the given bundle. Always pair this with a call to
+     * {@link #restoreInstanceState(android.os.Bundle)}
+     */
     public void saveInstanceState(Bundle bundle) {
         bundle.putParcelableArrayList(EXTRA_KEY_ITEMS, mItems);
+    }
+
+    /**
+     * Restores this adapter's state from the given bundle. Always pair this with a call to
+     * {@link #saveInstanceState(android.os.Bundle)}
+     */
+    public void restoreInstanceState(Bundle bundle) {
+        mItems = bundle.getParcelableArrayList(EXTRA_KEY_ITEMS);
     }
 
     protected abstract View createItemView(int position, ViewGroup parent);

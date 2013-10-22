@@ -2,6 +2,7 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -86,6 +87,22 @@ public class ItemAdapterTest {
         expect(savedItems.size()).toEqual(adapter.getCount());
         for (int i = 0; i < adapter.getCount(); i++) {
             expect(savedItems.get(i)).toEqual(adapter.getItem(i));
+        }
+    }
+
+    @Test
+    public void shouldRestoreAllItemsInRestoreInstanceState() {
+        expect(adapter.getCount()).toBe(0);
+
+        Bundle bundle = new Bundle();
+        ArrayList<Track> tracks = Lists.newArrayList(new Track(1), new Track(2));
+        bundle.putParcelableArrayList(ItemAdapter.EXTRA_KEY_ITEMS, tracks);
+
+        adapter.restoreInstanceState(bundle);
+        expect(adapter.getCount()).toBe(2);
+
+        for (int i = 0; i < adapter.getCount(); i++) {
+            expect(adapter.getItem(i)).toEqual(tracks.get(i));
         }
     }
 }
