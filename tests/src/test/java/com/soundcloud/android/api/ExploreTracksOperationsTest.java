@@ -52,14 +52,15 @@ public class ExploreTracksOperationsTest {
     }
 
     @Test
-    public void getRelatedTracksShouldMakeGetRequestToCategoriesEndpoint() {
+    public void getRelatedTracksShouldMakeGetRequestToRelatedTracksEndpoint() {
         when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
         exploreTracksOperations.getRelatedTracks(123L).subscribe(observer);
 
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
-        expect(argumentCaptor.getValue().getUriPath()).toEqual(String.format(APIEndpoints.RELATED_TRACKS.path(), ClientUri.fromTrack(123L).toEncodedString()));
+        expect(argumentCaptor.getValue().getUriPath()).toEqual(String.format(APIEndpoints.RELATED_TRACKS.path(),
+                ClientUri.fromTrack(123L).toString()));
     }
 
     @Test
