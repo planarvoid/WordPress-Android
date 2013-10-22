@@ -44,7 +44,6 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
-    private Subscription mRefreshSubscription = Subscriptions.empty();
 
     public static ExploreTracksFragment fromCategory(ExploreTracksCategory category) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
@@ -79,12 +78,12 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         return getArguments().getParcelable(ExploreTracksCategory.EXTRA);
     }
 
-    private Subscription loadTrackSuggestions(ConnectableObservable<Page<SuggestedTracksCollection>> observable,
+    private void loadTrackSuggestions(ConnectableObservable<Page<SuggestedTracksCollection>> observable,
                                       Observer<Page<SuggestedTracksCollection>> fragmentObserver) {
         setEmptyViewStatus(EmptyListView.Status.WAITING);
         observable.subscribe(mAdapter);
         observable.subscribe(fragmentObserver);
-        return observable.connect();
+        mSubscription = observable.connect();
     }
 
     @Override
@@ -107,7 +106,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
-                mSubscription = loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
+                loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
             }
         });
 
@@ -131,14 +130,13 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onDestroy() {
         mSubscription.unsubscribe();
-        mRefreshSubscription.unsubscribe();
         super.onDestroy();
     }
 
     @Override
     public void onRefresh(PullToRefreshBase<GridView> refreshView) {
         final ConnectableObservable<Page<SuggestedTracksCollection>> refreshObservable = buildSuggestedTracksObservable();
-        mRefreshSubscription = loadTrackSuggestions(refreshObservable, new PullToRefreshObserver(refreshObservable));
+        loadTrackSuggestions(refreshObservable, new PullToRefreshObserver(refreshObservable));
     }
 
     @Override
