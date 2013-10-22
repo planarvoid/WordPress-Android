@@ -161,6 +161,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private @Nullable Track mCurrentTrack;
     private AndroidCloudAPI mOldCloudApi;
 
+    @Nullable
     private ResumeInfo mResumeInfo;      // info to resume a previous play session
     private long mSeekPos = -1;         // desired seek position
     private int mConnectRetries = 0;
@@ -1265,7 +1266,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 if (state == PREPARING) {
                     state = PREPARED;
                     // do we need to resume a track position ?
-                    if (getCurrentTrackId() == mResumeInfo.getTrackId() && mResumeInfo.getTime() > 0) {
+                    if (mResumeInfo != null && getCurrentTrackId() == mResumeInfo.getTrackId() && mResumeInfo.getTime() > 0) {
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
                             Log.d(TAG, "resuming to "+mResumeInfo.getTrackId());
                         }
