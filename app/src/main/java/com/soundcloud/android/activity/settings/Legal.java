@@ -50,10 +50,6 @@ public class Legal extends PreferenceActivity implements ActionBarController.Act
     }
 
     @Override
-    public void onHomePressed() {
-    }
-
-    @Override
     public void block() {
     }
 

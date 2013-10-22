@@ -402,7 +402,14 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     }
 
     @Override
-    public void onHomePressed() {
+    public boolean onSupportNavigateUp() {
+        if (isTaskRoot()) {
+            // empty backstack and not a landing page, might be from a notification or deeplink
+            // just go to the home activity
+            startActivity(new Intent(this, MainActivity.class));
+        }
+        finish();
+        return true;
     }
 
     @Override

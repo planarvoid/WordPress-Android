@@ -346,10 +346,6 @@ public class Settings extends PreferenceActivity implements ActionBarController.
     }
 
     @Override
-    public void onHomePressed() {
-    }
-
-    @Override
     public void block() {
     }
 

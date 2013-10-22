@@ -18,8 +18,4 @@ public abstract class SuggestedUsersBaseActivity extends ScActivity {
         return R.id.nav_suggested_users;
     }
 
-    @Override
-    public void onHomePressed() {
-        // nop
-    }
 }

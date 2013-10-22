@@ -491,7 +491,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 mPlayQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
                 if (mPlayQueue.isEmpty()){
                     // Service has no playlist. Probably came from the widget. Kick them out to home
-                    onHomePressed();
+                    onSupportNavigateUp();
                 } else {
                     refreshTrackPager();
                 }

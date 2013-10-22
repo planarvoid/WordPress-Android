@@ -52,7 +52,6 @@ public class ActionBarController {
         public MenuInflater getSupportMenuInflater();
         public void         invalidateOptionsMenu();
         public int          getMenuResourceId();
-        public void         onHomePressed();
         public void         block();
         public void         unblock(boolean instantly);
     }
