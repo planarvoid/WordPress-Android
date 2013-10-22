@@ -1,9 +1,12 @@
 package com.soundcloud.android.fragment;
 
+import com.github.espiandev.showcaseview.ShowcaseView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.showcases.Showcase;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
 
@@ -40,6 +43,7 @@ public class NavigationDrawerFragment extends Fragment {
     private View mFragmentContainerView;
 
     private int mCurrentSelectedPosition = 1; //Default to Stream
+    private ShowcaseView mCurrentMenuShowcase;
 
     private ProfileViewHolder mProfileViewHolder;
 
@@ -79,7 +83,7 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.setAdapter(new ArrayAdapter<String>(
                 getActionBar().getThemedContext(),
                 R.layout.nav_drawer_item,
-                android.R.id.text1,
+                R.id.nav_item_text,
                 new String[]{
                         getString(R.string.side_menu_stream),
                         getString(R.string.side_menu_explore),
@@ -118,6 +122,10 @@ public class NavigationDrawerFragment extends Fragment {
                     return;
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+
+                if (mCurrentMenuShowcase != null && mCurrentMenuShowcase.isShown()){
+                    mCurrentMenuShowcase.hide();
+                }
             }
 
             @Override
@@ -128,6 +136,7 @@ public class NavigationDrawerFragment extends Fragment {
                 }
 
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+                mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(getActivity(), mDrawerListView.getChildAt(2).findViewById(R.id.nav_item_text));
             }
         };
 
@@ -232,7 +241,13 @@ public class NavigationDrawerFragment extends Fragment {
         final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
         if (loggedInUser != null){
             mProfileViewHolder.username.setText(loggedInUser.getUsername());
-            mProfileViewHolder.location.setText(loggedInUser.getLocation());
+            final String location = loggedInUser.getLocation();
+            if (ScTextUtils.isNotBlank(location)){
+                mProfileViewHolder.location.setText(location);
+            } else {
+                mProfileViewHolder.location.setVisibility(View.GONE);
+            }
+
             ImageLoader.getInstance().displayImage(ImageSize.T500.formatUri(loggedInUser.getNonDefaultAvatarUrl()), mProfileViewHolder.imageView,
                     ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
         } else {

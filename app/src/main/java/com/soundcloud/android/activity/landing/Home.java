@@ -2,7 +2,6 @@ package com.soundcloud.android.activity.landing;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.github.espiandev.showcaseview.ShowcaseView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -35,7 +34,7 @@ public class Home extends ScActivity implements ScLandingPage {
 
     private AndroidCloudAPI oldCloudAPI;
     private ApplicationProperties mApplicationProperties;
-    private ShowcaseView mCurrentMenuShowcase;
+
 
     @Override
     protected void onCreate(Bundle state) {
@@ -70,10 +69,6 @@ public class Home extends ScActivity implements ScLandingPage {
                 UpdateManager.register(this, getString(R.string.hockey_app_id));
             }
         }
-    }
-
-    private boolean startedFromOnboardingError() {
-        return !getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true);
     }
 
     @Override
@@ -117,27 +112,4 @@ public class Home extends ScActivity implements ScLandingPage {
     private boolean justAuthenticated(Intent intent) {
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
-
-    /*
-
-    TODO : something with this (add a new listener to the drawer)
-    @Override
-
-    public void onMenuOpenLeft() {
-        super.onMenuOpenLeft();
-
-        final View viewById = mRootView.getMenuItemViewById(R.id.nav_explore);
-        if (viewById != null){
-            mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(this, viewById);
-        }
-    }
-
-    @Override
-    public void onMenuClosed() {
-        super.onMenuClosed();
-        if (mCurrentMenuShowcase != null && mCurrentMenuShowcase.isShown()){
-            mCurrentMenuShowcase.hide();
-        }
-    }
-     */
 }
