@@ -18,8 +18,12 @@ import android.view.ViewGroup;
 import java.util.Locale;
 import java.util.Map;
 
-public class ExploreFragment extends Fragment
-{
+public class ExploreFragment extends Fragment {
+
+    private static final int TAB_CATEGORIES = 0;
+    private static final int TAB_POPULAR_MUSIC = 1;
+    private static final int TAB_POPULAR_AUDIO = 2;
+
     private TabPageIndicator mIndicator;
     private ViewPager mPager;
     private ExplorePagerAdapter mExplorePagerAdapter;
@@ -49,7 +53,7 @@ public class ExploreFragment extends Fragment
         mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
 
-        mPager.setCurrentItem(1);
+        mPager.setCurrentItem(TAB_POPULAR_MUSIC);
     }
 
     /* package */ Map<String, Observable<?>> getObservableRegistry() {
@@ -69,13 +73,12 @@ public class ExploreFragment extends Fragment
 
         @Override
         public Fragment getItem(int position) {
-            System.out.println("adapter GetItem: " + position);
             switch (position) {
-                case 0:
+                case TAB_CATEGORIES:
                     return new ExploreTracksCategoriesFragment();
-                case 1:
+                case TAB_POPULAR_MUSIC:
                     return ExploreTracksFragment.fromCategory(ExploreTracksCategory.POPULAR_MUSIC_CATEGORY);
-                case 2:
+                case TAB_POPULAR_AUDIO:
                     return ExploreTracksFragment.fromCategory(ExploreTracksCategory.POPULAR_AUDIO_CATEGORY);
             }
             throw new RuntimeException("Unexpected position for getItem " + position);
@@ -88,16 +91,15 @@ public class ExploreFragment extends Fragment
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position){
-                case 0:
+            switch (position) {
+                case TAB_CATEGORIES:
                     return getString(R.string.explore_genres).toUpperCase(Locale.getDefault());
-                case 1:
+                case TAB_POPULAR_MUSIC:
                     return getString(R.string.explore_category_trending_music).toUpperCase(Locale.getDefault());
-                case 2:
+                case TAB_POPULAR_AUDIO:
                     return getString(R.string.explore_category_trending_audio).toUpperCase(Locale.getDefault());
             }
             throw new RuntimeException("Unexpected position for getPageTitle " + position);
-
         }
     }
 }
