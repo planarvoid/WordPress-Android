@@ -5,10 +5,11 @@ import com.soundcloud.android.model.Section;
 import com.soundcloud.android.view.adapter.behavior.SectionedListRow;
 import rx.Observer;
 
+import android.os.Parcelable;
 import android.util.SparseArray;
 import android.view.View;
 
-public abstract class SectionedAdapter<ModelType> extends ScAdapter<ModelType> implements Observer<Section<ModelType>> {
+public abstract class SectionedAdapter<ModelType extends Parcelable> extends ItemAdapter<ModelType> implements Observer<Section<ModelType>> {
 
     @VisibleForTesting
     protected enum ViewTypes {

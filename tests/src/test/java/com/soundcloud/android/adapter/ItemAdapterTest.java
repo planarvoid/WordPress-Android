@@ -2,23 +2,25 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.view.LayoutInflater;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ScAdapterTest {
+import java.util.ArrayList;
 
-    private ScAdapter<Track> adapter = new ScAdapter<Track>(10) {
+@RunWith(SoundCloudTestRunner.class)
+public class ItemAdapterTest {
+
+    private ItemAdapter<Track> adapter = new ItemAdapter<Track>(10) {
         @Override
         protected TextView createItemView(int position, ViewGroup parent) {
             return new TextView(parent.getContext());
@@ -71,5 +73,19 @@ public class ScAdapterTest {
         View itemView = adapter.getView(0, convertView, new FrameLayout(Robolectric.application));
         expect(itemView).toBe(convertView);
         expect(((TextView) itemView).getText()).toEqual("New track");
+    }
+
+    @Test
+    public void shouldSaveAllItemsInSaveInstanceState() {
+        Bundle bundle = new Bundle();
+
+        adapter.saveInstanceState(bundle);
+        expect(bundle.containsKey(ItemAdapter.EXTRA_KEY_ITEMS)).toBeTrue();
+
+        ArrayList<Parcelable> savedItems = bundle.getParcelableArrayList(ItemAdapter.EXTRA_KEY_ITEMS);
+        expect(savedItems.size()).toEqual(adapter.getCount());
+        for (int i = 0; i < adapter.getCount(); i++) {
+            expect(savedItems.get(i)).toEqual(adapter.getItem(i));
+        }
     }
 }

@@ -9,11 +9,12 @@ import rx.android.OperationPaged;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
+import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
-public abstract class EndlessPagingAdapter<T> extends ScAdapter<T> implements AbsListView.OnScrollListener, Observer<Page<? extends Iterable<T>>> {
+public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAdapter<T> implements AbsListView.OnScrollListener, Observer<Page<? extends Iterable<T>>> {
 
     private final int mProgressItemLayoutResId;
 
