@@ -34,9 +34,9 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     private final PlaylistDAO mPlaylistDAO;
 
     public PlaylistStorage() {
+        super(ScSchedulers.STORAGE_SCHEDULER);
         mResolver = SoundCloudApplication.instance.getContentResolver();
         mPlaylistDAO = new PlaylistDAO(mResolver);
-        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 
     @Override
