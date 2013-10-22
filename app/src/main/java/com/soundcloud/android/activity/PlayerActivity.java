@@ -74,6 +74,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         super.onCreate(bundle);
         setContentView(R.layout.player_activity);
 
+        getSupportActionBar().setLogo(R.drawable.ic_launcher);
+
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
         mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);
         mTrackPager.setPageMargin((int) (5 * getResources().getDisplayMetrics().density));
