@@ -5,4 +5,5 @@
     android:layout_height="match_parent"
     android:choiceMode="singleChoice"
     android:background="#F3F3F3"
+    android:listSelector="@drawable/nav_drawer_list_selector"
     tools:context="com.soundcloud.android.fragment.NavigationDrawerFragment" />
