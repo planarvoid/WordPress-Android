@@ -52,7 +52,6 @@ public class NowPlayingActionBarController extends ActionBarController {
     @Override
     protected View createCustomView() {
         View customView = View.inflate(mActivity, R.layout.action_bar_now_playing_custom_view, null);
-        setupHomeButton(customView.findViewById(R.id.custom_home));
         customView.findViewById(R.id.waveform_holder).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

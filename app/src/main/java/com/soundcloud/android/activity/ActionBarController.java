@@ -30,7 +30,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 public class ActionBarController {
     @NotNull protected ActionBarOwner mOwner;
@@ -63,10 +62,6 @@ public class ActionBarController {
         mActivity = owner.getActivity();
         mAndroidCloudAPI = androidCloudAPI;
         configureCustomView();
-    }
-
-    public void setTitle(CharSequence title) {
-        ((TextView) getActionBarCustomView().findViewById(R.id.title)).setText(title);
     }
 
     public void onResume() {
@@ -113,9 +108,20 @@ public class ActionBarController {
 
     private void configureCustomView(){
         if (mOwner.getSupportActionBar() != null) {
-            mOwner.getSupportActionBar().setCustomView(mInSearchMode ?
-                    getSearchCustomView() : getActionBarCustomView(), new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL)
-            );
+            if (mInSearchMode){
+                mOwner.getSupportActionBar().setDisplayShowCustomEnabled(true);
+                mOwner.getSupportActionBar().setCustomView(getSearchCustomView(), new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL)
+                            );
+            } else {
+                final View actionBarCustomView = getActionBarCustomView();
+                if (actionBarCustomView != null){
+                    mOwner.getSupportActionBar().setDisplayShowCustomEnabled(true);
+                    mOwner.getSupportActionBar().setCustomView(actionBarCustomView, new ActionBar.LayoutParams(Gravity.RIGHT));
+                } else {
+                    mOwner.getSupportActionBar().setDisplayShowCustomEnabled(false);
+                }
+            }
+
         }
     }
 
@@ -231,7 +237,14 @@ public class ActionBarController {
 
     private void toggleSearch() {
         mInSearchMode = !mInSearchMode;
-        configureCustomView();
+        if (mInSearchMode) {
+            mOwner.getSupportActionBar().setDisplayShowHomeEnabled(false);
+            mOwner.getSupportActionBar().setDisplayShowTitleEnabled(false);
+        } else {
+            mOwner.getSupportActionBar().setDisplayShowHomeEnabled(true);
+            mOwner.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mOwner.getSupportActionBar().setDisplayShowTitleEnabled(true);
+        }
         mOwner.invalidateOptionsMenu();
     }
 
@@ -301,25 +314,13 @@ public class ActionBarController {
         }
     }
 
-    @NotNull
     public View getActionBarCustomView() {
         if (mActionBarCustomView == null) mActionBarCustomView = createCustomView();
         return mActionBarCustomView;
     }
 
     protected View createCustomView() {
-        View customView = View.inflate(mActivity, R.layout.action_bar_custom_view, null);
-        setupHomeButton(customView.findViewById(R.id.custom_home));
-        return customView;
-    }
-
-    protected void setupHomeButton(View view) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOwner.onHomePressed();
-            }
-        });
+        return null;
     }
 
     @NotNull
