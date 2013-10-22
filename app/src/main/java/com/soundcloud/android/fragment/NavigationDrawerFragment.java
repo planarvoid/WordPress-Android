@@ -1,6 +1,11 @@
 package com.soundcloud.android.fragment;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.images.ImageOptionsFactory;
+import com.soundcloud.android.utils.images.ImageSize;
 
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -19,7 +24,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class NavigationDrawerFragment extends Fragment {
 
@@ -33,6 +40,8 @@ public class NavigationDrawerFragment extends Fragment {
     private View mFragmentContainerView;
 
     private int mCurrentSelectedPosition = 1; //Default to Stream
+
+    private ProfileViewHolder mProfileViewHolder;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,17 +66,27 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
+
+        final View view = inflater.inflate(R.layout.nav_drawer_profile_item, container, false);
+        mDrawerListView.addHeaderView(view);
+
+        mProfileViewHolder = new ProfileViewHolder();
+        mProfileViewHolder.imageView = (ImageView) view.findViewById(R.id.avatar);
+        mProfileViewHolder.username = (TextView) view.findViewById(R.id.username);
+        mProfileViewHolder.location = (TextView) view.findViewById(R.id.location);
+        configureProfileView();
+
         mDrawerListView.setAdapter(new ArrayAdapter<String>(
                 getActionBar().getThemedContext(),
                 R.layout.nav_drawer_item,
                 android.R.id.text1,
                 new String[]{
-                        getString(R.string.side_menu_you),
                         getString(R.string.side_menu_stream),
                         getString(R.string.side_menu_explore),
                         getString(R.string.side_menu_likes),
                         getString(R.string.side_menu_playlists)
                 }));
+
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
     }
@@ -207,5 +226,22 @@ public class NavigationDrawerFragment extends Fragment {
          * Called when an item in the navigation drawer is selected.
          */
         void onNavigationDrawerItemSelected(int position);
+    }
+
+    private void configureProfileView(){
+        final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
+        if (loggedInUser != null){
+            mProfileViewHolder.username.setText(loggedInUser.getUsername());
+            mProfileViewHolder.location.setText(loggedInUser.getLocation());
+            ImageLoader.getInstance().displayImage(ImageSize.T500.formatUri(loggedInUser.getNonDefaultAvatarUrl()), mProfileViewHolder.imageView,
+                    ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
+        } else {
+            // then have no account, and are probably logging out
+        }
+    }
+
+    private static class ProfileViewHolder {
+        public ImageView imageView;
+        public TextView username, location;
     }
 }
