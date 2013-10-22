@@ -96,7 +96,7 @@
                                 android:layout_width="wrap_content"
                                 android:textOn="@string/btn_following"
                                 android:textOff="@string/btn_follow"
-                                style="@style/UserFollowButton.UserBrowser"/>
+                                style="@style/UserBrowser.ToggleButton"/>
                     </RelativeLayout>
     </RelativeLayout>
     <com.viewpagerindicator.TitlePageIndicator
