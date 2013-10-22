@@ -6,7 +6,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
@@ -54,7 +53,7 @@ import java.util.Date;
 import java.util.List;
 
 @Tracking(page = Page.Record_main)
-public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, ScLandingPage {
+public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     public static final int REQUEST_UPLOAD_SOUND  = 1;
 

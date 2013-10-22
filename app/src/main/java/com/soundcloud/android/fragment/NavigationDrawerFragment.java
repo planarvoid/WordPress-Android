@@ -78,7 +78,8 @@ public class NavigationDrawerFragment extends Fragment {
         mProfileViewHolder.imageView = (ImageView) view.findViewById(R.id.avatar);
         mProfileViewHolder.username = (TextView) view.findViewById(R.id.username);
         mProfileViewHolder.location = (TextView) view.findViewById(R.id.location);
-        configureProfileView();
+
+        configureProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser());
 
         mDrawerListView.setAdapter(new ArrayAdapter<String>(
                 getActionBar().getThemedContext(),
@@ -149,6 +150,10 @@ public class NavigationDrawerFragment extends Fragment {
         });
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+    }
+
+    public void updateProfileItem(User user) {
+        configureProfileItem(user);
     }
 
     private void selectItem(int position) {
@@ -237,22 +242,17 @@ public class NavigationDrawerFragment extends Fragment {
         void onNavigationDrawerItemSelected(int position);
     }
 
-    private void configureProfileView(){
-        final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
-        if (loggedInUser != null){
-            mProfileViewHolder.username.setText(loggedInUser.getUsername());
-            final String location = loggedInUser.getLocation();
-            if (ScTextUtils.isNotBlank(location)){
-                mProfileViewHolder.location.setText(location);
-            } else {
-                mProfileViewHolder.location.setVisibility(View.GONE);
-            }
-
-            ImageLoader.getInstance().displayImage(ImageSize.T500.formatUri(loggedInUser.getNonDefaultAvatarUrl()), mProfileViewHolder.imageView,
-                    ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
+    private void configureProfileItem(User user) {
+        mProfileViewHolder.username.setText(user.getUsername());
+        final String location = user.getLocation();
+        if (ScTextUtils.isNotBlank(location)) {
+            mProfileViewHolder.location.setText(location);
         } else {
-            // then have no account, and are probably logging out
+            mProfileViewHolder.location.setVisibility(View.GONE);
         }
+
+        ImageLoader.getInstance().displayImage(ImageSize.T500.formatUri(user.getNonDefaultAvatarUrl()),
+                mProfileViewHolder.imageView, ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
     }
 
     private static class ProfileViewHolder {

@@ -9,7 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
-public class WhoToFollowActivity extends ScActivity implements ScLandingPage{
+public class WhoToFollowActivity extends ScActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);

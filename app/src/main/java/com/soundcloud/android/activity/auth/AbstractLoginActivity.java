@@ -4,7 +4,7 @@ package com.soundcloud.android.activity.auth;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
 import com.soundcloud.android.dialog.auth.AuthTaskFragment;
 import com.soundcloud.android.dialog.auth.LoginTaskFragment;
@@ -88,7 +88,7 @@ public abstract class AbstractLoginActivity extends FragmentActivity implements 
                     .putExtra(SuggestedUsersCategoriesFragment.SHOW_FACEBOOK, this instanceof FacebookBaseActivity)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         } else {
-            startActivity(new Intent(this, Home.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }
         finish();
     }

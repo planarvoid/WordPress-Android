@@ -7,7 +7,7 @@ import com.soundcloud.android.provider.Content;
 
 import android.os.Bundle;
 
-public class News extends ScActivity implements ScLandingPage{
+public class News extends ScActivity {
 
     @Override
     protected void onCreate(Bundle state) {

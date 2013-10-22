@@ -4,7 +4,7 @@ package com.soundcloud.android.dialog;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.service.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
@@ -55,7 +55,7 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
 
     private void finish(boolean success) {
         final Intent intent = new Intent(Actions.STREAM);
-        intent.putExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, success);
+        intent.putExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, success);
         startActivity(intent);
         getActivity().finish();
     }

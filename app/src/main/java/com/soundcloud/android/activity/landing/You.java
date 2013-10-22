@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-public class You extends UserBrowser implements ScLandingPage {
+public class You extends UserBrowser {
 
     @Override
     public void onCreate(Bundle bundle) {
