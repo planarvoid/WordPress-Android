@@ -14,7 +14,6 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -67,16 +66,6 @@ public class ActivitiesStorage extends ScheduledOperations {
     @Deprecated
     public Observable<Activities> getCollectionSince(final Uri contentUri, final long since)  {
         return getCollectionSince(contentUri, since, 0);
-    }
-
-    @Deprecated
-    public Observable<Activity> getLatestActivities(final Uri contentUri, final int limit)  {
-        return getCollectionSince(contentUri, 0, limit).mapMany(new Func1<Activities, Observable<Activity>>() {
-            @Override
-            public Observable<Activity> call(final Activities activities) {
-                return Observable.from(activities.collection);
-            }
-        });
     }
 
     @Deprecated
