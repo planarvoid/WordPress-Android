@@ -61,7 +61,7 @@ public class ActivityAdapter extends ScBaseAdapter<Activity> {
         } else {
             // check if there is anything newer
             // TODO: DB access on UI thread!
-            final Activity latestActivity = mActivitiesStorage.getLatestActivity(mContent).toBlockingObservable().lastOrDefault(null);
+            final Activity latestActivity = mActivitiesStorage.getLatestActivity(mContent);
             return (latestActivity == null || latestActivity.created_at.getTime() > mData.get(0).created_at.getTime());
         }
     }

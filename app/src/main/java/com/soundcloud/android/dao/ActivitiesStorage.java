@@ -10,14 +10,12 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+
+import java.util.List;
 
 public class ActivitiesStorage extends ScheduledOperations {
     private SyncStateManager mSyncStateManager;
@@ -36,94 +34,70 @@ public class ActivitiesStorage extends ScheduledOperations {
     }
 
     @Deprecated
-    public Observable<Activities> getCollectionSince(final Uri contentUri, final long since, final int limit)  {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Activities>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Activities> observer) {
-                log("get activities " + contentUri + ", since=" + since);
+    private Activities getCollectionSince(final Uri contentUri, final long since, final int limit)  {
+        log("get activities " + contentUri + ", since=" + since);
 
-                Activities activities = new Activities();
-                LocalCollection lc = mSyncStateManager.fromContent(contentUri);
-                activities.future_href = lc.extra;
+        Activities activities = new Activities();
+        LocalCollection lc = mSyncStateManager.fromContent(contentUri);
+        activities.future_href = lc.extra;
 
-                BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
-                if (since > 0) {
-                    query.where(DBHelper.ActivityView.CREATED_AT + "> ?", String.valueOf(since));
-                }
-                if (limit > 0) {
-                    query.limit(limit);
-                }
+        BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
+        if (since > 0) {
+            query.where(DBHelper.ActivityView.CREATED_AT + "> ?", String.valueOf(since));
+        }
+        if (limit > 0) {
+            query.limit(limit);
+        }
 
-                activities.collection = query.queryAll();
-                observer.onNext(activities);
-                observer.onCompleted();
-
-                return Subscriptions.empty();
-            }
-        }));
+        final List<Activity> result = query.queryAll();
+        if (result.isEmpty()) {
+            return Activities.EMPTY;
+        } else {
+            activities.collection = result;
+            return activities;
+        }
     }
 
     @Deprecated
-    public Observable<Activities> getCollectionSince(final Uri contentUri, final long since)  {
+    public Activities getCollectionSince(final Uri contentUri, final long since)  {
         return getCollectionSince(contentUri, since, 0);
     }
 
     @Deprecated
-    public Observable<Activity> getOldestActivity(final Content content) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Activity>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Activity> activityObserver) {
-                Activity activity = mActivitiesDAO.buildQuery(content.uri)
-                        .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
-                        .order(DBHelper.ActivityView.CREATED_AT + " ASC")
-                        .first();
-                if (activity != null) {
-                    activityObserver.onNext(activity);
-                }
-                activityObserver.onCompleted();
-                return Subscriptions.empty();
-            }
-        }));
+    @Nullable
+    public Activity getOldestActivity(final Content content) {
+        return mActivitiesDAO.buildQuery(content.uri)
+                .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
+                .order(DBHelper.ActivityView.CREATED_AT + " ASC")
+                .first();
     }
 
     @Deprecated
-    public Observable<Activity> getLatestActivity(final Content content) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Activity>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Activity> activityObserver) {
-                Activity activity = mActivitiesDAO.buildQuery(content.uri)
-                        .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
-                        .order(DBHelper.ActivityView.CREATED_AT + " DESC")
-                        .first();
-                if (activity != null) {
-                    activityObserver.onNext(activity);
-                }
-                activityObserver.onCompleted();
-                return Subscriptions.empty();
-            }
-        }));
+    @Nullable
+    public Activity getLatestActivity(final Content content) {
+        return mActivitiesDAO.buildQuery(content.uri)
+                .where(DBHelper.ActivityView.CONTENT_ID + " = ?", String.valueOf(content.id))
+                .order(DBHelper.ActivityView.CREATED_AT + " DESC")
+                .first();
     }
 
     @Deprecated
-    public Observable<Activities> getCollectionBefore(final Uri contentUri, final long before)  {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Activities>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Activities> observer) {
-                log("get activities " + contentUri + ", before=" + before);
+    public Activities getCollectionBefore(final Uri contentUri, final long before)  {
+        log("get activities " + contentUri + ", before=" + before);
 
-                BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
-                if (before > 0) {
-                    query.where(DBHelper.ActivityView.CREATED_AT + "< ?", String.valueOf(before));
-                }
+        BaseDAO.QueryBuilder query = mActivitiesDAO.buildQuery(contentUri);
+        if (before > 0) {
+            query.where(DBHelper.ActivityView.CREATED_AT + "< ?", String.valueOf(before));
+        }
 
-                Activities activities = new Activities();
-                activities.collection = query.queryAll();
-                observer.onNext(activities);
-                observer.onCompleted();
-
-                return Subscriptions.empty();
-            }
-        }));
+        Activities activities = new Activities();
+        final List<Activity> result = query.queryAll();
+        if (result.isEmpty()) {
+            return Activities.EMPTY;
+        } else {
+            activities.collection = result;
+            return activities;
+        }
     }
 
     @Deprecated

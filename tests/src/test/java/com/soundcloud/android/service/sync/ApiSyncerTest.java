@@ -89,8 +89,7 @@ public class ApiSyncerTest {
         expect(Content.USERS).toHaveCount(28);
         expect(Content.PLAYLISTS).toHaveCount(8);
 
-        Activities incoming = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, -1)
-                .toBlockingObservable().lastOrDefault(Activities.EMPTY);
+        Activities incoming = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, -1);
 
         expect(incoming.size()).toEqual(TOTAL_STREAM_SIZE);
         expect(incoming.getUniquePlayables().size()).toEqual(TOTAL_STREAM_SIZE);
@@ -130,8 +129,7 @@ public class ApiSyncerTest {
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
         expect(Content.COMMENTS).toHaveCount(5);
 
-        Activities own = activitiesStorage.getCollectionSince(Content.ME_ACTIVITIES.uri, -1)
-                .toBlockingObservable().lastOrDefault(Activities.EMPTY);
+        Activities own = activitiesStorage.getCollectionSince(Content.ME_ACTIVITIES.uri, -1);
         expect(own.size()).toEqual(17);
 
         assertResolverNotified(Content.TRACKS.uri,
@@ -388,8 +386,7 @@ public class ApiSyncerTest {
         sync(Content.ME_SOUND_STREAM.uri, "track_and_track_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(2);
-        Activities incoming = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, -1)
-                .toBlockingObservable().lastOrDefault(Activities.EMPTY);
+        Activities incoming = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, -1);
 
         expect(incoming.size()).toEqual(2);
         Activity a1 = incoming.get(0);
@@ -414,8 +411,7 @@ public class ApiSyncerTest {
         sync(Content.ME_SOUND_STREAM.uri, "playlist_and_playlist_sharing.json");
 
         expect(Content.ME_SOUND_STREAM).toHaveCount(1);
-        Activities incoming = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, -1)
-                .toBlockingObservable().lastOrDefault(Activities.EMPTY);
+        Activities incoming = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, -1);
 
         expect(incoming.size()).toEqual(1);
         Activity a1 = incoming.get(0);
