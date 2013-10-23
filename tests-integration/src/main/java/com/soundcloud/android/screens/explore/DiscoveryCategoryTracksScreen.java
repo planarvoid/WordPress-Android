@@ -27,9 +27,9 @@ public class DiscoveryCategoryTracksScreen extends Screen {
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
         PullToRefreshGridView view = (PullToRefreshGridView)solo.getView(R.id.suggested_tracks_grid);
         ListAdapter adapter = view.getRefreshableView().getAdapter();
+        int noOfItemsPlusPreloadingView = adapter.getCount() + 1;
         solo.scrollToBottom(view.getRefreshableView());
-        int currentSize = adapter.getCount();
-        waiter.waitForItemCountToIncrease(adapter, currentSize);
-        assertTrue("New items in list did not load", currentSize < adapter.getCount());
+        waiter.waitForItemCountToIncrease(adapter, noOfItemsPlusPreloadingView);
+        assertTrue("New items in list did not load", noOfItemsPlusPreloadingView < adapter.getCount());
     }
 }
