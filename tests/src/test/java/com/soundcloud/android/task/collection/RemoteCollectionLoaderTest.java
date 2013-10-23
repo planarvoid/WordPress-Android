@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.util.functions.Action1;
+import rx.Observer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -114,7 +114,6 @@ public class RemoteCollectionLoaderTest {
         verify(trackStorage).storeCollectionAsync((Collection<Track>) captor.capture());
         expect(captor.getValue()).toContainExactly(track1, track2);
 
-        verify(trackCollectionObservable).subscribe(any(Action1.class));
-
+        verify(trackCollectionObservable).subscribe(any(Observer.class));
     }
 }

@@ -11,7 +11,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
-import com.soundcloud.android.rx.ScActions;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import org.apache.http.HttpStatus;
 
 import android.util.Log;
@@ -70,11 +70,15 @@ public class RemoteCollectionLoader<T extends ScResource> implements CollectionL
             }
         });
 
-        mTrackStorage.storeCollectionAsync(Collections2.transform(trackHolders, new Function<T, Track>() {
-            @Override
-            public Track apply(T input) {
-                return (Track) ((PlayableHolder) input).getPlayable();
-            }
-        })).subscribe(ScActions.NO_OP);
+        if (!trackHolders.isEmpty()) {
+            final Collection<Track> tracks = Collections2.transform(trackHolders, new Function<T, Track>() {
+                @Override
+                public Track apply(T input) {
+                    return (Track) ((PlayableHolder) input).getPlayable();
+                }
+            });
+
+            mTrackStorage.storeCollectionAsync(tracks).subscribe(DefaultObserver.NOOP_OBSERVER);
+        }
     }
 }
