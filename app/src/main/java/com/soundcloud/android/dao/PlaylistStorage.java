@@ -218,9 +218,4 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         }
         return null;
     }
-
-    public Playlist getPlaylist(long id) {
-        return mPlaylistDAO.queryById(id);
-
-    }
 }
