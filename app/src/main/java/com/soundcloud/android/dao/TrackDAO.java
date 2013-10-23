@@ -5,7 +5,10 @@ import com.soundcloud.android.provider.Content;
 
 import android.content.ContentResolver;
 
-public class TrackDAO extends BaseDAO<Track> {
+/**
+ * Table object for tracks. Do not use outside this package, use {@link TrackStorage} instead.
+ */
+/* package */ class TrackDAO extends BaseDAO<Track> {
     public TrackDAO(ContentResolver contentResolver) {
         super(contentResolver);
     }

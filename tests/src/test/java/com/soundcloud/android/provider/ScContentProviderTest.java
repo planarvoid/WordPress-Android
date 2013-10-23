@@ -432,7 +432,7 @@ public class ScContentProviderTest {
         expect(Content.USERS).toHaveCount(318);
         expect(Content.TRACKS).toHaveCount(143);
 
-        User u = new UserDAO(resolver).queryById(9);
+        User u = TestHelper.loadLocalContentItem(Content.USERS.uri, User.class, "_id = 9");
 
         expect(u).not.toBeNull();
         expect(u.username).toEqual("Katharina");

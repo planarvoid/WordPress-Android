@@ -5,7 +5,10 @@ import com.soundcloud.android.provider.Content;
 
 import android.content.ContentResolver;
 
-class PlaylistDAO extends BaseDAO<Playlist> {
+/**
+ * Table object for playlists. Do not use outside this package, use {@link PlaylistStorage} instead.
+ */
+/* package */ class PlaylistDAO extends BaseDAO<Playlist> {
     public PlaylistDAO(ContentResolver contentResolver) {
         super(contentResolver);
     }
