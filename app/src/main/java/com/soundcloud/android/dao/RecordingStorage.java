@@ -36,9 +36,9 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
     private final RecordingDAO mRecordingDAO;
 
     public RecordingStorage() {
+        super(ScSchedulers.STORAGE_SCHEDULER);
         ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
         mRecordingDAO = new RecordingDAO(resolver);
-        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 
     @Override
