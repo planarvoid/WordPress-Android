@@ -351,14 +351,6 @@ public class Settings extends PreferenceActivity implements ActionBarController.
         return R.menu.main;
     }
 
-    @Override
-    public void block() {
-    }
-
-    @Override
-    public void unblock(boolean instantly) {
-    }
-
     private static class LogoutClickListener implements DialogInterface.OnClickListener {
 
         private final SoundCloudApplication mSoundCloudApplication;

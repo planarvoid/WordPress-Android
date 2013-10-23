@@ -100,7 +100,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         if (mActionBarController != null) {
-            mActionBarController.onSaveInstanceState(savedInstanceState);
+            //mActionBarController.onSaveInstanceState(savedInstanceState);
         }
     }
 
@@ -108,7 +108,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (mActionBarController != null) {
-            mActionBarController.onRestoreInstanceState(savedInstanceState);
+            //mActionBarController.onRestoreInstanceState(savedInstanceState);
         }
     }
 
@@ -392,14 +392,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
      * For the search UI, we need to block out the UI completely. this might change as requirements to
      * To be implemented
      */
-
-    @Override
-    public void block() {
-    }
-
-    @Override
-    public void unblock(boolean instantly) {
-    }
 
     @Override
     public boolean onSupportNavigateUp() {
