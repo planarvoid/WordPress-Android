@@ -10,7 +10,6 @@ import static com.soundcloud.android.robolectric.TestHelper.readJson;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ActivitiesStorage;
 import com.soundcloud.android.dao.TrackStorage;
-import com.soundcloud.android.dao.UserDAO;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
