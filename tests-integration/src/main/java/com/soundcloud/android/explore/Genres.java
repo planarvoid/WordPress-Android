@@ -32,29 +32,25 @@ public class Genres extends ActivityTestCase<Home> {
 
     public void testGenresAreDisplayedUsingSwiping() {
         menuScreen.openExplore();
-        discoveryScreen.swipeRight();
-        assertEquals("Could not get to genres section", "GENRES", discoveryScreen.currentTabTitle());
+        discoveryScreen.swipeRightToGenres();
         assertEquals("Invalid number of genres found", 22, discoveryScreen.getNumberOfItemsInGenresTab());
     }
 
     public void testGenresAreDisplayedWhenTouchingTab() {
         menuScreen.openExplore();
         discoveryScreen.touchGenresTab();
-        assertEquals("Could not get to genres section", "GENRES", discoveryScreen.currentTabTitle());
         assertEquals("Invalid number of genres found", 22, discoveryScreen.getNumberOfItemsInGenresTab());
     }
 
     public void testTrendingAudioIsDisplayedUsingSwiping() {
         menuScreen.openExplore();
-        discoveryScreen.swipeLeft();
-        assertEquals("Could not get to genres section", "TRENDING AUDIO", discoveryScreen.currentTabTitle());
+        discoveryScreen.swipeLeftToTrendingAudio();
         assertEquals("Invalid number of genres found", 15, discoveryCategoryTracksScreen.getItemsOnList());
     }
 
     public void testTrendingAudioIsDisplayedWhenTouchingTab() {
         menuScreen.openExplore();
         discoveryScreen.touchTrendingAudioTab();
-        assertEquals("Could not get to genres section", "TRENDING AUDIO", discoveryScreen.currentTabTitle());
         assertEquals("Invalid number of genres found", 15, discoveryCategoryTracksScreen.getItemsOnList());
     }
 

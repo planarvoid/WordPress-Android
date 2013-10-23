@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens.explore;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 import com.soundcloud.android.R;
@@ -19,6 +20,8 @@ import java.util.List;
 
 public class DiscoveryScreen extends Screen {
 
+    private static final String GENRES_TAB_TEXT = "GENRES";
+    private static final String TRENDING_AUDIO_TAB_TEXT = "TRENDING AUDIO";
     private Han solo;
     private Waiter waiter;
     private InstrumentationTestCase testCase;
@@ -47,8 +50,9 @@ public class DiscoveryScreen extends Screen {
     }
 
     public void touchGenresTab() {
-        assertTrue("Could not touch the genres tab", touchTab("GENRES"));
+        assertTrue("Could not touch the genres tab", touchTab(GENRES_TAB_TEXT));
         solo.waitForViewId(R.id.suggested_tracks_categories_list, 5000);
+        assertEquals("Could not get to genres section", GENRES_TAB_TEXT, currentTabTitle());
     }
 
     public void clickElectronicGenre() {
@@ -57,8 +61,19 @@ public class DiscoveryScreen extends Screen {
     }
 
     public void touchTrendingAudioTab() {
-        assertTrue("Could not touch the genres tab", touchTab("TRENDING AUDIO"));
+        assertTrue("Could not touch the genres tab", touchTab(TRENDING_AUDIO_TAB_TEXT));
         solo.waitForViewId(R.id.suggested_tracks_grid, 5000);
+        assertEquals("Could not get to genres section", TRENDING_AUDIO_TAB_TEXT, currentTabTitle());
+    }
+
+    public void swipeRightToGenres() {
+        solo.swipeRight();
+        assertEquals("Could not get to genres section", GENRES_TAB_TEXT, currentTabTitle());
+    }
+
+    public void swipeLeftToTrendingAudio() {
+        solo.swipeLeft();
+        assertEquals("Could not get to trending audio section", TRENDING_AUDIO_TAB_TEXT, currentTabTitle());
     }
 
     private boolean touchTab(String tabText) {
