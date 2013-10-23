@@ -4,6 +4,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.Broad
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
@@ -63,6 +64,9 @@ public class NowPlayingIndicator extends ProgressBar {
     private int mWaveformErrorCount;
     private WaveformData mWaveformData;
 
+    private int mDrawGroupSize;
+    private int mDumpSize;
+
     private final Handler mHandler = new RefreshHandler(this);
 
     @SuppressWarnings("UnusedDeclaration")
@@ -111,6 +115,9 @@ public class NowPlayingIndicator extends ProgressBar {
         mBottomGrey.setXfermode(sourceIn);
 
         setIndeterminate(false);
+
+        mDrawGroupSize = context.getResources().getDimensionPixelSize(R.dimen.waveform_group_size);
+        mDumpSize = context.getResources().getDimensionPixelSize(R.dimen.waveform_dump_size);
     }
 
     public void resume() {
@@ -239,7 +246,7 @@ public class NowPlayingIndicator extends ProgressBar {
     }
 
     private void setWaveformMask() {
-        this.mWaveformMask = createWaveformMask(mWaveformData, mAdjustedWidth, getHeight());
+        this.mWaveformMask = createWaveformMask(mWaveformData, mAdjustedWidth, getHeight(), mDrawGroupSize, mDumpSize);
     }
 
     public BroadcastReceiver getStatusListener() {
@@ -272,10 +279,10 @@ public class NowPlayingIndicator extends ProgressBar {
         setWaveformMask();
     }
 
-    private static Bitmap createWaveformMask(WaveformData waveformData, int width, int height) {
+    private static Bitmap createWaveformMask(WaveformData waveformData, int width, int height, int groupSize, int dumpSize) {
         if (waveformData == null || width == 0 || height == 0) return null;
 
-        Bitmap mask   = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
+        Bitmap mask = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
         Canvas canvas = new Canvas(mask);
 
         Paint black = new Paint();
@@ -291,20 +298,46 @@ public class NowPlayingIndicator extends ProgressBar {
         int dstHeight = (int) (height * TOP_WAVEFORM_FRACTION);
 
         WaveformData scaled = waveformData.scale(width);
-        for (int i = 0; i < scaled.samples.length; i++) {
-            final float scaledHeight1 = (scaled.samples[i] * (float) dstHeight / waveformData.maxAmplitude);
-            canvas.drawLine(
-                i, 0,
-                i, dstHeight - scaledHeight1,
-                xor
-            );
 
-            final float scaledHeight2 = (scaled.samples[i] * (float) (height-dstHeight) / waveformData.maxAmplitude);
-            canvas.drawLine(
-                i, dstHeight + scaledHeight2,
-                i, height,
-                xor
-            );
+        int acc = 0;
+        int groupIndex = 0;
+        int dumpIndex = -1;
+        for (int i = 0; i < scaled.samples.length; i++) {
+            if (dumpIndex >= 0) {
+                canvas.drawLine(
+                        i, 0,
+                        i, height,
+                        xor
+                );
+                dumpIndex++;
+                if (dumpIndex == dumpSize) {
+                    dumpIndex = -1; // cancel dumping
+                }
+            } else {
+                acc += scaled.samples[i];
+                groupIndex++;
+                if (groupIndex == groupSize || i == scaled.samples.length - 1) {
+                    final int sample = acc / groupIndex;
+                    for (int j = i - groupIndex + 1; j <= i; j++) {
+                        final float scaledHeight1 = (sample * (float) dstHeight / waveformData.maxAmplitude);
+                        canvas.drawLine(
+                                j, 0,
+                                j, dstHeight - scaledHeight1,
+                                xor
+                        );
+
+                        final float scaledHeight2 = (sample * (float) (height - dstHeight) / waveformData.maxAmplitude);
+                        canvas.drawLine(
+                                j, dstHeight + scaledHeight2,
+                                j, height,
+                                xor
+                        );
+                    }
+                    acc = groupIndex = dumpIndex = 0;
+                }
+            }
+
+
         }
 
         return mask;

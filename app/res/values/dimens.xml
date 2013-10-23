@@ -147,4 +147,7 @@
     <dimen name="navigation_drawer_width">240dp</dimen>
 
     <dimen name="nav_drawer_profile_item_height">160dp</dimen>
+
+    <dimen name="waveform_group_size">3dp</dimen>
+    <dimen name="waveform_dump_size">1dp</dimen>
 </resources>
