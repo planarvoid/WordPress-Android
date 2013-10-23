@@ -1,5 +1,7 @@
 package com.soundcloud.android.fragment;
 
+import static rx.android.AndroidObservables.fromFragment;
+
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -17,7 +19,6 @@ import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.AndroidObservables;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
@@ -47,6 +48,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;
 
+    private ExploreTracksOperations mTracksOperations;
     private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
     private Subscription mSubscription = Subscriptions.empty();
 
@@ -56,7 +58,8 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
 
     @VisibleForTesting
     protected ExploreTracksCategoriesFragment(ExploreTracksOperations operations) {
-        init(AndroidObservables.fromFragment(this, operations.getCategories()).mapMany(CATEGORIES_TO_SECTIONS).replay());
+        mTracksOperations = operations;
+        init(buildObservable());
     }
 
     @VisibleForTesting
@@ -67,6 +70,10 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     private void init(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
         mCategoriesObservable = observable;
         setRetainInstance(true);
+    }
+
+    private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable() {
+        return fromFragment(this, mTracksOperations.getCategories()).mapMany(CATEGORIES_TO_SECTIONS).replay();
     }
 
     @Override
@@ -92,6 +99,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
             @Override
             public void onEmptyViewRetry() {
                 setEmptyViewStatus(FriendFinderFragment.Status.WAITING);
+                mCategoriesObservable = buildObservable();
                 mSubscription = loadCategories();
             }
         });
