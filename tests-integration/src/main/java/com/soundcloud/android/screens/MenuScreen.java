@@ -29,7 +29,7 @@ public class MenuScreen {
     }
 
     public MainMenu rootMenu() {
-        return (MainMenu) solo.waitForViewId(R.id.root_menu, 20000);
+        return (MainMenu) solo.waitForViewId(R.id.nav_drawer_listview, 20000);
     }
 
     public View youMenu() {

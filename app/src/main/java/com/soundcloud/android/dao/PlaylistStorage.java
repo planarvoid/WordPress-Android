@@ -17,7 +17,6 @@ import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
-import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -40,6 +39,12 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         mPlaylistDAO = new PlaylistDAO(mResolver);
     }
 
+    @Override
+    public Playlist store(Playlist playlist) {
+        mPlaylistDAO.create(playlist);
+        return playlist;
+    }
+
     /**
      * Takes a playlist and stores it in the database. This will not only create a playlist record in the Sounds table
      * but also create records in Sounds for every track in the playlist as well as a record for every track in the
@@ -48,12 +53,11 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
      * @param playlist the playlist to store
      */
     @Override
-    public Observable<Playlist> create(final Playlist playlist) {
+    public Observable<Playlist> storeAsync(final Playlist playlist) {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<Playlist>() {
             @Override
             public Subscription onSubscribe(Observer<? super Playlist> observer) {
-                mPlaylistDAO.create(playlist);
-                observer.onNext(playlist);
+                observer.onNext(store(playlist));
                 observer.onCompleted();
                 return Subscriptions.empty();
             }
@@ -63,7 +67,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     /**
      * Convenience method to store a new playlist a user has just created on their device.
      *
-     * @see #create(com.soundcloud.android.model.Playlist)
+     * @see #storeAsync(com.soundcloud.android.model.Playlist)
      */
     public Observable<Playlist> createNewUserPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
         ArrayList<Track> tracks = new ArrayList<Track>(trackIds.length);
@@ -73,7 +77,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         }
 
         Playlist playlist = Playlist.newUserPlaylist(user, title, isPrivate, tracks);
-        return create(playlist);
+        return storeAsync(playlist);
     }
 
     public Observable<Playlist> loadPlaylistWithTracks(final long playlistId) {

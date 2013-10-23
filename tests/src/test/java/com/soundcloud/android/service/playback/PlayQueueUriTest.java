@@ -40,4 +40,6 @@ public class PlayQueueUriTest {
         expect(newUri.toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/stream?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v2&playSource-exploreTag=4&playSource-originUrl=3&playSource-initialTrackId=2");
     }
 
+
+
 }

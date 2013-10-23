@@ -89,7 +89,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
         });
         builder.setView(dialogView);
 
-        getSherlockActivity().getSupportLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
+        getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
 
         return builder.create();
     }

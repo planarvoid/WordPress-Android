@@ -2,6 +2,33 @@
 
 <resources>
 
+    <style name="ScListViewStyle" parent="@android:style/Widget.ListView">
+        <item name="android:divider">@drawable/divider_list_grey</item>
+        <item name="android:dividerHeight">1px</item>
+    </style>
+
+    <style name="ScPopupAnimationStyle">
+        <item name="@android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="@android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="ScActivityAnimationStyle">
+        <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item>
+    </style>
+
+    <style name="DropDownListView.SoundCloud" parent="@style/Widget.AppCompat.ListView.DropDown">
+        <item name="android:listSelector">@drawable/action_item_background_selector</item>
+    </style>
+
+    <style name="DropDownNav.SoundCloud" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
+        <item name="android:dropDownSelector">@drawable/action_item_background_selector</item>
+    </style>
+
+    <style name="PopupMenu.SoundCloud" parent="@style/Widget.AppCompat.PopupMenu" />
+
     <!-- ****** Dialogs ****** -->
 
     <style name="Dialog" parent="android:Theme.Dialog">
@@ -61,16 +88,6 @@
         <item name="clipPadding">16dp</item>
     </style>
 
-    <style name="Widget.Light.AutoCompleteTextView" parent="Widget.Sherlock.Light.SearchAutoCompleteTextView">
-        <item name="android:textAppearance">@style/TextAppearance.Light.AutoCompleteTextView</item>
-    </style>
-
-    <style name="Widget.Light.DropDownItem" parent="Widget.Sherlock.Light.DropDownItem.Spinner">
-        <!-- DO NOT PUT THIS IN A TEXT APPEARNCE ITEM, THE TEXT COLOR WILL NOT WORK, I DONT KNOW WHY [JS] -->
-        <item name="android:textColor">?textColorPrimaryInverse</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">normal</item>
-    </style>
 
     <style name="Widget.TextView" />
 
@@ -182,7 +199,7 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="OnboardActionButtonStyle" parent="Widget.Sherlock.ActionButton">
+    <style name="OnboardActionButtonStyle" parent="Widget.AppCompat.ActionButton">
         <item name="android:paddingLeft">20dip</item>
         <item name="android:paddingRight">20dip</item>
         <item name="android:paddingTop">0dp</item>

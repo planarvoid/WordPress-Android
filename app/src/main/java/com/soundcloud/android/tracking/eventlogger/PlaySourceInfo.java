@@ -23,8 +23,12 @@ public class PlaySourceInfo implements Parcelable {
 
     private Bundle mData;
 
+    public PlaySourceInfo(Bundle data) {
+        mData = data;
+    }
+
     private PlaySourceInfo() {
-        mData = new Bundle();
+        this(new Bundle());
     }
 
     private PlaySourceInfo(Builder builder) {
@@ -44,12 +48,15 @@ public class PlaySourceInfo implements Parcelable {
      * {@link com.soundcloud.android.service.playback.PlayQueueUri}
      */
     public static PlaySourceInfo fromUriParams(Uri uri) {
-        return new PlaySourceInfo(
-                new Builder(Longs.tryParse(uri.getQueryParameter(KEY_INITIAL_TRACK_ID)))
-                        .originUrl(uri.getQueryParameter(KEY_ORIGIN_URL))
-                        .exploreTag(uri.getQueryParameter(KEY_EXPLORE_TAG))
-                        .recommenderVersion(uri.getQueryParameter(KEY_RECOMMENDER_VERSION))
-        );
+        final String trackId = uri.getQueryParameter(KEY_INITIAL_TRACK_ID);
+        if (ScTextUtils.isBlank(trackId)) {
+            return PlaySourceInfo.EMPTY;
+        }
+        return new Builder(Longs.tryParse(trackId))
+                .originUrl(uri.getQueryParameter(KEY_ORIGIN_URL))
+                .exploreTag(uri.getQueryParameter(KEY_EXPLORE_TAG))
+                .recommenderVersion(uri.getQueryParameter(KEY_RECOMMENDER_VERSION))
+                .build();
     }
 
     public void setRecommenderVersion(String version) {
@@ -68,6 +75,9 @@ public class PlaySourceInfo implements Parcelable {
         return mData.getString(KEY_EXPLORE_TAG);
     }
 
+    public Bundle getData(){
+        return mData;
+    }
 
     public Uri.Builder appendAsQueryParams(Uri.Builder builder) {
         for (String key : mData.keySet()) {

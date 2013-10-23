@@ -216,7 +216,7 @@ public class ScUpload extends ScActivity {
     private void saveRecording() {
         mapToRecording(mRecording);
         if (mRecording != null) {
-            mStorage.create(mRecording).subscribe(ScActions.NO_OP);
+            mStorage.storeAsync(mRecording).subscribe(ScActions.NO_OP);
         }
     }
 

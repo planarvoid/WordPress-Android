@@ -1,6 +1,5 @@
 package com.soundcloud.android.fragment;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
@@ -22,13 +21,14 @@ import rx.android.concurrency.AndroidSchedulers;
 import android.content.Intent;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class SuggestedUsersCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener {
+public class SuggestedUsersCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     public final static String SHOW_FACEBOOK = "SHOW_FACEBOOK";
 

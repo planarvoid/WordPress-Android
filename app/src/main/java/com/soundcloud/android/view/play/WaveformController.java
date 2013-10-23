@@ -3,7 +3,7 @@ package com.soundcloud.android.view.play;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.activity.PlayerActivity;
 import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
@@ -188,7 +188,7 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
         if (mShowingSmoothProgress != isPlaying){
             stopSmoothProgress();
             setProgress(pos);
-            if (Build.VERSION.SDK_INT >= MINIMUM_SMOOTH_PROGRESS_SDK && isPlaying && mProgressPeriod < ScPlayer.REFRESH_DELAY){
+            if (Build.VERSION.SDK_INT >= MINIMUM_SMOOTH_PROGRESS_SDK && isPlaying && mProgressPeriod < PlayerActivity.REFRESH_DELAY){
                 startSmoothProgress();
             }
         }
@@ -414,7 +414,7 @@ public class WaveformController extends TouchLayout implements CommentPanel.Comm
     private void determineProgressInterval(){
         if (getWidth() == 0) return;
         mProgressPeriod = Math.max(MINIMUM_PROGRESS_PERIOD,mDuration/getWidth());
-        if (mProgressPeriod >= ScPlayer.REFRESH_DELAY){
+        if (mProgressPeriod >= PlayerActivity.REFRESH_DELAY){
             // don't bother with the extra refreshes, will happen at the regular intervals anyways
             stopSmoothProgress();
         }

@@ -9,13 +9,14 @@ import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.Link;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.SuggestedTracksCollection;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.android.OperationPaged;
 import rx.util.functions.Func1;
@@ -74,13 +75,19 @@ public class ExploreTracksOperations extends ScheduledOperations {
         }
     };
 
-    public Observable<RelatedTracksCollection> getRelatedTracks(final Track seedTrack) {
-        final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), seedTrack.getUrn().toEncodedString());
-        final APIRequest<RelatedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RelatedTracksCollection>get(endpoint)
-                .forPrivateAPI(1)
-                .forResource(TypeToken.of(RelatedTracksCollection.class)).build();
+    public Observable<RelatedTracksCollection> getRelatedTracks(long trackId) {
+        final ClientUri clientUri = ClientUri.fromTrack(trackId);
+        if (clientUri != null){
+            final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), clientUri.toEncodedString());
+            final APIRequest<RelatedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RelatedTracksCollection>get(endpoint)
+                    .forPrivateAPI(1)
+                    .forResource(TypeToken.of(RelatedTracksCollection.class)).build();
 
-        return mRxHttpClient.fetchModels(request);
+            return mRxHttpClient.fetchModels(request);
+        } else {
+            Log.e(this, "Unable to parse client URI from id " + trackId);
+        }
+        return null;
     }
 
     private interface TrackSummariesNextPageFunc extends Func1<SuggestedTracksCollection, Observable<Page<SuggestedTracksCollection>>> {}

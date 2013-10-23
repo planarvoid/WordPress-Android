@@ -9,7 +9,6 @@ import com.soundcloud.android.fragment.PlaylistTracksFragment;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
@@ -93,7 +92,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             if (playlistChanged) refresh();
 
             if (getIntent().getBooleanExtra(EXTRA_SCROLL_TO_PLAYING_TRACK, false)) {
-                mFragment.scrollToPosition(PlayQueueManager.get(this).getPosition());
+                mFragment.scrollToPosition(CloudPlaybackService.getPlayPosition());
             }
         } else {
             Toast.makeText(this, R.string.playlist_removed, Toast.LENGTH_SHORT).show();

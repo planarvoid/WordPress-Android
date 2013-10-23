@@ -27,4 +27,10 @@ public class AccountSettings extends PreferenceActivity {
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(getClass());
     }
+
+    @Override
+    public boolean onNavigateUp() {
+        finish();
+        return true;
+    }
 }

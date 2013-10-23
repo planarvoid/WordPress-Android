@@ -45,7 +45,7 @@ public class FBWebViewScreen {
             solo.clickOnText("Never");
         }
 
-        solo.waitForViewId(R.id.root_menu, 15000);
+        solo.waitForViewId(R.id.nav_drawer_listview, 15000);
     }
 
     private By emailField() {

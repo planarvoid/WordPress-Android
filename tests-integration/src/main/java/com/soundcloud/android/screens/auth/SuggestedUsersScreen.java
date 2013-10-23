@@ -1,7 +1,7 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.tests.Han;
@@ -79,7 +79,7 @@ public class SuggestedUsersScreen {
 
     public HomeScreen finish() {
         solo.clickOnView(R.id.finish);
-        solo.waitForActivity(Home.class, 30000);
+        solo.waitForActivity(MainActivity.class, 30000);
         waiter.waitForListContent();
         return new HomeScreen(solo);
     }

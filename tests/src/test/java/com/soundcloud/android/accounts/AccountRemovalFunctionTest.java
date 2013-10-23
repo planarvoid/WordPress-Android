@@ -24,7 +24,7 @@ import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class AccountRemovalFunctionTest {
     @Mock
     private SoundRecorder soundRecorder;
     @Mock
-    private PlayQueueManager playQueueManager;
+    private PlayQueue playQueue;
     @Mock
     private Observer<Void> observer;
     @Mock
@@ -84,7 +84,7 @@ public class AccountRemovalFunctionTest {
     public void setup(){
         initMocks(this);
         function = new AccountRemovalFunction(soundCloudAccount, context, accountManager, syncStateManager,
-                collectionStorage, activitiesStorage, userAssociationStorage, soundRecorder, playQueueManager, c2DMReceiver);
+                collectionStorage, activitiesStorage, userAssociationStorage, soundRecorder, c2DMReceiver);
 
         when(accountManager.removeAccount(soundCloudAccount,null,null)).thenReturn(future);
         when(context.getSharedPreferences(anyString(),anyInt())).thenReturn(sharedPreferences);
@@ -178,14 +178,14 @@ public class AccountRemovalFunctionTest {
     public void shouldClearPlayQueueManagersStateIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(true);
         function.onSubscribe(observer);
-        verify(playQueueManager).clearState();
+        //TODO verify(playQueue).clearAllLocalState();
     }
 
     @Test
     public void shouldNotClearPlayQueueManagersStateIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
         when(future.getResult()).thenReturn(false);
         function.onSubscribe(observer);
-        verifyZeroInteractions(playQueueManager);
+        verifyZeroInteractions(playQueue);
     }
 
     @Test

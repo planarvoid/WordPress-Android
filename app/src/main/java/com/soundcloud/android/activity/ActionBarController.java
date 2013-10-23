@@ -1,18 +1,15 @@
 package com.soundcloud.android.activity;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.internal.view.menu.ActionMenuView;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.landing.News;
+import com.soundcloud.android.activity.landing.WhoToFollowActivity;
+import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.activity.track.PlaylistDetailActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.view.RootView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,23 +22,26 @@ import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.internal.view.menu.ActionMenuView;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 public class ActionBarController {
     @NotNull protected ActionBarOwner mOwner;
     @NotNull protected Activity mActivity;
-    @NotNull protected RootView mRootView;
 
     @Nullable private View              mActionBarCustomView;
     @Nullable private RelativeLayout    mSearchCustomView;
-    @Nullable private SearchView        mSearchView;
-    @Nullable private View              mMenuIndicator;
+    @Nullable private SearchView mSearchView;
 
     private SuggestionsAdapter mSuggestionsAdapter;
     private final AndroidCloudAPI mAndroidCloudAPI;
@@ -52,32 +52,19 @@ public class ActionBarController {
     public interface ActionBarOwner {
         @NotNull
         public Activity     getActivity();
-        public ActionBar    getSupportActionBar();
+        public ActionBar getSupportActionBar();
         public MenuInflater getSupportMenuInflater();
         public void         invalidateOptionsMenu();
         public int          getMenuResourceId();
-        public void         onHomePressed();
+        public void         block();
+        public void         unblock(boolean instantly);
     }
 
-    public ActionBarController(@NotNull ActionBarOwner owner, @NotNull RootView rootView, AndroidCloudAPI androidCloudAPI) {
+    public ActionBarController(@NotNull ActionBarOwner owner, AndroidCloudAPI androidCloudAPI) {
         mOwner    = owner;
         mActivity = owner.getActivity();
-        mRootView = rootView;
         mAndroidCloudAPI = androidCloudAPI;
         configureCustomView();
-    }
-
-
-    public void setTitle(CharSequence title) {
-        ((TextView) getActionBarCustomView().findViewById(R.id.title)).setText(title);
-    }
-
-    public void hideMenuIndicator() {
-        getMenuIndicator().setVisibility(View.GONE);
-    }
-
-    public void showMenuIndicator() {
-        getMenuIndicator().setVisibility(View.VISIBLE);
     }
 
     public void onResume() {
@@ -108,7 +95,7 @@ public class ActionBarController {
 
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState.getBoolean("closeSearchOnResume")) {
-            mRootView.unBlock(true);
+            mOwner.unblock(true);
         } else {
             if (savedInstanceState.getBoolean("inSearchMode") != mInSearchMode) {
                 toggleSearch();
@@ -124,9 +111,20 @@ public class ActionBarController {
 
     private void configureCustomView(){
         if (mOwner.getSupportActionBar() != null) {
-            mOwner.getSupportActionBar().setCustomView(mInSearchMode ?
-                    getSearchCustomView() : getActionBarCustomView(), new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL)
-            );
+            if (mInSearchMode){
+                mOwner.getSupportActionBar().setDisplayShowCustomEnabled(true);
+                mOwner.getSupportActionBar().setCustomView(getSearchCustomView(), new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL)
+                            );
+            } else {
+                final View actionBarCustomView = getActionBarCustomView();
+                if (actionBarCustomView != null){
+                    mOwner.getSupportActionBar().setDisplayShowCustomEnabled(true);
+                    mOwner.getSupportActionBar().setCustomView(actionBarCustomView, new ActionBar.LayoutParams(Gravity.RIGHT));
+                } else {
+                    mOwner.getSupportActionBar().setDisplayShowCustomEnabled(false);
+                }
+            }
+
         }
     }
 
@@ -152,7 +150,7 @@ public class ActionBarController {
 
         /* find and configure the search autocompletetextview */
         // actionbarsherlock view
-        final AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.abs__search_src_text);
+        final AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.search_src_text);
         if (search_text != null) {
             if (useFullScreenSearch()) {
                 // on a normal size device, use the whole action bar
@@ -160,15 +158,15 @@ public class ActionBarController {
                 if (mActivity.findViewById(identifier) != null) {
                     // native action bar (>= Honeycomb)
                     search_text.setDropDownAnchor(identifier);
-                } else if (mActivity.findViewById(R.id.abs__action_bar_container) != null) {
+                } else if (mActivity.findViewById(R.id.action_bar_container) != null) {
                     // abs action bar (< Honeycomb)
-                    search_text.setDropDownAnchor(R.id.abs__action_bar_container);
+                    search_text.setDropDownAnchor(R.id.action_bar_container);
                 }
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT);
 
             } else {
                 // on a large screen device, just anchor to the search bar itself
-                if (mActivity.findViewById(R.id.abs__search_bar) != null) search_text.setDropDownAnchor(R.id.abs__search_bar);
+                if (mActivity.findViewById(R.id.search_bar) != null) search_text.setDropDownAnchor(R.id.search_bar);
                 search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
             }
         }
@@ -216,7 +214,7 @@ public class ActionBarController {
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
-                    if (TextUtils.isEmpty(newText) && !mCloseSearchOnResume) mRootView.unBlock(false);
+                    if (TextUtils.isEmpty(newText) && !mCloseSearchOnResume) mOwner.unblock(false);
                     return false;
                 }
             });
@@ -226,9 +224,9 @@ public class ActionBarController {
                     @Override
                     public void onChanged() {
                         if (mSuggestionsAdapter.getCount() > 0 && !TextUtils.isEmpty(search_text.getText())) {
-                            mRootView.block();
+                            mOwner.block();
                         } else if (!mCloseSearchOnResume) {
-                            mRootView.unBlock(false);
+                            mOwner.unblock(false);
                         }
                     }
                 });
@@ -242,7 +240,14 @@ public class ActionBarController {
 
     private void toggleSearch() {
         mInSearchMode = !mInSearchMode;
-        configureCustomView();
+        if (mInSearchMode) {
+            mOwner.getSupportActionBar().setDisplayShowHomeEnabled(false);
+            mOwner.getSupportActionBar().setDisplayShowTitleEnabled(false);
+        } else {
+            mOwner.getSupportActionBar().setDisplayShowHomeEnabled(true);
+            mOwner.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mOwner.getSupportActionBar().setDisplayShowTitleEnabled(true);
+        }
         mOwner.invalidateOptionsMenu();
     }
 
@@ -250,7 +255,7 @@ public class ActionBarController {
         if (mSearchView != null) {
             mSearchView.clearFocus();
         }
-        mRootView.unBlock(instant);
+        mOwner.unblock(instant);
         if (mInSearchMode) toggleSearch();
     }
 
@@ -271,8 +276,8 @@ public class ActionBarController {
         final MenuItem backToSetItem = menu.findItem(R.id.menu_backToSet);
         if (backToSetItem != null) {
             boolean visible = false;
-            if ((mOwner.getActivity() instanceof ScPlayer)) {
-                final Uri uri = CloudPlaybackService.getUri();
+            if ((mOwner.getActivity() instanceof PlayerActivity)) {
+                final Uri uri = CloudPlaybackService.getPlayQueueUri();
                 if (uri != null && Content.match(uri) == Content.PLAYLIST) {
                     visible = true;
                 }
@@ -298,7 +303,7 @@ public class ActionBarController {
             case R.id.menu_backToSet:
                 final Intent intent = new Intent(mOwner.getActivity(), PlaylistDetailActivity.class);
                 intent.putExtra(PlaylistDetailActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
-                final Uri uri = CloudPlaybackService.getUri();
+                final Uri uri = CloudPlaybackService.getPlayQueueUri();
                 if (Content.match(uri) == Content.PLAYLIST) {
                     intent.setData(uri);
                 } else {
@@ -307,38 +312,34 @@ public class ActionBarController {
                 mOwner.getActivity().startActivity(intent);
                 return true;
 
+            case R.id.action_settings:
+                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), Settings.class));
+                return true;
+
+            case R.id.action_record:
+                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), ScCreate.class));
+                return true;
+
+            case R.id.action_who_to_follow:
+                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), WhoToFollowActivity.class));
+                return true;
+
+            case R.id.action_activity:
+                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), News.class));
+                return true;
+
             default:
                 return false;
         }
     }
 
-    @NotNull
     public View getActionBarCustomView() {
         if (mActionBarCustomView == null) mActionBarCustomView = createCustomView();
         return mActionBarCustomView;
     }
 
     protected View createCustomView() {
-        View customView = View.inflate(mActivity, R.layout.action_bar_custom_view, null);
-        setupHomeButton(customView.findViewById(R.id.custom_home));
-        return customView;
-    }
-
-    protected void setupHomeButton(View view) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOwner.onHomePressed();
-            }
-        });
-    }
-
-    @NotNull
-    public View getMenuIndicator() {
-        if (mMenuIndicator == null) {
-            mMenuIndicator = getActionBarCustomView().findViewById(R.id.custom_up);
-        }
-        return mMenuIndicator;
+        return null;
     }
 
     @NotNull

@@ -7,7 +7,6 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -21,12 +20,17 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
     }
 
     @Override
-    public Observable<User> create(final User user) {
+    public User store(User user) {
+        mUserDAO.create(user.buildContentValues());
+        return user;
+    }
+
+    @Override
+    public Observable<User> storeAsync(final User user) {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<User>() {
             @Override
             public Subscription onSubscribe(Observer<? super User> observer) {
-                mUserDAO.create(user.buildContentValues());
-                observer.onNext(user);
+                observer.onNext(store(user));
                 observer.onCompleted();
                 return Subscriptions.empty();
             }

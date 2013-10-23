@@ -1,16 +1,20 @@
 package com.soundcloud.android.utils;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.PlaylistDetailActivity;
+import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 
 import android.content.Context;
@@ -23,13 +27,15 @@ import java.util.List;
 public final class PlayUtils {
 
     private ScModelManager mModelManager;
+    private TrackStorage mTrackStorage;
 
     public PlayUtils() {
-        this(SoundCloudApplication.MODEL_MANAGER);
+        this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage());
     }
 
-    public PlayUtils(ScModelManager modelManager) {
+    public PlayUtils(ScModelManager modelManager, TrackStorage trackStorage) {
         mModelManager = modelManager;
+        mTrackStorage = trackStorage;
     }
 
     /**
@@ -41,7 +47,7 @@ public final class PlayUtils {
     }
 
     /**
-     * Created by anything played from the {@link com.soundcloud.android.activity.landing.ExploreActivity} section.
+     * Created by anything played from the {@link com.soundcloud.android.fragment.ExploreFragment} section.
      */
     public void playExploreTrack(Context context, Track track, String exploreTag) {
         final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(track.getId()).exploreTag(exploreTag).build();
@@ -79,7 +85,7 @@ public final class PlayUtils {
             }
 
             PlayInfo playInfo = PlayInfo.fromUriWithTrack(uri, adjustedPosition, tracks.get(adjustedPosition));
-            playInfo.iniitalTracklist = tracks;
+            playInfo.initialTracklist = tracks;
             playFromInfo(context, playInfo);
 
         } else if (playable instanceof Playlist) {
@@ -89,44 +95,44 @@ public final class PlayUtils {
         }
     }
 
-    public static Track getTrackFromIntent(Intent intent){
-        if (intent.getBooleanExtra(CloudPlaybackService.PlayExtras.playFromXferList,false)){
-            final int position = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition,-1);
-            final List<Track> list = CloudPlaybackService.playlistXfer;
-            if (list != null && position > -1 && position < list.size() && list.get(position).getPlayable() instanceof Track){
-                return (Track) list.get(position).getPlayable();
-            }
-        } else if (intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l) > 0) {
-            return SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(CloudPlaybackService.PlayExtras.trackId,-1l));
-        } else if (intent.getParcelableExtra(Track.EXTRA) != null) {
-            return intent.getParcelableExtra(Track.EXTRA);
-        }
-        return null;
-    }
-
     private void playFromInfo(Context context, PlayInfo playInfo){
-        Intent intent = new Intent(Actions.PLAY).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        mModelManager.cache(playInfo.initialTrack);
+
+        // intent for player activity
+        context.startActivity(new Intent(Actions.PLAYER)
+                .putExtra(Track.EXTRA_ID, playInfo.initialTrack.getId())
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+
+        // intent for playback service
         if (CloudPlaybackService.getCurrentTrackId() != playInfo.initialTrack.getId()) {
-            configureIntentViaPlayInfo(playInfo, intent);
+            sendIntentViaPlayInfo(context, playInfo);
         }
-        context.startActivity(intent);
     }
 
-    private void configureIntentViaPlayInfo(PlayInfo info, Intent intent) {
+    private void sendIntentViaPlayInfo(final Context context, final PlayInfo info) {
+
+        final Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
         intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, info.sourceInfo);
-        intent.putExtra(CloudPlaybackService.PlayExtras.track, info.initialTrack);
-        CloudPlaybackService.playlistXfer = info.iniitalTracklist;
 
-        if (info.uri != null) {
-            mModelManager.cache(info.initialTrack);
-            intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.initialTrack.getId())
-                    .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                    .setData(info.uri);
+        if (info.isStoredCollection()) {
+             mTrackStorage.getTrackIdsForUriAsync(info.uri).subscribe(new DefaultObserver<List<Long>>() {
+                 @Override
+                 public void onNext(List<Long> idList) {
+                     intent.putExtra(PlayQueue.EXTRA, new PlayQueue(idList, info.position, info.sourceInfo));
+                     context.startService(intent);
+                 }
+             });
 
-        } else if (info.iniitalTracklist.size() > 1) {
-            intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                    .putExtra(CloudPlaybackService.PlayExtras.playFromXferList, true);
+        } else {
+            final List<Long> idList = Lists.transform(info.initialTracklist, new Function<Track, Long>() {
+                @Override
+                public Long apply(Track input) {
+                    return input.getId();
+                }
+            });
+            intent.putExtra(PlayQueue.EXTRA, new PlayQueue(idList, info.position, info.sourceInfo));
+            context.startService(intent);
         }
     }
 
@@ -135,7 +141,7 @@ public final class PlayUtils {
         private int position;
         private Uri uri;
         private Track initialTrack;
-        private List<Track> iniitalTracklist;
+        private List<Track> initialTracklist;
         private boolean fetchRelated;
         private PlaySourceInfo sourceInfo;
 
@@ -144,7 +150,7 @@ public final class PlayUtils {
 
         private PlayInfo(Track track, boolean fetchRelated, PlaySourceInfo playSourceInfo) {
             this.initialTrack = track;
-            this.iniitalTracklist = Lists.newArrayList(track);
+            this.initialTracklist = Lists.newArrayList(track);
             this.fetchRelated = fetchRelated;
             this.sourceInfo = playSourceInfo;
         }
@@ -161,6 +167,10 @@ public final class PlayUtils {
             playInfo.uri = uri;
             playInfo.position = startPosition;
             return playInfo;
+        }
+
+        public boolean isStoredCollection(){
+            return uri != null;
         }
     }
 }

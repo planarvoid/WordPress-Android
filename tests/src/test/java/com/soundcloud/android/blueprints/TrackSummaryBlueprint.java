@@ -17,7 +17,7 @@ public class TrackSummaryBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new TrackSummary("soundcloud:sounds:4L");
+            return new TrackSummary("soundcloud:sounds:4");
         }
     };
 

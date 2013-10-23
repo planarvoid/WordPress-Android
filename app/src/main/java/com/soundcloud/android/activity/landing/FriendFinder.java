@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.widget.Toast;
 
-public class FriendFinder extends ScActivity implements ScLandingPage {
+public class FriendFinder extends ScActivity {
     private static final String FRAG_TAG = "ff_fragment";
     private FriendFinderFragment mFragment;
 
@@ -25,7 +25,7 @@ public class FriendFinder extends ScActivity implements ScLandingPage {
             mFragment = FriendFinderFragment.newInstance();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(mRootView.getContentHolderId(), mFragment, FRAG_TAG)
+                    .add(R.id.content_frame, mFragment, FRAG_TAG)
                     .commit();
         } else {
             mFragment = (FriendFinderFragment) getSupportFragmentManager().findFragmentByTag(FRAG_TAG);

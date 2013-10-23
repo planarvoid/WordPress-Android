@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.ModelCollection;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -52,15 +52,15 @@ public class ExploreTracksOperationsTest {
     }
 
     @Test
-    public void getRelatedTracksShouldMakeGetRequestToCategoriesEndpoint() {
+    public void getRelatedTracksShouldMakeGetRequestToRelatedTracksEndpoint() {
         when(soundCloudRxHttpClient.fetchModels(any(APIRequest.class))).thenReturn(Observable.empty());
-        final Track seedTrack = new Track(123L);
-        exploreTracksOperations.getRelatedTracks(seedTrack).subscribe(observer);
+        exploreTracksOperations.getRelatedTracks(123L).subscribe(observer);
 
         ArgumentCaptor<APIRequest> argumentCaptor = ArgumentCaptor.forClass(APIRequest.class);
         verify(soundCloudRxHttpClient).fetchModels(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
-        expect(argumentCaptor.getValue().getUriPath()).toEqual(String.format(APIEndpoints.RELATED_TRACKS.path(), seedTrack.getUrn().toString()));
+        expect(argumentCaptor.getValue().getUriPath()).toEqual(String.format(APIEndpoints.RELATED_TRACKS.path(),
+                ClientUri.fromTrack(123L).toString()));
     }
 
     @Test
@@ -77,8 +77,7 @@ public class ExploreTracksOperationsTest {
         collection.setCollection(collection1);
 
         when(soundCloudRxHttpClient.<ModelCollection<TrackSummary>>fetchModels(any(APIRequest.class))).thenReturn(Observable.just(collection));
-        final Track seedTrack = new Track(123L);
-        exploreTracksOperations.getRelatedTracks(seedTrack).subscribe(relatedObserver);
+        exploreTracksOperations.getRelatedTracks(123L).subscribe(relatedObserver);
 
         ArgumentCaptor<ModelCollection> argumentCaptor = ArgumentCaptor.forClass(ModelCollection.class);
         verify(relatedObserver).onNext(argumentCaptor.capture());

@@ -5,7 +5,6 @@ import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.activity.create.UploadMonitor;
 import com.soundcloud.android.activity.landing.FriendFinder;
-import com.soundcloud.android.activity.landing.Home;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.ScSearch;
 import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
@@ -43,20 +42,20 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     }
 
     public void ignore_testStream() throws Exception {
-        assertActivityStarted(Home.class, Actions.STREAM);
+        assertActivityStarted(MainActivity.class, Actions.STREAM);
     }
 
     public void ignore_testPlayer() throws Exception {
-        assertActivityStarted(ScPlayer.class, Actions.PLAYER);
-        assertActivityStarted(ScPlayer.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/1235"));
+        assertActivityStarted(PlayerActivity.class, Actions.PLAYER);
+        assertActivityStarted(PlayerActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/tracks/1235"));
     }
 
     public void ignore_testPlayWithPlaylist() throws Exception {
-        assertActivityStarted(ScPlayer.class, Actions.PLAY,  Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/tracks"));
+        assertActivityStarted(PlayerActivity.class, Actions.PLAY,  Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/tracks"));
     }
 
     public void ignore_testPlayEmpty() throws Exception {
-        assertActivityStarted(ScPlayer.class, Actions.PLAY);
+        assertActivityStarted(PlayerActivity.class, Actions.PLAY);
     }
 
     public void ignore_testShare() throws Exception {

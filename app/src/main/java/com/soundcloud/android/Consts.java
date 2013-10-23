@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.view.play.WaveformController;
 
 import android.os.Build;
 import android.os.Environment;
@@ -64,6 +65,9 @@ public final class Consts {
         boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         boolean canDetermineActivityBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         boolean useCustomFonts = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
+        // Gingerbread delivers proper playback buffering events
+        boolean useSmoothProgress = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
+
     }
 
     public interface Dialogs {
@@ -107,7 +111,7 @@ public final class Consts {
     }
 
     public interface PrefKeys {
-        String SC_PLAYQUEUE_URI                     = "sc_playlist_uri";
+
         String STREAMING_WRITES_SINCE_CLEANUP       = "streamingWritesSinceCleanup";
         String C2DM_DEVICE_URL                      = "c2dm.device_url";
         String C2DM_REG_TO_DELETE                   = "c2dm.to_delete";

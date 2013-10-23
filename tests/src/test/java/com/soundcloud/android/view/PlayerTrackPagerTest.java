@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.adapter.player.PlayerTrackPagerAdapter;
+import com.soundcloud.android.player.PlayerTrackPagerAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;

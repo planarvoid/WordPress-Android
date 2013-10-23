@@ -1,7 +1,5 @@
 package com.soundcloud.android.activity.landing;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.SuggestedUsersCategoryFragment;
@@ -9,6 +7,8 @@ import com.soundcloud.android.model.Category;
 import com.soundcloud.android.operations.following.FollowingOperations;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class SuggestedUsersCategoryActivity extends ScActivity {
 
