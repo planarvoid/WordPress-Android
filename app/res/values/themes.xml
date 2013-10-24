@@ -18,6 +18,8 @@
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
         <item name="vpiFixedWeightTabIndicatorStyle">@style/Widget.ScFixedTabPageIndicator</item>
 
+        <item name="sdlDialogStyle">@style/DialogStyleDark</item>
+
         <item name="showcaseViewStyle">@style/ScShowcaseTheme</item>
 
     </style>

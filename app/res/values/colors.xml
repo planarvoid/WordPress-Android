@@ -3,6 +3,7 @@
     <color name="scOrange">#ff6600</color>
     <color name="scDarkOrange">#CCe36711</color>
     <color name="scDarkGray">#CC101010</color>
+    <color name="scAlphaOrange">#aaff6600</color>
 
     <color name="scDivider">#30000000</color>
 

@@ -97,6 +97,11 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
         return dialog;
     }
 
+    @Override
+    protected Builder build(Builder initialBuilder) {
+        return null;
+    }
+
     private void createPlaylist(final Editable text, final boolean isPrivate) {
         final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
         final Account account = mAccountOpertations.getSoundCloudAccount();

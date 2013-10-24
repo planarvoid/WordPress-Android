@@ -10,11 +10,9 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.provider.Table;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -29,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,20 +52,28 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
         return fragment;
     }
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        accountOperations = new AccountOperations(getActivity());
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        mAdapter = new MyPlaylistsAdapter(getActivity());
+    public MyPlaylistsDialogFragment() {}
 
-        final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_add_to_set, null);
-        final ListView listView = (ListView) dialogView.findViewById(android.R.id.list);
-        listView.setEmptyView(dialogView.findViewById(android.R.id.empty));
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    public MyPlaylistsDialogFragment(AccountOperations accountOperations) {
+        this.accountOperations = accountOperations;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (accountOperations == null){
+            accountOperations = new AccountOperations(getActivity());
+        }
+    }
+
+    @Override
+    protected Builder build(Builder builder) {
+        builder.setTitle(getString(R.string.add_track_to_playlist));
+        mAdapter = new MyPlaylistsAdapter(getActivity());
+        builder.setItems(mAdapter, 0, new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final long rowId = mAdapter.getItemId(position);
-
                 if (rowId == NEW_PLAYLIST_ITEM) {
                     CreateNewSetDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
                     getDialog().dismiss();
@@ -77,21 +82,16 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
                 }
             }
         });
-
-        ((TextView) dialogView.findViewById(android.R.id.title)).setText(getString(R.string.add_track_to_playlist));
-        listView.setAdapter(mAdapter);
-
-        builder.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Cancel", new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+            public void onClick(View view) {
+                dismiss();
             }
         });
-        builder.setView(dialogView);
 
         getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
 
-        return builder.create();
+        return builder;
     }
 
     private void onAddTrackToSet(long playlistId, View view) {
