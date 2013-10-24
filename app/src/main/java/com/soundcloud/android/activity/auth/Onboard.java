@@ -38,6 +38,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -493,7 +494,8 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         } else if (names.length == 1){
             onGoogleAccountSelected(names[0]);
         } else {
-            new AlertDialog.Builder(this).setTitle(R.string.dialog_select_google_account)
+            ContextThemeWrapper cw = new ContextThemeWrapper( this, R.style.SelectGoogleAccountDialogTheme );
+            new AlertDialog.Builder(cw).setTitle(R.string.dialog_select_google_account)
                     .setItems(names, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
