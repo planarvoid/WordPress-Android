@@ -80,7 +80,7 @@
         <item name="android:dropDownItemStyle">@style/Widget.AppCompat.Light.DropDownItem.Spinner</item>
     </style>
 
-    <style name="Theme.ScCreate" parent="Theme.SoundCloud.Dark">
+    <style name="Theme.ScCreate" parent="Theme.SoundCloud">
         <item name="android:windowBackground">@drawable/bg_rec</item>
     </style>
 
