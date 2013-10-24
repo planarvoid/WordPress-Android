@@ -16,7 +16,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.playback.PlayQueue;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -36,6 +35,8 @@ public class PlayerTrackPagerAdapterTest {
     private PlayerQueueView playerQueueView;
     @Mock
     private TrackStorage trackStorage;
+    @Mock
+    private PlayQueue playQueue;
 
 
     @Before
@@ -47,11 +48,21 @@ public class PlayerTrackPagerAdapterTest {
                 return playerQueueView;
             }
         };
+
+        when(playQueue.isLoading()).thenReturn(false);
+        when(playQueue.lastLoadWasEmpty()).thenReturn(false);
+        when(playQueue.lastLoadFailed()).thenReturn(false);
+    }
+
+    @Test
+    public void shouldBeEmptyByDefault() {
+        expect(adapter.getCount()).toEqual(0);
     }
 
     @Test
     public void shouldBeEmptyWhenQueueIsEmpty() {
-        adapter.setPlayQueue(PlayQueue.EMPTY);
+        when(playQueue.size()).thenReturn(0);
+        adapter.setPlayQueue(playQueue);
         expect(adapter.getCount()).toEqual(0);
     }
 
@@ -170,6 +181,8 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void shouldReplaceEmptyView() {
+        when(playQueue.size()).thenReturn(1);
+        when(playQueue.isLoading()).thenReturn(true);
 
         adapter.setPlayQueue(new PlayQueue(Lists.newArrayList(1L), 0, PlayQueue.AppendState.LOADING));
 
@@ -194,25 +207,34 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void shouldReturnExtraItemWhenQueueFetching() {
-        adapter.setPlayQueue(new PlayQueue(Lists.newArrayList(1L), 0, PlayQueue.AppendState.LOADING));
+        when(playQueue.size()).thenReturn(1);
+        when(playQueue.isLoading()).thenReturn(true);
+
+        adapter.setPlayQueue(playQueue);
         expect(adapter.getCount()).toBe(2);
     }
 
     @Test
     public void shouldReturnExtraItemWhenLastQueueFetchFailed() {
-        adapter.setPlayQueue(new PlayQueue(Lists.newArrayList(1L), 0, PlayQueue.AppendState.ERROR));
+        when(playQueue.size()).thenReturn(1);
+        when(playQueue.lastLoadFailed()).thenReturn(true);
+
+        adapter.setPlayQueue(playQueue);
         expect(adapter.getCount()).toBe(2);
     }
 
     @Test
     public void shouldReturnUnchangedPositionForEmptyItemWhenFetching() {
-        adapter.setPlayQueue(new PlayQueue(Lists.newArrayList(1L), 0, PlayQueue.AppendState.LOADING));
+        when(playQueue.size()).thenReturn(1);
+        when(playQueue.isLoading()).thenReturn(true);
+
+        adapter.setPlayQueue(playQueue);
         expect(adapter.getItemPosition(PlayerTrackPagerAdapter.EMPTY_VIEW_ID)).toBe(PagerAdapter.POSITION_UNCHANGED);
     }
 
     @Test
     public void shouldReturnNoItemPositionForEmptyItemWhenNotFetching() {
-        adapter.setPlayQueue(new PlayQueue(Lists.newArrayList(1L), 0, PlayQueue.AppendState.IDLE));
+        adapter.setPlayQueue(playQueue);
         expect(adapter.getItemPosition(PlayerTrackPagerAdapter.EMPTY_VIEW_ID)).toBe(PagerAdapter.POSITION_NONE);
     }
 
