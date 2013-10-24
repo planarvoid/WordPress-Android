@@ -45,28 +45,6 @@
         <item name="dropDownListViewStyle">@style/DropDownListView.SoundCloud</item>
     </style>
 
-
-    <style name="Theme.SoundCloud.Dark" parent="@style/Theme.AppCompat">
-        <item name="android:windowSoftInputMode">adjustPan</item>
-
-        <item name="android:windowAnimationStyle">@style/ScActivityAnimationStyle</item>
-        <item name="android:popupAnimationStyle">@style/ScPopupAnimationStyle</item>
-
-        <item name="android:actionBarItemBackground">@drawable/action_item_background_selector</item>
-        <item name="android:dropDownListViewStyle">@style/DropDownListView.SoundCloud</item>
-        <item name="android:actionDropDownStyle">@style/DropDownNav.SoundCloud</item>
-        <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
-
-        <!-- PullToRefresh specific -->
-        <item name="ptrAnimationStyle">flip</item>
-
-        <!-- ViewPager -->
-        <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
-        <item name="vpiTitlePageIndicatorStyle">@style/Widget.ScTitlePageIndicator</item>
-
-        <item name="showcaseViewStyle">@style/ScShowcaseTheme</item>
-    </style>
-
     <style name="Theme.SoundCloud.NoBg">
         <item name="android:windowBackground">@null</item>
     </style>
