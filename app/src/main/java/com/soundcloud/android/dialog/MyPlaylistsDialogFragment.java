@@ -38,6 +38,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
 
     private static final int LOADER_ID = 1;
     private static final int NEW_PLAYLIST_ITEM = -1;
+    public static final int CLOSE_DELAY_MILLIS = 500;
 
     private MyPlaylistsAdapter mAdapter;
     private AccountOperations accountOperations;
@@ -54,16 +55,10 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
 
     public MyPlaylistsDialogFragment() {}
 
-    public MyPlaylistsDialogFragment(AccountOperations accountOperations) {
-        this.accountOperations = accountOperations;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (accountOperations == null){
-            accountOperations = new AccountOperations(getActivity());
-        }
+        accountOperations = new AccountOperations(getActivity());
     }
 
     @Override
@@ -105,10 +100,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
         getPlaylistStorage().addTrackToPlaylist(playlist, getArguments().getLong(KEY_TRACK_ID));
 
         // tell the service to update the playlist
-        final SoundCloudApplication soundCloudApplication = SoundCloudApplication.fromContext(getActivity());
-        if (soundCloudApplication != null) {
-            ContentResolver.requestSync(accountOperations.getSoundCloudAccount(), ScContentProvider.AUTHORITY, new Bundle());
-        }
+        ContentResolver.requestSync(accountOperations.getSoundCloudAccount(), ScContentProvider.AUTHORITY, new Bundle());
 
         final TextView txtTrackCount = (TextView) view.findViewById(R.id.trackCount);
         int newTracksCount = Integer.parseInt(String.valueOf(txtTrackCount.getText())) + 1;
@@ -124,12 +116,13 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
         intent.putExtra(Playlist.EXTRA_TRACKS_COUNT, newTracksCount);
         getActivity().sendBroadcast(intent);
 
+        // brief pause to show them the updated track count
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 final Dialog toDismiss = getDialog();
                 if (toDismiss != null) toDismiss.dismiss();
             }
-        }, 500);
+        }, CLOSE_DELAY_MILLIS);
     }
 
     @Override

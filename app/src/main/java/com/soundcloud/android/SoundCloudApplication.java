@@ -247,6 +247,7 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
     }
 
+    @NotNull
     public static SoundCloudApplication fromContext(@NotNull Context c){
         if (c.getApplicationContext() instanceof  SoundCloudApplication) {
             return ((SoundCloudApplication) c.getApplicationContext());
