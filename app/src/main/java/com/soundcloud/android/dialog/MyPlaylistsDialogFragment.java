@@ -225,7 +225,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
                 // text colors
                 final boolean alreadyAdded = (mCursor.getInt(mCursor.getColumnIndex(COL_ALREADY_ADDED)) == 1);
                 final int textColor = mContext.getResources().getColor((alreadyAdded ?
-                        R.color.dialog_list_txt_disabled : R.color.light_gray_text));
+                        R.color.dialog_list_txt_disabled : R.color.gray_text));
                 txtTitle.setTextColor(textColor);
                 txtTrackCount.setTextColor(textColor);
 
