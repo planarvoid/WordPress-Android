@@ -5,7 +5,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.EmailConfirm;
-import com.soundcloud.android.activity.landing.ScSearch;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.dao.UserStorage;
@@ -29,7 +28,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
-import android.view.MenuItem;
 
 public class MainActivity extends ScActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -164,21 +162,10 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     public boolean onCreateOptionsMenu(Menu menu) {
         // Keep null check. This might fire as a result of setContentView in which case this var won't be assigned
         if (mNavigationDrawerFragment != null && !mNavigationDrawerFragment.isDrawerOpen()) {
-            getMenuInflater().inflate(R.menu.main, menu);
             restoreActionBar();
-            return true;
+            return super.onCreateOptionsMenu(menu);
         }
-        return false;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_enter_search:
-                startActivity(new Intent(this, ScSearch.class));
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     private boolean justAuthenticated(Intent intent) {

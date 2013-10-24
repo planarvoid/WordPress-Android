@@ -10,6 +10,7 @@ import com.soundcloud.android.activity.track.PlaylistDetailActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,46 +19,41 @@ import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.database.DataSetObserver;
 import android.net.Uri;
-import android.os.Bundle;
+import android.support.v4.internal.view.SupportMenuItem;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.internal.view.menu.ActionMenuView;
 import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AutoCompleteTextView;
-import android.widget.RelativeLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+
+import java.lang.reflect.Field;
 
 public class ActionBarController {
     @NotNull protected ActionBarOwner mOwner;
     @NotNull protected Activity mActivity;
 
     @Nullable private View              mActionBarCustomView;
-    @Nullable private RelativeLayout    mSearchCustomView;
-    @Nullable private SearchView mSearchView;
 
     private SuggestionsAdapter mSuggestionsAdapter;
     private final AndroidCloudAPI mAndroidCloudAPI;
 
-    private boolean mInSearchMode;
-    private boolean mCloseSearchOnResume;
+    public void onResume() {
+        // nop
+    }
 
     public interface ActionBarOwner {
         @NotNull
         public Activity     getActivity();
-        public ActionBar getSupportActionBar();
+        public ActionBar    getSupportActionBar();
         public MenuInflater getSupportMenuInflater();
         public void         invalidateOptionsMenu();
         public int          getMenuResourceId();
-        public void         block();
-        public void         unblock(boolean instantly);
     }
 
     public ActionBarController(@NotNull ActionBarOwner owner, AndroidCloudAPI androidCloudAPI) {
@@ -65,13 +61,6 @@ public class ActionBarController {
         mActivity = owner.getActivity();
         mAndroidCloudAPI = androidCloudAPI;
         configureCustomView();
-    }
-
-    public void onResume() {
-        if (mCloseSearchOnResume) {
-            closeSearch(true);
-            mCloseSearchOnResume = false;
-        }
     }
 
     public void onPause() {
@@ -86,192 +75,21 @@ public class ActionBarController {
         if (mSuggestionsAdapter != null) mSuggestionsAdapter.onDestroy();
     }
 
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean("inSearchMode", mInSearchMode);
-        savedInstanceState.putBoolean("closeSearchOnResume", mCloseSearchOnResume);
-        final CharSequence query = getSearchView().getQuery();
-        if (!TextUtils.isEmpty(query)) savedInstanceState.putCharSequence("searchQuery", query);
-    }
-
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState.getBoolean("closeSearchOnResume")) {
-            mOwner.unblock(true);
-        } else {
-            if (savedInstanceState.getBoolean("inSearchMode") != mInSearchMode) {
-                toggleSearch();
-            }
-            if (savedInstanceState.containsKey("searchQuery")) {
-                getSearchView().setQuery(savedInstanceState.getCharSequence("searchQuery"), false);
-                if (mInSearchMode) getSearchView().setIconified(false); // request focus
-            }
-        }
-    }
-
-
-
-    private void configureCustomView(){
+    private void configureCustomView() {
         if (mOwner.getSupportActionBar() != null) {
-            if (mInSearchMode){
+            final View actionBarCustomView = getActionBarCustomView();
+            if (actionBarCustomView != null) {
                 mOwner.getSupportActionBar().setDisplayShowCustomEnabled(true);
-                mOwner.getSupportActionBar().setCustomView(getSearchCustomView(), new ActionBar.LayoutParams(Gravity.FILL_HORIZONTAL)
-                            );
+                mOwner.getSupportActionBar().setCustomView(actionBarCustomView, new ActionBar.LayoutParams(Gravity.RIGHT));
             } else {
-                final View actionBarCustomView = getActionBarCustomView();
-                if (actionBarCustomView != null){
-                    mOwner.getSupportActionBar().setDisplayShowCustomEnabled(true);
-                    mOwner.getSupportActionBar().setCustomView(actionBarCustomView, new ActionBar.LayoutParams(Gravity.RIGHT));
-                } else {
-                    mOwner.getSupportActionBar().setDisplayShowCustomEnabled(false);
-                }
-            }
-
-        }
-    }
-
-    private static SearchView createSearchView(Context themedContext) {
-        SearchView searchView = new SearchView(themedContext);
-        searchView.setLayoutParams(new ActionMenuView.LayoutParams(ActionMenuView.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.MATCH_PARENT));
-        searchView.setGravity(Gravity.LEFT);
-        return searchView;
-    }
-
-    /**
-     * Configure search view to function how we want it
-     * @param searchView the search view
-     */
-    private void setupSearchView(SearchView searchView) {
-        searchView.setIconifiedByDefault(false);
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus && !mCloseSearchOnResume) closeSearch(false);
-            }
-        });
-
-        /* find and configure the search autocompletetextview */
-        // actionbarsherlock view
-        final AutoCompleteTextView search_text = (AutoCompleteTextView) searchView.findViewById(R.id.search_src_text);
-        if (search_text != null) {
-            if (useFullScreenSearch()) {
-                // on a normal size device, use the whole action bar
-                final int identifier = mActivity.getResources().getIdentifier("action_bar_container", "id", "android");
-                if (mActivity.findViewById(identifier) != null) {
-                    // native action bar (>= Honeycomb)
-                    search_text.setDropDownAnchor(identifier);
-                } else if (mActivity.findViewById(R.id.action_bar_container) != null) {
-                    // abs action bar (< Honeycomb)
-                    search_text.setDropDownAnchor(R.id.action_bar_container);
-                }
-                search_text.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT);
-
-            } else {
-                // on a large screen device, just anchor to the search bar itself
-                if (mActivity.findViewById(R.id.search_bar) != null) search_text.setDropDownAnchor(R.id.search_bar);
-                search_text.setDropDownWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+                mOwner.getSupportActionBar().setDisplayShowCustomEnabled(false);
             }
         }
-
-        SearchManager searchManager = (SearchManager) mActivity.getSystemService(Context.SEARCH_SERVICE);
-        final SearchableInfo searchableInfo = searchManager.getSearchableInfo(mActivity.getComponentName());
-        searchView.setSearchableInfo(searchableInfo);
-
-        mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mAndroidCloudAPI);
-        searchView.setSuggestionsAdapter(mSuggestionsAdapter);
-        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int position) {
-                return false;
-            }
-
-            @Override
-            public boolean onSuggestionClick(int position) {
-                // don't do the whole unblocking animation until after exit
-                mCloseSearchOnResume = true;
-
-                // close IME and kill search text
-                getSearchView().clearFocus();
-                if (search_text != null) search_text.setText("");
-
-                final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
-                mActivity.startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
-                return true;
-            }
-        });
-
-        // listeners for showing and hiding the content blocker
-        if (useFullScreenSearch()) {
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    // don't do the whole unblocking animation until after exit
-                    mCloseSearchOnResume = true;
-
-                    // close IME and kill search text
-                    getSearchView().clearFocus();
-                    if (search_text != null) search_text.setText("");
-                    return false;
-                }
-
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    if (TextUtils.isEmpty(newText) && !mCloseSearchOnResume) mOwner.unblock(false);
-                    return false;
-                }
-            });
-            if (search_text != null) {
-                mSuggestionsAdapter.registerDataSetObserver(new DataSetObserver() {
-
-                    @Override
-                    public void onChanged() {
-                        if (mSuggestionsAdapter.getCount() > 0 && !TextUtils.isEmpty(search_text.getText())) {
-                            mOwner.block();
-                        } else if (!mCloseSearchOnResume) {
-                            mOwner.unblock(false);
-                        }
-                    }
-                });
-            }
-        }
-    }
-
-    /**
-     * Search Handling
-     */
-
-    private void toggleSearch() {
-        mInSearchMode = !mInSearchMode;
-        if (mInSearchMode) {
-            mOwner.getSupportActionBar().setDisplayShowHomeEnabled(false);
-            mOwner.getSupportActionBar().setDisplayShowTitleEnabled(false);
-        } else {
-            mOwner.getSupportActionBar().setDisplayShowHomeEnabled(true);
-            mOwner.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            mOwner.getSupportActionBar().setDisplayShowTitleEnabled(true);
-        }
-        mOwner.invalidateOptionsMenu();
-    }
-
-    public void closeSearch(boolean instant) {
-        if (mSearchView != null) {
-            mSearchView.clearFocus();
-        }
-        mOwner.unblock(instant);
-        if (mInSearchMode) toggleSearch();
-    }
-
-    private boolean useFullScreenSearch(){
-        return (mActivity.getResources().getConfiguration().screenLayout &
-                Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
     public void onCreateOptionsMenu(Menu menu) {
-        if (mInSearchMode) {
-            mOwner.getSupportMenuInflater().inflate(R.menu.search_mode, menu);
-            getSearchView().setIconified(false); // this will set focus on the searchview and update the IME
-        } else {
-            final int menuResourceId = mOwner.getMenuResourceId();
-            if (menuResourceId > 0) mOwner.getSupportMenuInflater().inflate(menuResourceId, menu);
-        }
+        final int menuResourceId = mOwner.getMenuResourceId();
+        if (menuResourceId > 0) mOwner.getSupportMenuInflater().inflate(menuResourceId, menu);
 
         final MenuItem backToSetItem = menu.findItem(R.id.menu_backToSet);
         if (backToSetItem != null) {
@@ -284,22 +102,16 @@ public class ActionBarController {
             }
             backToSetItem.setVisible(visible);
         }
+
+
+        SupportMenuItem searchItem = (SupportMenuItem) menu.findItem(R.id.action_search);
+        if (searchItem != null){
+            setupSearchView(searchItem);
+        }
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_enter_search:
-                toggleSearch();
-                return true;
-
-            case R.id.menu_close_search:
-                if (TextUtils.isEmpty(getSearchView().getQuery())) {
-                    toggleSearch();
-                } else {
-                    getSearchView().setIconified(true);
-                }
-                return true;
-
             case R.id.menu_backToSet:
                 final Intent intent = new Intent(mOwner.getActivity(), PlaylistDetailActivity.class);
                 intent.putExtra(PlaylistDetailActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
@@ -333,7 +145,7 @@ public class ActionBarController {
         }
     }
 
-    public View getActionBarCustomView() {
+    protected View getActionBarCustomView() {
         if (mActionBarCustomView == null) mActionBarCustomView = createCustomView();
         return mActionBarCustomView;
     }
@@ -342,24 +154,84 @@ public class ActionBarController {
         return null;
     }
 
-    @NotNull
-    public RelativeLayout getSearchCustomView() {
-        if (mSearchCustomView == null) {
-            mSearchCustomView = new RelativeLayout(mOwner.getSupportActionBar().getThemedContext());
-        }
+    /**
+     * Configure search view to function how we want it
+     */
+    private void setupSearchView(final SupportMenuItem searchItem) {
 
-        return mSearchCustomView;
+        // When using the support library, the setOnActionExpandListener() method is
+        // static and accepts the MenuItem object as an argument
+        MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                mOwner.getSupportActionBar().setDisplayShowCustomEnabled(false);
+                return false;
+            }
+
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                mOwner.getSupportActionBar().setDisplayShowCustomEnabled(true);
+                return false;
+            }
+        });
+
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        SearchManager searchManager = (SearchManager) mActivity.getSystemService(Context.SEARCH_SERVICE);
+        final SearchableInfo searchableInfo = searchManager.getSearchableInfo(mActivity.getComponentName());
+        searchView.setSearchableInfo(searchableInfo);
+
+        mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mAndroidCloudAPI);
+        searchView.setSuggestionsAdapter(mSuggestionsAdapter);
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                searchView.clearFocus();
+                searchView.setQuery("", false);
+                searchView.setIconified(true);
+
+                final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
+                mActivity.startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
+                return true;
+            }
+        });
+
+        styleSearchView(searchView);
     }
 
-    @NotNull
-    public SearchView getSearchView() {
-        if (mSearchView == null) {
-            final Context themedContext = mOwner.getSupportActionBar().getThemedContext();
-            mSearchView = createSearchView(themedContext);
-            setupSearchView(mSearchView);
-            getSearchCustomView().addView(mSearchView);
-        }
+    private void styleSearchView(SearchView searchView) {
+        try
+        {
 
-        return mSearchView;
+            Field searchField = SearchView.class.getDeclaredField("mSearchButton");
+            searchField.setAccessible(true);
+            ImageView searchBtn = (ImageView)searchField.get(searchView);
+            searchBtn.setBackgroundResource(R.drawable.action_item_background_selector);
+
+            searchField = SearchView.class.getDeclaredField("mSearchPlate");
+            searchField.setAccessible(true);
+            LinearLayout searchPlate = (LinearLayout)searchField.get(searchView);
+            searchPlate.setBackgroundResource(R.drawable.edit_text_holo_dark);
+
+            // not found
+//            searchField = SearchView.class.getDeclaredField("mCloseButon");
+//            searchField.setAccessible(true);
+//            ImageView closeButton = (ImageView)searchField.get(searchView);
+//            closeButton.setBackgroundResource(R.drawable.action_item_background_selector);
+
+        }
+        catch (NoSuchFieldException e)
+        {
+            Log.e(getClass().getSimpleName(), e.getMessage(), e);
+        }
+        catch (IllegalAccessException e)
+        {
+            Log.e(getClass().getSimpleName(),e.getMessage(),e);
+        }
     }
 }

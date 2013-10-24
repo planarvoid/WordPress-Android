@@ -194,4 +194,8 @@
     <string name="title_about">About</string>
     <string name="title_legal">Legal</string>
 
+    <string name="title_now_playing">Now Playing</string>
+
+    <string name="search">Search</string>
+
 </resources>

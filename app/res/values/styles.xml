@@ -102,24 +102,24 @@
         <item name="android:background">@drawable/player_track_vert_separator_bg</item>
         <item name="android:layout_width">2dp</item>
         <item name="android:layout_height">38dp</item>
+        <item name="android:layout_centerVertical">true</item>
     </style>
 
     <style name="PlayerAction">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">@dimen/btn_height</item>
+        <item name="android:layout_height">@dimen/btn_min_height</item>
         <item name="android:textSize">@dimen/btn_text_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:gravity">center</item>
-        <item name="android:paddingLeft">5dp</item>
-        <item name="android:paddingRight">5dp</item>
+        <item name="android:paddingLeft">@dimen/btn_padding</item>
+        <item name="android:paddingRight">@dimen/btn_padding</item>
     </style>
 
     <style name="PlayerAction.ToggleButton">
         <item name="android:layout_gravity">left|center</item>
-        <item name="android:background">@drawable/toggle_player_action_states</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:background">@drawable/btn_player_toggle_states</item>
         <item name="android:minWidth">72dp</item>
-        <item name="android:paddingLeft">11dp</item>
-        <item name="android:paddingRight">11dp</item>
         <item name="android:drawablePadding">6dp</item>
     </style>
 
@@ -137,16 +137,17 @@
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
         <item name="android:layout_width">50dp</item>
+        <item name="android:minHeight">48dp</item>
     </style>
 
     <style name="PlayerAction.Button.AddToSet">
         <item name="android:src">@drawable/ic_add_to_set</item>
-        <item name="android:background">@drawable/btn_follow_dark_off_states</item>
+        <item name="android:background">@drawable/btn_default_states</item>
     </style>
 
     <style name="PlayerAction.Button.Share">
         <item name="android:src">@drawable/ic_share</item>
-        <item name="android:background">@drawable/btn_follow_dark_off_states</item>
+        <item name="android:background">@drawable/btn_default_states</item>
     </style>
 
     <style name="PlayerAction.Button.Info">
@@ -160,27 +161,19 @@
         <item name="android:textOff">@string/info</item>
     </style>
 
-    <style name="UserFollowButton" parent="PlayerAction">
-        <item name="android:layout_height">@dimen/btn_height</item>
-    </style>
-
-    <style name="UserFollowButton.Off">
-        <item name="android:background">@drawable/toggle_user_follow_off_states</item>
-        <item name="android:textColor">@drawable/txt_btn_light_states</item>
-        <item name="android:text">@string/btn_follow</item>
-    </style>
-
-    <style name="UserFollowButton.On">
-        <item name="android:background">@drawable/toggle_user_follow_on_states</item>
-        <item name="android:textColor">@drawable/txt_btn_blue_states</item>
-        <item name="android:text">@string/btn_following</item>
-    </style>
-
-    <style name="UserFollowButton.UserBrowser">
-        <item name="android:background">@drawable/toggle_user_follow_states</item>
+    <style name="UserBrowser"/>
+    <style name="UserBrowser.ToggleButton" parent="PlayerAction">
+        <item name="android:minHeight">@dimen/follow_btn_height</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/btn_text_size</item>
+        <item name="android:background">@drawable/btn_default_states</item>
         <item name="android:textColor">@drawable/toggle_txt_user_follow_states</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
+    </style>
+
+    <style name="UserBrowser.ToggleButton.Follow">
+        <item name="android:id">@id/toggle_btn_follow</item>
         <item name="android:textOn">@string/btn_following</item>
         <item name="android:textOff">@string/btn_follow</item>
     </style>
@@ -505,8 +498,11 @@
         <item name="android:paddingRight">12dip</item>
     </style>
 
-    <style name="Divider.PlayerTrackInfo">
+    <style name="Player.TrackInfo.Separator">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
         <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:background">?android:attr/listDivider</item>
     </style>
 
     <!-- Standard animations for a non-full-screen window or activity. -->
@@ -1030,10 +1026,11 @@
     </style>
 
     <style name="PlayerActionContainer">
+        <item name="android:gravity">center_vertical</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
         <item name="android:background">@color/playerControlBackground</item>
     </style>
 
