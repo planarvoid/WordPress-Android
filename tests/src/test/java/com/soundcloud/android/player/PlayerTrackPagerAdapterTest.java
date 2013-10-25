@@ -55,11 +55,6 @@ public class PlayerTrackPagerAdapterTest {
     }
 
     @Test
-    public void shouldBeEmptyByDefault() {
-        expect(adapter.getCount()).toEqual(0);
-    }
-
-    @Test
     public void shouldBeEmptyWhenQueueIsEmpty() {
         when(playQueue.size()).thenReturn(0);
         adapter.setPlayQueue(playQueue);
