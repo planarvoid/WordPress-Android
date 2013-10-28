@@ -53,6 +53,10 @@ public class StreamLoader {
     private final Handler mConnHandler;
     private final Handler mPlaycountHandler;
 
+    private HandlerThread mDataThread;
+    private HandlerThread mResultThread;
+    private HandlerThread mHeadThread;
+
     private boolean mForceOnline; /* for testing */
 
     static final int LOW_PRIO = 0;
@@ -63,10 +67,10 @@ public class StreamLoader {
         mContext = context;
         mStorage = storage;
         mOldCloudAPI = new OldCloudAPI(mContext);
-        HandlerThread resultThread = new HandlerThread("streaming-result");
-        resultThread.start();
+        mResultThread = new HandlerThread("streaming-result");
+        mResultThread.start();
 
-        final Looper resultLooper = resultThread.getLooper();
+        final Looper resultLooper = mResultThread.getLooper();
         mResultHandler = new ResultHandler(this, resultLooper);
 
         // setup connectivity listening
@@ -78,15 +82,15 @@ public class StreamLoader {
 
         mBatteryListener = new BatteryListener(context);
 
-        HandlerThread dataThread = new HandlerThread("streaming-data", android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        dataThread.start();
+        mDataThread = new HandlerThread("streaming-data", android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        mDataThread.start();
 
-        mDataHandler = new StreamHandler(context, dataThread.getLooper(), mResultHandler, MAX_RETRIES);
+        mDataHandler = new StreamHandler(context, mDataThread.getLooper(), mResultHandler, MAX_RETRIES);
 
-        HandlerThread headThread = new HandlerThread("streaming-head", android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        headThread.start();
+        mHeadThread = new HandlerThread("streaming-head", android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        mHeadThread.start();
 
-        mHeadHandler = new StreamHandler(context, headThread.getLooper(), mResultHandler, MAX_RETRIES);
+        mHeadHandler = new StreamHandler(context, mHeadThread.getLooper(), mResultHandler, MAX_RETRIES);
 
         mPlaycountHandler = new PlaycountHandler(this, resultLooper);
     }
@@ -164,6 +168,10 @@ public class StreamLoader {
         mConnectivityListener.stopListening();
         mConnectivityListener.unregisterHandler(mConnHandler);
         mBatteryListener.stopListening();
+
+        mHeadThread.quit();
+        mDataThread.quit();
+        mResultThread.quit();
     }
 
     private void processQueues() {

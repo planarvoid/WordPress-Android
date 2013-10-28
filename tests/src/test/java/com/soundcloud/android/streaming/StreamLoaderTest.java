@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Stream;
@@ -55,11 +56,13 @@ public class StreamLoaderTest {
     @Before
     public void before() {
         IOUtils.deleteDir(baseDir);
+        TestHelper.setSdkVersion(0);
         loader.setForceOnline(true);
     }
 
     @After
     public void after() {
+        loader.stop();
         expect(Robolectric.getFakeHttpLayer().hasPendingResponses()).toBeFalse();
     }
 
