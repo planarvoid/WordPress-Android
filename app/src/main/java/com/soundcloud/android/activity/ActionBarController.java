@@ -226,7 +226,7 @@ public class ActionBarController {
             searchField = SearchView.class.getDeclaredField("mSearchPlate");
             searchField.setAccessible(true);
             LinearLayout searchPlate = (LinearLayout)searchField.get(searchView);
-            searchPlate.setBackgroundResource(R.drawable.edit_text_holo_dark);
+            searchPlate.setBackgroundResource(R.drawable.abc_textfield_search_default_holo_dark);
 
             searchField = SearchView.class.getDeclaredField("mCloseButton");
             searchField.setAccessible(true);
