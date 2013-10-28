@@ -23,10 +23,10 @@ import android.net.Uri;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -42,32 +42,34 @@ public class ActionBarController {
 
     private SuggestionsAdapter mSuggestionsAdapter;
     private final AndroidCloudAPI mAndroidCloudAPI;
-
-    public void onResume() {
-        // nop
-    }
+    private boolean mInSearchMode;
 
     public interface ActionBarOwner {
-        @NotNull
-        public Activity     getActivity();
-        public ActionBar    getSupportActionBar();
-        public MenuInflater getSupportMenuInflater();
-        public void         invalidateOptionsMenu();
-        public int          getMenuResourceId();
-    }
 
+        @NotNull
+        public ActionBarActivity getActivity();
+        public int          getMenuResourceId();
+        public boolean      restoreActionBar();
+    }
     public ActionBarController(@NotNull ActionBarOwner owner, AndroidCloudAPI androidCloudAPI) {
         mOwner    = owner;
         mActivity = owner.getActivity();
         mAndroidCloudAPI = androidCloudAPI;
-        configureCustomView();
+
+        final View actionBarCustomView = getActionBarCustomView();
+        if (actionBarCustomView != null) {
+            mOwner.getActivity().getSupportActionBar().setCustomView(actionBarCustomView, new ActionBar.LayoutParams(Gravity.RIGHT));
+        } else {
+            mOwner.getActivity().getSupportActionBar().setDisplayShowCustomEnabled(false);
+        }
+    }
+
+    public void onResume() {
+        /** nop for now, used by {@link NowPlayingActionBarController#onResume()} ()} **/
     }
 
     public void onPause() {
-        /**
-         * nop for now, used by
-         * {@link com.soundcloud.android.activity.NowPlayingActionBarController#onPause()}
-         * **/
+        /** nop for now, used by {@link NowPlayingActionBarController#onPause()} ()} **/
     }
 
     public void onDestroy() {
@@ -75,43 +77,37 @@ public class ActionBarController {
         if (mSuggestionsAdapter != null) mSuggestionsAdapter.onDestroy();
     }
 
-    private void configureCustomView() {
-        if (mOwner.getSupportActionBar() != null) {
-            final View actionBarCustomView = getActionBarCustomView();
-            if (actionBarCustomView != null) {
-                mOwner.getSupportActionBar().setDisplayShowCustomEnabled(true);
-                mOwner.getSupportActionBar().setCustomView(actionBarCustomView, new ActionBar.LayoutParams(Gravity.RIGHT));
-            } else {
-                mOwner.getSupportActionBar().setDisplayShowCustomEnabled(false);
-            }
-        }
-    }
-
+    /**
+     * This must be passed through by the activity in order to configure based on search state
+     * @param menu
+     */
     public void onCreateOptionsMenu(Menu menu) {
-        final int menuResourceId = mOwner.getMenuResourceId();
-        if (menuResourceId > 0) mOwner.getSupportMenuInflater().inflate(menuResourceId, menu);
+        ActionBar actionBar = mOwner.getActivity().getSupportActionBar();
+        if (mInSearchMode){
+            configureToSearchState(menu, actionBar);
 
-        final MenuItem backToSetItem = menu.findItem(R.id.menu_backToSet);
-        if (backToSetItem != null) {
-            boolean visible = false;
-            if ((mOwner.getActivity() instanceof PlayerActivity)) {
-                final Uri uri = CloudPlaybackService.getPlayQueueUri();
-                if (uri != null && Content.match(uri) == Content.PLAYLIST) {
-                    visible = true;
-                }
+        } else {
+            actionBar.setDisplayShowCustomEnabled(true);
+            if (!mOwner.restoreActionBar()){
+                setActionBarDefaultOptions(actionBar);
             }
-            backToSetItem.setVisible(visible);
-        }
 
+            final int menuResourceId = mOwner.getMenuResourceId();
+            if (menuResourceId > 0) mOwner.getActivity().getMenuInflater().inflate(menuResourceId, menu);
 
-        SupportMenuItem searchItem = (SupportMenuItem) menu.findItem(R.id.action_search);
-        if (searchItem != null){
-            setupSearchView(searchItem);
+            final MenuItem backToPlaylistItem = menu.findItem(R.id.menu_backToSet);
+            if (backToPlaylistItem != null) {
+                configureBackToPlaylistItem(backToPlaylistItem);
+            }
         }
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_enter_search:
+                toggleSearchMode();
+                return true;
+
             case R.id.menu_backToSet:
                 final Intent intent = new Intent(mOwner.getActivity(), PlaylistDetailActivity.class);
                 intent.putExtra(PlaylistDetailActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
@@ -145,35 +141,11 @@ public class ActionBarController {
         }
     }
 
-    protected View getActionBarCustomView() {
-        if (mActionBarCustomView == null) mActionBarCustomView = createCustomView();
-        return mActionBarCustomView;
-    }
+    private void configureToSearchState(Menu menu, ActionBar actionBar) {
+        actionBar.setDisplayShowCustomEnabled(false);
+        mOwner.getActivity().getMenuInflater().inflate(R.menu.search, menu);
 
-    protected View createCustomView() {
-        return null;
-    }
-
-    /**
-     * Configure search view to function how we want it
-     */
-    private void setupSearchView(final SupportMenuItem searchItem) {
-
-        // When using the support library, the setOnActionExpandListener() method is
-        // static and accepts the MenuItem object as an argument
-        MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                mOwner.getSupportActionBar().setDisplayShowCustomEnabled(false);
-                return false;
-            }
-
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                mOwner.getSupportActionBar().setDisplayShowCustomEnabled(true);
-                return false;
-            }
-        });
+        SupportMenuItem searchItem = (SupportMenuItem) menu.findItem(R.id.action_search);
 
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 
@@ -182,7 +154,15 @@ public class ActionBarController {
         searchView.setSearchableInfo(searchableInfo);
 
         mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mAndroidCloudAPI);
+        searchView.setIconified(false);
         searchView.setSuggestionsAdapter(mSuggestionsAdapter);
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                toggleSearchMode();
+                return false;
+            }
+        });
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {
@@ -204,10 +184,40 @@ public class ActionBarController {
         styleSearchView(searchView);
     }
 
+    private void setActionBarDefaultOptions(ActionBar actionBar) {
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(false);
+    }
+
+    private void configureBackToPlaylistItem(MenuItem backToSetItem) {
+        boolean visible = false;
+        if ((mOwner.getActivity() instanceof PlayerActivity)) {
+            final Uri uri = CloudPlaybackService.getPlayQueueUri();
+            if (uri != null && Content.match(uri) == Content.PLAYLIST) {
+                visible = true;
+            }
+        }
+        backToSetItem.setVisible(visible);
+    }
+
+    private void toggleSearchMode() {
+        mInSearchMode = !mInSearchMode;
+        mOwner.getActivity().supportInvalidateOptionsMenu();
+    }
+
+    protected View getActionBarCustomView() {
+        if (mActionBarCustomView == null) mActionBarCustomView = createCustomView();
+        return mActionBarCustomView;
+    }
+
+    protected View createCustomView() {
+        return null;
+    }
+
     private void styleSearchView(SearchView searchView) {
         try
         {
-
             Field searchField = SearchView.class.getDeclaredField("mSearchButton");
             searchField.setAccessible(true);
             ImageView searchBtn = (ImageView)searchField.get(searchView);
@@ -218,7 +228,6 @@ public class ActionBarController {
             LinearLayout searchPlate = (LinearLayout)searchField.get(searchView);
             searchPlate.setBackgroundResource(R.drawable.edit_text_holo_dark);
 
-            // not found
             searchField = SearchView.class.getDeclaredField("mCloseButton");
             searchField.setAccessible(true);
             ImageView closeButton = (ImageView)searchField.get(searchView);
@@ -231,7 +240,7 @@ public class ActionBarController {
         }
         catch (IllegalAccessException e)
         {
-            Log.e(getClass().getSimpleName(),e.getMessage(),e);
+            Log.e(getClass().getSimpleName(), e.getMessage(),e);
         }
     }
 }

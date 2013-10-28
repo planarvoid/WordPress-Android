@@ -86,7 +86,7 @@ public class NowPlayingActionBarController extends ActionBarController {
             mNowPlaying.getStatusListener().onReceive(context, intent);
 
             if (intent.getAction().equals(Broadcasts.PLAYSTATE_CHANGED)) {
-                mOwner.invalidateOptionsMenu();
+                mOwner.getActivity().supportInvalidateOptionsMenu();
             }
         }
     };

@@ -18,7 +18,6 @@ import com.soundcloud.android.view.AddCommentDialog;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -36,7 +35,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,7 +58,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     protected AndroidCloudAPI mAndroidCloudAPI;
 
     @Nullable
-    private ActionBarController mActionBarController;
+    protected ActionBarController mActionBarController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,9 +75,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
         if (getSupportActionBar() != null) {
             mActionBarController = createActionBarController();
-            // Enable ActionBar app icon to behave as action to toggle nav drawer
-            getSupportActionBar().setHomeButtonEnabled(true);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         IntentFilter f = new IntentFilter();
@@ -87,6 +82,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         f.addAction(Consts.GeneralIntents.UNAUTHORIZED);
         f.addAction(Actions.LOGGING_OUT);
         registerReceiver(mGeneralIntentListener, new IntentFilter(f));
+
 
     }
 
@@ -112,6 +108,10 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         }
     }
 
+    public boolean restoreActionBar() {
+        return false;
+    }
+
     @Override
     public void setContentView(int id) {
         setContentView(View.inflate(this, id, new FrameLayout(this)));
@@ -120,10 +120,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     @Override
     public void setContentView(View layout) {
         ((ViewGroup) findViewById(R.id.content_frame)).addView(layout);
-    }
-
-    static void startNavActivity(Context c, Class activity) {
-        c.startActivity(getNavIntent(c, activity));
     }
 
     static Intent getNavIntent(Context c, Class activity) {
@@ -372,7 +368,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
     @NotNull
     @Override
-    public Activity getActivity() {
+    public ActionBarActivity getActivity() {
         return this;
     }
 
@@ -392,7 +388,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
      * For the search UI, we need to block out the UI completely. this might change as requirements to
      * To be implemented
      */
-
     @Override
     public boolean onSupportNavigateUp() {
         if (isTaskRoot()) {
@@ -403,11 +398,4 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         finish();
         return true;
     }
-
-    @Override
-    public MenuInflater getSupportMenuInflater() {
-        return super.getMenuInflater();
-    }
-
-
 }

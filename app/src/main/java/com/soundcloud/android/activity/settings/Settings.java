@@ -7,7 +7,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -21,7 +20,6 @@ import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
-import org.jetbrains.annotations.NotNull;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -40,13 +38,11 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
-import android.view.MenuInflater;
 
 import java.io.File;
 
 @Tracking(page = Page.Settings_main)
-public class Settings extends PreferenceActivity implements ActionBarController.ActionBarOwner {
+public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
@@ -328,27 +324,6 @@ public class Settings extends PreferenceActivity implements ActionBarController.
     public boolean onNavigateUp() {
         finish();
         return true;
-    }
-
-    @NotNull
-    @Override
-    public Activity getActivity() {
-        return this;
-    }
-
-    @Override
-    public ActionBar getSupportActionBar() {
-        return null;
-    }
-
-    @Override
-    public MenuInflater getSupportMenuInflater() {
-        return null;
-    }
-
-    @Override
-    public int getMenuResourceId() {
-        return R.menu.main;
     }
 
     private static class LogoutClickListener implements DialogInterface.OnClickListener {
