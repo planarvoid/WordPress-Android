@@ -77,13 +77,12 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
                 }
             }
         });
-        builder.setPositiveButton("Cancel", new View.OnClickListener() {
+        builder.setPositiveButton(android.R.string.cancel, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dismiss();
             }
         });
-
         getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
 
         return builder;
@@ -217,10 +216,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
 
                 // text colors
                 final boolean alreadyAdded = (mCursor.getInt(mCursor.getColumnIndex(COL_ALREADY_ADDED)) == 1);
-                final int textColor = mContext.getResources().getColor((alreadyAdded ?
-                        R.color.dialog_list_txt_disabled : R.color.gray_text));
-                txtTitle.setTextColor(textColor);
-                txtTrackCount.setTextColor(textColor);
+                txtTitle.setEnabled(alreadyAdded ? false : true);
 
                 txtTitle.setText(mCursor.getString(mCursor.getColumnIndex(DBHelper.PlaylistTracksView.TITLE)));
                 final int trackCount = mCursor.getInt(mCursor.getColumnIndex(DBHelper.PlaylistTracksView.TRACK_COUNT));

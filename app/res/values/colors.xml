@@ -105,7 +105,6 @@
 
     <color name="dialog_title">@color/scOrange</color>
     <color name="dialog_separator">@color/darker_gray</color>
-    <color name="dialog_message_text">@color/gray_text</color>
     <color name="dialog_button_focused">#88ff6600</color>
     <color name="dialog_button_pressed">#DDff6600</color>
 
