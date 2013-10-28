@@ -63,12 +63,12 @@ to run individual tests.
 
 ### Robolectric tests in IDEA
 
-Change the default JUnit Run/Debug configuration to look like this:
-![JUnit default run config][JUnit default run config]
-
 Add a file `local.properties` to the app directory containing the path to the Android SDK:
 
     $ echo "sdk.dir=$ANDROID_HOME" > app/local.properties
+
+Change the default JUnit Run/Debug configuration to look like this:
+![JUnit default run config][JUnit default run config]
 
 ## Integration tests
 
