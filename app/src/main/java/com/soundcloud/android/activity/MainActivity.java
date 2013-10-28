@@ -75,8 +75,6 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
                 UpdateManager.register(this, getString(R.string.hockey_app_id));
             }
         }
-
-        invalidateOptionsMenu();
     }
 
     @Override
