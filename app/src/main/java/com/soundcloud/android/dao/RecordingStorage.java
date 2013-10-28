@@ -129,25 +129,16 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
         return unsaved;
     }
 
-    public Observable<Boolean> delete(final Recording recording) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Boolean> observer) {
-                boolean deleted = false;
-                if (!recording.external_upload || recording.isLegacyRecording()) {
-                    deleted = IOUtils.deleteFile(recording.audio_path);
-                }
-                IOUtils.deleteFile(recording.getEncodedFile());
-                IOUtils.deleteFile(recording.getAmplitudeFile());
-                if (recording.getId() > 0) {
-                    mRecordingDAO.delete(recording);
-                }
-
-                observer.onNext(deleted);
-                observer.onCompleted();
-
-                return Subscriptions.empty();
-            }
-        }));
+    public boolean delete(final Recording recording) {
+        boolean deleted = false;
+        if (!recording.external_upload || recording.isLegacyRecording()) {
+            deleted = IOUtils.deleteFile(recording.audio_path);
+        }
+        IOUtils.deleteFile(recording.getEncodedFile());
+        IOUtils.deleteFile(recording.getAmplitudeFile());
+        if (recording.getId() > 0) {
+            mRecordingDAO.delete(recording);
+        }
+        return deleted;
     }
 }
