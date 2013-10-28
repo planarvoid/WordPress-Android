@@ -2,6 +2,7 @@ package com.soundcloud.android.dao;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.Observer;
@@ -15,6 +16,7 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
     private UserDAO mUserDAO;
 
     public UserStorage() {
+        super(ScSchedulers.STORAGE_SCHEDULER);
         ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
         mUserDAO = new UserDAO(resolver);
     }

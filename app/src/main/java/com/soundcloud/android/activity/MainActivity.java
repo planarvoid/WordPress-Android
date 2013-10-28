@@ -168,6 +168,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
             protected void onPostExecute(User user) {
                 if (user == null || user.isPrimaryEmailConfirmed()) {
                     if (user != null) {
+                        // FIXME: DB access on UI thread :(
                         new UserStorage().createOrUpdate(user);
                         mNavigationDrawerFragment.updateProfileItem(user);
                     }

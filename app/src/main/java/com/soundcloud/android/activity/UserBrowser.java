@@ -80,6 +80,7 @@ public class UserBrowser extends ScActivity implements
     private AndroidCloudAPI mOldCloudAPI;
     private AccountOperations mAccountOperations;
     private FollowingOperations mFollowingOperations;
+    private final UserStorage mUserStorage = new UserStorage();
 
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
@@ -246,7 +247,7 @@ public class UserBrowser extends ScActivity implements
 
     private boolean loadUserByUri(Uri uri) {
         if (uri != null) {
-            mUser = new UserStorage().getUserByUri(uri); //FIXME: DB access on UI thread
+            mUser = mUserStorage.getUserByUri(uri); //FIXME: DB access on UI thread
             if (mUser == null) {
                 loadUserById(UriUtils.getLastSegmentAsLong(uri));
             }
@@ -311,13 +312,9 @@ public class UserBrowser extends ScActivity implements
 
         // update user locally and ensure 1 instance
         mUser = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.FULL);
-        //FIXME: This will be handled/scheduled by an Observable when we're done refactoring storage
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                new UserStorage().storeAsync(mUser);
-            }
-        }).start();
+
+        // TODO: move to a *Operations class to decouple from storage layer
+        mUserStorage.storeAsync(mUser).subscribe(DefaultObserver.NOOP_OBSERVER);
         mUserDetailsFragment.onSuccess(mUser);
     }
 
