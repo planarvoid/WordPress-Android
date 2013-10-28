@@ -1,7 +1,6 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.model.act.Activities;
-import com.soundcloud.android.view.play.WaveformController;
 
 import android.os.Build;
 import android.os.Environment;
@@ -76,7 +75,6 @@ public final class Consts {
         int DIALOG_DISCARD_RECORDING = 5;
         int DIALOG_UNSAVED_RECORDING = 6;
         int DIALOG_DELETE_RECORDING = 7;
-        int DIALOG_ADD_COMMENT = 8;
         int DIALOG_LOGOUT = 9;
         int DIALOG_INSTALL_PROCESSOR = 10;
         int DIALOG_REVERT_RECORDING = 11;

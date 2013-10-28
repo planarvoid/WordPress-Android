@@ -14,7 +14,6 @@ import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
-import com.soundcloud.android.view.AddCommentDialog;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +32,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -263,11 +261,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
                         }).create();
             case Consts.Dialogs.DIALOG_LOGOUT:
                 return Settings.createLogoutDialog(this);
-
-            case Consts.Dialogs.DIALOG_ADD_COMMENT:
-                final AddCommentDialog dialog = new AddCommentDialog(this);
-                dialog.getWindow().setGravity(Gravity.TOP);
-                return dialog;
 
             case Consts.Dialogs.DIALOG_TRANSCODING_FAILED:
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_failed_title)

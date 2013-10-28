@@ -42,11 +42,6 @@
         <item name="titleSeparatorColor">@color/dialog_separator</item>
         <item name="buttonBackgroundColorPressed">@color/dialog_button_pressed</item>
         <item name="buttonBackgroundColorFocused">@color/dialog_button_focused</item>
-        <!--
-        <item name="buttonBackgroundColorNormal">@color/dialog_button_normal</item>
-        <item name="buttonTextColor">@color/dialog_button_text</item>
-        <item name="buttonSeparatorColor">@color/dialog_button_separator</item>
-        <item name="dialogBackground">@drawable/dialog_background</item>-->
     </style>
 
     <!-- ****** Dialogs ****** -->
@@ -618,13 +613,13 @@
     </style>
 
     <style name="AddCommentEditText">
-        <item name="android:inputType">text</item>
-        <item name="android:layout_margin">2dp</item>
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_weight">1</item>
+        <item name="android:inputType">textMultiLine</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:imeOptions">actionDone|flagNoExtractUi</item>
+        <item name="android:imeOptions">actionDone</item>
         <item name="android:background">@drawable/edit_text_holo_dark</item>
+        <item name="android:minLines">3</item>
     </style>
 
     <style name="txt_share_header">
