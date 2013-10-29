@@ -1,7 +1,7 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.auth.Onboard;
+import com.soundcloud.android.activity.auth.OnboardActivity;
 import com.soundcloud.android.fragment.NavigationDrawerFragment;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
@@ -24,7 +24,7 @@ public class MenuScreen {
         solo.clickOnText(R.string.pref_revoke_access);
         solo.assertText(R.string.menu_clear_user_title);
         solo.clickOnOK();
-        solo.waitForActivity(Onboard.class);
+        solo.waitForActivity(OnboardActivity.class);
         solo.waitForViewId(R.id.tour_bottom_bar, 5000);
     }
 

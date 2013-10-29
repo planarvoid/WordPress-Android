@@ -2,7 +2,7 @@ package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.MainActivity;
-import com.soundcloud.android.activity.auth.Onboard;
+import com.soundcloud.android.activity.auth.OnboardActivity;
 import com.soundcloud.android.activity.auth.Recover;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
@@ -59,12 +59,12 @@ public class LoginScreen {
 
     public void selectUserFromDialog(String username) {
         solo.clickOnText(username);
-        solo.waitForActivity(Onboard.class);
+        solo.waitForActivity(OnboardActivity.class);
     }
 
     public void clickOnCancelButton() {
         solo.clickOnButton(R.string.cancel);
-        solo.waitForActivity(Onboard.class);
+        solo.waitForActivity(OnboardActivity.class);
         solo.waitForViewId(R.id.tour_bottom_bar, 5000);
     }
     public void clickOnContinueButton() {

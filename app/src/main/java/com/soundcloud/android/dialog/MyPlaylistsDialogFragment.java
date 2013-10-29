@@ -38,7 +38,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
 
     private static final int LOADER_ID = 1;
     private static final int NEW_PLAYLIST_ITEM = -1;
-    public static final int CLOSE_DELAY_MILLIS = 500;
+    private static final int CLOSE_DELAY_MILLIS = 500;
 
     private MyPlaylistsAdapter mAdapter;
     private AccountOperations accountOperations;
