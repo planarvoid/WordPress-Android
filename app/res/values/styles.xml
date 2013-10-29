@@ -2,40 +2,11 @@
 
 <resources>
 
-    <style name="ScListViewStyle" parent="@android:style/Widget.ListView">
+    <style name="ListView" parent="@android:style/Widget.ListView">
         <item name="android:divider">@drawable/divider_list_grey</item>
         <item name="android:dividerHeight">1px</item>
         <item name="android:listSelector">@drawable/nav_drawer_list_selector</item>
     </style>
-
-    <style name="ScDialogListViewStyle" parent="SDL.ListView">
-        <item name="android:divider">@drawable/divider_list_grey</item>
-        <item name="android:dividerHeight">1px</item>
-        <item name="android:listSelector">@drawable/nav_drawer_list_selector</item>
-    </style>
-
-
-    <style name="ScPopupAnimationStyle">
-        <item name="@android:windowEnterAnimation">@anim/fade_in</item>
-        <item name="@android:windowExitAnimation">@anim/fade_out</item>
-    </style>
-
-    <style name="ScActivityAnimationStyle">
-        <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item>
-        <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item>
-        <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item>
-        <item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item>
-    </style>
-
-    <style name="DropDownListView.SoundCloud" parent="@style/Widget.AppCompat.ListView.DropDown">
-        <item name="android:listSelector">@drawable/action_item_background_selector</item>
-    </style>
-
-    <style name="DropDownNav.SoundCloud" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
-        <item name="android:dropDownSelector">@drawable/action_item_background_selector</item>
-    </style>
-
-    <style name="PopupMenu.SoundCloud" parent="@style/Widget.AppCompat.PopupMenu" />
 
     <style name="DialogStyleLight">
         <item name="titleTextColor">@color/dialog_title</item>
@@ -43,6 +14,34 @@
         <item name="buttonBackgroundColorPressed">@color/dialog_button_pressed</item>
         <item name="buttonBackgroundColorFocused">@color/dialog_button_focused</item>
     </style>
+
+    <style name="DialogListView" parent="SDL.ListView">
+        <item name="android:divider">@drawable/divider_list_grey</item>
+        <item name="android:dividerHeight">1px</item>
+        <item name="android:listSelector">@drawable/nav_drawer_list_selector</item>
+    </style>
+
+    <style name="Animation.Popup">
+        <item name="@android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="@android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item>
+    </style>
+
+    <style name="DropDownListView" parent="@style/Widget.AppCompat.ListView.DropDown">
+        <item name="android:listSelector">@drawable/action_item_background_selector</item>
+    </style>
+
+    <style name="DropDownNav" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
+        <item name="android:dropDownSelector">@drawable/action_item_background_selector</item>
+    </style>
+
+    <style name="PopupMenu" parent="@style/Widget.AppCompat.PopupMenu" />
 
     <!-- ****** Dialogs ****** -->
 
