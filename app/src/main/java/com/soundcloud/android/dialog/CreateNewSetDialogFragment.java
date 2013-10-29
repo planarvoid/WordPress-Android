@@ -113,7 +113,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
             public Observable<SoundAssociation> call(Playlist playlist) {
                 // store the newly created playlist as a sound association
                 final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage();
-                return soundAssociationStorage.addCreation(playlist);
+                return soundAssociationStorage.addCreationAsync(playlist);
             }
         }).subscribe(new Action1<SoundAssociation>() {
             @Override

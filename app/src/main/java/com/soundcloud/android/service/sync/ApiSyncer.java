@@ -238,8 +238,8 @@ public class ApiSyncer extends SyncStrategy {
                 p.localToGlobal(mContext, added);
                 SoundCloudApplication.MODEL_MANAGER.removeFromCache(toDelete);
 
-                mPlaylistStorage.storeAsync(added).toBlockingObservable().last();
-                mSoundAssociationStorage.addCreation(added).toBlockingObservable().last();
+                mPlaylistStorage.store(added);
+                mSoundAssociationStorage.addCreation(added);
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
