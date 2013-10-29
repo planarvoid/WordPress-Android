@@ -176,9 +176,6 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void shouldReplaceEmptyView() {
-        when(playQueue.size()).thenReturn(1);
-        when(playQueue.isLoading()).thenReturn(true);
-
         adapter.setPlayQueue(new PlayQueue(Lists.newArrayList(1L), 0, PlayQueue.AppendState.LOADING));
 
         final ViewGroup parent = mock(ViewGroup.class);
