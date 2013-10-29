@@ -165,11 +165,6 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     }
 
     @Override
-    protected int getSelectedMenuId() {
-        return 0;
-    }
-
-    @Override
     public void onPlaylistChanged() {
         if (mPlaylist.removed){
             showToast(R.string.playlist_removed);

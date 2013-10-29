@@ -27,9 +27,4 @@ public class WhoToFollowActivity extends ScActivity {
         super.setContentView(layout);
         layout.setBackgroundColor(Color.WHITE);
     }
-
-    @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_suggested_users;
-    }
 }

@@ -213,11 +213,6 @@ public class UserBrowser extends ScActivity implements
     }
 
     @Override
-    protected int getSelectedMenuId() {
-        return -1;
-    }
-
-    @Override
     public boolean onNavigationItemSelected(int itemPosition, long itemId) {
         return false;
     }

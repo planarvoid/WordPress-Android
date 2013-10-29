@@ -38,11 +38,6 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     }
 
     @Override
-    protected int getSelectedMenuId() {
-        return 0;
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         if (mCategory.isFollowed(new FollowingOperations().getFollowedUserIds())){

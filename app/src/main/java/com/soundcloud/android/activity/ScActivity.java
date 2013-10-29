@@ -90,7 +90,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         return new NowPlayingActionBarController(this, mAndroidCloudAPI);
     }
 
-    protected abstract int getSelectedMenuId();
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {

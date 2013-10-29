@@ -1,6 +1,5 @@
 package com.soundcloud.android.activity.landing;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
 
 import android.content.Intent;
@@ -25,20 +24,6 @@ public class You extends UserBrowser {
                 intent.setAction(null);
             }
         }
-    }
-
-    @Override
-    protected int getSelectedMenuId() {
-        final Intent intent = getIntent();
-        if (intent.hasExtra(Tab.EXTRA)){
-            final Tab tab = Tab.values()[Tab.indexOf(intent.getStringExtra(Tab.EXTRA))];
-            if (tab == Tab.likes) {
-                return R.id.nav_likes;
-            } else if (tab == Tab.sets) {
-                return R.id.nav_playlists;
-            }
-        }
-        return R.id.nav_you;
     }
 
     @Override

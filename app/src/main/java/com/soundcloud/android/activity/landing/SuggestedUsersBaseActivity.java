@@ -13,9 +13,4 @@ public abstract class SuggestedUsersBaseActivity extends ScActivity {
         setContentView(R.layout.frame_layout_holder);
     }
 
-    @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_suggested_users;
-    }
-
 }

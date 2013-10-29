@@ -19,9 +19,4 @@ public class News extends ScActivity {
                     .add(R.id.content_frame, ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
         }
     }
-
-    @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_news;
-    }
 }

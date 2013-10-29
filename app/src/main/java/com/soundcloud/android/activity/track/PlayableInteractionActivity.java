@@ -54,11 +54,6 @@ public abstract class PlayableInteractionActivity extends ScActivity {
     protected abstract Playable getPlayableFromIntent(Intent intent);
 
     @Override
-    protected int getSelectedMenuId() {
-        return -1;
-    }
-
-    @Override
     public void onDataConnectionChanged(boolean isConnected){
         super.onDataConnectionChanged(isConnected);
         if (isConnected) mPlayableInfoBar.onConnected();

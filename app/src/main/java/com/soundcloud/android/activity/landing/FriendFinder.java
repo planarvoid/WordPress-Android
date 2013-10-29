@@ -33,11 +33,6 @@ public class FriendFinder extends ScActivity {
     }
 
     @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_friend_finder;
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
             case Consts.RequestCodes.MAKE_CONNECTION: {

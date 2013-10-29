@@ -90,11 +90,6 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     }
 
     @Override
-    protected int getSelectedMenuId() {
-        return 0;
-    }
-
-    @Override
     public void onNavigationDrawerItemSelected(int position) {
 
         Fragment fragment = null;

@@ -220,11 +220,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         }
     }
 
-    @Override
-    protected int getSelectedMenuId() {
-        return -1;
-    }
-
     protected void onPlaybackServiceBound(@NotNull CloudPlaybackService service) {
         if (mPendingPlayPosition != -1) {
             service.setQueuePosition(mPendingPlayPosition);

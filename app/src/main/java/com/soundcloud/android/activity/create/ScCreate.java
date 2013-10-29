@@ -135,11 +135,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_record;
-    }
-
-    @Override
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
         handleIntent();
