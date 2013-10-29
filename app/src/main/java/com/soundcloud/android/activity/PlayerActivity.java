@@ -21,6 +21,7 @@ import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.UriUtils;
+import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.PlayerTrackPager;
 import com.soundcloud.android.view.play.TransportBarView;
 import org.jetbrains.annotations.NotNull;
@@ -69,8 +70,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         int STREAM_ERROR      = 1;
         int TRACK_UNAVAILABLE = 2;
     }
-
-    public @Nullable static Comment pendingComment;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -191,13 +190,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         return -1;
     }
 
-    public void onNewComment(Comment comment) {
-        final PlayerTrackView ptv = getTrackViewById(comment.track_id);
-        if (ptv != null){
-            ptv.onNewComment(comment);
-        }
-    }
-
     @Override
     public void onAddToPlaylist(Track track) {
         if (track != null && isForeground()) {
@@ -227,8 +219,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     public void addNewComment(final Comment comment) {
         setCommentMode(false, true);
-        pendingComment = comment;
-        safeShowDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+        AddCommentDialog.from(comment).show(getSupportFragmentManager(), "comment_dialog");
     }
 
     private void setCommentMode(boolean isCommenting, boolean animate) {
@@ -324,6 +315,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         f.addAction(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED);
         f.addAction(Playable.ACTION_SOUND_INFO_UPDATED);
         f.addAction(Playable.ACTION_SOUND_INFO_ERROR);
+        f.addAction(Playable.COMMENT_ADDED);
         f.addAction(Playable.COMMENTS_UPDATED);
         f.addAction(Comment.ACTION_CREATE_COMMENT);
         registerReceiver(mStatusListener, new IntentFilter(f));
@@ -547,6 +539,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
             } else if (action.equals(Comment.ACTION_CREATE_COMMENT)) {
                 addNewComment(intent.<Comment>getParcelableExtra(Comment.EXTRA));
+            } else if (action.equals(Playable.COMMENT_ADDED)) {
+                Comment comment = intent.getParcelableExtra(Comment.EXTRA);
+                final PlayerTrackView ptv = getTrackViewById(comment.track_id);
+                if (ptv != null){
+                    ptv.onNewComment(comment);
+                }
+
             } else {
 
                 if (Broadcasts.PLAYBACK_COMPLETE.equals(action) || action.equals(Broadcasts.PLAYSTATE_CHANGED)) {

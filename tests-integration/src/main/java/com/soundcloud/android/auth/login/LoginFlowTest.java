@@ -10,7 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.FacebookWebFlow;
-import com.soundcloud.android.activity.auth.Onboard;
+import com.soundcloud.android.activity.auth.OnboardActivity;
 import com.soundcloud.android.auth.LoginTestCase;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.screens.MenuScreen;
@@ -155,7 +155,7 @@ public class LoginFlowTest extends LoginTestCase {
 
         loginScreen.clickOkButton();
 
-        solo.assertActivity(Onboard.class);
+        solo.assertActivity(OnboardActivity.class);
         assertNull(getLoggedInUser().username);
     }
 
@@ -171,7 +171,7 @@ public class LoginFlowTest extends LoginTestCase {
         menuScreen.logout();
 
         assertNull(getLoggedInUser().username);
-        solo.assertActivity(Onboard.class);
+        solo.assertActivity(OnboardActivity.class);
     }
 
     /*

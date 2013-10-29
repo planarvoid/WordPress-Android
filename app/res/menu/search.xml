@@ -3,7 +3,7 @@
       xmlns:soundcloud="http://schemas.android.com/apk/res-auto">
 
     <item android:id="@+id/action_search"
-          android:icon="@drawable/ic_action_search"
+          android:icon="@drawable/actionbar_search"
           soundcloud:actionViewClass="android.support.v7.widget.SearchView"
           soundcloud:showAsAction="always"/>
 

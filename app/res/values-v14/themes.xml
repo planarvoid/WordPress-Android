@@ -3,8 +3,8 @@
 
     <style name="Theme.SoundCloud" parent="Theme.SoundCloud.Base">
         <item name="android:actionBarItemBackground">@drawable/action_item_background_selector</item>
-        <item name="android:dropDownListViewStyle">@style/DropDownListView.SoundCloud</item>
-        <item name="android:actionDropDownStyle">@style/DropDownNav.SoundCloud</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView</item>
+        <item name="android:actionDropDownStyle">@style/DropDownNav</item>
         <item name="android:actionBarStyle">@style/ActionBar.SoundCloud</item>
 
         <!-- Light.DarkActionBar specific -->
@@ -12,8 +12,8 @@
     </style>
 
     <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat">
-        <item name="android:popupMenuStyle">@style/PopupMenu.SoundCloud</item>
-        <item name="android:dropDownListViewStyle">@style/DropDownListView.SoundCloud</item>
+        <item name="android:popupMenuStyle">@style/PopupMenu</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView</item>
     </style>
 
     <style name="ActionBar.SoundCloud" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">

@@ -12,6 +12,7 @@ import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -38,6 +40,7 @@ import java.util.EnumSet;
 public class NavigationDrawerFragment extends Fragment {
 
     private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
+    public static final int NO_IMAGE = -1;
 
     private NavigationDrawerCallbacks mCallbacks;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -52,15 +55,18 @@ public class NavigationDrawerFragment extends Fragment {
     private ProfileViewHolder mProfileViewHolder;
 
     public enum NavItem {
-        PROFILE(R.string.side_menu_profile),
-        STREAM(R.string.side_menu_stream),
-        EXPLORE(R.string.side_menu_explore),
-        LIKES(R.string.side_menu_likes),
-        PLAYLISTS(R.string.side_menu_playlists);
+        PROFILE(R.string.side_menu_profile, NO_IMAGE),
+        STREAM(R.string.side_menu_stream, R.drawable.drawer_stream_states),
+        EXPLORE(R.string.side_menu_explore, R.drawable.drawer_explore_states),
+        LIKES(R.string.side_menu_likes, R.drawable.drawer_likes_states),
+        PLAYLISTS(R.string.side_menu_playlists, R.drawable.drawer_playlists_states);
 
         private final int textId;
-        private NavItem(int textId){
+        private final int imageId;
+
+        private NavItem(int textId, int imageId){
             this.textId = textId;
+            this.imageId = imageId;
         }
     }
 
@@ -106,6 +112,7 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
+        mDrawerListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 
 
         final View view = inflater.inflate(R.layout.nav_drawer_profile_item, container, false);
@@ -119,16 +126,14 @@ public class NavigationDrawerFragment extends Fragment {
         configureProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser());
 
         int i = 0;
-        String[] rows = new String[TEXT_NAV_ITEMS.size()];
-        for (NavItem textItem : TEXT_NAV_ITEMS){
-            rows[i++] = getString(textItem.textId);
+        NavItem[] data = new NavItem[TEXT_NAV_ITEMS.size()];
+        for (NavItem navItem : TEXT_NAV_ITEMS){
+            data[i++] = navItem;
         }
 
-        mDrawerListView.setAdapter(new ArrayAdapter<String>(
+        mDrawerListView.setAdapter(new DrawerAdapter(
                 getActionBar().getThemedContext(),
-                R.layout.nav_drawer_item,
-                R.id.nav_item_text,
-                rows));
+                R.layout.nav_drawer_item, data));
 
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
@@ -299,5 +304,37 @@ public class NavigationDrawerFragment extends Fragment {
     private static class ProfileViewHolder {
         public ImageView imageView;
         public TextView username, location;
+    }
+
+    private class DrawerAdapter extends ArrayAdapter<NavItem> {
+
+        public DrawerAdapter(Context context, int layoutResourceId, NavItem[] data) {
+            super(context, layoutResourceId, data);
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            NavItem navItem = getItem(position);
+
+            if (convertView == null) {
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.nav_drawer_item, parent, false);
+                holder = new ViewHolder();
+                holder.icon = (ImageView) convertView.findViewById(R.id.nav_item_image);
+                holder.text = (TextView) convertView.findViewById(R.id.nav_item_text);
+                convertView.setTag(holder);
+            } else
+                holder = (ViewHolder) convertView.getTag();
+
+            holder.text.setText(navItem.textId);
+            holder.icon.setImageResource(navItem.imageId);
+            return convertView;
+        }
+
+        private class ViewHolder {
+            ImageView icon;
+            TextView text;
+        }
+
+
     }
 }

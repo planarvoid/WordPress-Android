@@ -151,7 +151,8 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setLogo(R.drawable.ic_launcher);
+        actionBar.setDisplayUseLogoEnabled(true);
+        actionBar.setLogo(R.drawable.actionbar_logo);
         actionBar.setTitle(mLastTitle);
         return true;
     }

@@ -38,6 +38,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -52,7 +53,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class Onboard extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler, AcceptTerms.AcceptTermsHandler {
+public class OnboardActivity extends AbstractLoginActivity implements Login.LoginHandler, SignUp.SignUpHandler, UserDetails.UserDetailsHandler, AcceptTerms.AcceptTermsHandler {
 
     private static final String FOREGROUND_TAG = "foreground";
     private static final String PARALLAX_TAG = "parallax";
@@ -204,7 +205,7 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
                 switch (msg.what) {
                     case TourLayout.IMAGE_LOADED:
                     case TourLayout.IMAGE_ERROR:
-                        hideView(Onboard.this, splash, true);
+                        hideView(OnboardActivity.this, splash, true);
                         break;
                 }
             }
@@ -452,10 +453,10 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         @Override
         public void onAnimationEnd(Animation animation) {
             mOverlayHolder.setVisibility(View.GONE);
-            if (mLogin != null) hideView(Onboard.this, getLogin(), false);
-            if (mSignUp != null) hideView(Onboard.this, getSignUp(), false);
-            if (mUserDetails != null) hideView(Onboard.this, getUserDetails(), false);
-            if (mAcceptTerms != null) hideView(Onboard.this, getAcceptTerms(), false);
+            if (mLogin != null) hideView(OnboardActivity.this, getLogin(), false);
+            if (mSignUp != null) hideView(OnboardActivity.this, getSignUp(), false);
+            if (mUserDetails != null) hideView(OnboardActivity.this, getUserDetails(), false);
+            if (mAcceptTerms != null) hideView(OnboardActivity.this, getAcceptTerms(), false);
         }
 
         @Override
@@ -493,13 +494,15 @@ public class Onboard extends AbstractLoginActivity implements Login.LoginHandler
         } else if (names.length == 1){
             onGoogleAccountSelected(names[0]);
         } else {
-            new AlertDialog.Builder(this).setTitle(R.string.dialog_select_google_account)
-                    .setItems(names, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            onGoogleAccountSelected(names[which]);
-                        }
-                    }).show();
+            ContextThemeWrapper cw = new ContextThemeWrapper( this, R.style.SelectGoogleAccountDialogTheme );
+            final AlertDialog.Builder builder = new AlertDialog.Builder(cw).setTitle(R.string.dialog_select_google_account);
+            builder.setItems(names, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    onGoogleAccountSelected(names[which]);
+                }
+            });
+            builder.show();
         }
     }
 

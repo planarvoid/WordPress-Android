@@ -46,7 +46,7 @@
                  android:hardwareAccelerated="true"
                  android:icon="@drawable/ic_launcher"
                  android:label="@string/app_name"
-                 android:logo="@drawable/empty"
+                 android:logo="@drawable/actionbar_logo"
                  android:name="SoundCloudApplication"
                  android:theme="@style/Theme.SoundCloud">
 
@@ -225,7 +225,7 @@
         </activity>
 
 
-        <activity android:exported="true" android:label="@string/app_name" android:name=".activity.auth.Onboard" android:theme="@style/Theme.ScAuth" android:windowSoftInputMode="adjustResize"/>
+        <activity android:exported="true" android:label="@string/app_name" android:name=".activity.auth.OnboardActivity" android:theme="@style/Theme.ScAuth" android:windowSoftInputMode="adjustResize"/>
         <activity android:configChanges="orientation" android:label="@string/app_name" android:name=".activity.auth.Recover" android:theme="@style/Theme.ScAuth"/>
         <activity android:name=".activity.auth.FacebookSwitcherActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:configChanges="orientation" android:label="@string/app_name" android:name=".activity.auth.FacebookWebFlow" android:theme="@style/Theme.SoundCloud.NoActionBar"/>

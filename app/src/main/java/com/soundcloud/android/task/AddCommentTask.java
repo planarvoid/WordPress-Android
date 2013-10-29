@@ -3,6 +3,7 @@ package com.soundcloud.android.task;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -23,9 +24,13 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
     private IOException exception;
     private AndroidCloudAPI oldCloudAPI;
 
-    public AddCommentTask(Context context, AndroidCloudAPI oldCloudAPI) {
-        this.context = context;
-        this.oldCloudAPI = oldCloudAPI;
+    public AddCommentTask(Context applicationContext) {
+        this(applicationContext, new OldCloudAPI(applicationContext));
+    }
+
+    public AddCommentTask(Context applicationContext, AndroidCloudAPI cloudAPI) {
+        this.context = applicationContext;
+        this.oldCloudAPI = cloudAPI;
     }
 
     @Override
