@@ -6,7 +6,6 @@ import com.soundcloud.android.activity.create.ScCreate;
 import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.WhoToFollowActivity;
 import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.activity.track.PlaylistDetailActivity;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
@@ -25,7 +24,6 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,13 +53,6 @@ public class ActionBarController {
         mOwner    = owner;
         mActivity = owner.getActivity();
         mAndroidCloudAPI = androidCloudAPI;
-
-        final View actionBarCustomView = getActionBarCustomView();
-        if (actionBarCustomView != null) {
-            mOwner.getActivity().getSupportActionBar().setCustomView(actionBarCustomView, new ActionBar.LayoutParams(Gravity.RIGHT));
-        } else {
-            mOwner.getActivity().getSupportActionBar().setDisplayShowCustomEnabled(false);
-        }
     }
 
     public void onResume() {
@@ -87,18 +78,14 @@ public class ActionBarController {
             configureToSearchState(menu, actionBar);
 
         } else {
-            actionBar.setDisplayShowCustomEnabled(true);
-            if (!mOwner.restoreActionBar()){
-                setActionBarDefaultOptions(actionBar);
-            }
-
+            setActionBarDefaultOptions(actionBar);
             final int menuResourceId = mOwner.getMenuResourceId();
             if (menuResourceId > 0) mOwner.getActivity().getMenuInflater().inflate(menuResourceId, menu);
 
-            final MenuItem backToPlaylistItem = menu.findItem(R.id.menu_backToSet);
-            if (backToPlaylistItem != null) {
-                configureBackToPlaylistItem(backToPlaylistItem);
-            }
+//            final MenuItem backToPlaylistItem = menu.findItem(R.id.menu_backToSet);
+//            if (backToPlaylistItem != null) {
+//                configureBackToPlaylistItem(backToPlaylistItem);
+//            }
         }
     }
 
@@ -108,17 +95,17 @@ public class ActionBarController {
                 toggleSearchMode();
                 return true;
 
-            case R.id.menu_backToSet:
-                final Intent intent = new Intent(mOwner.getActivity(), PlaylistDetailActivity.class);
-                intent.putExtra(PlaylistDetailActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
-                final Uri uri = CloudPlaybackService.getPlayQueueUri();
-                if (Content.match(uri) == Content.PLAYLIST) {
-                    intent.setData(uri);
-                } else {
-                    return false;
-                }
-                mOwner.getActivity().startActivity(intent);
-                return true;
+//            case R.id.menu_backToSet:
+//                final Intent intent = new Intent(mOwner.getActivity(), PlaylistDetailActivity.class);
+//                intent.putExtra(PlaylistDetailActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
+//                final Uri uri = CloudPlaybackService.getPlayQueueUri();
+//                if (Content.match(uri) == Content.PLAYLIST) {
+//                    intent.setData(uri);
+//                } else {
+//                    return false;
+//                }
+//                mOwner.getActivity().startActivity(intent);
+//                return true;
 
             case R.id.action_settings:
                 mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), Settings.class));
@@ -184,10 +171,12 @@ public class ActionBarController {
         styleSearchView(searchView);
     }
 
-    private void setActionBarDefaultOptions(ActionBar actionBar) {
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(false);
+    protected void setActionBarDefaultOptions(ActionBar actionBar) {
+        if (!mOwner.restoreActionBar()){
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            actionBar.setDisplayShowTitleEnabled(true);
+            actionBar.setDisplayShowHomeEnabled(false);
+        }
     }
 
     private void configureBackToPlaylistItem(MenuItem backToSetItem) {
@@ -204,15 +193,6 @@ public class ActionBarController {
     private void toggleSearchMode() {
         mInSearchMode = !mInSearchMode;
         mOwner.getActivity().supportInvalidateOptionsMenu();
-    }
-
-    protected View getActionBarCustomView() {
-        if (mActionBarCustomView == null) mActionBarCustomView = createCustomView();
-        return mActionBarCustomView;
-    }
-
-    protected View createCustomView() {
-        return null;
     }
 
     private void styleSearchView(SearchView searchView) {

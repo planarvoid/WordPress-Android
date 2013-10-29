@@ -13,6 +13,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v7.app.ActionBar;
+import android.view.Gravity;
 import android.view.View;
 
 public class NowPlayingActionBarController extends ActionBarController {
@@ -24,9 +26,19 @@ public class NowPlayingActionBarController extends ActionBarController {
 
     public NowPlayingActionBarController(@NotNull ActionBarOwner owner, AndroidCloudAPI androidCloudAPI) {
         super(owner, androidCloudAPI);
-        mNowPlayingHolder = View.inflate(owner.getActivity(), R.layout.action_bar_now_playing_custom_view, null);
-        mNowPlayingHolder = getActionBarCustomView().findViewById(R.id.waveform_holder);
-        mNowPlaying = (NowPlayingIndicator) mNowPlayingHolder.findViewById(R.id.waveform_progress);
+
+        View customView = View.inflate(mActivity, R.layout.action_bar_now_playing_custom_view, null);
+        mOwner.getActivity().getSupportActionBar().setCustomView(customView, new ActionBar.LayoutParams(Gravity.RIGHT));
+        mNowPlaying = (NowPlayingIndicator) customView.findViewById(R.id.waveform_progress);
+        mNowPlayingHolder = customView.findViewById(R.id.waveform_holder);
+        mNowPlayingHolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mActivity.startActivity(new Intent(Actions.PLAYER));
+            }
+        });
+
+
     }
 
     @Override
@@ -50,15 +62,9 @@ public class NowPlayingActionBarController extends ActionBarController {
     }
 
     @Override
-    protected View createCustomView() {
-        View customView = View.inflate(mActivity, R.layout.action_bar_now_playing_custom_view, null);
-        customView.findViewById(R.id.waveform_holder).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mActivity.startActivity(new Intent(Actions.PLAYER));
-            }
-        });
-        return customView;
+    protected void setActionBarDefaultOptions(ActionBar actionBar) {
+        super.setActionBarDefaultOptions(actionBar);
+        actionBar.setDisplayShowCustomEnabled(true);
     }
 
     private void startListening() {

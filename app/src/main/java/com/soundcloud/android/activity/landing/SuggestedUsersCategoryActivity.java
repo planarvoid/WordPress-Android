@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.landing;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.SuggestedUsersCategoryFragment;
 import com.soundcloud.android.model.Category;
@@ -34,7 +35,10 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
                 mCategoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.holder);
             }
         }
+    }
 
+    protected ActionBarController createActionBarController() {
+        return new ActionBarController(this, mAndroidCloudAPI);
     }
 
     @Override

@@ -91,6 +91,7 @@
     <style name="Theme.Onboard" parent="Theme.SoundCloud">
         <item name="actionButtonStyle">@style/OnboardActionButtonStyle</item>
         <item name="android:actionButtonStyle">@style/OnboardActionButtonStyle</item>
+        <item name="android:logo">@drawable/ic_launcher</item>
     </style>
 
 </resources>
