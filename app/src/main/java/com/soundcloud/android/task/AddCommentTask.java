@@ -25,8 +25,12 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
     private AndroidCloudAPI oldCloudAPI;
 
     public AddCommentTask(Context applicationContext) {
+        this(applicationContext, new OldCloudAPI(applicationContext));
+    }
+
+    public AddCommentTask(Context applicationContext, AndroidCloudAPI cloudAPI) {
         this.context = applicationContext;
-        this.oldCloudAPI = new OldCloudAPI(applicationContext);
+        this.oldCloudAPI = cloudAPI;
     }
 
     @Override
