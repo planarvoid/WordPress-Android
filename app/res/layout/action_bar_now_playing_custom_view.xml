@@ -10,7 +10,7 @@
               android:layout_height="fill_parent"
               android:singleLine="true"
               android:ellipsize="end"/>
-    <LinearLayout android:id="@id/waveform_holder"
+    <LinearLayout android:id="@+id/waveform_holder"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
                     android:gravity="center"
