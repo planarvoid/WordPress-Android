@@ -29,6 +29,7 @@ import com.soundcloud.android.audio.managers.IRemoteAudioManager;
 import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.streaming.StreamProxy;
@@ -43,6 +44,7 @@ import com.soundcloud.android.tracking.eventlogger.PlayEventTrackingApi;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.PlaybackOperations;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.play.NotificationPlaybackRemoteViews;
 import org.jetbrains.annotations.Nullable;
@@ -152,7 +154,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private boolean mAutoAdvance = true;// automatically skip to next track
     /* package */ AccountOperations mAccountOperations;
     private PlayQueueManager mPlayQueueManager;
-    private TrackStorage mTrackStorage;
+    private PlaybackOperations mPlaybackOperations;
 
     // TODO: this doesn't really belong here. It's only used to PUT likes and reposts, and isn't playback specific.
     /* package */ AssociationManager mAssociationManager;
@@ -233,7 +235,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mOldCloudApi = new OldCloudAPI(this);
         mAnalyticsEngine = new AnalyticsEngine(getApplicationContext());
         mAccountOperations = new AccountOperations(this);
-        mTrackStorage = new TrackStorage();
+        mPlaybackOperations = new PlaybackOperations();
 
         mPlayQueueManager = new PlayQueueManager(this, new PlayQueueStorage(), new ExploreTracksOperations(),
                 PreferenceManager.getDefaultSharedPreferences(this), SoundCloudApplication.MODEL_MANAGER);
@@ -466,23 +468,16 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     /* package */ void openCurrent() {
         openCurrent(Media.Action.Stop);
     }
+
+    // TODO : Handle tracks that are not in local storage (quicksearch)
     /* package */ void openCurrent(final Media.Action action) {
-
-        // TODO : Handle tracks that are not in local storage (quicksearch)
-
         final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
-        final Observable<Track> currentTrack = mTrackStorage.getTrackAsync(currentTrackId);
-        if (currentTrack != null){
-            currentTrack.observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Track>() {
-                @Override
-                public void call(Track track) {
-                    openCurrent(track, action);
-                }
-            });
-        } else {
-            Log.d(TAG, "Track not available " + currentTrackId);
-            state = EMPTY_PLAYLIST;
-        }
+        mPlaybackOperations.loadTrackForPlayback(currentTrackId).subscribe(new DefaultObserver<Track>() {
+            @Override
+            public void onNext(Track track) {
+                openCurrent(track, action);
+            }
+        });
     }
 
     /* package */ void openCurrent(Track track, Media.Action action) {
@@ -571,12 +566,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private void onStreamableTrack(Track track){
         if (getCurrentTrackId() != track.getId()) return;
 
-        new Thread() {
-            @Override
-            public void run() {
-                mTrackStorage.markTrackAsPlayed(mCurrentTrack);
-            }
-        }.start();
+        mPlaybackOperations.markTrackAsPlayed(mCurrentTrack).subscribe(DefaultObserver.NOOP_OBSERVER);
         startTrack(track);
     }
 

@@ -1,6 +1,10 @@
 package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
@@ -22,6 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
+import rx.Observer;
+import rx.Scheduler;
+import rx.android.concurrency.AndroidSchedulers;
 import rx.concurrency.Schedulers;
 
 import android.content.Intent;
@@ -200,5 +208,18 @@ public class PlaybackOperationsTest {
     public void playFromAdapterShouldThrowAssertionErrorWhenPositionGreaterThanSize() throws Exception {
         List<Playable> playables = Lists.<Playable>newArrayList(track);
         playbackOperations.playFromAdapter(Robolectric.application, playables, 1, Content.ME_LIKES.uri);
+    }
+
+    @Test
+    public void shouldLoadTrackFromStorageAndEmitOnUIThreadForPlayback() {
+        Observable<Track> observable = mock(Observable.class);
+        when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
+        when(observable.observeOn(any(Scheduler.class))).thenReturn(observable);
+
+        Observer<Track> observer = mock(Observer.class);
+        playbackOperations.loadTrackForPlayback(1L).subscribe(observer);
+
+        verify(observable).observeOn(AndroidSchedulers.mainThread());
+        verify(observable).subscribe(observer);
     }
 }

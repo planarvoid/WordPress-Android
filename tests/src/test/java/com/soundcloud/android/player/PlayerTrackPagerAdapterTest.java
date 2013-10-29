@@ -10,11 +10,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.playback.PlayQueue;
+import com.soundcloud.android.utils.PlaybackOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +34,7 @@ public class PlayerTrackPagerAdapterTest {
     @Mock
     private PlayerQueueView playerQueueView;
     @Mock
-    private TrackStorage trackStorage;
+    private PlaybackOperations playbackOperations;
     @Mock
     private PlayQueue playQueue;
 
@@ -42,7 +42,7 @@ public class PlayerTrackPagerAdapterTest {
     @Before
     public void setUp() throws Exception {
         // TODO remove the override when we move to Robolectric 2
-        adapter = new PlayerTrackPagerAdapter(trackStorage) {
+        adapter = new PlayerTrackPagerAdapter(playbackOperations) {
             @Override
             protected PlayerQueueView createPlayerQueueView(Context context) {
                 return playerQueueView;
@@ -72,7 +72,7 @@ public class PlayerTrackPagerAdapterTest {
     @Test
     public void shouldCreateNewPlayerTrackViewFromPlayQueueItem() {
         final Observable<Track> trackObservable = Observable.just(new Track());
-        when(trackStorage.getTrackAsync(123L)).thenReturn(trackObservable);
+        when(playbackOperations.loadTrackForPlayback(123L)).thenReturn(trackObservable);
 
         expect((PlayerQueueView) adapter.getView(123L, null, mock(ViewGroup.class))).toBe(playerQueueView);
         verify(playerQueueView).showTrack(refEq(trackObservable), anyInt(), anyBoolean());

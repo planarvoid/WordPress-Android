@@ -7,9 +7,9 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.adapter.BasePagerAdapter;
-import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.PlayQueue;
+import com.soundcloud.android.utils.PlaybackOperations;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -25,16 +25,16 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
     private int mCommentingPosition = -1;
 
     private final BiMap<PlayerQueueView, Integer> mQueueViewsByPosition = HashBiMap.create(3);
+    private final PlaybackOperations mPlaybackOperations;
 
-    private TrackStorage mTrackStorage;
     private PlayQueue mPlayQueue = PlayQueue.EMPTY;
 
     public PlayerTrackPagerAdapter() {
-        this(new TrackStorage());
+        this(new PlaybackOperations());
     }
 
-    public PlayerTrackPagerAdapter(TrackStorage trackStorage) {
-        mTrackStorage = trackStorage;
+    public PlayerTrackPagerAdapter(PlaybackOperations playbackOperations) {
+        mPlaybackOperations = playbackOperations;
     }
 
     public Collection<PlayerTrackView> getPlayerTrackViews() {
@@ -130,7 +130,8 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
             queueView.showEmptyViewWithState(mPlayQueue.getAppendState());
         } else {
             playQueuePosition = mPlayQueue.getPositionOfTrackId(id);
-            queueView.showTrack(mTrackStorage.getTrackAsync(id), playQueuePosition, mCommentingPosition == playQueuePosition);
+            queueView.showTrack(mPlaybackOperations.loadTrackForPlayback(id),
+                    playQueuePosition, mCommentingPosition == playQueuePosition);
         }
         mQueueViewsByPosition.forcePut(queueView, playQueuePosition);
         return convertView;
@@ -179,7 +180,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
             if (id == EMPTY_VIEW_ID) {
                 playerQueueView.showEmptyViewWithState(mPlayQueue.getAppendState());
             } else {
-                playerQueueView.showTrack(mTrackStorage.getTrackAsync(id), position, mCommentingPosition == position);
+                playerQueueView.showTrack(mPlaybackOperations.loadTrackForPlayback(id), position, mCommentingPosition == position);
             }
         }
     }

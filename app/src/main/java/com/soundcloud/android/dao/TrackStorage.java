@@ -42,7 +42,20 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
         mModelManager = modelManager;
     }
 
-    public boolean markTrackAsPlayed(Track track) {
+    public Observable<Track> createPlayImpressionAsync(final Track track) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Track>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super Track> observer) {
+                if (createPlayImpression(track)) {
+                    observer.onNext(track);
+                }
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
+    }
+
+    public boolean createPlayImpression(Track track) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBHelper.TrackMetadata._ID, track.getId());
         return mResolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;

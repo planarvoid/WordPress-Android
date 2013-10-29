@@ -16,6 +16,8 @@ import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import rx.Observable;
+import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +26,7 @@ import android.net.Uri;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class PlaybackOperations {
+public class PlaybackOperations {
 
     private ScModelManager mModelManager;
     private TrackStorage mTrackStorage;
@@ -93,6 +95,14 @@ public final class PlaybackOperations {
         } else {
             throw new AssertionError("Unexpected playable type");
         }
+    }
+
+    public Observable<Track> loadTrackForPlayback(long trackId) {
+        return mTrackStorage.getTrackAsync(trackId).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Observable<Track> markTrackAsPlayed(Track track) {
+        return mTrackStorage.createPlayImpressionAsync(track);
     }
 
     private void playFromInfo(Context context, PlayInfo playInfo) {
