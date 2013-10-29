@@ -103,7 +103,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 
         PlaylistStorage playlistStorage = getPlaylistStorage();
         // insert the new playlist into the database
-        playlistStorage.createNewUserPlaylist(
+        playlistStorage.createNewUserPlaylistAsync(
                 loggedInUser,
                 String.valueOf(text),
                 isPrivate,

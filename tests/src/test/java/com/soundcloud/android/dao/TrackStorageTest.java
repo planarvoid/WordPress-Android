@@ -37,7 +37,7 @@ public class TrackStorageTest {
         List<Track> allTracks = TestHelper.loadLocalContent(Content.TRACKS.uri, Track.class);
         expect(allTracks).toNumber(1);
 
-        Track played = storage.getTrack(track.getId()).toBlockingObservable().last();
+        Track played = storage.getTrackAsync(track.getId()).toBlockingObservable().last();
         expect(played.local_user_playback_count).toEqual(PLAYS);
     }
 }

@@ -44,40 +44,6 @@ public class PlaylistStorageTest {
     }
 
     @Test
-    public void shouldGetPlaylistWithTracks() {
-        TestHelper.insertWithDependencies(playlist);
-
-        Playlist p = storage.loadPlaylistWithTracks(playlist.getId()).toBlockingObservable().lastOrDefault(null);
-
-        expect(p).not.toBeNull();
-        expect(p).toEqual(playlist);
-        expect(p.user.username).toEqual("Natalie");
-        expect(playlist.tracks).toEqual(p.tracks);
-    }
-
-// TODO: Do we actually need update functionality for playlists?
-//    @Test
-//    public void shouldUpdatePlaylistAndTracks() throws Exception {
-//        TestHelper.insertWithDependencies(playlist);
-//        expect(Content.TRACKS).toHaveCount(41);
-//        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(41);
-//        expect(playlist.title).not.toEqual("new title");
-//
-//        playlist.title = "new title";
-//        playlist.tracks.remove(0);
-//
-//        expect(storage.update(playlist)).toBeTrue();
-//
-//        expect(Content.TRACKS).toHaveCount(41); // should not remove from Sounds table
-//        expect(Content.PLAYLIST_ALL_TRACKS).toHaveCount(40); // should remove from join table
-//
-//        Playlist p3 = TestHelper.loadLocalContent(playlist.toUri(), Playlist.class).get(0);
-//
-//        expect(p3).not.toBeNull();
-//        expect(p3.title).toEqual("new title");
-//    }
-
-    @Test
     public void shouldGetPlaylistsCreatedByUser() {
         final List<Track> tracks = createTracks(2);
         TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
@@ -99,7 +65,7 @@ public class PlaylistStorageTest {
             expect(insert).not.toBeNull();
         }
 
-        Playlist p2 = storage.loadPlaylistWithTracks(playlist.getId()).toBlockingObservable().lastOrDefault(null);
+        Playlist p2 = TestHelper.loadPlaylist(playlist.getId());
 
         expect(p2).not.toBeNull();
         expect(p2.tracks.size()).toEqual(43);

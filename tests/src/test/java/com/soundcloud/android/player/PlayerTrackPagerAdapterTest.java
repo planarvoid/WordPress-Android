@@ -72,7 +72,7 @@ public class PlayerTrackPagerAdapterTest {
     @Test
     public void shouldCreateNewPlayerTrackViewFromPlayQueueItem() {
         final Observable<Track> trackObservable = Observable.just(new Track());
-        when(trackStorage.getTrack(123L)).thenReturn(trackObservable);
+        when(trackStorage.getTrackAsync(123L)).thenReturn(trackObservable);
 
         expect((PlayerQueueView) adapter.getView(123L, null, mock(ViewGroup.class))).toBe(playerQueueView);
         verify(playerQueueView).showTrack(refEq(trackObservable), anyInt(), anyBoolean());

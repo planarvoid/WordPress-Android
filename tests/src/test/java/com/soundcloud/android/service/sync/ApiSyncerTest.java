@@ -280,14 +280,13 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.PLAYLISTS).toHaveCount(1);
 
-        Playlist p = playlistStorage.loadPlaylistWithTracks(2524386l).toBlockingObservable().lastOrDefault(null);
+        Playlist playlist = TestHelper.loadPlaylist(2524386);
 
+        expect(playlist.title).toEqual("fall into fall");
+        expect(playlist.getTrackCount()).toEqual(41);
+        expect(playlist.tracks).not.toBeNull();
 
-        expect(p.title).toEqual("fall into fall");
-        expect(p.getTrackCount()).toEqual(41);
-        expect(p.tracks).not.toBeNull();
-
-        final Track track = p.tracks.get(10);
+        final Track track = playlist.tracks.get(10);
         expect(track.title).toEqual("Mozart Parties - Where Has Everybody Gone (Regal Safari Remix)");
         expect(track.user).not.toBeNull();
         expect(track.user.username).toEqual("Regal Safari");
@@ -313,7 +312,7 @@ public class ApiSyncerTest {
         expect(result.change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.TRACKS).toHaveCount(44);
 
-        Playlist p = playlistStorage.loadPlaylistWithTracks(playlist.getId()).toBlockingObservable().lastOrDefault(null);
+        Playlist p = TestHelper.loadPlaylist(playlist.getId());
         expect(p.tracks.size()).toBe(43);
         expect(p.tracks.get(1).title).toEqual("recording on thursday afternoon");
     }
