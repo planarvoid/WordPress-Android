@@ -2,6 +2,7 @@ package com.soundcloud.android.fragment;
 
 import com.github.espiandev.showcaseview.ShowcaseView;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -11,6 +12,7 @@ import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -70,12 +72,28 @@ public class NavigationDrawerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
-        }
-
-        selectItem(mCurrentSelectedPosition);
         setHasOptionsMenu(true);
+        if (savedInstanceState != null) {
+            selectItem(savedInstanceState.getInt(STATE_SELECTED_POSITION));
+
+        } else if (!handleIntent(getActivity().getIntent())){
+            selectItem(mCurrentSelectedPosition);
+        }
+    }
+
+    public boolean handleIntent(Intent intent){
+        final String action = intent.getAction();
+        if (ScTextUtils.isNotBlank(action)){
+            if (Actions.STREAM.equals(action)){
+                selectItem(NavItem.STREAM.ordinal());
+                return true;
+
+            } else if (Actions.YOUR_LIKES.equals(action)){
+                selectItem(NavItem.LIKES.ordinal());
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

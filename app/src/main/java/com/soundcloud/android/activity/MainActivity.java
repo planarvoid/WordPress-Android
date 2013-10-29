@@ -75,6 +75,14 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        mNavigationDrawerFragment.handleIntent(intent);
+        // the title/selection may have changed as a result of this intent, so store the new title to prevent overwriting
+        mLastTitle = getTitle();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (!mAccountOperations.soundCloudAccountExists()) {

@@ -57,11 +57,18 @@
             </intent-filter>
         </activity>
 
-        <activity android:label="@string/side_menu_stream" android:name=".activity.MainActivity" android:theme="@style/Theme.SoundCloud">
+        <activity android:label="@string/side_menu_stream" android:name=".activity.MainActivity" android:theme="@style/Theme.SoundCloud"
+                  android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.STREAM"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_LIKES"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+
             <intent-filter android:priority="10">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -178,10 +185,6 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.YOUR_SOUNDS"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_LIKES"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>

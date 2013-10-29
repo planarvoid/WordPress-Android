@@ -109,6 +109,18 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             case PLAYLIST:
                 upIntent = new Intent(Actions.PLAYLIST).setData(uri);
                 break;
+
+            case ME_SOUND_STREAM:
+                upIntent = new Intent(Actions.STREAM);
+                break;
+
+            case ME_SOUNDS:
+                upIntent = new Intent(Actions.YOUR_SOUNDS);
+                break;
+
+            case ME_LIKES:
+                upIntent = new Intent(Actions.YOUR_LIKES);
+                break;
         }
 
         if (upIntent != null){
