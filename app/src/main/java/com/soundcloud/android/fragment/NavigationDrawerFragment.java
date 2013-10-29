@@ -31,6 +31,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.EnumSet;
+
 public class NavigationDrawerFragment extends Fragment {
 
     private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
@@ -46,6 +48,23 @@ public class NavigationDrawerFragment extends Fragment {
     private ShowcaseView mCurrentMenuShowcase;
 
     private ProfileViewHolder mProfileViewHolder;
+
+    public enum NavItem {
+        PROFILE(R.string.side_menu_profile),
+        STREAM(R.string.side_menu_stream),
+        EXPLORE(R.string.side_menu_explore),
+        LIKES(R.string.side_menu_likes),
+        PLAYLISTS(R.string.side_menu_playlists);
+
+        private final int textId;
+        private NavItem(int textId){
+            this.textId = textId;
+        }
+    }
+
+    // normal rows (below profile)
+    private static final EnumSet<NavItem> TEXT_NAV_ITEMS =
+            EnumSet.of(NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,16 +100,17 @@ public class NavigationDrawerFragment extends Fragment {
 
         configureProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser());
 
+        int i = 0;
+        String[] rows = new String[TEXT_NAV_ITEMS.size()];
+        for (NavItem textItem : TEXT_NAV_ITEMS){
+            rows[i++] = getString(textItem.textId);
+        }
+
         mDrawerListView.setAdapter(new ArrayAdapter<String>(
                 getActionBar().getThemedContext(),
                 R.layout.nav_drawer_item,
                 R.id.nav_item_text,
-                new String[]{
-                        getString(R.string.side_menu_stream),
-                        getString(R.string.side_menu_explore),
-                        getString(R.string.side_menu_likes),
-                        getString(R.string.side_menu_playlists)
-                }));
+                rows));
 
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;

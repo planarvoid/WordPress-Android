@@ -91,24 +91,21 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-
-        Fragment fragment = null;
-        String fragmentTag = null;
-        switch(position){
-            case 0:
+        switch (NavigationDrawerFragment.NavItem.values()[position]){
+            case PROFILE:
                 startActivity(new Intent(this, You.class));
                 break;
 
-            case 1:
+            case STREAM:
                 final Uri contentUri = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true) ?
                         Content.ME_SOUND_STREAM.uri :
                         Content.ME_SOUND_STREAM.uri.buildUpon()
                                 .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
-                fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
+                Fragment fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
                 attachFragment(fragment, "stream_fragment");
                 break;
 
-            case 2:
+            case EXPLORE:
                 fragment = getSupportFragmentManager().findFragmentByTag("explore_fragment");
                 if (fragment ==  null){
                     fragment = new ExploreFragment();
@@ -116,12 +113,12 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
                 attachFragment(fragment, "explore_fragment");
                 break;
 
-            case 3:
+            case LIKES:
                 fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
                 attachFragment(fragment, "likes_fragment");
                 break;
 
-            case 4:
+            case PLAYLISTS:
                 fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
                 attachFragment(fragment, "playlists_fragment");
                 break;
