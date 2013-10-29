@@ -25,9 +25,14 @@ import rx.Observer;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+
+import java.io.IOException;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AccountOperationsTest {
@@ -274,9 +279,13 @@ public class AccountOperationsTest {
     }
 
     @Test
-    @Ignore("SCApplication needs more refactoring")
-    public void shouldReturnObservableWithAccountRemovalFunction(){
+    public void shouldReturnObservableWithAccountRemovalFunction() throws Exception {
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
+
+        AccountManagerFuture future = mock(AccountManagerFuture.class);
+        when(future.getResult()).thenReturn(Boolean.TRUE);
+        when(accountManager.removeAccount(scAccount, null, null)).thenReturn(future);
+
         accountOperations.removeSoundCloudAccount().subscribe(observer);
         verify(observer).onCompleted();
     }
