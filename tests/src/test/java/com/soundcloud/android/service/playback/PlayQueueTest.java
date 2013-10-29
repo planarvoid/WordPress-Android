@@ -3,6 +3,7 @@ package com.soundcloud.android.service.playback;
 import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class PlayQueueTest {
                 .originUrl("url/123")
                 .recommenderVersion("version1")
                 .build();
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L,2L,3L), 0, playSourceInfo);
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L,2L,3L), 0, playSourceInfo, Content.ME_LIKES.uri);
         playQueue.setAppendState(PlayQueue.AppendState.IDLE);
 
         Parcel parcel = Parcel.obtain();
@@ -31,6 +32,7 @@ public class PlayQueueTest {
         expect(copy.getPosition()).toBe(0);
         expect(copy.getAppendState()).toEqual(PlayQueue.AppendState.IDLE);
         expect(copy.getPlaySourceInfo()).toEqual(playSourceInfo);
+        expect(copy.getSourceUri()).toEqual(Content.ME_LIKES.uri);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.playback;
 
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Longs;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -23,12 +25,12 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
     private List<Long> mTrackIds = Collections.emptyList();
     private AppendState mAppendState = AppendState.IDLE;
     private PlaySourceInfo mPlaySourceInfo = PlaySourceInfo.EMPTY;
-    private Uri mSourceUri; // just for "back to set" functionality in the Action Bar
+    private Uri mSourceUri = Uri.EMPTY; // just for "back to set" functionality in the Action Bar
 
     public enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
-    }
 
+    }
     public PlayQueue(Long id) {
         mTrackIds = Lists.newArrayList(id);
         mPosition = 0;
@@ -44,8 +46,14 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
         mPlaySourceInfo = playSourceInfo;
     }
 
-    public PlayQueue(List<Long> currentTrackIds, int playPosition, AppendState appendState) {
-        this(currentTrackIds, playPosition, PlaySourceInfo.EMPTY);
+    public PlayQueue(List<Long> currentTrackIds, int playPosition, PlaySourceInfo playSourceInfo, Uri sourceUri) {
+        this(currentTrackIds, playPosition, playSourceInfo);
+        mSourceUri = sourceUri;
+    }
+
+    @VisibleForTesting
+    public PlayQueue(ArrayList<Long> trackIds, int playPosition, AppendState appendState) {
+        this(trackIds, playPosition, PlaySourceInfo.EMPTY);
         mAppendState = appendState;
     }
 
@@ -59,6 +67,7 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
 
         mPosition = in.readInt();
         mAppendState = AppendState.valueOf(in.readString());
+        mSourceUri = in.readParcelable(Uri.class.getClassLoader());
         mPlaySourceInfo = new PlaySourceInfo(in.readBundle());
     }
 
@@ -175,6 +184,7 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
         dest.writeLongArray(Longs.toArray(mTrackIds));
         dest.writeInt(mPosition);
         dest.writeString(mAppendState.name());
+        dest.writeParcelable(mSourceUri, 0);
         dest.writeBundle(mPlaySourceInfo.getData());
     }
 

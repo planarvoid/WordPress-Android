@@ -129,7 +129,7 @@ public class PlaybackOperations {
             mTrackStorage.getTrackIdsForUriAsync(info.uri).subscribe(new DefaultObserver<List<Long>>() {
                 @Override
                 public void onNext(List<Long> idList) {
-                    intent.putExtra(PlayQueue.EXTRA, new PlayQueue(idList, info.position, info.sourceInfo));
+                    intent.putExtra(PlayQueue.EXTRA, new PlayQueue(idList, info.position, info.sourceInfo, info.uri));
                     context.startService(intent);
                 }
             });
