@@ -20,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 
+// TODO This will be migrated to an Operations class and use RxJava instead of intents
+@Deprecated
 public class AssociationManager {
     private Context mContext;
     private ScModelManager mModelManager;
