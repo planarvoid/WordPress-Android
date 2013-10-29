@@ -81,11 +81,6 @@ public class ActionBarController {
             setActionBarDefaultOptions(actionBar);
             final int menuResourceId = mOwner.getMenuResourceId();
             if (menuResourceId > 0) mOwner.getActivity().getMenuInflater().inflate(menuResourceId, menu);
-
-//            final MenuItem backToPlaylistItem = menu.findItem(R.id.menu_backToSet);
-//            if (backToPlaylistItem != null) {
-//                configureBackToPlaylistItem(backToPlaylistItem);
-//            }
         }
     }
 
@@ -94,18 +89,6 @@ public class ActionBarController {
             case R.id.action_enter_search:
                 toggleSearchMode();
                 return true;
-
-//            case R.id.menu_backToSet:
-//                final Intent intent = new Intent(mOwner.getActivity(), PlaylistDetailActivity.class);
-//                intent.putExtra(PlaylistDetailActivity.EXTRA_SCROLL_TO_PLAYING_TRACK, true);
-//                final Uri uri = CloudPlaybackService.getPlayQueueUri();
-//                if (Content.match(uri) == Content.PLAYLIST) {
-//                    intent.setData(uri);
-//                } else {
-//                    return false;
-//                }
-//                mOwner.getActivity().startActivity(intent);
-//                return true;
 
             case R.id.action_settings:
                 mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), Settings.class));
