@@ -2,7 +2,6 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.service.playback.PlayQueueManager.ResumeInfo;
 import static com.soundcloud.android.service.playback.State.COMPLETED;
-import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 import static com.soundcloud.android.service.playback.State.ERROR;
 import static com.soundcloud.android.service.playback.State.ERROR_RETRYING;
 import static com.soundcloud.android.service.playback.State.PAUSED;
@@ -26,7 +25,6 @@ import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
-import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.DefaultObserver;
@@ -48,9 +46,7 @@ import com.soundcloud.android.utils.PlaybackOperations;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.play.NotificationPlaybackRemoteViews;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
 import rx.android.concurrency.AndroidSchedulers;
-import rx.util.functions.Action1;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -472,7 +468,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     // TODO : Handle tracks that are not in local storage (quicksearch)
     /* package */ void openCurrent(final Media.Action action) {
         final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
-        mPlaybackOperations.loadTrackForPlayback(currentTrackId).subscribe(new DefaultObserver<Track>() {
+        mPlaybackOperations.loadTrack(currentTrackId).subscribe(new DefaultObserver<Track>() {
             @Override
             public void onNext(Track track) {
                 openCurrent(track, action);

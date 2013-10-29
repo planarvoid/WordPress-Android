@@ -97,7 +97,7 @@ public class PlaybackOperations {
         }
     }
 
-    public Observable<Track> loadTrackForPlayback(long trackId) {
+    public Observable<Track> loadTrack(long trackId) {
         return mTrackStorage.getTrackAsync(trackId).observeOn(AndroidSchedulers.mainThread());
     }
 

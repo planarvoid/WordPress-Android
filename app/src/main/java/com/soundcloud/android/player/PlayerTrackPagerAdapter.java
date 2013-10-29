@@ -130,7 +130,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
             queueView.showEmptyViewWithState(mPlayQueue.getAppendState());
         } else {
             playQueuePosition = mPlayQueue.getPositionOfTrackId(id);
-            queueView.showTrack(mPlaybackOperations.loadTrackForPlayback(id),
+            queueView.showTrack(mPlaybackOperations.loadTrack(id),
                     playQueuePosition, mCommentingPosition == playQueuePosition);
         }
         mQueueViewsByPosition.forcePut(queueView, playQueuePosition);
@@ -180,7 +180,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
             if (id == EMPTY_VIEW_ID) {
                 playerQueueView.showEmptyViewWithState(mPlayQueue.getAppendState());
             } else {
-                playerQueueView.showTrack(mPlaybackOperations.loadTrackForPlayback(id), position, mCommentingPosition == position);
+                playerQueueView.showTrack(mPlaybackOperations.loadTrack(id), position, mCommentingPosition == position);
             }
         }
     }

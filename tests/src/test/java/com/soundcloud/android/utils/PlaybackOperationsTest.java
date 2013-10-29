@@ -217,7 +217,7 @@ public class PlaybackOperationsTest {
         when(observable.observeOn(any(Scheduler.class))).thenReturn(observable);
 
         Observer<Track> observer = mock(Observer.class);
-        playbackOperations.loadTrackForPlayback(1L).subscribe(observer);
+        playbackOperations.loadTrack(1L).subscribe(observer);
 
         verify(observable).observeOn(AndroidSchedulers.mainThread());
         verify(observable).subscribe(observer);
