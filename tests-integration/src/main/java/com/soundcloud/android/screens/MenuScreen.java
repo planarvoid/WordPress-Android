@@ -20,8 +20,7 @@ public class MenuScreen {
     }
 
     public void logout() {
-        solo.clickOnView(R.id.home);
-        solo.clickOnMenuItem(R.string.side_menu_settings);
+        solo.clickOnActionBarItem(R.id.action_settings);
         solo.clickOnText(R.string.pref_revoke_access);
         solo.assertText(R.string.menu_clear_user_title);
         solo.clickOnOK();
