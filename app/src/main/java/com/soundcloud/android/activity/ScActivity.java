@@ -119,12 +119,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         ((ViewGroup) findViewById(R.id.content_frame)).addView(layout);
     }
 
-    static Intent getNavIntent(Context c, Class activity) {
-        return new Intent(c, activity)
-                .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
