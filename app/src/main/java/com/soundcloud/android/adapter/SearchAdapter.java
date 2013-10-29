@@ -3,7 +3,7 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.utils.PlaybackOperations;
 import com.soundcloud.android.view.adapter.IconLayout;
 import com.soundcloud.android.view.adapter.PlayableRow;
 import com.soundcloud.android.view.adapter.UserlistRow;
@@ -17,11 +17,11 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
 
     private static final int TYPE_TRACK = 0;
     private static final int TYPE_USER = 1;
-    private PlayUtils mPlayUtils;
+    private PlaybackOperations mPlaybackOperations;
 
     public SearchAdapter(Uri uri) {
         super(uri);
-        mPlayUtils = new PlayUtils();
+        mPlaybackOperations = new PlaybackOperations();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
         int type = getItemViewType(position);
         switch (type) {
             case TYPE_TRACK:
-                mPlayUtils.playFromAdapter(context, mData, position, null);
+                mPlaybackOperations.playFromAdapter(context, mData, position, null);
                 return ItemClickResults.LEAVING;
             case TYPE_USER:
                 context.startActivity(new Intent(context, UserBrowser.class).putExtra(UserBrowser.EXTRA_USER, getItem(position)));

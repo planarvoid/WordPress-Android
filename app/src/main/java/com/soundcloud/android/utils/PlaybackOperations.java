@@ -24,16 +24,16 @@ import android.net.Uri;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class PlayUtils {
+public final class PlaybackOperations {
 
     private ScModelManager mModelManager;
     private TrackStorage mTrackStorage;
 
-    public PlayUtils() {
+    public PlaybackOperations() {
         this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage());
     }
 
-    public PlayUtils(ScModelManager modelManager, TrackStorage trackStorage) {
+    public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage) {
         mModelManager = modelManager;
         mTrackStorage = trackStorage;
     }
@@ -95,7 +95,7 @@ public final class PlayUtils {
         }
     }
 
-    private void playFromInfo(Context context, PlayInfo playInfo){
+    private void playFromInfo(Context context, PlayInfo playInfo) {
         mModelManager.cache(playInfo.initialTrack);
 
         // intent for player activity
@@ -116,13 +116,13 @@ public final class PlayUtils {
         intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, info.sourceInfo);
 
         if (info.isStoredCollection()) {
-             mTrackStorage.getTrackIdsForUriAsync(info.uri).subscribe(new DefaultObserver<List<Long>>() {
-                 @Override
-                 public void onNext(List<Long> idList) {
-                     intent.putExtra(PlayQueue.EXTRA, new PlayQueue(idList, info.position, info.sourceInfo));
-                     context.startService(intent);
-                 }
-             });
+            mTrackStorage.getTrackIdsForUriAsync(info.uri).subscribe(new DefaultObserver<List<Long>>() {
+                @Override
+                public void onNext(List<Long> idList) {
+                    intent.putExtra(PlayQueue.EXTRA, new PlayQueue(idList, info.position, info.sourceInfo));
+                    context.startService(intent);
+                }
+            });
 
         } else {
             final List<Long> idList = Lists.transform(info.initialTracklist, new Function<Track, Long>() {
@@ -169,7 +169,7 @@ public final class PlayUtils {
             return playInfo;
         }
 
-        public boolean isStoredCollection(){
+        public boolean isStoredCollection() {
             return uri != null;
         }
     }

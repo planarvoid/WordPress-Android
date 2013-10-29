@@ -15,7 +15,7 @@ import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
-import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.utils.PlaybackOperations;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observer;
 import rx.Subscription;
@@ -40,7 +40,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private EmptyListView mEmptyListView;
     private ExploreTracksAdapter mAdapter;
     private ExploreTracksObserver mObserver;
-    private PlayUtils mPlayUtils;
+    private PlaybackOperations mPlaybackOperations;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
@@ -54,7 +54,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     }
 
     public ExploreTracksFragment() {
-        mPlayUtils = new PlayUtils();
+        mPlaybackOperations = new PlaybackOperations();
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mAdapter.getItem(position));
-        mPlayUtils.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag());
+        mPlaybackOperations.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag());
     }
 
     @Override
