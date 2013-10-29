@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_height="fill_parent"
-              android:gravity="fill_horizontal"
-              android:layout_width="fill_parent"
-              android:layout_weight="1">
-    <include layout="@layout/action_bar_common"/>
-    <RelativeLayout android:layout_height="fill_parent"
+              android:gravity="fill_horizontal|right"
+              android:layout_width="fill_parent">
+    <TextView android:id="@+id/title"
+              android:layout_marginLeft="8dip"
+              android:gravity="center_vertical|left"
+              android:layout_width="0dp"
+              android:layout_height="fill_parent"
+              android:singleLine="true"
+              android:ellipsize="end"/>
+    <LinearLayout android:id="@+id/waveform_holder"
+                    android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_alignParentRight="true"
-                    android:background="@drawable/action_bar_item_selector"
-                    android:id="@id/waveform_holder"
-
+                    android:gravity="center"
+                    android:background="@drawable/action_item_background_selector"
                     android:contentDescription="@string/accessibility_action_bar_waveform">
         <com.soundcloud.android.view.NowPlayingIndicator android:id="@+id/waveform_progress"
                                                          android:layout_width="62dp"
@@ -20,5 +23,5 @@
                                                          android:layout_marginLeft="13dp"
                                                          android:layout_marginRight="11dp"
                                                          style="@android:style/Widget.ProgressBar.Horizontal"/>
-    </RelativeLayout>
-</RelativeLayout>
+    </LinearLayout>
+</LinearLayout>

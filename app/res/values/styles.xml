@@ -2,12 +2,57 @@
 
 <resources>
 
+    <style name="ListView" parent="@android:style/Widget.ListView">
+        <item name="android:divider">@drawable/divider_list_grey</item>
+        <item name="android:dividerHeight">1px</item>
+        <item name="android:listSelector">@drawable/nav_drawer_list_selector</item>
+    </style>
+
+    <style name="DialogStyleLight">
+        <item name="titleTextColor">@color/dialog_title</item>
+        <item name="titleSeparatorColor">@color/dialog_separator</item>
+        <item name="buttonBackgroundColorPressed">@color/dialog_button_pressed</item>
+        <item name="buttonBackgroundColorFocused">@color/dialog_button_focused</item>
+    </style>
+
+    <style name="DialogListView" parent="SDL.ListView">
+        <item name="android:divider">@drawable/divider_list_grey</item>
+        <item name="android:dividerHeight">1px</item>
+        <item name="android:listSelector">@drawable/nav_drawer_list_selector</item>
+    </style>
+
+    <style name="Animation.Popup">
+        <item name="@android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="@android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item>
+    </style>
+
+    <style name="DropDownListView" parent="@style/Widget.AppCompat.ListView.DropDown">
+        <item name="android:listSelector">@drawable/action_item_background_selector</item>
+    </style>
+
+    <style name="DropDownNav" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
+        <item name="android:dropDownSelector">@drawable/action_item_background_selector</item>
+    </style>
+
+    <style name="PopupMenu" parent="@style/Widget.AppCompat.PopupMenu" />
+
     <!-- ****** Dialogs ****** -->
 
     <style name="Dialog" parent="android:Theme.Dialog">
         <item name="android:windowBackground">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <style name="SelectGoogleAccountDialogTheme" parent="android:Theme.Dialog">
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="Theme.FramelessDialog" parent="Theme.ScDialog">
@@ -61,16 +106,6 @@
         <item name="clipPadding">16dp</item>
     </style>
 
-    <style name="Widget.Light.AutoCompleteTextView" parent="Widget.Sherlock.Light.SearchAutoCompleteTextView">
-        <item name="android:textAppearance">@style/TextAppearance.Light.AutoCompleteTextView</item>
-    </style>
-
-    <style name="Widget.Light.DropDownItem" parent="Widget.Sherlock.Light.DropDownItem.Spinner">
-        <!-- DO NOT PUT THIS IN A TEXT APPEARNCE ITEM, THE TEXT COLOR WILL NOT WORK, I DONT KNOW WHY [JS] -->
-        <item name="android:textColor">?textColorPrimaryInverse</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">normal</item>
-    </style>
 
     <style name="Widget.TextView" />
 
@@ -85,25 +120,27 @@
         <item name="android:background">@drawable/player_track_vert_separator_bg</item>
         <item name="android:layout_width">2dp</item>
         <item name="android:layout_height">38dp</item>
+        <item name="android:layout_centerVertical">true</item>
     </style>
 
     <style name="PlayerAction">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">@dimen/btn_height</item>
+        <item name="android:layout_height">@dimen/btn_min_height</item>
         <item name="android:textSize">@dimen/btn_text_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:gravity">center</item>
-        <item name="android:paddingLeft">5dp</item>
-        <item name="android:paddingRight">5dp</item>
+        <item name="android:paddingLeft">@dimen/btn_padding</item>
+        <item name="android:paddingRight">@dimen/btn_padding</item>
     </style>
 
     <style name="PlayerAction.ToggleButton">
         <item name="android:layout_gravity">left|center</item>
-        <item name="android:background">@drawable/toggle_player_action_states</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:background">@drawable/btn_player_toggle_states</item>
         <item name="android:minWidth">72dp</item>
-        <item name="android:paddingLeft">11dp</item>
-        <item name="android:paddingRight">11dp</item>
         <item name="android:drawablePadding">6dp</item>
+        <item name="android:textOn"></item>
+        <item name="android:textOff"></item>
     </style>
 
     <style name="PlayerAction.ToggleButton.Like">
@@ -120,16 +157,17 @@
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
         <item name="android:layout_width">50dp</item>
+        <item name="android:minHeight">48dp</item>
     </style>
 
     <style name="PlayerAction.Button.AddToSet">
         <item name="android:src">@drawable/ic_add_to_set</item>
-        <item name="android:background">@drawable/btn_follow_dark_off_states</item>
+        <item name="android:background">@drawable/btn_default_states</item>
     </style>
 
     <style name="PlayerAction.Button.Share">
         <item name="android:src">@drawable/ic_share</item>
-        <item name="android:background">@drawable/btn_follow_dark_off_states</item>
+        <item name="android:background">@drawable/btn_default_states</item>
     </style>
 
     <style name="PlayerAction.Button.Info">
@@ -143,27 +181,19 @@
         <item name="android:textOff">@string/info</item>
     </style>
 
-    <style name="UserFollowButton" parent="PlayerAction">
-        <item name="android:layout_height">@dimen/btn_height</item>
-    </style>
-
-    <style name="UserFollowButton.Off">
-        <item name="android:background">@drawable/toggle_user_follow_off_states</item>
-        <item name="android:textColor">@drawable/txt_btn_light_states</item>
-        <item name="android:text">@string/btn_follow</item>
-    </style>
-
-    <style name="UserFollowButton.On">
-        <item name="android:background">@drawable/toggle_user_follow_on_states</item>
-        <item name="android:textColor">@drawable/txt_btn_blue_states</item>
-        <item name="android:text">@string/btn_following</item>
-    </style>
-
-    <style name="UserFollowButton.UserBrowser">
-        <item name="android:background">@drawable/toggle_user_follow_states</item>
+    <style name="UserBrowser"/>
+    <style name="UserBrowser.ToggleButton" parent="PlayerAction">
+        <item name="android:minHeight">@dimen/follow_btn_height</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/btn_text_size</item>
+        <item name="android:background">@drawable/btn_default_states</item>
         <item name="android:textColor">@drawable/toggle_txt_user_follow_states</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
+    </style>
+
+    <style name="UserBrowser.ToggleButton.Follow">
+        <item name="android:id">@id/toggle_btn_follow</item>
         <item name="android:textOn">@string/btn_following</item>
         <item name="android:textOff">@string/btn_follow</item>
     </style>
@@ -182,7 +212,7 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="OnboardActionButtonStyle" parent="Widget.Sherlock.ActionButton">
+    <style name="OnboardActionButtonStyle" parent="Widget.AppCompat.ActionButton">
         <item name="android:paddingLeft">20dip</item>
         <item name="android:paddingRight">20dip</item>
         <item name="android:paddingTop">0dp</item>
@@ -346,7 +376,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">10dp</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceLargeInverse</item>
         <item name="android:textColorLink">@drawable/txt_blue_states</item>
     </style>
 
@@ -362,7 +392,7 @@
         <item name="android:layout_marginBottom">10dp</item>
 
         <item name="android:gravity">center</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:textColorLink">@drawable/txt_blue_states</item>
     </style>
 
@@ -488,8 +518,11 @@
         <item name="android:paddingRight">12dip</item>
     </style>
 
-    <style name="Divider.PlayerTrackInfo">
+    <style name="Player.TrackInfo.Separator">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
         <item name="android:layout_alignWithParentIfMissing">true</item>
+        <item name="android:background">?android:attr/listDivider</item>
     </style>
 
     <!-- Standard animations for a non-full-screen window or activity. -->
@@ -576,6 +609,16 @@
         <item name="android:textSize">@dimen/tab_text_size</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textColor">@color/tab_indicator_text</item>
+    </style>
+
+    <style name="AddCommentEditText">
+        <item name="android:inputType">textMultiLine</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:imeOptions">actionDone</item>
+        <item name="android:background">@drawable/edit_text_holo_dark</item>
+        <item name="android:minLines">3</item>
     </style>
 
     <style name="txt_share_header">
@@ -1013,10 +1056,11 @@
     </style>
 
     <style name="PlayerActionContainer">
+        <item name="android:gravity">center_vertical</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
         <item name="android:background">@color/playerControlBackground</item>
     </style>
 
@@ -1262,11 +1306,7 @@
     </style>
 
     <style name="searchSuggestionText" parent="side_menu_item_text">
-        <item name="android:textColor">@color/light_gray_text</item>
-    </style>
-
-    <style name="pickPlaylistText" parent="side_menu_item_text">
-        <item name="android:textColor">@color/light_gray_text</item>
+        <item name="android:textColor">@color/gray_text</item>
     </style>
 
     <style name="SuggestedUserToggleButton">

@@ -1,11 +1,10 @@
 package com.soundcloud.android.dialog;
 
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.service.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
@@ -15,11 +14,13 @@ import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
-public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
+public class OnboardSuggestedUsersSyncFragment extends Fragment {
 
     private FollowingOperations mFollowingOperations;
     private Subscription mSubscription;
@@ -44,7 +45,14 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.list_loading_item, null);
+        RelativeLayout relativeLayout = new RelativeLayout(getActivity());
+        relativeLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        final View view = inflater.inflate(R.layout.list_loading_item, null);
+
+        final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        relativeLayout.addView(view, params);
+        return relativeLayout;
     }
 
     @Override
@@ -55,7 +63,7 @@ public class OnboardSuggestedUsersSyncFragment extends SherlockFragment {
 
     private void finish(boolean success) {
         final Intent intent = new Intent(Actions.STREAM);
-        intent.putExtra(Home.EXTRA_ONBOARDING_USERS_RESULT, success);
+        intent.putExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, success);
         startActivity(intent);
         getActivity().finish();
     }

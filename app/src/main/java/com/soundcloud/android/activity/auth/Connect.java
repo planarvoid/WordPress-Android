@@ -107,11 +107,6 @@ public class Connect extends ScActivity {
         mWebView.loadUrl(url);
     }
 
-    @Override
-    protected int getSelectedMenuId() {
-        return -1;
-    }
-
     private void removeAllCookies() {
         CookieSyncManager.createInstance(this);
         CookieManager.getInstance().removeAllCookie();

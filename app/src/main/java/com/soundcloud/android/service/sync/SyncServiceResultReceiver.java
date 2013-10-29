@@ -72,10 +72,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
         if (SyncConfig.isIncomingEnabled(app, extras)) {
             if (delta > frequency) {
                 final long lastStreamSeen = ContentStats.getLastSeen(app, Content.ME_SOUND_STREAM);
-                Activities activities = activitiesStorage
-                        .getCollectionSince(Content.ME_SOUND_STREAM.uri, lastStreamSeen)
-                        .toBlockingObservable()
-                        .lastOrDefault(Activities.EMPTY);
+                Activities activities = activitiesStorage.getCollectionSince(Content.ME_SOUND_STREAM.uri, lastStreamSeen);
                 maybeNotifyStream(app, activities);
 
             } else {
@@ -86,10 +83,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
         // deliver incoming activities, if the user has enabled this
         if (SyncConfig.isActivitySyncEnabled(app, extras)) {
             final long lastOwnSeen = ContentStats.getLastSeen(app, Content.ME_ACTIVITIES);
-            Activities activities = activitiesStorage
-                    .getCollectionSince(Content.ME_ACTIVITIES.uri, lastOwnSeen)
-                    .toBlockingObservable()
-                    .lastOrDefault(Activities.EMPTY);
+            Activities activities = activitiesStorage.getCollectionSince(Content.ME_ACTIVITIES.uri, lastOwnSeen);
             maybeNotifyActivity(app, activities, extras);
         }
 

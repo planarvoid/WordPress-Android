@@ -1,12 +1,13 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.auth.Onboard;
+import com.soundcloud.android.activity.auth.OnboardActivity;
+import com.soundcloud.android.fragment.NavigationDrawerFragment;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
-import com.soundcloud.android.view.MainMenu;
 
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class MenuScreen {
@@ -19,31 +20,30 @@ public class MenuScreen {
     }
 
     public void logout() {
-        solo.clickOnView(R.id.custom_home);
-        solo.clickOnMenuItem(R.string.side_menu_settings);
+        solo.clickOnActionBarItem(R.id.action_settings);
         solo.clickOnText(R.string.pref_revoke_access);
         solo.assertText(R.string.menu_clear_user_title);
         solo.clickOnOK();
-        solo.waitForActivity(Onboard.class);
+        solo.waitForActivity(OnboardActivity.class);
         solo.waitForViewId(R.id.tour_bottom_bar, 5000);
     }
 
-    public MainMenu rootMenu() {
-        return (MainMenu) solo.waitForViewId(R.id.root_menu, 20000);
+    public ListView rootMenu() {
+        return (ListView) solo.waitForViewId(R.id.nav_drawer_listview, 20000);
     }
 
     public View youMenu() {
-        return rootMenu().findViewById(R.id.nav_you);
+        return rootMenu().getChildAt(NavigationDrawerFragment.NavItem.PROFILE.ordinal());
     }
 
     public String getUserName() {
-        TextView you = (TextView) youMenu().findViewById(R.id.main_menu_item_text);
+        TextView you = (TextView) youMenu().findViewById(R.id.username);
         return you.getText().toString();
     }
 
     public void openExplore() {
-        View item = rootMenu().findViewById(R.id.nav_explore);
-        solo.clickOnView(R.id.custom_home);
+        View item = rootMenu().getChildAt(NavigationDrawerFragment.NavItem.EXPLORE.ordinal());
+        solo.clickOnView(R.id.home);
         solo.clickOnView(item);
         waiter.waitForListContent();
     }

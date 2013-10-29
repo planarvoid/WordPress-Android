@@ -67,7 +67,7 @@ public class SoundAssociationStorageTest {
         final List<Track> tracks = createTracks(2);
         Playlist p = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        SoundAssociation playlistCreation = storage.addCreation(p).toBlockingObservable().last();
+        SoundAssociation playlistCreation = storage.addCreation(p);
         expect(playlistCreation).not.toBeNull();
         expect(p.toUri()).not.toBeNull();
         expect(Content.ME_PLAYLISTS).toHaveCount(1);
@@ -206,7 +206,7 @@ public class SoundAssociationStorageTest {
 
         Track track = new Track(1L);
         track.created_at = new Date();
-        storage.addCreation(track).subscribe(ScActions.NO_OP);
+        storage.addCreation(track);
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/sounds/1");
     }
@@ -216,7 +216,7 @@ public class SoundAssociationStorageTest {
         ContentResolver contentResolver = DefaultTestRunner.application.getContentResolver();
 
         Playlist playlist = Playlist.newUserPlaylist(new User(1L), "playlist", false, Collections.<Track>emptyList());
-        storage.addCreation(playlist).subscribe(ScActions.NO_OP);
+        storage.addCreation(playlist);
 
         expect(contentResolver).toNotifyUri("content://com.soundcloud.android.provider.ScContentProvider/me/playlists/1");
     }

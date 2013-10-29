@@ -9,7 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
-public class WhoToFollowActivity extends ScActivity implements ScLandingPage{
+public class WhoToFollowActivity extends ScActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -17,7 +17,7 @@ public class WhoToFollowActivity extends ScActivity implements ScLandingPage{
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.SUGGESTED_USERS))
+                    .add(R.id.content_frame, ScListFragment.newInstance(Content.SUGGESTED_USERS))
                     .commit();
         }
     }
@@ -26,10 +26,5 @@ public class WhoToFollowActivity extends ScActivity implements ScLandingPage{
     public void setContentView(View layout) {
         super.setContentView(layout);
         layout.setBackgroundColor(Color.WHITE);
-    }
-
-    @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_suggested_users;
     }
 }

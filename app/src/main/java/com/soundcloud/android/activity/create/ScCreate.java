@@ -6,7 +6,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.landing.ScLandingPage;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
@@ -54,7 +53,7 @@ import java.util.Date;
 import java.util.List;
 
 @Tracking(page = Page.Record_main)
-public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, ScLandingPage {
+public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     public static final int REQUEST_UPLOAD_SOUND  = 1;
 
@@ -133,11 +132,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
         mSavedMessageLayout = (ViewGroup) findViewById(R.id.saved_message_layout);
         updateUi(CreateState.IDLE_RECORD, false);
         handleIntent();
-    }
-
-    @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_record;
     }
 
     @Override
@@ -995,9 +989,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener, 
         for (int i = 0; i < recordings.size(); i++) {
             if (checked[i]) {
                 DeprecatedRecordingProfile.migrate(recordings.get(i)); // migrate deprecated format, otherwise this is harmless
-                storage.create(recordings.get(i)).subscribe(ScActions.NO_OP);
+                storage.store(recordings.get(i));
             } else {
-                storage.delete(recordings.get(i)).subscribe(ScActions.NO_OP);
+                storage.delete(recordings.get(i));
             }
         }
         mUnsavedRecordings = null;

@@ -45,12 +45,6 @@ public class TracksByTag extends ScActivity {
     }
 
     @Override
-    protected int getSelectedMenuId() {
-        return -1;
-    }
-
-
-    @Override
     public void onResume() {
         super.onResume();
         // TODO TRACKING

@@ -18,7 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ActivityDAO extends BaseDAO<Activity> {
+/**
+ * Table object for activity model. Do not use outside this package; use {@link ActivitiesStorage} instead.
+ */
+/* package */ class ActivityDAO extends BaseDAO<Activity> {
 
     public ActivityDAO(ContentResolver resolver) {
         super(resolver);

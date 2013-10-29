@@ -81,6 +81,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     };
     public static final int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
     private final IAudioManager mAudioFocusManager;
+    private final RecordingStorage mRecordingStorage = new RecordingStorage();
 
 
     public enum State {
@@ -206,7 +207,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
 
         if (mRecording != null) {
-            if (deleteRecording) new RecordingStorage().delete(mRecording).subscribe(ScActions.NO_OP);
+            if (deleteRecording) mRecordingStorage.delete(mRecording);
             mRecording = null;
         }
     }
@@ -488,7 +489,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
             mRecording.setPlaybackStream(mPlaybackStream);
 
-            new RecordingStorage().createFromBaseValues(mRecording);
+            mRecordingStorage.createFromBaseValues(mRecording);
 
             final Uri uri = mRecording.toUri();
             if (uri != null) {

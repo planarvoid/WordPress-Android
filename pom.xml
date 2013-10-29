@@ -114,7 +114,7 @@
             <properties>
                 <build.type>debug</build.type>
                 <build.debuggable>true</build.debuggable>
-                <build.skipAspectWeaving>false</build.skipAspectWeaving>
+                <build.skipAspectWeaving>true</build.skipAspectWeaving>
                 <keystore.alias>androiddebugkey</keystore.alias>
                 <keystore.location>${project.basedir}/../debug.keystore</keystore.location>
                 <keystore.password>android</keystore.password>

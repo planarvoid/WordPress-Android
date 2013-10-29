@@ -1,17 +1,13 @@
 package com.soundcloud.android.activity.settings;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ActionBarController;
-import org.jetbrains.annotations.NotNull;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 
-public class Legal extends SherlockPreferenceActivity implements ActionBarController.ActionBarOwner {
+public class Legal extends PreferenceActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         addPreferencesFromResource(R.xml.legal);
     }
 
@@ -26,18 +22,9 @@ public class Legal extends SherlockPreferenceActivity implements ActionBarContro
         super.onPause();
     }
 
-    @NotNull
     @Override
-    public Activity getActivity() {
-        return this;
-    }
-
-    @Override
-    public int getMenuResourceId() {
-        return R.menu.main;
-    }
-
-    @Override
-    public void onHomePressed() {
+    public boolean onNavigateUp() {
+        finish();
+        return true;
     }
 }

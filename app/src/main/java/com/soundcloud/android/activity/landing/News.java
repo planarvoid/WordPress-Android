@@ -7,7 +7,7 @@ import com.soundcloud.android.provider.Content;
 
 import android.os.Bundle;
 
-public class News extends ScActivity implements ScLandingPage{
+public class News extends ScActivity {
 
     @Override
     protected void onCreate(Bundle state) {
@@ -16,12 +16,7 @@ public class News extends ScActivity implements ScLandingPage{
         if (state == null) {
             getSupportFragmentManager().beginTransaction()
                     //.add(mRootView.getContentHolderId(), ActivitiesFragment.create(Content.ME_ACTIVITIES)).commit();
-                    .add(mRootView.getContentHolderId(), ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
+                    .add(R.id.content_frame, ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
         }
-    }
-
-    @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_news;
     }
 }

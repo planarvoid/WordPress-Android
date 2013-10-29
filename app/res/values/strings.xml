@@ -37,6 +37,8 @@
     <string name="side_menu_friend_finder">Find friends</string>
     <string name="side_menu_who_to_follow">Who to follow</string>
 
+    <string name="side_menu_profile">Profile</string>
+
     <string name="list_header_track_reposters">People who reposted this sound</string>
 
     <string name="started_following_you">started following you</string>
@@ -180,5 +182,20 @@
 
     <string name="showcase_explore_title">Explore</string>
     <string name="showcase_explore_message">Hear what\'s new and popular\nPick a track and listen to related sounds for hours.</string>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="title_account_settings">Account Settings</string>
+    <string name="title_notification_settings">Notification Settings</string>
+    <string name="title_about">About</string>
+    <string name="title_legal">Legal</string>
+
+    <string name="title_now_playing">Now Playing</string>
+
+    <string name="search">Search</string>
 
 </resources>

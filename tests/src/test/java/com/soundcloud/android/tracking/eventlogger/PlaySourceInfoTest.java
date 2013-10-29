@@ -43,10 +43,15 @@ public class PlaySourceInfoTest {
     }
 
     @Test
-    public void shouldPersistFromParams() throws Exception {
+    public void shouldBeAbleToRecreateFromUriParams() throws Exception {
         Uri uri = Uri.parse("http://something.com");
         final PlaySourceInfo expected = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version-1").build();
         expect(PlaySourceInfo.fromUriParams(expected.appendAsQueryParams(uri.buildUpon()).build())).toEqual(expected);
+    }
+
+    @Test
+    public void shouldCreateEmptyParamsIfNoInitialTrackIdExists() {
+        expect(PlaySourceInfo.fromUriParams(Uri.parse("http://something.com"))).toBe(PlaySourceInfo.EMPTY);
     }
 
     @Test

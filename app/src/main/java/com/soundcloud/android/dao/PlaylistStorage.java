@@ -16,8 +16,6 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Action1;
-import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -35,9 +33,15 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     private final PlaylistDAO mPlaylistDAO;
 
     public PlaylistStorage() {
+        super(ScSchedulers.STORAGE_SCHEDULER);
         mResolver = SoundCloudApplication.instance.getContentResolver();
         mPlaylistDAO = new PlaylistDAO(mResolver);
-        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
+    }
+
+    @Override
+    public Playlist store(Playlist playlist) {
+        mPlaylistDAO.create(playlist);
+        return playlist;
     }
 
     /**
@@ -48,12 +52,11 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
      * @param playlist the playlist to store
      */
     @Override
-    public Observable<Playlist> create(final Playlist playlist) {
+    public Observable<Playlist> storeAsync(final Playlist playlist) {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<Playlist>() {
             @Override
             public Subscription onSubscribe(Observer<? super Playlist> observer) {
-                mPlaylistDAO.create(playlist);
-                observer.onNext(playlist);
+                observer.onNext(store(playlist));
                 observer.onCompleted();
                 return Subscriptions.empty();
             }
@@ -63,9 +66,9 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     /**
      * Convenience method to store a new playlist a user has just created on their device.
      *
-     * @see #create(com.soundcloud.android.model.Playlist)
+     * @see #storeAsync(com.soundcloud.android.model.Playlist)
      */
-    public Observable<Playlist> createNewUserPlaylist(User user, String title, boolean isPrivate, long... trackIds) {
+    public Observable<Playlist> createNewUserPlaylistAsync(User user, String title, boolean isPrivate, long... trackIds) {
         ArrayList<Track> tracks = new ArrayList<Track>(trackIds.length);
         for (long trackId : trackIds){
             Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
@@ -73,47 +76,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         }
 
         Playlist playlist = Playlist.newUserPlaylist(user, title, isPrivate, tracks);
-        return create(playlist);
-    }
-
-    public Observable<Playlist> loadPlaylistWithTracks(final long playlistId) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Playlist>() {
-            @Override
-            public Subscription onSubscribe(final Observer<? super Playlist> observer) {
-                final Playlist playlist = mPlaylistDAO.queryById(playlistId);
-                if (playlist != null) {
-                    loadPlaylistTracks(playlistId).toList().subscribe(new Action1<List<Track>>() {
-                        @Override
-                        public void call(List<Track> tracks) {
-                            playlist.tracks = tracks;
-                            observer.onNext(playlist);
-                            observer.onCompleted();
-                        }
-                    });
-                } else {
-                    observer.onCompleted();
-                }
-                return Subscriptions.empty();
-            }
-        }));
-    }
-
-    //TODO: use DAO, not ContentResolver
-    public Observable<Track> loadPlaylistTracks(final long playlistId) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Track>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Track> observer) {
-                Cursor cursor = mResolver.query(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)), null, null, null, null);
-                if (cursor != null) {
-                    while (cursor.moveToNext()) {
-                        observer.onNext(new Track(cursor));
-                    }
-                    cursor.close();
-                }
-                observer.onCompleted();
-                return Subscriptions.empty();
-            }
-        }));
+        return storeAsync(playlist);
     }
 
     public Uri addTrackToPlaylist(Playlist playlist, long trackId){
@@ -213,10 +176,5 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
             return uris;
         }
         return null;
-    }
-
-    public Playlist getPlaylist(long id) {
-        return mPlaylistDAO.queryById(id);
-
     }
 }

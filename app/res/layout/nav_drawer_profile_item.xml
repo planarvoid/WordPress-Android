@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+    <com.soundcloud.android.view.SuggestedUserImageView android:id="@+id/avatar"
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="@dimen/nav_drawer_profile_item_height"/>
+    <LinearLayout android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentLeft="true"
+                  android:layout_alignBottom="@id/avatar"
+                  android:orientation="vertical"
+                  android:layout_marginLeft="13dp"
+                  android:layout_marginBottom="13dp">
+
+        <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/username"
+                                                         style="@style/BlackOverlayText.Regular"/>
+        <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/location"
+                                                         style="@style/BlackOverlayText.RegularSubtext"/>
+    </LinearLayout>
+
+    <View style="@style/ExploreTrackGridItemSelector"
+          android:layout_alignBottom="@id/avatar"
+          android:layout_alignTop="@id/avatar"/>
+
+</RelativeLayout>

@@ -69,7 +69,7 @@ public class FacebookSwitcherActivity extends Activity {
     }
 
     /**
-     * Primarily to pass along the extra telling whether this action was triggered via {@link Onboard.StartState.SIGN_UP}
+     * Primarily to pass along the extra telling whether this action was triggered via {@link OnboardActivity.StartState.SIGN_UP}
      */
     private Intent passExtras(Intent intent) {
         return getIntent().getExtras() != null ? intent.putExtras(getIntent().getExtras()) : intent;

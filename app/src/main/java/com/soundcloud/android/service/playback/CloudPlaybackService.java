@@ -1,7 +1,7 @@
 package com.soundcloud.android.service.playback;
 
+import static com.soundcloud.android.service.playback.PlayQueueManager.ResumeInfo;
 import static com.soundcloud.android.service.playback.State.COMPLETED;
-import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 import static com.soundcloud.android.service.playback.State.ERROR;
 import static com.soundcloud.android.service.playback.State.ERROR_RETRYING;
 import static com.soundcloud.android.service.playback.State.PAUSED;
@@ -20,13 +20,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
+import com.soundcloud.android.api.ExploreTracksOperations;
 import com.soundcloud.android.api.OldCloudAPI;
 import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.audio.managers.IRemoteAudioManager;
-import com.soundcloud.android.dao.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.streaming.StreamProxy;
@@ -41,6 +42,7 @@ import com.soundcloud.android.tracking.eventlogger.PlayEventTrackingApi;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.PlaybackOperations;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.play.NotificationPlaybackRemoteViews;
 import org.jetbrains.annotations.Nullable;
@@ -61,17 +63,17 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Parcel;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 public class CloudPlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
     public static final String TAG = "CloudPlaybackService";
 
-    public @Nullable static List<Track> playlistXfer;
     private static @Nullable CloudPlaybackService instance;
     private static State state = STOPPED;
 
@@ -79,9 +81,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
     public static long getCurrentTrackId() { return instance == null || instance.mCurrentTrack == null ? -1L : instance.mCurrentTrack.getId(); }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
+    public static PlayQueue getPlayQueue() { return instance == null ? PlayQueue.EMPTY : instance.clonePlayQueue(); }
+    public static Uri getPlayQueueUri() { return instance == null ? null : instance.getPlayQueueInternal().getSourceUri(); }
+    public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
-    public static Uri getUri()     { return instance == null ? null : instance.getPlayQueueManager().getUri(); }
     public static State getPlaybackState() { return state; }
     public static boolean isBuffering() {  return instance != null && instance._isBuffering(); }
     public static boolean isSeekable() {  return instance != null && instance._isSeekable(); }
@@ -101,6 +105,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         String REMOVE_REPOST_ACTION     = "com.soundcloud.android.repost.remove";
         String RELOAD_QUEUE             = "com.soundcloud.android.reloadqueue";
         String LOAD_TRACK_INFO          = "com.soundcloud.android.loadTrackInfo";
+        String RETRY_RELATED_TRACKS     = "com.soundcloud.android.retryRelatedTracks";
     }
 
     // broadcast notifications
@@ -143,8 +148,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private int mLoadPercent = 0;       // track buffer indicator
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
-    /* package */ PlayQueueManager mPlayQueueManager;
     /* package */ AccountOperations mAccountOperations;
+    private PlayQueueManager mPlayQueueManager;
+    private PlaybackOperations mPlaybackOperations;
 
     // TODO: this doesn't really belong here. It's only used to PUT likes and reposts, and isn't playback specific.
     /* package */ AssociationManager mAssociationManager;
@@ -153,8 +159,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private @Nullable Track mCurrentTrack;
     private AndroidCloudAPI mOldCloudApi;
 
-    private long mResumeTime = -1;      // time of played track
-    private long mResumeTrackId = -1;   // id of last played track
+    @Nullable
+    private ResumeInfo mResumeInfo;      // info to resume a previous play session
     private long mSeekPos = -1;         // desired seek position
     private int mConnectRetries = 0;
     private long mLastRefresh;          // time last refresh hit was sent
@@ -195,9 +201,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public interface PlayExtras{
         String track = Track.EXTRA;
         String trackId = Track.EXTRA_ID;
-        String playPosition = "play_position";
-        String startPlayback = "start_playback";
-        String playFromXferList = "play_from_xfer_list";
         String unmute = "unmute"; // used by alarm clock
         String fetchRelated = "fetch_related";
         String trackingInfo = "tracking_info";
@@ -222,15 +225,17 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     @Override
     public void onCreate() {
         super.onCreate();
-        mPlayQueueManager = PlayQueueManager.get(this);
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         mOldCloudApi = new OldCloudAPI(this);
         mAnalyticsEngine = new AnalyticsEngine(getApplicationContext());
         mAccountOperations = new AccountOperations(this);
+        mPlaybackOperations = new PlaybackOperations();
 
-        mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mPlayQueueManager, mAudioManager);
+        mPlayQueueManager = new PlayQueueManager(this, new PlayQueueStorage(), new ExploreTracksOperations(),
+                PreferenceManager.getDefaultSharedPreferences(this), SoundCloudApplication.MODEL_MANAGER);
+        mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mAudioManager, mPlayQueueManager);
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(Actions.PLAY_ACTION);
@@ -243,6 +248,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         commandFilter.addAction(Broadcasts.PLAYQUEUE_CHANGED);
         commandFilter.addAction(Actions.RELOAD_QUEUE);
         commandFilter.addAction(Actions.LOAD_TRACK_INFO);
+        commandFilter.addAction(Actions.RETRY_RELATED_TRACKS);
 
         registerReceiver(mIntentReceiver, commandFilter);
         registerReceiver(mNoisyReceiver, new IntentFilter(Consts.AUDIO_BECOMING_NOISY));
@@ -264,7 +270,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mPlayerHandler.removeCallbacksAndMessages(null);
-        mPlayQueueManager.onDestroy();
         mPlayEventTracker.stop();
 
         mFocus.abandonMusicFocus(false);
@@ -300,7 +305,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         // before stopping the service, so that pause/resume isn't slow.
         // Also delay stopping the service if we're transitioning between
         // tracks.
-        } else if (!mPlayQueueManager.isEmpty() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
+        } else if (!getPlayQueueInternal().isEmpty() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
             mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
             return true;
 
@@ -319,8 +324,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         if (intent != null) {
             boolean hasAccount = mAccountOperations.soundCloudAccountExists();
-            if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.isEmpty()){
-                configureLastPlaylist();
+            if (hasAccount && !Actions.PLAY_ACTION.equals(intent.getAction()) && mPlayQueueManager.shouldReloadQueue()){
+                mResumeInfo = mPlayQueueManager.loadPlayQueue();
             }
             mIntentReceiver.onReceive(this, intent);
         }
@@ -328,19 +333,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         // make sure the service will shut down on its own if it was
         // just started but not bound to and nothing is playing
         return START_STICKY;
-    }
-
-    public boolean configureLastPlaylist() {
-        mResumeTime = mPlayQueueManager.reloadQueue();
-        if (mResumeTime > -1) {
-            if (state.isSupposedToBePlaying()) pause();
-            mCurrentTrack = mPlayQueueManager.getCurrentTrack();
-            if (mCurrentTrack != null) {
-                mResumeTrackId = mCurrentTrack.getId();
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -385,8 +377,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     public void saveProgressAndStop() {
         pause();
-        mResumeTime = getProgress();
-        mResumeTrackId = getCurrentTrackId();
+        mResumeInfo = new ResumeInfo(getProgress(), getCurrentTrackId());
         stop();
     }
 
@@ -419,7 +410,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             .putExtra(BroadcastExtras.isSupposedToBePlaying, state.isSupposedToBePlaying())
             .putExtra(BroadcastExtras.isBuffering, _isBuffering())
             .putExtra(BroadcastExtras.position, getProgress())
-            .putExtra(BroadcastExtras.queuePosition, mPlayQueueManager.getPosition())
+            .putExtra(BroadcastExtras.queuePosition, getPlayQueueInternal().getPosition())
             .putExtra(BroadcastExtras.isLike, getIsLike())
             .putExtra(BroadcastExtras.isRepost, getIsRepost());
 
@@ -442,7 +433,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     private void saveQueue(){
-        mPlayQueueManager.saveQueue(mCurrentTrack == null ? 0 : getProgress());
+        mPlayQueueManager.saveCurrentPosition(mCurrentTrack == null ? 0 : getProgress());
     }
 
     private void onTrackChanged(final Track track) {
@@ -474,12 +465,22 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         openCurrent(Media.Action.Stop);
     }
 
-    /* package */ void openCurrent(Media.Action action) {
+    // TODO : Handle tracks that are not in local storage (quicksearch)
+    /* package */ void openCurrent(final Media.Action action) {
+        final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
+        mPlaybackOperations.loadTrack(currentTrackId).subscribe(new DefaultObserver<Track>() {
+            @Override
+            public void onNext(Track track) {
+                openCurrent(track, action);
+            }
+        });
+    }
+
+    /* package */ void openCurrent(Track track, Media.Action action) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "openCurrent(state="+state+")");
         }
 
-        final Track track = mPlayQueueManager.getCurrentTrack();
         if (track != null) {
             if (mAutoPause) {
                 mAutoPause = false;
@@ -509,19 +510,18 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 }
             }
         } else {
-            Log.d(TAG, "playlist is empty");
-            state = EMPTY_PLAYLIST;
+            Log.e(TAG, "openCurrent with no available track");
         }
     }
 
     private void trackPlayEvent(Track newTrack) {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId, mPlayQueueManager.getCurrentEventLoggerParams());
+        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId, getPlayQueueInternal().getCurrentEventLoggerParams());
     }
 
     private void trackStopEvent() {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId, mPlayQueueManager.getCurrentEventLoggerParams());
+        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId, getPlayQueueInternal().getCurrentEventLoggerParams());
     }
 
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
@@ -562,12 +562,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private void onStreamableTrack(Track track){
         if (getCurrentTrackId() != track.getId()) return;
 
-        new Thread() {
-            @Override
-            public void run() {
-                new TrackStorage().markTrackAsPlayed(mCurrentTrack);
-            }
-        }.start();
+        mPlaybackOperations.markTrackAsPlayed(mCurrentTrack).subscribe(DefaultObserver.NOOP_OBSERVER);
         startTrack(track);
     }
 
@@ -620,7 +615,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             mMediaPlayer.setOnBufferingUpdateListener(bufferingListener);
             mMediaPlayer.setOnInfoListener(infolistener);
             notifyChange(Broadcasts.BUFFERING);
-            Track next = mPlayQueueManager.getNext();
+
+            // TODO, re-enable this
+            Track next = null;//mPlayQueueManager.getNext();
 
             // if this comes from a shortcut, we may not have the stream url yet. we should get it on info load
             if (mCurrentTrack != null && mCurrentTrack.isStreamable()) {
@@ -751,7 +748,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     /* package */ boolean prev() {
-        if (mPlayQueueManager.prev()) {
+        if (getPlayQueueInternal().moveToPrevious()) {
             openCurrent(Media.Action.Backward);
             return true;
         } else {
@@ -760,7 +757,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     /* package */ boolean next() {
-        if (mPlayQueueManager.next()) {
+        if (getPlayQueueInternal().moveToNext()) {
             openCurrent(Media.Action.Forward);
             return true;
         } else {
@@ -817,17 +814,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         status = notification;
     }
 
-    /* package */
     public void setQueuePosition(int pos) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setQueuePosition("+pos+")");
 
-        if (mPlayQueueManager.getPosition() != pos &&
-            mPlayQueueManager.setPosition(pos)) {
+        if (getPlayQueueInternal().getPosition() != pos && getPlayQueueInternal().setPosition(pos)) {
             openCurrent();
         }
     }
-
-
 
     /* package */ int getDuration() {
         return mCurrentTrack == null ? -1 : mCurrentTrack.duration;
@@ -843,8 +836,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     /* package */
     public long getProgress() {
 
-        if (mCurrentTrack != null && mResumeTrackId == mCurrentTrack.getId()) {
-            return mResumeTime; // either -1 or a valid resume time
+        if (mCurrentTrack != null && mResumeInfo != null && mResumeInfo.getTrackId() == mCurrentTrack.getId()) {
+            return mResumeInfo.getTime(); // either -1 or a valid resume time
         } else if (mWaitingForSeek && mSeekPos > 0) {
             return mSeekPos;
         } else if (mMediaPlayer != null && !state.isError() && state != PREPARING) {
@@ -939,9 +932,18 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         openCurrent();
     }
 
-    public PlayQueueManager getPlayQueueManager() {
-        return mPlayQueueManager;
+    private PlayQueue getPlayQueueInternal() {
+        return mPlayQueueManager.getCurrentPlayQueue();
     }
+
+    private PlayQueue clonePlayQueue(){
+        PlayQueue original = mPlayQueueManager.getCurrentPlayQueue();
+        Parcel parcel = Parcel.obtain();
+        original.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
+        return PlayQueue.CREATOR.createFromParcel(parcel);
+    }
+
 
     private String getUserName() {
         return mCurrentTrack != null ? mCurrentTrack.getUserName() : null;
@@ -1220,15 +1222,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             // mediaplayer seems to reset itself to 0 before this is called in certain builds, so if so,
             // pretend it's finished
             final long targetPosition = (mSeekPos != -1) ? mSeekPos :
-                                        (mResumeTime > -1 && mResumeTrackId == getTrackId()) ? mResumeTime :
+                                        (mResumeInfo != null && mResumeInfo.getTrackId() == getTrackId()) ? mResumeInfo.getTime() :
                                         (mp.getCurrentPosition() <= 0 && state == PLAYING) ? getDuration() : mp.getCurrentPosition();
             // premature track end ?
             if (isSeekable() && getDuration() - targetPosition > 3000) {
                 Log.w(TAG, "premature end of track (targetpos="+targetPosition+")");
                 // track ended prematurely (probably end of buffer, unreported IO error),
                 // so try to resume at last time
-                mResumeTrackId = getCurrentTrackId();
-                mResumeTime = targetPosition;
+                mResumeInfo = new ResumeInfo(getCurrentTrackId(), targetPosition);
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
             } else if (!state.isError()) {
                 trackStopEvent();
@@ -1251,15 +1252,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 if (state == PREPARING) {
                     state = PREPARED;
                     // do we need to resume a track position ?
-                    if (getCurrentTrackId() == mResumeTrackId && mResumeTime > 0) {
+                    if (mResumeInfo != null && getCurrentTrackId() == mResumeInfo.getTrackId() && mResumeInfo.getTime() > 0) {
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
-                            Log.d(TAG, "resuming to "+mResumeTime);
+                            Log.d(TAG, "resuming to "+mResumeInfo.getTrackId());
                         }
 
                         // play before seek to prevent ANR
                         play();
-                        seek(mResumeTime, true);
-                        mResumeTime = mResumeTrackId = -1;
+                        seek(mResumeInfo.getTime(), true);
+                        mResumeInfo = null;
 
 
                     // normal play, unless first start (autopause=true)

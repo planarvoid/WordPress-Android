@@ -103,6 +103,7 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTIONS:
             case COLLECTION_PAGES:
             case USER_ASSOCIATIONS:
+            case PLAY_QUEUE:
                 qb.setTables(content.table.name);
                 break;
 
@@ -313,13 +314,6 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere("_id = " + userId);
                 break;
 
-            case PLAY_QUEUE:
-                qb.setTables(Table.SOUND_VIEW + " INNER JOIN " + Table.PLAY_QUEUE.name +
-                        " ON (" + Table.SOUND_VIEW.id + " = " + DBHelper.PlayQueue.TRACK_ID + ")");
-                if (_columns == null) _columns = formatWithUser(getSoundViewColumns(Table.SOUND_VIEW), userId);
-                qb.appendWhere(Table.PLAY_QUEUE.name+"."+ DBHelper.PlayQueue.USER_ID + " = " + userId);
-                _sortOrder = makeCollectionSort(uri, sortOrder);
-                break;
             case ANDROID_SEARCH_SUGGEST:
             case ANDROID_SEARCH_SUGGEST_PATH:
                 return suggest(uri, columns, selection, selectionArgs);

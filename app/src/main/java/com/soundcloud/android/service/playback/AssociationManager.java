@@ -20,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 
+// TODO This will be migrated to an Operations class and use RxJava instead of intents
+@Deprecated
 public class AssociationManager {
     private Context mContext;
     private ScModelManager mModelManager;
@@ -84,10 +86,6 @@ public class AssociationManager {
 
         mContext.sendBroadcast(intent);
         PlayerAppWidgetProvider.getInstance().notifyChange(mContext, intent);
-    }
-
-    private SoundCloudApplication getApp() {
-        return SoundCloudApplication.fromContext(mContext);
     }
 
     private final AssociatedSoundTask.AssociatedListener likeListener = new AssociatedSoundTask.AssociatedListener() {

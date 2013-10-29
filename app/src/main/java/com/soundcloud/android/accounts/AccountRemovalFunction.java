@@ -14,7 +14,6 @@ import com.soundcloud.android.dao.UserAssociationStorage;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import rx.Observer;
 import rx.Subscription;
@@ -35,17 +34,16 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
     private final SoundRecorder mSoundRecorder;
     private final AccountManager mAccountManager;
     private final SyncStateManager mSyncStateManager;
-    private final PlayQueueManager mPlayQueueManager;
     private final C2DMReceiver mC2DMReceiver;
 
     public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context) {
         this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context), new ActivitiesStorage(context),
-                new UserAssociationStorage(), SoundRecorder.getInstance(context), PlayQueueManager.get(context), new C2DMReceiver());
+                new UserAssociationStorage(), SoundRecorder.getInstance(context), new C2DMReceiver());
     }
 
     AccountRemovalFunction(Account soundCloudAccount, Context context, AccountManager accountManager, SyncStateManager syncStateManager,
                            CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
-                           SoundRecorder soundRecorder, PlayQueueManager playQueueManager, C2DMReceiver c2DMReceiver) {
+                           SoundRecorder soundRecorder, C2DMReceiver c2DMReceiver) {
         mSoundCloudAccount = soundCloudAccount;
         mContext = context;
         mAccountManager = accountManager;
@@ -54,7 +52,6 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
         mActivitiesStorage = activitiesStorage;
         mUserAssociationStorage = userAssociationStorage;
         mSoundRecorder = soundRecorder;
-        mPlayQueueManager = playQueueManager;
         mC2DMReceiver = c2DMReceiver;
     }
 
@@ -90,7 +87,6 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
 
         mSoundRecorder.reset();
 
-        mPlayQueueManager.clearState();
         FBToken.clear(mContext);
 
         mContext.sendBroadcast(new Intent(Actions.LOGGING_OUT));

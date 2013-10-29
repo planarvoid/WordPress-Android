@@ -10,9 +10,9 @@ import android.widget.EditText;
 
 import java.util.UUID;
 
-public class SignUpTest extends ActivityTestCase<Onboard> {
+public class SignUpTest extends ActivityTestCase<OnboardActivity> {
     public SignUpTest() {
-        super(Onboard.class);
+        super(OnboardActivity.class);
     }
 
     @Override

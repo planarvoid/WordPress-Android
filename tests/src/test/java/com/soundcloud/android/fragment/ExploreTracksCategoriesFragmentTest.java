@@ -1,8 +1,8 @@
 package com.soundcloud.android.fragment;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +24,7 @@ import rx.Subscription;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -64,6 +65,23 @@ public class ExploreTracksCategoriesFragmentTest {
 
         fragment.onDestroy();
         verify(subscription).unsubscribe();
+    }
+
+    @Test
+    public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() {
+        ExploreTracksOperations operations = mock(ExploreTracksOperations.class);
+        when(operations.getCategories()).thenReturn(Observable.<ExploreTracksCategories>error(new Exception()));
+
+        fragment = new ExploreTracksCategoriesFragment(operations);
+        setupFragment();
+
+        Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
+        expect(retryButton).not.toBeNull();
+        retryButton.performClick();
+
+        // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
+        // If that wasn't the case, we'd simply replay a failed result.
+        verify(operations, times(2)).getCategories();
     }
 
     // HELPERS

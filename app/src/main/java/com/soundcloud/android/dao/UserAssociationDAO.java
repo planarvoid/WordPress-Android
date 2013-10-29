@@ -10,7 +10,10 @@ import android.content.ContentResolver;
 import java.util.ArrayList;
 import java.util.List;
 
-class UserAssociationDAO extends BaseDAO<UserAssociation> {
+/**
+ * Table object for user associations. Do not use outside this package, use {@link UserAssociationStorage} instead.
+ */
+/* package */ class UserAssociationDAO extends BaseDAO<UserAssociation> {
     public UserAssociationDAO(ContentResolver contentResolver) {
         super(contentResolver);
     }

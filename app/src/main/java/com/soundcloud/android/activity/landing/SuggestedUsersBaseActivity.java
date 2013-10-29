@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.landing;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ActionBarController;
 import com.soundcloud.android.activity.ScActivity;
 
 import android.os.Bundle;
@@ -11,23 +12,10 @@ public abstract class SuggestedUsersBaseActivity extends ScActivity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.frame_layout_holder);
-        if (mActionBarController != null) {
-            mActionBarController.hideMenuIndicator();
-        }
     }
 
-    @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_suggested_users;
+    protected ActionBarController createActionBarController() {
+        return new ActionBarController(this, mAndroidCloudAPI);
     }
 
-    @Override
-    public void onHomePressed() {
-        // nop
-    }
-
-    @Override
-    public void onMenuClosed() {
-        // nop
-    }
 }

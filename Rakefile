@@ -465,7 +465,7 @@ namespace :ci do
   end
 
   task :test_app do
-    Mvn.install.projects('tests').
+    Mvn.test.projects('tests').
       with_profiles('debug').
       skip_proguard.
       use_local_repo.
@@ -485,6 +485,10 @@ class Mvn
   def self.install
     self.new('mvn clean install')
   end
+
+  def self.test
+      self.new('mvn clean test')
+    end
 
   def self.set_version(version)
     self.new("mvn versions:set -DnewVersion=#{version} -DgenerateBackupPoms=false -DupdateMatchingVersions=false")
