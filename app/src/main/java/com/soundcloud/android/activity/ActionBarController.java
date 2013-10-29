@@ -7,8 +7,6 @@ import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.WhoToFollowActivity;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,8 +33,6 @@ import java.lang.reflect.Field;
 public class ActionBarController {
     @NotNull protected ActionBarOwner mOwner;
     @NotNull protected Activity mActivity;
-
-    @Nullable private View              mActionBarCustomView;
 
     private SuggestionsAdapter mSuggestionsAdapter;
     private final AndroidCloudAPI mAndroidCloudAPI;
@@ -161,17 +157,6 @@ public class ActionBarController {
             actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
         }
-    }
-
-    private void configureBackToPlaylistItem(MenuItem backToSetItem) {
-        boolean visible = false;
-        if ((mOwner.getActivity() instanceof PlayerActivity)) {
-            final Uri uri = CloudPlaybackService.getPlayQueueUri();
-            if (uri != null && Content.match(uri) == Content.PLAYLIST) {
-                visible = true;
-            }
-        }
-        backToSetItem.setVisible(visible);
     }
 
     private void toggleSearchMode() {
