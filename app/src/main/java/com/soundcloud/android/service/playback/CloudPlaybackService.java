@@ -473,7 +473,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
         final Observable<Track> currentTrack = mTrackStorage.getTrackAsync(currentTrackId);
         if (currentTrack != null){
-            currentTrack.subscribe(new Action1<Track>() {
+            currentTrack.observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Track>() {
                 @Override
                 public void call(Track track) {
                     openCurrent(track, action);
