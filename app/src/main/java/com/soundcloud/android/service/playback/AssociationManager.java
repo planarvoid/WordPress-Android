@@ -86,10 +86,6 @@ public class AssociationManager {
         PlayerAppWidgetProvider.getInstance().notifyChange(mContext, intent);
     }
 
-    private SoundCloudApplication getApp() {
-        return SoundCloudApplication.fromContext(mContext);
-    }
-
     private final AssociatedSoundTask.AssociatedListener likeListener = new AssociatedSoundTask.AssociatedListener() {
         @Override
         public void onNewStatus(Playable playable, boolean isAssociated, boolean changed) {
