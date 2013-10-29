@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:paddingBottom="@dimen/search_item_padding_topbottom"
-              android:paddingTop="@dimen/search_item_padding_topbottom"
-              android:paddingLeft="@dimen/slm_item_padding_left"
-              android:paddingRight="@dimen/slm_item_padding_right"
+              android:padding="10dp"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="horizontal"
