@@ -4,6 +4,7 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -13,6 +14,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.player.PlayerTrackPagerAdapter;
 import com.soundcloud.android.player.PlayerTrackView;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueue;
@@ -30,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -95,6 +98,26 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
         if (bundle == null) {
             mPlayQueue = getPlayQueueFromIntent(getIntent());
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        Uri uri = CloudPlaybackService.getPlayQueueUri();
+        Intent upIntent = null;
+        switch (Content.match(uri)){
+            case PLAYLIST:
+                upIntent = new Intent(Actions.PLAYLIST).setData(uri);
+                break;
+        }
+
+        if (upIntent != null){
+            upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(upIntent);
+            finish();
+            return true;
+        } else {
+            return super.onSupportNavigateUp();
         }
     }
 
