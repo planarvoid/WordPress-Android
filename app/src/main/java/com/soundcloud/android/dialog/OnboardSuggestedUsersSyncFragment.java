@@ -18,6 +18,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 public class OnboardSuggestedUsersSyncFragment extends Fragment {
 
@@ -44,7 +45,14 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.list_loading_item, null);
+        RelativeLayout relativeLayout = new RelativeLayout(getActivity());
+        relativeLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        final View view = inflater.inflate(R.layout.list_loading_item, null);
+
+        final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        relativeLayout.addView(view, params);
+        return relativeLayout;
     }
 
     @Override
