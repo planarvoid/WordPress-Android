@@ -38,7 +38,7 @@ public class Waiter {
     }
 
     public boolean waitForListContent(){
-        View progress = solo.waitForViewId(com.soundcloud.android.R.id.empty_view_progress, 3000);
+        View progress = solo.waitForViewId(R.id.empty_view_progress, 3000);
         if (progress != null){
             return solo.waitForCondition(new Condition() {
                 @Override
