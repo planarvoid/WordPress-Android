@@ -7,6 +7,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.Observer;
@@ -35,6 +36,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<Track> 
     }
 
     public TrackStorage(ContentResolver contentResolver, TrackDAO trackDAO, ScModelManager modelManager){
+        super(ScSchedulers.STORAGE_SCHEDULER);
         mResolver = contentResolver;
         mTrackDAO = trackDAO;
         mModelManager = modelManager;

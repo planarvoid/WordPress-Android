@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.concurrency.Schedulers;
 
 import android.content.Intent;
 
@@ -91,7 +92,7 @@ public class PlayUtilsTest {
         TestHelper.insertAsSoundAssociation(new Track(2L), Association.Type.TRACK_LIKE);
         expect(Content.ME_LIKES).toHaveCount(2);
 
-        playUtils = new PlayUtils(modelManager, new TrackStorage());
+        playUtils = new PlayUtils(modelManager, new TrackStorage().<TrackStorage>subscribeOn(Schedulers.immediate()));
         playUtils.playFromUriWithInitialTrack(Robolectric.application, Content.ME_LIKES.uri, 4, track);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
