@@ -1388,12 +1388,12 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:padding">@dimen/explore_suggested_track_padding</item>
         <item name="android:drawablePadding">5dp</item>
         <item name="android:textAppearance">@style/TextAppearance.ExploreTrackBottom</item>
     </style>
 
     <style name="ExploreTrackGenre" parent="ExploreTrackBottom">
-        <item name="android:layout_alignParentLeft">true</item>
         <item name="android:layout_marginRight">5dp</item>
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>
