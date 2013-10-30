@@ -38,7 +38,11 @@
     </style>
 
     <style name="DropDownNav" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
-        <item name="android:dropDownSelector">@drawable/item_background_dark</item>
+        <item name="android:dropDownSelector">@drawable/list_selector_dark</item>
+    </style>
+
+    <style name="SearchAutoCompleteTextView" parent="@style/Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:dropDownSelector">@drawable/list_selector_dark</item>
     </style>
 
     <style name="PopupMenu" parent="@style/Widget.AppCompat.PopupMenu" />

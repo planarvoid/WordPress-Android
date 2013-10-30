@@ -44,6 +44,7 @@
     <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat">
         <item name="popupMenuStyle">@style/PopupMenu</item>
         <item name="dropDownListViewStyle">@style/DropDownListView</item>
+        <item name="searchViewAutoCompleteTextView">@style/SearchAutoCompleteTextView</item>
     </style>
 
     <style name="Theme.SoundCloud.NoBg">
