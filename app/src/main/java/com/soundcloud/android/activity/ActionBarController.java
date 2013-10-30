@@ -170,7 +170,7 @@ public class ActionBarController {
             Field searchField = SearchView.class.getDeclaredField("mSearchButton");
             searchField.setAccessible(true);
             ImageView searchBtn = (ImageView)searchField.get(searchView);
-            searchBtn.setBackgroundResource(R.drawable.action_item_background_selector);
+            searchBtn.setBackgroundResource(R.drawable.item_background_dark);
 
             searchField = SearchView.class.getDeclaredField("mSearchPlate");
             searchField.setAccessible(true);
@@ -180,7 +180,7 @@ public class ActionBarController {
             searchField = SearchView.class.getDeclaredField("mCloseButton");
             searchField.setAccessible(true);
             ImageView closeButton = (ImageView)searchField.get(searchView);
-            closeButton.setBackgroundResource(R.drawable.action_item_background_selector);
+            closeButton.setBackgroundResource(R.drawable.item_background_dark);
 
         }
         catch (NoSuchFieldException e)

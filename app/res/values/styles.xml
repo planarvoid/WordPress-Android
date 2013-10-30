@@ -5,7 +5,7 @@
     <style name="ListView" parent="@android:style/Widget.ListView">
         <item name="android:divider">@drawable/divider_list_grey</item>
         <item name="android:dividerHeight">1px</item>
-        <item name="android:listSelector">@drawable/nav_drawer_list_selector</item>
+        <item name="android:listSelector">@drawable/list_selector_gray</item>
     </style>
 
     <style name="DialogStyleLight">
@@ -18,7 +18,7 @@
     <style name="DialogListView" parent="SDL.ListView">
         <item name="android:divider">@drawable/divider_list_grey</item>
         <item name="android:dividerHeight">1px</item>
-        <item name="android:listSelector">@drawable/nav_drawer_list_selector</item>
+        <item name="android:listSelector">@drawable/list_selector_gray</item>
     </style>
 
     <style name="Animation.Popup">
@@ -34,11 +34,11 @@
     </style>
 
     <style name="DropDownListView" parent="@style/Widget.AppCompat.ListView.DropDown">
-        <item name="android:listSelector">@drawable/action_item_background_selector</item>
+        <item name="android:listSelector">@drawable/list_selector_dark</item>
     </style>
 
     <style name="DropDownNav" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
-        <item name="android:dropDownSelector">@drawable/action_item_background_selector</item>
+        <item name="android:dropDownSelector">@drawable/item_background_dark</item>
     </style>
 
     <style name="PopupMenu" parent="@style/Widget.AppCompat.PopupMenu" />

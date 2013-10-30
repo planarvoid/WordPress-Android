@@ -2,7 +2,7 @@
 <resources>
 
     <style name="Theme.SoundCloud" parent="Theme.SoundCloud.Base">
-        <item name="android:actionBarItemBackground">@drawable/action_item_background_selector</item>
+        <item name="android:actionBarItemBackground">@drawable/item_background_dark</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView</item>
         <item name="android:actionDropDownStyle">@style/DropDownNav</item>
         <item name="android:actionBarStyle">@style/ActionBar.SoundCloud</item>

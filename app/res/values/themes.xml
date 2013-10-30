@@ -25,7 +25,7 @@
     </style>
 
     <style name="Theme.SoundCloud" parent="Theme.SoundCloud.Base">
-        <item name="actionBarItemBackground">@drawable/action_item_background_selector</item>
+        <item name="actionBarItemBackground">@drawable/item_background_dark</item>
         <item name="dropDownListViewStyle">@style/DropDownListView</item>
         <item name="actionDropDownStyle">@style/DropDownNav</item>
         <item name="actionBarStyle">@style/ActionBar.SoundCloud</item>
