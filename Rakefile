@@ -190,8 +190,14 @@ def gitsha1()
 end
 
 def get_last_published_version(token, app_id)
-  versions = JSON.parse(`curl -s -H 'X-HockeyAppToken: #{token}' https://rink.hockeyapp.net/api/2/apps/#{app_id}/app_versions`)
-  versions['app_versions'].map { |app| app['version'].to_i }.max
+  #FIXME
+  begin
+    versions = JSON.parse(`curl -s -H 'X-HockeyAppToken: #{token}' https://rink.hockeyapp.net/api/2/apps/#{app_id}/app_versions`)
+    versions['app_versions'].map { |app| app['version'].to_i }.max
+  rescue
+    "#{versionCode}".to_i
+  end
+
 end
 
 def get_file_path(build_type)
