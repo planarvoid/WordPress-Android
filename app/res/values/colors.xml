@@ -23,7 +23,7 @@
     <color name="listTxtDarkValue">#FFFFFFFF</color>
     <color name="listTxtDarkValuePressed">#88FFFFFF</color>
 
-    <color name="darkBg">#FF333333</color>
+    <color name="dark_bg">#FF333333</color>
 
     <color name="listTxtHeader">#777777</color>
     <color name="commentLine">#AAD7D7D7</color>
@@ -101,7 +101,7 @@
     <color name="dialog_list_txt_disabled">#777</color>
     <color name="error_view_bg">#EFEFEF</color>
 
-    <color name="list_txt_explore">#FF333333</color>
+    <color name="dark_gray_text">#FF333333</color>
 
     <color name="dialog_title">@color/scOrange</color>
     <color name="dialog_separator">@color/darker_gray</color>

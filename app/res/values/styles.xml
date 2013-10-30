@@ -1241,55 +1241,26 @@
     </style>
 
 
-    <!-- Side menu -->
+    <!-- Search Suggestions -->
 
-    <style name="side_menu_item">
+    <style name="searchSuggestionItem">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-
-        <item name="android:paddingTop">@dimen/slm_item_padding_topbottom</item>
-        <item name="android:paddingBottom">@dimen/slm_item_padding_topbottom</item>
-        <item name="android:paddingLeft">@dimen/slm_item_padding_left</item>
+        <item name="android:paddingLeft">@dimen/default_side_padding</item>
         <item name="android:paddingRight">@dimen/slm_item_padding_right</item>
-
         <item name="android:orientation">horizontal</item>
-
-        <item name="android:background">@drawable/sidebar_item_background</item>
-    </style>
-
-    <style name="side_search_item" parent="side_menu_item">
         <item name="android:paddingTop">@dimen/search_item_padding_topbottom</item>
         <item name="android:paddingBottom">@dimen/search_item_padding_topbottom</item>
     </style>
 
-    <style name="side_menu_item_icon">
+    <style name="searchSuggestionIcon">
         <item name="android:layout_height">33dp</item>
         <item name="android:layout_width">33dp</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:scaleType">centerCrop</item>
     </style>
 
-    <style name="side_menu_item_type_icon" parent="side_menu_item_icon">
-        <item name="android:scaleType">centerInside</item>
-    </style>
-
-    <style name="side_menu_item_text">
-        <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:paddingLeft">@dimen/slm_item_text_padding_left</item>
-
-        <item name="android:textSize">@dimen/slm_item_text_size</item>
-        <item name="android:textColor">@color/fim_item_text_color</item>
-
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">end</item>
-
-        <item name="android:shadowColor">#000000</item>
-        <item name="android:shadowRadius">1</item>
-        <item name="android:shadowDy">2</item>
-        <item name="android:shadowDx">0</item>
-    </style>
-
-    <style name="side_menu_dashboard_counter">
+    <style name="searchSuggestionText">
         <item name="android:paddingLeft">7dp</item>
         <item name="android:paddingRight">7dp</item>
         <item name="android:layout_gravity">center_vertical</item>
@@ -1298,14 +1269,10 @@
         <item name="android:background">@drawable/activity_bubble</item>
         <item name="android:singleLine">true</item>
         <item name="android:gravity">center</item>
-
         <item name="android:shadowColor">#000000</item>
         <item name="android:shadowRadius">1</item>
         <item name="android:shadowDy">-1</item>
         <item name="android:shadowDx">0</item>
-    </style>
-
-    <style name="searchSuggestionText" parent="side_menu_item_text">
         <item name="android:textColor">@color/gray_text</item>
     </style>
 

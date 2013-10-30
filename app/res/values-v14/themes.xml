@@ -16,8 +16,4 @@
         <item name="android:dropDownListViewStyle">@style/DropDownListView</item>
     </style>
 
-    <style name="ActionBar.SoundCloud" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:displayOptions">homeAsUp|showTitle</item>
-    </style>
-
 </resources>

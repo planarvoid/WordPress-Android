@@ -36,6 +36,7 @@
     </style>
 
     <style name="ActionBar.SoundCloud" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/dark_bg</item>
         <item name="android:displayOptions">homeAsUp|showTitle</item>
     </style>
 
@@ -54,7 +55,7 @@
 
     <style name="Theme.ScAuth" parent="Theme.SoundCloud.NoActionBar">
         <item name="android:buttonStyle">@style/btn_default</item>
-        <item name="android:windowBackground">@color/darkBg</item>
+        <item name="android:windowBackground">@color/dark_bg</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.Light.AutoCompleteTextView</item>
         <item name="android:dropDownItemStyle">@style/Widget.AppCompat.Light.DropDownItem.Spinner</item>
