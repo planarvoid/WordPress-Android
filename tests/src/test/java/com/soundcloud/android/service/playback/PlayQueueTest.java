@@ -138,6 +138,12 @@ public class PlayQueueTest {
         checkManualTrigger(playQueue);
     }
 
+    @Test
+    public void shouldReturnSetAsPartOfLoggerParams() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 1, PlaySourceInfo.empty(), Content.PLAYLIST.forId(54321L));
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&set=54321");
+    }
+
     private void checkManualTrigger(PlayQueue playQueue) {
         expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=manual");
     }

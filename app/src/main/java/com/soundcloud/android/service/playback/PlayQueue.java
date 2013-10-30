@@ -153,7 +153,8 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
      */
     public String getCurrentEventLoggerParams() {
         final TrackSourceInfo trackSourceInfo = mCurrentTrackIsUserTriggered ? TrackSourceInfo.manual() : mPlaySourceInfo.getAutoTrackSource();
-        return trackSourceInfo.createEventLoggerParams(mPlaySourceInfo);
+        final String eventLoggerParams = trackSourceInfo.createEventLoggerParams(mPlaySourceInfo, mSourceUri);
+        return eventLoggerParams;
     }
 
     /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {
