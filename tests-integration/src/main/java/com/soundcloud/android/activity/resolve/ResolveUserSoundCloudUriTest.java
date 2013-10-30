@@ -14,7 +14,7 @@ public class ResolveUserSoundCloudUriTest extends ResolveBaseTest {
         return TestConsts.STEVE_ANGELLO_SC_URI;
     }
 
-    public void ignore_testResolveUrl() throws Exception {
+    public void testResolveUrl() throws Exception {
         solo.assertActivity(UserBrowser.class, DEFAULT_WAIT);
         solo.assertText("steveangello");
     }

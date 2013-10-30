@@ -12,7 +12,7 @@ public class ResolveClickTrackingUrl extends ResolveBaseTest {
         return Uri.parse("http://soundcloud.com/-/t/click/postman-email-follower?url="+TestConsts.STEVE_ANGELLO_URI);
     }
 
-    public void ignore_testResolveUrl() throws Exception {
+    public void testResolveUrl() throws Exception {
         solo.assertActivity(UserBrowser.class, DEFAULT_WAIT);
         solo.assertText("steveangello");
     }
