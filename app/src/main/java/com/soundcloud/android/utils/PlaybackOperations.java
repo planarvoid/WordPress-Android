@@ -48,7 +48,7 @@ public class PlaybackOperations {
      * Single play, the tracklist will be of length 1
      */
     public void playTrack(Context context, Track track) {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(track.getId()).build();
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().build();
         playFromInfo(context, new PlayInfo(track, false, playSourceInfo));
     }
 
@@ -56,7 +56,7 @@ public class PlaybackOperations {
      * Created by anything played from the {@link com.soundcloud.android.fragment.ExploreFragment} section.
      */
     public void playExploreTrack(Context context, Track track, String exploreTag) {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(track.getId()).exploreTag(exploreTag).build();
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().exploreTag(exploreTag).build();
         playFromInfo(context, new PlayInfo(track, true, playSourceInfo));
     }
 
@@ -67,7 +67,7 @@ public class PlaybackOperations {
     public void playFromUriWithInitialTrack(Context context, Uri uri, int startPosition, Track initialTrack) {
         PlayInfo playInfo = PlayInfo.fromUri(uri, startPosition);
         playInfo.initialTrack = initialTrack;
-        playInfo.sourceInfo = new PlaySourceInfo.Builder(initialTrack.getId()).build();
+        playInfo.sourceInfo = new PlaySourceInfo.Builder().build();
         playFromInfo(context, playInfo);
     }
 
@@ -194,7 +194,7 @@ public class PlaybackOperations {
         private static PlayInfo fromUriWithTrack(Uri uri, int startPosition, Track initialTrack) {
             PlayInfo playInfo = fromUri(uri, startPosition);
             playInfo.initialTrack = initialTrack;
-            playInfo.sourceInfo = new PlaySourceInfo.Builder(initialTrack.getId()).build();
+            playInfo.sourceInfo = new PlaySourceInfo.Builder().build();
             return playInfo;
         }
 

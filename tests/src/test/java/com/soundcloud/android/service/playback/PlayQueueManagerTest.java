@@ -30,7 +30,6 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.android.concurrency.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
 
 import android.content.Context;
@@ -79,9 +78,14 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSetNewPlayQueueAsCurrentPlayQueue() throws Exception {
-
         playQueueManager.setNewPlayQueue(playQueue);
         expect(playQueueManager.getCurrentPlayQueue()).toEqual(playQueue);
+    }
+
+    @Test
+    public void shouldSetNewPlayQueueCurrentTrackToManuallyTriggered() throws Exception {
+        playQueueManager.setNewPlayQueue(playQueue);
+        verify(playQueue).setCurrentTrackToUserTriggered();
     }
 
     @Test
@@ -143,7 +147,7 @@ public class PlayQueueManagerTest {
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
         Observable<PlayQueue> observable = Mockito.mock(Observable.class);
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
-        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.EMPTY)).thenReturn(observable);
+        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
 
         PlayQueueManager.ResumeInfo resumeInfo = playQueueManager.loadPlayQueue();
         expect(resumeInfo.getTrackId()).toEqual(456L);
@@ -156,7 +160,7 @@ public class PlayQueueManagerTest {
         Observable<PlayQueue> observable = Mockito.mock(Observable.class);
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.EMPTY)).thenReturn(observable);
+        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
 
         playQueueManager.loadPlayQueue();
         verify(observable).subscribe(any(Action1.class));

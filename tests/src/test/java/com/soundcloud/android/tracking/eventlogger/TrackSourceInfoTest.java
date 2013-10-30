@@ -33,7 +33,7 @@ public class TrackSourceInfoTest {
 
     @Test
     public void shouldIncludePlaySourceParams() throws Exception {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(123L).originUrl("originUrl1").exploreTag("exploreTag1").build();
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().originUrl("originUrl1").exploreTag("exploreTag1").build();
         final TrackSourceInfo trackSourceInfo = TrackSourceInfo.fromRecommender("version1");
 
         expect(trackSourceInfo.createEventLoggerParams(playSourceInfo))

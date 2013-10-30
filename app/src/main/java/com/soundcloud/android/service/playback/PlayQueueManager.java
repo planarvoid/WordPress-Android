@@ -55,6 +55,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         stopLoadingOperations();
 
         mPlayQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
+        mPlayQueue.setCurrentTrackToUserTriggered();
         broadcastPlayQueueChanged();
 
         saveCurrentPosition(0L);

@@ -757,7 +757,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     /* package */ boolean next() {
-        if (getPlayQueueInternal().moveToNext()) {
+        return next(true);
+    }
+
+    private boolean autoNext() {
+        return next(false);
+    }
+
+    private boolean next(boolean userTriggered) {
+        if (getPlayQueueInternal().moveToNext(userTriggered)) {
             openCurrent(Media.Action.Forward);
             return true;
         } else {
@@ -1103,7 +1111,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     if (state == PLAYING && service.mAutoAdvance) service.next();
                     break;
                 case TRACK_ENDED:
-                    if (!service.mAutoAdvance || !service.next()) {
+                    if (!service.mAutoAdvance || !service.autoNext()) {
                         service.notifyChange(Broadcasts.PLAYBACK_COMPLETE);
                         service.gotoIdleState(COMPLETED);
                     }

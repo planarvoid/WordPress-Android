@@ -16,13 +16,15 @@ public class PlayQueueTest {
 
     @Test
     public void shouldBeParcelable() throws Exception {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(1L)
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder()
                 .exploreTag("explore")
                 .originUrl("url/123")
                 .recommenderVersion("version1")
                 .build();
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L,2L,3L), 0, playSourceInfo, Content.ME_LIKES.uri);
         playQueue.setAppendState(PlayQueue.AppendState.IDLE);
+        playQueue.setCurrentTrackToUserTriggered();
+        String eventLoggerParams = playQueue.getCurrentEventLoggerParams();
 
         Parcel parcel = Parcel.obtain();
         playQueue.writeToParcel(parcel, 0);
@@ -32,6 +34,7 @@ public class PlayQueueTest {
         expect(copy.getPosition()).toBe(0);
         expect(copy.getAppendState()).toEqual(PlayQueue.AppendState.IDLE);
         expect(copy.getPlaySourceInfo()).toEqual(playSourceInfo);
+        expect(copy.getCurrentEventLoggerParams()).toEqual(eventLoggerParams);
         expect(copy.getSourceUri()).toEqual(Content.ME_LIKES.uri);
     }
 
@@ -80,14 +83,14 @@ public class PlayQueueTest {
     @Test
     public void shouldSuccessfullyMoveToNextTrack() {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
-        expect(playQueue.moveToNext()).toBeTrue();
+        expect(playQueue.moveToNext(false)).toBeTrue();
         expect(playQueue.getPosition()).toBe(1);
     }
 
     @Test
     public void shouldNotMoveToNextTrackIfAtEndOfQueue() {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 1);
-        expect(playQueue.moveToNext()).toBeFalse();
+        expect(playQueue.moveToNext(false)).toBeFalse();
         expect(playQueue.getPosition()).toBe(1);
     }
 
@@ -103,7 +106,39 @@ public class PlayQueueTest {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
 
         expect(playQueue.isLastTrack()).toBeFalse();
-        playQueue.moveToNext();
+        playQueue.moveToNext(false);
         expect(playQueue.isLastTrack()).toBeTrue();
+    }
+
+    @Test
+    public void shouldSetCurrentTriggerToManual() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
+        playQueue.setCurrentTrackToUserTriggered();
+        checkManualTrigger(playQueue);
+    }
+
+    @Test
+    public void moveToNextShouldResultInAutoTrigger() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
+        expect(playQueue.moveToNext(false)).toBeTrue();
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto");
+    }
+
+    @Test
+    public void moveToNextShouldResultInManualTrigger() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
+        expect(playQueue.moveToNext(true)).toBeTrue();
+        checkManualTrigger(playQueue);
+    }
+
+    @Test
+    public void moveToPreviousShouldResultInManualTrigger() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 1);
+        expect(playQueue.moveToPrevious()).toBeTrue();
+        checkManualTrigger(playQueue);
+    }
+
+    private void checkManualTrigger(PlayQueue playQueue) {
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=manual");
     }
 }
