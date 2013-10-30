@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.PlaylistDetailActivity;
@@ -24,7 +25,10 @@ import android.content.Intent;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class PlaybackOperations {
 
@@ -129,7 +133,7 @@ public class PlaybackOperations {
             mTrackStorage.getTrackIdsForUriAsync(info.uri).subscribe(new DefaultObserver<List<Long>>() {
                 @Override
                 public void onNext(List<Long> idList) {
-                    intent.putExtra(PlayQueue.EXTRA, new PlayQueue(idList, info.position, info.sourceInfo, info.uri));
+                    intent.putExtra(PlayQueue.EXTRA, createDeDupedPlayQueue(idList, info.position, info.sourceInfo, info.uri));
                     context.startService(intent);
                 }
             });
@@ -141,9 +145,31 @@ public class PlaybackOperations {
                     return input.getId();
                 }
             });
-            intent.putExtra(PlayQueue.EXTRA, new PlayQueue(idList, info.position, info.sourceInfo));
+            intent.putExtra(PlayQueue.EXTRA, createDeDupedPlayQueue(idList, info.position, info.sourceInfo, Uri.EMPTY));
             context.startService(intent);
         }
+    }
+
+    /**
+     * Remove duplicates from playqueue, preserving the ordering with regards to the item they clicked on
+     */
+    private PlayQueue createDeDupedPlayQueue(List<Long> idList, int playPosition, PlaySourceInfo sourceInfo, Uri uri){
+        final Set <Long> seenIds = Sets.newHashSetWithExpectedSize(idList.size());
+        final long playedId = idList.get(playPosition);
+
+        int i = 0;
+        Iterator<Long> iter = idList.iterator();
+        while (iter.hasNext()) {
+            final long val = iter.next().longValue();
+            if (i != playPosition && (seenIds.contains(val) || val == playedId)) {
+                iter.remove();
+                if (i < playPosition) playPosition--;
+            } else {
+                seenIds.add(val);
+                i++;
+            }
+        }
+        return new PlayQueue(idList, playPosition, sourceInfo, uri);
     }
 
     private static class PlayInfo {
