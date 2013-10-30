@@ -48,7 +48,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
                 // these don't sync with mini representations. we might only have ids
-                List<Long> storedIds = new UserAssociationStorage().getStoredIds(params.getPagedUri());
+                List<Long> storedIds = new UserAssociationStorage(context).getStoredIds(params.getPagedUri());
 
                 // if we already have all the data, this is a NOP
                 try {

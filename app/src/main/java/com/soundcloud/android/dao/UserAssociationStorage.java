@@ -27,6 +27,7 @@ import rx.subscriptions.Subscriptions;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 
 import java.util.ArrayList;
@@ -44,8 +45,8 @@ public class UserAssociationStorage extends ScheduledOperations {
     private final UserAssociationDAO mUserAssociationDAO;
     private final UserAssociationDAO mFollowingsDAO;
 
-    public UserAssociationStorage() {
-        this(ScSchedulers.STORAGE_SCHEDULER, SoundCloudApplication.instance.getContentResolver());
+    public UserAssociationStorage(Context context) {
+        this(ScSchedulers.STORAGE_SCHEDULER, SoundCloudApplication.fromContext(context).getContentResolver());
     }
 
     public UserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {
