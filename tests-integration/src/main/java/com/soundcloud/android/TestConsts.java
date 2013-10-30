@@ -12,7 +12,9 @@ public final class TestConsts {
 
     public static final Uri FORSS_SET_URI = Uri.parse("http://soundcloud.com/forss/sets/ecclesia-inspiration");
     public static final Uri FORSS_SET_M_URI = Uri.parse("http://m.soundcloud.com/forss/sets/ecclesia-inspiration");
-    public static final Uri FORSS_SET_SC_URI = Uri.parse("soundcloud:playlists:2050462");
+    public static final Uri FORSS_PLAYLIST_URI = Uri.parse("http://soundcloud.com/forss/playlists/ecclesia-inspiration");
+    public static final Uri FORSS_PLAYLIST_M_URI = Uri.parse("http://m.soundcloud.com/forss/playlists/ecclesia-inspiration");
+    public static final Uri FORSS_PLAYLIST_SC_URI = Uri.parse("soundcloud:playlists:2050462");
 
 
     public static final Uri STEVE_ANGELLO_URI = Uri.parse("http://soundcloud.com/steveangello");
