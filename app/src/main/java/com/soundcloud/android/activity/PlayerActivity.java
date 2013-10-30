@@ -20,6 +20,7 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.PlayerTrackPager;
@@ -370,10 +371,14 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     private final View.OnClickListener mPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
-            final CloudPlaybackService playbackService = mPlaybackService;
+            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
+            final CloudPlaybackService playbackService = mPlaybackService;
             if (playbackService != null && mPlayQueue != PlayQueue.EMPTY) {
-                if (getCurrentDisplayedTrackPosition() != mPlayQueue.getPosition()) {
+
+                if (!CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()
+                        && getCurrentDisplayedTrackPosition() != mPlayQueue.getPosition()) {
+                    // play whatever track is currently on the screen
                     playbackService.setQueuePosition(getCurrentDisplayedTrackPosition());
                 } else {
                     playbackService.togglePlayback();
@@ -520,7 +525,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     refreshTrackPager();
                 }
             } else if (action.equals(Broadcasts.META_CHANGED)) {
-                onMetaChanged(queuePos);
+                mPlayQueue.setPosition(queuePos);
+                onMetaChanged();
             } else if (action.equals(Broadcasts.RELATED_LOAD_STATE_CHANGED)) {
                 if (mPlayQueue != PlayQueue.EMPTY){
 
@@ -569,13 +575,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         }
     };
 
-    private void onMetaChanged(int queuePos) {
+    private void onMetaChanged() {
 
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
         final int playPosition = getCurrentDisplayedTrackPosition();
-        if (playPosition != queuePos) {
+        if (playPosition != mPlayQueue.getPosition()) {
             if (playPosition != -1
-                    && queuePos == playPosition + 1
+                    && mPlayQueue.getPosition() == playPosition + 1
                     && !mTrackPager.isScrolling()) {
                 // auto advance
                 mTrackPager.next();
@@ -585,7 +591,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         }
 
         for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
-            if (ptv.getPlayPosition() != queuePos) {
+            if (ptv.getPlayPosition() != mPlayQueue.getPosition()) {
                 ptv.getWaveformController().reset(false);
             }
         }
