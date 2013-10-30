@@ -24,9 +24,10 @@
         </LinearLayout>
 
         <TextView android:id="@+id/genre"
+                  android:layout_toLeftOf="@+id/playcount"
                   style="@style/ExploreTrackGenre"/>
 
-        <TextView android:id="@+id/playcount"
+        <TextView android:id="@id/playcount"
                   style="@style/ExploreTrackPlaycount"/>
 
     </RelativeLayout>
