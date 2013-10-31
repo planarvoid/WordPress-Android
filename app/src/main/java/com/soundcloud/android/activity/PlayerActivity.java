@@ -105,22 +105,25 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     public boolean onSupportNavigateUp() {
         Uri uri = CloudPlaybackService.getPlayQueueUri();
         Intent upIntent = null;
-        switch (Content.match(uri)){
-            case PLAYLIST:
-                upIntent = new Intent(Actions.PLAYLIST).setData(uri);
-                break;
+        // had a case where URI was null; guess this can happen if the playback service was never started? ugh.
+        if (uri != null) {
+            switch (Content.match(uri)){
+                case PLAYLIST:
+                    upIntent = new Intent(Actions.PLAYLIST).setData(uri);
+                    break;
 
-            case ME_SOUND_STREAM:
-                upIntent = new Intent(Actions.STREAM);
-                break;
+                case ME_SOUND_STREAM:
+                    upIntent = new Intent(Actions.STREAM);
+                    break;
 
-            case ME_SOUNDS:
-                upIntent = new Intent(Actions.YOUR_SOUNDS);
-                break;
+                case ME_SOUNDS:
+                    upIntent = new Intent(Actions.YOUR_SOUNDS);
+                    break;
 
-            case ME_LIKES:
-                upIntent = new Intent(Actions.YOUR_LIKES);
-                break;
+                case ME_LIKES:
+                    upIntent = new Intent(Actions.YOUR_LIKES);
+                    break;
+            }
         }
 
         if (upIntent != null){
