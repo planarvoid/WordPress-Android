@@ -98,6 +98,9 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     public void onNavigationDrawerItemSelected(int position) {
         switch (NavigationDrawerFragment.NavItem.values()[position]) {
             case PROFILE:
+                // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
+                // don't forget to search for the TODOs related to this in NavigationDrawerFragment.
+                // --Your friend.
                 startActivity(new Intent(this, You.class));
                 break;
 

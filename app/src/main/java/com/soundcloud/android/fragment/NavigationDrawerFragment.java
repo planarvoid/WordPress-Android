@@ -48,7 +48,7 @@ public class NavigationDrawerFragment extends Fragment {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerListView;
 
-    private int mCurrentSelectedPosition = 1; //Default to Stream
+    private int mCurrentSelectedPosition = NavItem.STREAM.ordinal();
     private ShowcaseView mCurrentMenuShowcase;
 
     private ProfileViewHolder mProfileViewHolder;
@@ -90,7 +90,12 @@ public class NavigationDrawerFragment extends Fragment {
 
         setHasOptionsMenu(true);
         if (savedInstanceState != null) {
-            selectItem(savedInstanceState.getInt(STATE_SELECTED_POSITION));
+            final int previousPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
+            // TODO: user profile needs special treatment since it's an Activity, not a fragment
+            // Can remove this once we port this over to be a fragment as well
+            if (previousPosition != NavItem.PROFILE.ordinal()) {
+                selectItem(previousPosition);
+            }
 
         } else if (!handleIntent(getActivity().getIntent())) {
             selectItem(mCurrentSelectedPosition);
@@ -279,9 +284,11 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void selectItem(int position) {
-        mCurrentSelectedPosition = position;
+        // TODO: Since the user profile currently opens in a new activity, we must not adjust the current selection
+        // index. Remove this workaround when the user browser has become a fragment too
         if (mDrawerListView != null) {
-            mDrawerListView.setItemChecked(position, true);
+            int checkedPosition = position == NavItem.PROFILE.ordinal() ? mCurrentSelectedPosition : position;
+            mDrawerListView.setItemChecked(checkedPosition, true);
         }
         if (mDrawerLayout != null) {
             mDrawerLayout.closeDrawer(getView());
@@ -289,6 +296,7 @@ public class NavigationDrawerFragment extends Fragment {
         if (mCallbacks != null) {
             mCallbacks.onNavigationDrawerItemSelected(position);
         }
+        mCurrentSelectedPosition = position;
     }
 
     /**
