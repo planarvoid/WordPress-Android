@@ -55,7 +55,8 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         oldCloudAPI = new OldCloudAPI(this);
         mAccountOperations = new AccountOperations(this);
         ApplicationProperties mApplicationProperties = new ApplicationProperties(getResources());
-        if (mAccountOperations.soundCloudAccountExists()) {
+
+        if (savedInstanceState != null && mAccountOperations.soundCloudAccountExists()) {
 
             if (IOUtils.isConnected(this) &&
                     mAccountOperations.soundCloudAccountExists() &&
