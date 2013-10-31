@@ -4,9 +4,9 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.test.ShareSound;
 import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.AudioTestCase;
-import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.ScAndroidTestCase;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +44,7 @@ public class ThirdPartySharingTest extends ActivityTestCase<ShareSound> {
     }
 
     @Override public void setUp() throws Exception {
-        IntegrationTestHelper.loginAsDefault(getInstrumentation());
+        AccountAssistant.loginAsDefault(getInstrumentation());
         intents = Collections.synchronizedMap(new LinkedHashMap<String, Intent>());
         lbm = LocalBroadcastManager.getInstance(getActivity());
         lbm.registerReceiver(receiver, UploadService.getIntentFilter());

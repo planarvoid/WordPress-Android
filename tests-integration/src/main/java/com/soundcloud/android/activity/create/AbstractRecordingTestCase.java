@@ -15,8 +15,8 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.Runner;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.create.TrimHandle;
@@ -73,7 +73,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<ScCreat
 
     @Override
     public void setUp() throws Exception {
-        IntegrationTestHelper.loginAsDefault(getInstrumentation());
+        AccountAssistant.loginAsDefault(getInstrumentation());
         recordingTime = applicationProperties.isRunningOnEmulator() ? 6000 : 2000;
         intents = Collections.synchronizedMap(new LinkedHashMap<String, Intent>());
         lbm = LocalBroadcastManager.getInstance(getActivity());

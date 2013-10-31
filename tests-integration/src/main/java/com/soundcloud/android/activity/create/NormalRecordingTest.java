@@ -11,7 +11,7 @@ import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.tests.IntegrationTestHelper;
+import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.SlowTest;
 
 import android.content.Intent;
@@ -302,7 +302,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         record(recordingTime);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
         solo.clickOnView(R.id.abs__home);
-        solo.clickOnText(IntegrationTestHelper.USERNAME);
+        solo.clickOnText(AccountAssistant.USERNAME);
         solo.assertActivity(You.class);
     }
 

@@ -21,7 +21,7 @@ public class Waiter {
 
             @Override
             public boolean isSatisfied() {
-                return !solo.searchText(text, true);
+                return !solo.searchTextWithoutScrolling(text);
             }
         };
         return solo.waitForCondition(condition, this.TIMEOUT);

@@ -1,7 +1,7 @@
 package com.soundcloud.android.service.sync;
 
-import static com.soundcloud.android.tests.IntegrationTestHelper.initAsyncTask;
-import static com.soundcloud.android.tests.IntegrationTestHelper.loginAsDefault;
+import static com.soundcloud.android.tests.AccountAssistant.initAsyncTask;
+import static com.soundcloud.android.tests.AccountAssistant.loginAsDefault;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.ContentStats;

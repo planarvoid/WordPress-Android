@@ -1,8 +1,8 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.activity.ResolveActivity;
+import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -18,7 +18,7 @@ public abstract class ResolveBaseTest extends ActivityTestCase<ResolveActivity> 
 
     @Override
     protected void setUp() throws Exception {
-        IntegrationTestHelper.loginAsDefault(getInstrumentation());
+        AccountAssistant.loginAsDefault(getInstrumentation());
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
         super.setUp();
     }

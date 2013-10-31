@@ -45,10 +45,6 @@ public class MenuScreen {
         clickSideMenuOption(R.id.nav_explore, R.id.pager);
     }
 
-    public void openStream() {
-        clickSideMenuOption(R.id.nav_stream, R.id.content_frame);
-    }
-
     private void clickSideMenuOption(int menuId, int viewToWaitForId){
         solo.clickOnView(R.id.custom_home);
         View exploreMenuButton = rootMenu().findViewById(menuId);
@@ -56,4 +52,6 @@ public class MenuScreen {
         solo.waitForViewId(viewToWaitForId, 3000);
         waiter.waitForListContent();
     }
+
+
 }

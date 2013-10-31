@@ -180,8 +180,6 @@ public class Han  {
         final int screenWidth = display.getWidth();
 
         drag(screenWidth/4, screenWidth/4, screenHeight/4, screenHeight/2, 10);
-
-        solo.sleep(SWIPE_SLEEP);
     }
 
     public void enterTextId(int resId, String text) {
@@ -341,6 +339,10 @@ public class Han  {
     }
     public boolean searchText(String text, boolean onlyVisible) {
         return solo.searchText(text, onlyVisible);
+    }
+
+    public boolean searchTextWithoutScrolling(String text){
+        return solo.searchText(text,0,false,true);
     }
 
     public void typeText(EditText editText, String text) {

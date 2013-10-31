@@ -7,7 +7,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -21,13 +20,13 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public final class IntegrationTestHelper {
+public final class AccountAssistant {
     public static final String USERNAME = "android-testing";
     public static final String PASSWORD = "android-testing";
     public static final Integer TIMEOUT = 1000;
 
-    private IntegrationTestHelper() {}
-    private static final String TAG = IntegrationTestHelper.class.getSimpleName();
+    private AccountAssistant() {}
+    private static final String TAG = AccountAssistant.class.getSimpleName();
 
     public static Account loginAsDefault(final Instrumentation instrumentation) throws Exception {
         return loginAs(instrumentation, USERNAME, PASSWORD);
@@ -64,7 +63,7 @@ public final class IntegrationTestHelper {
             token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
             user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
         } catch (Exception e) {
-            Log.w(IntegrationTestHelper.class.getSimpleName(), e);
+            Log.w(AccountAssistant.class.getSimpleName(), e);
             throw new AssertionError("error logging in: "+e.getMessage());
         }
         assertNotNull("could not get test user", user);

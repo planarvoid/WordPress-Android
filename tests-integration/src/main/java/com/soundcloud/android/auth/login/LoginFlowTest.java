@@ -16,7 +16,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
-import com.soundcloud.android.tests.IntegrationTestHelper;
+import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.Waiter;
 
 import android.webkit.WebView;
@@ -38,7 +38,7 @@ public class LoginFlowTest extends LoginTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        IntegrationTestHelper.logOut(getInstrumentation());
+        AccountAssistant.logOut(getInstrumentation());
 
         recoveryScreen  = new RecoverPasswordScreen(solo);
         menuScreen      = new MenuScreen(solo);
