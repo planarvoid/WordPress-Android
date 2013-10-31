@@ -40,7 +40,7 @@ import java.util.EnumSet;
 public class NavigationDrawerFragment extends Fragment {
 
     private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
-    public static final int NO_IMAGE = -1;
+    private static final int NO_IMAGE = -1;
 
     private NavigationDrawerCallbacks mCallbacks;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -64,7 +64,7 @@ public class NavigationDrawerFragment extends Fragment {
         private final int textId;
         private final int imageId;
 
-        private NavItem(int textId, int imageId){
+        private NavItem(int textId, int imageId) {
             this.textId = textId;
             this.imageId = imageId;
         }
@@ -82,19 +82,19 @@ public class NavigationDrawerFragment extends Fragment {
         if (savedInstanceState != null) {
             selectItem(savedInstanceState.getInt(STATE_SELECTED_POSITION));
 
-        } else if (!handleIntent(getActivity().getIntent())){
+        } else if (!handleIntent(getActivity().getIntent())) {
             selectItem(mCurrentSelectedPosition);
         }
     }
 
-    public boolean handleIntent(Intent intent){
+    public boolean handleIntent(Intent intent) {
         final String action = intent.getAction();
-        if (ScTextUtils.isNotBlank(action)){
-            if (Actions.STREAM.equals(action)){
+        if (ScTextUtils.isNotBlank(action)) {
+            if (Actions.STREAM.equals(action)) {
                 selectItem(NavItem.STREAM.ordinal());
                 return true;
 
-            } else if (Actions.YOUR_LIKES.equals(action)){
+            } else if (Actions.YOUR_LIKES.equals(action)) {
                 selectItem(NavItem.LIKES.ordinal());
                 return true;
             }
@@ -104,8 +104,8 @@ public class NavigationDrawerFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        mDrawerListView = (ListView) inflater.inflate( R.layout.fragment_navigation_drawer, container, false);
+                             Bundle savedInstanceState) {
+        mDrawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -127,7 +127,7 @@ public class NavigationDrawerFragment extends Fragment {
 
         int i = 0;
         NavItem[] data = new NavItem[TEXT_NAV_ITEMS.size()];
-        for (NavItem navItem : TEXT_NAV_ITEMS){
+        for (NavItem navItem : TEXT_NAV_ITEMS) {
             data[i++] = navItem;
         }
 
@@ -167,7 +167,7 @@ public class NavigationDrawerFragment extends Fragment {
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
 
-                if (mCurrentMenuShowcase != null && mCurrentMenuShowcase.isShown()){
+                if (mCurrentMenuShowcase != null && mCurrentMenuShowcase.isShown()) {
                     mCurrentMenuShowcase.hide();
                 }
             }

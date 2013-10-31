@@ -31,25 +31,24 @@ import android.view.Menu;
 
 public class MainActivity extends ScActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
+    public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
+
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private CharSequence mLastTitle;
-
-    public static final String EXTRA_ONBOARDING_USERS_RESULT  = "onboarding_users_result";
 
     private FetchUserTask mFetchUserTask;
     private AccountOperations mAccountOperations;
 
     private AndroidCloudAPI oldCloudAPI;
-    private ApplicationProperties mApplicationProperties;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_activity);
 
         mLastTitle = getTitle();
         mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mNavigationDrawerFragment.setUp( R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+        mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
 
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
@@ -57,7 +56,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
 
         oldCloudAPI = new OldCloudAPI(this);
         mAccountOperations = new AccountOperations(this);
-        mApplicationProperties = new ApplicationProperties(getResources());
+        ApplicationProperties mApplicationProperties = new ApplicationProperties(getResources());
         if (mAccountOperations.soundCloudAccountExists()) {
 
             if (IOUtils.isConnected(this) &&
@@ -99,7 +98,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        switch (NavigationDrawerFragment.NavItem.values()[position]){
+        switch (NavigationDrawerFragment.NavItem.values()[position]) {
             case PROFILE:
                 startActivity(new Intent(this, You.class));
                 break;
@@ -115,7 +114,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
 
             case EXPLORE:
                 fragment = getSupportFragmentManager().findFragmentByTag("explore_fragment");
-                if (fragment ==  null){
+                if (fragment == null) {
                     fragment = new ExploreFragment();
                 }
                 attachFragment(fragment, "explore_fragment");
@@ -141,7 +140,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     }
 
     public void onSectionAttached(int resourceId) {
-        if (resourceId > 0){
+        if (resourceId > 0) {
             mLastTitle = getString(resourceId);
         }
     }
