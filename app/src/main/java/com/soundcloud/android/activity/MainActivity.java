@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
+import android.view.MenuItem;
 
 public class MainActivity extends ScActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -156,10 +157,16 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Keep null check. This might fire as a result of setContentView in which case this var won't be assigned
-        if (mNavigationDrawerFragment != null && !mNavigationDrawerFragment.isDrawerOpen()) {
+        if (mNavigationDrawerFragment != null) {
             return super.onCreateOptionsMenu(menu);
         }
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        mNavigationDrawerFragment.closeDrawer();
+        return super.onOptionsItemSelected(item);
     }
 
     private boolean justAuthenticated(Intent intent) {
