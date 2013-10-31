@@ -233,6 +233,7 @@
         <item name="android:antialias">true</item>
 
         <item name="jagged_background">#CC000000</item>
+        <item name="android:background">#CC000000</item>
         <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 

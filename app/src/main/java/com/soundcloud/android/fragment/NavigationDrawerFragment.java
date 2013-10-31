@@ -148,7 +148,7 @@ public class NavigationDrawerFragment extends Fragment {
         mProfileViewHolder = new ProfileViewHolder();
         mProfileViewHolder.imageView = (ImageView) view.findViewById(R.id.avatar);
         mProfileViewHolder.username = (TextView) view.findViewById(R.id.username);
-        mProfileViewHolder.location = (TextView) view.findViewById(R.id.location);
+        mProfileViewHolder.followers = (TextView) view.findViewById(R.id.followers_count);
 
         updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser());
 
@@ -216,12 +216,8 @@ public class NavigationDrawerFragment extends Fragment {
 
     public void updateProfileItem(User user) {
         mProfileViewHolder.username.setText(user.getUsername());
-        final String location = user.getLocation();
-        if (ScTextUtils.isNotBlank(location)) {
-            mProfileViewHolder.location.setText(location);
-        } else {
-            mProfileViewHolder.location.setVisibility(View.GONE);
-        }
+        mProfileViewHolder.followers.setText(getResources().getQuantityString(
+                R.plurals.number_of_followers, user.followers_count, user.followers_count));
 
         ImageLoader.getInstance().displayImage(ImageSize.T500.formatUri(user.getNonDefaultAvatarUrl()),
                 mProfileViewHolder.imageView, ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
@@ -316,7 +312,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     private static class ProfileViewHolder {
         public ImageView imageView;
-        public TextView username, location;
+        public TextView username, followers;
     }
 
     private class DrawerAdapter extends ArrayAdapter<NavItem> {

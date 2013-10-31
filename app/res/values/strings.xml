@@ -134,6 +134,15 @@
     <string name="version">Version</string>
     <string name="unavailable">Unavailable</string>
 
+    <string name="title_account_settings">Account Settings</string>
+    <string name="title_notification_settings">Notification Settings</string>
+    <string name="title_about">About</string>
+    <string name="title_legal">Legal</string>
+
+    <string name="title_now_playing">Now Playing</string>
+
+    <string name="search">Search</string>
+
     <!-- onboarding -->
     <string name="suggested_users_genres_large_title">Choose your favorite categories</string>
     <string name="suggested_users_genres_sub_title">Follow people trending in the SoundCloud community.</string>
@@ -153,11 +162,10 @@
     <string name="try_again">Try Again</string>
     <string name="finish">Finish</string>
 
-
-
     <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
     <string name="error_onboarding_filling">We\'re working on it!</string>
 
+    <!-- explore -->
     <string name="side_menu_explore">Explore</string>
 
     <string name="explore_genres">Genres</string>
@@ -183,19 +191,7 @@
     <string name="showcase_explore_title">Explore</string>
     <string name="showcase_explore_message">Hear what\'s new and popular\nPick a track and listen to related sounds for hours.</string>
 
-    <string name="drawer_open">Open navigation drawer</string>
-    <string name="drawer_close">Close navigation drawer</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="title_account_settings">Account Settings</string>
-    <string name="title_notification_settings">Notification Settings</string>
-    <string name="title_about">About</string>
-    <string name="title_legal">Legal</string>
-
-    <string name="title_now_playing">Now Playing</string>
-
-    <string name="search">Search</string>
 
 </resources>
