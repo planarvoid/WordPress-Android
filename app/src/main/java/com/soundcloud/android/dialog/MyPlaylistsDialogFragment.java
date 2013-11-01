@@ -207,7 +207,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = View.inflate(mContext, R.layout.pick_set_row, null);
+                convertView = View.inflate(mContext, R.layout.add_to_playlist_list_item, null);
             }
 
             if (mCursor.moveToPosition(position)) {
@@ -222,11 +222,11 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
                 final int trackCount = mCursor.getInt(mCursor.getColumnIndex(DBHelper.PlaylistTracksView.TRACK_COUNT));
                 if (trackCount == -1) {
                     txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
-                            mContext.getResources().getDrawable(R.drawable.ic_new_set), null, null, null);
+                            mContext.getResources().getDrawable(R.drawable.ic_plus), null, null, null);
                     txtTrackCount.setText("");
                 } else {
                     txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
-                            mContext.getResources().getDrawable(R.drawable.stream_white_sm), null, null, null);
+                            mContext.getResources().getDrawable(R.drawable.stats_sounds), null, null, null);
                     txtTrackCount.setText(String.valueOf(trackCount));
                 }
             }
