@@ -3,9 +3,6 @@
     <color name="scOrange">#ff6600</color>
     <color name="scDarkOrange">#CCe36711</color>
     <color name="scDarkGray">#CC101010</color>
-    <color name="scAlphaOrange">#aaff6600</color>
-
-    <color name="scDivider">#30000000</color>
 
     <color name="gray_text">#CCCCCC</color>
 
@@ -83,8 +80,6 @@
     <color name="upload_monitor_text">#ff000000</color>
     <color name="upload_monitor_text_inactive">#ff9e9e9e</color>
 
-    <color name="fim_item_text_color">#ffffff</color>
-
     <color name="search_item_unselected_color">#999999</color>
     <color name="search_item_selected_color">#ffffff</color>
     <color name="search_item_pressed_color">@color/scOrange</color>
@@ -97,9 +92,6 @@
     <color name="track_info_separator">#FFE5E5E5</color>
 
     <color name="txt_description_color">#FF666666</color>
-
-    <color name="dialog_list_txt_disabled">#777</color>
-    <color name="error_view_bg">#EFEFEF</color>
 
     <color name="dark_gray_text">#FF333333</color>
 
