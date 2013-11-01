@@ -3,6 +3,7 @@
 <!-- might appear unused, but overrides the list dialog styles from the styled-dialogs library -->
 <!-- https://github.com/inmite/android-styled-dialogs -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
               style="@style/SDL.Group">
     <TextView
             android:id="@+id/sdl__title"
@@ -14,5 +15,6 @@
 
     <LinearLayout
             android:id="@+id/sdl__content"
+            android:orientation="vertical"
             style="@style/SDL.Group"/>
 </LinearLayout>
