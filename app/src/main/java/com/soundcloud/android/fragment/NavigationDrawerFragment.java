@@ -118,6 +118,15 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        // Update the checked state of the nav items to the last known position. It's important to do this in onResume
+        // as long as the user profile opens in a new activity, since when returning via the up button would otherwise
+        // not update it to the last selected content fragment
+        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mDrawerListView = setupDrawerListView(inflater, container);
@@ -190,8 +199,6 @@ public class NavigationDrawerFragment extends Fragment {
         drawerListView.setAdapter(new DrawerAdapter(
                 getActionBar().getThemedContext(),
                 R.layout.nav_drawer_item, data));
-
-        drawerListView.setItemChecked(mCurrentSelectedPosition, true);
 
         return drawerListView;
     }
@@ -286,9 +293,8 @@ public class NavigationDrawerFragment extends Fragment {
     private void selectItem(int position) {
         // TODO: Since the user profile currently opens in a new activity, we must not adjust the current selection
         // index. Remove this workaround when the user browser has become a fragment too
-        if (mDrawerListView != null) {
-            int checkedPosition = position == NavItem.PROFILE.ordinal() ? mCurrentSelectedPosition : position;
-            mDrawerListView.setItemChecked(checkedPosition, true);
+        if (position != NavItem.PROFILE.ordinal()) {
+            mCurrentSelectedPosition = position;
         }
         if (mDrawerLayout != null) {
             mDrawerLayout.closeDrawer(getView());
@@ -296,7 +302,6 @@ public class NavigationDrawerFragment extends Fragment {
         if (mCallbacks != null) {
             mCallbacks.onNavigationDrawerItemSelected(position);
         }
-        mCurrentSelectedPosition = position;
     }
 
     /**
