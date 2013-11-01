@@ -32,6 +32,7 @@ import android.view.MenuItem;
 public class MainActivity extends ScActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
+    private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private CharSequence mLastTitle;
@@ -46,29 +47,37 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        mLastTitle = getTitle();
         mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-
-        // this must come after setting up the navigation drawer to configure the action bar properly
-        supportInvalidateOptionsMenu();
 
         oldCloudAPI = new OldCloudAPI(this);
         mAccountOperations = new AccountOperations(this);
         ApplicationProperties mApplicationProperties = new ApplicationProperties(getResources());
 
-        if (savedInstanceState != null && mAccountOperations.soundCloudAccountExists()) {
+        if (savedInstanceState != null) {
+            mLastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
+        } else {
+            mLastTitle = getTitle();
 
-            if (IOUtils.isConnected(this) &&
-                    mAccountOperations.soundCloudAccountExists() &&
-                    mAccountOperations.getSoundCloudToken().valid() &&
-                    !getApp().getLoggedInUser().isPrimaryEmailConfirmed() &&
-                    !justAuthenticated(getIntent())) {
-                checkEmailConfirmed();
+            if (mAccountOperations.soundCloudAccountExists()) {
+                handleLoggedInUser(mApplicationProperties);
             }
+        }
 
-            if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
-                UpdateManager.register(this, getString(R.string.hockey_app_id));
-            }
+        // this must come after setting up the navigation drawer to configure the action bar properly
+        supportInvalidateOptionsMenu();
+    }
+
+    private void handleLoggedInUser(ApplicationProperties mApplicationProperties) {
+        if (IOUtils.isConnected(this) &&
+                mAccountOperations.soundCloudAccountExists() &&
+                mAccountOperations.getSoundCloudToken().valid() &&
+                !getApp().getLoggedInUser().isPrimaryEmailConfirmed() &&
+                !justAuthenticated(getIntent())) {
+            checkEmailConfirmed();
+        }
+
+        if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
+            UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
     }
 
@@ -96,6 +105,12 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     }
 
     @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putCharSequence(EXTRA_ACTIONBAR_TITLE, mLastTitle);
+    }
+
+    @Override
     public void onNavigationDrawerItemSelected(int position) {
         switch (NavigationDrawerFragment.NavItem.values()[position]) {
             case PROFILE:
@@ -112,7 +127,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
                         Content.ME_SOUND_STREAM.uri.buildUpon()
                                 .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
                 Fragment fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
-                attachFragment(fragment, "stream_fragment");
+                attachFragment(fragment, "stream_fragment", R.string.side_menu_stream);
                 break;
 
             case EXPLORE:
@@ -120,32 +135,27 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
                 if (fragment == null) {
                     fragment = new ExploreFragment();
                 }
-                attachFragment(fragment, "explore_fragment");
+                attachFragment(fragment, "explore_fragment", R.string.side_menu_explore);
                 break;
 
             case LIKES:
                 fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
-                attachFragment(fragment, "likes_fragment");
+                attachFragment(fragment, "likes_fragment", R.string.side_menu_likes);
                 break;
 
             case PLAYLISTS:
                 fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
-                attachFragment(fragment, "playlists_fragment");
+                attachFragment(fragment, "playlists_fragment", R.string.side_menu_playlists);
                 break;
         }
 
     }
 
-    private void attachFragment(Fragment fragment, String tag) {
+    private void attachFragment(Fragment fragment, String tag, int titleResId) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, fragment, tag)
                 .commit();
-    }
-
-    public void onSectionAttached(int resourceId) {
-        if (resourceId > 0) {
-            mLastTitle = getString(resourceId);
-        }
+        mLastTitle = getString(titleResId);
     }
 
     public boolean restoreActionBar() {
