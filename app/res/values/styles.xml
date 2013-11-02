@@ -479,6 +479,7 @@
 
     <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">
         <item name="android:inputType">textNoSuggestions|textEmailAddress</item>
+        <item name="android:dropDownSelector">@drawable/list_selector_gray</item>
     </style>
 
     <style name="SignUp.PasswordEntry" parent="SignUp.TextEntry">

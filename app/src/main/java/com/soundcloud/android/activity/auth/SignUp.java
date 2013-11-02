@@ -92,7 +92,7 @@ public class SignUp extends AuthLayout {
         });
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                getContext(), android.R.layout.simple_dropdown_item_1line, AndroidUtils.listEmails(getContext()));
+                getContext(), R.layout.onboard_email_dropdown_item, AndroidUtils.listEmails(getContext()));
         emailField.setAdapter(adapter);
         emailField.setThreshold(0);
 
