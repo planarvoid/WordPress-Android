@@ -3,7 +3,6 @@ package com.soundcloud.android.service.upload;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.dao.SoundAssociationStorage;
 import com.soundcloud.android.dao.TrackStorage;
@@ -31,6 +30,11 @@ import java.io.IOException;
 import java.util.Locale;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
+    private final SoundAssociationStorage mSoundAssociationStorage = new SoundAssociationStorage();
+    private final TrackStorage mTrackStorage = new TrackStorage();
+    private final RecordingStorage mRecordingStorage = new RecordingStorage();
+    private final SyncStateManager mSyncStateManager;
+
     private AndroidCloudAPI api;
     private Recording mUpload;
     private volatile boolean mCanceled;
@@ -45,6 +49,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
         mResources = context.getResources();
+        mSyncStateManager = new SyncStateManager(context);
     }
 
     public boolean isCancelled() {
@@ -146,11 +151,11 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private void onUploadSuccess(HttpResponse response) {
         try {
             Track track = api.getMapper().readValue(response.getEntity().getContent(), Track.class);
-            new TrackStorage().createOrUpdate(track);
-            new SoundAssociationStorage().addCreation(track);
+            mTrackStorage.createOrUpdate(track);
+            mSoundAssociationStorage.addCreation(track);
 
             //request to update my collection
-            new SyncStateManager(SoundCloudApplication.instance).forceToStale(Content.ME_SOUNDS.uri);
+            mSyncStateManager.forceToStale(Content.ME_SOUNDS.uri);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 
@@ -164,7 +169,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
                 IOUtils.deleteFile(artworkPath);
             }
 
-            new RecordingStorage().updateStatus(mUpload);
+            mRecordingStorage.updateStatus(mUpload);
 
             broadcast(UploadService.TRANSFER_SUCCESS, track);
         } catch (IOException e) {

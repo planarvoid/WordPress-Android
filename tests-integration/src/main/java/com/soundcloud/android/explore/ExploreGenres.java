@@ -2,18 +2,18 @@ package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.tests.TestUser.testUser;
 
-import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.screens.explore.ExploreGenreScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 
-public class ExploreGenres extends ActivityTestCase<Home> {
+public class ExploreGenres extends ActivityTestCase<MainActivity> {
     private ExploreScreen exploreScreen;
     private ExploreGenreScreen exploreGenreScreen;
 
     public ExploreGenres() {
-        super(Home.class);
+        super(MainActivity.class);
     }
 
     @Override

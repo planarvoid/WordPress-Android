@@ -6,6 +6,7 @@ import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.player.PlayerTrackView;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import org.jetbrains.annotations.NotNull;

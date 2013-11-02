@@ -1,6 +1,7 @@
 package com.soundcloud.android.fragment;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import static rx.android.AndroidObservables.fromFragment;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
@@ -17,20 +18,20 @@ import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.AndroidObservables;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class ExploreTracksCategoriesFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
+public class ExploreTracksCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware {
 
     private static final Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>> CATEGORIES_TO_SECTIONS =
@@ -47,6 +48,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;
 
+    private ExploreTracksOperations mTracksOperations;
     private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
     private Subscription mSubscription = Subscriptions.empty();
 
@@ -56,7 +58,8 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
 
     @VisibleForTesting
     protected ExploreTracksCategoriesFragment(ExploreTracksOperations operations) {
-        init(AndroidObservables.fromFragment(this, operations.getCategories()).mapMany(CATEGORIES_TO_SECTIONS).replay());
+        mTracksOperations = operations;
+        init(buildObservable());
     }
 
     @VisibleForTesting
@@ -66,7 +69,10 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
 
     private void init(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
         mCategoriesObservable = observable;
-        setRetainInstance(true);
+    }
+
+    private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable() {
+        return fromFragment(this, mTracksOperations.getCategories()).mapMany(CATEGORIES_TO_SECTIONS).replay();
     }
 
     @Override
@@ -82,6 +88,8 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
         startActivity(intent);
     }
 
+
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -92,6 +100,7 @@ public class ExploreTracksCategoriesFragment extends SherlockFragment implements
             @Override
             public void onEmptyViewRetry() {
                 setEmptyViewStatus(FriendFinderFragment.Status.WAITING);
+                mCategoriesObservable = buildObservable();
                 mSubscription = loadCategories();
             }
         });

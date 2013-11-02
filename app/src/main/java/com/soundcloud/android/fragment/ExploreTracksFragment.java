@@ -2,7 +2,6 @@ package com.soundcloud.android.fragment;
 
 import static rx.android.OperationPaged.Page;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -16,7 +15,7 @@ import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
-import com.soundcloud.android.utils.PlayUtils;
+import com.soundcloud.android.utils.PlaybackOperations;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observer;
 import rx.Subscription;
@@ -25,13 +24,14 @@ import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-public class ExploreTracksFragment extends SherlockFragment implements AdapterView.OnItemClickListener,
+public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
 
     private static final int GRID_VIEW_ID = R.id.suggested_tracks_grid;
@@ -40,7 +40,7 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     private EmptyListView mEmptyListView;
     private ExploreTracksAdapter mAdapter;
     private ExploreTracksObserver mObserver;
-    private PlayUtils mPlayUtils;
+    private PlaybackOperations mPlaybackOperations;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
@@ -54,22 +54,28 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     }
 
     public ExploreTracksFragment() {
-        setRetainInstance(true);
-        mPlayUtils = new PlayUtils();
+        mPlaybackOperations = new PlaybackOperations();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mAdapter = new ExploreTracksAdapter();
         mObserver = new ExploreTracksObserver();
+
         mSuggestedTracksObservable = buildSuggestedTracksObservable();
+        loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
     }
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> buildSuggestedTracksObservable() {
-        final ExploreTracksCategory category = getArguments().getParcelable(ExploreTracksCategory.EXTRA);
+        final ExploreTracksCategory category = getExploreCategory();
         final ExploreTracksOperations operations = new ExploreTracksOperations();
         return AndroidObservables.fromFragment(this, operations.getSuggestedTracks(category)).replay();
+    }
+
+    private ExploreTracksCategory getExploreCategory() {
+        return getArguments().getParcelable(ExploreTracksCategory.EXTRA);
     }
 
     private void loadTrackSuggestions(ConnectableObservable<Page<SuggestedTracksCollection>> observable,
@@ -88,14 +94,13 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mAdapter.getItem(position));
-        mPlayUtils.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag());
+        mPlaybackOperations.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag());
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mAdapter = new ExploreTracksAdapter();
         mEmptyListView = (EmptyListView) view.findViewById(android.R.id.empty);
         mEmptyListView.setStatus(mEmptyViewStatus);
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
@@ -114,8 +119,6 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
         gridView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(), false, true, mAdapter)));
-
-        loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
     }
 
     @Override
@@ -126,8 +129,8 @@ public class ExploreTracksFragment extends SherlockFragment implements AdapterVi
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mSubscription.unsubscribe();
+        super.onDestroy();
     }
 
     @Override

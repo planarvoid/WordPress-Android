@@ -36,22 +36,28 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
     private final RecordingDAO mRecordingDAO;
 
     public RecordingStorage() {
+        super(ScSchedulers.STORAGE_SCHEDULER);
         ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
         mRecordingDAO = new RecordingDAO(resolver);
-        subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
     }
 
     @Override
-    public Observable<Recording> create(final Recording recording) {
+    public Observable<Recording> storeAsync(final Recording recording) {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<Recording>() {
             @Override
             public Subscription onSubscribe(Observer<? super Recording> observer) {
-                mRecordingDAO.create(recording);
+                store(recording);
                 observer.onNext(recording);
                 observer.onCompleted();
                 return Subscriptions.empty();
             }
         }));
+    }
+
+    @Override
+    public Recording store(Recording recording) {
+        mRecordingDAO.create(recording);
+        return recording;
     }
 
     public void createFromBaseValues(Recording recording) {
@@ -123,25 +129,16 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
         return unsaved;
     }
 
-    public Observable<Boolean> delete(final Recording recording) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Boolean> observer) {
-                boolean deleted = false;
-                if (!recording.external_upload || recording.isLegacyRecording()) {
-                    deleted = IOUtils.deleteFile(recording.audio_path);
-                }
-                IOUtils.deleteFile(recording.getEncodedFile());
-                IOUtils.deleteFile(recording.getAmplitudeFile());
-                if (recording.getId() > 0) {
-                    mRecordingDAO.delete(recording);
-                }
-
-                observer.onNext(deleted);
-                observer.onCompleted();
-
-                return Subscriptions.empty();
-            }
-        }));
+    public boolean delete(final Recording recording) {
+        boolean deleted = false;
+        if (!recording.external_upload || recording.isLegacyRecording()) {
+            deleted = IOUtils.deleteFile(recording.audio_path);
+        }
+        IOUtils.deleteFile(recording.getEncodedFile());
+        IOUtils.deleteFile(recording.getAmplitudeFile());
+        if (recording.getId() > 0) {
+            mRecordingDAO.delete(recording);
+        }
+        return deleted;
     }
 }

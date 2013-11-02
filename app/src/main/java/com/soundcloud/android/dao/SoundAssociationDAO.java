@@ -10,7 +10,10 @@ import android.content.ContentResolver;
 import java.util.ArrayList;
 import java.util.List;
 
-class SoundAssociationDAO extends BaseDAO<SoundAssociation> {
+/**
+ * Table object for sound associations. Do not use outside this package, use {@link SoundAssociationStorage} instead.
+ */
+/* package */ class SoundAssociationDAO extends BaseDAO<SoundAssociation> {
     public SoundAssociationDAO(ContentResolver contentResolver) {
         super(contentResolver);
     }

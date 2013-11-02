@@ -42,5 +42,9 @@
         <item quantity="one">and 1 other</item>
         <item quantity="other">and %d others</item>
     </plurals>
+    <plurals name="number_of_followers">
+        <item quantity="one">1 follower</item>
+        <item quantity="other">%d followers</item>
+    </plurals>
 
 </resources>

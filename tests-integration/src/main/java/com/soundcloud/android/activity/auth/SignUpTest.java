@@ -10,9 +10,9 @@ import android.widget.EditText;
 
 import java.util.UUID;
 
-public class SignUpTest extends ActivityTestCase<Onboard> {
+public class SignUpTest extends ActivityTestCase<OnboardActivity> {
     public SignUpTest() {
-        super(Onboard.class);
+        super(OnboardActivity.class);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class SignUpTest extends ActivityTestCase<Onboard> {
 
     public void ignore_testSignupWithNonMatchingPasswords() throws Exception {
         performSignup(generateEmail(), "password");
-        solo.assertText(R.string.authentication_error_password_mismatch);
+        solo.assertText(R.string.authentication_login_error_password_message);
     }
 
     public void ignore_testSignupWithoutInput() throws Exception {

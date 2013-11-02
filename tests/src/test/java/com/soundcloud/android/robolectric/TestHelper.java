@@ -420,6 +420,12 @@ public class TestHelper {
         return loadLocalContent(content.uri, UserAssociation.class, where);
     }
 
+    public static Playlist loadPlaylist(long playlistId) throws Exception {
+        Playlist playlist = TestHelper.loadLocalContentItem(Content.PLAYLISTS.uri, Playlist.class, "_id = " + playlistId);
+        playlist.tracks = TestHelper.loadLocalContent(Content.PLAYLIST_TRACKS.forQuery(String.valueOf(playlistId)), Track.class);
+        return playlist;
+    }
+
     @SuppressWarnings("unchecked")
     public static <T extends Persisted> T reload(final T model) {
         try {

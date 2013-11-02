@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Stream;
@@ -39,15 +40,15 @@ import java.util.Map;
 
 @RunWith(DefaultTestRunner.class)
 public class StreamLoaderTest {
-    public static final String TEST_MP3 = "fred.mp3";
-    public static final String TEST_URL = "https://api.soundcloud.com/tracks/12345/stream";
-    public static final int TEST_CHUNK_SIZE = 1024;
+    private static final String TEST_MP3 = "fred.mp3";
+    private static final String TEST_URL = "https://api.soundcloud.com/tracks/12345/stream";
+    private static final int TEST_CHUNK_SIZE = 1024;
 
-    File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test");
-    StreamStorage storage = new MockStorage(baseDir, TEST_CHUNK_SIZE, mock(ApplicationProperties.class));
-    StreamLoader loader = new StreamLoader(DefaultTestRunner.application, storage);
-    File testFile = new File(getClass().getResource(TEST_MP3).getFile());
-    StreamItem item = new StreamItem(TEST_URL, testFile.length(), IOUtils.md5(testFile));
+    private File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test");
+    private StreamStorage storage = new MockStorage(baseDir, TEST_CHUNK_SIZE, mock(ApplicationProperties.class));
+    private StreamLoader loader = new StreamLoader(DefaultTestRunner.application, storage);
+    private File testFile = new File(getClass().getResource(TEST_MP3).getFile());
+    private StreamItem item = new StreamItem(TEST_URL, testFile.length(), IOUtils.md5(testFile));
 
     private Map<Integer, ByteBuffer> sampleBuffers = new LinkedHashMap<Integer, ByteBuffer>();
     private List<Integer> sampleChunkIndexes = new ArrayList<Integer>();
@@ -55,11 +56,13 @@ public class StreamLoaderTest {
     @Before
     public void before() {
         IOUtils.deleteDir(baseDir);
+        TestHelper.setSdkVersion(0);
         loader.setForceOnline(true);
     }
 
     @After
     public void after() {
+        loader.stop();
         expect(Robolectric.getFakeHttpLayer().hasPendingResponses()).toBeFalse();
     }
 

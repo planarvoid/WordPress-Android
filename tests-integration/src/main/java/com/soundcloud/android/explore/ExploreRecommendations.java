@@ -2,20 +2,20 @@ package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.tests.TestUser.testUser;
 
-import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Waiter;
 
-public class ExploreRecommendations extends ActivityTestCase<Home> {
+public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
     private Waiter waiter;
     private ExploreScreen exploreScreen;
     private PlayerScreen playerScreen;
 
     public ExploreRecommendations() {
-        super(Home.class);
+        super(MainActivity.class);
     }
 
     @Override

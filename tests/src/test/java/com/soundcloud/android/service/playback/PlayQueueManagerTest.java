@@ -1,29 +1,26 @@
 package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ExploreTracksOperations;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.RelatedTracksCollection;
+import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.behavior.PlayableHolder;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,533 +29,274 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscription;
+import rx.android.concurrency.AndroidSchedulers;
+import rx.util.functions.Action1;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
-    ContentResolver resolver;
-    PlayQueueManager pm;
-    static final long USER_ID = 1L;
+    private final String playQueueUri = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v1&playSource-exploreTag=2&playSource-originUrl=1&playSource-initialTrackId=1";
+
+    private PlayQueueManager playQueueManager;
 
     @Mock
-    ExploreTracksOperations exploreTracksOperations;
-    PlaySourceInfo trackingInfo;
+    private PlayQueue playQueue = Mockito.mock(PlayQueue.class);
+    @Mock
+    private Context context;
+    @Mock
+    private PlayQueueStorage playQueueStorage;
+    @Mock
+    private ExploreTracksOperations exploreTracksOperations;
+    @Mock
+    private PlaySourceInfo trackingInfo;
+    @Mock
+    private ScModelManager modelManager;
+    @Mock
+    private SharedPreferences sharedPreferences;
+    @Mock
+    private SharedPreferences.Editor sharedPreferencesEditor;
 
     @Before
     public void before() {
-        resolver = Robolectric.application.getContentResolver();
+        playQueueManager = new PlayQueueManager(context, playQueueStorage, exploreTracksOperations, sharedPreferences, modelManager);
+        when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
+        when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
+        when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.just(PlayQueue.EMPTY));
+        when(playQueue.isEmpty()).thenReturn(true);
+    }
 
-        pm = new PlayQueueManager(Robolectric.application, USER_ID, exploreTracksOperations);
-        TestHelper.setUserId(USER_ID);
-
-        trackingInfo = new PlaySourceInfo.Builder(123L).originUrl("origin-url").exploreTag("explore-tag").recommenderVersion("version_1").build();
+    @Test(expected = NullPointerException.class)
+    public void shouldNotAcceptNullValueWhenSettingNewPlayqueue(){
+        playQueueManager.setNewPlayQueue(null);
     }
 
     @Test
-    public void shouldHandleEmptyPlaylistWithAddItemsFromUri() throws Exception {
-        pm.loadUri(Content.TRACKS.uri, 0, null, trackingInfo);
-        expect(pm.length()).toEqual(0);
-        expect(pm.isEmpty()).toBeTrue();
-        expect(pm.next()).toBeFalse();
-        expect(pm.getNext()).toBeNull();
-        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
+    public void shouldSetNewPlayQueueAsCurrentPlayQueue() throws Exception {
+        playQueueManager.setNewPlayQueue(playQueue);
+        expect(playQueueManager.getCurrentPlayQueue()).toEqual(playQueue);
     }
 
     @Test
-    public void shouldAddItemsFromUri() throws Exception {
-        List<Track> tracks = createTracks(3, true, 0);
-        pm.loadUri(Content.TRACKS.uri, 0, null, trackingInfo);
-
-        expect(pm.getUri()).not.toBeNull();
-        expect(pm.getUri()).toEqual(Content.TRACKS.uri);
-
-        expect(pm.length()).toEqual(tracks.size());
-        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
-
-        Track track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #0");
-
-        expect(pm.next()).toBeTrue();
-        track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #1");
-        expect(pm.getPrev().title).toEqual("track #0");
-        expect(pm.getNext().title).toEqual("track #2");
-
-        expect(pm.next()).toBeTrue();
-        track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #2");
-        expect(pm.getPrev().title).toEqual("track #1");
-        expect(pm.getNext()).toBeNull();
-
-        expect(pm.getNext()).toBeNull();
-        expect(pm.next()).toBeFalse();
+    public void shouldSetNewPlayQueueCurrentTrackToManuallyTriggered() throws Exception {
+        playQueueManager.setNewPlayQueue(playQueue);
+        verify(playQueue).setCurrentTrackToUserTriggered();
     }
 
     @Test
-    public void shouldAddItemsFromUriWithPosition() throws Exception {
-        List<Track> tracks = createTracks(3, true, 0);
-        pm.loadUri(Content.TRACKS.uri, 1, null, trackingInfo);
-
-        expect(pm.length()).toEqual(tracks.size());
-        expect(pm.isEmpty()).toBeFalse();
-
-        Track track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #1");
-        expect(pm.getPrev()).not.toBeNull();
-        expect(pm.getPrev().title).toEqual("track #0");
-
-        expect(pm.next()).toBeTrue();
-        track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #2");
-        expect(pm.getPrev()).not.toBeNull();
-        expect(pm.getPrev().title).toEqual("track #1");
-        expect(pm.getNext()).toBeNull();
+    public void shouldBroadcastPlayQueueChangedWhenSettingNewPlayqueue() throws Exception {
+        playQueueManager.setNewPlayQueue(playQueue);
+        expectBroadcastPlayqueueChanged();
     }
 
     @Test
-    public void shouldAddItemsFromUriWithInvalidPosition() throws Exception {
-        List<Track> tracks = createTracks(3, true, 0);
-        pm.loadUri(Content.TRACKS.uri, tracks.size() + 100, null, trackingInfo); // out of range
+    public void shouldSaveCurrentPositionWhenSettingNonEmptyPlayQueue(){
+        final String playQueueState = "play-queue-state";
 
-        expect(pm.length()).toEqual(tracks.size());
-        Track track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #0");
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=origin-url&exploreTag=explore-tag&trigger=auto&source=recommender&source_version=version_1");
+        when(playQueue.isEmpty()).thenReturn(false);
+        when(playQueue.getCurrentTrackId()).thenReturn(3L);
+        when(playQueue.getPlayQueueState(0, 3L)).thenReturn(Uri.parse(playQueueState));
+
+        playQueueManager.setNewPlayQueue(playQueue);
+        verify(sharedPreferencesEditor).putString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, playQueueState);
     }
 
     @Test
-    public void shouldAddItemsFromUriWithIncorrectPositionDown() throws Exception {
-        List<Track> tracks = createTracks(10, true, 0);
-        pm.loadUri(Content.TRACKS.uri, 7, new Track(5L), trackingInfo);
-
-        expect(pm.length()).toEqual(tracks.size());
-        Track track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #5");
+    public void shouldStoreTracksWhenSettingNewPlayQueue(){
+        Observable<PlayQueue> observable = Mockito.mock(Observable.class);
+        when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
+        playQueueManager.setNewPlayQueue(playQueue);
+        verify(observable).subscribe(DefaultObserver.NOOP_OBSERVER);
     }
 
     @Test
-    public void shouldAddItemsFromUriWithIncorrectPositionUp() throws Exception {
-        List<Track> tracks = createTracks(10, true, 0);
-        pm.loadUri(Content.TRACKS.uri, 5, new Track(7L), trackingInfo);
-
-        expect(pm.length()).toEqual(tracks.size());
-        Track track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #7");
+    public void shouldNotUpdateCurrentPositionIfPlayqueueIsNull() throws Exception {
+        playQueueManager.saveCurrentPosition(22L);
+        verifyZeroInteractions(sharedPreferences);
     }
 
     @Test
-    public void shouldAddItemsFromUriWithNegativePosition() throws Exception {
-        List<Track> tracks = createTracks(3, true, 0);
-        pm.loadUri(Content.TRACKS.uri, -10, null, trackingInfo); // out of range
-
-        expect(pm.length()).toEqual(tracks.size());
-        Track track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #0");
+    public void shouldNotReloadPlayqueueFromStorageWhenLastUriDoesNotExist(){
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(null);
+        expect(playQueueManager.loadPlayQueue()).toBeNull();
+        verifyZeroInteractions(playQueueStorage);
     }
 
     @Test
-    public void shouldSetPlaySourceTriggerBasedOnInitalId() throws Exception {
-        pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).build());
-        expect(pm.getPlayQueueItem(0).getTrackSourceInfo().getTrigger()).toEqual("auto");
-        expect(pm.getPlayQueueItem(1).getTrackSourceInfo().getTrigger()).toEqual("auto");
-        expect(pm.getPlayQueueItem(2).getTrackSourceInfo().getTrigger()).toEqual("manual");
+    public void shouldNotReloadPlayQueueWithInvalidUri(){
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn("asdf321");
+        expect(playQueueManager.loadPlayQueue()).toBeNull();
+        verifyZeroInteractions(playQueueStorage);
     }
 
     @Test
-    public void shouldSetPlaySourceRecommenderVersion() throws Exception {
-        pm.setPlayQueue(createTracks(3, true, 0), 0, new PlaySourceInfo.Builder(2L).recommenderVersion("version1").build());
-        expect(pm.getPlayQueueItem(0).getTrackSourceInfo().getRecommenderVersion()).toEqual("version1");
-        expect(pm.getPlayQueueItem(1).getTrackSourceInfo().getRecommenderVersion()).toEqual("version1");
-        expect(pm.getPlayQueueItem(2).getTrackSourceInfo().getRecommenderVersion()).toBeNull();
+    public void shouldBroadcastPlayQueueChangedWhenLastUriDoesNotExist(){
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(null);
+        expect(playQueueManager.loadPlayQueue()).toBeNull();
+        expectBroadcastPlayqueueChanged();
     }
 
     @Test
-    public void shouldSupportSetPlaylistWithTrackObjects() throws Exception {
-        pm.setPlayQueue(createTracks(3, true, 0), 2, new PlaySourceInfo.Builder(2L).build());
-        expect(pm.length()).toEqual(3);
+    public void shouldReturnResumeInfoWhenReloadingPlayQueue(){
+        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
+        Observable<PlayQueue> observable = Mockito.mock(Observable.class);
+        when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
+        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
 
-        Track track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #2");
-
-        expect(pm.prev()).toBeTrue();
-        track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #1");
-        expect(pm.getPrev().title).toEqual("track #0");
-        expect(pm.getNext().title).toEqual("track #2");
-
-        expect(pm.prev()).toBeTrue();
-        track = pm.getCurrentTrack();
-        expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #0");
-        expect(pm.getNext().title).toEqual("track #1");
-        expect(pm.getPrev()).toBeNull();
-
-        expect(pm.getPrev()).toBeNull();
-        expect(pm.prev()).toBeFalse();
+        PlayQueueManager.ResumeInfo resumeInfo = playQueueManager.loadPlayQueue();
+        expect(resumeInfo.getTrackId()).toEqual(456L);
+        expect(resumeInfo.getTime()).toEqual(400L);
     }
 
     @Test
-    public void shouldSetEventLoggerParamsWhenSettingPlaylist() throws Exception {
-        pm.setPlayQueue(createTracks(3, true, 0), 2, new PlaySourceInfo.Builder(2L).exploreTag("exploreTag").originUrl("originUrl").build());
-        expect(pm.length()).toEqual(3);
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=manual");
-        expect(pm.prev()).toBeTrue();
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=auto");
-        expect(pm.prev()).toBeTrue();
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=auto");
+    public void shouldReloadPlayQueueFromLocalStorage(){
+        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
+        Observable<PlayQueue> observable = Mockito.mock(Observable.class);
+        when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
+        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
+
+        playQueueManager.loadPlayQueue();
+        verify(observable).subscribe(any(Action1.class));
     }
 
     @Test
-    public void shouldClearPlaylist() throws Exception {
-        pm.setPlayQueue(createTracks(10, true, 0), 0, trackingInfo);
-        pm.clear();
-        expect(pm.isEmpty()).toBeTrue();
-        expect(pm.length()).toEqual(0);
-        expect(pm.getCurrentPlaySourceInfo()).toEqual(PlaySourceInfo.EMPTY);
-        expect(pm.getCurrentEventLoggerParams()).toEqual(ScTextUtils.EMPTY_STRING);
+    public void shouldSetNewPlayQueueWhenReloadingPlayQueueReturns(){
+        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
+        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L, 3L), 2);
+        when(playQueueStorage.getPlayQueueAsync(anyInt(), any(PlaySourceInfo.class))).thenReturn(Observable.<PlayQueue>just(playQueue));
+        playQueueManager.loadPlayQueue();
+        expect(playQueueManager.getCurrentPlayQueue()).toContainExactly(1L, 2L, 3L);
     }
 
     @Test
-    public void shouldSaveCurrentTracksToDB() throws Exception {
-        expect(Content.PLAY_QUEUE).toBeEmpty();
-        expect(Content.PLAY_QUEUE.uri).toBeEmpty();
-        pm.setPlayQueue(createTracks(10, true, 0), 0, trackingInfo);
-        expect(Content.PLAY_QUEUE.uri).toHaveCount(10);
+    public void shouldReloadShouldBeTrueIfThePlayQueueIsEmpty(){
+        expect(playQueueManager.shouldReloadQueue()).toBeTrue();
     }
 
     @Test
-    public void shouldLoadLikesAsPlaylist() throws Exception {
-        insertLikes();
+    public void shouldReloadShouldBeFalseWithNonEmptyQueue(){
+        final String playQueueState = "play-queue-state";
 
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(56142962l).build();
-        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962), playSourceInfo);
+        when(playQueue.isEmpty()).thenReturn(false);
+        when(playQueue.getCurrentTrackId()).thenReturn(3L);
+        when(playQueue.getPlayQueueState(0, 3L)).thenReturn(Uri.parse(playQueueState));
 
-        expect(pm.length()).toEqual(2);
-        expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
-        expect(pm.next()).toBeTrue();
-        expect(pm.getCurrentTrack().getId()).toEqual(56143158l);
-        expect(pm.getCurrentPlaySourceInfo()).toEqual(playSourceInfo);
+        playQueueManager.setNewPlayQueue(playQueue);
+        expect(playQueueManager.shouldReloadQueue()).toBeFalse();
     }
 
     @Test
-    public void shouldSetTrackingInfoWhenLoadingPlaylistFromLikes() throws Exception {
-        insertLikes();
+    public void shouldGetRelatedTracksObservableWhenFetchingRelatedTracks(){
+        final Observable mock = Mockito.mock(Observable.class);
+        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(mock);
 
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(56142962l).exploreTag("exploreTag").originUrl("originUrl").build();
-        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962), playSourceInfo);
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=manual");
-        expect(pm.next()).toBeTrue();
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=auto");
+        playQueueManager.fetchRelatedTracks(123L);
+        verify(exploreTracksOperations).getRelatedTracks(123L);
     }
 
     @Test
-    public void shouldSaveAndRestoreLikesAsPlaylist() throws Exception {
-        insertLikes();
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder(56143158L).exploreTag("exploreTag").originUrl("originUrl").build();
-        pm.loadUri(Content.ME_LIKES.uri, 0, new Track(56143158L), playSourceInfo);
-        expect(pm.length()).toEqual(2);
-        expect(pm.getCurrentTrack().getId()).toEqual(56143158L);
-        expect(pm.getPosition()).toEqual(1);
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=manual");
+    public void shouldSubscribeToRelatedTracksObservableWhenFetchingRelatedTracks(){
+        final Observable<RelatedTracksCollection> mock = Mockito.mock(Observable.class);
+        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(mock);
 
-        pm.saveQueue(1000l);
-        pm.clear();
-
-        expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getCurrentTrackId()).toEqual(56143158L);
-        expect(pm.getPosition()).toEqual(1);
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=originUrl&exploreTag=exploreTag&trigger=manual");
+        playQueueManager.fetchRelatedTracks(123L);
+        verify(mock).subscribe(playQueueManager);
     }
 
     @Test
-    public void shouldSaveAndRestoreLikesAsPlaylistTwice() throws Exception {
-        insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962l), trackingInfo);
-        expect(pm.length()).toEqual(2);
-        expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
-        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
-        pm.saveQueue(1000l);
-        pm.clear();
-
-        expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getCurrentTrackId()).toEqual(56142962l);
-        expect(pm.getPosition()).toEqual(0);
-        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
-
-        // test overwrite
-        expect(pm.next()).toBeTrue();
-        expect(pm.getCurrentTrackId()).toEqual(56143158l);
-        pm.saveQueue(2000l);
-        expect(pm.reloadQueue()).toEqual(2000l);
-        expect(pm.getCurrentTrackId()).toEqual(56143158l);
-        expect(pm.getPosition()).toEqual(1);
-        expect(pm.getCurrentPlaySourceInfo()).toEqual(trackingInfo);
+    public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks(){
+        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(Mockito.mock(Observable.class));
+        playQueueManager.fetchRelatedTracks(123L);
+        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.LOADING);
+        expectBroadcastRelatedLoadChanges();
     }
 
     @Test
-    public void shouldSaveAndRestoreLikesAsPlaylistWithMovedTrack() throws Exception {
-        insertLikes();
-        pm.loadUri(Content.ME_LIKES.uri, 1, new Track(56142962l), trackingInfo);
-        expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
-        expect(pm.next()).toBeTrue();
+    public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
+        final TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
+        playQueueManager.setNewPlayQueue(new PlayQueue(123L));
+        playQueueManager.onNext(new RelatedTracksCollection(Lists.<TrackSummary>newArrayList(trackSummary), "123"));
 
-        pm.saveQueue(1000l);
+        expect(playQueueManager.getCurrentPlayQueue()).toContainExactly(123L, trackSummary.getId());
 
-        expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getCurrentTrackId()).toEqual(56143158l);
-        expect(pm.getPosition()).toEqual(1);
+        ArgumentCaptor<Track> captor = ArgumentCaptor.forClass(Track.class);
+        verify(modelManager).cache(captor.capture());
+        expect(captor.getValue().getId()).toEqual(trackSummary.getId());
     }
 
     @Test
-    public void shouldSavePlaylistStateInUri() throws Exception {
-        insertLikes();
-        final Track track = new Track(56142962l);
-        pm.loadUri(Content.ME_LIKES.uri, 1, track, trackingInfo);
-        expect(pm.getCurrentTrack().getId()).toEqual(56142962l);
-        expect(pm.next()).toBeTrue();
-        expect(pm.getPlayQueueState(123L, 56143158L)).toEqual(
-          Content.ME_LIKES.uri + "?trackId=56143158&playlistPos=1&seekPos=123&playSource-recommenderVersion=version_1&playSource-exploreTag=explore-tag&playSource-originUrl=origin-url&playSource-initialTrackId=123"
-        );
+    public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad(){
+        playQueueManager.onNext(new RelatedTracksCollection(Collections.<TrackSummary>emptyList(), "123"));
+        playQueueManager.onCompleted();
+        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.IDLE);
+        expectBroadcastRelatedLoadChanges();
     }
 
     @Test
-    public void shouldSavePlaylistStateInUriWithSetPlaylist() throws Exception {
-        pm.setPlayQueue(createTracks(10, true, 0), 5, trackingInfo);
-        expect(pm.getCurrentTrack().getId()).toEqual(5L);
-        expect(pm.getPlayQueueState(123L, 5L)).toEqual(
-                Content.PLAY_QUEUE.uri + "?trackId=5&playlistPos=5&seekPos=123&playSource-recommenderVersion=version_1&playSource-exploreTag=explore-tag&playSource-originUrl=origin-url&playSource-initialTrackId=123"
-
-        );
+    public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad(){
+        playQueueManager.onCompleted();
+        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.EMPTY);
+        expectBroadcastRelatedLoadChanges();
     }
 
     @Test
-    public void shouldSkipUnstreamableTrackNext() throws Exception {
-        ArrayList<PlayableHolder> playables = new ArrayList<PlayableHolder>();
-        playables.addAll(createTracks(1, true, 0));
-        playables.addAll(createTracks(1, false, 1));
-
-        pm.setPlayQueue(playables, 0, trackingInfo);
-        expect(pm.getCurrentTrack().getId()).toEqual(0L);
-        expect(pm.next()).toEqual(false);
-
-        playables.addAll(createTracks(1, true, 2));
-        pm.setPlayQueue(playables, 0, trackingInfo);
-        expect(pm.getCurrentTrack().getId()).toEqual(0L);
-        expect(pm.next()).toEqual(true);
-        expect(pm.getCurrentTrack().getId()).toEqual(2L);
+    public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled(){
+        playQueueManager.onError(new Throwable());
+        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.ERROR);
+        expectBroadcastRelatedLoadChanges();
     }
 
     @Test
-    public void shouldSkipUnstreamableTrackPrev() throws Exception {
-        ArrayList<PlayableHolder> playables = new ArrayList<PlayableHolder>();
-        playables.addAll(createTracks(1, false, 0));
-        playables.addAll(createTracks(1, true, 1));
-
-        pm.setPlayQueue(playables, 1, trackingInfo);
-        expect(pm.getCurrentTrack().getId()).toEqual(1L);
-        expect(pm.prev()).toEqual(false);
-
-        playables.addAll(0, createTracks(1, true, 2));
-        pm.setPlayQueue(playables, 2, trackingInfo);
-        expect(pm.getCurrentTrack().getId()).toEqual(1L);
-        expect(pm.prev()).toEqual(true);
-        expect(pm.getCurrentTrack().getId()).toEqual(2L);
+    public void clearAllShouldClearPreferences() throws Exception {
+        when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+        playQueueManager.clearAll();
+        verify(sharedPreferencesEditor).remove(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY);
+        verify(sharedPreferencesEditor).apply();
     }
 
     @Test
-    public void shouldRespondToUriChanges() throws Exception {
-        Playlist p = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
-        TestHelper.insertWithDependencies(p);
-
-        Uri playlistUri = p.toUri();
-        expect(playlistUri).toEqual(Content.PLAYLIST.forQuery(String.valueOf(2524386)));
-
-        pm.loadUri(playlistUri, 5, new Track(7L), trackingInfo);
-        pm.saveQueue(1000l);
-
-        expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getUri().getPath()).toEqual(playlistUri.getPath());
-
-        final Uri newUri = Content.PLAYLIST.forQuery("321");
-        PlayQueueManager.onPlaylistUriChanged(pm, DefaultTestRunner.application, playlistUri, newUri);
-        expect(pm.getUri().getPath()).toEqual(newUri.getPath());
+    public void clearAllShouldClearStorage() throws Exception {
+        when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+        playQueueManager.clearAll();
+        verify(playQueueStorage).clearState();
     }
 
     @Test
-    public void shouldClearPlaylistState() throws Exception {
-        pm.setPlayQueue(createTracks(10, true, 0), 5, trackingInfo);
-        pm.saveQueue(1235);
+    public void clearAllShouldSetPlayQueueToEmpty() throws Exception {
+        when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+        playQueueManager.setNewPlayQueue(new PlayQueue(1L));
+        expect(playQueueManager.getCurrentPlayQueue()).not.toBe(PlayQueue.EMPTY);
+        playQueueManager.clearAll();
+        expect(playQueueManager.getCurrentPlayQueue()).toBe(PlayQueue.EMPTY);
 
-        pm.clearState();
-        expect(pm.reloadQueue()).toEqual(-1L);
-
-        PlayQueueManager pm2 = new PlayQueueManager(Robolectric.application, USER_ID, exploreTracksOperations);
-        expect(pm2.reloadQueue()).toEqual(-1L);
-        expect(pm2.getPosition()).toEqual(0);
-        expect(pm2.length()).toEqual(0);
     }
 
     @Test
-    public void shouldSetSingleTrack() throws Exception {
-        List<Track> tracks = createTracks(1, true, 0);
-        pm.loadTrack(tracks.get(0), true, trackingInfo);
-        expect(pm.length()).toEqual(1);
-        expect(pm.getCurrentTrack()).toBe(tracks.get(0));
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=origin-url&exploreTag=explore-tag&trigger=manual");
-    }
-
-    @Test
-    public void shouldAddSeedTrackAndSetLoadingStateWhileLoadingExploreTracks() throws Exception {
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<RelatedTracksCollection>never());
-
-        expect(pm.length()).toBe(0);
-        pm.loadTrack(track, false, trackingInfo);
-        pm.fetchRelatedTracks(track);
-        expect(pm.length()).toBe(1);
-        expect(pm.isFetchingRelated()).toBeTrue();
-    }
-
-    @Test
-    public void shouldSetFailureStateAfterFailedRelatedLoad() throws Exception {
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<RelatedTracksCollection>error(new Exception()));
-
-        pm.fetchRelatedTracks(track);
-        expect(pm.isFetchingRelated()).toBeFalse();
-        expect(pm.lastRelatedFetchFailed()).toBeTrue();
-    }
-
-    @Test
-    public void shouldAddTrackSetIdleStateAndBroadcastChangeAfterSuccessfulRelatedLoad() throws Exception {
-        Context context = Mockito.mock(Context.class);
-        setupSuccesfulRelatedLoad(context);
-
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
-        expect(pm.length()).toBe(0);
-        pm.loadTrack(track, false, trackingInfo);
-        pm.fetchRelatedTracks(track);
-        expect(pm.length()).toBe(2);
-
-        expect(pm.isFetchingRelated()).toBeFalse();
-        expect(pm.lastRelatedFetchFailed()).toBeFalse();
-
-        ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
-        verify(context, times(3)).sendBroadcast(argumentCaptor.capture());
-        final List<Intent> allValues = argumentCaptor.getAllValues();
-        expect(allValues.size()).toEqual(3);
-        assertThat(allValues.get(0).getAction(), is(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED));
-        assertThat(allValues.get(1).getAction(), is(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
-        assertThat(allValues.get(2).getAction(), is(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED));
-    }
-
-    @Test
-    public void shouldSetEventLoggerParamsOnRelatedTracks() throws Exception {
-        Context context = Mockito.mock(Context.class);
-        setupSuccesfulRelatedLoad(context);
-
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
-        pm.loadTrack(track, false, trackingInfo);
-        pm.fetchRelatedTracks(track);
-        expect(pm.next()).toBeTrue();
-        expect(pm.getCurrentEventLoggerParams()).toEqual("context=origin-url&exploreTag=explore-tag&trigger=auto&source=recommender&source_version=recommenderVersion2");
-    }
-
-    private void setupSuccesfulRelatedLoad(Context context) throws CreateModelException {
-        pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
-
-        TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        RelatedTracksCollection relatedTracks = new RelatedTracksCollection(Lists.newArrayList(trackSummary), "recommenderVersion2");
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(Observable.<RelatedTracksCollection>just(relatedTracks));
-    }
-
-    @Test
-    public void shouldRetryRelatedLoadWithSameObservable() throws Exception {
-        Context context = Mockito.mock(Context.class);
-        pm = new PlayQueueManager(context, USER_ID, exploreTracksOperations);
-
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final Observable<RelatedTracksCollection> observable = Mockito.mock(Observable.class);
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
-
-        pm.fetchRelatedTracks(track);
-        pm.retryRelatedTracksFetch();
+    public void shouldRetryWithSameObservable() throws Exception {
+        final Observable observable = Mockito.mock(Observable.class);
+        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(observable);
+        playQueueManager.fetchRelatedTracks(123L);
+        playQueueManager.retryRelatedTracksFetch();
         verify(observable, times(2)).subscribe(any(Observer.class));
     }
 
-    @Test
-    public void shouldUnsubscribeAndNotBeLoadingAfterCallingSetTrack() throws Exception {
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final Observable<RelatedTracksCollection> observable = Mockito.mock(Observable.class);
-        final Subscription subscription = Mockito.mock(Subscription.class);
-
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
-        when(observable.subscribe(any(Observer.class))).thenReturn(subscription);
-
-        pm.fetchRelatedTracks(track);
-        pm.loadTrack(track, false, trackingInfo);
-
-        expect(pm.isFetchingRelated()).toBeFalse();
-        verify(subscription).unsubscribe();
+    private void expectBroadcastPlayqueueChanged() {
+        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).sendBroadcast(captor.capture());
+        expect(captor.getValue().getAction()).toEqual(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
     }
 
-    @Test
-    public void shouldUnsubscribeAndNotBeLoadingAfterCallingloadUri() throws Exception {
-        Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final Observable<RelatedTracksCollection> observable = Mockito.mock(Observable.class);
-        when(exploreTracksOperations.getRelatedTracks(any(Track.class))).thenReturn(observable);
-
-        final Subscription subscription = Mockito.mock(Subscription.class);
-        when(observable.subscribe(any(Observer.class))).thenReturn(subscription);
-
-        pm.fetchRelatedTracks(track);
-        pm.loadUri(Content.TRACKS.uri, 0, null, trackingInfo);
-
-        expect(pm.isFetchingRelated()).toBeFalse();
-        verify(subscription).unsubscribe();
-    }
-
-    private void insertLikes() throws IOException {
-        List<Playable> likes = TestHelper.readResourceList("/com/soundcloud/android/service/sync/e1_likes.json");
-        expect(TestHelper.bulkInsert(Content.ME_LIKES.uri, likes)).toEqual(3);
-    }
-
-    // TODO : replace with model factory
-    private List<Track> createTracks(int n, boolean streamable, int startPos) {
-        List<Track> list = new ArrayList<Track>();
-
-        User user = new User();
-        user.setId(0L);
-
-        for (int i=0; i<n; i++) {
-            Track t = new Track();
-            t.setId((startPos +i));
-            t.title = "track #"+(startPos+i);
-            t.user = user;
-            t.stream_url = streamable ? "http://www.soundcloud.com/sometrackurl" : null;
-            TestHelper.insertWithDependencies(t);
-            list.add(t);
-        }
-        return list;
+    private void expectBroadcastRelatedLoadChanges() {
+        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
+        verify(context).sendBroadcast(captor.capture());
+        expect(captor.getValue().getAction()).toEqual(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED);
     }
 }

@@ -301,7 +301,7 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
     public void ignore_testShouldAutoSaveRecordingAndNavigateToYourSounds() throws Exception {
         record(recordingTime);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
-        solo.clickOnView(R.id.abs__home);
+        solo.clickOnView(R.id.home);
         solo.clickOnText(AccountAssistant.USERNAME);
         solo.assertActivity(You.class);
     }

@@ -32,15 +32,20 @@ Clone and build it:
 
 ## Opening the project in Intellij IDEA
 
-First make sure there are no leftover config files in the project
-(`git clean -df` or `(find . -name '*.iml' -print0 | xargs -0 rm) && rm -rf .idea`).
-Open IntelliJ, select "New Project", then "Import project from external model", select "Maven".
-Make sure the settings look like in this screenshot: http://bit.ly/intellij-maven
+Make sure there are no leftover config files in the project (`git clean -dfx`).
+
+Copy the current debug configuration into the app resource dir:
+
+    $ cp app/properties/app_properties_debug.xml app/res/values/
+
+Open IntelliJ, select "New Project", then "Import project", select `pom.xml` from the root project directory.
 
 Select Next and confirm the import of the parent project.
 
-IDEA will automatically download and manage all dependencies. When switching branches you might need to reimport
-the Maven project.
+IDEA will automatically download and manage dependencies. Due to a bug in IntelliJ you'll need to add all apklib 
+modules to the "test" module.
+
+![Test modules][Test modules]
 
 ## Running tests
 
@@ -58,12 +63,12 @@ to run individual tests.
 
 ### Robolectric tests in IDEA
 
-Change the default JUnit Run/Debug configuration to look like this:
-![JUnit default run config][JUnit default run config]
-
 Add a file `local.properties` to the app directory containing the path to the Android SDK:
 
     $ echo "sdk.dir=$ANDROID_HOME" > app/local.properties
+
+Change the default JUnit Run/Debug configuration to look like this:
+![JUnit default run config][JUnit default run config]
 
 ## Integration tests
 
@@ -82,4 +87,6 @@ Documented on the [wiki][].
 [releasing]: https://github.com/soundcloud/SoundCloud-Android/wiki/Releasing
 [betas]: https://github.com/soundcloud/SoundCloud-Android/wiki/Betas
 [integration-tests]: https://github.com/soundcloud/SoundCloud-Android/wiki/Integration-tests
+[Test modules]: http://f.cl.ly/items/1B3Q3T1F0v2T233w3938/Screen%20Shot%202013-10-28%20at%201.27.16%20PM.png
 [JUnit default run config]: http://f.cl.ly/items/153m2C2d001j0Y1L1K02/Screen%20Shot%202012-11-27%20at%2012.57.25%20PM.png
+

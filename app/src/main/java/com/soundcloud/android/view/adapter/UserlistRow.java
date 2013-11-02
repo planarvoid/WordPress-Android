@@ -27,10 +27,10 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class UserlistRow extends IconLayout implements ListRow {
     private User mUser;
@@ -39,7 +39,7 @@ public class UserlistRow extends IconLayout implements ListRow {
     private TextView mFollowers;
     private View mVrStats;
     private RelativeLayout mFollowBtnHolder;
-    private Button mFollowOnBtn, mFollowOffBtn;
+    private ToggleButton mFollowBtn;
     private AccountOperations mAccountOperations;
     private FollowingOperations mFollowingOperations;
 
@@ -52,16 +52,12 @@ public class UserlistRow extends IconLayout implements ListRow {
         mTracks = (TextView) findViewById(R.id.tracks);
         mFollowers = (TextView) findViewById(R.id.followers);
         mIcon = (ImageView) findViewById(R.id.icon);
-        mFollowOnBtn = (Button) findViewById(R.id.toggle_btn_follow_on);
-        mFollowOffBtn = (Button) findViewById(R.id.toggle_btn_follow_off);
+        mFollowBtn = (ToggleButton) findViewById(R.id.toggle_btn_follow);
         mVrStats = findViewById(R.id.vr_stats);
 
-        if (mFollowOnBtn != null) {
-            mFollowOnBtn.setFocusable(false);
-            mFollowOnBtn.setClickable(false);
-
-            mFollowOffBtn.setFocusable(false);
-            mFollowOffBtn.setClickable(false);
+        if (mFollowBtn != null) {
+            mFollowBtn.setFocusable(false);
+            mFollowBtn.setClickable(false);
 
             mFollowBtnHolder = (RelativeLayout) findViewById(R.id.toggleFollowingHolder);
             mFollowBtnHolder.setFocusable(false);
@@ -97,7 +93,7 @@ public class UserlistRow extends IconLayout implements ListRow {
         loadIcon();
         if (mUser != null) {
             mUsername.setText(mUser.username);
-            setFollowingStatus();
+            setFollowingStatus(true);
             setTrackCount();
             setFollowerCount();
             mVrStats.setVisibility((mUser.track_count <= 0 || mUser.followers_count <= 0) ? View.GONE : View.VISIBLE);
@@ -109,15 +105,14 @@ public class UserlistRow extends IconLayout implements ListRow {
         return R.drawable.avatar_badge;
     }
 
-    private void setFollowingStatus() {
+    private void setFollowingStatus(boolean enabled) {
         final boolean following = mFollowingOperations.isFollowing(mUser);
-
+        mFollowBtn.setEnabled(enabled);
         if (mUser.getId() == getCurrentUserId()) {
-            mFollowOffBtn.setVisibility(View.INVISIBLE);
-            mFollowOnBtn.setVisibility(View.INVISIBLE);
+            mFollowBtn.setVisibility(View.INVISIBLE);
         } else {
-            mFollowOnBtn.setVisibility(following ? View.VISIBLE : View.GONE);
-            mFollowOffBtn.setVisibility(following ? View.GONE : View.VISIBLE);
+            mFollowBtn.setVisibility(View.VISIBLE);
+            mFollowBtn.setChecked(following);
         }
     }
 
@@ -143,14 +138,13 @@ public class UserlistRow extends IconLayout implements ListRow {
         mFollowingOperations.toggleFollowing(user).observeOn(AndroidSchedulers.mainThread()).subscribe(new DefaultObserver<UserAssociation>() {
             @Override
             public void onCompleted() {
-                setFollowingStatus();
                 SyncInitiator.pushFollowingsToApi(mAccountOperations.getSoundCloudAccount());
             }
 
             @Override
             public void onError(Throwable e) {
                 super.onError(e);
-                setFollowingStatus();
+                setFollowingStatus(true);
             }
         });
     }

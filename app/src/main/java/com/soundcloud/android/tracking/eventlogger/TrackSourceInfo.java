@@ -4,7 +4,9 @@ import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.Event
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.UriUtils;
 
 import android.net.Uri;
 
@@ -49,6 +51,10 @@ public class TrackSourceInfo {
     }
 
     public String createEventLoggerParams(PlaySourceInfo playSourceInfo){
+        return createEventLoggerParams(playSourceInfo, null);
+    }
+
+    public String createEventLoggerParams(PlaySourceInfo playSourceInfo, Uri sourceUri){
         final Uri.Builder builder = new Uri.Builder();
         playSourceInfo.appendEventLoggerParams(builder);
         if (ScTextUtils.isNotBlank(mTrigger)){
@@ -58,6 +64,10 @@ public class TrackSourceInfo {
             builder.appendQueryParameter(EventLoggerKeys.SOURCE, SOURCE_RECOMMENDER);
             builder.appendQueryParameter(EventLoggerKeys.SOURCE_VERSION, mRecommenderVersion);
         }
+        if (sourceUri != null && Content.match(sourceUri) == Content.PLAYLIST) {
+            builder.appendQueryParameter(EventLoggerKeys.SET, sourceUri.getLastPathSegment());
+        }
+
         final String query = builder.build().getQuery();
         return ScTextUtils.isBlank(query) ? ScTextUtils.EMPTY_STRING : query.toString();
     }

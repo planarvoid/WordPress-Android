@@ -135,12 +135,6 @@ public class ScSearch extends ScActivity {
     }
 
     @Override
-    protected int getSelectedMenuId() {
-        return -1;
-    }
-
-
-    @Override
     public Object[] getLastCustomNonConfigurationInstance() {
         return (Object[]) super.getLastCustomNonConfigurationInstance();
     }

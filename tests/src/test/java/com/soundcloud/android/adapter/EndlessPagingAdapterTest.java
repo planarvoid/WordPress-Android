@@ -2,6 +2,7 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -24,6 +25,7 @@ import rx.android.concurrency.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +60,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldAddAllItemsFromAnEmittedPage() {
-        final Observable<Page<List<Integer>>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperationPaged.emptyPageObservable();
 
         loadFirstPageThen(finish);
 
@@ -67,7 +69,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void itemRowsShouldBeClickable() {
-        final Observable<Page<List<Integer>>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperationPaged.emptyPageObservable();
 
         loadFirstPageThen(finish);
 
@@ -79,7 +81,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void appendRowShouldBeProgressRowWhenLoadingData() {
-        Observable<Page<List<Integer>>> neverReturn = Observable.never();
+        Observable<Page<List<Parcelable>>> neverReturn = Observable.never();
 
         loadFirstPageThen(neverReturn);
 
@@ -89,7 +91,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void appendRowShouldBeErrorRowWhenLoadingData() {
-        Observable<Page<List<Integer>>> fail = Observable.error(new Exception("fail!"));
+        Observable<Page<List<Parcelable>>> fail = Observable.error(new Exception("fail!"));
 
         loadFirstPageThen(fail);
 
@@ -99,7 +101,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void errorRowShouldBeClickable() {
-        Observable<Page<List<Integer>>> fail = Observable.error(new Exception("fail!"));
+        Observable<Page<List<Parcelable>>> fail = Observable.error(new Exception("fail!"));
 
         loadFirstPageThen(fail);
 
@@ -108,7 +110,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldReturnImmediatelyWhenNoNextPageAvailable() {
-        final Observable<Page<List<Integer>>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperationPaged.emptyPageObservable();
 
         Subscription subscription = loadFirstPageThen(finish);
 
@@ -123,7 +125,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldCreateItemRow() {
-        final Observable<Page<List<Integer>>> finish = OperationPaged.emptyPageObservable();
+        final Observable<Page<List<Parcelable>>> finish = OperationPaged.emptyPageObservable();
 
         loadFirstPageThen(finish);
 
@@ -133,7 +135,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldCreateProgressRow() {
-        Observable<Page<List<Integer>>> neverReturn = Observable.never();
+        Observable<Page<List<Parcelable>>> neverReturn = Observable.never();
 
         loadFirstPageThen(neverReturn);
 
@@ -145,7 +147,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldConvertProgressRow() {
-        Observable<Page<List<Integer>>> neverReturn = Observable.never();
+        Observable<Page<List<Parcelable>>> neverReturn = Observable.never();
 
         loadFirstPageThen(neverReturn);
 
@@ -156,7 +158,7 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldCreateErrorRow() {
-        Observable<Page<List<Integer>>> fail = Observable.error(new Exception("fail!"));
+        Observable<Page<List<Parcelable>>> fail = Observable.error(new Exception("fail!"));
 
         loadFirstPageThen(fail);
 
@@ -168,11 +170,10 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void shouldRetryRequestWhenClickingOnErrorRow() {
-        final Observable<List<Integer>> sourceSequence = Observable.from(1, 2, 3).toList();
-        Observable<Page<List<Integer>>> failedSequence = mockObservable;
+        Observable<Page<List<Parcelable>>> failedSequence = mockObservable;
 
         // loads page 1 successfully
-        pagingObservable(sourceSequence, failedSequence).subscribe(adapter);
+        pagingObservable(sourceSequence(), failedSequence).subscribe(adapter);
 
         // loads page 2
         adapter.loadNextPage();
@@ -188,8 +189,8 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldTriggerNextPageLoad() {
-        Observable<Page<List<Integer>>> nextPage = mockObservable;
-        pagingObservable(Observable.from(1, 2, 3).toList(), nextPage).subscribe(adapter);
+        Observable<Page<List<Parcelable>>> nextPage = mockObservable;
+        pagingObservable(sourceSequence(), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 5, 5);
         verify(nextPage).subscribe(any(Observer.class));
@@ -197,8 +198,8 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldNotDoAnythingIfAlreadyLoading() {
-        Observable<Page<List<Integer>>> nextPage = mockObservable;
-        pagingObservable(Observable.from(1, 2, 3).toList(), nextPage).subscribe(adapter);
+        Observable<Page<List<Parcelable>>> nextPage = mockObservable;
+        pagingObservable(sourceSequence(), nextPage).subscribe(adapter);
         adapter.loadNextPage();
         adapter.onScroll(absListView, 0, 5, 5); // should not trigger load again, already loading
         verify(nextPage, times(1)).subscribe(any(Observer.class));
@@ -206,8 +207,8 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldNotDoAnythingIfLastAppendWasError() {
-        Observable<Page<List<Integer>>> nextPage = mockObservable;
-        pagingObservable(Observable.<List<Integer>>error(new Exception()), nextPage).subscribe(adapter);
+        Observable<Page<List<Parcelable>>> nextPage = mockObservable;
+        pagingObservable(Observable.<List<Parcelable>>error(new Exception()), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 5, 5);
         verifyZeroInteractions(mockObservable);
@@ -215,8 +216,8 @@ public class EndlessPagingAdapterTest {
 
     @Test
     public void pageScrollListenerShouldNotLoadNextPageIfZeroItems() {
-        Observable<Page<List<Integer>>> nextPage = mockObservable;
-        pagingObservable(Observable.<List<Integer>>empty(), nextPage).subscribe(adapter);
+        Observable<Page<List<Parcelable>>> nextPage = mockObservable;
+        pagingObservable(Observable.<List<Parcelable>>empty(), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 0, 0);
         verifyZeroInteractions(mockObservable);
@@ -231,11 +232,9 @@ public class EndlessPagingAdapterTest {
         }));
     }
 
-    private Subscription loadFirstPageThen(final Observable<Page<List<Integer>>> nextPage) {
-        final Observable<List<Integer>> sourceSequence = Observable.from(1, 2, 3).toList();
-
+    private Subscription loadFirstPageThen(final Observable<Page<List<Parcelable>>> nextPage) {
         // loads page 1 successfully
-        pagingObservable(sourceSequence, nextPage).subscribe(adapter);
+        pagingObservable(sourceSequence(), nextPage).subscribe(adapter);
 
         // loads page 2
         return adapter.loadNextPage();
@@ -253,5 +252,9 @@ public class EndlessPagingAdapterTest {
 
             }
         };
+    }
+
+    private Observable<List<Parcelable>> sourceSequence() {
+        return Observable.from(mock(Parcelable.class), mock(Parcelable.class), mock(Parcelable.class)).toList();
     }
 }

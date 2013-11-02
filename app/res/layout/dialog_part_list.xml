@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DO NOT REMOVE -->
+<!-- might appear unused, but overrides the list dialog styles from the styled-dialogs library -->
+<!-- https://github.com/inmite/android-styled-dialogs -->
+<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/sdl__listview"
+          style="@style/DialogListView"/>

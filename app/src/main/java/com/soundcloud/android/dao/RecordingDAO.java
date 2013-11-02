@@ -5,7 +5,10 @@ import com.soundcloud.android.provider.Content;
 
 import android.content.ContentResolver;
 
-class RecordingDAO extends BaseDAO<Recording> {
+/**
+ * Table object for recording models. Do not use outside this package, use {@link RecordingStorage} instead.
+ */
+/* package */ class RecordingDAO extends BaseDAO<Recording> {
     public RecordingDAO(ContentResolver contentResolver) {
         super(contentResolver);
     }

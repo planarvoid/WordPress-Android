@@ -1,15 +1,15 @@
 package com.soundcloud.android.auth;
 
-import com.soundcloud.android.activity.auth.Onboard;
+import com.soundcloud.android.activity.auth.OnboardActivity;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
 
-public class AuthTestCase extends ActivityTestCase<Onboard> {
+public class AuthTestCase extends ActivityTestCase<OnboardActivity> {
 
     protected SignUpScreen signupScreen;
 
     public AuthTestCase() {
-        super(Onboard.class);
+        super(OnboardActivity.class);
     }
 
     @Override

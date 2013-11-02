@@ -10,7 +10,6 @@
   <string name="authentication_I_forgot_my_password">Olvidé mi contraseña</string>
   <string name="authentication_add_info_add_image_msg">¡Sonría! Esta imagen aparecerá en su perfil.</string>
   <string name="authentication_add_info_msg">Ya casi está. Ahora, elija un nombre de usuario y añada una foto para personalizar su perfil.</string>
-  <string name="authentication_add_info_progress_message">Añadiendo información</string>
   <string name="authentication_add_info_username_hint">Nombre de usuario</string>
   <string name="authentication_by_signing_in_I_agree_to_the">Al registrarme, acepto las Condiciones y política de Privacidad de SoundCloud.</string>
   <string name="authentication_choose_a_password">Al menos 6 caracteres</string>
@@ -18,11 +17,9 @@
   <string name="authentication_error_invalid_email">Por favor, introduzca un correo electrónico válido.</string>
   <string name="authentication_error_no_connection_message">Por favor, verifique la configuración de red.</string>
   <string name="authentication_error_no_connection_title">¿Está seguro de que está conectado a Internet?</string>
-  <string name="authentication_error_password_mismatch">Por favor, compruebe que ambas contraseñas coinciden.</string>
   <string name="authentication_error_password_too_short">Su contraseña debe tener 6 o más caracteres.</string>
   <string name="authentication_error_title">¡Lo sentimos!</string>
   <string name="authentication_log_in">Iniciar sesión</string>
-  <string name="authentication_log_in_with_facebook_two_lines">&lt;small&gt;Iniciar sesión con&lt;/small&gt; &lt;br&gt;Facebook</string>
   <string name="authentication_log_in_with_facebook">Iniciar sesión con Facebook</string>
   <string name="authentication_log_in_with_facebook_ssl_error">Error al conectar con Facebook (SSL)</string>
   <string name="authentication_login_error_password_message">No puede iniciar sesión. ¿Seguro que introdujo bien su correo electrónico y contraseña?</string>
@@ -33,10 +30,8 @@
   <string name="authentication_recover_password_msg">Introduzca su dirección de correo electrónico y le enviaremos un enlace que le permitirá cambiar de contraseña. ¿Tiene problemas? Contacte con el soporte.</string>
   <string name="authentication_recover_password_success">¡Compruebe su correo electrónico! Recibirá, en poco tiempo, un correo con instrucciones acerca de cómo restaurar su contraseña</string>
   <string name="authentication_recover_progress_message">Petición de restauración de contraseña</string>
-  <string name="authentication_repeat_your_password">Repite la contraseña</string>
   <string name="authentication_sign_up">Registro en SoundCloud</string>
   <string name="authentication_signup_error_message">Parece que hay un problema. Por favor, intente registrarse en SoundCloud.com.</string>
-  <string name="authentication_signup_progress_message">Registrándose</string>
   <string name="authentication_support">Soporte</string>
   <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
   <string name="authentication_terms_of_use">Condiciones</string>
@@ -197,8 +192,6 @@
   <string name="empty_user_followers_text">Nadie está siguiendo aún a %1$s.</string>
   <string name="empty_user_followings_text">%1$s todavía no está siguiendo a nadie.</string>
   <string name="empty_user_tracks_text">%1$s aún no ha subido ningún sonido público.</string>
-  <string name="error_change_following_status">Error al cambiar el siguiente estado</string>
-  <string name="error_creating_account">Error al crear la cuenta</string>
   <string name="error_loading_message">Ocurrió un error al contactar con SoundCloud.</string>
   <string name="error_loading_title">Error en la red</string>
   <string name="error_recording_message">Ocurrió un error en la grabación.\n Puede que su dispositivo no soporte la configuración actual de grabación. Puede cambiar la configuración en los ajustes de la aplicación.</string>
@@ -295,7 +288,6 @@
   <string name="private_message_btn_send">Enviar</string>
   <string name="private_message_upload_message">Antes de que lo enviemos por privado a %s, ¿quiere añadir más información?</string>
   <string name="private_message_upload_title">Su mensaje de sonido ha sido guardado.</string>
-  <string name="pull_to_refresh_last_updated">%1$s actualizado</string>
   <string name="raw">Raw.</string>
   <string name="record_another_sound">Grabar otro sonido</string>
   <string name="record_insert_sd_card">Por favor, introduzca una tarjeta SD para grabar.</string>

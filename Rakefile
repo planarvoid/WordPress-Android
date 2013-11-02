@@ -190,8 +190,14 @@ def gitsha1()
 end
 
 def get_last_published_version(token, app_id)
-  versions = JSON.parse(`curl -s -H 'X-HockeyAppToken: #{token}' https://rink.hockeyapp.net/api/2/apps/#{app_id}/app_versions`)
-  versions['app_versions'].map { |app| app['version'].to_i }.max
+  #FIXME
+  begin
+    versions = JSON.parse(`curl -s -H 'X-HockeyAppToken: #{token}' https://rink.hockeyapp.net/api/2/apps/#{app_id}/app_versions`)
+    versions['app_versions'].map { |app| app['version'].to_i }.max
+  rescue
+    "#{versionCode}".to_i
+  end
+
 end
 
 def get_file_path(build_type)
@@ -434,7 +440,8 @@ desc "run lint"
 task :lint do
   result = "app/target/lint-result.html"
   rm_f result
-  lint_ok = system("#{android_home}/tools/lint --config app/lint.xml --exitcode --html #{result} app")
+  lint_ok = system("#{android_home}/tools/lint --config app/lint.xml --exitcode --html #{result} app \
+   --showall --sources app/src/main/java/")
   if File.exists?(result) && RUBY_PLATFORM =~ /darwin/
     sh "open #{result}"
   end
@@ -464,7 +471,7 @@ namespace :ci do
   end
 
   task :test_app do
-    Mvn.install.projects('tests').
+    Mvn.test.projects('tests').
       with_profiles('debug').
       skip_proguard.
       use_local_repo.
@@ -479,12 +486,15 @@ namespace :ci do
   end
 end
 
-
 class Mvn
 
   def self.install
     self.new('mvn clean install')
   end
+
+  def self.test
+      self.new('mvn clean test')
+    end
 
   def self.set_version(version)
     self.new("mvn versions:set -DnewVersion=#{version} -DgenerateBackupPoms=false -DupdateMatchingVersions=false")

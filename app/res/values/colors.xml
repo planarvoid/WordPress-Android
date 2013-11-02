@@ -2,9 +2,8 @@
 <resources>
     <color name="scOrange">#ff6600</color>
     <color name="scDarkOrange">#CCe36711</color>
-    <color name="scDarkGray">#CC101010</color>
 
-    <color name="scDivider">#30000000</color>
+    <color name="gray_text">#CCCCCC</color>
 
     <color name="listTxtValue">#FF000000</color>
     <color name="listTxtValuePressed">#88FFFFFF</color>
@@ -20,7 +19,7 @@
     <color name="listTxtDarkValue">#FFFFFFFF</color>
     <color name="listTxtDarkValuePressed">#88FFFFFF</color>
 
-    <color name="darkBg">#FF333333</color>
+    <color name="dark_bg">#FF333333</color>
 
     <color name="listTxtHeader">#777777</color>
     <color name="commentLine">#AAD7D7D7</color>
@@ -28,8 +27,8 @@
 
     <color name="portraitPlayerCommentLine">#FFEF5002</color>
 
-    <color name="playerControlBackground">#FFF2F2F2</color>
-    <color name="playerControlAlphaBackground">#AAF2F2F2</color>
+    <color name="playerControlBackground">#FFF3F3F3</color>
+    <color name="playerControlAlphaBackground">#AAF3F3F3</color>
 
     <color name="commentGray">#ff9c9c9c</color>
 
@@ -80,26 +79,19 @@
     <color name="upload_monitor_text">#ff000000</color>
     <color name="upload_monitor_text_inactive">#ff9e9e9e</color>
 
-    <color name="fim_item_text_color">#ffffff</color>
-
     <color name="search_item_unselected_color">#999999</color>
     <color name="search_item_selected_color">#ffffff</color>
     <color name="search_item_pressed_color">@color/scOrange</color>
 
-    <color name="pressed_next">#CCff6600</color>
-
-    <color name="pressed_home_next">#99ff6600</color>
-
-    <color name="main_menu_bg">#FF222222</color>
-
-    <color name="light_gray_text">#CCCCCC</color>
     <color name="track_info_separator">#FFE5E5E5</color>
 
     <color name="txt_description_color">#FF666666</color>
 
-    <color name="dialog_list_txt_disabled">#777</color>
-    <color name="error_view_bg">#EFEFEF</color>
+    <color name="dark_gray_text">#FF333333</color>
 
-    <color name="list_txt_explore">#FF333333</color>
+    <color name="dialog_title">#333</color>
+    <color name="dialog_separator">@color/scOrange</color>
+    <color name="dialog_button_focused">#88ff6600</color>
+    <color name="dialog_button_pressed">#DDff6600</color>
 
 </resources>

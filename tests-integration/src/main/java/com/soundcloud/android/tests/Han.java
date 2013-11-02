@@ -13,7 +13,6 @@ import com.soundcloud.android.R;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
-import android.test.InstrumentationTestCase;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -87,10 +86,6 @@ public class Han  {
         solo.clickLongOnView(view);
     }
 
-    public void clickOnMenuItem(int resId) {
-        solo.clickOnMenuItem(getString(resId));
-    }
-
     public void assertText(int resId, Object... args) {
         final String text = getString(resId, args);
         assertTrue("Text '" + text + "' not found", solo.waitForText(Pattern.quote(text)));
@@ -123,6 +118,10 @@ public class Han  {
         return (T) activity;
     }
 
+    public void clickOnActionBarItem(int itemId) {
+        solo.clickOnActionBarItem(itemId);
+    }
+
     public void assertActivityFinished() {
         Activity a = solo.getCurrentActivity();
         assertNotNull("activity is null", a);
@@ -138,10 +137,10 @@ public class Han  {
         solo.clickOnButton(getString(resId));
     }
 
-    public void performClick(InstrumentationTestCase test, final View view) {
+    public void performClick(final View view) {
         assertNotNull("view is null", view);
         try {
-            test.runTestOnUiThread(new Runnable() {
+            solo.getCurrentActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     view.performClick();
@@ -165,12 +164,10 @@ public class Han  {
 
     public void swipeLeft() {
         swipeHorizontal(Solo.LEFT);
-        solo.sleep(SWIPE_SLEEP);
     }
 
     public void swipeRight() {
         swipeHorizontal(Solo.RIGHT);
-        solo.sleep(SWIPE_SLEEP);
     }
 
     public void swipeDownToRefresh() {
@@ -367,6 +364,20 @@ public class Han  {
 
     public boolean waitForCondition(Condition condition, int timeout) {
         return solo.waitForCondition(condition, timeout);
+    }
+
+    public void clickOnActionBarHomeButton() {
+        try {
+            solo.getCurrentActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    solo.clickOnActionBarHomeButton();
+                }
+            });
+        } catch (Throwable throwable) {
+            throw new RuntimeException("Could not click on action bar home button on UI Thread", throwable);
+        }
+
     }
 }
 

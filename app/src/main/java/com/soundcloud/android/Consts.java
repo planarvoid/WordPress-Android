@@ -63,6 +63,10 @@ public final class Consts {
         boolean useCustomNotificationLayouts = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
         boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         boolean canDetermineActivityBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+        boolean useCustomFonts = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
+        // Gingerbread delivers proper playback buffering events
+        boolean useSmoothProgress = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
+
     }
 
     public interface Dialogs {
@@ -71,7 +75,6 @@ public final class Consts {
         int DIALOG_DISCARD_RECORDING = 5;
         int DIALOG_UNSAVED_RECORDING = 6;
         int DIALOG_DELETE_RECORDING = 7;
-        int DIALOG_ADD_COMMENT = 8;
         int DIALOG_LOGOUT = 9;
         int DIALOG_INSTALL_PROCESSOR = 10;
         int DIALOG_REVERT_RECORDING = 11;
@@ -106,7 +109,7 @@ public final class Consts {
     }
 
     public interface PrefKeys {
-        String SC_PLAYQUEUE_URI                     = "sc_playlist_uri";
+
         String STREAMING_WRITES_SINCE_CLEANUP       = "streamingWritesSinceCleanup";
         String C2DM_DEVICE_URL                      = "c2dm.device_url";
         String C2DM_REG_TO_DELETE                   = "c2dm.to_delete";

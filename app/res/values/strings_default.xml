@@ -10,7 +10,6 @@
   <string name="authentication_I_forgot_my_password">I forgot my password</string>
   <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
   <string name="authentication_add_info_msg">Almost done. Now choose a username and add a photo to personalize your profile.</string>
-  <string name="authentication_add_info_progress_message">Adding your info</string>
   <string name="authentication_add_info_username_hint">Your username</string>
   <string name="authentication_by_signing_in_I_agree_to_the">By signing up I agree to the Terms of Use and Privacy policy of SoundCloud.</string>
   <string name="authentication_choose_a_password">At least 6 characters</string>
@@ -18,11 +17,9 @@
   <string name="authentication_error_invalid_email">Please enter a valid email.</string>
   <string name="authentication_error_no_connection_message">There\'s a problem with your data connection. Please check your network settings.</string>
   <string name="authentication_error_no_connection_title">Sure you\'re hooked up to the Internet?</string>
-  <string name="authentication_error_password_mismatch">Please check that both passwords are the same.</string>
   <string name="authentication_error_password_too_short">Your Password must have 6 or more characters.</string>
   <string name="authentication_error_title">Error</string>
   <string name="authentication_log_in">Log In</string>
-  <string name="authentication_log_in_with_facebook_two_lines">&lt;small&gt;Sign in with&lt;/small&gt; &lt;br&gt;&lt;b&gt;Facebook&lt;/b&gt;</string>
   <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
   <string name="authentication_log_in_with_facebook_ssl_error">Error connecting to Facebook (SSL)</string>
   <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>
@@ -32,10 +29,8 @@
   <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
   <string name="authentication_recover_password_success">Go check your mail! You\'ll receive an email with instructions on how to reset your password shortly</string>
   <string name="authentication_recover_progress_message">Requesting password reset</string>
-  <string name="authentication_repeat_your_password">Repeat your password</string>
   <string name="authentication_sign_up">Sign up for SoundCloud</string>
   <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
-  <string name="authentication_signup_progress_message">Signing you up</string>
   <string name="authentication_support">Support</string>
   <string name="authentication_support_uri">http://soundcloud.com/help#contact-form</string>
   <string name="authentication_terms_of_use">Terms of Use</string>
@@ -196,8 +191,6 @@
   <string name="empty_user_followers_text">%1$s isn\'t\nbeing followed by anyone yet.</string>
   <string name="empty_user_followings_text">%1$s isn\'t\nfollowing anyone yet.</string>
   <string name="empty_user_tracks_text">%1$s hasn\'t uploaded\nany public sounds yet.</string>
-  <string name="error_change_following_status">Error changing following status</string>
-  <string name="error_creating_account">Error creating account</string>
   <string name="error_loading_message">There was a problem contacting Soundcloud.</string>
   <string name="error_loading_title">Network error</string>
   <string name="error_recording_message">There was an error during recording.\n Your device may not support the current record configuration. You can change configurations in the application settings.</string>
@@ -295,7 +288,6 @@
   <string name="private_message_btn_send">Send</string>
   <string name="private_message_upload_message">Before we send it out privately to %s, maybe you want to add some more info?</string>
   <string name="private_message_upload_title">Your sound message got saved.</string>
-  <string name="pull_to_refresh_last_updated">updated %1$s</string>
   <string name="raw">Raw</string>
   <string name="record_another_sound">Record another sound</string>
   <string name="record_insert_sd_card">Please insert an SD card to record.</string>

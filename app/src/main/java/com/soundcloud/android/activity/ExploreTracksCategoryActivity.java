@@ -1,6 +1,5 @@
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.fragment.ExploreTracksFragment;
 import com.soundcloud.android.model.ExploreTracksCategory;
 
@@ -23,10 +22,5 @@ public class ExploreTracksCategoryActivity extends ScActivity {
                     .add(android.R.id.content, exploreTracksFragment)
                     .commit();
         }
-    }
-
-    @Override
-    protected int getSelectedMenuId() {
-        return R.id.nav_explore;
     }
 }

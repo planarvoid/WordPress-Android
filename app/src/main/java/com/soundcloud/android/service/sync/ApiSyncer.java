@@ -238,8 +238,8 @@ public class ApiSyncer extends SyncStrategy {
                 p.localToGlobal(mContext, added);
                 SoundCloudApplication.MODEL_MANAGER.removeFromCache(toDelete);
 
-                mPlaylistStorage.create(added).toBlockingObservable().last();
-                mSoundAssociationStorage.addCreation(added).toBlockingObservable().last();
+                mPlaylistStorage.store(added);
+                mSoundAssociationStorage.addCreation(added);
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
@@ -279,7 +279,7 @@ public class ApiSyncer extends SyncStrategy {
         final int inserted;
         Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
-            final Activity oldestActivity = mActivitiesStorage.getOldestActivity(c).toBlockingObservable().singleOrDefault(null);
+            final Activity oldestActivity = mActivitiesStorage.getOldestActivity(c);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (oldestActivity != null) request.add("cursor", oldestActivity.toGUID());
             activities = Activities.fetch(mApi, request);
@@ -290,7 +290,7 @@ public class ApiSyncer extends SyncStrategy {
                 inserted = mActivitiesStorage.insert(c, activities);
             }
         } else {
-            final Activity newestActivity = mActivitiesStorage.getLatestActivity(c).toBlockingObservable().singleOrDefault(null);
+            final Activity newestActivity = mActivitiesStorage.getLatestActivity(c);
             Request request = new Request(c.request());
             if (newestActivity != null) request.add("uuid[to]", newestActivity.toGUID());
 
@@ -302,7 +302,7 @@ public class ApiSyncer extends SyncStrategy {
                 mResolver.delete(c.uri, null, null);
             }
 
-            final Activity latestActivity = mActivitiesStorage.getLatestActivity(c).toBlockingObservable().singleOrDefault(null);
+            final Activity latestActivity = mActivitiesStorage.getLatestActivity(c);
             if (activities.isEmpty() || (activities.size() == 1 && activities.get(0).equals(latestActivity))) {
                 // this can happen at the beginning of the list if the api returns the first item incorrectly
                 inserted = 0;
@@ -424,7 +424,7 @@ public class ApiSyncer extends SyncStrategy {
             }
             if (c != null) c.close();
 
-            p = mPlaylistStorage.create(p).toBlockingObservable().last();
+            p = mPlaylistStorage.storeAsync(p).toBlockingObservable().last();
             final Uri insertedUri = p.toUri();
             if (insertedUri != null) {
                 log("inserted " + insertedUri.toString());
@@ -455,7 +455,7 @@ public class ApiSyncer extends SyncStrategy {
         ApiSyncResult result = new ApiSyncResult(contentUri);
         T resource = mApi.read(Content.match(contentUri).request(contentUri));
 
-        storage.create(resource);
+        storage.store(resource);
 
         final Uri insertedUri = resource.toUri();
 

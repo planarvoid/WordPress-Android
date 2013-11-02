@@ -5,7 +5,10 @@ import com.soundcloud.android.provider.Content;
 
 import android.content.ContentResolver;
 
-public class UserDAO extends BaseDAO<User> {
+/**
+ * Table object for users. Do not use outside this package, use {@link UserStorage} instead.
+ */
+/* package */ class UserDAO extends BaseDAO<User> {
 
     public UserDAO(ContentResolver contentResolver) {
         super(contentResolver);

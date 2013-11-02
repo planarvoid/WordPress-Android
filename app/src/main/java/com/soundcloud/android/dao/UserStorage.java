@@ -2,12 +2,12 @@ package com.soundcloud.android.dao;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -16,17 +16,23 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
     private UserDAO mUserDAO;
 
     public UserStorage() {
+        super(ScSchedulers.STORAGE_SCHEDULER);
         ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
         mUserDAO = new UserDAO(resolver);
     }
 
     @Override
-    public Observable<User> create(final User user) {
+    public User store(User user) {
+        mUserDAO.create(user.buildContentValues());
+        return user;
+    }
+
+    @Override
+    public Observable<User> storeAsync(final User user) {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<User>() {
             @Override
             public Subscription onSubscribe(Observer<? super User> observer) {
-                mUserDAO.create(user.buildContentValues());
-                observer.onNext(user);
+                observer.onNext(store(user));
                 observer.onCompleted();
                 return Subscriptions.empty();
             }

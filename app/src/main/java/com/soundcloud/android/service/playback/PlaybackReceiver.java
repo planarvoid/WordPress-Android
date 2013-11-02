@@ -5,13 +5,11 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.Broad
 import static com.soundcloud.android.service.playback.CloudPlaybackService.PlayExtras;
 import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 
 import android.appwidget.AppWidgetManager;
@@ -20,42 +18,40 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.util.Log;
 
 class PlaybackReceiver extends BroadcastReceiver {
 
     private CloudPlaybackService mPlaybackService;
     private AssociationManager mAssociationManager;
-    private PlayQueueManager mPlayQueueManager;
     private AudioManager mAudioManager;
     private final AccountOperations mAccountOperations;
+    private final PlayQueueManager mPlayQueueManager;
 
     public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
-                            PlayQueueManager playQueueManager, AudioManager audioManager) {
-        this(playbackService, associationManager, playQueueManager, audioManager, new AccountOperations(playbackService));
+                            AudioManager audioManager, PlayQueueManager playQueueManager) {
+        this(playbackService, associationManager, audioManager, new AccountOperations(playbackService), playQueueManager);
     }
 
     public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
-                            PlayQueueManager playQueueManager, AudioManager audioManager, AccountOperations accountOperations) {
+                            AudioManager audioManager, AccountOperations accountOperations, PlayQueueManager playQueueManager) {
         this.mPlaybackService = playbackService;
         this.mAssociationManager = associationManager;
-        this.mPlayQueueManager = playQueueManager;
         this.mAudioManager = audioManager;
         this.mAccountOperations = accountOperations;
+        mPlayQueueManager = playQueueManager;
     }
+
 
     @Override
 
     public void onReceive(Context context, Intent intent) {
 
         String action = intent.getAction();
-        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-            Log.d(CloudPlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
-        }
+        Log.d(CloudPlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
 
         if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
-            mPlayQueueManager.clear();
+            mPlayQueueManager.clearAll();
 
         } else if (mAccountOperations.soundCloudAccountExists()) {
 
@@ -84,6 +80,8 @@ class PlaybackReceiver extends BroadcastReceiver {
                 setRepostStatus(intent.getData(), false);
             } else if (Actions.PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
+            } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
+                mPlayQueueManager.retryRelatedTracksFetch();
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
                 if (mPlaybackService.getState() == EMPTY_PLAYLIST) {
                     mPlaybackService.openCurrent();
@@ -102,7 +100,6 @@ class PlaybackReceiver extends BroadcastReceiver {
                     // make sure we go to a stopped stat. No-op if there already
                     mPlaybackService.stop();
                 }
-
             }
         } else {
             Log.e(CloudPlaybackService.TAG, "Aborting playback service action, no soundcloud account(" + intent + ")");
@@ -120,76 +117,17 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private void handlePlayAction(Intent intent) {
-        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-            Log.d(CloudPlaybackService.TAG, "handlePlayAction(" + intent + ")");
-        }
+        if (intent.hasExtra(PlayQueue.EXTRA)) {
+            PlayQueue playQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
 
-        if (intent.getBooleanExtra(PlayExtras.unmute, false)) {
-            configureVolume();
-        }
-
-        final boolean startPlayback = intent.getBooleanExtra(PlayExtras.startPlayback, true);
-        final int position = intent.getIntExtra(PlayExtras.playPosition, 0);
-        final PlaySourceInfo trackingInfo = intent.getParcelableExtra(PlayExtras.trackingInfo);
-
-        if (intent.getData() != null) {
-            playViaUri(intent, startPlayback, position, trackingInfo);
-
-        } else if (intent.getBooleanExtra(PlayExtras.playFromXferList, false)) {
-            playViaTransferList(startPlayback, position, trackingInfo);
-
-        } else if (intent.hasExtra(PlayExtras.track) || intent.hasExtra(PlayExtras.trackId)) {
-            playSingleTrack(intent, startPlayback, trackingInfo);
-
-        } else if (!mPlayQueueManager.isEmpty() || mPlaybackService.configureLastPlaylist()) {
-            // random play intent, play whatever we had last
-            if (startPlayback) mPlaybackService.play();
-        }
-
-    }
-
-    private void configureVolume() {
-        final int volume = (int) Math.round(mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * 0.75d);
-        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-            Log.d(CloudPlaybackService.TAG, "setting volume to " + volume);
-        }
-        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
-    }
-
-    private void playViaUri(Intent intent, boolean startPlayback, int position, PlaySourceInfo trackingInfo) {
-        if (mPlaybackService.playlistXfer != null) {
-            mPlayQueueManager.loadUri(intent.getData(), position, mPlaybackService.playlistXfer, position, trackingInfo);
-        } else {
-            Track track = getTrackFromIntent(intent);
-            mPlayQueueManager.loadUri(intent.getData(), position, track == null ? null : Lists.newArrayList(track), 0, trackingInfo);
-        }
-
-        if (startPlayback) mPlaybackService.openCurrent();
-    }
-
-    private void playViaTransferList(boolean startPlayback, int position, PlaySourceInfo trackingInfo) {
-        mPlayQueueManager.setPlayQueue(mPlaybackService.playlistXfer, position, trackingInfo);
-        mPlaybackService.playlistXfer = null;
-        if (startPlayback) mPlaybackService.openCurrent();
-    }
-
-    private void playSingleTrack(Intent intent, boolean startPlayback, PlaySourceInfo trackingInfo) {
-
-        // go to the cache to ensure 1 copy of each track app wide
-        final Track cachedTrack = getTrackFromIntent(intent);
-        mPlayQueueManager.loadTrack(cachedTrack, true, trackingInfo);
-
-        if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)) {
-            mPlayQueueManager.fetchRelatedTracks(cachedTrack);
-        }
-
-        if (startPlayback) {
+            mPlayQueueManager.setNewPlayQueue(playQueue);
             mPlaybackService.openCurrent();
+
+            if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)){
+                mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
+            }
+        } else {
+            Log.w(CloudPlaybackService.TAG, "Received play intent without a play queue");
         }
-
-    }
-
-    private Track getTrackFromIntent(Intent intent) {
-        return SoundCloudApplication.MODEL_MANAGER.cache(Track.nullableTrackfromIntent(intent), ScResource.CacheUpdateMode.NONE);
     }
 }

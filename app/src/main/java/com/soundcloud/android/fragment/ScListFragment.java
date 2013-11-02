@@ -3,13 +3,13 @@ package com.soundcloud.android.fragment;
 import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.CommentAdapter;
@@ -58,6 +58,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -70,7 +71,7 @@ import android.widget.ListView;
 import java.lang.ref.WeakReference;
 
 @Deprecated
-public class ScListFragment extends SherlockListFragment implements PullToRefreshBase.OnRefreshListener,
+public class ScListFragment extends ListFragment implements PullToRefreshBase.OnRefreshListener,
                                                             DetachableResultReceiver.Receiver,
                                                             LocalCollection.OnChangeListener,
                                                             CollectionTask.Callback,
@@ -79,6 +80,7 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
     private static final int CONNECTIVITY_MSG = 0;
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
+    private static final String EXTRA_TITLE_ID = "title";
 
     private @Nullable ScListView mListView;
     private ScBaseAdapter<?> mAdapter;
@@ -120,9 +122,19 @@ public class ScListFragment extends SherlockListFragment implements PullToRefres
         return fragment;
     }
 
+    public static ScListFragment newInstance(Uri contentUri, int titleId) {
+        ScListFragment fragment = new ScListFragment();
+        Bundle args = new Bundle();
+        args.putParcelable(EXTRA_CONTENT_URI, contentUri);
+        args.putInt(EXTRA_TITLE_ID, titleId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
         if (mContentUri == null) {
             // only should happen once
             mContentUri = (Uri) getArguments().get(EXTRA_CONTENT_URI);

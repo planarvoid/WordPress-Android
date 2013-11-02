@@ -2,20 +2,18 @@ package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.tests.TestUser.testUser;
 
-import com.soundcloud.android.activity.landing.Home;
+import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.ConnectivityAssistant;
 import com.soundcloud.android.tests.Waiter;
 
-public class Explore extends ActivityTestCase<Home> {
+public class Explore extends ActivityTestCase<MainActivity> {
     private Waiter waiter;
     private ExploreScreen exploreScreen;
-    private ConnectivityAssistant connectivityAssistant;
 
     public Explore() {
-        super(Home.class);
+        super(MainActivity.class);
     }
 
     @Override
@@ -26,7 +24,6 @@ public class Explore extends ActivityTestCase<Home> {
         waiter = new Waiter(solo);
         waiter.waitForListContent();
         exploreScreen = new ExploreScreen(this);
-        connectivityAssistant = new ConnectivityAssistant(this);
     }
 
     public void testTrendingMusicIsDisplayed() {

@@ -1,6 +1,6 @@
 package com.soundcloud.android.whoToFollow;
 
-import com.soundcloud.android.activity.auth.Onboard;
+import com.soundcloud.android.activity.auth.OnboardActivity;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersCategoryScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersScreen;
@@ -8,7 +8,7 @@ import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Waiter;
 
-public class WhoToFollow extends ActivityTestCase<Onboard> {
+public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
 
     private Waiter waiter;
     protected SignUpScreen signUpScreen;
@@ -16,7 +16,7 @@ public class WhoToFollow extends ActivityTestCase<Onboard> {
     protected SuggestedUsersCategoryScreen suggestedUsersCategoryScreen;
 
     public WhoToFollow() {
-        super(Onboard.class);
+        super(OnboardActivity.class);
     }
 
     public void setUp() throws Exception {

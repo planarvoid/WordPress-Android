@@ -68,11 +68,6 @@ public class EmailConfirm extends ScActivity {
     }
 
     @Override
-    protected int getSelectedMenuId() {
-        return -1;
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         getApp().track(EmailConfirm.class);

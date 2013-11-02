@@ -14,22 +14,26 @@ import android.os.Parcelable;
  */
 public class PlaySourceInfo implements Parcelable {
 
-    public static final PlaySourceInfo EMPTY = new PlaySourceInfo();
+    public static final PlaySourceInfo empty(){
+        return new PlaySourceInfo();
+    }
 
     private static final String KEY_ORIGIN_URL = "playSource-originUrl";
     private static final String KEY_EXPLORE_TAG = "playSource-exploreTag";
-    private static final String KEY_INITIAL_TRACK_ID = "playSource-initialTrackId";
     private static final String KEY_RECOMMENDER_VERSION = "playSource-recommenderVersion";
 
     private Bundle mData;
 
+    public PlaySourceInfo(Bundle data) {
+        mData = data;
+    }
+
     private PlaySourceInfo() {
-        mData = new Bundle();
+        this(new Bundle());
     }
 
     private PlaySourceInfo(Builder builder) {
         this();
-        mData.putLong(KEY_INITIAL_TRACK_ID, builder.mInitialTrackId);
         if (ScTextUtils.isNotBlank(builder.mOriginUrl)) mData.putString(KEY_ORIGIN_URL, builder.mOriginUrl);
         if (ScTextUtils.isNotBlank(builder.mExploreTag)) mData.putString(KEY_EXPLORE_TAG, builder.mExploreTag);
         if (ScTextUtils.isNotBlank(builder.mRecommenderVersion)) mData.putString(KEY_RECOMMENDER_VERSION, builder.mRecommenderVersion);
@@ -44,12 +48,11 @@ public class PlaySourceInfo implements Parcelable {
      * {@link com.soundcloud.android.service.playback.PlayQueueUri}
      */
     public static PlaySourceInfo fromUriParams(Uri uri) {
-        return new PlaySourceInfo(
-                new Builder(Longs.tryParse(uri.getQueryParameter(KEY_INITIAL_TRACK_ID)))
-                        .originUrl(uri.getQueryParameter(KEY_ORIGIN_URL))
-                        .exploreTag(uri.getQueryParameter(KEY_EXPLORE_TAG))
-                        .recommenderVersion(uri.getQueryParameter(KEY_RECOMMENDER_VERSION))
-        );
+        return new Builder()
+                .originUrl(uri.getQueryParameter(KEY_ORIGIN_URL))
+                .exploreTag(uri.getQueryParameter(KEY_EXPLORE_TAG))
+                .recommenderVersion(uri.getQueryParameter(KEY_RECOMMENDER_VERSION))
+                .build();
     }
 
     public void setRecommenderVersion(String version) {
@@ -60,14 +63,13 @@ public class PlaySourceInfo implements Parcelable {
         return mData.getString(KEY_RECOMMENDER_VERSION);
     }
 
-    public Long getInitialTrackId() {
-        return mData.getLong(KEY_INITIAL_TRACK_ID);
-    }
-
     public String getExploreTag() {
         return mData.getString(KEY_EXPLORE_TAG);
     }
 
+    public Bundle getData(){
+        return mData;
+    }
 
     public Uri.Builder appendAsQueryParams(Uri.Builder builder) {
         for (String key : mData.keySet()) {
@@ -92,13 +94,10 @@ public class PlaySourceInfo implements Parcelable {
     /**
      * WARNING : This makes a lot of assumptions about what is possible with the current system of playback, namely that
      * explore will only have 1 manually triggered track, and the entire rest of the list will be recommended
-     * @param trackId the track that the user clicked on originalliy, which should be set to "manual" trigger
      * @return the proper TrackSourceInfo based on the given
      */
-    public TrackSourceInfo getTrackSourceById(long trackId) {
-        if (getInitialTrackId() == trackId) {
-            return TrackSourceInfo.manual();
-        } else if (getRecommenderVersion() != null) {
+    public TrackSourceInfo getAutoTrackSource() {
+        if (getRecommenderVersion() != null) {
             return TrackSourceInfo.fromRecommender(getRecommenderVersion());
         }
         return TrackSourceInfo.auto();
@@ -145,14 +144,11 @@ public class PlaySourceInfo implements Parcelable {
     }
 
     public static class Builder {
-        private long mInitialTrackId;
         private String mOriginUrl;
         private String mExploreTag;
         private String mRecommenderVersion;
 
-        public Builder(long initialTrackId) {
-            mInitialTrackId = initialTrackId;
-        }
+        public Builder() {}
 
         public Builder originUrl(String originUrl) {
             mOriginUrl = originUrl;

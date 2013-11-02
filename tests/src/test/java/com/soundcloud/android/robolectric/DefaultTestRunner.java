@@ -75,6 +75,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         }
         ShadowVorbisEncoder.reset();
         ShadowNativeAmplitudeAnalyzer.reset();
+        TestHelper.setSdkVersion(0);
     }
 
     @Override

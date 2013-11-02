@@ -17,18 +17,13 @@ import rx.util.functions.Action1;
 import rx.util.functions.Func1;
 
 import android.accounts.Account;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
@@ -37,64 +32,51 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
     private ApplicationProperties mApplicationProperties;
 
     public static CreateNewSetDialogFragment from(long trackId) {
-
         Bundle b = new Bundle();
         b.putLong(KEY_TRACK_ID, trackId);
-
         CreateNewSetDialogFragment fragment = new CreateNewSetDialogFragment();
         fragment.setArguments(b);
         return fragment;
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         mAccountOpertations = new AccountOperations(getActivity());
         mApplicationProperties = new ApplicationProperties(getResources());
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    }
 
+    @Override
+    protected Builder build(Builder initialBuilder) {
         final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_create_new_set, null);
-        ((TextView) dialogView.findViewById(android.R.id.title)).setText(R.string.create_new_playlist);
-
-        // Set an EditText view to get user input
         final EditText input = (EditText) dialogView.findViewById(android.R.id.edit);
-        builder.setView(dialogView);
-
         final CheckBox privacy = (CheckBox) dialogView.findViewById(R.id.chk_private);
 
+        initialBuilder.setTitle(R.string.create_new_playlist);
+        initialBuilder.setView(dialogView);
 
         if (!mApplicationProperties.isDevBuildRunningOnDalvik()){
             privacy.setVisibility(View.GONE);
         }
 
-        builder.setNegativeButton(R.string.cancel,new DialogInterface.OnClickListener() {
+        initialBuilder.setNegativeButton(R.string.cancel,new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+            public void onClick(View v) {
+                getDialog().dismiss();
             }
         });
-        builder.setPositiveButton(R.string.done, null);
-
-        // convoluted, but seems there's no better way:
-        // http://stackoverflow.com/questions/2620444/how-to-prevent-a-dialog-from-closing-when-a-button-is-clicked
-        final AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+        initialBuilder.setPositiveButton(R.string.done, new View.OnClickListener() {
             @Override
-            public void onShow(DialogInterface di) {
-                Button button = dialog.getButton(Dialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (TextUtils.isEmpty(input.getText())) {
-                            Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
-                        } else {
-                            createPlaylist(input.getText(), mApplicationProperties.isDevBuildRunningOnDalvik() && privacy.isChecked());
-                            dialog.dismiss();
-                        }
-                    }
-                });
+            public void onClick(View v) {
+                if (TextUtils.isEmpty(input.getText())) {
+                    Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
+                } else {
+                    createPlaylist(input.getText(), mApplicationProperties.isDevBuildRunningOnDalvik() && privacy.isChecked());
+                    getDialog().dismiss();
+                }
             }
         });
-        return dialog;
+        return initialBuilder;
     }
 
     private void createPlaylist(final Editable text, final boolean isPrivate) {
@@ -103,7 +85,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 
         PlaylistStorage playlistStorage = getPlaylistStorage();
         // insert the new playlist into the database
-        playlistStorage.createNewUserPlaylist(
+        playlistStorage.createNewUserPlaylistAsync(
                 loggedInUser,
                 String.valueOf(text),
                 isPrivate,
@@ -113,7 +95,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
             public Observable<SoundAssociation> call(Playlist playlist) {
                 // store the newly created playlist as a sound association
                 final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage();
-                return soundAssociationStorage.addCreation(playlist);
+                return soundAssociationStorage.addCreationAsync(playlist);
             }
         }).subscribe(new Action1<SoundAssociation>() {
             @Override

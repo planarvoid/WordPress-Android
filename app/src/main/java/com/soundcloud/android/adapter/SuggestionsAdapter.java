@@ -323,10 +323,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
         final int rowType = getItemViewType(cursor.getPosition());
         if (rowType == TYPE_SEARCH_ITEM) {
-            tag.iv_icon.setVisibility(View.GONE);
             tag.iv_search_type.setVisibility(View.GONE);
+            tag.iv_icon.setImageResource(R.drawable.actionbar_search);
         } else {
-            tag.iv_icon.setVisibility(View.VISIBLE);
             tag.iv_search_type.setVisibility(View.VISIBLE);
 
             boolean isUser = rowType == TYPE_USER;

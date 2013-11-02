@@ -55,11 +55,11 @@ public class SuggestedUsersCategoryScreen {
     }
 
     public void selectAll() {
-        solo.clickOnView(R.id.menu_select_all);
+        solo.clickOnActionBarItem(R.id.menu_select_all);
     }
 
     public void deselectAll() {
-        solo.clickOnView(R.id.menu_deselect_all);
+        solo.clickOnActionBarItem(R.id.menu_deselect_all);
     }
 
     private boolean testAll(boolean isFollowing){

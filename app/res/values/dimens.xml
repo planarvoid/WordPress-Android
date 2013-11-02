@@ -2,8 +2,6 @@
 <resources>
     <dimen name="tab_text_size">12sp</dimen>
 
-    <dimen name="next_home_width">68dp</dimen>
-
     <dimen name="notification_image_width">65dip</dimen>
     <dimen name="notification_image_height">65dip</dimen>
 
@@ -80,16 +78,13 @@
 
     <dimen name="rec_toggle_fade_margin_top">15dp</dimen>
 
-    <dimen name="slm_item_padding_topbottom">11dp</dimen>
-    <dimen name="slm_item_padding_left">14dp</dimen>
-    <dimen name="slm_item_padding_right">16dp</dimen>
+    <dimen name="default_side_padding">16dp</dimen>
+
+    <dimen name="slm_item_padding_right">@dimen/default_side_padding</dimen>
 
     <dimen name="search_item_padding_topbottom">13dp</dimen>
 
     <dimen name="slm_item_text_size">16sp</dimen>
-    <dimen name="slm_item_text_padding_left">10dp</dimen>
-
-    <dimen name="slm_item_dashboard_counter_text_size">12px</dimen>
 
     <dimen name="slm_search_item_text_padding">10dp</dimen>
 
@@ -97,7 +92,9 @@
     <dimen name="search_header_padding_leftright">8dp</dimen>
 
     <dimen name="btn_text_size">13sp</dimen>
-    <dimen name="btn_height">38dp</dimen>
+    <dimen name="btn_min_height">48dp</dimen>
+    <dimen name="btn_padding">15dp</dimen>
+    <dimen name="follow_btn_height">42dp</dimen>
 
     <dimen name="stats_view_font_offset">-1dp</dimen>
 
@@ -122,15 +119,18 @@
     <dimen name="signup_done_drawable_padding">7dp</dimen>
 
     <dimen name="onboarding_suggested_user_item_height">108dp</dimen>
-    <dimen name="onboarding_suggested_user_item_spacing">16dp</dimen>
+    <dimen name="onboarding_suggested_user_item_spacing">@dimen/default_side_padding</dimen>
 
     <dimen name="explore_suggested_track_item_height">180dp</dimen>
     <dimen name="explore_suggested_track_item_spacing_inside">10dp</dimen>
-    <dimen name="explore_suggested_track_item_spacing_outside_left_right">16dp</dimen>
+    <dimen name="explore_suggested_track_item_spacing_outside_left_right">@dimen/default_side_padding</dimen>
     <dimen name="explore_suggested_track_item_spacing_outside_top_bottom">10dp</dimen>
+    <dimen name="explore_suggested_track_padding">13dp</dimen>
 
     <dimen name="explore_suggested_track_category_text_size">16sp</dimen>
     <dimen name="explore_suggested_track_category_bottom_text_size">12sp</dimen>
+
+    <dimen name="explore_category_page_size">1px</dimen><!-- ratio used for pager adapter -->
 
     <dimen name="empty_message_margin_left_right">20dp</dimen>
     <dimen name="tab_height">48dp</dimen>
@@ -138,7 +138,9 @@
     <dimen name="player_time_width">10dp</dimen><!-- will correspond to the arrow height -->
     <dimen name="player_time_bottom_margin">-10dp</dimen><!-- will correspond to the arrow height -->
 
-    <dimen name="explore_category_page_size">1px</dimen><!-- ratio used for pager adapter -->
-
     <dimen name="view_pager_divider_width">1dp</dimen>
+
+    <dimen name="navigation_drawer_width">240dp</dimen>
+
+    <dimen name="nav_drawer_profile_item_height">160dp</dimen>
 </resources>

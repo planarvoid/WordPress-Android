@@ -7,6 +7,7 @@ import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
 import rx.Observer;
@@ -35,6 +36,7 @@ public class SoundAssociationStorage extends ScheduledOperations {
     private final SoundAssociationDAO mAllSoundAssocsDAO, mLikesDAO, mRepostsDAO, mTrackCreationsDAO, mPlaylistCreationsDAO;
 
     public SoundAssociationStorage() {
+        super(ScSchedulers.STORAGE_SCHEDULER);
         mResolver = SoundCloudApplication.instance.getContentResolver();
         mAllSoundAssocsDAO = new SoundAssociationDAO(mResolver);
         mLikesDAO = SoundAssociationDAO.forContent(Content.ME_LIKES, mResolver);
@@ -100,23 +102,30 @@ public class SoundAssociationStorage extends ScheduledOperations {
         return repost;
     }
 
-    public Observable<SoundAssociation> addCreation(final Track track) {
+    public SoundAssociation addCreation(final Track track) {
         return addCreation(track, mTrackCreationsDAO, SoundAssociation.Type.TRACK);
     }
 
-    public Observable<SoundAssociation> addCreation(final Playlist playlist) {
+    public SoundAssociation addCreation(final Playlist playlist) {
         return addCreation(playlist, mPlaylistCreationsDAO, SoundAssociation.Type.PLAYLIST);
     }
 
-    private Observable<SoundAssociation> addCreation(final Playable playable, final BaseDAO<SoundAssociation> dao, final SoundAssociation.Type assocType) {
+    private SoundAssociation addCreation(Playable playable, BaseDAO<SoundAssociation> dao, SoundAssociation.Type assocType) {
+        playable.created_at = new Date();
+        SoundAssociation creation = new SoundAssociation(playable, playable.created_at, assocType);
+        dao.create(creation);
+        return creation;
+    }
+
+    public Observable<SoundAssociation> addCreationAsync(final Playlist playlist) {
+        return addCreationAsync(playlist, mPlaylistCreationsDAO, SoundAssociation.Type.PLAYLIST);
+    }
+
+    private Observable<SoundAssociation> addCreationAsync(final Playable playable, final BaseDAO<SoundAssociation> dao, final SoundAssociation.Type assocType) {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<SoundAssociation>() {
             @Override
             public Subscription onSubscribe(Observer<? super SoundAssociation> observer) {
-                playable.created_at = new Date();
-                SoundAssociation creation = new SoundAssociation(playable, playable.created_at, assocType);
-                dao.create(creation);
-
-                observer.onNext(creation);
+                observer.onNext(addCreation(playable, dao, assocType));
                 observer.onCompleted();
 
                 return Subscriptions.empty();

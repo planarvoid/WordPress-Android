@@ -4,9 +4,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.adapter.player.PlayerTrackPagerAdapter;
+import com.soundcloud.android.player.PlayerTrackPagerAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.play.PlayerTrackView;
+import com.soundcloud.android.player.PlayerTrackView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
