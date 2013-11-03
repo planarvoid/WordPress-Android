@@ -60,14 +60,12 @@ public class ExploreScreen extends Screen {
 
     public void swipeRightToGenres() {
         solo.swipeRight();
-        solo.waitForCondition(new CurrentTabTitleCondition(GENRES_TAB_TEXT), 2000);
-        assertEquals("Could not get to genres section", GENRES_TAB_TEXT, currentTabTitle());
+        assertTrue("Swipe did not bring up expected tab", solo.waitForCondition(new CurrentTabTitleCondition(GENRES_TAB_TEXT), 2000));
     }
 
     public void swipeLeftToTrendingAudio() {
         solo.swipeLeft();
-        solo.waitForCondition(new CurrentTabTitleCondition(TRENDING_AUDIO_TAB_TEXT), 2000);
-        assertEquals("Could not get to genres section", TRENDING_AUDIO_TAB_TEXT, currentTabTitle());
+        assertTrue("Swipe did not bring up expected tab", solo.waitForCondition(new CurrentTabTitleCondition(TRENDING_AUDIO_TAB_TEXT), 2000));
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
@@ -129,7 +127,7 @@ public class ExploreScreen extends Screen {
 
         @Override
         public boolean isSatisfied() {
-            return currentTabTitle().equalsIgnoreCase(expectedTabString);
+            return currentTabTitle().equals(expectedTabString);
         }
     };
 

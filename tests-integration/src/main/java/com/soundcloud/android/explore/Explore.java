@@ -66,6 +66,7 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     public void testTendingAudioLoadsNextPage(){
         exploreScreen.openExploreFromMenu();
+        exploreScreen.touchTrendingAudioTab();
         exploreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
         assertEquals("There should be additional trending tracks in list", 25, exploreScreen.getItemsOnTrendingAudioList());
     }

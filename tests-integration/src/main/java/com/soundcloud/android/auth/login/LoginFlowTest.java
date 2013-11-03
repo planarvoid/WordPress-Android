@@ -31,10 +31,6 @@ public class LoginFlowTest extends LoginTestCase {
     private FBWebViewScreen FBWebViewScreen;
     private Waiter waiter;
 
-    public LoginFlowTest() {
-        super();
-    }
-
     @Override
     public void setUp() throws Exception {
         super.setUp();
