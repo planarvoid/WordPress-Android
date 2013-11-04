@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.playback;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.soundcloud.android.rx.RxUtils.fireAndForget;
 import static com.soundcloud.android.service.playback.PlayQueue.AppendState;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -59,7 +60,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         broadcastPlayQueueChanged();
 
         saveCurrentPosition(0L);
-        mPlayQueueStorage.storeAsync(mPlayQueue).subscribe(DefaultObserver.NOOP_OBSERVER);
+        fireAndForget(mPlayQueueStorage.storeAsync(mPlayQueue));
     }
 
     public void saveCurrentPosition(long currentTrackProgress) {

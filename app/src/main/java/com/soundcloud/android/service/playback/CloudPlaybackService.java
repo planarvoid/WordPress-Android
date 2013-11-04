@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.playback;
 
+import static com.soundcloud.android.rx.RxUtils.fireAndForget;
 import static com.soundcloud.android.service.playback.PlayQueueManager.ResumeInfo;
 import static com.soundcloud.android.service.playback.State.COMPLETED;
 import static com.soundcloud.android.service.playback.State.ERROR;
@@ -562,7 +563,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private void onStreamableTrack(Track track){
         if (getCurrentTrackId() != track.getId()) return;
 
-        mPlaybackOperations.markTrackAsPlayed(mCurrentTrack).subscribe(DefaultObserver.NOOP_OBSERVER);
+        fireAndForget(mPlaybackOperations.markTrackAsPlayed(mCurrentTrack));
         startTrack(track);
     }
 

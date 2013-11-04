@@ -1,5 +1,7 @@
 package com.soundcloud.android.fragment;
 
+import static com.soundcloud.android.rx.RxUtils.fireAndForget;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
@@ -8,7 +10,6 @@ import com.soundcloud.android.api.SuggestedUsersOperations;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.operations.following.FollowingOperations;
-import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.rx.observers.DefaultFragmentObserver;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyListView;
@@ -205,8 +206,8 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
             if (!categoryGroup.isFacebook()){
                 fragment.setDisplayMode(DisplayMode.CONTENT);
             } else if (fragment.shouldShowFacebook()) {
-                new FollowingOperations().addFollowingsBySuggestedUsers(categoryGroup.getAllSuggestedUsers())
-                        .subscribe(ScActions.NO_OP);
+                final FollowingOperations followingOperations = new FollowingOperations();
+                fireAndForget(followingOperations.addFollowingsBySuggestedUsers(categoryGroup.getAllSuggestedUsers()));
             }
         }
 

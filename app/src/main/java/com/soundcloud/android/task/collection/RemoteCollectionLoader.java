@@ -1,6 +1,7 @@
 package com.soundcloud.android.task.collection;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.rx.RxUtils.fireAndForget;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -11,7 +12,6 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 import org.apache.http.HttpStatus;
 
 import android.util.Log;
@@ -78,7 +78,7 @@ public class RemoteCollectionLoader<T extends ScResource> implements CollectionL
                 }
             });
 
-            mTrackStorage.storeCollectionAsync(tracks).subscribe(DefaultObserver.NOOP_OBSERVER);
+            fireAndForget(mTrackStorage.storeCollectionAsync(tracks));
         }
     }
 }

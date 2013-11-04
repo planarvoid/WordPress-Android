@@ -12,7 +12,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.service.sync.ApiSyncerTest;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,6 +1,7 @@
 package com.soundcloud.android.operations.following;
 
 import static com.google.common.collect.Collections2.filter;
+import static com.soundcloud.android.rx.RxUtils.fireAndForget;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
@@ -25,7 +26,6 @@ import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.service.sync.SyncStateManager;
@@ -261,7 +261,7 @@ public class FollowingOperations extends ScheduledOperations {
         }
         // invalidate stream SyncState if necessary
         if (hadNoFollowings && !mFollowStatus.isEmpty()) {
-            mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM).subscribe(ScActions.NO_OP);
+            fireAndForget(mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM));
         }
     }
 

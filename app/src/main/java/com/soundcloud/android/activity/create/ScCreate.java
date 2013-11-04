@@ -12,7 +12,6 @@ import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;

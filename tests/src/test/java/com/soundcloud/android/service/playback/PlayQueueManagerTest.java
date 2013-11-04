@@ -111,7 +111,7 @@ public class PlayQueueManagerTest {
         Observable<PlayQueue> observable = Mockito.mock(Observable.class);
         when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
         playQueueManager.setNewPlayQueue(playQueue);
-        verify(observable).subscribe(DefaultObserver.NOOP_OBSERVER);
+        verify(observable).subscribe(any(Observer.class));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests;
 
+import static com.soundcloud.android.rx.RxUtils.fireAndForget;
 import static junit.framework.Assert.assertNotNull;
 
 import com.soundcloud.android.R;
@@ -77,7 +78,7 @@ public final class IntegrationTestHelper {
     public static boolean logOut(Context context) throws Exception {
         Account account = getAccount(context);
         if (account != null) {
-            new AccountOperations(context).removeSoundCloudAccount().subscribe(DefaultObserver.NOOP_OBSERVER);
+            fireAndForget(new AccountOperations(context).removeSoundCloudAccount());
             return true;
         } else {
             return false;
