@@ -1,25 +1,25 @@
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.AndroidCloudAPI;
+import static rx.android.AndroidObservables.fromActivity;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.EmailConfirm;
 import com.soundcloud.android.activity.landing.You;
-import com.soundcloud.android.api.OldCloudAPI;
-import com.soundcloud.android.dao.UserStorage;
 import com.soundcloud.android.fragment.ExploreFragment;
 import com.soundcloud.android.fragment.NavigationDrawerFragment;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.operations.UserOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.auth.AuthenticatorService;
-import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 import net.hockeyapp.android.UpdateManager;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -37,19 +37,15 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private CharSequence mLastTitle;
 
-    private FetchUserTask mFetchUserTask;
     private AccountOperations mAccountOperations;
+    private Subscription mUpdateUserSubscription = Subscriptions.empty();
 
-    private AndroidCloudAPI oldCloudAPI;
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
-        oldCloudAPI = new OldCloudAPI(this);
         mAccountOperations = new AccountOperations(this);
         ApplicationProperties mApplicationProperties = new ApplicationProperties(getResources());
 
@@ -68,17 +64,21 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     }
 
     private void handleLoggedInUser(ApplicationProperties mApplicationProperties) {
-        if (IOUtils.isConnected(this) &&
-                mAccountOperations.soundCloudAccountExists() &&
-                mAccountOperations.getSoundCloudToken().valid() &&
-                !getApp().getLoggedInUser().isPrimaryEmailConfirmed() &&
-                !justAuthenticated(getIntent())) {
-            checkEmailConfirmed();
+        if (shouldRefreshUserProfileData()) {
+            UserOperations userOperations = new UserOperations();
+            mUpdateUserSubscription = fromActivity(this, userOperations.refreshCurrentUser())
+                    .subscribe(new UpdateUserProfileObserver());
         }
 
         if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
             UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
+    }
+
+    private boolean shouldRefreshUserProfileData() {
+        boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
+        return !justAuthenticated && IOUtils.isConnected(this) && mAccountOperations.getSoundCloudToken().valid() &&
+                !getApp().getLoggedInUser().isPrimaryEmailConfirmed();
     }
 
     @Override
@@ -101,6 +101,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     @Override
     protected void onDestroy() {
         UpdateManager.unregister();
+        mUpdateUserSubscription.unsubscribe();
         super.onDestroy();
     }
 
@@ -184,28 +185,15 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean justAuthenticated(Intent intent) {
-        return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
-    }
+    private class UpdateUserProfileObserver extends DefaultObserver<User> {
 
-    // TODO, move this to a UserOperations class
-    private void checkEmailConfirmed() {
-        mFetchUserTask = new FetchUserTask(oldCloudAPI) {
-            @Override
-            protected void onPostExecute(User user) {
-                if (user == null || user.isPrimaryEmailConfirmed()) {
-                    if (user != null) {
-                        // FIXME: DB access on UI thread :(
-                        new UserStorage().createOrUpdate(user);
-                        mNavigationDrawerFragment.updateProfileItem(user);
-                    }
-                } else {
-                    startActivityForResult(new Intent(MainActivity.this, EmailConfirm.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
-                }
-                mFetchUserTask = null;
+        @Override
+        public void onNext(User user) {
+            mNavigationDrawerFragment.updateProfileItem(user);
+            if (!user.isPrimaryEmailConfirmed()) {
+                startActivityForResult(new Intent(MainActivity.this, EmailConfirm.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
             }
-        };
-        mFetchUserTask.execute(Request.to(Endpoints.MY_DETAILS));
+        }
     }
 }
