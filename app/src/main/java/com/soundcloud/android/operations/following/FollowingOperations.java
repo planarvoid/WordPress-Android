@@ -1,7 +1,7 @@
 package com.soundcloud.android.operations.following;
 
 import static com.google.common.collect.Collections2.filter;
-import static com.soundcloud.android.rx.RxUtils.fireAndForget;
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;

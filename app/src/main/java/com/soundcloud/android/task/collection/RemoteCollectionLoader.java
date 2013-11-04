@@ -1,7 +1,7 @@
 package com.soundcloud.android.task.collection;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.rx.RxUtils.fireAndForget;
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;

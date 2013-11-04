@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity;
 
 import static android.text.TextUtils.isEmpty;
-import static com.soundcloud.android.rx.RxUtils.fireAndForget;
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 
 import com.nostra13.universalimageloader.core.ImageLoader;

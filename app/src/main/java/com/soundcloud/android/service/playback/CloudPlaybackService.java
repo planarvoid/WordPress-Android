@@ -1,6 +1,6 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.rx.RxUtils.fireAndForget;
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 import static com.soundcloud.android.service.playback.PlayQueueManager.ResumeInfo;
 import static com.soundcloud.android.service.playback.State.COMPLETED;
 import static com.soundcloud.android.service.playback.State.ERROR;

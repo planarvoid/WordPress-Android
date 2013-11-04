@@ -1,6 +1,6 @@
 package com.soundcloud.android.fragment;
 
-import static com.soundcloud.android.rx.RxUtils.fireAndForget;
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;

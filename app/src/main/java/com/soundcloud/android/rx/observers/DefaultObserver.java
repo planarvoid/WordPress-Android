@@ -8,7 +8,11 @@ import rx.Observer;
  */
 public abstract class DefaultObserver<T> implements Observer<T> {
 
-    public static final DefaultObserver<Object> NOOP_OBSERVER = new DefaultObserver<Object>() {};
+    /**
+     * For fire and forget style subscriptions. Do not use this directly, use {@link RxObserverHelper.fireAndForget())}
+     * instead.
+     */
+    /* package */ static final DefaultObserver<Object> NOOP_OBSERVER = new DefaultObserver<Object>() {};
 
     @Override
     public void onCompleted() {}
