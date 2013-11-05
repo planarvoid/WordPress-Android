@@ -145,7 +145,7 @@
     <style name="PlayerAction.ToggleButton">
         <item name="android:layout_gravity">left|center</item>
         <item name="android:layout_centerVertical">true</item>
-        <item name="android:background">@drawable/btn_player_toggle_states</item>
+        <item name="android:background">@drawable/btn_default_states</item>
         <item name="android:minWidth">72dp</item>
         <item name="android:drawablePadding">6dp</item>
         <item name="android:textOn"></item>
