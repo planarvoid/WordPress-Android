@@ -103,6 +103,7 @@
 
     <string name="add_track_to_playlist">Add to playlist...</string>
     <string name="create_new_playlist">Create new playlist</string>
+    <string name="create_new_playlist_hint">Enter playlist title</string>
     <string name="error_new_playlist_blank_title">Please enter a valid title</string>
     <string name="add_playlist_private">Private</string>
 

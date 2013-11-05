@@ -202,6 +202,7 @@
 
     <string name="add_track_to_playlist">Añadir a lista...</string>
     <string name="create_new_playlist">Crear nueva lista</string>
+    <string name="create_new_playlist_hint">Escribe un título</string>
     <string name="error_new_playlist_blank_title">Escribe un título válido</string>
     <string name="add_playlist_private">Privada</string>
 
