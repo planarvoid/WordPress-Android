@@ -206,6 +206,7 @@
     <string name="add_playlist_private">Privada</string>
 
     <string name="tab_title_user_playlists">Listas</string>
+    <string name="activity_title_playlist">Lista</string>
 
     <string name="side_menu_playlists">Tus listas</string>
     <string name="empty_playlist">Esta lista aún no tiene sonidos</string>

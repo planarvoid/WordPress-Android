@@ -107,6 +107,7 @@
     <string name="add_playlist_private">Private</string>
 
     <string name="tab_title_user_playlists">Playlists</string>
+    <string name="activity_title_playlist">Playlist</string>
 
     <string name="side_menu_playlists">Playlists</string>
     <string name="empty_playlist">This playlist has no sounds yet</string>
