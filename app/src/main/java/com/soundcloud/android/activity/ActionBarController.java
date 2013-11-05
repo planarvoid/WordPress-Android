@@ -23,6 +23,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 
 import java.lang.reflect.Field;
@@ -36,6 +37,8 @@ public class ActionBarController {
     private SuggestionsAdapter mSuggestionsAdapter;
     private final AndroidCloudAPI mAndroidCloudAPI;
     private boolean mInSearchMode;
+
+    private SearchView mSearchView;
 
     public interface ActionBarOwner {
 
@@ -112,25 +115,34 @@ public class ActionBarController {
         actionBar.setDisplayShowCustomEnabled(false);
         mOwner.getActivity().getMenuInflater().inflate(R.menu.search, menu);
 
-        SupportMenuItem searchItem = (SupportMenuItem) menu.findItem(R.id.action_search);
-
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-
         SearchManager searchManager = (SearchManager) mActivity.getSystemService(Context.SEARCH_SERVICE);
         final SearchableInfo searchableInfo = searchManager.getSearchableInfo(mActivity.getComponentName());
-        searchView.setSearchableInfo(searchableInfo);
+
+        SupportMenuItem searchItem = (SupportMenuItem) menu.findItem(R.id.action_search);
+        mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        mSearchView.setSearchableInfo(searchableInfo);
+        mSearchView.setIconified(false);
 
         mSuggestionsAdapter = new SuggestionsAdapter(mActivity, mAndroidCloudAPI);
-        searchView.setIconified(false);
-        searchView.setSuggestionsAdapter(mSuggestionsAdapter);
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+        mSearchView.setSuggestionsAdapter(mSuggestionsAdapter);
+        mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                toggleSearchMode();
+                closeSearch();
                 return false;
             }
         });
-        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+        mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                // we have to check against the current search field because we
+                // may have old search views still providing focus changes
+                if (!hasFocus && mSearchView == v) {
+                    closeSearch();
+                }
+            }
+        });
+        mSearchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {
                 return false;
@@ -138,9 +150,9 @@ public class ActionBarController {
 
             @Override
             public boolean onSuggestionClick(int position) {
-                searchView.clearFocus();
-                searchView.setQuery("", false);
-                searchView.setIconified(true);
+                mSearchView.clearFocus();
+                mSearchView.setQuery("", false);
+                mSearchView.setIconified(true);
 
                 final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
                 mActivity.startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
@@ -148,7 +160,7 @@ public class ActionBarController {
             }
         });
 
-        styleSearchView(searchView);
+        styleSearchView(mSearchView);
     }
 
     protected void setActionBarDefaultOptions(ActionBar actionBar) {
@@ -157,6 +169,15 @@ public class ActionBarController {
             actionBar.setDisplayShowTitleEnabled(true);
             actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
+        }
+    }
+
+    private void closeSearch(){
+        if (mInSearchMode){
+            if (mSearchView != null){
+                mSearchView.setOnQueryTextFocusChangeListener(null);
+            }
+            toggleSearchMode();
         }
     }
 
