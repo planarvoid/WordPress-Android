@@ -24,7 +24,6 @@ import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import java.lang.reflect.Field;
 
@@ -172,11 +171,6 @@ public class ActionBarController {
             searchField.setAccessible(true);
             ImageView searchBtn = (ImageView) searchField.get(searchView);
             searchBtn.setBackgroundResource(R.drawable.item_background_dark);
-
-            searchField = SearchView.class.getDeclaredField("mSearchPlate");
-            searchField.setAccessible(true);
-            LinearLayout searchPlate = (LinearLayout) searchField.get(searchView);
-            searchPlate.setBackgroundResource(R.drawable.abc_textfield_search_default_holo_dark);
 
             searchField = SearchView.class.getDeclaredField("mCloseButton");
             searchField.setAccessible(true);

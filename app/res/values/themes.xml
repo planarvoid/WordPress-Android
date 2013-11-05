@@ -40,11 +40,15 @@
         <item name="android:displayOptions">homeAsUp|showTitle</item>
     </style>
 
+    <style name="Theme.SoundCloud.Widget.Base" parent="@style/Theme.AppCompat">
+        <item name="searchViewAutoCompleteTextView">@style/SearchAutoCompleteTextView</item>
+        <item name="searchViewTextField">@drawable/textfield_focused_holo_dark</item>
+    </style>
+
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
-    <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat">
+    <style name="Theme.SoundCloud.Widget" parent="Theme.SoundCloud.Widget.Base">
         <item name="popupMenuStyle">@style/PopupMenu</item>
         <item name="dropDownListViewStyle">@style/DropDownListView</item>
-        <item name="searchViewAutoCompleteTextView">@style/SearchAutoCompleteTextView</item>
     </style>
 
     <style name="Theme.SoundCloud.NoBg">

@@ -11,10 +11,9 @@
         <item name="android:actionBarWidgetTheme">@style/Theme.SoundCloud.Widget</item>
     </style>
 
-    <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat">
+    <style name="Theme.SoundCloud.Widget" parent="Theme.SoundCloud.Widget.Base">
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView</item>
-        <item name="searchViewAutoCompleteTextView">@style/SearchAutoCompleteTextView</item>
     </style>
 
 </resources>
