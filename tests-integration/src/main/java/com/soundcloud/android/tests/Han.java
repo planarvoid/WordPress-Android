@@ -19,9 +19,11 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -378,6 +380,14 @@ public class Han  {
             throw new RuntimeException("Could not click on action bar home button on UI Thread", throwable);
         }
 
+    }
+
+    public void scrollToItem(int item) {
+        solo.scrollListToLine(0, item - 1);
+    }
+
+    public List<TextView> clickInList(int item) {
+        return solo.clickInList(item);
     }
 }
 

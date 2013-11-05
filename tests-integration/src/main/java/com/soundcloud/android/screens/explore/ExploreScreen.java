@@ -1,11 +1,17 @@
 package com.soundcloud.android.screens.explore;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.jayway.android.robotium.solo.Condition;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.PlayerActivity;
+import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Waiter;
@@ -26,6 +32,12 @@ public class ExploreScreen extends Screen {
     private static final String GENRES_TAB_TEXT = "GENRES";
     private static final String TRENDING_AUDIO_TAB_TEXT = "TRENDING AUDIO";
     private static final String TRENDING_MUSIC_TAB_TEXT = "TRENDING MUSIC";
+    private static final Predicate<TextView> TITLE_TEXT_VIEW_PREDICATE = new Predicate<TextView>() {
+        @Override
+        public boolean apply(TextView input) {
+            return input.getId() == R.id.title;
+        }
+    };
     private Waiter waiter;
     private MenuScreen menuScreen;
 
@@ -75,6 +87,26 @@ public class ExploreScreen extends Screen {
         solo.scrollToBottom(view.getRefreshableView());
         assertTrue("New items in list did not load", waiter.waitForItemCountToIncrease(adapter, noOfItemsPlusPreloadingView));
 
+    }
+
+    public String playPopularTrack(int trackNumber) {
+        PullToRefreshGridView tracksList = (PullToRefreshGridView)solo.getView(R.id.suggested_tracks_grid);
+        ListAdapter exploreTracksAdapter = tracksList.getRefreshableView().getAdapter();
+        checkArgument(trackNumber <= exploreTracksAdapter.getCount(), "Not enough items in list to play track " + trackNumber);
+        solo.scrollToItem(trackNumber-1);
+        List<TextView> textViewsForClickedItem = solo.clickInList(1);
+        solo.waitForActivity(PlayerActivity.class);
+        TrackSummary trackSummaryForPlayedTrack = (TrackSummary)exploreTracksAdapter.getItem(trackNumber - 1);
+        validateThatClickedTrackMatchesExpectedTrackToPlay(textViewsForClickedItem, trackSummaryForPlayedTrack);
+        return trackSummaryForPlayedTrack.getTitle();
+    }
+
+    private void validateThatClickedTrackMatchesExpectedTrackToPlay(List<TextView> textViewsForClickedItem, TrackSummary trackSummaryForPlayedTrack) {
+        Optional<TextView> titleTextView = Iterables.tryFind(textViewsForClickedItem, TITLE_TEXT_VIEW_PREDICATE);
+        if(!titleTextView.isPresent()){
+            throw new IllegalStateException("Cannot find textview for explore track that has title");
+        }
+        assertEquals("Track title is not the same as the one that was clicked on", trackSummaryForPlayedTrack.getTitle(), titleTextView.get().getText());
     }
 
 

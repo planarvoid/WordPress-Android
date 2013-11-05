@@ -26,14 +26,21 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
         exploreScreen = new ExploreScreen(this);
         playerScreen        = new PlayerScreen(solo);
         waiter              = new Waiter(solo);
-
         waiter.waitForListContent();
     }
 
-    public void testPlayingTrack() {
+    public void testPlayingTrendingMusicTrack() {
         menuScreen.openExplore();
-//        String trackName = exploreScreen.clickTrack(1);
-//        assertEquals(trackName, playerScreen.trackTitle());
+        String trackName = exploreScreen.playPopularTrack(10);
+        assertEquals(trackName, playerScreen.trackTitle());
+    }
+
+    public void testPlayingExploreElectronicTrack() {
+        menuScreen.openExplore();
+        exploreScreen.touchGenresTab();
+        exploreScreen.clickElectronicGenre();
+        String trackName = exploreScreen.playPopularTrack(8);
+        assertEquals(trackName, playerScreen.trackTitle());
     }
 
     @Override
