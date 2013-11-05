@@ -23,7 +23,7 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public class AccountOperations {
-    public enum AccountInfoKeys{
+    public enum AccountInfoKeys {
         USERNAME("currentUsername"),
         USER_ID("currentUserId"),
         USER_PERMALINK("currentUserPermalink"),
@@ -35,10 +35,11 @@ public class AccountOperations {
             mKey = key;
         }
 
-        public String getKey(){
+        public String getKey() {
             return mKey;
         }
     }
+
     private static final String TOKEN_TYPE = "access_token";
 
     private final AccountManager accountManager;
@@ -69,9 +70,9 @@ public class AccountOperations {
     }
 
     public void addSoundCloudAccountManually(Activity currentActivityContext) {
-         accountManager.addAccount(
+        accountManager.addAccount(
                 context.getString(R.string.account_type),
-                 TOKEN_TYPE,null, null, currentActivityContext, null, null);
+                TOKEN_TYPE, null, null, currentActivityContext, null, null);
     }
 
     /**
@@ -84,14 +85,14 @@ public class AccountOperations {
         boolean accountexists = false;
         Account account = getSoundCloudAccount();
         if (account != null) {
-            if (account.name.equals(user.getUsername())){
+            if (account.name.equals(user.getUsername())) {
                 accountexists = true; // same username, do not replace account
             } else {
                 accountManager.removeAccount(account, null, null);
             }
         }
 
-        if (!accountexists){
+        if (!accountexists) {
             account = new Account(user.getUsername(), context.getString(R.string.account_type));
             accountexists = accountManager.addAccountExplicitly(account, null, null);
         }
@@ -124,12 +125,13 @@ public class AccountOperations {
 
     @Nullable
     public String getAccountDataString(String key) {
-        if(soundCloudAccountExists()){
+        if (soundCloudAccountExists()) {
             return accountManager.getUserData(getSoundCloudAccount(), key);
         }
 
         return null;
     }
+
     //TODO Create a class which works as a service to store preference data instead of exposing these lowlevel constructs
     public long getAccountDataLong(String key) {
         String data = getAccountDataString(key);
@@ -162,15 +164,15 @@ public class AccountOperations {
         }
     }
 
-    public Token getSoundCloudToken(){
-        if(soundCloudAccountExists()){
+    public Token getSoundCloudToken() {
+        if (soundCloudAccountExists()) {
             return tokenOperations.getSoundCloudToken(getSoundCloudAccount());
         }
 
         return null;
     }
 
-    public void invalidateSoundCloudToken(Token token){
+    public void invalidateSoundCloudToken(Token token) {
         tokenOperations.invalidateToken(token, getSoundCloudAccount());
     }
 
