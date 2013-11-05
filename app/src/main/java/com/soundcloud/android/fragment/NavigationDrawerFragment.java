@@ -6,6 +6,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.showcases.Showcase;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
@@ -249,7 +250,11 @@ public class NavigationDrawerFragment extends Fragment {
                 if (!isAdded()) {
                     return;
                 }
+
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+
+                mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(getActivity(),
+                        mDrawerListView.getChildAt(2).findViewById(R.id.nav_item_text));
             }
         };
 
