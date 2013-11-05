@@ -15,12 +15,12 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.operations.UserOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.auth.AuthenticatorService;
 import net.hockeyapp.android.UpdateManager;
 import rx.Observer;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -39,7 +39,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     private CharSequence mLastTitle;
 
     private AccountOperations mAccountOperations;
-    private Subscription mUpdateUserSubscription = Subscriptions.empty();
+    private CompositeSubscription mSubscription = new CompositeSubscription();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +63,8 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
 
         // this must come after setting up the navigation drawer to configure the action bar properly
         supportInvalidateOptionsMenu();
+
+        mSubscription.add(Event.CURRENT_USER_UPDATED.subscribe(userObserver));
     }
 
     private void handleLoggedInUser(ApplicationProperties appProperties, Observer<User> observer) {
@@ -70,7 +72,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         User currentUser = SoundCloudApplication.instance.getLoggedInUser();
         if (!justAuthenticated && mAccountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
             UserOperations userOperations = new UserOperations();
-            mUpdateUserSubscription = fromActivity(this, userOperations.refreshCurrentUser()).subscribe(observer);
+            mSubscription.add(fromActivity(this, userOperations.refreshCurrentUser()).subscribe(observer));
         }
 
         if (appProperties.isBetaBuildRunningOnDalvik()) {
@@ -98,7 +100,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     @Override
     protected void onDestroy() {
         UpdateManager.unregister();
-        mUpdateUserSubscription.unsubscribe();
+        mSubscription.unsubscribe();
         super.onDestroy();
     }
 
