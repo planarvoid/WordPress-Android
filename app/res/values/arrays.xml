@@ -78,8 +78,8 @@
 
     <string-array name="search_types">
         <item>Everything</item>
-        <item>Sounds</item>
-        <item>Sets</item>
+        <item>Tracks</item>
+        <item>Playlists</item>
         <item>People</item>
     </string-array>
 
