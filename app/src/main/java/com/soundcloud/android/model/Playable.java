@@ -204,7 +204,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
 
     public String getPlayerArtworkUri(Context context) {
         final String iconUrl = getArtwork();
-        return TextUtils.isEmpty(iconUrl) ? null : ImageSize.formatUriForPlayer(context.getResources(), iconUrl);
+        return TextUtils.isEmpty(iconUrl) ? null : ImageSize.formatUriForFullDisplay(context.getResources(), iconUrl);
     }
 
     @Override
