@@ -70,7 +70,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final long rowId = mAdapter.getItemId(position);
                 if (rowId == NEW_PLAYLIST_ITEM) {
-                    CreateNewSetDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
+                    CreatePlaylistDialogFragment.from(getArguments().getLong(KEY_TRACK_ID)).show(getFragmentManager(), "create_new_set_dialog");
                     getDialog().dismiss();
                 } else if (getActivity() != null) {
                     onAddTrackToSet(rowId, view);
