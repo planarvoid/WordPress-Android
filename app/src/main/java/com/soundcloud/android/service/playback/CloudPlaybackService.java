@@ -79,9 +79,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private static @Nullable CloudPlaybackService instance;
 
 
+    /**
+     * do not use mCurrentTrack here, as there is a race condition between broadcasting PlayQueueChanged and setting mCurrentTrack
+     * see {@link com.soundcloud.android.activity.PlayerActivity#onStart()}
+     */
+    public static long getCurrentTrackId() { return instance == null || instance.getPlayQueueInternal().isEmpty() ?
+            -1L : instance.getPlayQueueInternal().getCurrentTrackId(); }
+
     // static convenience accessors
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
-    public static long getCurrentTrackId() { return instance == null || instance.mCurrentTrack == null ? -1L : instance.mCurrentTrack.getId(); }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && getPlaybackState().isSupposedToBePlaying(); }
     public static PlayQueue getPlayQueue() { return instance == null ? PlayQueue.EMPTY : instance.clonePlayQueue(); }
     public static @Nullable Uri getPlayQueueUri() { return instance == null ? null : instance.getPlayQueueInternal().getSourceUri(); }
