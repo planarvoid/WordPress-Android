@@ -55,7 +55,8 @@ public class PlaybackOperations {
      * Created by anything played from the {@link com.soundcloud.android.fragment.ExploreFragment} section.
      */
     public void playExploreTrack(Context context, Track track, String exploreTag) {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().exploreVersion(exploreTag).build();
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().initialTrackId(track.getId())
+                .exploreVersion(exploreTag).build();
         playFromInfo(context, new PlayInfo(track, true, playSourceInfo));
     }
 

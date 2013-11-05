@@ -148,9 +148,9 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
         return mAppendState == AppendState.EMPTY;
     }
 
-    /**
-     * TODO : We need to figure out how to decouple event logger params from the playqueue
-     */
+    public String getEventLoggerParamsForTrack() {
+        return getEventLoggerParamsForTrack(getCurrentTrackId());
+    }
     public String getEventLoggerParamsForTrack(long trackId) {
         final TrackSourceInfo trackSourceInfo = mPlaySourceInfo.getTrackSource(trackId);
         trackSourceInfo.setTrigger(mCurrentTrackIsUserTriggered);

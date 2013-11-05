@@ -67,6 +67,18 @@ public class PlaySourceInfoTest {
         expect(playInfo.getTrackSource(321L)).toEqual(TrackSourceInfo.fromRecommender("asdf", "originUrl"));
     }
 
+    @Test
+    public void shouldBeBlankTrackSourceInfoWhenFirstTrackAndExploreVersionDoesNotExist() throws Exception {
+        final PlaySourceInfo playInfo = new PlaySourceInfo.Builder().initialTrackId(123L).build();
+        expect(playInfo.getTrackSource(123L)).toEqual(new TrackSourceInfo());
+    }
+
+    @Test
+    public void shouldBeBlankTrackSourceInfoWhenNotFirstTrackAndRecommenderVersionDoesNotExist() throws Exception {
+        final PlaySourceInfo playInfo = new PlaySourceInfo.Builder().initialTrackId(123L).build();
+        expect(playInfo.getTrackSource(321L)).toEqual(new TrackSourceInfo());
+    }
+
     private String toQueryParams(PlaySourceInfo playSourceInfo) {
         return playSourceInfo.appendAsQueryParams(new Uri.Builder()).build().getQuery().toString();
     }

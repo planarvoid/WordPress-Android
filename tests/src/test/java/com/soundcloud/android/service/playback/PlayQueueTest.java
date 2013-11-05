@@ -9,6 +9,7 @@ import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.net.Uri;
 import android.os.Parcel;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -24,7 +25,7 @@ public class PlayQueueTest {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L,2L,3L), 0, playSourceInfo, Content.ME_LIKES.uri);
         playQueue.setAppendState(PlayQueue.AppendState.IDLE);
         playQueue.setCurrentTrackToUserTriggered();
-        String eventLoggerParams = playQueue.getCurrentEventLoggerParams();
+        String eventLoggerParams = playQueue.getEventLoggerParamsForTrack();
 
         Parcel parcel = Parcel.obtain();
         playQueue.writeToParcel(parcel, 0);
@@ -34,7 +35,7 @@ public class PlayQueueTest {
         expect(copy.getPosition()).toBe(0);
         expect(copy.getAppendState()).toEqual(PlayQueue.AppendState.IDLE);
         expect(copy.getPlaySourceInfo()).toEqual(playSourceInfo);
-        expect(copy.getCurrentEventLoggerParams()).toEqual(eventLoggerParams);
+        expect(copy.getEventLoggerParamsForTrack()).toEqual(eventLoggerParams);
         expect(copy.getSourceUri()).toEqual(Content.ME_LIKES.uri);
     }
 
@@ -121,7 +122,7 @@ public class PlayQueueTest {
     public void moveToNextShouldResultInAutoTrigger() {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
         expect(playQueue.moveToNext(false)).toBeTrue();
-        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto");
+        expect(playQueue.getEventLoggerParamsForTrack()).toEqual("trigger=auto");
     }
 
     @Test
@@ -141,10 +142,31 @@ public class PlayQueueTest {
     @Test
     public void shouldReturnSetAsPartOfLoggerParams() {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 1, PlaySourceInfo.empty(), Content.PLAYLIST.forId(54321L));
-        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&set=54321");
+        expect(playQueue.getEventLoggerParamsForTrack()).toEqual("trigger=auto&set=54321");
+    }
+
+    @Test
+    public void shouldReturnExploreVersionInEventLoggerParamsWhenCurrentTrackIsInitialTrack() {
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().initialTrackId(123L).exploreVersion("exp1").build();
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(123L, 456L), 0, playSourceInfo, Uri.EMPTY);
+        expect(playQueue.getEventLoggerParamsForTrack()).toEqual("trigger=auto&source=explore&source_version=exp1");
+    }
+
+    @Test
+    public void shouldReturnRecommenderVersionInEventLoggerParamsWhenCurrentTrackIsNotInitialTrack() {
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().initialTrackId(123L).recommenderVersion("rec1").build();
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(123L, 456L), 1, playSourceInfo, Uri.EMPTY);
+        expect(playQueue.getEventLoggerParamsForTrack()).toEqual("trigger=auto&source=recommender&source_version=rec1");
+    }
+
+    @Test
+    public void shouldReturnExploreVersionInEventLoggerParamsWhenPassingInInitialTrack() {
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().initialTrackId(123L).exploreVersion("exp1").build();
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(123L, 456L), 1, playSourceInfo, Uri.EMPTY);
+        expect(playQueue.getEventLoggerParamsForTrack(123L)).toEqual("trigger=auto&source=explore&source_version=exp1");
     }
 
     private void checkManualTrigger(PlayQueue playQueue) {
-        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=manual");
+        expect(playQueue.getEventLoggerParamsForTrack()).toEqual("trigger=manual");
     }
 }
