@@ -3,11 +3,14 @@ package com.soundcloud.android.auth.signup;
 import com.soundcloud.android.auth.SignUpTestCase;
 import com.soundcloud.android.screens.HomeScreen;
 
+import android.test.FlakyTest;
+
 public class ByEmail extends SignUpTestCase {
     public ByEmail() {
         super();
     }
 
+    @FlakyTest
     public void testUserFollowSingleSuccess() throws Exception {
         onboardScreen.clickSignUpButton();
 

@@ -19,6 +19,7 @@ import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.Waiter;
 
+import android.test.FlakyTest;
 import android.webkit.WebView;
 
 /*
@@ -51,6 +52,7 @@ public class LoginFlowTest extends LoginTestCase {
      * I want to sign in with my SC account
      * So that I can listen to my favourite tracks
      */
+    @FlakyTest
     public void testSCUserLoginFlow()  {
         onboardScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
@@ -63,6 +65,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to sign in with my G+ credentials
     * So that I don't need to create another SC account
     */
+    @FlakyTest
     public void testGPlusLoginFlow()  {
 
         onboardScreen.clickLogInButton();
@@ -84,6 +87,7 @@ public class LoginFlowTest extends LoginTestCase {
     * As a Google account User
     * I want to sign in even if I don't have g+ profile
     */
+    @FlakyTest
     public void testNoGooglePlusAccountLogin()  {
         onboardScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
@@ -103,6 +107,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to sign in with my FB credentials
     * So that I don't need to create another account
     */
+    @FlakyTest
     public void testLoginWithFacebookWebFlow() throws Throwable {
 
         // TODO: Control FB SSO on the device.
@@ -137,7 +142,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to sign in with my FB credentials
     * So that I don't need to create another account
     */
-    public void testLoginWithFBApplication () {
+    public void ignore_testLoginWithFBApplication () {
         //TODO Implement this
         // QUESTION How can we control what's installed on device and what's not.
     }
@@ -164,6 +169,7 @@ public class LoginFlowTest extends LoginTestCase {
      * I want to log out from the app
      * So that I am sure no one can modify my account
      */
+    @FlakyTest
     public void testLoginAndLogout()  {
         onboardScreen.clickLogInButton();
         loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
