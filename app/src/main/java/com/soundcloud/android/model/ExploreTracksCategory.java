@@ -13,8 +13,8 @@ import java.util.Map;
 public class ExploreTracksCategory implements Parcelable {
 
     public static final String EXTRA = "category";
-    public static final ExploreTracksCategory POPULAR_MUSIC_CATEGORY = new ExploreTracksCategory("Popular_Music");
-    public static final ExploreTracksCategory POPULAR_AUDIO_CATEGORY = new ExploreTracksCategory("Popular_Audio");
+    public static final ExploreTracksCategory POPULAR_MUSIC_CATEGORY = new ExploreTracksCategory("Trending Music");
+    public static final ExploreTracksCategory POPULAR_AUDIO_CATEGORY = new ExploreTracksCategory("Trending Audio");
     private static final int POPULAR_MUSIC_DESCRIPTION = 1;
     private static final int POPULAR_AUDIO_DESCRIPTION = 2;
 

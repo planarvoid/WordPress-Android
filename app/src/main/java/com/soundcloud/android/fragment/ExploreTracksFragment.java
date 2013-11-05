@@ -94,7 +94,8 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mAdapter.getItem(position));
-        mPlaybackOperations.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag());
+        mPlaybackOperations.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag(),
+                "explore:" + getExploreCategory().getTitle()); // todo, no hardcoding tags once we implement full eventlogger
     }
 
     @Override
