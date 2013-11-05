@@ -77,20 +77,22 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String TAG = "CloudPlaybackService";
 
     private static @Nullable CloudPlaybackService instance;
-    private static State state = STOPPED;
+
 
     // static convenience accessors
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
     public static long getCurrentTrackId() { return instance == null || instance.mCurrentTrack == null ? -1L : instance.mCurrentTrack.getId(); }
-    public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
+    public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && getPlaybackState().isSupposedToBePlaying(); }
     public static PlayQueue getPlayQueue() { return instance == null ? PlayQueue.EMPTY : instance.clonePlayQueue(); }
     public static @Nullable Uri getPlayQueueUri() { return instance == null ? null : instance.getPlayQueueInternal().getSourceUri(); }
     public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
-    public static State getPlaybackState() { return state; }
+    public static State getPlaybackState() { return instance == null ? STOPPED : instance.state; }
     public static boolean isBuffering() {  return instance != null && instance._isBuffering(); }
     public static boolean isSeekable() {  return instance != null && instance._isSeekable(); }
+
+    private static void setState(State newState) { if (instance != null) instance.state = newState;}
 
     // public service actions
     public interface Actions {
@@ -145,6 +147,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private static final int PLAYBACKSERVICE_STATUS_ID = 1;
 
     private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
+
+    private State state = STOPPED;
 
     private @Nullable MediaPlayer mMediaPlayer;
     private int mLoadPercent = 0;       // track buffer indicator
@@ -1009,6 +1013,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         public void handleMessage(Message msg) {
             CloudPlaybackService service = serviceRef.get();
             // Check again to make sure nothing is playing right now
+            final State state = getPlaybackState();
             if (service != null && !state.isSupposedToBePlaying()
                     && state != PAUSED_FOCUS_LOST
                     && !service.mServiceInUse
@@ -1060,6 +1065,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 return;
             }
 
+            State state = getPlaybackState();
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "handleMessage(" + msg.what + ", state=" + state + ")");
             }
@@ -1101,7 +1107,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         } else {
                             if (service != null && service.mMediaPlayer != null) service.mMediaPlayer.pause();
                             mCurrentVolume = 0f;
-                            state = PAUSED_FOCUS_LOST;
+                            setState(PAUSED_FOCUS_LOST);;
                         }
                         service.setVolume(mCurrentVolume);
                     } else {
