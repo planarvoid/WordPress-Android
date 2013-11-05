@@ -17,7 +17,7 @@ public class PlayQueueTest {
     @Test
     public void shouldBeParcelable() throws Exception {
         final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder()
-                .exploreTag("explore")
+                .exploreVersion("explore")
                 .originUrl("url/123")
                 .recommenderVersion("version1")
                 .build();

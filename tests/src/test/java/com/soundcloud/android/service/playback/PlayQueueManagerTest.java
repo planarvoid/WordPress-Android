@@ -18,7 +18,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -41,7 +40,7 @@ import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
-    private final String playQueueUri = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v1&playSource-exploreTag=2&playSource-originUrl=1&playSource-initialTrackId=1";
+    private final String playQueueUri = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v1&playSource-exploreVersion=2&playSource-originUrl=1&playSource-initialTrackId=1";
 
     private PlayQueueManager playQueueManager;
 

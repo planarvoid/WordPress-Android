@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.net.Uri;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +55,7 @@ public class PlaybackOperations {
      * Created by anything played from the {@link com.soundcloud.android.fragment.ExploreFragment} section.
      */
     public void playExploreTrack(Context context, Track track, String exploreTag) {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().exploreTag(exploreTag).build();
+        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().exploreVersion(exploreTag).build();
         playFromInfo(context, new PlayInfo(track, true, playSourceInfo));
     }
 

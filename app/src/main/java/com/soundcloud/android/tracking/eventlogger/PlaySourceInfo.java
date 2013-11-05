@@ -19,7 +19,8 @@ public class PlaySourceInfo implements Parcelable {
     }
 
     private static final String KEY_ORIGIN_URL = "playSource-originUrl";
-    private static final String KEY_EXPLORE_TAG = "playSource-exploreTag";
+    private static final String KEY_INITIAL_TRACK_ID = "playSource-initialTrackId";
+    private static final String KEY_EXPLORE_VERSION = "playSource-exploreVersion";
     private static final String KEY_RECOMMENDER_VERSION = "playSource-recommenderVersion";
 
     private Bundle mData;
@@ -34,8 +35,9 @@ public class PlaySourceInfo implements Parcelable {
 
     private PlaySourceInfo(Builder builder) {
         this();
+        if (builder.mInitialTrackId > 0) mData.putLong(KEY_INITIAL_TRACK_ID, builder.mInitialTrackId);
         if (ScTextUtils.isNotBlank(builder.mOriginUrl)) mData.putString(KEY_ORIGIN_URL, builder.mOriginUrl);
-        if (ScTextUtils.isNotBlank(builder.mExploreTag)) mData.putString(KEY_EXPLORE_TAG, builder.mExploreTag);
+        if (ScTextUtils.isNotBlank(builder.mExploreVersion)) mData.putString(KEY_EXPLORE_VERSION, builder.mExploreVersion);
         if (ScTextUtils.isNotBlank(builder.mRecommenderVersion)) mData.putString(KEY_RECOMMENDER_VERSION, builder.mRecommenderVersion);
     }
 
@@ -48,9 +50,14 @@ public class PlaySourceInfo implements Parcelable {
      * {@link com.soundcloud.android.service.playback.PlayQueueUri}
      */
     public static PlaySourceInfo fromUriParams(Uri uri) {
-        return new Builder()
+        final Builder builder = new Builder();
+        final String initialTrackId = uri.getQueryParameter(KEY_INITIAL_TRACK_ID);
+        if (ScTextUtils.isNotBlank(initialTrackId)){
+            builder.initialTrackId(Longs.tryParse(initialTrackId));
+        }
+        return builder
                 .originUrl(uri.getQueryParameter(KEY_ORIGIN_URL))
-                .exploreTag(uri.getQueryParameter(KEY_EXPLORE_TAG))
+                .exploreVersion(uri.getQueryParameter(KEY_EXPLORE_VERSION))
                 .recommenderVersion(uri.getQueryParameter(KEY_RECOMMENDER_VERSION))
                 .build();
     }
@@ -63,8 +70,16 @@ public class PlaySourceInfo implements Parcelable {
         return mData.getString(KEY_RECOMMENDER_VERSION);
     }
 
+    public Long getInitialTrackId() {
+        return mData.getLong(KEY_INITIAL_TRACK_ID);
+    }
+
     public String getExploreTag() {
-        return mData.getString(KEY_EXPLORE_TAG);
+        return mData.getString(KEY_EXPLORE_VERSION);
+    }
+
+    public String getOriginUrl() {
+        return mData.getString(KEY_ORIGIN_URL);
     }
 
     public Bundle getData(){
@@ -78,29 +93,23 @@ public class PlaySourceInfo implements Parcelable {
         return builder;
     }
 
-    public Uri.Builder appendEventLoggerParams(Uri.Builder builder) {
-        final String originUrl = mData.getString(KEY_ORIGIN_URL);
-        if (ScTextUtils.isNotBlank(originUrl)){
-            builder.appendQueryParameter(PlayEventTracker.EventLoggerKeys.ORIGIN_URL, originUrl);
-        }
-
-        final String exploreTag = mData.getString(KEY_EXPLORE_TAG);
-        if (ScTextUtils.isNotBlank(exploreTag)){
-            builder.appendQueryParameter(PlayEventTracker.EventLoggerKeys.EXPLORE_TAG, exploreTag);
-        }
-        return builder;
-    }
-
     /**
      * WARNING : This makes a lot of assumptions about what is possible with the current system of playback, namely that
-     * explore will only have 1 manually triggered track, and the entire rest of the list will be recommended
+     * we have unique track ids in a given tracklist, so you can always attribute the source properly
      * @return the proper TrackSourceInfo based on the given
+     * @param trackId the currently playing track
      */
-    public TrackSourceInfo getAutoTrackSource() {
-        if (getRecommenderVersion() != null) {
-            return TrackSourceInfo.fromRecommender(getRecommenderVersion());
+    public TrackSourceInfo getTrackSource(long trackId) {
+        if (trackId == getInitialTrackId()){
+            if (getExploreTag() != null){
+                return TrackSourceInfo.fromExplore(getExploreTag(), getOriginUrl());
+            }
+        } else {
+            if (getRecommenderVersion() != null) {
+                return TrackSourceInfo.fromRecommender(getRecommenderVersion(), getOriginUrl());
+            }
         }
-        return TrackSourceInfo.auto();
+        return new TrackSourceInfo();
     }
 
     @Override
@@ -144,19 +153,25 @@ public class PlaySourceInfo implements Parcelable {
     }
 
     public static class Builder {
+        private long mInitialTrackId;
         private String mOriginUrl;
-        private String mExploreTag;
+        private String mExploreVersion;
         private String mRecommenderVersion;
 
         public Builder() {}
+
+        public Builder initialTrackId(long initialTrackId) {
+            mInitialTrackId = initialTrackId;
+            return this;
+        }
 
         public Builder originUrl(String originUrl) {
             mOriginUrl = originUrl;
             return this;
         }
 
-        public Builder exploreTag(String exploreTag) {
-            mExploreTag = exploreTag;
+        public Builder exploreVersion(String exploreVersion) {
+            mExploreVersion = exploreVersion;
             return this;
         }
 

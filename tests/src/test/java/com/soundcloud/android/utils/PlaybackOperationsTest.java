@@ -148,7 +148,7 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playExploreTrackShouldForwardTrackingTag() throws Exception {
+    public void playExploreTrackShouldForwardTrackingTagAndInitialTrackId() throws Exception {
         playbackOperations.playExploreTrack(Robolectric.application, track, "tracking_tag");
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -157,6 +157,7 @@ public class PlaybackOperationsTest {
         expect(startedService).not.toBeNull();
         PlaySourceInfo playSourceInfo = startedService.getParcelableExtra(CloudPlaybackService.PlayExtras.trackingInfo);
         expect(playSourceInfo.getExploreTag()).toEqual("tracking_tag");
+        expect(playSourceInfo.getInitialTrackId()).toEqual(track.getId());
     }
 
     @Test

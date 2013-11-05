@@ -35,7 +35,6 @@ public class PlayEventTracker {
         String TRIGGER = "trigger";
         String SOURCE = "source";
         String SOURCE_VERSION = "source_version";
-        String EXPLORE_TAG = "exploreTag";
         String SET = "set";
     }
 
