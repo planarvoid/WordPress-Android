@@ -126,24 +126,13 @@ public class PlayableRow extends PlayableBar implements ListRow {
     }
 
     @Override
-    public void setPressed(boolean pressed) {
-        super.setPressed(pressed);
-        setTitle(pressed);
-    }
-
-    @Override
     protected void setTitle() {
-        setTitle(isPressed());
-    }
-
-    protected void setTitle(boolean pressed) {
         if (mPlayableHolder.getPlayable().getId() == CloudPlaybackService.getCurrentTrackId()) {
             if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
 
             mSpanBuilder.clear();
             mSpanBuilder.append("  ");
-            mSpanBuilder.setSpan(new ImageSpan(getContext(), pressed ?
-                    R.drawable.ic_list_playing_pressed : R.drawable.ic_list_playing_orange, ImageSpan.ALIGN_BOTTOM),
+            mSpanBuilder.setSpan(new ImageSpan(getContext(), R.drawable.ic_list_playing_orange, ImageSpan.ALIGN_BOTTOM),
                     0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             mSpanBuilder.append(mPlayableHolder.getPlayable().title);
             // offset by 2 because of the speaker image and space

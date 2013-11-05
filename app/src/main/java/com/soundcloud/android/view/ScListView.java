@@ -25,7 +25,7 @@ public class ScListView extends PullToRefreshListView {
         final Resources res = getResources();
 
         getRefreshableView().setFadingEdgeLength((int) (2 * res.getDisplayMetrics().density));
-        getRefreshableView().setSelector(R.drawable.list_selector_background);
+        getRefreshableView().setSelector(R.drawable.list_selector_gray);
         getRefreshableView().setLongClickable(false);
         getRefreshableView().setScrollingCacheEnabled(false);
         getRefreshableView().setCacheColorHint(Color.WHITE);
