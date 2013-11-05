@@ -26,7 +26,7 @@ import android.widget.TextView;
 import java.io.IOException;
 
 @Tracking(page = Page.Entry_confirm_your_email)
-public class EmailConfirm extends ScActivity {
+public class EmailConfirmationActivity extends ScActivity {
 
     private AccountOperations mAccountOperations;
     private AndroidCloudAPI mAndroidCloudAPI;
@@ -37,7 +37,7 @@ public class EmailConfirm extends ScActivity {
         mAccountOperations = new AccountOperations(this);
         mAndroidCloudAPI = new OldCloudAPI(this);
 
-        setContentView(R.layout.email_confirmation);
+        setContentView(R.layout.email_confirmation_activity);
         findViewById(R.id.btn_resend).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,7 +64,7 @@ public class EmailConfirm extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getApp().track(EmailConfirm.class);
+        getApp().track(EmailConfirmationActivity.class);
     }
 
     private void updateLastReminded() {

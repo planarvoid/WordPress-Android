@@ -6,7 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.auth.EmailConfirm;
+import com.soundcloud.android.activity.auth.EmailConfirmationActivity;
 import com.soundcloud.android.activity.landing.You;
 import com.soundcloud.android.fragment.ExploreFragment;
 import com.soundcloud.android.fragment.NavigationDrawerFragment;
@@ -188,7 +188,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         public void onNext(User user) {
             mNavigationDrawerFragment.updateProfileItem(user);
             if (!user.isPrimaryEmailConfirmed()) {
-                startActivityForResult(new Intent(MainActivity.this, EmailConfirm.class)
+                startActivityForResult(new Intent(MainActivity.this, EmailConfirmationActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
             }
         }
