@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="category_facebook_friends">Amigos de Facebook</string>
+    <string name="category_facebook_likes">Me gusta en Facebook</string>
+
+    <string name="category_rock">Rock</string>
+    <string name="category_indie">Indie</string>
+    <string name="category_dubstep">Dubstep</string>
+    <string name="category_pop">Pop</string>
+    <string name="category_punk">Punk</string>
+    <string name="category_country">Country</string>
+    <string name="category_alternative">Alternativa</string>
+    <string name="category_electronic">Electrónica</string>
+    <string name="category_house">House</string>
+    <string name="category_rnb_and_soul">RnB y soul</string>
+    <string name="category_hiphop_and_rap">HipHop y rap</string>
+    <string name="category_reggae">Reggae</string>
+    <string name="category_singer_songwriter">Cantautor</string>
+    <string name="category_jazz_and_blues">Jazz y blues</string>
+    <string name="category_metal">Metal</string>
+    <string name="category_classical">Clásica</string>
+    <string name="category_folk_and_world">Gente y mundo</string>
+    <string name="category_ideas">Ideas</string>
+    <string name="category_business">Negocio</string>
+    <string name="category_religion_and_spirituality">Religión y espiritualidad</string>
+    <string name="category_audiobooks">Audio libros</string>
+    <string name="category_arts_and_entertainment">Arte y entretenimiento</string>
+    <string name="category_sports">Deportes</string>
+    <string name="category_science_and_technology">Ciencia y tecnología</string>
+    <string name="category_comedy">Comedia</string>
+    <string name="category_news">Noticia</string>
+    <string name="category_storytelling">Narración</string>
+    <string name="category_learning">Aprendizaje</string>
+</resources>
