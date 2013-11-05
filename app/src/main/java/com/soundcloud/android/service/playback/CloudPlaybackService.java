@@ -12,6 +12,7 @@ import static com.soundcloud.android.service.playback.State.PLAYING;
 import static com.soundcloud.android.service.playback.State.PREPARED;
 import static com.soundcloud.android.service.playback.State.PREPARING;
 import static com.soundcloud.android.service.playback.State.STOPPED;
+import static com.soundcloud.android.service.playback.State.WAITING_FOR_PLAYLIST;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
@@ -726,8 +727,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             pause();
         } else if (mCurrentTrack != null) {
             play();
-        } else {
+        } else if (!getPlayQueueInternal().isEmpty()) {
             openCurrent();
+        } else {
+            state = WAITING_FOR_PLAYLIST;
         }
     }
 
