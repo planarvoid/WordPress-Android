@@ -25,7 +25,7 @@ public class PlayQueueTest {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L,2L,3L), 0, playSourceInfo, Content.ME_LIKES.uri);
         playQueue.setAppendState(PlayQueue.AppendState.IDLE);
         playQueue.setCurrentTrackToUserTriggered();
-        String eventLoggerParams = playQueue.getEventLoggerParamsForTrack();
+        String eventLoggerParams = playQueue.getCurrentEventLoggerParams();
 
         Parcel parcel = Parcel.obtain();
         playQueue.writeToParcel(parcel, 0);
@@ -35,7 +35,7 @@ public class PlayQueueTest {
         expect(copy.getPosition()).toBe(0);
         expect(copy.getAppendState()).toEqual(PlayQueue.AppendState.IDLE);
         expect(copy.getPlaySourceInfo()).toEqual(playSourceInfo);
-        expect(copy.getEventLoggerParamsForTrack()).toEqual(eventLoggerParams);
+        expect(copy.getCurrentEventLoggerParams()).toEqual(eventLoggerParams);
         expect(copy.getSourceUri()).toEqual(Content.ME_LIKES.uri);
     }
 
@@ -122,7 +122,7 @@ public class PlayQueueTest {
     public void moveToNextShouldResultInAutoTrigger() {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
         expect(playQueue.moveToNext(false)).toBeTrue();
-        expect(playQueue.getEventLoggerParamsForTrack()).toEqual("trigger=auto");
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto");
     }
 
     @Test
@@ -142,31 +142,24 @@ public class PlayQueueTest {
     @Test
     public void shouldReturnSetAsPartOfLoggerParams() {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 1, PlaySourceInfo.empty(), Content.PLAYLIST.forId(54321L));
-        expect(playQueue.getEventLoggerParamsForTrack()).toEqual("trigger=auto&set=54321");
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&set_id=54321&set_position=1");
     }
 
     @Test
     public void shouldReturnExploreVersionInEventLoggerParamsWhenCurrentTrackIsInitialTrack() {
         final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().initialTrackId(123L).exploreVersion("exp1").build();
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(123L, 456L), 0, playSourceInfo, Uri.EMPTY);
-        expect(playQueue.getEventLoggerParamsForTrack()).toEqual("trigger=auto&source=explore&source_version=exp1");
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&source=explore&source_version=exp1");
     }
 
     @Test
     public void shouldReturnRecommenderVersionInEventLoggerParamsWhenCurrentTrackIsNotInitialTrack() {
         final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().initialTrackId(123L).recommenderVersion("rec1").build();
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(123L, 456L), 1, playSourceInfo, Uri.EMPTY);
-        expect(playQueue.getEventLoggerParamsForTrack()).toEqual("trigger=auto&source=recommender&source_version=rec1");
-    }
-
-    @Test
-    public void shouldReturnExploreVersionInEventLoggerParamsWhenPassingInInitialTrack() {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().initialTrackId(123L).exploreVersion("exp1").build();
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(123L, 456L), 1, playSourceInfo, Uri.EMPTY);
-        expect(playQueue.getEventLoggerParamsForTrack(123L)).toEqual("trigger=auto&source=explore&source_version=exp1");
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&source=recommender&source_version=rec1");
     }
 
     private void checkManualTrigger(PlayQueue playQueue) {
-        expect(playQueue.getEventLoggerParamsForTrack()).toEqual("trigger=manual");
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=manual");
     }
 }

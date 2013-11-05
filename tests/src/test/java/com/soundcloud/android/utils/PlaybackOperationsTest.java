@@ -138,7 +138,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playExploreTrackShouldSignalServiceToFetchRelatedTracks() throws Exception {
-        playbackOperations.playExploreTrack(Robolectric.application, track, "ignored here");
+        playbackOperations.playExploreTrack(Robolectric.application, track, "ignored here", "ignored here");
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedService = application.getNextStartedService();
@@ -149,7 +149,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playExploreTrackShouldForwardTrackingTagAndInitialTrackId() throws Exception {
-        playbackOperations.playExploreTrack(Robolectric.application, track, "tracking_tag");
+        playbackOperations.playExploreTrack(Robolectric.application, track, "tracking_tag", "ignored here");
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedService = application.getNextStartedService();
@@ -158,6 +158,18 @@ public class PlaybackOperationsTest {
         PlaySourceInfo playSourceInfo = startedService.getParcelableExtra(CloudPlaybackService.PlayExtras.trackingInfo);
         expect(playSourceInfo.getExploreTag()).toEqual("tracking_tag");
         expect(playSourceInfo.getInitialTrackId()).toEqual(track.getId());
+    }
+
+    @Test
+    public void playExploreTrackShouldForwardOriginUrl() throws Exception {
+        playbackOperations.playExploreTrack(Robolectric.application, track, "ignored here", "explore:trending music");
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent startedService = application.getNextStartedService();
+
+        expect(startedService).not.toBeNull();
+        PlaySourceInfo playSourceInfo = startedService.getParcelableExtra(CloudPlaybackService.PlayExtras.trackingInfo);
+        expect(playSourceInfo.getOriginUrl()).toEqual("explore:trending music");
     }
 
     @Test

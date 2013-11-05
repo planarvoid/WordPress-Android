@@ -5,6 +5,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Longs;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 
@@ -148,13 +149,15 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
         return mAppendState == AppendState.EMPTY;
     }
 
-    public String getEventLoggerParamsForTrack() {
-        return getEventLoggerParamsForTrack(getCurrentTrackId());
-    }
-    public String getEventLoggerParamsForTrack(long trackId) {
-        final TrackSourceInfo trackSourceInfo = mPlaySourceInfo.getTrackSource(trackId);
+    public String getCurrentEventLoggerParams() {
+        final TrackSourceInfo trackSourceInfo = mPlaySourceInfo.getTrackSource(getCurrentTrackId());
         trackSourceInfo.setTrigger(mCurrentTrackIsUserTriggered);
-        return trackSourceInfo.createEventLoggerParams(mSourceUri);
+
+        if (mSourceUri != null && Content.match(mSourceUri) == Content.PLAYLIST) {
+            return trackSourceInfo.createEventLoggerParamsForSet(mSourceUri.getLastPathSegment(), String.valueOf(mPosition));
+        } else {
+            return trackSourceInfo.createEventLoggerParams();
+        }
     }
 
     /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {

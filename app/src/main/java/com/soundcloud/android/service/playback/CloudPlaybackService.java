@@ -199,6 +199,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private PlayEventTracker mPlayEventTracker;
 
     private AnalyticsEngine mAnalyticsEngine;
+    private String mCurrentEventLoggerParams;
 
     public PlayEventTracker getPlayEventTracker() {
         return mPlayEventTracker;
@@ -504,6 +505,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 track(Media.fromTrack(mCurrentTrack), action);
 
                 mCurrentTrack = track;
+                // we have to cache these so we can properly deliver stop events after playqueue changes
+                mCurrentEventLoggerParams = getPlayQueueInternal().getCurrentEventLoggerParams();
+
                 notifyChange(Broadcasts.META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
 
@@ -522,14 +526,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private void trackPlayEvent(Track newTrack) {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId,
-                getPlayQueueInternal().getEventLoggerParamsForTrack(newTrack.getId()));
+        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId, mCurrentEventLoggerParams);
     }
 
     private void trackStopEvent() {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId,
-                getPlayQueueInternal().getEventLoggerParamsForTrack(mCurrentTrack.getId()));
+        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId, mCurrentEventLoggerParams);
     }
 
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
