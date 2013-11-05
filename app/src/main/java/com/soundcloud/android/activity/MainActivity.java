@@ -4,6 +4,7 @@ import static rx.android.AndroidObservables.fromActivity;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.EmailConfirm;
 import com.soundcloud.android.activity.landing.You;
@@ -16,8 +17,8 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.auth.AuthenticatorService;
-import com.soundcloud.android.utils.IOUtils;
 import net.hockeyapp.android.UpdateManager;
+import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -49,13 +50,14 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         mAccountOperations = new AccountOperations(this);
         ApplicationProperties mApplicationProperties = new ApplicationProperties(getResources());
 
+        final Observer<User> userObserver = new UpdateUserProfileObserver();
         if (savedInstanceState != null) {
             mLastTitle = savedInstanceState.getCharSequence(EXTRA_ACTIONBAR_TITLE);
         } else {
             mLastTitle = getTitle();
 
             if (mAccountOperations.soundCloudAccountExists()) {
-                handleLoggedInUser(mApplicationProperties);
+                handleLoggedInUser(mApplicationProperties, userObserver);
             }
         }
 
@@ -63,22 +65,17 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         supportInvalidateOptionsMenu();
     }
 
-    private void handleLoggedInUser(ApplicationProperties mApplicationProperties) {
-        if (shouldRefreshUserProfileData()) {
+    private void handleLoggedInUser(ApplicationProperties appProperties, Observer<User> observer) {
+        boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
+        User currentUser = SoundCloudApplication.instance.getLoggedInUser();
+        if (!justAuthenticated && mAccountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
             UserOperations userOperations = new UserOperations();
-            mUpdateUserSubscription = fromActivity(this, userOperations.refreshCurrentUser())
-                    .subscribe(new UpdateUserProfileObserver());
+            mUpdateUserSubscription = fromActivity(this, userOperations.refreshCurrentUser()).subscribe(observer);
         }
 
-        if (mApplicationProperties.isBetaBuildRunningOnDalvik()) {
+        if (appProperties.isBetaBuildRunningOnDalvik()) {
             UpdateManager.register(this, getString(R.string.hockey_app_id));
         }
-    }
-
-    private boolean shouldRefreshUserProfileData() {
-        boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
-        return !justAuthenticated && IOUtils.isConnected(this) && mAccountOperations.getSoundCloudToken().valid() &&
-                !getApp().getLoggedInUser().isPrimaryEmailConfirmed();
     }
 
     @Override

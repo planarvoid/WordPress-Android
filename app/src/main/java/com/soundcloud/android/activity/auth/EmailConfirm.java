@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.ScActivity;
@@ -26,8 +27,7 @@ import java.io.IOException;
 
 @Tracking(page = Page.Entry_confirm_your_email)
 public class EmailConfirm extends ScActivity {
-    public static final String PREF_LAST_REMINDED = "confirmation_last_reminded";
-    public static final int REMIND_PERIOD = 86400 * 1000 * 7; // 1 week
+
     private AccountOperations mAccountOperations;
     private AndroidCloudAPI mAndroidCloudAPI;
 
@@ -36,35 +36,29 @@ public class EmailConfirm extends ScActivity {
         super.onCreate(savedInstanceState);
         mAccountOperations = new AccountOperations(this);
         mAndroidCloudAPI = new OldCloudAPI(this);
-        final long lastReminded = getLastReminded();
 
-        if (lastReminded > 0 && System.currentTimeMillis() - lastReminded < REMIND_PERIOD) {
-            setResult(RESULT_CANCELED);
-            finish();
-        } else {
-            setContentView(R.layout.email_confirmation);
-            findViewById(R.id.btn_resend).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setResult(RESULT_OK, new Intent(Actions.RESEND));
-                    new ResendConfirmationTask(mAndroidCloudAPI).execute((Void)null);
-                    finish();
-                }
-            });
+        setContentView(R.layout.email_confirmation);
+        findViewById(R.id.btn_resend).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_OK, new Intent(Actions.RESEND));
+                new ResendConfirmationTask(mAndroidCloudAPI).execute((Void)null);
+                finish();
+            }
+        });
 
-            ((TextView) findViewById(R.id.txt_email_confirm_no_thanks)).setText(
-                Html.fromHtml(getString(R.string.email_confirmation_thanks_later))
-            );
+        ((TextView) findViewById(R.id.txt_email_confirm_no_thanks)).setText(
+            Html.fromHtml(getString(R.string.email_confirmation_thanks_later))
+        );
 
-            findViewById(R.id.txt_email_confirm_no_thanks).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setResult(RESULT_CANCELED);
-                    finish();
-                }
-            });
-            updateLastReminded();
-        }
+        findViewById(R.id.txt_email_confirm_no_thanks).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        });
+        updateLastReminded();
     }
 
     @Override
@@ -74,12 +68,8 @@ public class EmailConfirm extends ScActivity {
     }
 
     private void updateLastReminded() {
-        mAccountOperations.setAccountData(PREF_LAST_REMINDED, System.currentTimeMillis() + "");
-    }
-
-    // XXX this check should happen earlier
-    private long getLastReminded() {
-        return mAccountOperations.getAccountDataLong(PREF_LAST_REMINDED);
+        mAccountOperations.setAccountData(Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER,
+                String.valueOf(System.currentTimeMillis()));
     }
 
     static class ResendConfirmationTask extends AsyncApiTask<Void, Void, Boolean> {
