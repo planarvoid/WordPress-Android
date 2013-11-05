@@ -33,7 +33,7 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
         super.beforeTest(method);
 
         // until we have a DI framework we have to set this instance to avoid NPEs
-        SoundCloudApplication.instance = Robolectric.application;
+        SoundCloudApplication.instance = (SoundCloudApplication) Robolectric.application;
     }
 
     @Override

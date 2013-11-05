@@ -26,15 +26,15 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
+public class CreatePlaylistDialogFragment extends PlaylistDialogFragment {
 
     private AccountOperations mAccountOpertations;
     private ApplicationProperties mApplicationProperties;
 
-    public static CreateNewSetDialogFragment from(long trackId) {
+    public static CreatePlaylistDialogFragment from(long trackId) {
         Bundle b = new Bundle();
         b.putLong(KEY_TRACK_ID, trackId);
-        CreateNewSetDialogFragment fragment = new CreateNewSetDialogFragment();
+        CreatePlaylistDialogFragment fragment = new CreatePlaylistDialogFragment();
         fragment.setArguments(b);
         return fragment;
     }
@@ -48,7 +48,7 @@ public class CreateNewSetDialogFragment extends PlaylistDialogFragment {
 
     @Override
     protected Builder build(Builder initialBuilder) {
-        final View dialogView = View.inflate(getActivity(), R.layout.alert_dialog_create_new_set, null);
+        final View dialogView = View.inflate(getActivity(), R.layout.dialog_create_new_playlist, null);
         final EditText input = (EditText) dialogView.findViewById(android.R.id.edit);
         final CheckBox privacy = (CheckBox) dialogView.findViewById(R.id.chk_private);
 

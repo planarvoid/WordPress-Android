@@ -9,13 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -26,18 +26,14 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 
-import java.io.IOException;
-
 @RunWith(SoundCloudTestRunner.class)
 public class AccountOperationsTest {
     private static final String SC_ACCOUNT_TYPE = "com.soundcloud.android.account";
-    public static final String KEY = "key";
+    private static final String KEY = "key";
 
     private AccountOperations accountOperations;
     @Mock
@@ -108,7 +104,7 @@ public class AccountOperationsTest {
     public void shouldAddAccountUsingAccountManager(){
         Activity activity = mock(Activity.class);
         accountOperations.addSoundCloudAccountManually(activity);
-        verify(accountManager).addAccount(SC_ACCOUNT_TYPE, "access_token",null,null,activity,null,null);
+        verify(accountManager).addAccount(SC_ACCOUNT_TYPE, "access_token", null, null, activity, null, null);
     }
 
     @Test
@@ -150,7 +146,7 @@ public class AccountOperationsTest {
     public void shouldSetUserDataIfAccountAdditionSucceeds(){
         Account account = new Account("username", SC_ACCOUNT_TYPE);
 
-        when(accountManager.addAccountExplicitly(account,null,null)).thenReturn(true);
+        when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
         when(user.getId()).thenReturn(2L);
         when(user.getUsername()).thenReturn("username");
         when(user.getPermalink()).thenReturn("permalink");
@@ -179,7 +175,7 @@ public class AccountOperationsTest {
         Account account = new Account("username", SC_ACCOUNT_TYPE);
 
         when(user.getUsername()).thenReturn("username");
-        when(accountManager.addAccountExplicitly(account,null,null)).thenReturn(true);
+        when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
         expect(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).toEqual(account);
 
@@ -209,7 +205,7 @@ public class AccountOperationsTest {
 
     @Test
     public void shouldReturnExpectedValueIfLongAccountDataDoesExist(){
-        when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
+        mockSoundCloudAccount();
         when(accountManager.getUserData(scAccount, KEY)).thenReturn("23");
         expect(accountOperations.getAccountDataLong(KEY)).toBe(23L);
     }
@@ -222,14 +218,14 @@ public class AccountOperationsTest {
 
     @Test
     public void shouldReturnTrueValueIfTrueBoolAccountDataDoesExist(){
-        when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
+        mockSoundCloudAccount();
         when(accountManager.getUserData(scAccount, KEY)).thenReturn("true");
         expect(accountOperations.getAccountDataBoolean(KEY)).toBe(true);
     }
 
     @Test
     public void shouldReturnFalseValueIfFalseBoolAccountDataDoesExist(){
-        when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
+        mockSoundCloudAccount();
         when(accountManager.getUserData(scAccount, KEY)).thenReturn("false");
         expect(accountOperations.getAccountDataBoolean(KEY)).toBe(false);
         verify(accountManager).getUserData(scAccount, KEY);
@@ -243,9 +239,9 @@ public class AccountOperationsTest {
 
     @Test
     public void shouldStoreDataIfSoundCloudDoesExist(){
-        when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
+        mockSoundCloudAccount();
         expect(accountOperations.setAccountData(KEY, "ads")).toBeTrue();
-        verify(accountManager).setUserData(scAccount,KEY,"ads");
+        verify(accountManager).setUserData(scAccount, KEY, "ads");
     }
 
     @Test
@@ -274,7 +270,7 @@ public class AccountOperationsTest {
     public void shouldStoreSoundCloudAccountDataIfAccountExists(){
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
         accountOperations.storeSoundCloudTokenData(token);
-        verify(tokenOperations).storeSoundCloudTokenData(scAccount,token);
+        verify(tokenOperations).storeSoundCloudTokenData(scAccount, token);
 
     }
 
@@ -289,4 +285,77 @@ public class AccountOperationsTest {
         accountOperations.removeSoundCloudAccount().subscribe(observer);
         verify(observer).onCompleted();
     }
+
+    @Test
+    public void shouldCheckForConfirmedEmailAddressWhenTimeToRemindAndEmailNotConfirmedYet() {
+        mockSoundCloudAccount();
+        mockValidToken();
+        mockExpiredEmailConfirmationReminder();
+
+        User currentUser = new User(123L);
+        currentUser.setPrimaryEmailConfirmed(false);
+
+        expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotCheckForConfirmedEmailAddressIfAlreadyConfirmed() {
+        mockSoundCloudAccount();
+        mockValidToken();
+        mockExpiredEmailConfirmationReminder();
+
+        User currentUser = new User(123L);
+        currentUser.setPrimaryEmailConfirmed(true);
+
+        expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotCheckForConfirmedEmailAddressIfAlreadyRemindedRecently() {
+        mockSoundCloudAccount();
+        mockValidToken();
+        mockRecentEmailConfirmationReminder();
+
+        User currentUser = new User(123L);
+        currentUser.setPrimaryEmailConfirmed(false);
+
+        expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotCheckForConfirmedEmailAddressIfTokenIsInvalid() {
+        mockSoundCloudAccount();
+        mockInvalidToken();
+        mockExpiredEmailConfirmationReminder();
+
+        User currentUser = new User(123L);
+        currentUser.setPrimaryEmailConfirmed(false);
+
+        expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeFalse();
+    }
+
+    private void mockExpiredEmailConfirmationReminder() {
+        // last reminder was longer ago than the reminder priod
+        when(accountManager.getUserData(scAccount, Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER)).thenReturn(
+                Long.toString(System.currentTimeMillis() - AccountOperations.EMAIL_CONFIRMATION_REMIND_PERIOD - 1));
+    }
+
+    private void mockRecentEmailConfirmationReminder() {
+        // last reminder just happened
+        when(accountManager.getUserData(scAccount, Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER)).thenReturn(
+                Long.toString(System.currentTimeMillis() - 1));
+    }
+
+    private void mockSoundCloudAccount() {
+        when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
+    }
+
+    private void mockValidToken() {
+        when(tokenOperations.getSoundCloudToken(scAccount)).thenReturn(new Token("123", "456"));
+    }
+
+    private void mockInvalidToken() {
+        when(tokenOperations.getSoundCloudToken(scAccount)).thenReturn(null);
+    }
+
 }

@@ -35,7 +35,7 @@ public class PlayEventTrackingApiTest {
             "soundcloud:sounds:1",
             "soundcloud:users:1",
             500L,
-            "context=stream&exploreTag=123"
+            "context=stream&exploreVersion=123"
         });
         trackingData.addRow(new Object[]{
             1L,
@@ -44,7 +44,7 @@ public class PlayEventTrackingApiTest {
             "soundcloud:sounds:1",
             "soundcloud:users:1",
             500L,
-            "context=stream&exploreTag=123"
+            "context=stream&exploreVersion=123"
         });
         trackingData.addRow(new Object[]{
             2L,
@@ -57,9 +57,9 @@ public class PlayEventTrackingApiTest {
         });
 
         trackingData.moveToNext();
-        expect(api.buildUrl(trackingData)).toEqual("http://eventlogger.soundcloud.com/audio?client_id=1&ts=1000&action=play&user=soundcloud%3Ausers%3A1&sound=soundcloud%3Asounds%3A1&duration=500&context=stream&exploreTag=123");
+        expect(api.buildUrl(trackingData)).toEqual("http://eventlogger.soundcloud.com/audio?client_id=1&ts=1000&action=play&user=soundcloud%3Ausers%3A1&sound=soundcloud%3Asounds%3A1&duration=500&context=stream&exploreVersion=123");
         trackingData.moveToNext();
-        expect(api.buildUrl(trackingData)).toEqual("http://eventlogger.soundcloud.com/audio?client_id=1&ts=2000&action=stop&user=soundcloud%3Ausers%3A1&sound=soundcloud%3Asounds%3A1&duration=500&context=stream&exploreTag=123");
+        expect(api.buildUrl(trackingData)).toEqual("http://eventlogger.soundcloud.com/audio?client_id=1&ts=2000&action=stop&user=soundcloud%3Ausers%3A1&sound=soundcloud%3Asounds%3A1&duration=500&context=stream&exploreVersion=123");
         trackingData.moveToNext();
         expect(api.buildUrl(trackingData)).toEqual("http://eventlogger.soundcloud.com/audio?client_id=1&ts=3000&action=play&user=soundcloud%3Ausers%3A2&sound=soundcloud%3Asounds%3A2&duration=100");
     }

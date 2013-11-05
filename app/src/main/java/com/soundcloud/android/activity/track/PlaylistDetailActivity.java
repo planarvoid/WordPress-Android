@@ -64,6 +64,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTitle(R.string.activity_title_playlist);
         setContentView(R.layout.playlist_activity);
 
         handleIntent(savedInstanceState, true);

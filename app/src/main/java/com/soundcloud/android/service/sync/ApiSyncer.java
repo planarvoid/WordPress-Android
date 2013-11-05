@@ -25,6 +25,7 @@ import com.soundcloud.android.model.act.Activities;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.service.sync.content.SyncStrategy;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.HttpUtils;
@@ -89,6 +90,8 @@ public class ApiSyncer extends SyncStrategy {
                     result = syncMe(c, userId);
                     if (result.success) {
                         mResolver.notifyChange(Content.ME.uri, null);
+                        User loggedInUser = SoundCloudApplication.fromContext(mContext).getLoggedInUser();
+                        Event.CURRENT_USER_UPDATED.publish(loggedInUser);
                     }
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()

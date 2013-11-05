@@ -15,7 +15,7 @@
     <TextView android:id="@+id/suggested_users_subtitletext"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:textColor="@drawable/txt_list_secondary_states"
+              android:textColor="@color/listTxtSecondary"
               android:text="@string/suggested_users_genres_sub_title"/>
 
 </LinearLayout>

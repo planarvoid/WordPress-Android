@@ -289,7 +289,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldOpenCurrentIfPlayQueueChangedFromEmptyPlaylist(){
-        when(playbackService.getState()).thenReturn(State.EMPTY_PLAYLIST);
+        when(playbackService.getState()).thenReturn(State.WAITING_FOR_PLAYLIST);
         Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).saveProgressAndStop();

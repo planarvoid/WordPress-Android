@@ -8,7 +8,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
+import com.soundcloud.android.dialog.AddToPlaylistDialogFragment;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -20,7 +20,6 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.tracking.Media;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.PlayerTrackPager;
@@ -197,7 +196,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     public void onAddToPlaylist(Track track) {
         if (track != null && isForeground()) {
-            MyPlaylistsDialogFragment.from(track).show(getSupportFragmentManager(), "playlist_dialog");
+            AddToPlaylistDialogFragment.from(track).show(getSupportFragmentManager(), "playlist_dialog");
         }
     }
 

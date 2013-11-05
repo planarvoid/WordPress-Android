@@ -1,6 +1,10 @@
 package com.soundcloud.android.api.http;
 
-import com.google.common.net.MediaType;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.WrapperFactory;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -11,11 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.api.http.SoundCloudRxHttpClient.WrapperFactory;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(SoundCloudTestRunner.class)
 public class WrapperFactoryTest {
@@ -50,7 +49,8 @@ public class WrapperFactoryTest {
     public void shouldHaveDefaultContentTypeIfRequestIsForPublicAPI() {
         when(apiRequest.isPrivate()).thenReturn(false);
         ApiWrapper wrapper = wrapperFactory.createWrapper(apiRequest);
-        expect(wrapper.getDefaultContentType()).toEqual(MediaType.JSON_UTF_8.toString());
+        // do not use MediaType.JSON_UTF8; the public API does not accept qualified media types that include charsets
+        expect(wrapper.getDefaultContentType()).toEqual("application/json");
     }
 
     @Test

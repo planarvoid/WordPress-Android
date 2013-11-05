@@ -21,33 +21,33 @@
 
     <style name="TextAppearance.List" />
     <style name="TextAppearance.List.Main">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="TextAppearance.List.Main.Dark">
-        <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
+        <item name="android:textColor">@color/listTxtValueInactive</item>
     </style>
     <style name="TextAppearance.List.Main.Inactive">
-        <item name="android:textColor">@drawable/txt_list_inactive_states</item>
+        <item name="android:textColor">@color/listTxtValueInactive</item>
     </style>
     <style name="TextAppearance.List.Secondary">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
     </style>
     <style name="TextAppearance.List.Sub">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">@dimen/list_txt_sub_size</item>
     </style>
     <style name="TextAppearance.List.Sub.Secondary">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
     </style>
     <style name="TextAppearance.List.CreatedAt" parent="TextAppearance.List.Sub">
-        <item name="android:textColor">@drawable/txt_list_created_at_states</item>
+        <item name="android:textColor">@color/listTxtCreatedAt</item>
     </style>
 
     <style name="TextAppearance.Playable" />
     <style name="TextAppearance.Playable.Username">
-        <item name="android:textColor">@drawable/txt_list_track_user_states</item>
+        <item name="android:textColor">@color/listTxtTrackUser</item>
         <item name="android:textSize">@dimen/list_txt_sub_size</item>
     </style>
 
@@ -78,7 +78,7 @@
         <item name="android:textSize">@dimen/comment_panel_main_size</item>
     </style>
     <style name="TextAppearance.Comment.User">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
     </style>
     <style name="TextAppearance.Comment.Timestamp" parent="TextAppearance.Comment.User">
         <item name="android:textColor">#ffe36711</item>
@@ -87,12 +87,12 @@
         <item name="android:textSize">@dimen/comment_panel_created_at_size</item>
     </style>
     <style name="TextAppearance.Comment.Body">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">@dimen/comment_panel_main_size</item>
     </style>
 
     <style name="TextAppearance.ExploreTracksCategory">
-        <item name="android:textColor">@drawable/txt_list_explore_category_states</item>
+        <item name="android:textColor">@color/dark_gray_text</item>
         <item name="android:textSize">@dimen/explore_suggested_track_category_text_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>

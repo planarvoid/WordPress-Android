@@ -14,7 +14,6 @@ import com.soundcloud.android.audio.managers.AudioManagerFactory;
 import com.soundcloud.android.audio.managers.IAudioManager;
 import com.soundcloud.android.dao.RecordingStorage;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.service.record.RecordAppWidgetProvider;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.tracking.Event;

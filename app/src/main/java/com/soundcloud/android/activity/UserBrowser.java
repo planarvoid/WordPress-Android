@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import static android.text.TextUtils.isEmpty;
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -314,7 +315,7 @@ public class UserBrowser extends ScActivity implements
         mUser = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.FULL);
 
         // TODO: move to a *Operations class to decouple from storage layer
-        mUserStorage.storeAsync(mUser).subscribe(DefaultObserver.NOOP_OBSERVER);
+        fireAndForget(mUserStorage.storeAsync(mUser));
         mUserDetailsFragment.onSuccess(mUser);
     }
 

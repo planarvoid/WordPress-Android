@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.playback;
 
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 import static com.soundcloud.android.service.playback.PlayQueueManager.ResumeInfo;
 import static com.soundcloud.android.service.playback.State.COMPLETED;
 import static com.soundcloud.android.service.playback.State.ERROR;
@@ -11,6 +12,7 @@ import static com.soundcloud.android.service.playback.State.PLAYING;
 import static com.soundcloud.android.service.playback.State.PREPARED;
 import static com.soundcloud.android.service.playback.State.PREPARING;
 import static com.soundcloud.android.service.playback.State.STOPPED;
+import static com.soundcloud.android.service.playback.State.WAITING_FOR_PLAYLIST;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
@@ -516,12 +518,14 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private void trackPlayEvent(Track newTrack) {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId, getPlayQueueInternal().getCurrentEventLoggerParams());
+        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId,
+                getPlayQueueInternal().getEventLoggerParamsForTrack(newTrack.getId()));
     }
 
     private void trackStopEvent() {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId, getPlayQueueInternal().getCurrentEventLoggerParams());
+        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId,
+                getPlayQueueInternal().getEventLoggerParamsForTrack(mCurrentTrack.getId()));
     }
 
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
@@ -562,7 +566,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private void onStreamableTrack(Track track){
         if (getCurrentTrackId() != track.getId()) return;
 
-        mPlaybackOperations.markTrackAsPlayed(mCurrentTrack).subscribe(DefaultObserver.NOOP_OBSERVER);
+        fireAndForget(mPlaybackOperations.markTrackAsPlayed(mCurrentTrack));
         startTrack(track);
     }
 
@@ -723,8 +727,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             pause();
         } else if (mCurrentTrack != null) {
             play();
-        } else {
+        } else if (!getPlayQueueInternal().isEmpty()) {
             openCurrent();
+        } else {
+            state = WAITING_FOR_PLAYLIST;
         }
     }
 

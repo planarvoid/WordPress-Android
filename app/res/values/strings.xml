@@ -13,7 +13,7 @@
     <string name="visit_support">Visit Support</string>
 
     <string name="tab_title_user_info">Info</string>
-    <string name="tab_title_user_sounds">Sounds</string>
+    <string name="tab_title_user_sounds">Posts</string>
     <string name="tab_title_user_likes">Likes</string>
     <string name="tab_title_user_followers">Followers</string>
     <string name="tab_title_user_followings">Following</string>
@@ -103,13 +103,15 @@
 
     <string name="add_track_to_playlist">Add to playlist...</string>
     <string name="create_new_playlist">Create new playlist</string>
+    <string name="create_new_playlist_hint">Enter playlist title</string>
     <string name="error_new_playlist_blank_title">Please enter a valid title</string>
     <string name="add_playlist_private">Private</string>
 
     <string name="tab_title_user_playlists">Playlists</string>
+    <string name="activity_title_playlist">Playlist</string>
 
     <string name="side_menu_playlists">Playlists</string>
-    <string name="empty_playlist">This playlist has no sounds yet</string>
+    <string name="empty_playlist">This playlist has no tracks yet</string>
 
     <string name="playlist_removed">This playlist was not found on SoundCloud</string>
 

@@ -37,7 +37,7 @@
 
             <TextView android:id="@+id/tracks"
                       android:layout_width="wrap_content"
-                      android:drawableLeft="@drawable/ic_stats_sounds_states"
+                      android:drawableLeft="@drawable/stats_sounds"
                       android:drawablePadding="3dip"
                       android:layout_height="wrap_content"
                       android:text="@string/track_count"
@@ -57,7 +57,7 @@
             <TextView android:id="@+id/followers"
                       android:layout_width="wrap_content"
                       android:layout_alignWithParentIfMissing="true"
-                      android:drawableLeft="@drawable/ic_stats_followers_states"
+                      android:drawableLeft="@drawable/stats_followers"
                       android:drawablePadding="3dip"
                       android:layout_height="wrap_content"
                       android:text="@string/follower_count"

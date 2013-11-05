@@ -7,9 +7,11 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -23,7 +25,7 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public class AccountOperations {
-    public enum AccountInfoKeys{
+    public enum AccountInfoKeys {
         USERNAME("currentUsername"),
         USER_ID("currentUserId"),
         USER_PERMALINK("currentUserPermalink"),
@@ -35,15 +37,20 @@ public class AccountOperations {
             mKey = key;
         }
 
-        public String getKey(){
+        public String getKey() {
             return mKey;
         }
     }
+
     private static final String TOKEN_TYPE = "access_token";
+    @VisibleForTesting
+    static final int EMAIL_CONFIRMATION_REMIND_PERIOD = 86400 * 1000 * 7; // 1 week
 
     private final AccountManager accountManager;
     private final SoundCloudTokenOperations tokenOperations;
     private final Context context;
+
+    private Account soundCloudAccount;
 
     public AccountOperations(Context context) {
         this(AccountManager.get(context), context, new SoundCloudTokenOperations(context));
@@ -69,9 +76,9 @@ public class AccountOperations {
     }
 
     public void addSoundCloudAccountManually(Activity currentActivityContext) {
-         accountManager.addAccount(
+        accountManager.addAccount(
                 context.getString(R.string.account_type),
-                 TOKEN_TYPE,null, null, currentActivityContext, null, null);
+                TOKEN_TYPE, null, null, currentActivityContext, null, null);
     }
 
     /**
@@ -80,18 +87,19 @@ public class AccountOperations {
      *
      * @return the new account, or null if account already existed or adding it failed
      */
+    @Nullable
     public Account addOrReplaceSoundCloudAccount(User user, Token token, SignupVia via) {
         boolean accountexists = false;
         Account account = getSoundCloudAccount();
         if (account != null) {
-            if (account.name.equals(user.getUsername())){
+            if (account.name.equals(user.getUsername())) {
                 accountexists = true; // same username, do not replace account
             } else {
                 accountManager.removeAccount(account, null, null);
             }
         }
 
-        if (!accountexists){
+        if (!accountexists) {
             account = new Account(user.getUsername(), context.getString(R.string.account_type));
             accountexists = accountManager.addAccountExplicitly(account, null, null);
         }
@@ -110,8 +118,14 @@ public class AccountOperations {
 
     @Nullable
     public Account getSoundCloudAccount() {
-        Account[] accounts = accountManager.getAccountsByType(context.getString(R.string.account_type));
-        return accounts != null && accounts.length == 1 ? accounts[0] : null;
+        if (soundCloudAccount == null) {
+            Account[] accounts = accountManager.getAccountsByType(context.getString(R.string.account_type));
+            if (accounts != null && accounts.length == 1) {
+                soundCloudAccount = accounts[0];
+            }
+        }
+
+        return soundCloudAccount;
     }
 
     public Observable<Void> removeSoundCloudAccount() {
@@ -124,12 +138,13 @@ public class AccountOperations {
 
     @Nullable
     public String getAccountDataString(String key) {
-        if(soundCloudAccountExists()){
+        if (soundCloudAccountExists()) {
             return accountManager.getUserData(getSoundCloudAccount(), key);
         }
 
         return null;
     }
+
     //TODO Create a class which works as a service to store preference data instead of exposing these lowlevel constructs
     public long getAccountDataLong(String key) {
         String data = getAccountDataString(key);
@@ -162,20 +177,35 @@ public class AccountOperations {
         }
     }
 
-    public Token getSoundCloudToken(){
-        if(soundCloudAccountExists()){
+    @Nullable
+    public Token getSoundCloudToken() {
+        if (soundCloudAccountExists()) {
             return tokenOperations.getSoundCloudToken(getSoundCloudAccount());
         }
 
         return null;
     }
 
-    public void invalidateSoundCloudToken(Token token){
+    public void invalidateSoundCloudToken(Token token) {
         tokenOperations.invalidateToken(token, getSoundCloudAccount());
     }
 
     public void storeSoundCloudTokenData(Token token) {
         checkState(soundCloudAccountExists(), "SoundCloud Account needs to exist before storing token info");
         tokenOperations.storeSoundCloudTokenData(getSoundCloudAccount(), token);
+    }
+
+    public boolean shouldCheckForConfirmedEmailAddress(User currentUser) {
+        boolean alreadyConfirmed = currentUser.isPrimaryEmailConfirmed();
+
+        long lastReminded = getAccountDataLong(Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER);
+        boolean isTimeToRemindAgain = lastReminded <= 0 || System.currentTimeMillis() - lastReminded > EMAIL_CONFIRMATION_REMIND_PERIOD;
+
+        return !alreadyConfirmed && isTimeToRemindAgain && IOUtils.isConnected(context) && isTokenValid();
+    }
+
+    private boolean isTokenValid() {
+        final Token token = getSoundCloudToken();
+        return token != null && token.valid();
     }
 }

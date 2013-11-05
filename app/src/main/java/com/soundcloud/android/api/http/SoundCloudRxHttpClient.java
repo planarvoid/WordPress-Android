@@ -8,7 +8,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.google.common.net.MediaType;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -44,6 +43,9 @@ import java.util.Map;
 
 public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHttpClient  {
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json";
+    // do not use MediaType.JSON_UTF8; the public API does not accept qualified media types that include charsets
+    private static final String PUBLIC_API_ACCEPT_CONTENT_TYPE = "application/json";
+
     public static final String URI_APP_PREFIX = "/app";
 
     private final JsonTransformer mJsonTransformer;
@@ -190,7 +192,7 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
 
         final Object content = apiRequest.getContent();
         if (content != null) {
-            request.withContent(mJsonTransformer.toJson(content), MediaType.JSON_UTF_8.toString());
+            request.withContent(mJsonTransformer.toJson(content), PUBLIC_API_ACCEPT_CONTENT_TYPE);
         }
         return request;
     }
@@ -216,7 +218,9 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
 
         public ApiWrapper createWrapper(APIRequest apiRequest){
             Wrapper wrapper = new Wrapper(mContext, mHttpProperties,mAccountOperations, mApplicationProperties);
-            String acceptContentType = apiRequest.isPrivate() ? format(PRIVATE_API_ACCEPT_CONTENT_TYPE, apiRequest.getVersion()) : MediaType.JSON_UTF_8.toString();
+            String acceptContentType = apiRequest.isPrivate()
+                    ? format(PRIVATE_API_ACCEPT_CONTENT_TYPE, apiRequest.getVersion())
+                    : PUBLIC_API_ACCEPT_CONTENT_TYPE;
             wrapper.setDefaultContentType(acceptContentType);
             return wrapper;
         }

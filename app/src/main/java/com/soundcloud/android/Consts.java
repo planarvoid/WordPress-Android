@@ -122,6 +122,7 @@ public final class Consts {
         String NOTIFICATIONS_FREQUENCY              = "notificationsFrequency";
         String PLAYBACK_ERROR_REPORTING_ENABLED     = "playbackErrorReportingEnabled";
         String LAST_USER_SYNC                       = "lastUserSync";
+        String LAST_EMAIL_CONFIRMATION_REMINDER     = "confirmation_last_reminded";
 
         String DEV_HTTP_PROXY                       = "dev.http.proxy";
         String DEV_ALARM_CLOCK_ENABLED              = "dev.alarmClock.enabled";

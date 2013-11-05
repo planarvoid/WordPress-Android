@@ -24,7 +24,7 @@
                   style="@style/Widget.TextView.Playable.Reposter"
                   android:visibility="gone"
                   android:layout_height="wrap_content"
-                  android:drawableLeft="@drawable/ic_repost_states"
+                  android:drawableLeft="@drawable/user_stream_repost"
                   android:drawablePadding="3dp"
                   android:singleLine="true"
                   android:ellipsize="end"

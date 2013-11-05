@@ -61,11 +61,6 @@ public class MyTracklistRow extends PlayableRow {
     }
 
     @Override
-    public void setTitle(boolean pressed) {
-        setTitle();
-    }
-
-    @Override
     public void display(Cursor cursor) {
         display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor));
     }

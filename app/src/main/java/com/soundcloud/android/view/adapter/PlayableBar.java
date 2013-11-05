@@ -90,16 +90,16 @@ public class PlayableBar extends IconLayout {
         if (mPrivateIndicator != null){
             if (playable.isPrivate()) {
                 if (playable.shared_to_count <= 0) {
-                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
+                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
                     mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
                 } else if (playable.shared_to_count == 1){
-                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
+                    mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
                     mPrivateIndicator.setText(playable.user_id == SoundCloudApplication.getUserId() ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
                 } else {
                     if (playable.shared_to_count < 8){
-                        mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange_states);
+                        mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_orange);
                     } else {
-                        mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray_states);
+                        mPrivateIndicator.setBackgroundResource(R.drawable.round_rect_gray);
                     }
                     mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_with_x_people, playable.shared_to_count));
                 }

@@ -85,10 +85,6 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="DialogButton" parent="SDL.Button">
-        <item name="android:textSize">16sp</item>
-    </style>
-
     <!-- ****** ViewPagerIndicator ****** -->
 
     <style name="Widget.ScTabPageIndicatorBase" parent="Widget.TabPageIndicator">
@@ -212,14 +208,14 @@
     </style>
 
     <style name="OnboardSuggestedUserCategoryText">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
     </style>
 
     <style name="OnboardSuggestedUserCategoryUsernamesText">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
         <item name="android:textSize">@dimen/list_txt_sub_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
@@ -460,7 +456,7 @@
         <item name="android:clickable">true</item>
         <item name="android:gravity">center</item>
 
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -496,7 +492,7 @@
 
     <style name="Player.TrackInfo.Row">
         <item name="android:clickable">true</item>
-        <item name="android:background">@drawable/list_selector_background</item>
+        <item name="android:background">@drawable/list_selector_gray</item>
 
         <item name="android:gravity">center_vertical</item>
     </style>
@@ -720,7 +716,7 @@
     </style>
 
     <style name="txt_record_message">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/rec_tips_bubble</item>
         <item name="android:textSize">16sp</item>
@@ -728,12 +724,12 @@
     </style>
 
     <style name="txt_connection_footer">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
         <item name="android:textSize">16sp</item>
     </style>
 
     <style name="txt_not_streamable">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -787,7 +783,7 @@
         <item name="android:textSize">20sp</item>
     </style>
     <style name="txt_search_rdo">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">20sp</item>
     </style>
 
@@ -835,7 +831,7 @@
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
         <item name="android:gravity">center</item>
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textColor">@color/listTxtValue</item>
     </style>
 
 
@@ -1034,7 +1030,7 @@
     <style name="Widget.TextView.Playable.TrackCount">
         <item name="android:layout_below">@id/playable_user_holder</item>
         <item name="android:layout_alignParentRight">true</item>
-        <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
+        <item name="android:textColor">@color/listTxtDarkValue</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:background">@drawable/bg_dark_round_rect</item>
         <item name="android:gravity">center</item>

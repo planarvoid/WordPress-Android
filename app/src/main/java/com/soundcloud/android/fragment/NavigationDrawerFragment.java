@@ -286,8 +286,9 @@ public class NavigationDrawerFragment extends Fragment {
         mProfileViewHolder.followers.setText(getResources().getQuantityString(
                 R.plurals.number_of_followers, user.followers_count, user.followers_count));
 
-        ImageLoader.getInstance().displayImage(ImageSize.T500.formatUri(user.getNonDefaultAvatarUrl()),
-                mProfileViewHolder.imageView, ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
+        String imageUri = ImageSize.T500.formatUri(user.getNonDefaultAvatarUrl());
+        ImageLoader.getInstance().displayImage(imageUri, mProfileViewHolder.imageView,
+                ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
     }
 
     private void selectItem(int position) {
