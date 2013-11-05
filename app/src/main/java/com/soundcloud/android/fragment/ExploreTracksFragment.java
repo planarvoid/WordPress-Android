@@ -106,6 +106,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
+                mSuggestedTracksObservable = buildSuggestedTracksObservable();
                 loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
             }
         });
