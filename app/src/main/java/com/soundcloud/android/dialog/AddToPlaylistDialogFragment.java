@@ -30,10 +30,10 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
+public class AddToPlaylistDialogFragment extends PlaylistDialogFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String KEY_TRACK_TITLE   = "TRACK_TITLE";
+    private static final String KEY_TRACK_TITLE = "TRACK_TITLE";
     private static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
 
     private static final int LOADER_ID = 1;
@@ -43,17 +43,18 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
     private MyPlaylistsAdapter mAdapter;
     private AccountOperations accountOperations;
 
-    public static MyPlaylistsDialogFragment from(Track track) {
+    public static AddToPlaylistDialogFragment from(Track track) {
         Bundle b = new Bundle();
         b.putLong(KEY_TRACK_ID, track.getId());
         b.putString(KEY_TRACK_TITLE, track.title);
 
-        MyPlaylistsDialogFragment fragment = new MyPlaylistsDialogFragment();
+        AddToPlaylistDialogFragment fragment = new AddToPlaylistDialogFragment();
         fragment.setArguments(b);
         return fragment;
     }
 
-    public MyPlaylistsDialogFragment() {}
+    public AddToPlaylistDialogFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -131,6 +132,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
             protected void onStartLoading() {
                 forceLoad();
             }
+
             @Override
             public Cursor loadInBackground() {
                 final String existsCol = "EXISTS (SELECT 1 FROM " + Table.PLAYLIST_TRACKS
@@ -179,7 +181,7 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
         }
 
         public Object getItem(int position) {
-            if (mCursor == null){
+            if (mCursor == null) {
                 return null;
             } else {
                 mCursor.moveToPosition(position);
