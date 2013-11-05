@@ -216,14 +216,14 @@ public class MyPlaylistsDialogFragment extends PlaylistDialogFragment
 
                 // text colors
                 final boolean alreadyAdded = (mCursor.getInt(mCursor.getColumnIndex(COL_ALREADY_ADDED)) == 1);
-                txtTitle.setEnabled(alreadyAdded ? false : true);
+                txtTitle.setEnabled(!alreadyAdded);
 
                 txtTitle.setText(mCursor.getString(mCursor.getColumnIndex(DBHelper.PlaylistTracksView.TITLE)));
                 final int trackCount = mCursor.getInt(mCursor.getColumnIndex(DBHelper.PlaylistTracksView.TRACK_COUNT));
                 if (trackCount == -1) {
                     txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
-                            mContext.getResources().getDrawable(R.drawable.ic_plus), null, null, null);
-                    txtTrackCount.setText("");
+                            null, null, mContext.getResources().getDrawable(R.drawable.ic_plus), null);
+                    txtTrackCount.setText(null);
                 } else {
                     txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
                             mContext.getResources().getDrawable(R.drawable.stats_sounds), null, null, null);
