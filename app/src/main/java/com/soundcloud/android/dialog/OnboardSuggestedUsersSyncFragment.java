@@ -1,6 +1,8 @@
 package com.soundcloud.android.dialog;
 
 
+import static rx.android.AndroidObservables.fromFragment;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -10,7 +12,6 @@ import com.soundcloud.android.service.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.android.RxFragmentObserver;
-import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,10 +38,11 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         if (mFollowingOperations == null) {
-            mFollowingOperations = new FollowingOperations().observeOn(AndroidSchedulers.mainThread());
+            mFollowingOperations = new FollowingOperations();
         }
 
-        mSubscription = mFollowingOperations.waitForActivities(getActivity()).subscribe(new FollowingsSyncObserver(this));
+        mSubscription = fromFragment(this, mFollowingOperations.waitForActivities(getActivity()))
+                .subscribe(new FollowingsSyncObserver(this));
     }
 
     @Override

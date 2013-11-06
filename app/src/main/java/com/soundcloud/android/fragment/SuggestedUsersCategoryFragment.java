@@ -1,13 +1,16 @@
 package com.soundcloud.android.fragment;
 
+import static rx.android.AndroidObservables.fromFragment;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SuggestedUsersAdapter;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.view.GridViewCompat;
+import rx.Observable;
 import rx.android.RxFragmentObserver;
-import rx.android.concurrency.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -27,13 +30,14 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
     private Category mCategory;
     private GridViewCompat mAdapterView;
     private FollowingOperations mFollowingOperations;
+    private final CompositeSubscription mSubscription = new CompositeSubscription();
 
     public SuggestedUsersCategoryFragment() {
         this(new FollowingOperations());
     }
 
     public SuggestedUsersCategoryFragment(FollowingOperations followingOperations) {
-        mFollowingOperations = followingOperations.observeOn(AndroidSchedulers.mainThread());
+        mFollowingOperations = followingOperations;
     }
 
     @Override
@@ -46,6 +50,12 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
         }
         setAdapter(new SuggestedUsersAdapter(mCategory.getUsers()));
 
+    }
+
+    @Override
+    public void onDestroy() {
+        mSubscription.unsubscribe();
+        super.onDestroy();
     }
 
     public void setAdapter(SuggestedUsersAdapter adapter) {
@@ -74,7 +84,8 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mFollowingOperations.toggleFollowingBySuggestedUser(mAdapter.getItem(position)).subscribe(new ToggleFollowingObserver(this));
+        mSubscription.add(fromFragment(this, mFollowingOperations.toggleFollowingBySuggestedUser(mAdapter.getItem(position)))
+                .subscribe(new ToggleFollowingObserver(this)));
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridview setItemChecked
@@ -84,13 +95,13 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
         }
 
         final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
+        Observable<UserAssociation> toggleFollowings;
         if (shouldFollow) {
-            mFollowingOperations.addFollowingsBySuggestedUsers(
-                    mCategory.getNotFollowedUsers(followedUserIds)).subscribe(new ToggleAllObserver(this));
+            toggleFollowings = mFollowingOperations.addFollowingsBySuggestedUsers(mCategory.getNotFollowedUsers(followedUserIds));
         } else {
-            mFollowingOperations.removeFollowingsBySuggestedUsers(
-                    mCategory.getFollowedUsers(followedUserIds)).subscribe(new ToggleAllObserver(this));
+            toggleFollowings = mFollowingOperations.removeFollowingsBySuggestedUsers(mCategory.getFollowedUsers(followedUserIds));
         }
+        mSubscription.add(fromFragment(this, toggleFollowings).subscribe(new ToggleAllObserver(this)));
     }
 
     private static final class ToggleFollowingObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, UserAssociation> {
