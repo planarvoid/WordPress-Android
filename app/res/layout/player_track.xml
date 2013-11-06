@@ -5,7 +5,9 @@
 
     <com.soundcloud.android.view.adapter.PlayableBar
             android:id="@+id/playable_bar"
-            android:background="@color/playerControlBackground"
+            android:background="@drawable/player_track_header_background"
+            android:focusable="true"
+            android:clickable="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
