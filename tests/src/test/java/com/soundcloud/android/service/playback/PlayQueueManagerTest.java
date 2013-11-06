@@ -18,7 +18,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -30,7 +29,6 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.android.concurrency.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
 
 import android.content.Context;
@@ -42,7 +40,7 @@ import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
-    private final String playQueueUri = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v1&playSource-exploreTag=2&playSource-originUrl=1&playSource-initialTrackId=1";
+    private final String playQueueUri = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v1&playSource-exploreVersion=2&playSource-originUrl=1&playSource-initialTrackId=1";
 
     private PlayQueueManager playQueueManager;
 
@@ -79,9 +77,14 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSetNewPlayQueueAsCurrentPlayQueue() throws Exception {
-
         playQueueManager.setNewPlayQueue(playQueue);
         expect(playQueueManager.getCurrentPlayQueue()).toEqual(playQueue);
+    }
+
+    @Test
+    public void shouldSetNewPlayQueueCurrentTrackToManuallyTriggered() throws Exception {
+        playQueueManager.setNewPlayQueue(playQueue);
+        verify(playQueue).setCurrentTrackToUserTriggered();
     }
 
     @Test
@@ -107,7 +110,7 @@ public class PlayQueueManagerTest {
         Observable<PlayQueue> observable = Mockito.mock(Observable.class);
         when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
         playQueueManager.setNewPlayQueue(playQueue);
-        verify(observable).subscribe(DefaultObserver.NOOP_OBSERVER);
+        verify(observable).subscribe(any(Observer.class));
     }
 
     @Test
@@ -143,7 +146,7 @@ public class PlayQueueManagerTest {
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
         Observable<PlayQueue> observable = Mockito.mock(Observable.class);
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
-        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.EMPTY)).thenReturn(observable);
+        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
 
         PlayQueueManager.ResumeInfo resumeInfo = playQueueManager.loadPlayQueue();
         expect(resumeInfo.getTrackId()).toEqual(456L);
@@ -156,7 +159,7 @@ public class PlayQueueManagerTest {
         Observable<PlayQueue> observable = Mockito.mock(Observable.class);
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.EMPTY)).thenReturn(observable);
+        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
 
         playQueueManager.loadPlayQueue();
         verify(observable).subscribe(any(Action1.class));

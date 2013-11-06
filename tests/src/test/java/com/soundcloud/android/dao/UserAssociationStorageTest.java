@@ -24,7 +24,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.task.collection.RemoteCollectionLoaderTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -435,7 +434,7 @@ public class UserAssociationStorageTest {
         UserAssociation association2 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(1).getId());
         expect(association2.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
 
-        storage.setFollowingsAsSynced(Lists.newArrayList(association1, association2)).subscribe(ScActions.NO_OP);
+        storage.setFollowingsAsSynced(Lists.newArrayList(association1, association2)).toBlockingObservable().last();
 
         expect(Content.ME_FOLLOWINGS).toHaveCount(2);
         association1 = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, users.get(0).getId());

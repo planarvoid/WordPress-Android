@@ -77,7 +77,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
                 appendingLayout.setOnClickListener(null);
                 break;
             case ERROR:
-                appendingLayout.setBackgroundResource(R.drawable.list_selector_background);
+                appendingLayout.setBackgroundResource(R.drawable.list_selector_gray);
                 appendingLayout.findViewById(R.id.list_loading_view).setVisibility(View.GONE);
                 appendingLayout.findViewById(R.id.list_loading_retry_view).setVisibility(View.VISIBLE);
                 appendingLayout.setOnClickListener(new View.OnClickListener() {

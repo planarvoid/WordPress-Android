@@ -25,7 +25,7 @@
     </style>
 
     <style name="Theme.SoundCloud" parent="Theme.SoundCloud.Base">
-        <item name="actionBarItemBackground">@drawable/action_item_background_selector</item>
+        <item name="actionBarItemBackground">@drawable/item_background_dark</item>
         <item name="dropDownListViewStyle">@style/DropDownListView</item>
         <item name="actionDropDownStyle">@style/DropDownNav</item>
         <item name="actionBarStyle">@style/ActionBar.SoundCloud</item>
@@ -36,6 +36,7 @@
     </style>
 
     <style name="ActionBar.SoundCloud" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/dark_bg</item>
         <item name="android:displayOptions">homeAsUp|showTitle</item>
     </style>
 
@@ -43,6 +44,7 @@
     <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat">
         <item name="popupMenuStyle">@style/PopupMenu</item>
         <item name="dropDownListViewStyle">@style/DropDownListView</item>
+        <item name="searchViewAutoCompleteTextView">@style/SearchAutoCompleteTextView</item>
     </style>
 
     <style name="Theme.SoundCloud.NoBg">
@@ -54,7 +56,7 @@
 
     <style name="Theme.ScAuth" parent="Theme.SoundCloud.NoActionBar">
         <item name="android:buttonStyle">@style/btn_default</item>
-        <item name="android:windowBackground">@color/darkBg</item>
+        <item name="android:windowBackground">@color/dark_bg</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.Light.AutoCompleteTextView</item>
         <item name="android:dropDownItemStyle">@style/Widget.AppCompat.Light.DropDownItem.Spinner</item>

@@ -3,7 +3,10 @@ package com.soundcloud.android.rx;
 import rx.Scheduler;
 import rx.concurrency.Schedulers;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class ScSchedulers {
 
@@ -14,10 +17,21 @@ public final class ScSchedulers {
 
     static {
         STORAGE_SCHEDULER = Schedulers.threadPoolForIO();
-        //TODO: could we use threadPoolForIO here as well?
-        API_SCHEDULER = Schedulers.executor(Executors.newFixedThreadPool(NUM_API_THREADS));
+        API_SCHEDULER = Schedulers.executor(createApiExecutor());
     }
 
+    private static Executor createApiExecutor() {
+        return Executors.newFixedThreadPool(NUM_API_THREADS, new ThreadFactory() {
+            final AtomicLong counter = new AtomicLong();
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, "RxApiThreadPool-" + counter.incrementAndGet());
+                t.setDaemon(true);
+                return t;
+            }
+        });
+    }
 
 
 }

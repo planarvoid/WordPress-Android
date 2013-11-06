@@ -135,10 +135,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        if (activity instanceof MainActivity){
-            ((MainActivity) activity).onSectionAttached(getArguments().getInt(EXTRA_TITLE_ID));
-        }
-
         if (mContentUri == null) {
             // only should happen once
             mContentUri = (Uri) getArguments().get(EXTRA_CONTENT_URI);

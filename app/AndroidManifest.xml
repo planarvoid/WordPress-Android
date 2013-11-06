@@ -364,7 +364,7 @@
 
         <activity android:name=".activity.create.EmailPicker" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:name=".activity.create.LocationPicker" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
-        <activity android:name=".activity.auth.EmailConfirm"/>
+        <activity android:name=".activity.auth.EmailConfirmationActivity"/>
         <activity android:hardwareAccelerated="false" android:name=".cropimage.CropImageActivity"/>
 
         <!-- for testing purposes -->

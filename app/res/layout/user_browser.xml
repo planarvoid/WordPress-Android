@@ -57,7 +57,7 @@
                     android:layout_alignParentRight="true">
 
                 <TextView android:layout_width="wrap_content"
-                          android:drawableLeft="@drawable/ic_stats_sounds_states"
+                          android:drawableLeft="@drawable/stats_sounds"
                           android:drawablePadding="3dip"
                           android:layout_height="wrap_content"
                           android:id="@+id/tracks"
@@ -73,7 +73,7 @@
                       android:layout_width="1px"
                       android:id="@+id/vr_stats"/>
                 <TextView android:layout_width="wrap_content"
-                          android:drawableLeft="@drawable/ic_stats_followers_states"
+                          android:drawableLeft="@drawable/stats_followers"
                           android:drawablePadding="3dip"
                           android:layout_height="wrap_content"
                           android:id="@+id/followers"

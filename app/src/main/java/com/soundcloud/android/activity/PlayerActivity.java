@@ -8,7 +8,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dialog.MyPlaylistsDialogFragment;
+import com.soundcloud.android.dialog.AddToPlaylistDialogFragment;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
@@ -104,22 +104,25 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     public boolean onSupportNavigateUp() {
         Uri uri = CloudPlaybackService.getPlayQueueUri();
         Intent upIntent = null;
-        switch (Content.match(uri)){
-            case PLAYLIST:
-                upIntent = new Intent(Actions.PLAYLIST).setData(uri);
-                break;
+        // had a case where URI was null; guess this can happen if the playback service was never started? ugh.
+        if (uri != null) {
+            switch (Content.match(uri)){
+                case PLAYLIST:
+                    upIntent = new Intent(Actions.PLAYLIST).setData(uri);
+                    break;
 
-            case ME_SOUND_STREAM:
-                upIntent = new Intent(Actions.STREAM);
-                break;
+                case ME_SOUND_STREAM:
+                    upIntent = new Intent(Actions.STREAM);
+                    break;
 
-            case ME_SOUNDS:
-                upIntent = new Intent(Actions.YOUR_SOUNDS);
-                break;
+                case ME_SOUNDS:
+                    upIntent = new Intent(Actions.YOUR_SOUNDS);
+                    break;
 
-            case ME_LIKES:
-                upIntent = new Intent(Actions.YOUR_LIKES);
-                break;
+                case ME_LIKES:
+                    upIntent = new Intent(Actions.YOUR_LIKES);
+                    break;
+            }
         }
 
         if (upIntent != null){
@@ -193,7 +196,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     public void onAddToPlaylist(Track track) {
         if (track != null && isForeground()) {
-            MyPlaylistsDialogFragment.from(track).show(getSupportFragmentManager(), "playlist_dialog");
+            AddToPlaylistDialogFragment.from(track).show(getSupportFragmentManager(), "playlist_dialog");
         }
     }
 
@@ -370,10 +373,14 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     private final View.OnClickListener mPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
-            final CloudPlaybackService playbackService = mPlaybackService;
+            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
+            final CloudPlaybackService playbackService = mPlaybackService;
             if (playbackService != null && mPlayQueue != PlayQueue.EMPTY) {
-                if (getCurrentDisplayedTrackPosition() != mPlayQueue.getPosition()) {
+
+                if (!CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()
+                        && getCurrentDisplayedTrackPosition() != mPlayQueue.getPosition()) {
+                    // play whatever track is currently on the screen
                     playbackService.setQueuePosition(getCurrentDisplayedTrackPosition());
                 } else {
                     playbackService.togglePlayback();
@@ -520,7 +527,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     refreshTrackPager();
                 }
             } else if (action.equals(Broadcasts.META_CHANGED)) {
-                onMetaChanged(queuePos);
+                mPlayQueue.setPosition(queuePos);
+                onMetaChanged();
             } else if (action.equals(Broadcasts.RELATED_LOAD_STATE_CHANGED)) {
                 if (mPlayQueue != PlayQueue.EMPTY){
 
@@ -569,13 +577,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         }
     };
 
-    private void onMetaChanged(int queuePos) {
+    private void onMetaChanged() {
 
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
         final int playPosition = getCurrentDisplayedTrackPosition();
-        if (playPosition != queuePos) {
+        if (playPosition != mPlayQueue.getPosition()) {
             if (playPosition != -1
-                    && queuePos == playPosition + 1
+                    && mPlayQueue.getPosition() == playPosition + 1
                     && !mTrackPager.isScrolling()) {
                 // auto advance
                 mTrackPager.next();
@@ -585,7 +593,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         }
 
         for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
-            if (ptv.getPlayPosition() != queuePos) {
+            if (ptv.getPlayPosition() != mPlayQueue.getPosition()) {
                 ptv.getWaveformController().reset(false);
             }
         }

@@ -52,12 +52,12 @@ public class StatsView extends View {
 
         mBounds = new Rect();
 
-        mPlaysIcon    = r.getDrawable(R.drawable.ic_stats_plays_states);
-        mLikesIcon    = r.getDrawable(R.drawable.ic_stats_likes_states);
-        mLikedIcon    = r.getDrawable(R.drawable.ic_stats_liked_states);
-        mRepostsIcon  = r.getDrawable(R.drawable.ic_stats_reposts_states);
-        mRepostedIcon = r.getDrawable(R.drawable.ic_stats_reposted_states);
-        mCommentsIcon = r.getDrawable(R.drawable.ic_stats_comments_states);
+        mPlaysIcon    = r.getDrawable(R.drawable.stats_plays);
+        mLikesIcon    = r.getDrawable(R.drawable.stats_likes);
+        mLikedIcon    = r.getDrawable(R.drawable.stats_liked);
+        mRepostsIcon  = r.getDrawable(R.drawable.stats_stream_repost);
+        mRepostedIcon = r.getDrawable(R.drawable.stats_stream_repost_done);
+        mCommentsIcon = r.getDrawable(R.drawable.stats_comments);
         mIcons        = new Drawable[]{ mPlaysIcon, mLikesIcon, mRepostsIcon, mCommentsIcon };
 
         mSeparator    = r.getDrawable(R.drawable.stat_divider);
@@ -68,7 +68,7 @@ public class StatsView extends View {
         mFontOffset = r.getDimensionPixelSize(R.dimen.stats_view_font_offset);
 
         mTextColor    = r.getColor(R.color.statsColor);
-        mPressedColor = r.getColor(R.color.statsColorPressed);
+        mPressedColor = r.getColor(R.color.statsColor);
 
         textPaint = new Paint();
         textPaint.setColor(mTextColor);

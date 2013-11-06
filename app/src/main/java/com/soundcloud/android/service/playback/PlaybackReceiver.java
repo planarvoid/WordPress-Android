@@ -3,7 +3,7 @@ package com.soundcloud.android.service.playback;
 import static com.soundcloud.android.service.playback.CloudPlaybackService.Actions;
 import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
 import static com.soundcloud.android.service.playback.CloudPlaybackService.PlayExtras;
-import static com.soundcloud.android.service.playback.State.EMPTY_PLAYLIST;
+import static com.soundcloud.android.service.playback.State.WAITING_FOR_PLAYLIST;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -83,7 +83,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
                 mPlayQueueManager.retryRelatedTracksFetch();
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
-                if (mPlaybackService.getState() == EMPTY_PLAYLIST) {
+                if (mPlaybackService.getState() == WAITING_FOR_PLAYLIST) {
                     mPlaybackService.openCurrent();
                 }
             } else if (Actions.LOAD_TRACK_INFO.equals(action)) {

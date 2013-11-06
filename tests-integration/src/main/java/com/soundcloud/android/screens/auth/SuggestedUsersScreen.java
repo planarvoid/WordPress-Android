@@ -77,9 +77,10 @@ public class SuggestedUsersScreen {
         return ((ViewGroup) solo.getView(android.R.id.list)).getChildAt(index);
     }
 
+    //TODO: Investigate why does it take 60 seconds to show the stream
     public HomeScreen finish() {
         solo.clickOnActionBarItem(R.id.finish);
-        solo.waitForActivity(MainActivity.class, 30000);
+        solo.waitForActivity(MainActivity.class, 60000);
         waiter.waitForListContent();
         return new HomeScreen(solo);
     }

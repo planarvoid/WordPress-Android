@@ -19,23 +19,24 @@ import java.util.List;
 
 public class PlayQueue implements Parcelable, Iterable<Long> {
     public static final String EXTRA = "PlayQueue";
-    public static final PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1, PlaySourceInfo.EMPTY);
+    public static final PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1, PlaySourceInfo.empty());
 
     private int mPosition;
+    private boolean mCurrentTrackIsUserTriggered;
     private List<Long> mTrackIds = Collections.emptyList();
     private AppendState mAppendState = AppendState.IDLE;
-    private PlaySourceInfo mPlaySourceInfo = PlaySourceInfo.EMPTY;
+    private PlaySourceInfo mPlaySourceInfo = PlaySourceInfo.empty();
     private Uri mSourceUri = Uri.EMPTY; // just for "back to set" functionality in the Action Bar
 
     public enum AppendState {
         IDLE, LOADING, ERROR, EMPTY;
 
     }
+
     public PlayQueue(Long id) {
         mTrackIds = Lists.newArrayList(id);
         mPosition = 0;
     }
-
     public PlayQueue(List<Long> trackIds, int playPosition) {
         mTrackIds = trackIds;
         mPosition = playPosition;
@@ -53,7 +54,7 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
 
     @VisibleForTesting
     public PlayQueue(ArrayList<Long> trackIds, int playPosition, AppendState appendState) {
-        this(trackIds, playPosition, PlaySourceInfo.EMPTY);
+        this(trackIds, playPosition, PlaySourceInfo.empty());
         mAppendState = appendState;
     }
 
@@ -66,6 +67,7 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
         for (long n : trackIds) mTrackIds.add(n);
 
         mPosition = in.readInt();
+        mCurrentTrackIsUserTriggered = in.readInt() == 1;
         mAppendState = AppendState.valueOf(in.readString());
         mSourceUri = in.readParcelable(Uri.class.getClassLoader());
         mPlaySourceInfo = new PlaySourceInfo(in.readBundle());
@@ -74,6 +76,10 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
     @Override
     public Iterator<Long> iterator() {
         return mTrackIds.iterator();
+    }
+
+    public void setCurrentTrackToUserTriggered() {
+        mCurrentTrackIsUserTriggered = true;
     }
 
     /* package */ void setAppendState(AppendState appendState) {
@@ -99,6 +105,7 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
     public boolean setPosition(int position) {
         if (position < mTrackIds.size()) {
             mPosition = position;
+            mCurrentTrackIsUserTriggered = true;
             return true;
         } else {
             return false;
@@ -121,11 +128,6 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
         return mTrackIds.indexOf(trackId);
     }
 
-    // TODO, set this to the source URI
-    public void setSourceUri(Uri uri) {
-        mSourceUri = uri;
-    }
-
     public Uri getSourceUri() {
         return mSourceUri;
     }
@@ -146,12 +148,13 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
         return mAppendState == AppendState.EMPTY;
     }
 
-    /**
-     * TODO : We need to figure out how to decouple event logger params from the playqueue
-     */
-    public String getCurrentEventLoggerParams() {
-        final TrackSourceInfo trackSourceInfo = mPlaySourceInfo.getTrackSourceById(getCurrentTrackId());
-        return trackSourceInfo.createEventLoggerParams(mPlaySourceInfo);
+    public String getEventLoggerParamsForTrack() {
+        return getEventLoggerParamsForTrack(getCurrentTrackId());
+    }
+    public String getEventLoggerParamsForTrack(long trackId) {
+        final TrackSourceInfo trackSourceInfo = mPlaySourceInfo.getTrackSource(trackId);
+        trackSourceInfo.setTrigger(mCurrentTrackIsUserTriggered);
+        return trackSourceInfo.createEventLoggerParams(mSourceUri);
     }
 
     /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {
@@ -161,14 +164,16 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
     public boolean moveToPrevious() {
         if (mPosition > 0) {
             mPosition--;
+            mCurrentTrackIsUserTriggered = true;
             return true;
         }
         return false;
     }
 
-    public boolean moveToNext() {
+    public boolean moveToNext(boolean userTriggered) {
         if (!isLastTrack()) {
             mPosition++;
+            mCurrentTrackIsUserTriggered = userTriggered;
             return true;
         }
         return false;
@@ -183,6 +188,7 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
         dest.writeInt(mTrackIds.size());
         dest.writeLongArray(Longs.toArray(mTrackIds));
         dest.writeInt(mPosition);
+        dest.writeInt(mCurrentTrackIsUserTriggered ? 1 : 0);
         dest.writeString(mAppendState.name());
         dest.writeParcelable(mSourceUri, 0);
         dest.writeBundle(mPlaySourceInfo.getData());

@@ -346,7 +346,8 @@ public class SoundCloudRxHttpClientTest {
 
         final HttpPost httpPost = request.buildRequest(HttpPost.class);
         expect(EntityUtils.toString(httpPost.getEntity())).toEqual(jsonContent);
-        expect(httpPost.getFirstHeader("Content-Type").getValue()).toEqual("application/json; charset=utf-8");
+        // do not use MediaType.JSON_UTF8; the public API does not accept qualified media types that include charsets
+        expect(httpPost.getFirstHeader("Content-Type").getValue()).toEqual("application/json");
     }
 
     @Test

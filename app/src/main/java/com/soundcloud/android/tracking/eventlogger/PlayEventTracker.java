@@ -35,8 +35,7 @@ public class PlayEventTracker {
         String TRIGGER = "trigger";
         String SOURCE = "source";
         String SOURCE_VERSION = "source_version";
-        String EXPLORE_TAG = "exploreTag";
-        String SET = "set"; // currently unused, but a valid eventlogger param that we might add soon
+        String SET = "set";
     }
 
     private static final int INSERT_TOKEN = 0;

@@ -101,7 +101,7 @@ public class PlaybackOperationsTest {
         expect(Content.ME_LIKES).toHaveCount(2);
 
         playbackOperations = new PlaybackOperations(modelManager, new TrackStorage().<TrackStorage>subscribeOn(Schedulers.immediate()));
-        playbackOperations.playFromUriWithInitialTrack(Robolectric.application, Content.ME_LIKES.uri, 4, track);
+        playbackOperations.playFromUriWithInitialTrack(Robolectric.application, Content.ME_LIKES.uri, 1, track);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedService = application.getNextStartedService();
@@ -111,10 +111,29 @@ public class PlaybackOperationsTest {
 
         PlayQueue playQueue = startedService.getParcelableExtra(PlayQueue.EXTRA);
         expect(playQueue).not.toBeNull();
-        expect(playQueue.getPosition()).toBe(4);
+        expect(playQueue.getPosition()).toBe(1);
         expect(playQueue.size()).toBe(2);
         expect(playQueue.getTrackIdAt(0)).toBe(2L);
         expect(playQueue.getTrackIdAt(1)).toBe(1L);
+    }
+
+    @Test
+    public void playFromAdapterShouldRemoveDuplicates() throws Exception {
+        ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L), new Track(3L), new Track(2L), new Track(1L));
+
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 4, null);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        Intent startedService = application.getNextStartedService();
+
+        expect(startedService).not.toBeNull();
+        PlayQueue playQueue = startedService.getParcelableExtra(PlayQueue.EXTRA);
+        expect(playQueue).not.toBeNull();
+        expect(playQueue.size()).toBe(3);
+        expect(playQueue.getPosition()).toBe(2);
+        expect(playQueue.getTrackIdAt(0)).toBe(2L);
+        expect(playQueue.getTrackIdAt(1)).toBe(3L);
+        expect(playQueue.getTrackIdAt(2)).toBe(1L);
     }
 
     @Test
@@ -129,7 +148,7 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playExploreTrackShouldForwardTrackingTag() throws Exception {
+    public void playExploreTrackShouldForwardTrackingTagAndInitialTrackId() throws Exception {
         playbackOperations.playExploreTrack(Robolectric.application, track, "tracking_tag");
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -138,6 +157,7 @@ public class PlaybackOperationsTest {
         expect(startedService).not.toBeNull();
         PlaySourceInfo playSourceInfo = startedService.getParcelableExtra(CloudPlaybackService.PlayExtras.trackingInfo);
         expect(playSourceInfo.getExploreTag()).toEqual("tracking_tag");
+        expect(playSourceInfo.getInitialTrackId()).toEqual(track.getId());
     }
 
     @Test

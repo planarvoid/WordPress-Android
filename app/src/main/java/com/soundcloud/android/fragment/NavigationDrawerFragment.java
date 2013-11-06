@@ -40,16 +40,15 @@ import java.util.EnumSet;
 public class NavigationDrawerFragment extends Fragment {
 
     private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
-    public static final int NO_IMAGE = -1;
+    private static final int NO_IMAGE = -1;
 
     private NavigationDrawerCallbacks mCallbacks;
     private ActionBarDrawerToggle mDrawerToggle;
 
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerListView;
-    private View mFragmentContainerView;
 
-    private int mCurrentSelectedPosition = 1; //Default to Stream
+    private int mCurrentSelectedPosition = NavItem.STREAM.ordinal();
     private ShowcaseView mCurrentMenuShowcase;
 
     private ProfileViewHolder mProfileViewHolder;
@@ -64,7 +63,7 @@ public class NavigationDrawerFragment extends Fragment {
         private final int textId;
         private final int imageId;
 
-        private NavItem(int textId, int imageId){
+        private NavItem(int textId, int imageId) {
             this.textId = textId;
             this.imageId = imageId;
         }
@@ -74,145 +73,6 @@ public class NavigationDrawerFragment extends Fragment {
     private static final EnumSet<NavItem> TEXT_NAV_ITEMS =
             EnumSet.of(NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS);
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setHasOptionsMenu(true);
-        if (savedInstanceState != null) {
-            selectItem(savedInstanceState.getInt(STATE_SELECTED_POSITION));
-
-        } else if (!handleIntent(getActivity().getIntent())){
-            selectItem(mCurrentSelectedPosition);
-        }
-    }
-
-    public boolean handleIntent(Intent intent){
-        final String action = intent.getAction();
-        if (ScTextUtils.isNotBlank(action)){
-            if (Actions.STREAM.equals(action)){
-                selectItem(NavItem.STREAM.ordinal());
-                return true;
-
-            } else if (Actions.YOUR_LIKES.equals(action)){
-                selectItem(NavItem.LIKES.ordinal());
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        mDrawerListView = (ListView) inflater.inflate( R.layout.fragment_navigation_drawer, container, false);
-        mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(position);
-            }
-        });
-        mDrawerListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-
-
-        final View view = inflater.inflate(R.layout.nav_drawer_profile_item, container, false);
-        mDrawerListView.addHeaderView(view);
-
-        mProfileViewHolder = new ProfileViewHolder();
-        mProfileViewHolder.imageView = (ImageView) view.findViewById(R.id.avatar);
-        mProfileViewHolder.username = (TextView) view.findViewById(R.id.username);
-        mProfileViewHolder.location = (TextView) view.findViewById(R.id.location);
-
-        configureProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser());
-
-        int i = 0;
-        NavItem[] data = new NavItem[TEXT_NAV_ITEMS.size()];
-        for (NavItem navItem : TEXT_NAV_ITEMS){
-            data[i++] = navItem;
-        }
-
-        mDrawerListView.setAdapter(new DrawerAdapter(
-                getActionBar().getThemedContext(),
-                R.layout.nav_drawer_item, data));
-
-        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-        return mDrawerListView;
-    }
-
-    public boolean isDrawerOpen() {
-        return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
-    }
-
-    public void setUp(int fragmentId, DrawerLayout drawerLayout) {
-        mFragmentContainerView = getActivity().findViewById(fragmentId);
-        mDrawerLayout = drawerLayout;
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
-
-        mDrawerToggle = new ActionBarDrawerToggle(
-                getActivity(),                    /* host Activity */
-                mDrawerLayout,                    /* DrawerLayout object */
-                R.drawable.ic_drawer,             /* nav drawer image to replace 'Up' caret */
-                R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
-                R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
-        ) {
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-                if (!isAdded()) {
-                    return;
-                }
-                getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-
-                if (mCurrentMenuShowcase != null && mCurrentMenuShowcase.isShown()){
-                    mCurrentMenuShowcase.hide();
-                }
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                if (!isAdded()) {
-                    return;
-                }
-
-                getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-
-                mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(getActivity(),
-                        mDrawerListView.getChildAt(2).findViewById(R.id.nav_item_text));
-            }
-        };
-
-        // Defer code dependent on restoration of previous instance state.
-        mDrawerLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mDrawerToggle.syncState();
-            }
-        });
-
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-    }
-
-    public void updateProfileItem(User user) {
-        configureProfileItem(user);
-    }
-
-    private void selectItem(int position) {
-        mCurrentSelectedPosition = position;
-        if (mDrawerListView != null) {
-            mDrawerListView.setItemChecked(position, true);
-        }
-        if (mDrawerLayout != null) {
-            mDrawerLayout.closeDrawer(mFragmentContainerView);
-        }
-        if (mCallbacks != null) {
-            mCallbacks.onNavigationDrawerItemSelected(position);
-        }
-    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -222,6 +82,61 @@ public class NavigationDrawerFragment extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException("Activity must implement NavigationDrawerCallbacks.");
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
+        if (savedInstanceState != null) {
+            final int previousPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
+            // TODO: user profile needs special treatment since it's an Activity, not a fragment
+            // Can remove this once we port this over to be a fragment as well
+            if (previousPosition != NavItem.PROFILE.ordinal()) {
+                selectItem(previousPosition);
+            }
+
+        } else if (!handleIntent(getActivity().getIntent())) {
+            selectItem(mCurrentSelectedPosition);
+        }
+    }
+
+    public boolean handleIntent(Intent intent) {
+        final String action = intent.getAction();
+        if (ScTextUtils.isNotBlank(action)) {
+            if (Actions.STREAM.equals(action)) {
+                selectItem(NavItem.STREAM.ordinal());
+                return true;
+
+            } else if (Actions.YOUR_LIKES.equals(action)) {
+                selectItem(NavItem.LIKES.ordinal());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Update the checked state of the nav items to the last known position. It's important to do this in onResume
+        // as long as the user profile opens in a new activity, since when returning via the up button would otherwise
+        // not update it to the last selected content fragment
+        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        mDrawerListView = setupDrawerListView(inflater, container);
+        return mDrawerListView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mDrawerLayout = setupDrawerLayout();
     }
 
     @Override
@@ -247,7 +162,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // If the drawer is open, show the global app actions in the action bar. See also
         // showGlobalContextActionBar, which controls the top-left area of the action bar.
-        if (mDrawerLayout != null && isDrawerOpen()) {
+        if (isDrawerOpen()) {
             inflater.inflate(R.menu.global, menu);
             showGlobalContextActionBar();
         }
@@ -260,6 +175,134 @@ public class NavigationDrawerFragment extends Fragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private ListView setupDrawerListView(LayoutInflater inflater, ViewGroup container) {
+        ListView drawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+        drawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectItem(position);
+            }
+        });
+        drawerListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+
+        View userProfileHeader = setupUserProfileHeader(inflater, container);
+        drawerListView.addHeaderView(userProfileHeader);
+
+        int i = 0;
+        NavItem[] data = new NavItem[TEXT_NAV_ITEMS.size()];
+        for (NavItem navItem : TEXT_NAV_ITEMS) {
+            data[i++] = navItem;
+        }
+
+        drawerListView.setAdapter(new DrawerAdapter(
+                getActionBar().getThemedContext(),
+                R.layout.nav_drawer_item, data));
+
+        return drawerListView;
+    }
+
+    private View setupUserProfileHeader(LayoutInflater inflater, ViewGroup container) {
+        final View view = inflater.inflate(R.layout.nav_drawer_profile_item, container, false);
+
+        mProfileViewHolder = new ProfileViewHolder();
+        mProfileViewHolder.imageView = (ImageView) view.findViewById(R.id.avatar);
+        mProfileViewHolder.username = (TextView) view.findViewById(R.id.username);
+        mProfileViewHolder.followers = (TextView) view.findViewById(R.id.followers_count);
+
+        updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser());
+
+        return view;
+    }
+
+    private DrawerLayout setupDrawerLayout() {
+        DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
+        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+
+        mDrawerToggle = new ActionBarDrawerToggle(
+                getActivity(),                    /* host Activity */
+                drawerLayout,                    /* DrawerLayout object */
+                R.drawable.ic_drawer,             /* nav drawer image to replace 'Up' caret */
+                R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
+                R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
+        ) {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                if (!isAdded()) {
+                    return;
+                }
+                getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+
+                if (mCurrentMenuShowcase != null && mCurrentMenuShowcase.isShown()) {
+                    mCurrentMenuShowcase.hide();
+                }
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                if (!isAdded()) {
+                    return;
+                }
+
+                getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+
+                mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(getActivity(),
+                        mDrawerListView.getChildAt(2).findViewById(R.id.nav_item_text));
+            }
+        };
+
+        // Defer code dependent on restoration of previous instance state.
+        drawerLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mDrawerToggle.syncState();
+            }
+        });
+
+        drawerLayout.setDrawerListener(mDrawerToggle);
+
+        return drawerLayout;
+    }
+
+    public boolean isDrawerOpen() {
+        return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(getView());
+    }
+
+    public void closeDrawer() {
+        if (isDrawerOpen()) {
+            mDrawerLayout.closeDrawer(getView());
+        }
+    }
+
+    public void updateProfileItem(User user) {
+        mProfileViewHolder.username.setText(user.getUsername());
+        mProfileViewHolder.followers.setText(getResources().getQuantityString(
+                R.plurals.number_of_followers, user.followers_count, user.followers_count));
+
+        String imageUri = ImageSize.T500.formatUri(user.getNonDefaultAvatarUrl());
+        ImageLoader.getInstance().displayImage(imageUri, mProfileViewHolder.imageView,
+                ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
+    }
+
+    private void selectItem(int position) {
+        // TODO: Since the user profile currently opens in a new activity, we must not adjust the current selection
+        // index. Remove this workaround when the user browser has become a fragment too
+        if (position != NavItem.PROFILE.ordinal()) {
+            mCurrentSelectedPosition = position;
+        }
+        if (mDrawerLayout != null) {
+            mDrawerLayout.closeDrawer(getView());
+        }
+        if (mCallbacks != null) {
+            mCallbacks.onNavigationDrawerItemSelected(position);
+        }
     }
 
     /**
@@ -288,22 +331,9 @@ public class NavigationDrawerFragment extends Fragment {
         void onNavigationDrawerItemSelected(int position);
     }
 
-    private void configureProfileItem(User user) {
-        mProfileViewHolder.username.setText(user.getUsername());
-        final String location = user.getLocation();
-        if (ScTextUtils.isNotBlank(location)) {
-            mProfileViewHolder.location.setText(location);
-        } else {
-            mProfileViewHolder.location.setVisibility(View.GONE);
-        }
-
-        ImageLoader.getInstance().displayImage(ImageSize.T500.formatUri(user.getNonDefaultAvatarUrl()),
-                mProfileViewHolder.imageView, ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
-    }
-
     private static class ProfileViewHolder {
         public ImageView imageView;
-        public TextView username, location;
+        public TextView username, followers;
     }
 
     private class DrawerAdapter extends ArrayAdapter<NavItem> {

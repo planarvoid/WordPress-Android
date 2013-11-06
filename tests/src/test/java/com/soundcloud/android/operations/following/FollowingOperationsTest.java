@@ -25,7 +25,6 @@ import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.rx.ScActions;
 import com.soundcloud.android.service.sync.SyncStateManager;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -151,7 +150,7 @@ public class FollowingOperationsTest {
         when(syncStateManager.forceToStale(Content.ME_SOUND_STREAM)).thenReturn(observable);
         when(followStatus.isEmpty()).thenReturn(true, false);
         ops.addFollowing(user);
-        verify(observable).subscribe(ScActions.NO_OP);
+        verify(observable).subscribe(any(Observer.class));
     }
 
     @Test
@@ -159,7 +158,7 @@ public class FollowingOperationsTest {
         when(syncStateManager.forceToStale(Content.ME_SOUND_STREAM)).thenReturn(observable);
         when(followStatus.isEmpty()).thenReturn(true, false);
         ops.addFollowings(users);
-        verify(observable).subscribe(ScActions.NO_OP);
+        verify(observable).subscribe(any(Observer.class));
     }
 
     @Test

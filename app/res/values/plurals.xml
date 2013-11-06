@@ -35,12 +35,17 @@
 
     <!-- SoundCloud resource plurals -->
     <plurals name="number_of_sounds">
-        <item quantity="one">one sound</item>
-        <item quantity="other">%d sounds</item>
+        <item quantity="one">one track</item>
+        <item quantity="other">%d tracks</item>
     </plurals>
     <plurals name="number_of_others">
         <item quantity="one">and 1 other</item>
         <item quantity="other">and %d others</item>
+    </plurals>
+    <plurals name="number_of_followers">
+        <item quantity="one">1 follower</item>
+        <item quantity="many">%d followers</item>
+        <item quantity="other">No followers</item>
     </plurals>
 
 </resources>

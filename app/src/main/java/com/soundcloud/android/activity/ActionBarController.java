@@ -7,11 +7,8 @@ import com.soundcloud.android.activity.landing.News;
 import com.soundcloud.android.activity.landing.WhoToFollowActivity;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.adapter.SuggestionsAdapter;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.app.SearchManager;
@@ -26,17 +23,16 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.lang.reflect.Field;
 
 public class ActionBarController {
-    @NotNull protected ActionBarOwner mOwner;
-    @NotNull protected Activity mActivity;
-
-    @Nullable private View              mActionBarCustomView;
+    @NotNull
+    protected ActionBarOwner mOwner;
+    @NotNull
+    protected Activity mActivity;
 
     private SuggestionsAdapter mSuggestionsAdapter;
     private final AndroidCloudAPI mAndroidCloudAPI;
@@ -46,11 +42,12 @@ public class ActionBarController {
 
         @NotNull
         public ActionBarActivity getActivity();
-        public int          getMenuResourceId();
-        public boolean      restoreActionBar();
+        public int getMenuResourceId();
+        public boolean restoreActionBar();
     }
+
     public ActionBarController(@NotNull ActionBarOwner owner, AndroidCloudAPI androidCloudAPI) {
-        mOwner    = owner;
+        mOwner = owner;
         mActivity = owner.getActivity();
         mAndroidCloudAPI = androidCloudAPI;
     }
@@ -70,11 +67,12 @@ public class ActionBarController {
 
     /**
      * This must be passed through by the activity in order to configure based on search state
+     *
      * @param menu
      */
     public void onCreateOptionsMenu(Menu menu) {
         ActionBar actionBar = mOwner.getActivity().getSupportActionBar();
-        if (mInSearchMode){
+        if (mInSearchMode) {
             configureToSearchState(menu, actionBar);
 
         } else {
@@ -155,23 +153,12 @@ public class ActionBarController {
     }
 
     protected void setActionBarDefaultOptions(ActionBar actionBar) {
-        if (!mOwner.restoreActionBar()){
+        if (!mOwner.restoreActionBar()) {
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
             actionBar.setDisplayShowTitleEnabled(true);
             actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
         }
-    }
-
-    private void configureBackToPlaylistItem(MenuItem backToSetItem) {
-        boolean visible = false;
-        if ((mOwner.getActivity() instanceof PlayerActivity)) {
-            final Uri uri = CloudPlaybackService.getPlayQueueUri();
-            if (uri != null && Content.match(uri) == Content.PLAYLIST) {
-                visible = true;
-            }
-        }
-        backToSetItem.setVisible(visible);
     }
 
     private void toggleSearchMode() {
@@ -180,31 +167,26 @@ public class ActionBarController {
     }
 
     private void styleSearchView(SearchView searchView) {
-        try
-        {
+        try {
             Field searchField = SearchView.class.getDeclaredField("mSearchButton");
             searchField.setAccessible(true);
-            ImageView searchBtn = (ImageView)searchField.get(searchView);
-            searchBtn.setBackgroundResource(R.drawable.action_item_background_selector);
+            ImageView searchBtn = (ImageView) searchField.get(searchView);
+            searchBtn.setBackgroundResource(R.drawable.item_background_dark);
 
             searchField = SearchView.class.getDeclaredField("mSearchPlate");
             searchField.setAccessible(true);
-            LinearLayout searchPlate = (LinearLayout)searchField.get(searchView);
+            LinearLayout searchPlate = (LinearLayout) searchField.get(searchView);
             searchPlate.setBackgroundResource(R.drawable.abc_textfield_search_default_holo_dark);
 
             searchField = SearchView.class.getDeclaredField("mCloseButton");
             searchField.setAccessible(true);
-            ImageView closeButton = (ImageView)searchField.get(searchView);
-            closeButton.setBackgroundResource(R.drawable.action_item_background_selector);
+            ImageView closeButton = (ImageView) searchField.get(searchView);
+            closeButton.setBackgroundResource(R.drawable.item_background_dark);
 
-        }
-        catch (NoSuchFieldException e)
-        {
+        } catch (NoSuchFieldException e) {
             Log.e(getClass().getSimpleName(), e.getMessage(), e);
-        }
-        catch (IllegalAccessException e)
-        {
-            Log.e(getClass().getSimpleName(), e.getMessage(),e);
+        } catch (IllegalAccessException e) {
+            Log.e(getClass().getSimpleName(), e.getMessage(), e);
         }
     }
 }

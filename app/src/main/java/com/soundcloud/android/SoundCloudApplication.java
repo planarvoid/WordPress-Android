@@ -56,7 +56,7 @@ public class SoundCloudApplication extends Application implements Tracker {
     private User mLoggedInUser;
     private AccountOperations accountOperations;
 
-    public static Context instance;
+    public static SoundCloudApplication instance;
 
     @Override
     public void onCreate() {
@@ -217,7 +217,7 @@ public class SoundCloudApplication extends Application implements Tracker {
     }
 
     public static long getUserId() {
-        return ((SoundCloudApplication) instance).getCurrentUserId();
+        return instance.getCurrentUserId();
     }
 
     /**

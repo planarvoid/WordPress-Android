@@ -5,20 +5,7 @@
     <style name="ListView" parent="@android:style/Widget.ListView">
         <item name="android:divider">@drawable/divider_list_grey</item>
         <item name="android:dividerHeight">1px</item>
-        <item name="android:listSelector">@drawable/nav_drawer_list_selector</item>
-    </style>
-
-    <style name="DialogStyleLight">
-        <item name="titleTextColor">@color/dialog_title</item>
-        <item name="titleSeparatorColor">@color/dialog_separator</item>
-        <item name="buttonBackgroundColorPressed">@color/dialog_button_pressed</item>
-        <item name="buttonBackgroundColorFocused">@color/dialog_button_focused</item>
-    </style>
-
-    <style name="DialogListView" parent="SDL.ListView">
-        <item name="android:divider">@drawable/divider_list_grey</item>
-        <item name="android:dividerHeight">1px</item>
-        <item name="android:listSelector">@drawable/nav_drawer_list_selector</item>
+        <item name="android:listSelector">@drawable/list_selector_gray</item>
     </style>
 
     <style name="Animation.Popup">
@@ -34,11 +21,15 @@
     </style>
 
     <style name="DropDownListView" parent="@style/Widget.AppCompat.ListView.DropDown">
-        <item name="android:listSelector">@drawable/action_item_background_selector</item>
+        <item name="android:listSelector">@drawable/list_selector_dark</item>
     </style>
 
     <style name="DropDownNav" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
-        <item name="android:dropDownSelector">@drawable/action_item_background_selector</item>
+        <item name="android:dropDownSelector">@drawable/list_selector_dark</item>
+    </style>
+
+    <style name="SearchAutoCompleteTextView" parent="@style/Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:dropDownSelector">@drawable/list_selector_dark</item>
     </style>
 
     <style name="PopupMenu" parent="@style/Widget.AppCompat.PopupMenu" />
@@ -74,6 +65,24 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">5dip</item>
+    </style>
+
+    <!-- styles for android-styled-dialogs library -->
+    <style name="DialogStyleLight">
+        <item name="titleTextColor">@color/dialog_title</item>
+        <item name="titleSeparatorColor">@color/dialog_separator</item>
+        <item name="buttonBackgroundColorPressed">@color/dialog_button_pressed</item>
+        <item name="buttonBackgroundColorFocused">@color/dialog_button_focused</item>
+    </style>
+
+    <style name="DialogListView" parent="SDL.ListView">
+        <item name="android:divider">@drawable/divider_list_grey</item>
+        <item name="android:dividerHeight">1px</item>
+        <item name="android:listSelector">@drawable/list_selector_gray</item>
+    </style>
+
+    <style name="DialogTitleText" parent="SDL.TextView.Title">
+        <item name="android:textSize">16sp</item>
     </style>
 
     <!-- ****** ViewPagerIndicator ****** -->
@@ -199,14 +208,14 @@
     </style>
 
     <style name="OnboardSuggestedUserCategoryText">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
     </style>
 
     <style name="OnboardSuggestedUserCategoryUsernamesText">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
         <item name="android:textSize">@dimen/list_txt_sub_size</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
@@ -233,6 +242,7 @@
         <item name="android:antialias">true</item>
 
         <item name="jagged_background">#CC000000</item>
+        <item name="android:background">#CC000000</item>
         <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
@@ -446,7 +456,7 @@
         <item name="android:clickable">true</item>
         <item name="android:gravity">center</item>
 
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -465,6 +475,7 @@
 
     <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">
         <item name="android:inputType">textNoSuggestions|textEmailAddress</item>
+        <item name="android:dropDownSelector">@drawable/list_selector_gray</item>
     </style>
 
     <style name="SignUp.PasswordEntry" parent="SignUp.TextEntry">
@@ -481,7 +492,7 @@
 
     <style name="Player.TrackInfo.Row">
         <item name="android:clickable">true</item>
-        <item name="android:background">@drawable/list_selector_background</item>
+        <item name="android:background">@drawable/list_selector_gray</item>
 
         <item name="android:gravity">center_vertical</item>
     </style>
@@ -705,7 +716,7 @@
     </style>
 
     <style name="txt_record_message">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/rec_tips_bubble</item>
         <item name="android:textSize">16sp</item>
@@ -713,12 +724,12 @@
     </style>
 
     <style name="txt_connection_footer">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
         <item name="android:textSize">16sp</item>
     </style>
 
     <style name="txt_not_streamable">
-        <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -772,7 +783,7 @@
         <item name="android:textSize">20sp</item>
     </style>
     <style name="txt_search_rdo">
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">20sp</item>
     </style>
 
@@ -820,7 +831,7 @@
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
         <item name="android:gravity">center</item>
-        <item name="android:textColor">@drawable/txt_list_main_states</item>
+        <item name="android:textColor">@color/listTxtValue</item>
     </style>
 
 
@@ -1019,7 +1030,7 @@
     <style name="Widget.TextView.Playable.TrackCount">
         <item name="android:layout_below">@id/playable_user_holder</item>
         <item name="android:layout_alignParentRight">true</item>
-        <item name="android:textColor">@drawable/txt_list_main_dark_states</item>
+        <item name="android:textColor">@color/listTxtDarkValue</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>
         <item name="android:background">@drawable/bg_dark_round_rect</item>
         <item name="android:gravity">center</item>
@@ -1241,72 +1252,37 @@
     </style>
 
 
-    <!-- Side menu -->
+    <!-- Search Suggestions -->
 
-    <style name="side_menu_item">
+    <style name="SearchSuggestionItem">
+        <item name="android:background">@drawable/list_selector_dark</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-
-        <item name="android:paddingTop">@dimen/slm_item_padding_topbottom</item>
-        <item name="android:paddingBottom">@dimen/slm_item_padding_topbottom</item>
-        <item name="android:paddingLeft">@dimen/slm_item_padding_left</item>
+        <item name="android:paddingLeft">@dimen/default_side_padding</item>
         <item name="android:paddingRight">@dimen/slm_item_padding_right</item>
-
         <item name="android:orientation">horizontal</item>
-
-        <item name="android:background">@drawable/sidebar_item_background</item>
-    </style>
-
-    <style name="side_search_item" parent="side_menu_item">
         <item name="android:paddingTop">@dimen/search_item_padding_topbottom</item>
         <item name="android:paddingBottom">@dimen/search_item_padding_topbottom</item>
     </style>
 
-    <style name="side_menu_item_icon">
+    <style name="SearchSuggestionIcon">
         <item name="android:layout_height">33dp</item>
         <item name="android:layout_width">33dp</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:scaleType">centerCrop</item>
     </style>
 
-    <style name="side_menu_item_type_icon" parent="side_menu_item_icon">
-        <item name="android:scaleType">centerInside</item>
-    </style>
-
-    <style name="side_menu_item_text">
-        <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:paddingLeft">@dimen/slm_item_text_padding_left</item>
-
-        <item name="android:textSize">@dimen/slm_item_text_size</item>
-        <item name="android:textColor">@color/fim_item_text_color</item>
-
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">end</item>
-
-        <item name="android:shadowColor">#000000</item>
-        <item name="android:shadowRadius">1</item>
-        <item name="android:shadowDy">2</item>
-        <item name="android:shadowDx">0</item>
-    </style>
-
-    <style name="side_menu_dashboard_counter">
+    <style name="SearchSuggestionText">
         <item name="android:paddingLeft">7dp</item>
         <item name="android:paddingRight">7dp</item>
         <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:textSize">@dimen/slm_item_dashboard_counter_text_size</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:background">@drawable/activity_bubble</item>
+        <item name="android:textSize">14dp</item>
         <item name="android:singleLine">true</item>
-        <item name="android:gravity">center</item>
-
-        <item name="android:shadowColor">#000000</item>
-        <item name="android:shadowRadius">1</item>
-        <item name="android:shadowDy">-1</item>
-        <item name="android:shadowDx">0</item>
+        <item name="android:textColor">@color/gray_text</item>
     </style>
 
-    <style name="searchSuggestionText" parent="side_menu_item_text">
-        <item name="android:textColor">@color/gray_text</item>
+    <style name="SearchSuggestionIcon.Type">
+        <item name="android:scaleType">centerInside</item>
     </style>
 
     <style name="SuggestedUserToggleButton">
@@ -1388,12 +1364,16 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:padding">@dimen/explore_suggested_track_padding</item>
         <item name="android:drawablePadding">5dp</item>
         <item name="android:textAppearance">@style/TextAppearance.ExploreTrackBottom</item>
     </style>
 
     <style name="ExploreTrackGenre" parent="ExploreTrackBottom">
+        <item name="android:layout_marginRight">5dp</item>
         <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
         <item name="android:drawableLeft">@drawable/mini_tag</item>
     </style>
 

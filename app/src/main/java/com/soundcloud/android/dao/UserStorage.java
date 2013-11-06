@@ -39,8 +39,20 @@ public class UserStorage extends ScheduledOperations implements Storage<User> {
         }));
     }
 
-    public void createOrUpdate(User u) {
-        mUserDAO.createOrUpdate(u.getId(), u.buildContentValues());
+    public User createOrUpdate(User user) {
+        mUserDAO.createOrUpdate(user.getId(), user.buildContentValues());
+        return user;
+    }
+
+    public Observable<User> createOrUpdateAsync(final User user) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<User>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super User> observer) {
+                observer.onNext(createOrUpdate(user));
+                observer.onCompleted();
+                return Subscriptions.empty();
+            }
+        }));
     }
 
     public User getUser(long id) {

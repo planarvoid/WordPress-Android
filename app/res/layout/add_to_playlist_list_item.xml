@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:padding="16dp"
+              android:layout_width="match_parent"
+              android:layout_height="48dp"
+              android:orientation="horizontal"
+              android:background="@drawable/list_selector_gray">
+
+    <TextView android:id="@+id/title"
+              android:text="@string/track"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
+              android:singleLine="true"
+              android:ellipsize="end"/>
+
+    <TextView android:id="@+id/trackCount"
+              android:drawablePadding="5dp"
+              android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:gravity="center_vertical|right"/>
+
+</LinearLayout>
