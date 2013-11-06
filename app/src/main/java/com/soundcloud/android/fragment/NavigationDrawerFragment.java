@@ -282,8 +282,9 @@ public class NavigationDrawerFragment extends Fragment {
 
     public void updateProfileItem(User user) {
         mProfileViewHolder.username.setText(user.getUsername());
+        int followersCount = user.followers_count < 0 ? 0 : user.followers_count;
         mProfileViewHolder.followers.setText(getResources().getQuantityString(
-                R.plurals.number_of_followers, user.followers_count, user.followers_count));
+                R.plurals.number_of_followers, followersCount, followersCount));
 
         String imageUri = ImageSize.formatUriForFullDisplay(getResources(), user.getNonDefaultAvatarUrl());
         ImageLoader.getInstance().displayImage(imageUri, mProfileViewHolder.imageView,

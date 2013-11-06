@@ -44,8 +44,7 @@
     </plurals>
     <plurals name="number_of_followers">
         <item quantity="one">1 follower</item>
-        <item quantity="many">%d followers</item>
-        <item quantity="other">No followers</item>
+        <item quantity="other">%d followers</item>
     </plurals>
 
 </resources>
