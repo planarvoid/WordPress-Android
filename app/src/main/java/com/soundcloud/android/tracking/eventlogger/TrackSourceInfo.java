@@ -8,6 +8,9 @@ import com.soundcloud.android.utils.ScTextUtils;
 
 import android.net.Uri;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 public class TrackSourceInfo {
 
     public static final TrackSourceInfo EMPTY = new TrackSourceInfo();
@@ -80,7 +83,7 @@ public class TrackSourceInfo {
     private Uri.Builder createEventLoggerBuilder() {
         final Uri.Builder builder = new Uri.Builder();
         if (ScTextUtils.isNotBlank(mOriginUrl)){
-            builder.appendQueryParameter(EventLoggerKeys.ORIGIN_URL, mOriginUrl);
+            builder.appendQueryParameter(EventLoggerKeys.ORIGIN_URL, formatOriginUrl(mOriginUrl));
         }
 
         if (ScTextUtils.isNotBlank(mTrigger)){
@@ -116,5 +119,14 @@ public class TrackSourceInfo {
     @Override
     public int hashCode() {
         return Objects.hashCode(mTrigger, mSource, mSourceVersion);
+    }
+
+    private String formatOriginUrl(String originUrl) {
+        try {
+            return URLEncoder.encode(originUrl.toLowerCase().replace(" ", "_"), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return ScTextUtils.EMPTY_STRING;
     }
 }

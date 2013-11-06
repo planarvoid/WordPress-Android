@@ -31,6 +31,14 @@ public class TrackSourceInfoTest {
     }
 
     @Test
+    public void shouldEncodeOriginUrl() throws Exception {
+        expect(toQueryParams(TrackSourceInfo.fromRecommender(ScTextUtils.EMPTY_STRING, "asdf"))).toEqual("context=asdf&source=recommender");
+        expect(toQueryParams(TrackSourceInfo.fromRecommender(ScTextUtils.EMPTY_STRING, "ASDF"))).toEqual("context=asdf&source=recommender");
+        expect(toQueryParams(TrackSourceInfo.fromRecommender(ScTextUtils.EMPTY_STRING, "ASDF FDSA"))).toEqual("context=asdf_fdsa&source=recommender");
+        expect(toQueryParams(TrackSourceInfo.fromRecommender(ScTextUtils.EMPTY_STRING, "ASDF & FDSA"))).toEqual("context=asdf_%26_fdsa&source=recommender");
+    }
+
+    @Test
     public void shouldIncludePlaySourceParams() throws Exception {
         final TrackSourceInfo trackSourceInfo = TrackSourceInfo.fromRecommender("version1", "originUrl1");
 
