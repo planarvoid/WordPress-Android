@@ -28,7 +28,9 @@ public class TracksByTag extends ScActivity {
             Uri contentUri = Content.TRACK_SEARCH.uri;
             if (i.hasExtra("tag")) {
                 setTitle(getString(R.string.list_header_tracks_by_tag, i.getStringExtra(EXTRA_TAG)));
-                contentUri = contentUri.buildUpon().appendQueryParameter(FILTER_TAG, i.getStringExtra(EXTRA_TAG)).build();
+                //TODO: discovery currently have a server side bug where searching for upper case tags results in 503s
+                final String searchTag = i.getStringExtra(EXTRA_TAG).toLowerCase();
+                contentUri = contentUri.buildUpon().appendQueryParameter(FILTER_TAG, searchTag).build();
             } else if (i.hasExtra("genre")) {
                 setTitle(getString(R.string.list_header_tracks_by_genre, i.getStringExtra(EXTRA_GENRE)));
                 contentUri = contentUri.buildUpon().appendQueryParameter(FILTER_GENRE, i.getStringExtra(EXTRA_GENRE)).build();
