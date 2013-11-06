@@ -12,7 +12,7 @@ public class ResolveUnhandledUrls extends ResolveBaseTest {
         return TestConsts.JOBS_PAGE;
     }
 
-    public void ignore_testResolveUrlShouldOpenInWebView() throws Exception {
+    public void testResolveUrlShouldOpenInWebView() throws Exception {
         solo.assertActivity(WebViewActivity.class, DEFAULT_WAIT);
     }
 }

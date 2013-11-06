@@ -38,7 +38,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
 
     public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context) {
         this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context), new ActivitiesStorage(context),
-                new UserAssociationStorage(), SoundRecorder.getInstance(context), new C2DMReceiver());
+                new UserAssociationStorage(context), SoundRecorder.getInstance(context), new C2DMReceiver());
     }
 
     AccountRemovalFunction(Account soundCloudAccount, Context context, AccountManager accountManager, SyncStateManager syncStateManager,

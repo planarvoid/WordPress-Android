@@ -230,7 +230,7 @@ public class SyncAdapterService extends Service {
                 }
 
                 // see if there are any local playlists that need to be pushed
-                if (new UserAssociationStorage().hasFollowingsNeedingSync()) {
+                if (new UserAssociationStorage(app).hasFollowingsNeedingSync()) {
                     urisToSync.add(Content.ME_FOLLOWINGS.uri);
                 }
 

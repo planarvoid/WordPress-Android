@@ -29,10 +29,14 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void setUp() throws Exception {
-        super.setUp();
-        solo = new Han(getInstrumentation(), getActivity());
+        solo = new Han(getInstrumentation());
+
         menuScreen = new MenuScreen(solo);
         applicationProperties = new ApplicationProperties(getActivity().getResources());
+
+        getActivity();
+
+        super.setUp(); // do not move, this has to run after the above
 
         getInstrumentation().getContext()
             .getSharedPreferences("showcase_internal", Context.MODE_PRIVATE)

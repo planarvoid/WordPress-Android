@@ -291,6 +291,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             final Track track = intent.getParcelableExtra(Track.EXTRA);
             SoundCloudApplication.MODEL_MANAGER.cache(track);
             playQueue = new PlayQueue(Lists.newArrayList(track.getId()), 0);
+
+            if (Actions.PLAY.equals(action)){
+                startService(new Intent(CloudPlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueue.EXTRA, playQueue));
+            }
         }
         return playQueue;
     }
