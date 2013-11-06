@@ -843,7 +843,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public void setQueuePosition(int pos) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setQueuePosition("+pos+")");
 
-        if (getPlayQueueInternal().getPosition() != pos && getPlayQueueInternal().setPosition(pos)) {
+        final PlayQueue playQueue = getPlayQueueInternal();
+        if (playQueue.getPosition() != pos && playQueue.setPosition(pos)) {
+            playQueue.setCurrentTrackToUserTriggered();
             openCurrent();
         }
     }

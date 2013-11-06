@@ -106,7 +106,6 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
     public boolean setPosition(int position) {
         if (position < mTrackIds.size()) {
             mPosition = position;
-            mCurrentTrackIsUserTriggered = true;
             return true;
         } else {
             return false;
