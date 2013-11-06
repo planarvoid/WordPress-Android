@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.ScDialog" parent="android:Theme.Holo.Dialog"/>
+
+    <style name="Theme.SoundCloud" parent="android:Theme.Holo.Light.DarkActionBar">
+        <item name="actionBarItemBackground">@drawable/item_background_dark</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView</item>
+        <item name="actionDropDownStyle">@style/DropDownNav</item>
+        <item name="actionBarStyle">@style/ActionBar.SoundCloud</item>
+
+        <!-- Light.DarkActionBar specific -->
+        <item name="actionBarWidgetTheme">@style/Theme.SoundCloud.Widget</item>
+
+        <item name="android:editTextBackground">@drawable/edit_text_holo_light</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/btn_check_holo_light</item>
+        <item name="android:dropDownSpinnerStyle">@style/Spinner</item>
+    </style>
 </resources>
