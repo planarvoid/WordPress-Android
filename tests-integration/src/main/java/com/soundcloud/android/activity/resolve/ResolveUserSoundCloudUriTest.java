@@ -16,6 +16,7 @@ public class ResolveUserSoundCloudUriTest extends ResolveBaseTest {
 
     public void testResolveUrl() throws Exception {
         solo.assertActivity(UserBrowser.class, DEFAULT_WAIT);
+        // TODO: Use POMs here
         solo.assertText("steveangello");
     }
 }

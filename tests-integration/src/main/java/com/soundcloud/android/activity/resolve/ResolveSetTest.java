@@ -6,6 +6,6 @@ public abstract class ResolveSetTest extends ResolveBaseTest {
 
     public void testResolveUrl() throws Exception {
         solo.assertActivity(PlaylistDetailActivity.class, DEFAULT_WAIT);
-        solo.assertText("Ecclesia Inspiration");
+        assertEquals("Ecclesia Inspiration", playerScreen.trackTitle());
     }
 }

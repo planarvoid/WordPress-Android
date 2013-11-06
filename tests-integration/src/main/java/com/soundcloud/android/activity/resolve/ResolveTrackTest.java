@@ -7,8 +7,8 @@ public abstract class ResolveTrackTest extends ResolveBaseTest {
 
     public void testResolveUrl() throws Exception {
         solo.assertActivity(PlayerActivity.class, DEFAULT_WAIT);
-
-        solo.assertText("CHE FLUTE");
+        waiter.waitForPlayerPlaying();
+        assertEquals("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]", playerScreen.trackTitle());
 
         // make sure track doesn't keep playing in the background
         solo.clickOnView(R.id.pause);

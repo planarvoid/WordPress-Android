@@ -14,6 +14,6 @@ public class ResolveClickTrackingUrl extends ResolveBaseTest {
 
     public void testResolveUrl() throws Exception {
         solo.assertActivity(UserBrowser.class, DEFAULT_WAIT);
-        solo.assertText("steveangello");
+        assertEquals("steveangello", profileScreen.userName());
     }
 }
