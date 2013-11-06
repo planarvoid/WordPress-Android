@@ -248,4 +248,33 @@
     <string name="finish">Terminar</string>
 
     <string name="error_onboarding_fail">Aún estamos trabajando para llenar tu Stream. Seguiremos intentándolo hasta que lo logremos! Por que no buscar &amp; descubrir aún mas música &amp; audio mientras tanto?</string>
+
+    <!-- explore -->
+    <string name="side_menu_explore">Explorar</string>
+
+    <string name="explore_genres">Géneros</string>
+    <string name="explore_category_header_music">Música</string>
+    <string name="explore_category_header_audio">Audio</string>
+
+    <string name="explore_category_trending_music">Música de moda</string>
+    <string name="explore_category_trending_audio">Audio de moda</string>
+
+    <string name="error_soundcloud_no_response">SoundCloud no responde.</string>
+    <string name="error_no_internet">No hay Internet.</string>
+    <string name="error_connect_and_try_again">Conéctate y vuelve a intentarlo.</string>
+
+    <string name="player_no_recommended_tracks">No se han encontrado pistas relacionadas. Intenta explorar algo nuevo.</string>
+
+    <string name="appending_failed">Error al cargar. Toca para volver a intentarlo.</string>
+
+    <string name="playcount">%s reproducciones</string>
+
+    <string name="player_fetching_related_message_1">Solo un segundo</string>
+    <string name="player_fetching_related_message_2">Estamos obteniendo tu próxima pista</string>
+
+    <string name="showcase_explore_title">Explorar</string>
+    <string name="showcase_explore_message">Escucha lo nuevo y popular\nElige una pista y ecucha sonidos relacionados durante horas</string>
+
+    <string name="navigation_drawer_open">Abre el panel de navegación</string>
+    <string name="navigation_drawer_close">Cierra el panel de navegación</string>
 </resources>
