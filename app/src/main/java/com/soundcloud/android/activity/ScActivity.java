@@ -27,6 +27,7 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,10 +35,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 
 import java.lang.ref.WeakReference;
 
@@ -68,8 +66,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-        super.setContentView(R.layout.container);
 
         if (getSupportActionBar() != null) {
             mActionBarController = createActionBarController();
@@ -107,16 +103,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
     public boolean restoreActionBar() {
         return false;
-    }
-
-    @Override
-    public void setContentView(int id) {
-        setContentView(View.inflate(this, id, new FrameLayout(this)));
-    }
-
-    @Override
-    public void setContentView(View layout) {
-        ((ViewGroup) findViewById(R.id.content_frame)).addView(layout);
     }
 
     @Override
@@ -383,5 +369,13 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         }
         finish();
         return true;
+    }
+
+    /**
+     * Convenience method to get the content id for usage in one-off fragments
+     */
+    public static int getContentViewIdCompat() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH ?
+                android.R.id.content : R.id.action_bar_activity_content;
     }
 }

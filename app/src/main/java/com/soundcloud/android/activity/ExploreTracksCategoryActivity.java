@@ -19,7 +19,7 @@ public class ExploreTracksCategoryActivity extends ScActivity {
             exploreTracksFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(android.R.id.content, exploreTracksFragment)
+                    .add(getContentViewIdCompat(), exploreTracksFragment)
                     .commit();
         }
     }
