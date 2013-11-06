@@ -89,6 +89,7 @@ public class AddToPlaylistDialogFragment extends PlaylistDialogFragment
         return builder;
     }
 
+    //TODO: almost all of this logic should go into PlaylistOperations
     private void onAddTrackToSet(long playlistId, View view) {
         final Playlist playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(playlistId);
 
@@ -103,6 +104,7 @@ public class AddToPlaylistDialogFragment extends PlaylistDialogFragment
         ContentResolver.requestSync(accountOperations.getSoundCloudAccount(), ScContentProvider.AUTHORITY, new Bundle());
 
         final TextView txtTrackCount = (TextView) view.findViewById(R.id.trackCount);
+        // TODO: ridiculous. the new count should come from the service or model
         int newTracksCount = Integer.parseInt(String.valueOf(txtTrackCount.getText())) + 1;
         try {
             txtTrackCount.setText(String.valueOf(newTracksCount));
