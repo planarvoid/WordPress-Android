@@ -43,7 +43,7 @@ public class TrackSourceInfoTest {
         final TrackSourceInfo trackSourceInfo = TrackSourceInfo.fromRecommender("version1", "originUrl1");
 
         expect(trackSourceInfo.createEventLoggerParams())
-                .toEqual("context=originUrl1&source=recommender&source_version=version1");
+                .toEqual("context=originurl1&source=recommender&source_version=version1");
     }
 
     private String toQueryParams(TrackSourceInfo trackSourceInfo) {
