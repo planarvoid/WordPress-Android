@@ -56,7 +56,6 @@ public class PlayQueueStorage extends ScheduledOperations implements Storage<Pla
         ContentValues[] contentValues = new ContentValues[playQueue.size()];
         for (int i = 0; i < playQueue.size(); i++) {
             ContentValues cv = new ContentValues();
-            cv.put(DBHelper.PlayQueue.POSITION, i);
             cv.put(DBHelper.PlayQueue.TRACK_ID, playQueue.getTrackIdAt(i));
             contentValues[i] = cv;
         }
