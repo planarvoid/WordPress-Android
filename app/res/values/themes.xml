@@ -48,7 +48,7 @@
 
     <style name="Theme.SoundCloud.Widget.Base" parent="@style/Theme.AppCompat">
         <item name="searchViewAutoCompleteTextView">@style/SearchAutoCompleteTextView</item>
-        <item name="searchViewTextField">@drawable/textfield_focused_holo_dark</item>
+        <item name="searchViewTextField">@drawable/textfield_focused_holo_light</item>
         <item name="searchViewSearchIcon">@drawable/actionbar_search</item>
     </style>
 
