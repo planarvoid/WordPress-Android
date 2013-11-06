@@ -69,7 +69,7 @@
             </intent-filter>
 
 
-            <intent-filter android:priority="10">
+            <intent-filter android:priority="10" android:label="@string/side_menu_stream">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
@@ -78,7 +78,7 @@
             </intent-filter>
 
             <!-- TODO -->
-            <intent-filter android:priority="10">
+            <intent-filter android:priority="10" android:label="@string/side_menu_explore">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>

@@ -108,9 +108,18 @@ public class NavigationDrawerFragment extends Fragment {
             if (Actions.STREAM.equals(action)) {
                 selectItem(NavItem.STREAM.ordinal());
                 return true;
-
             } else if (Actions.YOUR_LIKES.equals(action)) {
                 selectItem(NavItem.LIKES.ordinal());
+                return true;
+            }
+        }
+
+        if (intent.getData() != null) {
+            if (intent.getData().getLastPathSegment().equals("stream")) {
+                selectItem(NavItem.STREAM.ordinal());
+                return true;
+            } else if (intent.getData().getLastPathSegment().equals("explore")) {
+                selectItem(NavItem.EXPLORE.ordinal());
                 return true;
             }
         }
@@ -271,7 +280,8 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public boolean isDrawerOpen() {
-        return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(getView());
+        final View view = getView();
+        return mDrawerLayout != null && view != null && mDrawerLayout.isDrawerOpen(view);
     }
 
     public void closeDrawer() {
@@ -301,7 +311,7 @@ public class NavigationDrawerFragment extends Fragment {
             mDrawerLayout.closeDrawer(getView());
         }
         if (mCallbacks != null) {
-            mCallbacks.onNavigationDrawerItemSelected(position);
+            mCallbacks.onNavigationDrawerItemSelected(position, isDrawerOpen());
         }
     }
 
@@ -328,7 +338,7 @@ public class NavigationDrawerFragment extends Fragment {
         /**
          * Called when an item in the navigation drawer is selected.
          */
-        void onNavigationDrawerItemSelected(int position);
+        void onNavigationDrawerItemSelected(int position, boolean drawerOpen);
     }
 
     private static class ProfileViewHolder {

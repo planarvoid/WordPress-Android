@@ -111,7 +111,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
+    public void onNavigationDrawerItemSelected(int position, boolean isOpen) {
         switch (NavigationDrawerFragment.NavItem.values()[position]) {
             case PROFILE:
                 // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
@@ -149,6 +149,13 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
                 break;
         }
 
+        if (!isOpen){
+            /**
+             * In this case, restoreActionBar will not be called since it is already closed.
+             * This probably came from {@link NavigationDrawerFragment#handleIntent(android.content.Intent)}
+             */
+            setTitle(mLastTitle);
+        }
     }
 
     private void attachFragment(Fragment fragment, String tag, int titleResId) {
