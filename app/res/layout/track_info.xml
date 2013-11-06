@@ -14,7 +14,7 @@
                 <TableRow style="@style/Player.TrackInfo.Row"
                           android:id="@+id/likers_row">
                     <ImageView style="@style/Player.TrackInfo.Icon"
-                               android:src="@drawable/ic_info_likes_states" />
+                               android:src="@drawable/ic_info_likes" />
 
                     <TextView style="@style/Player.TrackInfo.Label"
                               android:id="@+id/likers_txt"/>
@@ -28,7 +28,7 @@
                 <TableRow style="@style/Player.TrackInfo.Row"
                           android:id="@+id/reposters_row">
                     <ImageView style="@style/Player.TrackInfo.Icon"
-                               android:src="@drawable/ic_info_repost_states" />
+                               android:src="@drawable/ic_info_reposts" />
 
                     <TextView style="@style/Player.TrackInfo.Label"
                               android:id="@+id/reposters_txt"/>
@@ -42,7 +42,7 @@
                 <TableRow style="@style/Player.TrackInfo.Row"
                           android:id="@+id/comments_row">
                     <ImageView style="@style/Player.TrackInfo.Icon"
-                               android:src="@drawable/ic_info_comments_states" />
+                               android:src="@drawable/ic_info_comments" />
 
                     <TextView style="@style/Player.TrackInfo.Label"
                               android:id="@+id/commenters_txt"/>

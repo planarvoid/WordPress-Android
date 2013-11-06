@@ -15,8 +15,8 @@ public class RepostActivityRow extends ActivityRow {
     }
 
     @Override
-    protected Drawable doGetDrawable(boolean pressed) {
-        Drawable drawable = getResources().getDrawable(pressed ? R.drawable.activity_repost_white_50 : R.drawable.activity_repost);
+    protected Drawable doGetDrawable() {
+        Drawable drawable = getResources().getDrawable(R.drawable.activity_repost);
         drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
         return drawable;
     }
