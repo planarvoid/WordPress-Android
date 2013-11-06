@@ -112,12 +112,6 @@ public class DebugUtils {
         }
     }
 
-    public static void setLogLevels() {
-        System.getProperty("log.tag.SyncAdapterService", "DEBUG");
-        System.getProperty("log.tag.ApiSyncService", "DEBUG");
-        System.getProperty("log.tag.SyncOperations", "DEBUG");
-    }
-
     public static void reportMediaPlayerError(Context context, StreamItem item, int what, int extra) {
         if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
             Log.d(CloudPlaybackService.TAG,

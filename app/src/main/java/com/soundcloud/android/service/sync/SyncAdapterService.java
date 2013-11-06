@@ -72,8 +72,6 @@ public class SyncAdapterService extends Service {
              */
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-                if (DEBUG_CANCEL) DebugUtils.setLogLevels();
-
                 Wrapper.setBackgroundMode(true);
 
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
