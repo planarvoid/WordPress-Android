@@ -33,4 +33,10 @@ public abstract class ResolveBaseTest extends ActivityTestCase<ResolveActivity> 
         playerScreen = new PlayerScreen(solo);
     }
 
+    @Override
+    public void tearDown() throws Exception {
+        IntegrationTestHelper.logOut(getInstrumentation());
+        super.tearDown();
+    }
+
 }
