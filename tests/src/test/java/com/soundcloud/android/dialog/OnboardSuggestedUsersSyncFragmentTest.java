@@ -1,8 +1,9 @@
 package com.soundcloud.android.dialog;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.dialog.OnboardSuggestedUsersSyncFragment.FollowingsSyncObserver;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,9 +14,9 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Scheduler;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
@@ -28,7 +29,7 @@ public class OnboardSuggestedUsersSyncFragmentTest {
     @Mock
     private FollowingOperations followingOperations;
     @Mock
-    private Observable<Boolean> observable;
+    private Observable<Boolean> mockObservable;
 
     @Before
     public void setup() {
@@ -39,55 +40,39 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
     @Test
     public void shouldTriggerBulkFollowInOnCreate() {
-        when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
+        when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(mockObservable);
+        when(mockObservable.observeOn(any(Scheduler.class))).thenReturn(mockObservable);
         fragment.onCreate(null);
-        verify(observable).subscribe(any(FollowingsSyncObserver.class));
+        verify(mockObservable).subscribe(any(OnboardSuggestedUsersSyncFragment.FollowingsSyncObserver.class));
     }
 
     @Test
     public void shouldStartActivityStreamWithSuccessFlagOnSuccess() {
+        Observable<Boolean> observable = Observable.just(true);
         when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
         fragment.onCreate(null);
 
-        ArgumentCaptor<FollowingsSyncObserver> argumentCaptor = ArgumentCaptor.forClass(FollowingsSyncObserver.class);
-        verify(observable).subscribe(argumentCaptor.capture());
-        FollowingsSyncObserver observer = argumentCaptor.getValue();
-
-        boolean success = true;
-        observer.onNext(fragment, success);
-
         Intent activity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
         expect(activity).not.toBeNull();
-        expect(activity.getBooleanExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, !success)).toBeTrue();
+        expect(activity.getBooleanExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, false)).toBeTrue();
     }
 
     @Test
     public void shouldStartActivityStreamWithFailureFlagOnNoSuccess() {
+        Observable<Boolean> observable = Observable.just(false);
         when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
         fragment.onCreate(null);
 
-        ArgumentCaptor<FollowingsSyncObserver> argumentCaptor = ArgumentCaptor.forClass(FollowingsSyncObserver.class);
-        verify(observable).subscribe(argumentCaptor.capture());
-        FollowingsSyncObserver observer = argumentCaptor.getValue();
-
-        boolean success = false;
-        observer.onNext(fragment, success);
-
         Intent activity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
         expect(activity).not.toBeNull();
-        expect(activity.getBooleanExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, !success)).toBeFalse();
+        expect(activity.getBooleanExtra(MainActivity.EXTRA_ONBOARDING_USERS_RESULT, true)).toBeFalse();
     }
 
     @Test
     public void shouldStartActivityStreamWithFailureFlagOnGeneralError() {
+        Observable<Boolean> observable = Observable.error(new Exception());
         when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
         fragment.onCreate(null);
-
-        ArgumentCaptor<FollowingsSyncObserver> argumentCaptor = ArgumentCaptor.forClass(FollowingsSyncObserver.class);
-        verify(observable).subscribe(argumentCaptor.capture());
-        FollowingsSyncObserver observer = argumentCaptor.getValue();
-
-        observer.onError(fragment, new Exception());
 
         Intent activity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
         expect(activity).not.toBeNull();
@@ -96,14 +81,9 @@ public class OnboardSuggestedUsersSyncFragmentTest {
 
     @Test
     public void shouldFinishWithSuccessIfObservableCallsOnCompletedBeforeOnNextWasCalled() {
+        Observable<Boolean> observable = Observable.empty();
         when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
         fragment.onCreate(null);
-
-        ArgumentCaptor<FollowingsSyncObserver> argumentCaptor = ArgumentCaptor.forClass(FollowingsSyncObserver.class);
-        verify(observable).subscribe(argumentCaptor.capture());
-        FollowingsSyncObserver observer = argumentCaptor.getValue();
-
-        observer.onCompleted(fragment);
 
         Intent activity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
         expect(activity).not.toBeNull();
@@ -113,19 +93,15 @@ public class OnboardSuggestedUsersSyncFragmentTest {
     // catch case where both onNext and onCompleted would try to finish the activity
     @Test
     public void shouldIgnoreOnCompletedIfActivityIsAlreadyFinishing() {
-        when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
-        fragment.onCreate(null);
-
-        FragmentActivity activity = new FragmentActivity();
+        FragmentActivity activity = mock(FragmentActivity.class);
+        when(activity.isFinishing()).thenReturn(true);
         Robolectric.shadowOf(fragment).setActivity(activity);
 
-        ArgumentCaptor<FollowingsSyncObserver> argumentCaptor = ArgumentCaptor.forClass(FollowingsSyncObserver.class);
-        verify(observable).subscribe(argumentCaptor.capture());
-        FollowingsSyncObserver observer = argumentCaptor.getValue();
+        Observable<Boolean> observable = Observable.just(true);
+        when(followingOperations.waitForActivities(fragment.getActivity())).thenReturn(observable);
 
-        activity.finish();
-        observer.onCompleted(fragment);
+        fragment.onCreate(null);
 
-        expect(Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity()).toBeNull();
+        verify(activity, atMost(1)).finish();
     }
 }
