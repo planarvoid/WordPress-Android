@@ -48,10 +48,6 @@
          <item name="android:dropDownSelector">@drawable/list_selector_holo_light</item>
      </style>
 
-     <style name="Spinner.DropDown">
-         <item name="android:spinnerMode">dropdown</item>
-     </style>
-
      <style name="SpinnerDropDownItem" parent="android:Widget.DropDownItem.Spinner">
          <item name="android:checkMark">@drawable/btn_radio_holo_light</item>
      </style>
