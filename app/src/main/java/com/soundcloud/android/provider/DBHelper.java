@@ -4,12 +4,16 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
@@ -1231,6 +1235,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static boolean upgradeTo24(SQLiteDatabase db, int oldVersion) {
         try {
             Table.PLAY_QUEUE.recreate(db);
+            PlayQueueManager.clearPlayQueueUri(PreferenceManager.getDefaultSharedPreferences(SoundCloudApplication.instance));
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade24 " +

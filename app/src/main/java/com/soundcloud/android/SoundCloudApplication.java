@@ -62,6 +62,7 @@ public class SoundCloudApplication extends Application implements Tracker {
     public void onCreate() {
         super.onCreate();
 
+        instance = this;
         new MigrationEngine(this).migrate();
 
         ApplicationProperties appProperties = new ApplicationProperties(getResources());
@@ -82,7 +83,7 @@ public class SoundCloudApplication extends Application implements Tracker {
         if (ApplicationProperties.shouldReportCrashes()) {
             Crashlytics.start(this);
         }
-        instance = this;
+
         IOUtils.checkState(this);
         createImageLoader();
 

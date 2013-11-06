@@ -287,6 +287,15 @@ public class PlayQueueManagerTest {
         verify(observable, times(2)).subscribe(any(Observer.class));
     }
 
+    @Test
+    public void shouldClearSharedPreferences() throws Exception {
+        when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+        PlayQueueManager.clearPlayQueueUri(sharedPreferences);
+        verify(sharedPreferencesEditor).remove(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY);
+        verify(sharedPreferencesEditor).apply();
+
+    }
+
     private void expectBroadcastPlayqueueChanged() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
