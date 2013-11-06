@@ -356,7 +356,7 @@ public class UserBrowser extends ScActivity implements
         ImageLoader.getInstance().displayImage(user.getNonDefaultAvatarUrl(), mIcon,
                 ImageOptionsFactory.adapterView(R.drawable.avatar_badge_large));
 
-        invalidateOptionsMenu();
+        supportInvalidateOptionsMenu();
 
     }
 
