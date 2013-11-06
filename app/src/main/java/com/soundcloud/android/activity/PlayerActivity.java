@@ -243,7 +243,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         final PlayQueue playQueue = getPlayQueueFromIntent(intent);
-        if (playQueue != null){
+        if (playQueue != null && !playQueue.isEmpty()){
             mPlayQueue = playQueue;
             refreshTrackPager();
         }
