@@ -32,6 +32,7 @@ import rx.Observer;
 import rx.Scheduler;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.concurrency.Schedulers;
+import rx.util.functions.Func1;
 
 import android.content.Intent;
 
@@ -247,6 +248,7 @@ public class PlaybackOperationsTest {
     public void shouldLoadTrackFromStorageAndEmitOnUIThreadForPlayback() {
         Observable<Track> observable = mock(Observable.class);
         when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
+        when(observable.map(any(Func1.class))).thenReturn(observable);
         when(observable.observeOn(any(Scheduler.class))).thenReturn(observable);
 
         Observer<Track> observer = mock(Observer.class);
