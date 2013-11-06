@@ -458,7 +458,9 @@
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_record"/>
         </receiver>
 
-        <receiver android:name="com.localytics.android.ReferralReceiver" android:enabled="true" android:exported="true">
+        <receiver android:name="com.soundcloud.android.analytics.LocalyticsReferralReceiver"
+                  android:enabled="true"
+                  android:exported="true">
             <intent-filter>
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
