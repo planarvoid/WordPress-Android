@@ -43,7 +43,6 @@ public class SuggestedUsersCategoriesAdapterTest {
 
     @Before
     public void setup() throws CreateModelException {
-        when (followingOperations.observeOn(any(Scheduler.class))).thenReturn(followingOperations);
         adapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_SECTIONS, followingOperations);
         nonFacebookAdapter = new SuggestedUsersCategoriesAdapter(SuggestedUsersCategoriesAdapter.Section.ALL_EXCEPT_FACEBOOK, followingOperations);
     }
@@ -232,6 +231,7 @@ public class SuggestedUsersCategoriesAdapterTest {
         nonFacebookAdapter.addItem(music());
         List<SuggestedUser> users = nonFacebookAdapter.getItem(0).getUsers();
         when(followingOperations.addFollowingsBySuggestedUsers(users)).thenReturn(observable);
+        when(observable.observeOn(any(Scheduler.class))).thenReturn(observable);
 
         View itemLayout = nonFacebookAdapter.getView(0, null, new FrameLayout(Robolectric.application));
         itemLayout.findViewById(R.id.btn_user_bucket_select_all).performClick();

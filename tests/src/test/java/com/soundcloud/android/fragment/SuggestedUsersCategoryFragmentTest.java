@@ -47,8 +47,6 @@ public class SuggestedUsersCategoryFragmentTest {
 
     @Before
     public void setup() throws CreateModelException {
-
-        when(followingOperations.observeOn(any(Scheduler.class))).thenReturn(followingOperations);
         when(fragmentView.findViewById(R.id.suggested_users_grid)).thenReturn(gridView);
 
         Category category = new Category("category1");
@@ -84,6 +82,7 @@ public class SuggestedUsersCategoryFragmentTest {
     @Test
     public void shouldFollowAllUsers(){
         when(followingOperations.addFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(1)))).thenReturn(observable);
+        when(observable.observeOn(any(Scheduler.class))).thenReturn(observable);
         fragment.toggleFollowings(true);
 
         verify(observable).subscribe(any(Observer.class));
@@ -95,6 +94,7 @@ public class SuggestedUsersCategoryFragmentTest {
     @Test
     public void shouldUnfollowAllUsers(){
         when(followingOperations.removeFollowingsBySuggestedUsers(Lists.newArrayList(suggestedUsers.get(0), suggestedUsers.get(2)))).thenReturn(observable);
+        when(observable.observeOn(any(Scheduler.class))).thenReturn(observable);
         fragment.toggleFollowings(false);
 
         verify(observable).subscribe(any(Observer.class));
