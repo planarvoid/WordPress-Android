@@ -79,12 +79,12 @@ public class SyncStateManagerTest {
 
     @Test
     public void shouldForceToStale() throws Exception {
-        final Uri uri = Uri.parse("foo");
+        final Uri uri = Content.ME_SOUND_STREAM.uri;
         insertLocalCollection(uri);
         syncStateManager.updateLastSyncSuccessTime(uri, 200);
         expect(syncStateManager.fromContent(uri).last_sync_success).toEqual(200L);
 
-        syncStateManager.forceToStale(uri).toBlockingObservable().last();
+        syncStateManager.forceToStale(Content.ME_SOUND_STREAM);
         expect(syncStateManager.fromContent(uri).last_sync_success).toEqual(0L);
     }
 

@@ -261,7 +261,7 @@ public class FollowingOperations extends ScheduledOperations {
         }
         // invalidate stream SyncState if necessary
         if (hadNoFollowings && !mFollowStatus.isEmpty()) {
-            fireAndForget(mSyncStateManager.forceToStale(Content.ME_SOUND_STREAM));
+            fireAndForget(mSyncStateManager.forceToStaleAsync(Content.ME_SOUND_STREAM));
         }
     }
 
