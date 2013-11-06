@@ -40,7 +40,7 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
     }
     public PlayQueue(List<Long> trackIds, int playPosition) {
         mTrackIds = trackIds;
-        mPosition = playPosition;
+        mPosition = playPosition < 0 || playPosition >= trackIds.size() ? 0 : playPosition;
     }
 
     public PlayQueue(List<Long> trackIds, int playPosition, PlaySourceInfo playSourceInfo) {

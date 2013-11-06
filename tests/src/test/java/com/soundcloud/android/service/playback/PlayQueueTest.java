@@ -47,6 +47,20 @@ public class PlayQueueTest {
     }
 
     @Test
+    public void shouldBuildInititialPlayQueueWithPositionOutOfLowerBounds() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), -1);
+        expect(playQueue).toContainExactly(1L, 2L);
+        expect(playQueue.getPosition()).toBe(0);
+    }
+
+    @Test
+    public void shouldBuildInitialPlayQueueWithPositionOutOfUpperBounds() throws Exception {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 2);
+        expect(playQueue).toContainExactly(1L, 2L);
+        expect(playQueue.getPosition()).toBe(0);
+    }
+
+    @Test
     public void shouldSuccessfullySetPositionIfNewPositionIsWithinLowerBounds() {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L, 3L), 0);
         expect(playQueue.setPosition(0)).toBeTrue();
