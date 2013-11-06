@@ -110,7 +110,7 @@ public class ScSearch extends ScActivity {
     private void handleIntent() {
         final Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction()) ||
-            "android.media.action.MEDIA_PLAY_FROM_SEARCH".equals(intent.getAction())) {
+                "android.media.action.MEDIA_PLAY_FROM_SEARCH".equals(intent.getAction())) {
 
             String query = intent.getStringExtra(SearchManager.QUERY);
             mPendingSearch = new Search(query, intent.getIntExtra(EXTRA_SEARCH_TYPE, Search.ALL));
@@ -144,7 +144,7 @@ public class ScSearch extends ScActivity {
         super.onResume();
         track(getClass());
 
-        if (mPendingSearch != null){
+        if (mPendingSearch != null) {
             perform(mPendingSearch);
             mPendingSearch = null;
         }
@@ -193,7 +193,7 @@ public class ScSearch extends ScActivity {
                 break;
         }
 
-        if (mSearchFragment != null){
+        if (mSearchFragment != null) {
             mSearchFragment.setCurrentSearch(search);
             mCurrentSearch = search;
         } else {
@@ -208,17 +208,13 @@ public class ScSearch extends ScActivity {
     }
 
     @Override
-    public int getMenuResourceId(){
-            return -1;
+    public int getMenuResourceId() {
+        return -1;
     }
-
 
     @Override
     public Object[] onRetainCustomNonConfigurationInstance() {
-        return new Object[]{
-                mCurrentSearch,
-
-        };
+        return new Object[] { mCurrentSearch };
     }
 
     void restorePreviousState(Object[] previous) {
