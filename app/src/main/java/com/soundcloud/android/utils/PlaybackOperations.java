@@ -19,6 +19,7 @@ import com.soundcloud.android.service.playback.PlayQueue;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import rx.Observable;
 import rx.android.concurrency.AndroidSchedulers;
+import rx.util.functions.Func1;
 
 import android.content.Context;
 import android.content.Intent;
@@ -101,8 +102,17 @@ public class PlaybackOperations {
         }
     }
 
-    public Observable<Track> loadTrack(long trackId) {
-        return mTrackStorage.getTrackAsync(trackId).observeOn(AndroidSchedulers.mainThread());
+    public Observable<Track> loadTrack(final long trackId) {
+        return mTrackStorage.getTrackAsync(trackId).map(new Func1<Track, Track>() {
+            @Override
+            public Track call(Track track) {
+                if (track == null) {
+                    track = new Track(trackId);
+                }
+                mModelManager.cache(track);
+                return track;
+            }
+        }).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Observable<Track> markTrackAsPlayed(Track track) {

@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -253,5 +254,27 @@ public class PlaybackOperationsTest {
 
         verify(observable).observeOn(AndroidSchedulers.mainThread());
         verify(observable).subscribe(observer);
+    }
+
+    @Test
+    public void loadTrackShouldReplaceNullTrackForDummy() {
+        Observable<Track> observable = Observable.just(null);
+        when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
+
+        Observer<Track> observer = mock(Observer.class);
+        playbackOperations.loadTrack(1L).subscribe(observer);
+
+        verify(observer).onNext(eq(new Track(1L)));
+    }
+
+    @Test
+    public void loadTrackShouldCacheLoadedTrack() {
+        final Track track = new Track(1L);
+        Observable<Track> observable = Observable.just(track);
+        when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
+        Observer<Track> observer = mock(Observer.class);
+        playbackOperations.loadTrack(1L).subscribe(observer);
+
+        verify(modelManager).cache(eq(track));
     }
 }
