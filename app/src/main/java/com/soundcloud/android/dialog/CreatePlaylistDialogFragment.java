@@ -19,7 +19,6 @@ import rx.util.functions.Func1;
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
@@ -68,10 +67,11 @@ public class CreatePlaylistDialogFragment extends PlaylistDialogFragment {
         initialBuilder.setPositiveButton(R.string.done, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (TextUtils.isEmpty(input.getText())) {
+                final String playlistTitle = input.getText().toString().trim();
+                if (TextUtils.isEmpty(playlistTitle)) {
                     Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
                 } else {
-                    createPlaylist(input.getText(), mApplicationProperties.isDevBuildRunningOnDalvik() && privacy.isChecked());
+                    createPlaylist(playlistTitle, mApplicationProperties.isDevBuildRunningOnDalvik() && privacy.isChecked());
                     getDialog().dismiss();
                 }
             }
@@ -79,7 +79,7 @@ public class CreatePlaylistDialogFragment extends PlaylistDialogFragment {
         return initialBuilder;
     }
 
-    private void createPlaylist(final Editable text, final boolean isPrivate) {
+    private void createPlaylist(final String title, final boolean isPrivate) {
         final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
         final Account account = mAccountOpertations.getSoundCloudAccount();
 
@@ -87,7 +87,7 @@ public class CreatePlaylistDialogFragment extends PlaylistDialogFragment {
         // insert the new playlist into the database
         playlistStorage.createNewUserPlaylistAsync(
                 loggedInUser,
-                String.valueOf(text),
+                title,
                 isPrivate,
                 getArguments().getLong(KEY_TRACK_ID)
         ).mapMany(new Func1<Playlist, Observable<SoundAssociation>>() {
