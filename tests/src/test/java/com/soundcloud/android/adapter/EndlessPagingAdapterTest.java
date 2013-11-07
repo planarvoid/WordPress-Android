@@ -90,7 +90,7 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
-    public void appendRowShouldBeErrorRowWhenLoadingData() {
+    public void appendRowShouldBeErrorRowWhenLoadingDataFails() {
         Observable<Page<List<Parcelable>>> fail = Observable.error(new Exception("fail!"));
 
         loadFirstPageThen(fail);
