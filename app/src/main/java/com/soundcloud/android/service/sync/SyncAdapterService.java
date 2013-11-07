@@ -243,7 +243,7 @@ public class SyncAdapterService extends Service {
 
                 urisToSync.addAll(dueForSync);
 
-                if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || manual) {
+                if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.USER_STALE_TIME) || manual) {
                     urisToSync.add(Content.ME.uri);
                 }
                 if (!urisToSync.isEmpty()) {
