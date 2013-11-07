@@ -91,10 +91,7 @@ public class UserDetailsFragment extends Fragment {
         if (!mDisplayedInfo) {
             if (mEmptyViewStatus == EmptyListView.Status.OK) {
                 if (mUserId == SoundCloudApplication.getUserId()) {
-                    mEmptyViewFactory
-                            .withMessageText(getString(R.string.info_empty_you_message))
-                            .withActionText(getString(R.string.info_empty_you_action))
-                            .withPrimaryAction(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")));
+                    mEmptyViewFactory.withMessageText(getString(R.string.info_empty_you_message));
                 } else {
                     mEmptyViewFactory.withMessageText(getString(R.string.info_empty_other_message));
                 }
