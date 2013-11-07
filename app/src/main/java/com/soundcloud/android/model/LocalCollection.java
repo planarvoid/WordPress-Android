@@ -1,15 +1,12 @@
 package com.soundcloud.android.model;
 
-import com.google.common.base.Objects;
 import com.soundcloud.android.model.behavior.Identifiable;
 import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.model.act.Activity;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncConfig;
-import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentValues;
@@ -132,20 +129,8 @@ public class LocalCollection implements Identifiable, Persisted {
     }
 
     public boolean shouldAutoRefresh() {
-
-        Content c = Content.match(getUri());
-
-        final String s = Objects.toStringHelper(this)
-                .add("isIdle", isIdle())
-                .add("id", getId())
-                .add("content", c)
-                .add("lastSyncAttempt",last_sync_attempt)
-                .add("lastSyncSuccess",last_sync_success)
-                .toString();
-
-        Log.i(ApiSyncService.LOG_TAG, "Checking should auto refresh " + s);
-
         if (!isIdle() || getId() <= 0) return false;
+        Content c = Content.match(getUri());
 
         // only auto refresh once every 30 mins at most, that we won't hammer their phone or the api if there are errors
         if (c == null || last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
