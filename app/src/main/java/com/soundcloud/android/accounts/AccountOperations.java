@@ -50,8 +50,6 @@ public class AccountOperations {
     private final SoundCloudTokenOperations tokenOperations;
     private final Context context;
 
-    private Account soundCloudAccount;
-
     public AccountOperations(Context context) {
         this(AccountManager.get(context), context, new SoundCloudTokenOperations(context));
     }
@@ -118,14 +116,8 @@ public class AccountOperations {
 
     @Nullable
     public Account getSoundCloudAccount() {
-        if (soundCloudAccount == null) {
-            Account[] accounts = accountManager.getAccountsByType(context.getString(R.string.account_type));
-            if (accounts != null && accounts.length == 1) {
-                soundCloudAccount = accounts[0];
-            }
-        }
-
-        return soundCloudAccount;
+        Account[] accounts = accountManager.getAccountsByType(context.getString(R.string.account_type));
+        return accounts != null && accounts.length == 1 ? accounts[0] : null;
     }
 
     public Observable<Void> removeSoundCloudAccount() {
