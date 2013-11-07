@@ -1,10 +1,11 @@
 $ 72
   % v 2.7.0
-  _ 2013-10-04
-  ! Explore
-    * More UI adjustments
-    - Explore functionality added
-    - Bugfixes and playback optimisations
+  _ 2013-11-07
+  ! Explore: Release Candidate
+    * Explore is final!
+    * Android navigation drawer and title bar
+    * Small styling updates
+    - Bugfixes
 
 $ 71
   % v 2.6.8
