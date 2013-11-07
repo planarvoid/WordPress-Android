@@ -102,7 +102,7 @@ import java.io.IOException;
             Wrapper.setBackgroundMode(false);
         }
 
-        Log.d(TAG, "executed sync on " + this);
+        Log.i(TAG, "executed sync on " + this);
         return this;
     }
 
