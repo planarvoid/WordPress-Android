@@ -16,6 +16,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -26,6 +27,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -286,8 +288,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         final int code = response.getStatusLine().getStatusCode();
         switch (code) {
             case HttpStatus.SC_UNAUTHORIZED:
-                throw new InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
-                        response.getStatusLine().getReasonPhrase());
+                throw ErrorUtils.handleUnauthorized(mContext, originalRequest);
 
             case HttpStatus.SC_NOT_FOUND:
                 throw new NotFoundException();
@@ -406,6 +407,13 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         @Override
         public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
             return dateFormat.format(date, toAppendTo, fieldPosition);
+        }
+    }
+
+    public static class UnauthorizedException extends InvalidTokenException {
+
+        public UnauthorizedException(Request failedRequest, @Nullable Token token) {
+            super(HttpStatus.SC_UNAUTHORIZED, failedRequest.toString() + "; token=" + token);
         }
     }
 }

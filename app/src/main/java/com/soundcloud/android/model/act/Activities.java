@@ -12,6 +12,7 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -235,12 +236,13 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     private static Activities handleUnexpectedResponse(Request request, HttpResponse response) throws IOException {
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+        final int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode == HttpStatus.SC_NO_CONTENT) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
             return EMPTY;
-        } else  if (Wrapper.isStatusCodeClientError(response.getStatusLine().getStatusCode())){
-            throw new CloudAPI.InvalidTokenException(response.getStatusLine().getStatusCode(),
-                    response.getStatusLine().getReasonPhrase());
+        } else if (Wrapper.isStatusCodeClientError(statusCode)) {
+            // a 404 also translates to Unauthorized here, since the API is a bit fucked up
+            throw ErrorUtils.handleUnauthorized(SoundCloudApplication.instance, request);
         } else {
             final IOException ioException = new IOException(response.getStatusLine().toString());
             SoundCloudApplication.handleSilentException("Activities fetchRecent failed " + request, ioException);
