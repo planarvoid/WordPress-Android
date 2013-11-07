@@ -63,7 +63,7 @@
         <item name="android:windowIsFloating">true</item>
     </style>
 
-    <style name="SelectGoogleAccountDialogTheme" parent="android:Theme.Dialog">
+    <style name="SelectGoogleAccountDialogTheme" parent="Theme.ScDialog">
         <item name="android:textSize">14sp</item>
     </style>
 
