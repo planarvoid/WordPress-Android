@@ -10,6 +10,7 @@ import com.soundcloud.android.task.auth.AuthTaskResult;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -48,6 +49,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     }
 
     @Override
+    @TargetApi(11)
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         ProgressDialog dialog;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
