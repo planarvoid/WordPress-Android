@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-public class TracksByTag extends ScActivity {
+public class SearchByTagActivity extends ScActivity {
 
     public static final String EXTRA_TAG = "tag";
     private static final String FILTER_TAG = "filter.tag";

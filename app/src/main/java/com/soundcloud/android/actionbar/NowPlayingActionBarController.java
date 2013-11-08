@@ -1,7 +1,7 @@
 package com.soundcloud.android.actionbar;
 
-import static com.soundcloud.android.playback.service.CloudPlaybackService.Broadcasts;
-import static com.soundcloud.android.playback.service.CloudPlaybackService.getCurrentTrackId;
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
+import static com.soundcloud.android.playback.service.PlaybackService.getCurrentTrackId;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.api.PublicCloudAPI;

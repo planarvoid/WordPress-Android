@@ -8,7 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageSize;
@@ -1062,8 +1062,8 @@ public class ScContentProvider extends ContentProvider {
         @Override
         public void onReceive(final Context context, Intent intent) {
             // only delete tracks from other users - needs proper state checking
-            final long trackId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, 0);
-            final long userId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id, 0);
+            final long trackId = intent.getLongExtra(PlaybackService.BroadcastExtras.id, 0);
+            final long userId = intent.getLongExtra(PlaybackService.BroadcastExtras.user_id, 0);
             if (trackId > 0 && userId != SoundCloudApplication.getUserIdFromContext(context)) {
                 removeTrack(context).execute(trackId);
             }

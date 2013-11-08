@@ -50,7 +50,7 @@
                  android:name="SoundCloudApplication"
                  android:theme="@style/Theme.SoundCloud">
 
-        <activity android:name=".main.Launch" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar">
+        <activity android:name=".main.LauncherActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -330,7 +330,7 @@
         </activity>
 
         <activity android:name=".associations.TrackInteractionActivity"/>
-        <activity android:name=".search.TracksByTag"/>
+        <activity android:name=".search.SearchByTagActivity"/>
 
         <activity android:launchMode="singleTop" android:name=".playlists.PlaylistDetailActivity">
             <intent-filter>
@@ -348,17 +348,17 @@
         <activity android:name=".associations.PlaylistInteractionActivity"/>
 
         <!-- settings -->
-        <activity android:label="@string/title_settings" android:name=".preferences.Settings" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/title_settings" android:name=".preferences.SettingsActivity" android:theme="@style/Theme.SoundCloud"/>
 
-        <activity android:label="@string/title_settings" android:name=".preferences.AccountSettings" android:theme="@style/Theme.SoundCloud">
+        <activity android:label="@string/title_settings" android:name=".preferences.AccountSettingsActivity" android:theme="@style/Theme.SoundCloud">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACCOUNT_PREF"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:label="@string/title_notification_settings" android:name=".preferences.NotificationSettings" android:theme="@style/Theme.SoundCloud"/>
-        <activity android:label="@string/title_about" android:name=".preferences.About" android:theme="@style/Theme.SoundCloud"/>
-        <activity android:label="@string/title_legal" android:name=".preferences.Legal" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/title_notification_settings" android:name=".preferences.NotificationSettingsActivity" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/title_about" android:name=".preferences.AboutActivity" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/title_legal" android:name=".preferences.LegalActivity" android:theme="@style/Theme.SoundCloud"/>
 
         <!-- settings -->
 
@@ -381,7 +381,7 @@
         <!-- services -->
         <service android:name=".sync.ApiSyncService"/>
         <service android:name=".creators.record.SoundRecorderService"/>
-        <service android:exported="false" android:name=".playback.service.CloudPlaybackService">
+        <service android:exported="false" android:name=".playback.service.PlaybackService">
 
             <intent-filter>
                 <action android:name="com.soundcloud.android.playback.start"/>

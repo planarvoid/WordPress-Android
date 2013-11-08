@@ -4,7 +4,7 @@ import static com.soundcloud.android.associations.PlayableInteractionActivity.EX
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.TrackInteractionActivity;
-import com.soundcloud.android.search.TracksByTag;
+import com.soundcloud.android.search.SearchByTagActivity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -160,8 +160,8 @@ public class PlayerTrackDetailsLayout extends RelativeLayout {
             txt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(getContext(), TracksByTag.class);
-                    intent.putExtra(TracksByTag.EXTRA_GENRE, track.genre);
+                    Intent intent = new Intent(getContext(), SearchByTagActivity.class);
+                    intent.putExtra(SearchByTagActivity.EXTRA_GENRE, track.genre);
                     getContext().startActivity(intent);
                 }
             });
@@ -174,8 +174,8 @@ public class PlayerTrackDetailsLayout extends RelativeLayout {
                 txt.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(getContext(), TracksByTag.class);
-                        intent.putExtra(TracksByTag.EXTRA_TAG, t);
+                        Intent intent = new Intent(getContext(), SearchByTagActivity.class);
+                        intent.putExtra(SearchByTagActivity.EXTRA_TAG, t);
                         getContext().startActivity(intent);
                     }
                 });

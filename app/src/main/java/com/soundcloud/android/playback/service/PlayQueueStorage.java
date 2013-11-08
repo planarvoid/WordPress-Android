@@ -60,7 +60,7 @@ public class PlayQueueStorage extends ScheduledOperations implements Storage<Pla
             contentValues[i] = cv;
         }
         int trackCount = mResolver.bulkInsert(Content.PLAY_QUEUE.uri, contentValues);
-        Log.d(CloudPlaybackService.TAG, trackCount + " tracks saved from playqueue");
+        Log.d(PlaybackService.TAG, trackCount + " tracks saved from playqueue");
         return playQueue;
     }
 

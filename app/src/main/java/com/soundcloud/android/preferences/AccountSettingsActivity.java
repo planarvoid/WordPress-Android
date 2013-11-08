@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
 @Tracking(page = Page.Settings_notifications)
-public class AccountSettings extends PreferenceActivity {
+public class AccountSettingsActivity extends PreferenceActivity {
      @Override
      public void onCreate(Bundle savedInstanceState) {
          super.onCreate(savedInstanceState);

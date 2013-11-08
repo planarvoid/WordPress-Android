@@ -2,9 +2,9 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -43,8 +43,8 @@ public class WidgetPlaybackRemoteViews extends PlaybackRemoteViews {
             Uri trackUri = Content.TRACK.forId(trackId);
             final Intent toggleLike = new Intent(
                     userLike ?
-                            CloudPlaybackService.Actions.REMOVE_LIKE_ACTION :
-                            CloudPlaybackService.Actions.ADD_LIKE_ACTION)
+                            PlaybackService.Actions.REMOVE_LIKE_ACTION :
+                            PlaybackService.Actions.ADD_LIKE_ACTION)
                     .setData(trackUri);
 
             // toggle like

@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.playback.service.CloudPlaybackService.Actions;
-import static com.soundcloud.android.playback.service.CloudPlaybackService.Broadcasts;
-import static com.soundcloud.android.playback.service.CloudPlaybackService.PlayExtras;
+import static com.soundcloud.android.playback.service.PlaybackService.Actions;
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
+import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -21,18 +21,18 @@ import android.net.Uri;
 
 class PlaybackReceiver extends BroadcastReceiver {
 
-    private CloudPlaybackService mPlaybackService;
+    private PlaybackService mPlaybackService;
     private AssociationManager mAssociationManager;
     private AudioManager mAudioManager;
     private final AccountOperations mAccountOperations;
     private final PlayQueueManager mPlayQueueManager;
 
-    public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
+    public PlaybackReceiver(PlaybackService playbackService, AssociationManager associationManager,
                             AudioManager audioManager, PlayQueueManager playQueueManager) {
         this(playbackService, associationManager, audioManager, new AccountOperations(playbackService), playQueueManager);
     }
 
-    public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
+    public PlaybackReceiver(PlaybackService playbackService, AssociationManager associationManager,
                             AudioManager audioManager, AccountOperations accountOperations, PlayQueueManager playQueueManager) {
         this.mPlaybackService = playbackService;
         this.mAssociationManager = associationManager;
@@ -47,7 +47,7 @@ class PlaybackReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         String action = intent.getAction();
-        Log.d(CloudPlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
+        Log.d(PlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
 
         if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
@@ -102,7 +102,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                 }
             }
         } else {
-            Log.e(CloudPlaybackService.TAG, "Aborting playback service action, no soundcloud account(" + intent + ")");
+            Log.e(PlaybackService.TAG, "Aborting playback service action, no soundcloud account(" + intent + ")");
         }
     }
 
@@ -127,7 +127,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                 mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
             }
         } else {
-            Log.w(CloudPlaybackService.TAG, "Received play intent without a play queue");
+            Log.w(PlaybackService.TAG, "Received play intent without a play queue");
         }
     }
 }

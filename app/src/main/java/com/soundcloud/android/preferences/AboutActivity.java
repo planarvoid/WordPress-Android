@@ -11,7 +11,7 @@ import android.webkit.WebView;
 
 
 @Tracking(page = Page.Settings_about)
-public class About extends Activity {
+public class AboutActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

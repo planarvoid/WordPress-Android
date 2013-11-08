@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.streaming;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import com.soundcloud.android.preferences.Settings;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -100,17 +100,17 @@ public class StreamStorageTest {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DefaultTestRunner.application);
         Editor editor = sharedPreferences.edit();
 
-        editor.putInt(Settings.STREAM_CACHE_SIZE, 0);
+        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 0);
         editor.commit();
 
         expect(storage.calculateUsableSpace()).toBe(0L);
 
-        editor.putInt(Settings.STREAM_CACHE_SIZE, 33);
+        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 33);
         editor.commit();
 
         expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 33L);
 
-        editor.putInt(Settings.STREAM_CACHE_SIZE, 100);
+        editor.putInt(SettingsActivity.STREAM_CACHE_SIZE, 100);
         editor.commit();
 
         expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 100L);

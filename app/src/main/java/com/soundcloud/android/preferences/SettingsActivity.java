@@ -8,10 +8,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -42,7 +42,7 @@ import android.preference.PreferenceManager;
 import java.io.File;
 
 @Tracking(page = Page.Settings_main)
-public class Settings extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
@@ -81,7 +81,7 @@ public class Settings extends PreferenceActivity {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         getApp().track(Page.Settings_account_sync);
-                        Intent intent = new Intent(Settings.this, AccountSettings.class);
+                        Intent intent = new Intent(SettingsActivity.this, AccountSettingsActivity.class);
                         startActivity(intent);
                         return true;
                     }
@@ -92,7 +92,7 @@ public class Settings extends PreferenceActivity {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         getApp().track(Page.Settings_notifications);
-                        Intent intent = new Intent(Settings.this, NotificationSettings.class);
+                        Intent intent = new Intent(SettingsActivity.this, NotificationSettingsActivity.class);
                         startActivity(intent);
                         return true;
                     }
@@ -151,7 +151,7 @@ public class Settings extends PreferenceActivity {
                                 removeDialog(DIALOG_CACHE_DELETING);
                                 updateClearCacheTitles();
                             }
-                        }.execute(IOUtils.getCacheDir(Settings.this));
+                        }.execute(IOUtils.getCacheDir(SettingsActivity.this));
                         return true;
                     }
                 });
@@ -231,7 +231,7 @@ public class Settings extends PreferenceActivity {
         final boolean enabled = !preferences.getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false);
         SharedPreferencesUtils.apply(preferences.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, enabled));
 
-        Log.d(CloudPlaybackService.TAG, "toggling error reporting (enabled=" + enabled + ")");
+        Log.d(PlaybackService.TAG, "toggling error reporting (enabled=" + enabled + ")");
         AndroidUtils.showToast(this, getString(R.string.playback_error_logging, getText(enabled ? R.string.enabled : R.string.disabled)));
 
     }
@@ -253,7 +253,7 @@ public class Settings extends PreferenceActivity {
 
     @Override
     protected void onResume() {
-        getApp().track(Settings.class);
+        getApp().track(SettingsActivity.class);
         updateClearCacheTitles();
         super.onResume();
     }

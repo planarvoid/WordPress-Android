@@ -1,13 +1,13 @@
 package com.soundcloud.android.actionbar;
 
-import static com.soundcloud.android.playback.service.CloudPlaybackService.Broadcasts;
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.views.WaveformControllerLayout;
 import org.jetbrains.annotations.Nullable;
 
@@ -122,20 +122,20 @@ public class NowPlayingProgressBar extends ProgressBar {
     private void startRefreshing() {
         if (mTrack != null && mTrack.duration > 0 && getWidth() > 0){
             mRefreshDelay = mTrack.duration / getWidth();
-            setProgress((int) CloudPlaybackService.getCurrentProgress());
-            if (CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
+            setProgress((int) PlaybackService.getCurrentProgress());
+            if (PlaybackService.getPlaybackState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
         }
     }
 
     private void setCurrentTrack() {
-        final Track currentTrack = CloudPlaybackService.getCurrentTrack();
+        final Track currentTrack = PlaybackService.getCurrentTrack();
         if (mTrack != currentTrack || mWaveformState == WaveformControllerLayout.WaveformState.ERROR) {
 
             if (mTrack != currentTrack) mWaveformErrorCount = 0;
 
             mTrack = currentTrack;
             setMax(mTrack == null ? 0 : mTrack.duration);
-            setProgress((int) CloudPlaybackService.getCurrentProgress());
+            setProgress((int) PlaybackService.getCurrentProgress());
 
             if (mTrack == null || !mTrack.hasWaveform() || mWaveformErrorCount > 3) {
                 setDefaultWaveform();
@@ -255,14 +255,14 @@ public class NowPlayingProgressBar extends ProgressBar {
                 setCurrentTrack();
 
             } else if (action.equals(Broadcasts.PLAYSTATE_CHANGED)) {
-              if (intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false)){
+              if (intent.getBooleanExtra(PlaybackService.BroadcastExtras.isPlaying, false)){
                   startRefreshing();
               } else {
                   stopRefreshing();
               }
 
             } else if (action.equals(Broadcasts.SEEK_COMPLETE) || action.equals(Broadcasts.SEEKING)) {
-                if (CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
+                if (PlaybackService.getPlaybackState().isSupposedToBePlaying()) queueNextRefresh(mRefreshDelay);
             }
         }
     };
@@ -323,7 +323,7 @@ public class NowPlayingProgressBar extends ProgressBar {
             if (nowPlaying != null && nowPlaying.mTrack != null) {
                 switch (msg.what) {
                     case REFRESH:
-                        nowPlaying.setProgress((int) CloudPlaybackService.getCurrentProgress());
+                        nowPlaying.setProgress((int) PlaybackService.getCurrentProgress());
                         nowPlaying.queueNextRefresh(nowPlaying.mRefreshDelay);
                 }
             }

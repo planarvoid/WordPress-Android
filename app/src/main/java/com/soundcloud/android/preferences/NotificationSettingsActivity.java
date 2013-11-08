@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Tracking(page = Page.Settings_notifications)
-public class NotificationSettings extends PreferenceActivity {
+public class NotificationSettingsActivity extends PreferenceActivity {
     final List<CheckBoxPreference> syncPreferences = new ArrayList<CheckBoxPreference>();
     private AccountOperations mAccountOperations;
 

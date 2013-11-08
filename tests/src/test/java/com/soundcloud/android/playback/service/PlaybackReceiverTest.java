@@ -37,7 +37,7 @@ public class PlaybackReceiverTest {
     private PlaybackReceiver playbackReceiver;
 
     @Mock
-    private CloudPlaybackService playbackService;
+    private PlaybackService playbackService;
     @Mock
     private AssociationManager associationManager;
     @Mock
@@ -61,31 +61,31 @@ public class PlaybackReceiverTest {
 
     @Test
     public void nextActionShouldCallNextOnService() {
-        playbackReceiver.onReceive(Robolectric.application, new Intent(CloudPlaybackService.Actions.NEXT_ACTION));
+        playbackReceiver.onReceive(Robolectric.application, new Intent(PlaybackService.Actions.NEXT_ACTION));
         verify(playbackService).next();
     }
 
     @Test
     public void prevActionShouldCallNextOnService() {
-        playbackReceiver.onReceive(Robolectric.application, new Intent(CloudPlaybackService.Actions.PREVIOUS_ACTION));
+        playbackReceiver.onReceive(Robolectric.application, new Intent(PlaybackService.Actions.PREVIOUS_ACTION));
         verify(playbackService).prev();
     }
 
     @Test
     public void togglePlaybackActionShouldCallNextOnService() {
-        playbackReceiver.onReceive(Robolectric.application, new Intent(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
+        playbackReceiver.onReceive(Robolectric.application, new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
         verify(playbackService).togglePlayback();
     }
 
     @Test
     public void pauseActionShouldCallNextOnService() {
-        playbackReceiver.onReceive(Robolectric.application, new Intent(CloudPlaybackService.Actions.PAUSE_ACTION));
+        playbackReceiver.onReceive(Robolectric.application, new Intent(PlaybackService.Actions.PAUSE_ACTION));
         verify(playbackService).pause();
     }
 
     @Test
     public void loadInfoShouldCallLoadErrorWhenIdHasNoLocalTrack() {
-        final Intent intent = new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO);
+        final Intent intent = new Intent(PlaybackService.Actions.LOAD_TRACK_INFO);
         intent.putExtra(Track.EXTRA_ID, 100L);
         final FetchModelTask.Listener listener = Mockito.mock(FetchModelTask.Listener.class);
         when(playbackService.getInfoListener()).thenReturn(listener);
@@ -96,7 +96,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void updateAppWidgetProviderActionShouldCallUpdateOnAppWidgetProviderWithPlaystateChangedAction(){
-        Intent intent = new Intent(CloudPlaybackService.Broadcasts.UPDATE_WIDGET_ACTION);
+        Intent intent = new Intent(PlaybackService.Broadcasts.UPDATE_WIDGET_ACTION);
         final int[] ids = {1, 2, 3};
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
 
@@ -104,13 +104,13 @@ public class PlaybackReceiverTest {
 
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(playerAppWidgetProvider).performUpdate(any(Context.class), eq(ids), intentCaptor.capture());
-        expect(intentCaptor.getValue().getAction()).toBe(CloudPlaybackService.Broadcasts.PLAYSTATE_CHANGED);
+        expect(intentCaptor.getValue().getAction()).toBe(PlaybackService.Broadcasts.PLAYSTATE_CHANGED);
     }
 
     @Test
     public void sendingNewPlayQueueShouldForwardItToPlayQueueManager() {
         PlayQueue playQueue = new PlayQueue(1L);
-        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlayQueue.EXTRA, playQueue);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -122,7 +122,7 @@ public class PlaybackReceiverTest {
     @Test
     public void sendingNewPlayQueueShouldOpenCurrentTrackInPlaybackService() {
         PlayQueue playQueue = new PlayQueue(1L);
-        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlayQueue.EXTRA, playQueue);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -133,9 +133,9 @@ public class PlaybackReceiverTest {
     @Test
     public void sendingNewPlayQueueShouldOptionallyFetchRelatedTracks() {
         PlayQueue playQueue = new PlayQueue(1L);
-        Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlayQueue.EXTRA, playQueue);
-        intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, true);
+        intent.putExtra(PlaybackService.PlayExtras.fetchRelated, true);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
@@ -147,7 +147,7 @@ public class PlaybackReceiverTest {
         Track track = TestHelper.readJson(Track.class, "/com/soundcloud/android/model/track.json");
         SoundCloudApplication.MODEL_MANAGER.cache(track);
 
-        Intent intent = new Intent(CloudPlaybackService.Actions.ADD_LIKE_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.ADD_LIKE_ACTION);
         intent.setData(track.toUri());
 
 
@@ -161,7 +161,7 @@ public class PlaybackReceiverTest {
         Track track = TestHelper.readJson(Track.class, "/com/soundcloud/android/model/track.json");
         SoundCloudApplication.MODEL_MANAGER.cache(track);
 
-        Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_LIKE_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.REMOVE_LIKE_ACTION);
         intent.setData(track.toUri());
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -174,7 +174,7 @@ public class PlaybackReceiverTest {
         Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
-        Intent intent = new Intent(CloudPlaybackService.Actions.ADD_LIKE_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.ADD_LIKE_ACTION);
         intent.setData(playlist.toUri());
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -187,7 +187,7 @@ public class PlaybackReceiverTest {
         Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
-        Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_LIKE_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.REMOVE_LIKE_ACTION);
         intent.setData(playlist.toUri());
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -200,7 +200,7 @@ public class PlaybackReceiverTest {
         Track track = TestHelper.readJson(Track.class, "/com/soundcloud/android/model/track.json");
         SoundCloudApplication.MODEL_MANAGER.cache(track);
 
-        Intent intent = new Intent(CloudPlaybackService.Actions.ADD_REPOST_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.ADD_REPOST_ACTION);
         intent.setData(track.toUri());
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -213,7 +213,7 @@ public class PlaybackReceiverTest {
         Track track = TestHelper.readJson(Track.class, "/com/soundcloud/android/model/track.json");
         SoundCloudApplication.MODEL_MANAGER.cache(track);
 
-        Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_REPOST_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.REMOVE_REPOST_ACTION);
         intent.setData(track.toUri());
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -226,7 +226,7 @@ public class PlaybackReceiverTest {
         Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
-        Intent intent = new Intent(CloudPlaybackService.Actions.ADD_REPOST_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.ADD_REPOST_ACTION);
         intent.setData(playlist.toUri());
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -239,7 +239,7 @@ public class PlaybackReceiverTest {
         Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
-        Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_REPOST_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.REMOVE_REPOST_ACTION);
         intent.setData(playlist.toUri());
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -249,7 +249,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldCallResetAllOnServiceAndClearPlayqueueOnResetAllAction(){
-        Intent intent = new Intent(CloudPlaybackService.Actions.RESET_ALL);
+        Intent intent = new Intent(PlaybackService.Actions.RESET_ALL);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).resetAll();
         //verify(playQueue).clear();
@@ -258,7 +258,7 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldCallSaveProgressAndStopOnStopActionIfPlaying(){
         when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PLAYING);
-        Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).saveProgressAndStop();
     }
@@ -266,7 +266,7 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldCallStopOnStopActionIfNotPlaying(){
         when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PAUSED);
-        Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).stop();
     }
@@ -274,14 +274,14 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldNotCallSaveProgressAndStopOnStopActionIfNotPlaying(){
         when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.STOPPED);
-        Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
+        Intent intent = new Intent(PlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).saveProgressAndStop();
     }
 
     @Test
     public void shouldCallResetAllWithNoAccount(){
-        Intent intent = new Intent(CloudPlaybackService.Actions.RESET_ALL);
+        Intent intent = new Intent(PlaybackService.Actions.RESET_ALL);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).resetAll();
         //verify(playQueue).clear();
@@ -291,7 +291,7 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldOpenCurrentIfPlayQueueChangedFromEmptyPlaylist(){
         when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.WAITING_FOR_PLAYLIST);
-        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).saveProgressAndStop();
     }
@@ -299,7 +299,7 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldNotInteractWithThePlayBackServiceIfNoAccountExists(){
         when(accountOperations.soundCloudAccountExists()).thenReturn(false);
-        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verifyZeroInteractions(playbackService);
     }
@@ -307,7 +307,7 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldNotInteractWithTheAssociationManagerIfNoAccountExists(){
         when(accountOperations.soundCloudAccountExists()).thenReturn(false);
-        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verifyZeroInteractions(associationManager);
     }
@@ -315,7 +315,7 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldNotInteractWithThePlayqueueManagerIfNoAccountExists(){
         when(accountOperations.soundCloudAccountExists()).thenReturn(false);
-        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verifyZeroInteractions(playQueue);
     }
@@ -323,7 +323,7 @@ public class PlaybackReceiverTest {
     @Test
     public void shouldNotInteractWithTheAudioManagerIfNoAccountExists(){
         when(accountOperations.soundCloudAccountExists()).thenReturn(false);
-        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verifyZeroInteractions(audioManager);
     }

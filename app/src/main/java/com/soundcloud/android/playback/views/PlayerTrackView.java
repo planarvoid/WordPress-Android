@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.views;
 
 
-import static com.soundcloud.android.playback.service.CloudPlaybackService.BroadcastExtras;
-import static com.soundcloud.android.playback.service.CloudPlaybackService.Broadcasts;
+import static com.soundcloud.android.playback.service.PlaybackService.BroadcastExtras;
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
@@ -16,7 +16,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.PlayerActivity;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracking.Page;
@@ -238,7 +238,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
                     public void run() {
                         final Context context = getContext();
                         if (context != null){
-                            context.startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA, mTrack));
+                            context.startService(new Intent(PlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA, mTrack));
                         }
                     }
                 }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end

@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.playback.service.CloudPlaybackService.Broadcasts;
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playable;
@@ -78,7 +78,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                     action.equals(Broadcasts.BUFFERING_COMPLETE) ||
                     action.equals(Broadcasts.PLAYBACK_ERROR) ||
                     action.equals(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
-                            && intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1) == mCurrentTrackId) {
+                            && intent.getLongExtra(PlaybackService.BroadcastExtras.id, -1) == mCurrentTrackId) {
 
                 performUpdate(context, new int[0], intent);
 
@@ -95,19 +95,19 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     /* package */  void performUpdate(Context context, int[] appWidgetIds, Intent intent) {
         // TODO, move to ScModelManager to get data
         final WidgetPlaybackRemoteViews views = new WidgetPlaybackRemoteViews(context.getPackageName());
-        views.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, false));
+        views.setPlaybackStatus(intent.getBooleanExtra(PlaybackService.BroadcastExtras.isSupposedToBePlaying, false));
 
-        final long trackId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1);
-        final long userId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id, -1);
+        final long trackId = intent.getLongExtra(PlaybackService.BroadcastExtras.id, -1);
+        final long userId = intent.getLongExtra(PlaybackService.BroadcastExtras.user_id, -1);
         if (trackId != -1) {
-            final boolean isLike = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isLike, false);
+            final boolean isLike = intent.getBooleanExtra(PlaybackService.BroadcastExtras.isLike, false);
             views.setImageViewResource(R.id.btn_like, isLike
                     ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_like_states);
 
             if (mCurrentTrackId != trackId) {
                 mCurrentTrackId = trackId;
-                views.setCurrentTrackTitle(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.title));
-                views.setCurrentUsername(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.username));
+                views.setCurrentTrackTitle(intent.getStringExtra(PlaybackService.BroadcastExtras.title));
+                views.setCurrentUsername(intent.getStringExtra(PlaybackService.BroadcastExtras.username));
             }
 
             views.linkButtonsWidget(context, trackId, userId, isLike);
