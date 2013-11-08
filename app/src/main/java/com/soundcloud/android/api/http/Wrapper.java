@@ -179,13 +179,13 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
     // add a bunch of logging in debug mode to make it easier to see and debug API request
     @Override
     public HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException {
-        final boolean shouldLog = Log.isLoggable(TAG, Log.INFO);
+        final boolean shouldLog = Log.isLoggable(TAG, Log.DEBUG);
         // log all request headers
         if (shouldLog) {
-            Log.i(TAG, "Request: " + request.getMethod() + " " + request.getURI());
+            Log.d(TAG, "Request: " + request.getMethod() + " " + request.getURI());
             final Header[] headers = request.getAllHeaders();
             for (Header header : headers) {
-                Log.i(TAG, "---> " + header.toString());
+                Log.d(TAG, "---> " + header.toString());
             }
         }
 
@@ -193,7 +193,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         HttpResponse response = super.safeExecute(target, request);
 
         if (shouldLog) {
-            Log.i(TAG, "Response: " + response.getStatusLine() + " | " + request.getURI());
+            Log.d(TAG, "Response: " + response.getStatusLine() + " | " + request.getURI());
         }
         return response;
     }
