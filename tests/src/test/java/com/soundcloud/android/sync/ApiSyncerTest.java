@@ -250,7 +250,7 @@ public class ApiSyncerTest {
     public void shouldPushNewPlaylist() throws Exception {
         syncMeSounds();
 
-        Playlist playlist = TestHelper.readResource("/com/soundcloud/android/service/sync/playlist.json");
+        Playlist playlist = TestHelper.readResource("/com/soundcloud/android/sync/playlist.json");
         TestHelper.addPendingHttpResponse(getClass(), "playlist.json");
 
         Playlist p = TestHelper.createNewUserPlaylist(playlist.user, false, playlist.tracks);

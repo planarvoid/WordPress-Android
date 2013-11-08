@@ -25,7 +25,7 @@ public class FetchTrackTaskTest {
 
         addHttpResponseRule(
             createRegexRequestMatcherForUriWithClientId("GET", "/tracks/12345"),
-            new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("../track.json"))));
+            new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("track.json"))));
 
         Track t = new Track();
         t.setId(12345);

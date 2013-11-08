@@ -143,7 +143,7 @@ public class AssociationManagerTest {
 
     @Test
     public void shouldAddPlaylistRepost() throws Exception {
-        Playlist p = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        Playlist p = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         TestHelper.insertWithDependencies(p);
         expect(p.user_repost).toBeFalse();
         long repostsCount = p.reposts_count;
@@ -158,7 +158,7 @@ public class AssociationManagerTest {
 
     @Test
     public void shouldRemoveRepostActivity() throws Exception {
-        Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/service/sync/e1_playlist_repost.json");
+        Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/sync/e1_playlist_repost.json");
         a.get(0).getUser().setId(USER_ID); // needs to be the logged in user
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();
@@ -175,7 +175,7 @@ public class AssociationManagerTest {
 
     @Test
     public void shouldRemovePostActivityIfNoRepostCountAvailable() throws Exception {
-        Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/service/sync/e1_playlist_repost.json");
+        Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/sync/e1_playlist_repost.json");
         a.get(0).getUser().setId(USER_ID); // needs to be the logged in user
 
         Playlist playlist = (Playlist) a.get(0).getPlayable();

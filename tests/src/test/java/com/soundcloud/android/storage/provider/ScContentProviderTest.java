@@ -69,7 +69,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldCleanupTracks() throws Exception {
-        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
+        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
         int i = 0;
         for (Track t : tracks) {
             TestHelper.insertAsSoundAssociation(t, i < tracks.size() / 2 ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.TRACK_REPOST);
@@ -79,7 +79,7 @@ public class ScContentProviderTest {
         expect(Content.TRACKS).toHaveCount(15);
         expect(Content.USERS).toHaveCount(14);
 
-        Playlist playlist  = readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        Playlist playlist  = readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         TestHelper.insertAsSoundAssociation(playlist, SoundAssociation.Type.PLAYLIST_LIKE);
 
         expect(Content.TRACKS).toHaveCount(56); // added 41 from playlist
@@ -87,7 +87,7 @@ public class ScContentProviderTest {
         expect(Content.USERS).toHaveCount(46); // added 32 from playlist
 
         // insert extra tracks that should be cleaned up
-        tracks = readJson(TrackHolder.class, "/com/soundcloud/android/provider/tracks.json");
+        tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/tracks.json");
         TestHelper.bulkInsert(tracks.collection);
 
         expect(Content.TRACKS).toHaveCount(59);
@@ -105,7 +105,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldCleanupPlaylist() throws Exception {
-        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
+        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
         int i = 0;
         for (Track t : tracks) {
             TestHelper.insertAsSoundAssociation(t, i < tracks.size() / 2 ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.TRACK_REPOST);
@@ -114,7 +114,7 @@ public class ScContentProviderTest {
         expect(Content.TRACKS).toHaveCount(15);
         expect(Content.USERS).toHaveCount(14);
 
-        Playlist playlist = readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        Playlist playlist = readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         TestHelper.insertWithDependencies(playlist);
 
         expect(Content.TRACKS).toHaveCount(56); // added 41 from playlist
@@ -136,7 +136,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldCleanupSoundStream() throws Exception {
-        Activities a = getActivities("/com/soundcloud/android/service/sync/e1_stream.json");
+        Activities a = getActivities("/com/soundcloud/android/sync/e1_stream.json");
 
         expect(activitiesStorage.insert(Content.ME_SOUND_STREAM, a)).toBe(50);
         expect(Content.ME_SOUND_STREAM).toHaveCount(50);
@@ -145,7 +145,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldCleanupActivities() throws Exception {
-        Activities a = getActivities("/com/soundcloud/android/service/sync/e1_activities.json");
+        Activities a = getActivities("/com/soundcloud/android/sync/e1_activities.json");
 
         expect(activitiesStorage.insert(Content.ME_ACTIVITIES, a)).toBe(17);
         expect(Content.ME_ACTIVITIES).toHaveCount(17);
@@ -154,7 +154,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldIncludeUserPermalinkInTrackView() throws Exception {
-        Activities activities = getActivities("/com/soundcloud/android/service/sync/e1_stream_1.json");
+        Activities activities = getActivities("/com/soundcloud/android/sync/e1_stream_1.json");
 
         for (Playable t : activities.getUniquePlayables()) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
@@ -173,7 +173,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldSupportAndroidGlobalSearch() throws Exception {
-        Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/service/sync/all_shortcuts.json");
+        Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/sync/all_shortcuts.json");
 
         List<ContentValues> cvs = new ArrayList<ContentValues>();
         for (Shortcut shortcut : shortcuts) {
@@ -249,7 +249,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWithRandom() throws Exception {
-        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
 
         for (Track t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
@@ -271,7 +271,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveATracksEndpointWhichReturnsOnlyCachedItems() throws Exception {
-        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
         for (Track t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
         }
@@ -291,7 +291,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveFavoriteEndpointWhichOnlyReturnsCachedItems() throws Exception {
-        List<Track> tracks = TestHelper.readResourceList("/com/soundcloud/android/provider/user_favorites.json");
+        List<Track> tracks = TestHelper.readResourceList("/com/soundcloud/android/storage/provider/user_favorites.json");
         for (Track t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
         }
@@ -311,7 +311,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldHaveFavoriteEndpointWhichReturnsRandomItems() throws Exception {
-        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/provider/user_favorites.json");
+        TrackHolder tracks  = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
 
         for (Track t : tracks) {
             expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
@@ -411,7 +411,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldBulkInsertSuggestions() throws Exception {
-        Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/service/sync/all_shortcuts.json");
+        Shortcut[] shortcuts = readJson(Shortcut[].class, "/com/soundcloud/android/sync/all_shortcuts.json");
 
         List<ContentValues> cvs = new ArrayList<ContentValues>();
         for (Shortcut shortcut : shortcuts) {

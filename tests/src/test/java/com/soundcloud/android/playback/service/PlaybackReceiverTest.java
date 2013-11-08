@@ -171,7 +171,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldAddLikeForPlaylistViaIntent() throws Exception {
-        Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
         Intent intent = new Intent(CloudPlaybackService.Actions.ADD_LIKE_ACTION);
@@ -184,7 +184,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldRemoveLikeForPlaylistViaIntent() throws Exception {
-        Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
         Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_LIKE_ACTION);
@@ -223,7 +223,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldAddRepostForPlaylistViaIntent() throws Exception {
-        Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
         Intent intent = new Intent(CloudPlaybackService.Actions.ADD_REPOST_ACTION);
@@ -236,7 +236,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldRemoveRepostForPlaylistViaIntent() throws Exception {
-        Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/service/sync/playlist.json");
+        Playlist playlist = TestHelper.readJson(Playlist.class, "/com/soundcloud/android/sync/playlist.json");
         SoundCloudApplication.MODEL_MANAGER.cache(playlist);
 
         Intent intent = new Intent(CloudPlaybackService.Actions.REMOVE_REPOST_ACTION);
@@ -257,7 +257,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldCallSaveProgressAndStopOnStopActionIfPlaying(){
-        when(playbackService.getPlaybackState()).thenReturn(PlaybackState.PLAYING);
+        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PLAYING);
         Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).saveProgressAndStop();
@@ -265,7 +265,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldCallStopOnStopActionIfNotPlaying(){
-        when(playbackService.getPlaybackState()).thenReturn(PlaybackState.PAUSED);
+        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PAUSED);
         Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService).stop();
@@ -273,7 +273,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldNotCallSaveProgressAndStopOnStopActionIfNotPlaying(){
-        when(playbackService.getPlaybackState()).thenReturn(PlaybackState.STOPPED);
+        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.STOPPED);
         Intent intent = new Intent(CloudPlaybackService.Actions.STOP_ACTION);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).saveProgressAndStop();
@@ -290,7 +290,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void shouldOpenCurrentIfPlayQueueChangedFromEmptyPlaylist(){
-        when(playbackService.getPlaybackState()).thenReturn(PlaybackState.WAITING_FOR_PLAYLIST);
+        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.WAITING_FOR_PLAYLIST);
         Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
         playbackReceiver.onReceive(Robolectric.application, intent);
         verify(playbackService, never()).saveProgressAndStop();

@@ -52,7 +52,7 @@ public class ActivitiesTest {
 
     @Test
     public void testIsEmptyParsed() throws Exception {
-        Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/service/sync/activities_empty.json");
+        Activities a = TestHelper.readJson(Activities.class, "/com/soundcloud/android/sync/activities_empty.json");
         expect(a.isEmpty()).toBeTrue();
     }
 
@@ -149,18 +149,18 @@ public class ActivitiesTest {
     }
 
     private static Activities getDefaultActivities() throws IOException {
-        return getActivities("/com/soundcloud/android/service/sync/e1_activities.json");
+        return getActivities("/com/soundcloud/android/sync/e1_activities.json");
     }
 
     private static Activities getActivitiesWithRepost() throws IOException {
-        return getActivities("/com/soundcloud/android/service/sync/e1_activities_with_repost.json");
+        return getActivities("/com/soundcloud/android/sync/e1_activities_with_repost.json");
     }
 
     @Test
     public void testMerge() throws Exception {
-        Activities a1 = getActivities("/com/soundcloud/android/service/sync/e1_activities_1.json");
-        Activities a2 = getActivities("/com/soundcloud/android/service/sync/e1_activities_2.json");
-        Activities all = getActivities("/com/soundcloud/android/service/sync/e1_activities.json");
+        Activities a1 = getActivities("/com/soundcloud/android/sync/e1_activities_1.json");
+        Activities a2 = getActivities("/com/soundcloud/android/sync/e1_activities_2.json");
+        Activities all = getActivities("/com/soundcloud/android/sync/e1_activities.json");
 
         Activities merged = a2.merge(a1);
         expect(merged.size()).toEqual(all.size());
@@ -172,13 +172,13 @@ public class ActivitiesTest {
 
     @Test
     public void testMergeWithEmpty() throws Exception {
-        Activities a1 = getActivities("/com/soundcloud/android/service/sync/e1_activities_1.json");
+        Activities a1 = getActivities("/com/soundcloud/android/sync/e1_activities_1.json");
         expect(a1.merge(Activities.EMPTY)).toBe(a1);
     }
 
     @Test
     public void testFilter() throws Exception {
-        Activities a2 = getActivities("/com/soundcloud/android/service/sync/e1_activities_2.json");
+        Activities a2 = getActivities("/com/soundcloud/android/sync/e1_activities_2.json");
         Date start = fromString("2012/05/10 12:39:28 +0000");
 
         Activities filtered = a2.filter(start);
@@ -188,7 +188,7 @@ public class ActivitiesTest {
 
     @Test
     public void testGetNextRequest() throws Exception {
-        Activities a1 = getActivities("/com/soundcloud/android/service/sync/e1_activities_1.json");
+        Activities a1 = getActivities("/com/soundcloud/android/sync/e1_activities_1.json");
         expect(a1.moreResourcesExist()).toBeTrue();
         expect(a1.getNextRequest().toUrl()).toEqual("/e1/me/activities?cursor=79fd0100-07e7-11e2-8aa5-5d4327b064fb");
     }
@@ -231,7 +231,7 @@ public class ActivitiesTest {
 
     @Test
     public void shouldBuildContentValues() throws Exception {
-        Activities a = getActivities("/com/soundcloud/android/service/sync/e1_activities_1.json");
+        Activities a = getActivities("/com/soundcloud/android/sync/e1_activities_1.json");
         ContentValues[] cv = a.buildContentValues(-1);
         expect(cv.length).toEqual(a.size());
     }
@@ -240,7 +240,7 @@ public class ActivitiesTest {
 
     @Test
     public void shouldGetArtworkUrls() throws Exception {
-        Activities a = getActivities("/com/soundcloud/android/service/sync/e1_one_of_each_activity.json");
+        Activities a = getActivities("/com/soundcloud/android/sync/e1_one_of_each_activity.json");
 
         Set<String> urls = a.artworkUrls();
         expect(urls.size()).toEqual(6);

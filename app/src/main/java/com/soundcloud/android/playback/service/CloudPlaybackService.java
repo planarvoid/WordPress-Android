@@ -83,7 +83,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
-    public static PlaybackState getPlaybackState() { return instance == null ? PlaybackState.STOPPED : instance.mPlaybackState; }
+    public static PlaybackState getPlaybackState() { return instance == null ? PlaybackState.STOPPED : instance.getPlaybackStateInternal(); }
     public static boolean isBuffering() {  return instance != null && instance._isBuffering(); }
     public static boolean isSeekable() {  return instance != null && instance._isSeekable(); }
 
@@ -835,6 +835,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             playQueue.setCurrentTrackToUserTriggered();
             openCurrent();
         }
+    }
+
+    /* package */ PlaybackState getPlaybackStateInternal() {
+        return mPlaybackState;
     }
 
     /* package */ int getDuration() {

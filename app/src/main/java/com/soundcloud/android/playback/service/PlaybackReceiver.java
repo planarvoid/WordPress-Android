@@ -83,7 +83,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
                 mPlayQueueManager.retryRelatedTracksFetch();
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
-                if (mPlaybackService.getPlaybackState() == PlaybackState.WAITING_FOR_PLAYLIST) {
+                if (mPlaybackService.getPlaybackStateInternal() == PlaybackState.WAITING_FOR_PLAYLIST) {
                     mPlaybackService.openCurrent();
                 }
             } else if (Actions.LOAD_TRACK_INFO.equals(action)) {
@@ -94,7 +94,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                     mPlaybackService.getInfoListener().onError(intent.getLongExtra(Track.EXTRA_ID, -1L));
                 }
             } else if (Actions.STOP_ACTION.equals(action)) {
-                if (mPlaybackService.getPlaybackState().isSupposedToBePlaying()) {
+                if (mPlaybackService.getPlaybackStateInternal().isSupposedToBePlaying()) {
                     mPlaybackService.saveProgressAndStop();
                 } else {
                     // make sure we go to a stopped stat. No-op if there already

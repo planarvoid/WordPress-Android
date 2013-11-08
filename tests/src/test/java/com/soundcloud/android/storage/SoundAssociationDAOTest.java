@@ -228,7 +228,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     @Test
     public void shouldInsertAndQueryLikes() throws Exception {
         SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
-                "/com/soundcloud/android/service/sync/e1_likes.json");
+                "/com/soundcloud/android/sync/e1_likes.json");
 
         // 3 likes, 12 dependencies
         expect(getDAO().createCollection(holder.collection)).toEqual(3 + 12);
@@ -243,7 +243,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     @Test
     public void shouldInsertQueryAndDeleteLikes() throws Exception {
         SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
-                "/com/soundcloud/android/service/sync/e1_likes.json");
+                "/com/soundcloud/android/sync/e1_likes.json");
 
         // 3 likes, 12 dependencies
         expect(getDAO().createCollection(holder.collection)).toEqual(3 + 12);
@@ -266,7 +266,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     @Test
     public void shouldQuerySounds() throws Exception {
         SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
-                "/com/soundcloud/android/provider/e1_sounds.json");
+                "/com/soundcloud/android/storage/provider/e1_sounds.json");
 
         // 50 sounds, 100 dependencies
         expect(getDAO().createCollection(holder.collection)).toEqual(50 + 100);
