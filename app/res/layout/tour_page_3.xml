@@ -7,9 +7,9 @@
                android:id="@+id/tour_background_image"/>
 
     <LinearLayout style="@style/TourOverlayTextHolderLayout">
-        <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.Headline"
+        <com.soundcloud.android.view.JaggedTextView style="@style/Tour.Headline"
                                                          android:text="@string/tour_title_3"/>
-        <com.soundcloud.android.view.tour.JaggedTextView style="@style/Tour.CallToAction"
+        <com.soundcloud.android.view.JaggedTextView style="@style/Tour.CallToAction"
                                                          android:text="@string/tour_text_3" />
     </LinearLayout>
 </RelativeLayout>

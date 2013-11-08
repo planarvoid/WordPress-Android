@@ -4,16 +4,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-    <com.soundcloud.android.view.adapter.SuggestedTrackImageView android:id="@+id/suggested_track_image"
+    <com.soundcloud.android.explore.SuggestedTrackImageView android:id="@+id/suggested_track_image"
                                                                  android:src="@drawable/placeholder_cells"
                                                                  sc:focalPoint=".45"
                                                                  style="@style/ExploreGridItemImageView"/>
 
-    <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/title"
+    <com.soundcloud.android.view.JaggedTextView android:id="@+id/title"
                                                      android:layout_marginLeft="@dimen/explore_suggested_track_padding"
                                                      android:layout_marginTop="@dimen/explore_suggested_track_padding"
                                                      style="@style/BlackOverlayText.Regular.Title"/>
-    <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/username"
+    <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
                                                      android:layout_below="@id/title"
                                                      android:layout_marginLeft="@dimen/explore_suggested_track_padding"
                                                      style="@style/BlackOverlayText.RegularSubtext"/>

@@ -24,7 +24,7 @@
                   android:layout_alignWithParentIfMissing="true"
                   android:layout_toLeftOf="@+id/btn_user_bucket_select_all"/>
 
-        <com.soundcloud.android.view.SingleLineCollectionTextView android:id="@android:id/text2"
+        <com.soundcloud.android.collections.SingleLineCollectionTextView android:id="@android:id/text2"
                                                                   android:layout_width="wrap_content"
                                                                   android:layout_height="wrap_content"
                                                                   style="@style/OnboardSuggestedUserCategoryUsernamesText"

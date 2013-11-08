@@ -5,10 +5,10 @@ import static com.soundcloud.android.robolectric.TestHelper.createRegexRequestMa
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.sync.SyncAdapterService;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowAccountManager;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;

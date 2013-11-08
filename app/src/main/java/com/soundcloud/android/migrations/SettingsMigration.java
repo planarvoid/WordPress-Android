@@ -1,7 +1,7 @@
 package com.soundcloud.android.migrations;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.preferences.Settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;

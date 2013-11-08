@@ -2,8 +2,8 @@ package com.soundcloud.android.c2dm;
 
 import static com.soundcloud.android.c2dm.C2DMReceiver.TAG;
 
-import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.task.AsyncApiTask;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.AsyncApiTask;
 import com.soundcloud.api.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -16,7 +16,7 @@ import java.io.IOException;
 public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
     private static final String DEVICE_ENDPOINT = "/me/devices";
 
-    public SendRegIdTask(AndroidCloudAPI api) {
+    public SendRegIdTask(PublicCloudAPI api) {
         super(api);
     }
 

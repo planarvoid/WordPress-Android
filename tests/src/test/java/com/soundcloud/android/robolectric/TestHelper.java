@@ -7,7 +7,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.http.Wrapper;
+import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.blueprints.CategoryBlueprint;
 import com.soundcloud.android.blueprints.SuggestedUserBlueprint;
 import com.soundcloud.android.blueprints.TrackBlueprint;
@@ -27,12 +27,12 @@ import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.model.behavior.Identifiable;
 import com.soundcloud.android.model.behavior.Persisted;
-import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.storage.provider.BulkInsertMap;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
@@ -81,7 +81,7 @@ public class TestHelper {
     }
 
     public static ObjectMapper getObjectMapper() {
-        return Wrapper.buildObjectMapper();
+        return PublicApiWrapper.buildObjectMapper();
     }
 
     public static ModelFactory getModelFactory() {

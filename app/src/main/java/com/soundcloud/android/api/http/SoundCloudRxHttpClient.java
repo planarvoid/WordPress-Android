@@ -217,12 +217,12 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
         }
 
         public ApiWrapper createWrapper(APIRequest apiRequest){
-            Wrapper wrapper = new Wrapper(mContext, mHttpProperties,mAccountOperations, mApplicationProperties);
+            PublicApiWrapper publicApiWrapper = new PublicApiWrapper(mContext, mHttpProperties,mAccountOperations, mApplicationProperties);
             String acceptContentType = apiRequest.isPrivate()
                     ? format(PRIVATE_API_ACCEPT_CONTENT_TYPE, apiRequest.getVersion())
                     : PUBLIC_API_ACCEPT_CONTENT_TYPE;
-            wrapper.setDefaultContentType(acceptContentType);
-            return wrapper;
+            publicApiWrapper.setDefaultContentType(acceptContentType);
+            return publicApiWrapper;
         }
     }
 

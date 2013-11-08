@@ -1,9 +1,9 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.MainActivity;
-import com.soundcloud.android.activity.auth.OnboardActivity;
-import com.soundcloud.android.activity.auth.Recover;
+import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
@@ -54,7 +54,7 @@ public class LoginScreen {
 
     public void clickForgotPassword () {
         solo.clickOnView(R.id.txt_i_forgot_my_password);
-        solo.waitForActivity(Recover.class);
+        solo.waitForActivity(RecoverActivity.class);
     }
 
     public void selectUserFromDialog(String username) {

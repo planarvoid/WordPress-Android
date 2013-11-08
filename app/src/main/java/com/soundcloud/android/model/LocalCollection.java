@@ -2,11 +2,11 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.model.behavior.Identifiable;
 import com.soundcloud.android.model.behavior.Persisted;
-import com.soundcloud.android.model.act.Activity;
-import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.sync.SyncConfig;
+import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.storage.provider.BulkInsertMap;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.sync.SyncConfig;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentValues;
@@ -26,7 +26,7 @@ public class LocalCollection implements Identifiable, Persisted {
     public long last_sync_success = -1;
     /** timestamp of last sync attempt */
     public long last_sync_attempt = -1;
-    /** see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.fragment.ScListFragment}) */
+    /** see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.collections.ScListFragment}) */
     public int sync_state = -1;
     /** collection size */
     public int size = -1;

@@ -1,7 +1,6 @@
 package com.soundcloud.android.rx.observers;
 
 import com.soundcloud.android.api.http.APIRequestException;
-import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observer;
 

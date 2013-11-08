@@ -2,7 +2,7 @@ package com.soundcloud.android.view;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.fragment.FriendFinderFragment;
+import com.soundcloud.android.associations.FriendFinderFragment;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.HttpStatus;

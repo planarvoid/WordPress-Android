@@ -1,6 +1,6 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.TempEndpoints;
+import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.api.Request;
 
 import android.text.TextUtils;

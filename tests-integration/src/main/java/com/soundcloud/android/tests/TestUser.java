@@ -1,10 +1,10 @@
 package com.soundcloud.android.tests;
 
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.operations.following.FollowingOperations;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.service.sync.content.UserAssociationSyncer;
+import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import rx.concurrency.Schedulers;
 
 import android.content.Context;

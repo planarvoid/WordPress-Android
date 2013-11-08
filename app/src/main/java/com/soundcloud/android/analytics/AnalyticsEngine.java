@@ -4,9 +4,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.State;
+import com.soundcloud.android.preferences.Settings;
+import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
@@ -147,8 +147,8 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     //To make testing easier
     protected static class CloudPlayerStateWrapper {
         public boolean isPlayerPlaying() {
-            State playbackState = CloudPlaybackService.getPlaybackState();
-            return playbackState.isSupposedToBePlaying();
+            PlaybackState playbackPlaybackState = CloudPlaybackService.getPlaybackState();
+            return playbackPlaybackState.isSupposedToBePlaying();
         }
     }
 }

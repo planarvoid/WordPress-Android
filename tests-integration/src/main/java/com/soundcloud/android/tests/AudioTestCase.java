@@ -1,7 +1,7 @@
 package com.soundcloud.android.tests;
 
-import com.soundcloud.android.jni.DecoderException;
-import com.soundcloud.android.jni.VorbisDecoder;
+import com.soundcloud.android.creators.record.jni.DecoderException;
+import com.soundcloud.android.creators.record.jni.VorbisDecoder;
 
 import android.media.MediaPlayer;
 

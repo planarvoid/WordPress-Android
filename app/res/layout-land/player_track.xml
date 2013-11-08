@@ -8,7 +8,7 @@
                   android:background="@color/playerControlBackground"
                   android:gravity="center_vertical">
 
-        <com.soundcloud.android.view.adapter.PlayableBar
+        <com.soundcloud.android.collections.views.PlayableBar
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
@@ -23,7 +23,7 @@
             android:layout_height="0dp"
             android:background="@android:color/white">
 
-        <com.soundcloud.android.view.play.WaveformControllerLand
+        <com.soundcloud.android.playback.views.WaveformControllerLayoutLand
                 android:id="@+id/waveform_controller"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>

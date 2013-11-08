@@ -19,7 +19,7 @@
                          android:layout_alignParentTop="true"
                         android:paddingBottom="5dip"/>
 
-            <com.soundcloud.android.view.create.RecordingMetaData android:id="@+id/metadata_layout"
+            <com.soundcloud.android.creators.upload.RecordingMetaDataLayout android:id="@+id/metadata_layout"
                             android:layout_height="wrap_content"
                             android:layout_width="fill_parent"
                             android:layout_below="@id/share_user_layout"
@@ -72,7 +72,7 @@
                   android:layout_height="fill_parent"
                   android:layout_below="@+id/share_options_separator">
 
-                <com.soundcloud.android.view.create.ConnectionList
+                <com.soundcloud.android.creators.upload.ConnectionListLayout
                       android:id="@+id/connectionList"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"/>
@@ -108,7 +108,7 @@
                                 android:layout_width="fill_parent"
                                 android:layout_below="@id/btn_add_emails" android:layout_height="1dip"/>
 
-                          <com.soundcloud.android.view.create.AccessList
+                          <com.soundcloud.android.creators.upload.AccessListLayout
                                   android:layout_below="@id/share_access_separator"
                                   android:id="@+id/accessList"
                                   android:layout_width="fill_parent"

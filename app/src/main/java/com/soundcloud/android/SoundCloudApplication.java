@@ -1,15 +1,15 @@
 package com.soundcloud.android;
 
 import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
-import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
-import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
+import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORITY;
+import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
 
 import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.auth.FacebookSSO;
-import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
+import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
@@ -18,9 +18,9 @@ import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.service.sync.SyncConfig;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
@@ -138,7 +138,7 @@ public class SoundCloudApplication extends Application implements Tracker {
             }
         }
 
-        FacebookSSO.extendAccessTokenIfNeeded(this);
+        FacebookSSOActivity.extendAccessTokenIfNeeded(this);
     }
 
     public synchronized User getLoggedInUser() {

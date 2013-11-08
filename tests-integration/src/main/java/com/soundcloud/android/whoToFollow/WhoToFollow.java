@@ -1,6 +1,6 @@
 package com.soundcloud.android.whoToFollow;
 
-import com.soundcloud.android.activity.auth.OnboardActivity;
+import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.auth.OnboardScreen;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersCategoryScreen;

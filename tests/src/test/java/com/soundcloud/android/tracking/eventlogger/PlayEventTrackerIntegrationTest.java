@@ -4,10 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackTest;
-import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.playback.service.CloudPlaybackService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

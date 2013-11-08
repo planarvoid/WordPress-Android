@@ -1,6 +1,6 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.model.act.Activities;
+import com.soundcloud.android.model.activities.Activities;
 
 import android.os.Build;
 import android.os.Environment;

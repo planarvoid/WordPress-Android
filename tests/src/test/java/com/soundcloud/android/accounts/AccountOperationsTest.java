@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.api.Token;

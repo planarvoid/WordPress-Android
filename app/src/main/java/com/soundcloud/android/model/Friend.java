@@ -3,7 +3,7 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
-import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.storage.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;

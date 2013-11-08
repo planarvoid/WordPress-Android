@@ -5,7 +5,7 @@
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent">
-        <com.soundcloud.android.view.tour.ParallaxPager android:id="@+id/tour_view"
+        <com.soundcloud.android.onboarding.ParallaxPager android:id="@+id/tour_view"
                                                         android:layout_width="fill_parent"
                                                         android:layout_height="fill_parent"/>
         <ImageView android:id="@+id/tour_logo"

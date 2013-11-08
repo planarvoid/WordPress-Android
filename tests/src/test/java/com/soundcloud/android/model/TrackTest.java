@@ -3,10 +3,10 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.streaming.StreamItem;
+import com.soundcloud.android.playback.streaming.StreamItem;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

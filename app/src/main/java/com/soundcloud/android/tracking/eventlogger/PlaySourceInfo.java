@@ -47,7 +47,7 @@ public class PlaySourceInfo implements Parcelable {
 
     /**
      * This exist purely for the PlayQueueUri to persist and recreate tracking through app lifecycles
-     * {@link com.soundcloud.android.service.playback.PlayQueueUri}
+     * {@link com.soundcloud.android.playback.service.PlayQueueUri}
      */
     public static PlaySourceInfo fromUriParams(Uri uri) {
         final Builder builder = new Builder();

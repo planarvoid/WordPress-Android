@@ -33,7 +33,7 @@
         <FrameLayout android:layout_width="0dp"
                      android:layout_weight="1"
                      android:layout_height="wrap_content">
-            <com.soundcloud.android.view.create.Chronometer android:id="@+id/chronometer"
+            <com.soundcloud.android.creators.record.ChronometerView android:id="@+id/chronometer"
                                                             android:layout_width="wrap_content"
                                                             android:layout_height="fill_parent"
                                                             android:gravity="center_vertical"
@@ -83,7 +83,7 @@
     <RelativeLayout android:id="@+id/footer_layout"
                     android:layout_width="match_parent"
                     android:layout_height="60dp">
-        <com.soundcloud.android.view.create.RecordMessageView android:id="@+id/txt_record_message"
+        <com.soundcloud.android.creators.record.RecordMessageView android:id="@+id/txt_record_message"
                                                               style="@style/txt_record_message"
                                                               android:layout_margin="5dip"
                                                               android:layout_alignParentBottom="true"

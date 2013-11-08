@@ -1,6 +1,6 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.api.http.Wrapper.UnauthorizedException;
+import static com.soundcloud.android.api.http.PublicApiWrapper.UnauthorizedException;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;

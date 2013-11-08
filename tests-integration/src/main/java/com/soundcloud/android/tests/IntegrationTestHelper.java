@@ -5,11 +5,11 @@ import static junit.framework.Assert.assertNotNull;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.api.http.Wrapper;
+import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
@@ -52,15 +52,15 @@ public final class IntegrationTestHelper {
         } else if (account == null) {
             Log.d(TAG, "logging in");
             Context context = instrumentation.getTargetContext();
-            Wrapper wrapper = new Wrapper(context);
+            PublicApiWrapper publicApiWrapper = new PublicApiWrapper(context);
             Token token;
             try {
-                token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
+                token = publicApiWrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
             } catch (IOException e) {
                 Log.w(IntegrationTestHelper.class.getSimpleName(), e);
                 throw new AssertionError("error logging in: "+e.getMessage());
             }
-            User user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
+            User user = new FetchUserTask(publicApiWrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
             assertNotNull("could not get test user", user);
             assertNotNull("addAccount failed", new AccountOperations(instrumentation.getTargetContext()).addOrReplaceSoundCloudAccount(user, token, SignupVia.NONE));
             return account;

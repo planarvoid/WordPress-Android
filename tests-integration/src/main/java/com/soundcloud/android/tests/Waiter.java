@@ -2,8 +2,8 @@ package com.soundcloud.android.tests;
 
 import com.jayway.android.robotium.solo.Condition;
 import com.soundcloud.android.R;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.State;
+import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackState;
 
 import android.view.View;
 import android.webkit.WebView;
@@ -57,7 +57,7 @@ public class Waiter {
         Condition condition = new Condition() {
             @Override
             public boolean isSatisfied() {
-                return (CloudPlaybackService.getPlaybackState() == State.PLAYING);
+                return (CloudPlaybackService.getPlaybackState() == PlaybackState.PLAYING);
             }
         };
         return solo.waitForCondition(condition, this.NETWORK_TIMEOUT);

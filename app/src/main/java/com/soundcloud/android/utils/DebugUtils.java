@@ -6,8 +6,8 @@ import com.google.common.base.Charsets;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.streaming.StreamItem;
+import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.streaming.StreamItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.TestConsts;
-import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.profile.ProfileActivity;
 
 import android.net.Uri;
 import android.test.suitebuilder.annotation.Suppress;
@@ -15,7 +15,7 @@ public class ResolveUserSoundCloudUriTest extends ResolveBaseTest {
     }
 
     public void testResolveUrl() throws Exception {
-        solo.assertActivity(UserBrowser.class, DEFAULT_WAIT);
+        solo.assertActivity(ProfileActivity.class, DEFAULT_WAIT);
         // TODO: Use POMs here
         solo.assertText("steveangello");
     }

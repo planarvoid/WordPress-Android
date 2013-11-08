@@ -4,7 +4,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
 import com.soundcloud.android.robolectric.shadows.ShadowMediaPlayer;
 import com.soundcloud.android.robolectric.shadows.ShadowNativeAmplitudeAnalyzer;
@@ -39,9 +39,9 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         super(testClass,new RobolectricConfig(new File("../app")));
 
         // remove native calls + replace with shadows
-        addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisEncoder");
-        addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisDecoder");
-        addClassOrPackageToInstrument("com.soundcloud.android.jni.NativeAmplitudeAnalyzer");
+        addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.VorbisEncoder");
+        addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.VorbisDecoder");
+        addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.NativeAmplitudeAnalyzer");
     }
 
     @Override

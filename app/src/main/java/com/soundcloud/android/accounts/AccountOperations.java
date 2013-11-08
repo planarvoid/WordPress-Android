@@ -9,7 +9,7 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.auth.SignupVia;
+import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Token;

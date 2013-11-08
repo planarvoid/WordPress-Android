@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity.resolve;
 
-import com.soundcloud.android.activity.ResolveActivity;
+import com.soundcloud.android.main.ResolveActivity;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTestCase;

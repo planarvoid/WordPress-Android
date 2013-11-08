@@ -16,7 +16,7 @@
                     android:gravity="center"
                     android:background="@drawable/item_background_dark"
                     android:contentDescription="@string/accessibility_action_bar_waveform">
-        <com.soundcloud.android.view.NowPlayingIndicator android:id="@+id/waveform_progress"
+        <com.soundcloud.android.actionbar.NowPlayingProgressBar android:id="@+id/waveform_progress"
                                                          android:layout_width="62dp"
                                                          android:layout_height="20dp"
                                                          android:layout_centerVertical="true"

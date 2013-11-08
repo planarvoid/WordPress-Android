@@ -6,7 +6,7 @@ import com.at.ATParams;
 import com.at.ATTag;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.preferences.Settings;
 import com.soundcloud.android.model.Plan;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.NetworkConnectivityListener;

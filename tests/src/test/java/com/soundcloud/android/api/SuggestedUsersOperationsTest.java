@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.dao.UserAssociationStorage;
+import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;

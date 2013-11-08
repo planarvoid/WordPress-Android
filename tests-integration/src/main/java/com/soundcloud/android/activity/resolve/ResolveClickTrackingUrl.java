@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.TestConsts;
-import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.profile.ProfileActivity;
 
 import android.net.Uri;
 
@@ -13,7 +13,7 @@ public class ResolveClickTrackingUrl extends ResolveBaseTest {
     }
 
     public void testResolveUrl() throws Exception {
-        solo.assertActivity(UserBrowser.class, DEFAULT_WAIT);
+        solo.assertActivity(ProfileActivity.class, DEFAULT_WAIT);
         assertEquals("steveangello", profileScreen.userName());
     }
 }

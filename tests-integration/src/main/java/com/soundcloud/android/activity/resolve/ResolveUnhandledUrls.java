@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.TestConsts;
-import com.soundcloud.android.activity.WebViewActivity;
+import com.soundcloud.android.main.WebViewActivity;
 
 import android.net.Uri;
 

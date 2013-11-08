@@ -1,6 +1,6 @@
 package com.soundcloud.android.model.behavior;
 
-import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.storage.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentValues;

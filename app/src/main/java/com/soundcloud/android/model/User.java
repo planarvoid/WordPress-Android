@@ -8,13 +8,13 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.json.Views;
+import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.Refreshable;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.DBHelper.Users;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.storage.provider.DBHelper.Users;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
@@ -286,7 +286,7 @@ public class User extends ScResource implements UserHolder {
     }
 
     public Intent getViewIntent() {
-        return new Intent(Actions.USER_BROWSER).putExtra(UserBrowser.EXTRA_USER, this);
+        return new Intent(Actions.USER_BROWSER).putExtra(ProfileActivity.EXTRA_USER, this);
     }
 
     public boolean addAFollower() {
