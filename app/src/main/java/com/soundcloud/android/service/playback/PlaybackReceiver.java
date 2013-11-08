@@ -123,7 +123,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             mPlayQueueManager.setNewPlayQueue(playQueue);
             mPlaybackService.openCurrent();
 
-            if (intent.getBooleanExtra(PlayExtras.fetchRelated, false)){
+            if (intent.getBooleanExtra(PlayExtras.fetchRelated, false) && !playQueue.isEmpty()){
                 mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
             }
         } else {

@@ -519,7 +519,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private PlayQueue getInitialPlayQueue(boolean isFirstLoad) {
         final PlayQueue intentPlayQueue = isFirstLoad ? getPlayQueueFromIntent(getIntent()) : PlayQueue.EMPTY;
 
-        final boolean waitingForServiceToLoadQueue = intentPlayQueue != PlayQueue.EMPTY
+        final boolean waitingForServiceToLoadQueue = intentPlayQueue.isEmpty()
                 && intentPlayQueue.getCurrentTrackId() != CloudPlaybackService.getCurrentTrackId();
 
         if (waitingForServiceToLoadQueue){

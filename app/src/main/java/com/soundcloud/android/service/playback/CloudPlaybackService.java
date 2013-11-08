@@ -480,13 +480,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     // TODO : Handle tracks that are not in local storage (quicksearch)
     /* package */ void openCurrent(final Media.Action action) {
-        final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
-        mPlaybackOperations.loadTrack(currentTrackId).subscribe(new DefaultObserver<Track>() {
-            @Override
-            public void onNext(Track track) {
-                openCurrent(track, action);
-            }
-        });
+        if (!getPlayQueueInternal().isEmpty()){
+            final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
+            mPlaybackOperations.loadTrack(currentTrackId).subscribe(new DefaultObserver<Track>() {
+                @Override
+                public void onNext(Track track) {
+                    openCurrent(track, action);
+                }
+            });
+        }
     }
 
     /* package */ void openCurrent(Track track, Media.Action action) {

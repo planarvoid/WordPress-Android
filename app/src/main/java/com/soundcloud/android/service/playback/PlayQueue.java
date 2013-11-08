@@ -8,6 +8,7 @@ import com.google.common.primitives.Longs;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.net.Uri;
 import android.os.Parcel;
@@ -149,6 +150,8 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
     }
 
     public String getCurrentEventLoggerParams() {
+        if (isEmpty()) return ScTextUtils.EMPTY_STRING;
+
         final TrackSourceInfo trackSourceInfo = mPlaySourceInfo.getTrackSource(getCurrentTrackId());
         trackSourceInfo.setTrigger(mCurrentTrackIsUserTriggered);
 

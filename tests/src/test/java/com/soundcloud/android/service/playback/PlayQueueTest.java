@@ -173,6 +173,12 @@ public class PlayQueueTest {
         expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&source=recommender&source_version=rec1");
     }
 
+    @Test
+    public void shouldReturnEmptyEventLoggerParamsWhenQueueIsEmpty() throws Exception {
+        expect(PlayQueue.EMPTY.getCurrentEventLoggerParams()).toEqual("");
+
+    }
+
     private void checkManualTrigger(PlayQueue playQueue) {
         expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=manual");
     }
