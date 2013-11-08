@@ -21,9 +21,12 @@ import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
@@ -171,6 +174,28 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Override public ObjectMapper getMapper() {
         return mObjectMapper;
+    }
+
+    // add a bunch of logging in debug mode to make it easier to see and debug API request
+    @Override
+    public HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException {
+        final boolean shouldLog = Log.isLoggable(TAG, Log.INFO);
+        // log all request headers
+        if (shouldLog) {
+            Log.i(TAG, "Request: " + request.getMethod() + " " + request.getURI());
+            final Header[] headers = request.getAllHeaders();
+            for (Header header : headers) {
+                Log.i(TAG, "---> " + header.toString());
+            }
+        }
+
+        // sends the request
+        HttpResponse response = super.safeExecute(target, request);
+
+        if (shouldLog) {
+            Log.i(TAG, "Response: " + response.getStatusLine() + " | " + request.getURI());
+        }
+        return response;
     }
 
     @Override @SuppressWarnings("unchecked")
