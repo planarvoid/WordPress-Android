@@ -64,6 +64,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @NotNull
     private PlayQueue mPlayQueue = PlayQueue.EMPTY;
+    private boolean mIsFirstLoad;
 
     public interface PlayerError {
         int PLAYBACK_ERROR    = 0;
@@ -95,9 +96,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        if (bundle == null) {
-            mPlayQueue = getPlayQueueFromIntent(getIntent());
-        }
+        mIsFirstLoad = bundle == null;
     }
 
     @Override
@@ -327,10 +326,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         f.addAction(Comment.ACTION_CREATE_COMMENT);
         registerReceiver(mStatusListener, new IntentFilter(f));
 
-        if (mPlayQueue == PlayQueue.EMPTY || mPlayQueue.getCurrentTrackId() == CloudPlaybackService.getCurrentTrackId()){
-            // In this case we are not waiting on a playqueue changed event, so set it from the service
-            mPlayQueue = CloudPlaybackService.getPlayQueue();
-        }
+        mPlayQueue = getInitialPlayQueue(mIsFirstLoad);
 
         if (!mPlayQueue.isEmpty()) {
             // everything is fine, configure from service
@@ -486,8 +482,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     private static final class PlayerHandler extends Handler {
-        private WeakReference<PlayerActivity> mPlayerRef;
 
+        private WeakReference<PlayerActivity> mPlayerRef;
         private PlayerHandler(PlayerActivity context) {
             this.mPlayerRef = new WeakReference<PlayerActivity>(context);
         }
@@ -511,6 +507,25 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 default:
                     break;
             }
+        }
+
+    }
+
+    /**
+     * Gets a playQueue based on either the playqueue in the starting intent or from the service.
+     * The decision is based on whether the intent playqueue exists and whether the service has loaded that playqueue
+     * already. If not, we show the temporary playqueue and wait for  {@link CloudPlaybackService.Broadcasts#PLAYQUEUE_CHANGED}
+     */
+    private PlayQueue getInitialPlayQueue(boolean isFirstLoad) {
+        final PlayQueue intentPlayQueue = isFirstLoad ? getPlayQueueFromIntent(getIntent()) : PlayQueue.EMPTY;
+
+        final boolean waitingForServiceToLoadQueue = intentPlayQueue != PlayQueue.EMPTY
+                && intentPlayQueue.getCurrentTrackId() != CloudPlaybackService.getCurrentTrackId();
+
+        if (waitingForServiceToLoadQueue){
+            return intentPlayQueue;
+        } else {
+            return CloudPlaybackService.getPlayQueue();
         }
     }
 
