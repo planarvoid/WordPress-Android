@@ -336,6 +336,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                    start it, it will reload queue and broadcast changes */
             startService(new Intent(this, CloudPlaybackService.class));
         }
+        mIsFirstLoad = false;
     }
 
     @Override
