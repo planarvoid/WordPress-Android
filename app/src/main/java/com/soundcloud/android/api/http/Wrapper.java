@@ -313,7 +313,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         final int code = response.getStatusLine().getStatusCode();
         switch (code) {
             case HttpStatus.SC_UNAUTHORIZED:
-                throw ErrorUtils.handleUnauthorized(mContext, originalRequest);
+                throw ErrorUtils.handleUnauthorized(mContext, originalRequest, response.getStatusLine().getStatusCode());
 
             case HttpStatus.SC_NOT_FOUND:
                 throw new NotFoundException();
@@ -437,8 +437,8 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     public static class UnauthorizedException extends InvalidTokenException {
 
-        public UnauthorizedException(Request failedRequest, @Nullable Token token) {
-            super(HttpStatus.SC_UNAUTHORIZED, failedRequest.toString() + "; token=" + token);
+        public UnauthorizedException(Request failedRequest, @Nullable Token token, int statusCode) {
+            super(statusCode, failedRequest.toString() + "; token=" + token);
         }
     }
 }

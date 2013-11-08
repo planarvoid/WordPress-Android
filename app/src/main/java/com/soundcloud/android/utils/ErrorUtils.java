@@ -40,9 +40,9 @@ public class ErrorUtils {
         return t instanceof IOException;
     }
 
-    public static UnauthorizedException handleUnauthorized(Context context, Request failedRequest) {
+    public static UnauthorizedException handleUnauthorized(Context context, Request failedRequest, int statusCode) {
         AccountOperations accountOperations = new AccountOperations(context);
-        UnauthorizedException exception = new UnauthorizedException(failedRequest, accountOperations.getSoundCloudToken());
+        UnauthorizedException exception = new UnauthorizedException(failedRequest, accountOperations.getSoundCloudToken(), statusCode);
         Log.d("Received Unauthorized: " + exception.getMessage());
         SoundCloudApplication.handleSilentException("Received Unauthorized", exception);
         return exception;
