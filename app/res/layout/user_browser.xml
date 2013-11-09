@@ -12,7 +12,7 @@
                   android:gravity="center_vertical"
                   android:layout_width="fill_parent">
 
-        <ImageView android:id="@+id/user_icon"
+        <ImageView android:id="@+id/user_image"
                 android:layout_width="@dimen/user_page_icon_size"
                 android:layout_height="@dimen/user_page_icon_size"
                 android:layout_marginRight="@dimen/list_icon_margin_right"
@@ -23,8 +23,8 @@
                         android:layout_height="wrap_content"
                         android:gravity="left"
                         android:layout_marginLeft="@dimen/list_text_margin_left"
-                        android:layout_alignTop="@id/user_icon"
-                        android:layout_toRightOf="@id/user_icon"
+                        android:layout_alignTop="@id/user_image"
+                        android:layout_toRightOf="@id/user_image"
                         android:layout_toLeftOf="@+id/toggleFollowingHolder">
 
             <TextView android:id="@+id/username"
@@ -86,8 +86,8 @@
         <RelativeLayout android:id="@id/toggleFollowingHolder"
                                     android:layout_alignParentRight="true"
                                     android:layout_marginLeft="10dp"
-                                    android:layout_alignTop="@id/user_icon"
-                                    android:layout_alignBottom="@id/user_icon"
+                                    android:layout_alignTop="@id/user_image"
+                                    android:layout_alignBottom="@id/user_image"
                                     android:gravity="center"
                                     android:layout_width="wrap_content"
                                     android:layout_height="0dp">

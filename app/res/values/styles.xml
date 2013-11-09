@@ -1302,9 +1302,12 @@
         <item name="android:scaleType">centerInside</item>
     </style>
 
-    <style name="SuggestedUserToggleButton">
+    <style name="UserToggleButton">
         <item name="android:background">@null</item>-->
         <item name="android:button">@drawable/btn_check_round</item>-->
+    </style>
+
+    <style name="UserToggleButton.Suggested">
         <item name="android:layout_width">40dp</item>
         <item name="android:layout_height">40dp</item>
         <item name="android:layout_alignParentRight">true</item>

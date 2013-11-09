@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:baselineAligned="false"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="horizontal"
+              android:id="@+id/container">
+
+    <RelativeLayout android:layout_width="@dimen/navigation_drawer_width"
+                    android:layout_height="match_parent">
+        <com.soundcloud.android.explore.UserBrowserImageView android:id="@+id/user_image"
+                                                             android:layout_width="match_parent"
+                                                             android:layout_height="match_parent"
+                                                             android:background="@drawable/placeholder_cells"
+                                                             android:scaleType="centerCrop"/>
+        <View android:id="@+id/suggested_user_selector"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"/>
+
+        <LinearLayout android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_alignParentLeft="true"
+                      android:layout_alignParentTop="true"
+                      android:orientation="vertical"
+                      android:layout_marginLeft="13dp"
+                      android:layout_marginTop="13dp">
+
+            <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
+                                                        style="@style/BlackOverlayText.Regular"/>
+            <com.soundcloud.android.view.JaggedTextView android:id="@+id/location"
+                                                        style="@style/BlackOverlayText.RegularSubtext"/>
+        </LinearLayout>
+
+        <ToggleButton android:id="@id/toggle_btn_follow"
+                      android:layout_alignParentBottom="true"
+                      android:layout_marginBottom="9dp"
+                      android:layout_marginRight="9dp"
+                      android:layout_centerHorizontal="true"
+                      android:textOn="Following"
+                      android:textOff="Follow"
+                      android:textColor="@android:color/white"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      style="@style/UserToggleButton"/>
+    </RelativeLayout>
+
+    <FrameLayout android:layout_width="wrap_content"
+                  android:layout_weight="1"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical">
+        <LinearLayout android:orientation="vertical"
+                      android:layout_height="match_parent"
+                      android:layout_width="match_parent">
+            <com.viewpagerindicator.TitlePageIndicator
+                    android:background="@color/playerControlBackground"
+                    android:id="@+id/indicator"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    />
+            <android.support.v4.view.ViewPager
+                    android:id="@+id/pager"
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    />
+        </LinearLayout>
+        <View android:background="@drawable/drawer_shadow"
+              android:layout_height="match_parent"
+              android:layout_width="wrap_content" />
+    </FrameLayout>
+</LinearLayout>
