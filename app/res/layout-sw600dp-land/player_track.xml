@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:soundcloud="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -9,9 +10,10 @@
                  android:layout_alignParentTop="true"
                  android:background="@drawable/artwork_player"
                  android:gravity="top">
-        <ImageView android:layout_width="match_parent"
-                   android:layout_height="match_parent"
-                   android:id="@+id/artwork"/>
+        <com.soundcloud.android.view.ParallaxImageView android:layout_width="match_parent"
+                                                          android:layout_height="match_parent"
+                                                          soundcloud:focalPoint=".4"
+                                                          android:id="@+id/artwork"/>
     </FrameLayout>
 
     <View android:id="@+id/artwork_overlay"

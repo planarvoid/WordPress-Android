@@ -2,6 +2,9 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
+    <View android:layout_width="fill_parent"
+          android:layout_height="2dp"
+          android:background="@drawable/player_track_horiz_separator_bg"/>
     <ScrollView android:layout_width="fill_parent"
                 android:id="@+id/info_view"
                 android:layout_height="fill_parent">
@@ -77,13 +80,4 @@
         </LinearLayout>
 
     </ScrollView>
-
-    <View android:layout_width="fill_parent"
-          android:layout_alignParentTop="true"
-          android:layout_height="5dip"
-          android:background="@drawable/drop_shadow_down"/>
-    <View android:layout_width="fill_parent"
-          android:layout_alignParentBottom="true"
-          android:layout_height="5dip"
-          android:background="@drawable/drop_shadow_up"/>
 </merge>

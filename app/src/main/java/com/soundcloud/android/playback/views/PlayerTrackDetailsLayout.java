@@ -4,9 +4,9 @@ import static com.soundcloud.android.associations.PlayableInteractionActivity.EX
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.TrackInteractionActivity;
-import com.soundcloud.android.search.TracksByTag;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
+import com.soundcloud.android.search.TracksByTag;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.jetbrains.annotations.Nullable;
@@ -22,13 +22,13 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.List;
 
-public class PlayerTrackDetailsLayout extends RelativeLayout {
+public class PlayerTrackDetailsLayout extends LinearLayout {
     private ViewGroup mTrackTags;
     private TableRow mLikersRow;
     private TableRow mRepostersRow;
@@ -55,7 +55,8 @@ public class PlayerTrackDetailsLayout extends RelativeLayout {
 
     private void init(Context context) {
         View.inflate(context, R.layout.track_info, this);
-        setBackgroundColor(0xFFFFFFFF);
+        setBackgroundResource(R.color.playerControlBackground);
+        setOrientation(VERTICAL);
 
         mTrackTags = (ViewGroup) findViewById(R.id.tags_holder);
 

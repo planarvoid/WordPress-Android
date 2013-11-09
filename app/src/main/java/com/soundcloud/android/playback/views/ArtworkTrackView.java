@@ -48,7 +48,6 @@ public class ArtworkTrackView extends PlayerTrackView {
         super(context, attrs);
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
-        mArtwork.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mArtworkHolder = (FrameLayout) mArtwork.getParent();
         mArtworkOverlay = findViewById(R.id.artwork_overlay);
         mArtworkOverlay.setOnClickListener(new OnClickListener() {
