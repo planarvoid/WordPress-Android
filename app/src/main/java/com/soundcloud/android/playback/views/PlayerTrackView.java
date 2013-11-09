@@ -8,13 +8,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.PlayerActivity;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +27,6 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
@@ -49,10 +46,7 @@ public class PlayerTrackView extends FrameLayout implements
     private PublicCloudAPI oldCloudApi;
     @NotNull
     protected PlayerTrackViewListener mListener;
-    @Nullable
-    private PlayableBar mTrackInfoBar;
-    @Nullable
-    private PlayableActionButtonsController mActionButtons;
+    private PlayableInfoAndEngagementsController mInfoAndEngagements;
 
     public interface PlayerTrackViewListener extends WaveformControllerLayout.WaveformListener {
         void onAddToPlaylist(Track track);
@@ -70,28 +64,7 @@ public class PlayerTrackView extends FrameLayout implements
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformControllerLayout) findViewById(R.id.waveform_controller);
         mWaveformController.setListener(mListener);
-
-        mTrackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
-        if (mTrackInfoBar != null){
-            findViewById(R.id.playable_private_indicator).setVisibility(View.GONE);
-            mTrackInfoBar.addTextShadows();
-            mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    ProfileActivity.startFromPlayable(getContext(), mTrack);
-                }
-            });
-        }
-
-        // cheap way of finding engagements
-        if (findViewById(R.id.toggle_like) != null){
-            mActionButtons = new PlayableActionButtonsController(this);
-            findViewById(R.id.btn_addToSet).setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mListener.onAddToPlaylist(mTrack);
-                }
-            });
-        }
+        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener);
     }
 
     // TODO, this is currently true all the time
@@ -142,8 +115,7 @@ public class PlayerTrackView extends FrameLayout implements
             refreshComments();
         }
 
-        if (mTrackInfoBar != null) mTrackInfoBar.setTrack(track);
-        if (mActionButtons != null) mActionButtons.setTrack(track);
+        mInfoAndEngagements.setTrack(track);
     }
 
     private void refreshComments() {
@@ -262,7 +234,7 @@ public class PlayerTrackView extends FrameLayout implements
             if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(BroadcastExtras.isLike, false);
                 mTrack.user_repost = intent.getBooleanExtra(BroadcastExtras.isRepost, false);
-                if (mActionButtons != null) mActionButtons.setTrack(mTrack);
+                mInfoAndEngagements.setTrack(mTrack);
             }
 
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
@@ -362,6 +334,10 @@ public class PlayerTrackView extends FrameLayout implements
 
     public long getTrackId() {
         return mTrack == null ? -1 : mTrack.getId();
+    }
+
+    public Track getTrack() {
+        return mTrack;
     }
 
     public void clear() {

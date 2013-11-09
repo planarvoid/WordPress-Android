@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 style="@style/PlayerActionContainer">
-
     <include layout="@layout/player_action_common"/>
 
     <!-- we need this extra layout to center the separator -->
     <FrameLayout android:layout_width="wrap_content"
                  android:layout_height="wrap_content"
                  android:layout_toLeftOf="@+id/btn_share"
-                 android:layout_toRightOf="@+id/btn_addToSet">
+                 android:layout_toRightOf="@id/btn_addToSet">
 
         <View style="@style/PlayerActionSeparator"
               android:layout_gravity="center_horizontal"/>
@@ -17,12 +16,7 @@
 
 
     <ImageButton android:id="@id/btn_share"
-                 android:layout_toLeftOf="@+id/toggle_info"
+                 android:layout_alignParentRight="true"
                  style="@style/PlayerAction.Button.Share"/>
 
-    <ToggleButton android:id="@+id/toggle_info"
-                  android:layout_marginRight="@dimen/player_info_button_margin"
-                  android:layout_marginLeft="@dimen/player_info_button_margin"
-                  android:layout_alignParentRight="true"
-                  style="@style/PlayerAction.Button.Info"/>
 </RelativeLayout>

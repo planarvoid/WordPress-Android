@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.soundcloud.android.collections.views.PlayableBar
+            android:id="@+id/playable_bar"
+            android:background="@drawable/player_track_header_background"
+            android:focusable="true"
+            android:clickable="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <View android:layout_width="fill_parent"
+          android:layout_height="2dp"
+          android:background="@drawable/player_track_horiz_separator_bg"/>
+
+    <!-- contains the action buttons for liking and reposting -->
+    <include layout="@layout/player_action_bar"/>
+</merge>

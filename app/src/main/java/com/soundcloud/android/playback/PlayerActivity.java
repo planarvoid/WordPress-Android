@@ -10,21 +10,23 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.playback.views.PlayerTrackView;
-import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.playback.service.CloudPlaybackService;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlaybackState;
+import com.soundcloud.android.playback.views.AddCommentDialog;
+import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
+import com.soundcloud.android.playback.views.PlayerTrackDetailsLayout;
+import com.soundcloud.android.playback.views.PlayerTrackPager;
+import com.soundcloud.android.playback.views.PlayerTrackView;
+import com.soundcloud.android.playback.views.TransportBarView;
+import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.service.LocalBinder;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.UriUtils;
-import com.soundcloud.android.playback.views.AddCommentDialog;
-import com.soundcloud.android.playback.views.PlayerTrackPager;
-import com.soundcloud.android.playback.views.TransportBarView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +44,7 @@ import android.os.Message;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 
 import javax.annotation.CheckForNull;
 import java.lang.ref.WeakReference;
@@ -63,9 +66,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private int mPendingPlayPosition = -1;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
 
+
     @NotNull
     private PlayQueue mPlayQueue = PlayQueue.EMPTY;
     private boolean mIsFirstLoad;
+    private LinearLayout mPlayerInfoLayout;
+    private PlayerTrackDetailsLayout mTrackDetailsView;
+    private PlayableInfoAndEngagementsController mPlayableInfoAndEngagementsController;
 
     public interface PlayerError {
         int PLAYBACK_ERROR    = 0;
@@ -93,6 +100,12 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         mTransportBar.setOnNextListener(mNextListener);
         mTransportBar.setOnPauseListener(mPauseListener);
         mTransportBar.setOnCommentListener(mCommentListener);
+
+        mPlayerInfoLayout = (LinearLayout) findViewById(R.id.player_info_view);
+        if (mPlayerInfoLayout != null){
+            mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
+            mPlayableInfoAndEngagementsController = new PlayableInfoAndEngagementsController(mPlayerInfoLayout, this);
+        }
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -156,6 +169,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         }
         mChangeTrackFast = false;
         mTransportBar.setIsCommenting(mTrackPager.getCurrentItem() == mTrackPagerAdapter.getCommentingPosition());
+        updatePlayerInfoPanelFromTrackPager();
     }
 
     private void sendTrackChangeOnDelay() {
@@ -349,6 +363,21 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
         mActivityPaused = true;
         mPlaybackService = null;
+    }
+
+    private void updatePlayerInfoPanelFromTrackPager() {
+        final PlayerTrackView currentDisplayedTrackView = getCurrentDisplayedTrackView();
+        final Track track = currentDisplayedTrackView == null ? null :
+                SoundCloudApplication.MODEL_MANAGER.getTrack(currentDisplayedTrackView.getTrackId());
+        if (track != null){
+
+            if (mTrackDetailsView != null){
+                mTrackDetailsView.fillTrackDetails(track);
+            }
+            if (mPlayableInfoAndEngagementsController != null){
+                mPlayableInfoAndEngagementsController.setTrack(track);
+            }
+        }
     }
 
     private final ServiceConnection osc = new ServiceConnection() {
@@ -632,6 +661,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         setCommentMode(false, false);
         setBufferingState();
         setPlaybackState();
+        updatePlayerInfoPanelFromTrackPager();
     }
 
     private void setBufferingState() {

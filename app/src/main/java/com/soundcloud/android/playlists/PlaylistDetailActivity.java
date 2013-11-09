@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playlist;
@@ -11,7 +12,6 @@ import com.soundcloud.android.playback.service.CloudPlaybackService;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.playback.views.PlayableActionButtonsController;
 import com.soundcloud.android.collections.views.PlayableBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +30,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     private static final String TRACKS_FRAGMENT_TAG = "tracks_fragment";
     private Playlist mPlaylist;
     private PlayableBar mPlaylistBar;
-    private PlayableActionButtonsController mActionButtons;
+    private PlayableInfoAndEngagementsController mActionButtons;
 
     private PlaylistTracksFragment mFragment;
 
@@ -121,7 +121,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             }
         });
 
-        mActionButtons = new PlayableActionButtonsController(mPlaylistBar);
+        mActionButtons = new PlayableInfoAndEngagementsController(mPlaylistBar, null);
 
         if (savedInstanceState == null) {
             mFragment = PlaylistTracksFragment.create(getIntent().getData());

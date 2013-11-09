@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.util.Linkify;
+import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,17 +29,31 @@ import android.widget.TextView;
 import java.util.List;
 
 public class PlayerTrackDetailsLayout extends RelativeLayout {
-    private final ViewGroup mTrackTags;
-    private final TableRow mLikersRow,     mRepostersRow,     mCommentersRow;
-    private final TableRow mLikersDivider, mRepostersDivider, mCommentersDivider;
-    private final TextView mLikersText,    mRepostersText,    mCommentersText;
-    private final TextView mTxtInfo;
+    private ViewGroup mTrackTags;
+    private TableRow mLikersRow;
+    private TableRow mRepostersRow;
+    private TableRow mCommentersRow;
+    private TableRow mLikersDivider;
+    private TableRow mRepostersDivider;
+    private TableRow mCommentersDivider;
+    private TextView mLikersText;
+    private TextView mRepostersText;
+    private TextView mCommentersText;
+    private TextView mTxtInfo;
 
     private long mTrackId;
     private @Nullable TagsHolder mLastTags;
 
     public PlayerTrackDetailsLayout(Context context) {
         super(context);
+        init(context);
+    }
+    public PlayerTrackDetailsLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
+
+    private void init(Context context) {
         View.inflate(context, R.layout.track_info, this);
         setBackgroundColor(0xFFFFFFFF);
 

@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.playback.views.PlayableActionButtonsController;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,15 +13,15 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 @RunWith(DefaultTestRunner.class)
-public class PlayableActionButtonsControllerTest {
+public class PlayableInfoAndEngagementsControllerTest {
 
-    private PlayableActionButtonsController controller;
+    private PlayableInfoAndEngagementsController controller;
 
     @Before
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) DefaultTestRunner.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
-        controller = new PlayableActionButtonsController(rootView);
+        controller = new PlayableInfoAndEngagementsController(rootView, mListener);
     }
 
     @Test
