@@ -689,7 +689,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     private long getCurrentDisplayedTrackId() {
         final int currentDisplayedTrackPosition = getCurrentDisplayedTrackPosition();
-        if (currentDisplayedTrackPosition > 0 && currentDisplayedTrackPosition < mPlayQueue.size()){
+        if (currentDisplayedTrackPosition >= 0 && currentDisplayedTrackPosition < mPlayQueue.size()){
             return mPlayQueue.getTrackIdAt(currentDisplayedTrackPosition);
         } else {
             return -1L;
