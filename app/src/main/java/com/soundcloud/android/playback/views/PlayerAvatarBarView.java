@@ -71,13 +71,9 @@ public class PlayerAvatarBarView extends View {
 
         mBitmapLoader = ImageLoader.getInstance();
 
-        if (ImageUtils.isScreenXL(context)) {
-            mAvatarGraphicsSize= ImageSize.LARGE;
-        } else {
-            mAvatarGraphicsSize = context.getResources().getDisplayMetrics().density > 1 ?
-                    ImageSize.BADGE :
-                    ImageSize.SMALL;
-        }
+        mAvatarGraphicsSize = context.getResources().getDisplayMetrics().density > 1 ?
+                ImageSize.BADGE :
+                ImageSize.SMALL;
 
         mAvatarLoadingViews = new HashSet<ImageView>(Consts.MAX_COMMENTS_TO_LOAD);
 
@@ -99,12 +95,7 @@ public class PlayerAvatarBarView extends View {
 
         mBgMatrix = new Matrix();
         mActiveMatrix = new Matrix();
-
-        if (ImageUtils.isScreenXL(context)) {
-            mAvatarWidth = (int) (AVATAR_WIDTH_LARGE * mDensity);
-        } else {
-            mAvatarWidth = (int) (AVATAR_WIDTH * mDensity);
-        }
+        mAvatarWidth = (int) (AVATAR_WIDTH * mDensity);
     }
 
     public int getAvatarWidth(){
@@ -186,8 +177,7 @@ public class PlayerAvatarBarView extends View {
 
     private void refreshDefaultAvatar() {
         if (mAvatarWidth > 0 && (mDefaultAvatar == null || mDefaultAvatar.isRecycled())) {
-            mDefaultAvatar = BitmapFactory.decodeResource(getContext().getResources(),
-                    ImageUtils.isScreenXL(getContext()) ? R.drawable.avatar_badge_large : R.drawable.avatar_badge);
+            mDefaultAvatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar_badge);
             mDefaultAvatarScale = ((float) mAvatarWidth) / mDefaultAvatar.getHeight();
         }
     }
@@ -198,12 +188,7 @@ public class PlayerAvatarBarView extends View {
 
         if (changed){
 
-            float mDensity = getContext().getResources().getDisplayMetrics().density;
-            if (mDensity > 1) {
-                mAvatarWidth = ImageUtils.isScreenXL(getContext()) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : getHeight() ;
-            } else {
-                mAvatarWidth = ImageUtils.isScreenXL(getContext())? AVATAR_WIDTH_LARGE : getHeight();
-            }
+            mAvatarWidth = getHeight() ;
             refreshDefaultAvatar();
 
             mUIHandler.removeMessages(REFRESH_AVATARS);

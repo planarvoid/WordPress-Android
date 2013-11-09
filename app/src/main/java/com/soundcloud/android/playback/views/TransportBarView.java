@@ -29,7 +29,7 @@ public class TransportBarView extends LinearLayout {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.transport_bar, this);
 
-        setBackgroundResource(R.drawable.black_transport_bar_gradient);
+        setBackgroundResource(R.color.dark_bg);
         setGravity(Gravity.CENTER_VERTICAL);
         final int pad = (int) (context.getResources().getDisplayMetrics().density*5);
         setPadding(0,pad,0,pad);
