@@ -7,6 +7,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -21,7 +22,7 @@ public class PlayableInfoAndEngagementsControllerTest {
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) DefaultTestRunner.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.player_action_bar, null);
-        controller = new PlayableInfoAndEngagementsController(rootView, mListener);
+        controller = new PlayableInfoAndEngagementsController(rootView, Mockito.mock(PlayerTrackView.PlayerTrackViewListener.class));
     }
 
     @Test
