@@ -9,15 +9,15 @@ import java.lang.ref.WeakReference;
 
 @VisibleForTesting
 class ArtworkFadeInListener extends AnimUtils.SimpleAnimationListener {
-    private WeakReference<PlayerArtworkTrackView> mTrackViewRef;
+    private WeakReference<ArtworkTrackView> mTrackViewRef;
 
-    ArtworkFadeInListener(PlayerArtworkTrackView trackView) {
-        this.mTrackViewRef = new WeakReference<PlayerArtworkTrackView>(trackView);
+    ArtworkFadeInListener(ArtworkTrackView trackView) {
+        this.mTrackViewRef = new WeakReference<ArtworkTrackView>(trackView);
     }
 
     @Override
     public void onAnimationEnd(Animation animation) {
-        PlayerArtworkTrackView trackView = mTrackViewRef.get();
+        ArtworkTrackView trackView = mTrackViewRef.get();
         if (trackView != null) {
             trackView.clearBackgroundAfterAnimation(animation);
         }

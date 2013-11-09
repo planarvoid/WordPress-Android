@@ -16,7 +16,7 @@ public class ArtworkFadeInListenerTest {
 
     ArtworkFadeInListener artworkFadeInListener;
     @Mock
-    PlayerArtworkTrackView playerArtworkTrackView;
+    ArtworkTrackView playerArtworkTrackView;
 
     @Before
     public void setUp() throws Exception {

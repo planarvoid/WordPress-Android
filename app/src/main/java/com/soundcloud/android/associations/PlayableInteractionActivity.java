@@ -34,7 +34,7 @@ public abstract class PlayableInteractionActivity extends ScActivity {
         mPlayable = getPlayableFromIntent(getIntent());
 
         mPlayableInfoBar = ((PlayableBar) findViewById(R.id.playable_bar));
-        mPlayableInfoBar.display(mPlayable);
+        mPlayableInfoBar.setTrack(mPlayable);
 
         if (bundle == null) {
             getSupportFragmentManager().beginTransaction()

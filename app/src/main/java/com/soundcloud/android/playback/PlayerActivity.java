@@ -10,11 +10,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.playback.service.CloudPlaybackService;
@@ -660,11 +660,13 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         return mTrackPagerAdapter.getPlayerTrackViewByPosition(getCurrentDisplayedTrackPosition());
     }
 
-    private @Nullable PlayerTrackView getTrackView(int playPos){
+    private @Nullable
+    PlayerTrackView getTrackView(int playPos){
         return mTrackPagerAdapter.getPlayerTrackViewByPosition(playPos);
     }
 
-    private @Nullable PlayerTrackView getTrackViewById(long id) {
+    private @Nullable
+    PlayerTrackView getTrackViewById(long id) {
         return mTrackPagerAdapter.getPlayerTrackViewById(id);
     }
 }

@@ -176,7 +176,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
 
     private void refresh() {
         mFragment.refresh();
-        mPlaylistBar.display(mPlaylist);
-        mActionButtons.update(mPlaylist);
+        mPlaylistBar.setTrack(mPlaylist);
+        mActionButtons.setTrack(mPlaylist);
     }
 }

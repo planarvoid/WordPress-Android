@@ -72,7 +72,7 @@ public class PlayableActionButtonsController {
         });
     }
 
-    public void update(@NotNull Playable playable) {
+    public void setTrack(@NotNull Playable playable) {
         mPlayable = playable;
         setLikes((int) mPlayable.likes_count, mPlayable.user_like);
         setReposts((int) mPlayable.reposts_count, mPlayable.user_repost);
