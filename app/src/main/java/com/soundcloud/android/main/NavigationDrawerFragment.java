@@ -9,6 +9,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.content.Context;
@@ -41,8 +42,9 @@ public class NavigationDrawerFragment extends Fragment {
     private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
     private static final int NO_IMAGE = -1;
 
-    private NavigationDrawerCallbacks mCallbacks;
+    @Nullable
     private ActionBarDrawerToggle mDrawerToggle;
+    private NavigationDrawerCallbacks mCallbacks;
 
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerListView;
@@ -51,6 +53,7 @@ public class NavigationDrawerFragment extends Fragment {
     private ShowcaseView mCurrentMenuShowcase;
 
     private ProfileViewHolder mProfileViewHolder;
+    private boolean mIsDrawerLocked;
 
     public enum NavItem {
         PROFILE(R.string.side_menu_profile, NO_IMAGE),
@@ -178,7 +181,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
+        if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -225,11 +228,22 @@ public class NavigationDrawerFragment extends Fragment {
 
     private DrawerLayout setupDrawerLayout() {
         DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
-        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        mIsDrawerLocked = getResources().getBoolean(R.bool.nav_drawer_locked_open);
+        if (mIsDrawerLocked){
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
+            drawerLayout.setScrimColor(getResources().getColor(android.R.color.transparent));
+        } else {
+            // todo, fix this shadow
+            drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+            setupDrawerToggle(drawerLayout);
+        }
+        return drawerLayout;
+    }
 
+    private void setupDrawerToggle(final DrawerLayout drawerLayout) {
         ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         mDrawerToggle = new ActionBarDrawerToggle(
                 getActivity(),                    /* host Activity */
@@ -272,10 +286,11 @@ public class NavigationDrawerFragment extends Fragment {
                 mDrawerToggle.syncState();
             }
         });
-
         drawerLayout.setDrawerListener(mDrawerToggle);
+    }
 
-        return drawerLayout;
+    public boolean isDrawerLocked() {
+        return mIsDrawerLocked;
     }
 
     public boolean isDrawerOpen() {
@@ -284,7 +299,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public void closeDrawer() {
-        if (isDrawerOpen()) {
+        if (isDrawerOpen() && !mIsDrawerLocked) {
             mDrawerLayout.closeDrawer(getView());
         }
     }
@@ -306,7 +321,7 @@ public class NavigationDrawerFragment extends Fragment {
         if (position != NavItem.PROFILE.ordinal()) {
             mCurrentSelectedPosition = position;
         }
-        if (mDrawerLayout != null) {
+        if (mDrawerLayout != null && !mIsDrawerLocked) {
             mDrawerLayout.closeDrawer(getView());
         }
         if (mCallbacks != null) {
