@@ -366,15 +366,12 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     private void updatePlayerInfoPanelFromTrackPager() {
-        final PlayerTrackView currentDisplayedTrackView = getCurrentDisplayedTrackView();
-        final Track track = currentDisplayedTrackView == null ? null :
-                SoundCloudApplication.MODEL_MANAGER.getTrack(currentDisplayedTrackView.getTrackId());
-        if (track != null){
-
-            if (mTrackDetailsView != null){
+        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(getCurrentDisplayedTrackId());
+        if (track != null) {
+            if (mTrackDetailsView != null) {
                 mTrackDetailsView.fillTrackDetails(track);
             }
-            if (mPlayableInfoAndEngagementsController != null){
+            if (mPlayableInfoAndEngagementsController != null) {
                 mPlayableInfoAndEngagementsController.setTrack(track);
             }
         }
@@ -688,6 +685,15 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     private PlayerTrackView getCurrentDisplayedTrackView() {
         return mTrackPagerAdapter.getPlayerTrackViewByPosition(getCurrentDisplayedTrackPosition());
+    }
+
+    private long getCurrentDisplayedTrackId() {
+        final int currentDisplayedTrackPosition = getCurrentDisplayedTrackPosition();
+        if (currentDisplayedTrackPosition > 0 && currentDisplayedTrackPosition < mPlayQueue.size()){
+            return mPlayQueue.getTrackIdAt(currentDisplayedTrackPosition);
+        } else {
+            return -1L;
+        }
     }
 
     private @Nullable
