@@ -170,6 +170,7 @@ public class ActionBarController {
             actionBar.setDisplayUseLogoEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setLogo(R.drawable.actionbar_logo);
         }
     }
 
