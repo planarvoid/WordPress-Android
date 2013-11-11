@@ -4,6 +4,7 @@ import static com.soundcloud.android.api.http.Wrapper.UnauthorizedException;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.http.APIRequestException;
 import com.soundcloud.api.Request;
 
 import android.content.Context;
@@ -37,7 +38,7 @@ public class ErrorUtils {
     }
 
     private static boolean excludeFromReports(Throwable t) {
-        return t instanceof IOException;
+        return t instanceof IOException || t instanceof APIRequestException;
     }
 
     public static UnauthorizedException handleUnauthorized(Context context, Request failedRequest, int statusCode) {
