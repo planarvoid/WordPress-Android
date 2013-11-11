@@ -51,7 +51,9 @@ public class AccountOperations {
     private final Context context;
 
     public AccountOperations(Context context) {
-        this(AccountManager.get(context), context, new SoundCloudTokenOperations(context));
+        this(AccountManager.get(context.getApplicationContext()),
+                context.getApplicationContext(),
+                new SoundCloudTokenOperations(context.getApplicationContext()));
     }
 
     @VisibleForTesting

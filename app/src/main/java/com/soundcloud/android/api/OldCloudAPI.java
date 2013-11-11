@@ -25,15 +25,13 @@ import java.util.List;
 public class OldCloudAPI implements AndroidCloudAPI {
 
     private Wrapper mCloudApi;
-    private Context mContext;
 
     public OldCloudAPI(Context context){
-        this(context, Wrapper.getInstance(context));
+        this(Wrapper.getInstance(context));
     }
 
     @VisibleForTesting
-    protected OldCloudAPI(Context context, Wrapper wrapper) {
-        mContext = context;
+    protected OldCloudAPI(Wrapper wrapper) {
         mCloudApi = wrapper;
     }
 
