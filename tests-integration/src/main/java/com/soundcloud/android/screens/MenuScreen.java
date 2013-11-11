@@ -1,14 +1,13 @@
 package com.soundcloud.android.screens;
 
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.OnboardActivity;
 import com.soundcloud.android.fragment.NavigationDrawerFragment;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
-
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class MenuScreen {
     private Han solo;
@@ -36,6 +35,16 @@ public class MenuScreen {
         return rootMenu().getChildAt(NavigationDrawerFragment.NavItem.PROFILE.ordinal());
     }
 
+    public View clickHomeButton() {
+        solo.getCurrentActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                solo.clickOnActionBarHomeButton();
+            }
+        });
+
+        return youMenu();
+    }
+
     public String getUserName() {
         TextView you = (TextView) youMenu().findViewById(R.id.username);
         return you.getText().toString();
@@ -43,7 +52,7 @@ public class MenuScreen {
 
     public void openExplore() {
         View item = rootMenu().getChildAt(NavigationDrawerFragment.NavItem.EXPLORE.ordinal());
-        solo.clickOnView(R.id.home);
+        clickHomeButton();
         solo.clickOnView(item);
         waiter.waitForListContent();
     }
