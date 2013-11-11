@@ -34,6 +34,7 @@ public class ScTextUtils {
     );
 
     public static final String EMPTY_STRING = "";
+    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###,###");
 
     private ScTextUtils() {
     }
@@ -247,6 +248,6 @@ public class ScTextUtils {
     }
 
     public static String formatNumberWithCommas(long number){
-        return new DecimalFormat("###,###,###,###").format(number);
+        return DECIMAL_FORMAT.format(number);
     }
 }
