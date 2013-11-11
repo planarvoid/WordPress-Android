@@ -37,19 +37,15 @@ public class ApplicationProperties {
         BUILD_TYPE = BuildType.valueOf(buildType.toUpperCase());
     }
 
-    @VisibleForTesting
-    protected boolean isReleaseBuild() {
+    public boolean isReleaseBuild() {
         return BuildType.RELEASE.equals(BUILD_TYPE);
     }
 
-
-    @VisibleForTesting
-    protected boolean isDebugBuild(){
+    public boolean isDebugBuild() {
         return BuildType.DEBUG.equals(BUILD_TYPE);
     }
 
-    @VisibleForTesting
-    protected boolean isBetaBuild(){
+    public boolean isBetaBuild() {
         return BuildType.BETA.equals(BUILD_TYPE);
     }
 

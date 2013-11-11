@@ -1,13 +1,7 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.api.http.Wrapper.UnauthorizedException;
-
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.APIRequestException;
-import com.soundcloud.api.Request;
-
-import android.content.Context;
 
 import java.io.IOException;
 
@@ -39,13 +33,5 @@ public class ErrorUtils {
 
     private static boolean excludeFromReports(Throwable t) {
         return t instanceof IOException || t instanceof APIRequestException;
-    }
-
-    public static UnauthorizedException handleUnauthorized(Context context, Request failedRequest, int statusCode) {
-        AccountOperations accountOperations = new AccountOperations(context);
-        UnauthorizedException exception = new UnauthorizedException(failedRequest, accountOperations.getSoundCloudToken(), statusCode);
-        Log.d("Received Unauthorized: " + exception.getMessage());
-        SoundCloudApplication.handleSilentException("Received Unauthorized", exception);
-        return exception;
     }
 }
