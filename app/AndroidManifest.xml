@@ -234,7 +234,7 @@
         <activity android:configChanges="orientation|keyboardHidden" android:label="Connect" android:name=".activity.auth.Connect" android:theme="@style/Theme.SoundCloud.NoActionBar">
         </activity>
 
-        <activity android:label="" android:launchMode="singleTask" android:name=".activity.PlayerActivity" android:theme="@style/Theme.SoundCloud" android:windowSoftInputMode="adjustPan">
+        <activity android:label="@string/title_now_playing" android:launchMode="singleTask" android:name=".activity.PlayerActivity" android:theme="@style/Theme.SoundCloud" android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
