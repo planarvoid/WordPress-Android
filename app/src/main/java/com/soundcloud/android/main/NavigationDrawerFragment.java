@@ -114,7 +114,6 @@ public class NavigationDrawerFragment extends NavigationFragment {
                     return;
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-
                 closeShowcase();
             }
 
@@ -124,9 +123,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
                 if (!isAdded()) {
                     return;
                 }
-
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-
                 openShowcase();
             }
         };
