@@ -35,6 +35,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     private NavigationFragment mNavigationFragment;
     private CharSequence mLastTitle;
+    private int mLastSelection = -1;
 
     private AccountOperations mAccountOperations;
     private CompositeSubscription mSubscription = new CompositeSubscription();
@@ -110,6 +111,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     @Override
     public void onNavigationItemSelected(int position, boolean setTitle) {
+        if (position == mLastSelection) return;
         switch (NavigationFragment.NavItem.values()[position]) {
             case PROFILE:
                 // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
@@ -153,6 +155,9 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
              * This probably came from {@link NavigationFragment#handleIntent(android.content.Intent)}
              */
             setTitle(mLastTitle);
+        }
+        if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
+            mLastSelection = position;
         }
     }
 
