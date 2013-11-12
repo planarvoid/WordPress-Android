@@ -165,11 +165,6 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     public boolean restoreActionBar() {
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayUseLogoEnabled(true);
-        actionBar.setLogo(R.drawable.actionbar_logo);
         actionBar.setTitle(mLastTitle);
         return true;
     }

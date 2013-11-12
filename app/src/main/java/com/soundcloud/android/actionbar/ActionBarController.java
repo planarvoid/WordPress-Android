@@ -164,12 +164,7 @@ public class ActionBarController {
     }
 
     protected void setActionBarDefaultOptions(ActionBar actionBar) {
-        if (!mOwner.restoreActionBar()) {
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setDisplayUseLogoEnabled(true);
-            actionBar.setDisplayShowHomeEnabled(true);
-        }
+        mOwner.restoreActionBar();
     }
 
     private void closeSearch(){
