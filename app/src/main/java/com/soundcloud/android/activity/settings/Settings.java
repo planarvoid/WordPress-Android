@@ -219,7 +219,7 @@ public class Settings extends PreferenceActivity {
         }
 
 
-        if (mApplicationProperties.isDevBuildRunningOnDalvik()) {
+        if (mApplicationProperties.isDebugBuild()) {
             DevSettings.setup(this, getApp());
         } else {
             getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
