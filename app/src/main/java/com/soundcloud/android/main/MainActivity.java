@@ -154,7 +154,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
              * In this case, restoreActionBar will not be called since it is already closed.
              * This probably came from {@link NavigationFragment#handleIntent(android.content.Intent)}
              */
-            setTitle(mLastTitle);
+            getSupportActionBar().setTitle(mLastTitle);
         }
         if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
             mLastSelection = position;

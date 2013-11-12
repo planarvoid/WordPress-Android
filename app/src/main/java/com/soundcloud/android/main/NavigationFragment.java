@@ -69,6 +69,7 @@ public class NavigationFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        configureLocalContextActionBar();
         try {
             mCallbacks = (NavigationCallbacks) activity;
         } catch (ClassCastException e) {
@@ -86,6 +87,12 @@ public class NavigationFragment extends Fragment {
         } else if (!handleIntent(getActivity().getIntent())) {
             selectItem(mCurrentSelectedPosition);
         }
+    }
+
+    protected void configureLocalContextActionBar() {
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setHomeButtonEnabled(false);
     }
 
     @VisibleForTesting
@@ -218,6 +225,7 @@ public class NavigationFragment extends Fragment {
         if (mCallbacks != null) {
             mCallbacks.onNavigationItemSelected(position, shouldSetActionBarTitle());
         }
+        getActivity().supportInvalidateOptionsMenu();
     }
 
     protected boolean shouldSetActionBarTitle() {
