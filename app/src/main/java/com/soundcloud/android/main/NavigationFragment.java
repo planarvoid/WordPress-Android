@@ -1,5 +1,8 @@
 package com.soundcloud.android.main;
 
+import android.app.Application;
+import android.content.res.Resources;
+import android.support.v4.app.FragmentActivity;
 import com.github.espiandev.showcaseview.ShowcaseView;
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -173,7 +176,7 @@ public class NavigationFragment extends Fragment {
         mProfileViewHolder.username = (TextView) view.findViewById(R.id.username);
         mProfileViewHolder.followers = (TextView) view.findViewById(R.id.followers_count);
 
-        updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser());
+        updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser(), container.getResources());
 
         return view;
     }
@@ -189,13 +192,15 @@ public class NavigationFragment extends Fragment {
         }
     }
 
-    public void updateProfileItem(User user) {
+    // XXX we are passing in resources to overcome Robolectric 1 null getResources in Fragments
+    // Can be removed once we migrate to RL2
+    public void updateProfileItem(User user, Resources resources) {
         mProfileViewHolder.username.setText(user.getUsername());
         int followersCount = user.followers_count < 0 ? 0 : user.followers_count;
-        mProfileViewHolder.followers.setText(getResources().getQuantityString(
+        mProfileViewHolder.followers.setText(resources.getQuantityString(
                 R.plurals.number_of_followers, followersCount, followersCount));
 
-        String imageUri = ImageSize.formatUriForFullDisplay(getResources(), user.getNonDefaultAvatarUrl());
+        String imageUri = ImageSize.formatUriForFullDisplay(resources, user.getNonDefaultAvatarUrl());
         ImageLoader.getInstance().displayImage(imageUri, mProfileViewHolder.imageView,
                 ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
     }

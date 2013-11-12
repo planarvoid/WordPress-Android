@@ -187,7 +187,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
         @Override
         public void onNext(User user) {
-            mNavigationFragment.updateProfileItem(user);
+            mNavigationFragment.updateProfileItem(user, SoundCloudApplication.instance.getResources());
             if (!user.isPrimaryEmailConfirmed()) {
                 startActivityForResult(new Intent(MainActivity.this, EmailConfirmationActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
