@@ -1,8 +1,6 @@
 package com.soundcloud.android.main;
 
-import android.app.Application;
 import android.content.res.Resources;
-import android.support.v4.app.FragmentActivity;
 import com.github.espiandev.showcaseview.ShowcaseView;
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -181,7 +179,8 @@ public class NavigationFragment extends Fragment {
         mProfileViewHolder.username = (TextView) view.findViewById(R.id.username);
         mProfileViewHolder.followers = (TextView) view.findViewById(R.id.followers_count);
 
-        updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser(), container.getResources());
+        Resources res = container == null ? getResources() : container.getResources();
+        updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser(), res);
 
         return view;
     }
@@ -272,7 +271,6 @@ public class NavigationFragment extends Fragment {
             ImageView icon;
             TextView text;
         }
-
 
     }
 }
