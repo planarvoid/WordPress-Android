@@ -4,6 +4,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 
 import com.google.common.base.Strings;
 import com.soundcloud.android.R;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -49,6 +50,22 @@ public class ScTextUtils {
 
     public static String safeToString(Object object){
         return object == null ? "" : object.toString();
+    }
+
+    /**
+     * Prefer this method over Guava's Longs.tryParse and Java's parseLong, since the former will fail on 2.2 devices
+     * (due to String.isEmpty not being available) and the latter will throw NumberFormatException on null and bogus
+     * Strings. This method does not throw any exceptions.
+     *
+     * @param longString a string containing a long (might be null)
+     * @return the long, or -1 if parsing failed
+     */
+    public static long safeParseLong(@Nullable String longString) {
+        try {
+            return Long.parseLong(longString);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     /**

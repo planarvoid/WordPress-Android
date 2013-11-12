@@ -162,6 +162,20 @@ public class ScTextUtilsTest {
         expect(ScTextUtils.isBlank("  a ")).toBeFalse();
     }
 
+    @Test
+    public void shouldReturnLongWhenParsingValidLongString() {
+        expect(ScTextUtils.safeParseLong("1")).toEqual(1L);
+        expect(ScTextUtils.safeParseLong(Long.toString(Long.MIN_VALUE))).toEqual(Long.MIN_VALUE);
+        expect(ScTextUtils.safeParseLong(Long.toString(Long.MAX_VALUE))).toEqual(Long.MAX_VALUE);
+    }
+
+    @Test
+    public void shouldReturnNegativeOneWhenFailingToParseLongString() {
+        expect(ScTextUtils.safeParseLong("")).toEqual(-1L);
+        expect(ScTextUtils.safeParseLong("not a long")).toEqual(-1L);
+        expect(ScTextUtils.safeParseLong(null)).toEqual(-1L);
+    }
+
     private void expectEmailValid(String string){
         expect(ScTextUtils.isEmail(string)).toBeTrue();
     }
