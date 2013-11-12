@@ -1,6 +1,7 @@
 package com.soundcloud.android.main;
 
 import com.github.espiandev.showcaseview.ShowcaseView;
+import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -18,8 +19,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -33,12 +32,13 @@ import java.util.EnumSet;
 
 public class NavigationFragment extends Fragment {
 
-    private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
+    @VisibleForTesting
+    static final String STATE_SELECTED_POSITION = "selected_navigation_position";
     private static final int NO_IMAGE = -1;
 
-    private NavigationDrawerCallbacks mCallbacks;
+    private NavigationCallbacks mCallbacks;
 
-    private ListView mDrawerListView;
+    private ListView mListView;
 
     private int mCurrentSelectedPosition = NavItem.STREAM.ordinal();
     private ShowcaseView mCurrentMenuShowcase;
@@ -47,10 +47,10 @@ public class NavigationFragment extends Fragment {
 
     public enum NavItem {
         PROFILE(R.string.side_menu_profile, NO_IMAGE),
-        STREAM(R.string.side_menu_stream, R.drawable.drawer_stream_states),
-        EXPLORE(R.string.side_menu_explore, R.drawable.drawer_explore_states),
-        LIKES(R.string.side_menu_likes, R.drawable.drawer_likes_states),
-        PLAYLISTS(R.string.side_menu_playlists, R.drawable.drawer_playlists_states);
+        STREAM(R.string.side_menu_stream, R.drawable.nav_stream_states),
+        EXPLORE(R.string.side_menu_explore, R.drawable.nav_explore_states),
+        LIKES(R.string.side_menu_likes, R.drawable.nav_likes_states),
+        PLAYLISTS(R.string.side_menu_playlists, R.drawable.nav_playlists_states);
 
         private final int textId;
         private final int imageId;
@@ -65,14 +65,13 @@ public class NavigationFragment extends Fragment {
     private static final EnumSet<NavItem> TEXT_NAV_ITEMS =
             EnumSet.of(NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS);
 
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mCallbacks = (NavigationDrawerCallbacks) activity;
+            mCallbacks = (NavigationCallbacks) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException("Activity must implement NavigationDrawerCallbacks.");
+            throw new ClassCastException("Activity must implement NavigationCallbacks.");
         }
     }
 
@@ -82,13 +81,7 @@ public class NavigationFragment extends Fragment {
 
         setHasOptionsMenu(true);
         if (savedInstanceState != null) {
-            final int previousPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
-            // TODO: user profile needs special treatment since it's an Activity, not a fragment
-            // Can remove this once we port this over to be a fragment as well
-            if (previousPosition != NavItem.PROFILE.ordinal()) {
-                selectItem(previousPosition);
-            }
-
+            selectItem(savedInstanceState.getInt(STATE_SELECTED_POSITION));
         } else if (!handleIntent(getActivity().getIntent())) {
             selectItem(mCurrentSelectedPosition);
         }
@@ -124,14 +117,14 @@ public class NavigationFragment extends Fragment {
         // Update the checked state of the nav items to the last known position. It's important to do this in onResume
         // as long as the user profile opens in a new activity, since when returning via the up button would otherwise
         // not update it to the last selected content fragment
-        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+        mListView.setItemChecked(mCurrentSelectedPosition, true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mDrawerListView = setupDrawerListView(inflater, container);
-        return mDrawerListView;
+        mListView = setupListView(inflater, container);
+        return mListView;
     }
 
     @Override
@@ -146,18 +139,18 @@ public class NavigationFragment extends Fragment {
         outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
     }
 
-    private ListView setupDrawerListView(LayoutInflater inflater, ViewGroup container) {
-        ListView drawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
-        drawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    private ListView setupListView(LayoutInflater inflater, ViewGroup container) {
+        ListView listView = (ListView) inflater.inflate(R.layout.fragment_navigation_listview, container, false);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectItem(position);
             }
         });
-        drawerListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 
         View userProfileHeader = setupUserProfileHeader(inflater, container);
-        drawerListView.addHeaderView(userProfileHeader);
+        listView.addHeaderView(userProfileHeader);
 
         int i = 0;
         NavItem[] data = new NavItem[TEXT_NAV_ITEMS.size()];
@@ -165,15 +158,15 @@ public class NavigationFragment extends Fragment {
             data[i++] = navItem;
         }
 
-        drawerListView.setAdapter(new DrawerAdapter(
+        listView.setAdapter(new NavigationAdapter(
                 getActionBar().getThemedContext(),
-                R.layout.nav_drawer_item, data));
+                R.layout.nav_item, data));
 
-        return drawerListView;
+        return listView;
     }
 
     private View setupUserProfileHeader(LayoutInflater inflater, ViewGroup container) {
-        final View view = inflater.inflate(R.layout.nav_drawer_profile_item, container, false);
+        final View view = inflater.inflate(R.layout.nav_profile_item, container, false);
 
         mProfileViewHolder = new ProfileViewHolder();
         mProfileViewHolder.imageView = (ImageView) view.findViewById(R.id.avatar);
@@ -187,7 +180,7 @@ public class NavigationFragment extends Fragment {
 
     protected void openShowcase() {
         mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(getActivity(),
-                mDrawerListView.getChildAt(2).findViewById(R.id.nav_item_text));
+                mListView.getChildAt(2).findViewById(R.id.nav_item_text));
     }
 
     protected void closeShowcase() {
@@ -214,7 +207,7 @@ public class NavigationFragment extends Fragment {
             mCurrentSelectedPosition = position;
         }
         if (mCallbacks != null) {
-            mCallbacks.onNavigationDrawerItemSelected(position, shouldSetActionBarTitle());
+            mCallbacks.onNavigationItemSelected(position, shouldSetActionBarTitle());
         }
     }
 
@@ -229,11 +222,11 @@ public class NavigationFragment extends Fragment {
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
-    public static interface NavigationDrawerCallbacks {
+    public static interface NavigationCallbacks {
         /**
-         * Called when an item in the navigation drawer is selected.
+         * Called when an item in the navigation is selected.
          */
-        void onNavigationDrawerItemSelected(int position, boolean setTitle);
+        void onNavigationItemSelected(int position, boolean setTitle);
     }
 
     private static class ProfileViewHolder {
@@ -241,9 +234,9 @@ public class NavigationFragment extends Fragment {
         public TextView username, followers;
     }
 
-    private class DrawerAdapter extends ArrayAdapter<NavItem> {
+    private class NavigationAdapter extends ArrayAdapter<NavItem> {
 
-        public DrawerAdapter(Context context, int layoutResourceId, NavItem[] data) {
+        public NavigationAdapter(Context context, int layoutResourceId, NavItem[] data) {
             super(context, layoutResourceId, data);
         }
 
@@ -252,7 +245,7 @@ public class NavigationFragment extends Fragment {
             NavItem navItem = getItem(position);
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.nav_drawer_item, parent, false);
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.nav_item, parent, false);
                 holder = new ViewHolder();
                 holder.icon = (ImageView) convertView.findViewById(R.id.nav_item_image);
                 holder.text = (TextView) convertView.findViewById(R.id.nav_item_text);

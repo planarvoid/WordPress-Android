@@ -27,9 +27,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
-import android.view.MenuItem;
 
-public class MainActivity extends ScActivity implements NavigationFragment.NavigationDrawerCallbacks {
+public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks {
 
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
     private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
@@ -110,7 +109,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position, boolean setTitle) {
+    public void onNavigationItemSelected(int position, boolean setTitle) {
         switch (NavigationFragment.NavItem.values()[position]) {
             case PROFILE:
                 // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
