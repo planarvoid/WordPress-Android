@@ -1,16 +1,11 @@
 $ 73
   % v 2.7.1
   _ 2013-11-12
-  ! Explore Release Maintenance
-    * Some compatibility and UI fixes
-
-$ 72
-  % v 2.7.0
-  _ 2013-11-08
   ! Introducing Explore
     * Discover popular new music and audio in Explore
     * Design update with new side menu and header
     * Who to follow, activity, record, and settings are now accessible in our header menu
+    * Various fixes and stability improvements
 
 $ 71
   % v 2.6.8
