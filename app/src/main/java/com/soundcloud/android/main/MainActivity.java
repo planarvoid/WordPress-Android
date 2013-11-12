@@ -29,12 +29,12 @@ import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends ScActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity extends ScActivity implements NavigationFragment.NavigationDrawerCallbacks {
 
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
     private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
 
-    private NavigationDrawerFragment mNavigationDrawerFragment;
+    private NavigationFragment mNavigationFragment;
     private CharSequence mLastTitle;
 
     private AccountOperations mAccountOperations;
@@ -44,7 +44,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mNavigationFragment = (NavigationFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
         mAccountOperations = new AccountOperations(this);
         ApplicationProperties mApplicationProperties = new ApplicationProperties(getResources());
@@ -82,7 +82,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        mNavigationDrawerFragment.handleIntent(intent);
+        mNavigationFragment.handleIntent(intent);
         // the title/selection may have changed as a result of this intent, so store the new title to prevent overwriting
         mLastTitle = getTitle();
     }
@@ -110,11 +110,11 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position, boolean isOpen) {
-        switch (NavigationDrawerFragment.NavItem.values()[position]) {
+    public void onNavigationDrawerItemSelected(int position, boolean setTitle) {
+        switch (NavigationFragment.NavItem.values()[position]) {
             case PROFILE:
                 // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
-                // don't forget to search for the TODOs related to this in NavigationDrawerFragment.
+                // don't forget to search for the TODOs related to this in NavigationFragment.
                 // --Your friend.
                 getSupportActionBar().setDisplayShowTitleEnabled(false); // prevents title text change flashing
                 startActivity(new Intent(this, MeActivity.class));
@@ -148,10 +148,10 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
                 break;
         }
 
-        if (!isOpen){
+        if (setTitle){
             /**
              * In this case, restoreActionBar will not be called since it is already closed.
-             * This probably came from {@link NavigationDrawerFragment#handleIntent(android.content.Intent)}
+             * This probably came from {@link NavigationFragment#handleIntent(android.content.Intent)}
              */
             setTitle(mLastTitle);
         }
@@ -178,23 +178,17 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Keep null check. This might fire as a result of setContentView in which case this var won't be assigned
-        if (mNavigationDrawerFragment != null) {
+        if (mNavigationFragment != null) {
             return super.onCreateOptionsMenu(menu);
         }
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        mNavigationDrawerFragment.closeDrawer();
-        return super.onOptionsItemSelected(item);
     }
 
     private class UpdateUserProfileObserver extends DefaultObserver<User> {
 
         @Override
         public void onNext(User user) {
-            mNavigationDrawerFragment.updateProfileItem(user);
+            mNavigationFragment.updateProfileItem(user);
             if (!user.isPrimaryEmailConfirmed()) {
                 startActivityForResult(new Intent(MainActivity.this, EmailConfirmationActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);

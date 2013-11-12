@@ -1,8 +1,8 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.main.NavigationFragment;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
@@ -33,7 +33,7 @@ public class MenuScreen {
     }
 
     public View youMenu() {
-        return rootMenu().getChildAt(NavigationDrawerFragment.NavItem.PROFILE.ordinal());
+        return rootMenu().getChildAt(NavigationFragment.NavItem.PROFILE.ordinal());
     }
 
     public String getUserName() {
@@ -42,7 +42,7 @@ public class MenuScreen {
     }
 
     public void openExplore() {
-        View item = rootMenu().getChildAt(NavigationDrawerFragment.NavItem.EXPLORE.ordinal());
+        View item = rootMenu().getChildAt(NavigationFragment.NavItem.EXPLORE.ordinal());
         solo.clickOnView(R.id.home);
         solo.clickOnView(item);
         waiter.waitForListContent();
