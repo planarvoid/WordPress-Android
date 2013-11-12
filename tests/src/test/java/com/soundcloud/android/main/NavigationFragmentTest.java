@@ -8,6 +8,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -19,9 +20,11 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.main.NavigationFragment.NavItem;
 import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks;
 import static org.mockito.Mockito.verify;
@@ -51,7 +54,6 @@ public class NavigationFragmentTest {
     public void setUp() throws Exception {
         fragment = new NavigationFragment();
         Robolectric.shadowOf(fragment).setActivity(activity);
-        Robolectric.shadowOf(fragment).setActivity(activity);
         fragment.onAttach(activity);
         when(activity.getIntent()).thenReturn(intent);
         when(activity.getApplication()).thenReturn(application);
@@ -61,6 +63,8 @@ public class NavigationFragmentTest {
 
         View navProfileView = LayoutInflater.from(Robolectric.application).inflate(R.layout.nav_profile_item, null, false);
         when(layoutInflater.inflate(R.layout.nav_profile_item, container, false)).thenReturn(navProfileView);
+        User user = TestHelper.getModelFactory().createModel(User.class);
+        when(application.getLoggedInUser()).thenReturn(user);
     }
 
     @Test
@@ -107,14 +111,37 @@ public class NavigationFragmentTest {
 
     @Test
     public void shouldSetCurrentPositionInOnResume() throws Exception {
-        User user = TestHelper.getModelFactory().createModel(User.class);
-        when(application.getLoggedInUser()).thenReturn(user);
         fragment.onCreateView(layoutInflater, container, null);
         fragment.onResume();
         verify(listView).setItemChecked(NavItem.STREAM.ordinal(), true);
     }
 
+    @Test
+    public void navListenerShouldCallbackToActivityWhenItemSelected() throws Exception {
+        getOnItemClickListener().onItemClick(listView, null, NavItem.LIKES.ordinal(), 0l);
+        verifyPositionSelected(NavItem.LIKES);
+    }
+
+    @Test
+    public void shouldSaveSelectedPositionWhenTopLevelItemClicked() throws Exception {
+        getOnItemClickListener().onItemClick(listView, null, NavItem.LIKES.ordinal(), 0l);
+        expect(fragment.getCurrentSelectedPosition()).toBe(NavItem.LIKES.ordinal());
+    }
+
+    @Test
+    public void shouldNotSaveSelectedPositionWhenProfileClicked() throws Exception {
+        getOnItemClickListener().onItemClick(listView, null, NavItem.PROFILE.ordinal(), 0l);
+        expect(fragment.getCurrentSelectedPosition()).not.toBe(NavItem.PROFILE.ordinal());
+    }
+
     private void verifyPositionSelected(NavItem navItem){
         verify((NavigationCallbacks) activity).onNavigationItemSelected(navItem.ordinal(), true);
+    }
+
+    private AdapterView.OnItemClickListener getOnItemClickListener() {
+        fragment.onCreateView(layoutInflater, container, null);
+        ArgumentCaptor<AdapterView.OnItemClickListener> listener = ArgumentCaptor.forClass(AdapterView.OnItemClickListener.class);
+        verify(listView).setOnItemClickListener(listener.capture());
+        return listener.getValue();
     }
 }

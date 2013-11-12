@@ -90,6 +90,11 @@ public class NavigationFragment extends Fragment {
         }
     }
 
+    @VisibleForTesting
+    int getCurrentSelectedPosition() {
+        return mCurrentSelectedPosition;
+    }
+
     public boolean handleIntent(Intent intent) {
         final String action = intent.getAction();
         if (ScTextUtils.isNotBlank(action)) {
