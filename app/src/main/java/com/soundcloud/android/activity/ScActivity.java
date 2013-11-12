@@ -79,6 +79,18 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
     }
 
+    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
+    @Override
+    public void setTitle(CharSequence title) {
+        getSupportActionBar().setTitle(title);
+    }
+
+    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
+    @Override
+    public void setTitle(int titleId) {
+        getSupportActionBar().setTitle(titleId);
+    }
+
     protected ActionBarController createActionBarController() {
         return new NowPlayingActionBarController(this, mAndroidCloudAPI);
     }
