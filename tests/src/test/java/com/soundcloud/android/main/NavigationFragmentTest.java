@@ -54,12 +54,12 @@ public class NavigationFragmentTest {
     public void setUp() throws Exception {
         fragment = new NavigationFragment();
         Robolectric.shadowOf(fragment).setActivity(activity);
-        fragment.onAttach(activity);
         when(activity.getIntent()).thenReturn(intent);
         when(activity.getApplication()).thenReturn(application);
         when(activity.getSupportActionBar()).thenReturn(actionBar);
         when(container.getResources()).thenReturn(Robolectric.application.getResources());
         when(layoutInflater.inflate(R.layout.fragment_navigation_listview, container, false)).thenReturn(listView);
+        fragment.onAttach(activity);
 
         View navProfileView = LayoutInflater.from(Robolectric.application).inflate(R.layout.nav_profile_item, null, false);
         when(layoutInflater.inflate(R.layout.nav_profile_item, container, false)).thenReturn(navProfileView);

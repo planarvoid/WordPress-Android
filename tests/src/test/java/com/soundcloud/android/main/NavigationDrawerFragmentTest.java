@@ -39,9 +39,9 @@ public class NavigationDrawerFragmentTest {
         fragment = new NavigationDrawerFragment();
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setView(view);
-        fragment.onAttach(activity);
         when(activity.findViewById(R.id.drawer_layout)).thenReturn(drawerLayout);
         when(activity.getSupportActionBar()).thenReturn(actionBar);
+        fragment.onAttach(activity);
         fragment.onActivityCreated(null);
     }
 
@@ -62,9 +62,7 @@ public class NavigationDrawerFragmentTest {
     public void shouldSetupGlobalContextActionBarWhenDrawerOpened() throws Exception {
         when(drawerLayout.isDrawerOpen(view)).thenReturn(true);
         fragment.onCreateOptionsMenu(Mockito.mock(Menu.class), Mockito.mock(MenuInflater.class));
-        verify(actionBar).setDisplayShowTitleEnabled(true);
         verify(actionBar).setDisplayShowCustomEnabled(false);
-        verify(actionBar).setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         verify(actionBar).setTitle(R.string.app_name);
     }
 
