@@ -25,7 +25,7 @@ public class FriendFinder extends ScActivity {
             mFragment = FriendFinderFragment.newInstance();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(getContentViewIdCompat(), mFragment, FRAG_TAG)
+                    .add(android.R.id.content, mFragment, FRAG_TAG)
                     .commit();
         } else {
             mFragment = (FriendFinderFragment) getSupportFragmentManager().findFragmentByTag(FRAG_TAG);
