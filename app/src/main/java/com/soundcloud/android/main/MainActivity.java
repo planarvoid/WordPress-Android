@@ -43,7 +43,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        mNavigationFragment = (NavigationFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mNavigationFragment = (NavigationFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_fragment);
 
         mAccountOperations = new AccountOperations(this);
         ApplicationProperties mApplicationProperties = new ApplicationProperties(getResources());
