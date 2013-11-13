@@ -10,9 +10,20 @@
               android:layout_weight="2"
               android:name="com.soundcloud.android.main.NavigationFragment"/>
 
-    <FrameLayout
-            android:id="@+id/container"
+    <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="1">
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/drawer_shadow"/>
+    </RelativeLayout>
+
 </LinearLayout>
