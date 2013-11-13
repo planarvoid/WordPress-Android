@@ -31,7 +31,7 @@ public class TracksByTag extends ScActivity {
                 setTitle(getString(R.string.list_header_tracks_by_genre, i.getStringExtra(EXTRA_GENRE)));
                 contentUri = contentUri.buildUpon().appendQueryParameter(FILTER_GENRE, i.getStringExtra(EXTRA_GENRE)).build();
             }
-            getSupportFragmentManager().beginTransaction().add(getContentViewIdCompat(), ScListFragment.newInstance(contentUri)).commit();
+            getSupportFragmentManager().beginTransaction().add(getContentHolderViewId(), ScListFragment.newInstance(contentUri)).commit();
         }
     }
 }

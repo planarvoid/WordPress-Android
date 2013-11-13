@@ -384,7 +384,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     /**
      * Convenience method to get the content id for usage in one-off fragments
      */
-    public static int getContentViewIdCompat() {
+    public static int getContentHolderViewId() {
         return R.id.holder;
     }
 }

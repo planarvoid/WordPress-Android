@@ -11,7 +11,7 @@ public class SuggestedUsersSyncActivity extends SuggestedUsersBaseActivity {
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.holder, new OnboardSuggestedUsersSyncFragment())
+                    .add(getContentHolderViewId(), new OnboardSuggestedUsersSyncFragment())
                     .commit();
         }
     }

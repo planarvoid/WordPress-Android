@@ -16,7 +16,7 @@ public class SuggestedUsersActivity extends SuggestedUsersBaseActivity {
             suggestedUsersCategoriesFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.holder, suggestedUsersCategoriesFragment)
+                    .add(getContentHolderViewId(), suggestedUsersCategoriesFragment)
                     .commit();
         }
     }
