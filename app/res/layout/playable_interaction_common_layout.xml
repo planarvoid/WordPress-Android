@@ -3,14 +3,14 @@
 
     <FrameLayout android:id="@+id/info_bar_holder"
                  android:background="@color/playerControlBackground"
-                 android:layout_width="fill_parent"
+                 android:layout_width="match_parent"
                  android:layout_height="wrap_content">
-        <com.soundcloud.android.collections.views.PlayableRow android:layout_width="fill_parent"
+        <com.soundcloud.android.collections.views.PlayableRow android:layout_width="match_parent"
                                                               android:layout_height="wrap_content"
                                                               android:id="@+id/playable_bar"/>
     </FrameLayout>
     <FrameLayout android:id="@+id/listHolder"
-                 android:layout_width="fill_parent"
+                 android:layout_width="match_parent"
                  android:layout_height="0dp"
                  android:layout_below="@id/info_bar_holder"
                  android:layout_alignParentBottom="true"/>

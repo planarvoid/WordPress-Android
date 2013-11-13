@@ -1421,4 +1421,19 @@
     <style name="ShowcaseDetailText" parent="TextAppearance.ShowcaseView.Detail">
         <item name="android:textColor">#ffffff</item>
     </style>
+
+    <!-- Tablet layouts -->
+
+    <style name="MarginLeft">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">0.1</item>
+        <item name="android:background">@color/playerControlBackground</item>
+    </style>
+
+    <style name="MarginRight" parent="MarginLeft">
+        <!-- Once we have margin assets the backgrounds will be different -->
+        <item name="android:background">@color/playerControlBackground</item>
+    </style>
+
 </resources>

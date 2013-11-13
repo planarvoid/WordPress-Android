@@ -4,11 +4,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.1"
-            android:background="@color/playerControlBackground"/>
+    <View style="@style/MarginLeft"/>
 
     <FrameLayout
             android:layout_width="0dp"
@@ -20,9 +16,5 @@
                      android:layout_height="match_parent"/>
     </FrameLayout>
 
-    <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.1"
-            android:background="@color/playerControlBackground"/>
+    <View style="@style/MarginRight"/>
 </LinearLayout>
