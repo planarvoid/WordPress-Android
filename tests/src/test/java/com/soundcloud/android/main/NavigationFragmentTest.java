@@ -68,44 +68,44 @@ public class NavigationFragmentTest {
     }
 
     @Test
-    public void onCreateShouldCallbackWithStreamPosition() throws Exception {
-        fragment.onCreate(null);
+    public void initStateShouldCallbackWithStreamPosition() throws Exception {
+        fragment.initState(null);
         verifyPositionSelected(NavItem.STREAM);
     }
 
    @Test
-    public void onCreateShouldCallbackWithSavedInstancePosition() throws Exception {
+    public void initStateShouldCallbackWithSavedInstancePosition() throws Exception {
        Bundle bundle = Mockito.mock(Bundle.class);
        when(bundle.getInt(NavigationFragment.STATE_SELECTED_POSITION)).thenReturn(NavItem.LIKES.ordinal());
-       fragment.onCreate(bundle);
+       fragment.initState(bundle);
        verifyPositionSelected(NavItem.LIKES);
    }
 
     @Test
-    public void onCreateShouldCallbackWithStreamPositionFromAction() throws Exception {
+    public void initStateShouldCallbackWithStreamPositionFromAction() throws Exception {
         when(intent.getAction()).thenReturn(Actions.STREAM);
-        fragment.onCreate(null);
+        fragment.initState(null);
         verifyPositionSelected(NavItem.STREAM);
     }
 
     @Test
-    public void onCreateShouldCallbackWithLikesPositionFromAction() throws Exception {
+    public void initStateShouldCallbackWithLikesPositionFromAction() throws Exception {
         when(intent.getAction()).thenReturn(Actions.YOUR_LIKES);
-        fragment.onCreate(null);
+        fragment.initState(null);
         verifyPositionSelected(NavItem.LIKES);
     }
 
     @Test
-    public void onCreateShouldCallbackWithStreamPositionFromUri() throws Exception {
+    public void initStateShouldCallbackWithStreamPositionFromUri() throws Exception {
         when(intent.getData()).thenReturn(Uri.parse("http://souncloud.com/stream/"));
-        fragment.onCreate(null);
+        fragment.initState(null);
         verifyPositionSelected(NavItem.STREAM);
     }
 
     @Test
-    public void onCreateShouldCallbackWithExplorePositionFromUri() throws Exception {
+    public void initStateShouldCallbackWithExplorePositionFromUri() throws Exception {
         when(intent.getData()).thenReturn(Uri.parse("http://souncloud.com/explore/"));
-        fragment.onCreate(null);
+        fragment.initState(null);
         verifyPositionSelected(NavItem.EXPLORE);
     }
 

@@ -2,6 +2,7 @@ package com.soundcloud.android.main;
 
 import static rx.android.AndroidObservables.fromActivity;
 
+import android.support.v4.app.FragmentManager;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -44,7 +45,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        mNavigationFragment = (NavigationFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_fragment);
+        mNavigationFragment = (NavigationFragment) findNavigationFragment();
+        mNavigationFragment.initState(savedInstanceState);
 
         mAccountOperations = new AccountOperations(this);
         ApplicationProperties mApplicationProperties = new ApplicationProperties(getResources());
@@ -64,6 +66,15 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         supportInvalidateOptionsMenu();
 
         mSubscription.add(Event.CURRENT_USER_UPDATED.subscribe(userObserver));
+    }
+
+    private Fragment findNavigationFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        if (getResources().getBoolean(R.bool.fixed_nav)) {
+            return manager.findFragmentById(R.id.fixed_navigation_fragment_id);
+        } else {
+            return manager.findFragmentById(R.id.navigation_fragment_id);
+        }
     }
 
     private void handleLoggedInUser(ApplicationProperties appProperties, Observer<User> observer) {
@@ -107,6 +118,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putCharSequence(EXTRA_ACTIONBAR_TITLE, mLastTitle);
+        mNavigationFragment.storeState(savedInstanceState);
     }
 
     @Override

@@ -80,13 +80,7 @@ public class NavigationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
-        if (savedInstanceState != null) {
-            selectItem(savedInstanceState.getInt(STATE_SELECTED_POSITION));
-        } else if (!handleIntent(getActivity().getIntent())) {
-            selectItem(mCurrentSelectedPosition);
-        }
     }
 
     protected void configureLocalContextActionBar() {
@@ -146,10 +140,16 @@ public class NavigationFragment extends Fragment {
         mCallbacks = null;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
+    public void storeState(Bundle bundle) {
+        bundle.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
+    }
+
+    public void initState(Bundle bundle) {
+        if (bundle != null) {
+            selectItem(bundle.getInt(STATE_SELECTED_POSITION));
+        } else if (!handleIntent(getActivity().getIntent())) {
+            selectItem(mCurrentSelectedPosition);
+        }
     }
 
     private ListView setupListView(LayoutInflater inflater, ViewGroup container) {

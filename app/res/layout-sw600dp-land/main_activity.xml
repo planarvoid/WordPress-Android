@@ -3,12 +3,12 @@
              android:layout_height="match_parent"
              android:weightSum="3">
 
-    <fragment android:id="@+id/navigation_fragment"
+    <fragment android:id="@id/fixed_navigation_fragment_id"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_gravity="start"
               android:layout_weight="2"
-              android:name="com.soundcloud.android.main.NavigationFragment"/>
+              android:name="com.soundcloud.android.main.NavigationFragment" />
 
     <RelativeLayout
             android:layout_width="match_parent"
