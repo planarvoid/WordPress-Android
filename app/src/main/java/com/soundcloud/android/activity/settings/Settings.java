@@ -304,7 +304,6 @@ public class Settings extends PreferenceActivity {
     @TargetApi(11)
     public static AlertDialog createLogoutDialog(Activity activity) {
         final SoundCloudApplication app = (SoundCloudApplication) activity.getApplication();
-        final AccountOperations accountOperations = new AccountOperations(app);
         app.track(Click.Log_out_log_out);
 
         return new AlertDialog.Builder(activity).setTitle(R.string.menu_clear_user_title)
