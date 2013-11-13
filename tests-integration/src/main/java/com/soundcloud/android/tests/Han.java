@@ -397,6 +397,10 @@ public class Han  {
         return solo.searchText(text, onlyVisible);
     }
 
+    public boolean searchText(String text, int minimumNumberOfMatches, boolean scroll) {
+        return solo.searchText(text, minimumNumberOfMatches, false);
+    }
+
     public void typeText(EditText editText, String text) {
         solo.typeText(editText, text);
     }
@@ -427,6 +431,14 @@ public class Han  {
 
     public void clickOnActionBarHomeButton() {
         solo.clickOnActionBarHomeButton();
+    }
+
+    public void waitForDialogToClose(long timeout) {
+        solo.waitForDialogToClose(timeout);
+    }
+
+    public boolean waitForText(String text, int minimumNumberOfMatches, long timeout, boolean scroll) {
+        return solo.waitForText(text, minimumNumberOfMatches, timeout, scroll);
     }
 }
 
