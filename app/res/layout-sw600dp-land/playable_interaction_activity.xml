@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.1"
+            android:background="@color/playerControlBackground"/>
+
+    <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4">
+
+        <include layout="@layout/playable_interaction_common_layout"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"/>
+    </RelativeLayout>
+
+    <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.1"
+            android:background="@color/playerControlBackground"/>
+</LinearLayout>

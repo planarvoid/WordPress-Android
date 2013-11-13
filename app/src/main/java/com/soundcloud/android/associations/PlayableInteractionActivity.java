@@ -24,7 +24,7 @@ public abstract class PlayableInteractionActivity extends ScActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView(R.layout.track_info_collection);
+        setContentView(R.layout.playable_interaction_activity);
 
         if (!getIntent().hasExtra(EXTRA_INTERACTION_TYPE)) {
             throw new IllegalArgumentException("need to pass in EXTRA_INTERACTION_TYPE");
