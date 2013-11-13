@@ -61,6 +61,9 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView();
+
         mAccountOperations = new AccountOperations(this);
         mPublicCloudAPI = new PublicApi(this);
         connectivityListener = new NetworkConnectivityListener();
@@ -80,6 +83,11 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         registerReceiver(mGeneralIntentListener, new IntentFilter(f));
 
 
+    }
+
+    // Override this in activities with custom content views
+    protected void setContentView() {
+        setContentView(R.layout.container_layout);
     }
 
     protected ActionBarController createActionBarController() {
@@ -377,7 +385,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
      * Convenience method to get the content id for usage in one-off fragments
      */
     public static int getContentViewIdCompat() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH ?
-                android.R.id.content : R.id.action_bar_activity_content;
+        return R.id.holder;
     }
 }
