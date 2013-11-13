@@ -29,6 +29,7 @@ import android.widget.TextView;
 import java.util.List;
 
 public class PlayerTrackDetailsLayout extends LinearLayout {
+    private View mInfoView;
     private ViewGroup mTrackTags;
     private TableRow mLikersRow;
     private TableRow mRepostersRow;
@@ -57,6 +58,8 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
         View.inflate(context, R.layout.track_info, this);
         setBackgroundResource(R.color.playerControlBackground);
         setOrientation(VERTICAL);
+
+        mInfoView = findViewById(R.id.info_view);
 
         mTrackTags = (ViewGroup) findViewById(R.id.tags_holder);
 
@@ -105,11 +108,28 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
         mTxtInfo = (TextView) findViewById(R.id.txtInfo);
     }
 
-    public void fillTrackDetails(Track track) {
-        fillTrackDetails(track, track.isLoadingInfo());
+    public void setTrack(Track track) {
+        setTrack(track, false);
     }
 
-    public void fillTrackDetails(Track track, boolean showLoading) {
+    public void setTrack(Track track, boolean forceLoadingState) {
+        if (forceLoadingState || track.isLoadingInfo()){
+            mInfoView.setVisibility(View.GONE);
+            if (findViewById(R.id.loading_layout) != null) {
+                findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
+            } else {
+                findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
+            }
+        } else {
+            mInfoView.setVisibility(View.VISIBLE);
+            if (findViewById(R.id.loading_layout) != null) {
+                findViewById(R.id.loading_layout).setVisibility(View.GONE);
+            }
+        }
+        fillTrackDetails(track);
+    }
+
+    private void fillTrackDetails(Track track) {
         mTrackId = track.getId();
 
         setViewVisibility(track.likes_count > 0, mLikersRow, mLikersDivider);
@@ -147,22 +167,12 @@ public class PlayerTrackDetailsLayout extends LinearLayout {
             if (!(mm instanceof LinkMovementMethod)) {
                 mTxtInfo.setMovementMethod(LinkMovementMethod.getInstance());
             }
-        } else if (!showLoading && track.likes_count <= 0 && track.reposts_count <= 0 && track.comment_count <= 0
+        } else if (track.likes_count <= 0 && track.reposts_count <= 0 && track.comment_count <= 0
                 && mLastTags.isEmpty()) {
             mTxtInfo.setText(R.string.no_info_available);
             mTxtInfo.setGravity(Gravity.CENTER_HORIZONTAL);
         } else {
             mTxtInfo.setText("");
-        }
-
-        if (showLoading) {
-            if (findViewById(R.id.loading_layout) != null) {
-                findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
-            } else {
-                findViewById(R.id.stub_loading).setVisibility(View.VISIBLE);
-            }
-        } else if (findViewById(R.id.loading_layout) != null) {
-            findViewById(R.id.loading_layout).setVisibility(View.GONE);
         }
     }
 

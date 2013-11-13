@@ -369,19 +369,16 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(getCurrentDisplayedTrackId());
         if (track != null) {
             if (mTrackDetailsView != null) {
-                mTrackDetailsView.fillTrackDetails(track);
+                if (track.shouldLoadInfo()) {
+                    startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, track.getId()));
+                    mTrackDetailsView.setTrack(track, true);
+                } else {
+                    mTrackDetailsView.setTrack(track);
+                }
             }
             if (mPlayableInfoAndEngagementsController != null) {
                 mPlayableInfoAndEngagementsController.setTrack(track);
             }
-
-            if (track.shouldLoadInfo()) {
-                startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, track.getId()));
-                mTrackDetailsView.fillTrackDetails(track, true);
-            } else {
-                mTrackDetailsView.fillTrackDetails(track);
-            }
-
         }
     }
 
@@ -608,13 +605,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     ptv.onNewComment(comment);
                 }
 
-            } else if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)) {
-                final long id = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1);
-                if (id == getCurrentDisplayedTrackId()){
-                    updatePlayerInfoPanelFromTrackPager();
-                }
             } else {
-
                 if (Broadcasts.PLAYBACK_COMPLETE.equals(action) || action.equals(Broadcasts.PLAYSTATE_CHANGED)) {
                     setPlaybackState();
                     final PlayerTrackView trackView = getTrackView(queuePos);
@@ -626,6 +617,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                         }
                     }
                 } else {
+                    if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)
+                            && intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1) == getCurrentDisplayedTrackId()){
+                        updatePlayerInfoPanelFromTrackPager();
+                    }
                     // unhandled here, pass along to trackviews who may be interested
                     for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
                         ptv.handleIdBasedIntent(intent);

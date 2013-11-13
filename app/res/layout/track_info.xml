@@ -5,6 +5,11 @@
     <View android:layout_width="fill_parent"
           android:layout_height="2dp"
           android:background="@drawable/player_track_horiz_separator_bg"/>
+    <ViewStub android:id="@+id/stub_loading"
+              android:inflatedId="@+id/loading_layout"
+              android:layout="@layout/track_info_loading_layout"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"/>
     <ScrollView android:layout_width="fill_parent"
                 android:id="@+id/info_view"
                 android:layout_height="fill_parent">
@@ -12,8 +17,26 @@
                       android:layout_height="wrap_content"
                       android:id="@+id/info_holder"
                       android:orientation="vertical">
+            <com.soundcloud.android.view.FlowLayout android:id="@+id/tags_holder"
+                                                    android:layout_marginTop="10dip"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_width="fill_parent"
+                                                    android:paddingTop="5dip"
+                                                    android:paddingBottom="5dip"
+                                                    android:paddingLeft="@dimen/list_item_padding_left"
+                                                    android:paddingRight="@dimen/list_item_padding_right"
+                                                    />
+
+            <TextView android:id="@+id/txtInfo"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      style="@style/txt_player_track_info"/>
+
             <TableLayout style="@style/Player.TrackInfo.Table"
                          android:id="@+id/details_table">
+                <TableRow style="@style/Player.TrackInfo.SeparatorRow">
+                    <View style="@style/Player.TrackInfo.SeparatorView"/>
+                </TableRow>
                 <TableRow style="@style/Player.TrackInfo.Row"
                           android:id="@+id/likers_row">
                     <ImageView style="@style/Player.TrackInfo.Icon"
@@ -56,27 +79,6 @@
                     <View style="@style/Player.TrackInfo.SeparatorView"/>
                 </TableRow>
             </TableLayout>
-
-            <com.soundcloud.android.view.FlowLayout android:id="@+id/tags_holder"
-                                                    android:layout_marginTop="10dip"
-                                                    android:layout_height="wrap_content"
-                                                    android:layout_width="fill_parent"
-                                                    android:paddingTop="5dip"
-                                                    android:paddingBottom="5dip"
-                                                    android:paddingLeft="@dimen/list_item_padding_left"
-                                                    android:paddingRight="@dimen/list_item_padding_right"
-                                                    />
-
-            <ViewStub android:id="@+id/stub_loading"
-                          android:inflatedId="@+id/loading_layout"
-                          android:layout="@layout/track_info_loading_layout"
-                          android:layout_width="fill_parent"
-                          android:layout_height="wrap_content"/>
-
-            <TextView android:id="@+id/txtInfo"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      style="@style/txt_player_track_info"/>
         </LinearLayout>
 
     </ScrollView>

@@ -81,7 +81,7 @@ public class ArtworkTrackView extends PlayerTrackView {
             onTrackDetailsFlip(mTrackFlipper, false);
         }
         if (mTrackDetailsView != null) {
-            mTrackDetailsView.fillTrackDetails(mTrack);
+            mTrackDetailsView.setTrack(mTrack);
         }
     }
 
@@ -166,14 +166,14 @@ public class ArtworkTrackView extends PlayerTrackView {
                     public void run() {
                         final Context context = getContext();
                         if (context != null){
-                            context.startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA, mTrack));
+                            context.startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.getId()));
                         }
                     }
                 }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
 
-                mTrackDetailsView.fillTrackDetails(mTrack, true);
+                mTrackDetailsView.setTrack(mTrack, true);
             } else {
-                mTrackDetailsView.fillTrackDetails(mTrack);
+                mTrackDetailsView.setTrack(mTrack);
             }
 
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.fade_in));
@@ -190,7 +190,7 @@ public class ArtworkTrackView extends PlayerTrackView {
     @Override
     protected void onTrackInfoChanged() {
         if (mTrackDetailsView != null) {
-            mTrackDetailsView.fillTrackDetails(mTrack);
+            mTrackDetailsView.setTrack(mTrack);
         }
     }
 
