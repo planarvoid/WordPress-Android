@@ -64,7 +64,7 @@
                     android:layout_weight="1"
                     />
         </LinearLayout>
-        <View android:background="@drawable/drawer_shadow"
+        <View android:background="@drawable/shadow_right"
               android:layout_height="match_parent"
               android:layout_width="wrap_content" />
     </FrameLayout>

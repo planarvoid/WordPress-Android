@@ -1,5 +1,8 @@
 package com.soundcloud.android.main;
 
+import com.soundcloud.android.R;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -10,8 +13,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import com.soundcloud.android.R;
-import org.jetbrains.annotations.Nullable;
 
 public class NavigationDrawerFragment extends NavigationFragment {
 
@@ -85,7 +86,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
 
     private DrawerLayout setupDrawerLayout() {
         DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
-        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        drawerLayout.setDrawerShadow(R.drawable.shadow_right, GravityCompat.START);
         setupDrawerToggle(drawerLayout);
         return drawerLayout;
     }

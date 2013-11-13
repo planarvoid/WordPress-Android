@@ -1428,12 +1428,11 @@
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_weight">0.1</item>
-        <item name="android:background">@color/playerControlBackground</item>
+        <item name="android:background">@drawable/margin_left_bg</item>
     </style>
 
     <style name="MarginRight" parent="MarginLeft">
-        <!-- Once we have margin assets the backgrounds will be different -->
-        <item name="android:background">@color/playerControlBackground</item>
+        <item name="android:background">@drawable/margin_right_bg</item>
     </style>
 
 </resources>

@@ -16,5 +16,5 @@
                  android:layout_height="match_parent"/>
     </RelativeLayout>
 
-    <View style="@style/MarginLeft"/>
+    <View style="@style/MarginRight"/>
 </LinearLayout>
