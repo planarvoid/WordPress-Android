@@ -437,6 +437,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private void onTrackChanged(final Track track) {
         if (mFocus.isTrackChangeSupported()) {
+            // set initial data without bitmap so it doesn't have to wait
+            mFocus.onTrackChanged(track, null);
+
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
                 ImageLoader.getInstance().loadImage(artworkUri, new SimpleImageLoadingListener(){

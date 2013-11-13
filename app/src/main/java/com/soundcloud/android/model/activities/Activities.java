@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -241,7 +242,8 @@ public class Activities extends CollectionHolder<Activity> {
             return EMPTY;
         } else if (PublicApiWrapper.isStatusCodeClientError(statusCode)) {
             // a 404 also translates to Unauthorized here, since the API is a bit fucked up
-            throw ErrorUtils.handleUnauthorized(SoundCloudApplication.instance, request);
+            throw new CloudAPI.InvalidTokenException(response.getStatusLine().getStatusCode(),
+                    response.getStatusLine().getReasonPhrase());
         } else {
             final IOException ioException = new IOException(response.getStatusLine().toString());
             SoundCloudApplication.handleSilentException("Activities fetchRecent failed " + request, ioException);

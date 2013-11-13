@@ -1,16 +1,5 @@
 package com.soundcloud.android.tests;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-
-import com.jayway.android.robotium.solo.By;
-import com.jayway.android.robotium.solo.Condition;
-import com.jayway.android.robotium.solo.Solo;
-import com.jayway.android.robotium.solo.WebElement;
-import com.soundcloud.android.R;
-
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
@@ -18,16 +7,19 @@ import android.test.InstrumentationTestCase;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
+import com.jayway.android.robotium.solo.By;
+import com.jayway.android.robotium.solo.Condition;
+import com.jayway.android.robotium.solo.Solo;
+import com.jayway.android.robotium.solo.WebElement;
+import com.soundcloud.android.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static junit.framework.Assert.*;
 
 /**
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
@@ -405,6 +397,10 @@ public class Han  {
         return solo.searchText(text, onlyVisible);
     }
 
+    public boolean searchText(String text, int minimumNumberOfMatches, boolean scroll) {
+        return solo.searchText(text, minimumNumberOfMatches, false);
+    }
+
     public void typeText(EditText editText, String text) {
         solo.typeText(editText, text);
     }
@@ -431,6 +427,18 @@ public class Han  {
 
     public boolean waitForCondition(Condition condition, int timeout) {
         return solo.waitForCondition(condition, timeout);
+    }
+
+    public void clickOnActionBarHomeButton() {
+        solo.clickOnActionBarHomeButton();
+    }
+
+    public void waitForDialogToClose(long timeout) {
+        solo.waitForDialogToClose(timeout);
+    }
+
+    public boolean waitForText(String text, int minimumNumberOfMatches, long timeout, boolean scroll) {
+        return solo.waitForText(text, minimumNumberOfMatches, timeout, scroll);
     }
 }
 

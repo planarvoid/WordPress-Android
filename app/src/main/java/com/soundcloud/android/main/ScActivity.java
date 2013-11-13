@@ -29,7 +29,6 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -80,6 +79,18 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         registerReceiver(mGeneralIntentListener, new IntentFilter(f));
 
 
+    }
+
+    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
+    @Override
+    public void setTitle(CharSequence title) {
+        getSupportActionBar().setTitle(title);
+    }
+
+    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
+    @Override
+    public void setTitle(int titleId) {
+        getSupportActionBar().setTitle(titleId);
     }
 
     protected ActionBarController createActionBarController() {
@@ -371,13 +382,5 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         }
         finish();
         return true;
-    }
-
-    /**
-     * Convenience method to get the content id for usage in one-off fragments
-     */
-    public static int getContentViewIdCompat() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH ?
-                android.R.id.content : R.id.action_bar_activity_content;
     }
 }

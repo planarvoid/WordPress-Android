@@ -22,10 +22,10 @@ public class Waiter {
 
             @Override
             public boolean isSatisfied() {
-                return !solo.searchText(text, true);
+                return !solo.searchText(text, 0, false);
             }
         };
-        return solo.waitForCondition(condition, this.TIMEOUT);
+        return solo.waitForCondition(condition, this.NETWORK_TIMEOUT);
     }
 
     public boolean waitForWebViewToLoad(final WebView webViewToCheck) {

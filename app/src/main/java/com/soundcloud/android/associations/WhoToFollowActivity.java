@@ -15,7 +15,7 @@ public class WhoToFollowActivity extends ScActivity {
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(getContentViewIdCompat(), ScListFragment.newInstance(Content.SUGGESTED_USERS))
+                    .add(android.R.id.content, ScListFragment.newInstance(Content.SUGGESTED_USERS))
                     .commit();
         }
     }

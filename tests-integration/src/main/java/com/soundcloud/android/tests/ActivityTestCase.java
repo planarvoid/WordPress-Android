@@ -47,6 +47,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void tearDown() throws Exception {
+        IntegrationTestHelper.logOut(getInstrumentation());
         if (solo != null) {
             solo.finishOpenedActivities();
         }
