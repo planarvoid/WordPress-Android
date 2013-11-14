@@ -1,6 +1,6 @@
 package com.soundcloud.android.robolectric.shadows;
 
-import com.soundcloud.android.jni.NativeAmplitudeAnalyzer;
+import com.soundcloud.android.creators.record.jni.NativeAmplitudeAnalyzer;
 import com.xtremelabs.robolectric.internal.Implements;
 
 @SuppressWarnings("UnusedDeclaration")

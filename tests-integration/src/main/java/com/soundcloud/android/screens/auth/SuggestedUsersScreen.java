@@ -1,8 +1,8 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.MainActivity;
-import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
+import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;

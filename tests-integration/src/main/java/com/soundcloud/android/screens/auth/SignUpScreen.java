@@ -1,7 +1,7 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 

@@ -4,9 +4,9 @@ package com.soundcloud.android.auth.login;
 import android.webkit.WebView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.auth.FacebookSSO;
-import com.soundcloud.android.activity.auth.FacebookWebFlow;
-import com.soundcloud.android.activity.auth.OnboardActivity;
+import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
+import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
+import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.auth.LoginTestCase;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.screens.MenuScreen;
@@ -102,7 +102,7 @@ public class LoginFlowTest extends LoginTestCase {
     public void testLoginWithFacebookWebFlow() throws Throwable {
 
         // TODO: Control FB SSO on the device.
-        if (FacebookSSO.isSupported(getInstrumentation().getTargetContext())) {
+        if (FacebookSSOActivity.isSupported(getInstrumentation().getTargetContext())) {
             log("Facebook SSO is available, not testing WebFlow");
 
         }
@@ -115,7 +115,7 @@ public class LoginFlowTest extends LoginTestCase {
 
         loginScreen.clickOnContinueButton();
 
-        WebView webView = solo.assertActivity(FacebookWebFlow.class).getWebView();
+        WebView webView = solo.assertActivity(FacebookWebFlowActivity.class).getWebView();
         assertNotNull(webView);
         assertTrue(waiter.waitForWebViewToLoad(webView));
 

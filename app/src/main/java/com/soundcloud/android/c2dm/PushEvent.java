@@ -1,6 +1,6 @@
 package com.soundcloud.android.c2dm;
 
-import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.sync.SyncAdapterService;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;

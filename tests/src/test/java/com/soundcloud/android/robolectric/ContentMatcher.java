@@ -3,7 +3,7 @@ package com.soundcloud.android.robolectric;
 import static com.soundcloud.android.Expect.expect;
 
 import com.pivotallabs.greatexpectations.BaseMatcher;
-import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.storage.provider.Content;
 import com.xtremelabs.robolectric.Robolectric;
 
 import android.database.Cursor;

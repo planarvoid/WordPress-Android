@@ -1,7 +1,7 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

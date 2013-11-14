@@ -3,7 +3,7 @@ package com.soundcloud.android.api.http.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.api.http.Wrapper;
+import com.soundcloud.android.api.http.PublicApiWrapper;
 
 import java.io.IOException;
 
@@ -13,7 +13,7 @@ public class JacksonJsonTransformer implements JsonTransformer {
     private final TypeFactory mTypeFactory;
 
     public JacksonJsonTransformer(){
-        mObjectMapper = Wrapper.buildObjectMapper();
+        mObjectMapper = PublicApiWrapper.buildObjectMapper();
         mTypeFactory = mObjectMapper.getTypeFactory();
     }
 

@@ -1,5 +1,7 @@
 package com.soundcloud.android.utils;
 
+import static com.soundcloud.android.api.http.PublicApiWrapper.UnauthorizedException;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.APIRequestException;
 

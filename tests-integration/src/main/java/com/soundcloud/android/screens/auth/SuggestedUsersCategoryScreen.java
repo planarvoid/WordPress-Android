@@ -1,9 +1,9 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.operations.following.FollowingOperations;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.view.GridViewCompat;
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.soundcloud.android.model.behavior.Identifiable;
 import com.soundcloud.android.model.behavior.Persisted;
-import com.soundcloud.android.provider.BulkInsertMap;
+import com.soundcloud.android.storage.provider.BulkInsertMap;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;

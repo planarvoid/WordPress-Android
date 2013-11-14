@@ -3,7 +3,6 @@ package com.soundcloud.android.rx.observers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.fragment.behavior.EmptyViewAware;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyListView;
 import org.junit.Before;

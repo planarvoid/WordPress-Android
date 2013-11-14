@@ -1,8 +1,8 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.content.Context;

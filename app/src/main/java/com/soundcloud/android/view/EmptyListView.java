@@ -2,7 +2,7 @@ package com.soundcloud.android.view;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.http.Wrapper;
+import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
@@ -115,7 +115,7 @@ public class EmptyListView extends RelativeLayout {
 
             } else {
                 AnimUtils.hideView(getContext(), mProgressView, false);
-                if (Wrapper.isStatusCodeOk(code)) {
+                if (PublicApiWrapper.isStatusCodeOk(code)) {
                     // at rest, no error
                     showEmptyLayout();
                     return true;
@@ -146,7 +146,7 @@ public class EmptyListView extends RelativeLayout {
             AnimUtils.hideView(getContext(), mEmptyLayout, false);
         }
 
-        if (Wrapper.isStatusCodeError(responseCode) || responseCode == Status.SERVER_ERROR){
+        if (PublicApiWrapper.isStatusCodeError(responseCode) || responseCode == Status.SERVER_ERROR){
             mErrorView.setUnexpectedResponseState();
         } else {
             mErrorView.setConnectionErrorState();

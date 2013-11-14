@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.PlayerActivity;
+import com.soundcloud.android.playback.PlayerActivity;
 
 public abstract class ResolveTrackTest extends ResolveBaseTest {
 

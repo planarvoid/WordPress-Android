@@ -53,7 +53,7 @@ public class SoundCloudRxHttpClientTest {
     @Mock
     private WrapperFactory wrapperFactory;
     @Mock
-    private Wrapper wrapper;
+    private PublicApiWrapper publicApiWrapper;
     @Mock
     private APIRequest apiRequest;
     @Mock
@@ -76,8 +76,8 @@ public class SoundCloudRxHttpClientTest {
         when(apiRequest.getUriPath()).thenReturn(URI);
         when(apiRequest.getMethod()).thenReturn("get");
         when(apiRequest.getQueryParameters()).thenReturn(ArrayListMultimap.create());
-        when(wrapperFactory.createWrapper(any(APIRequest.class))).thenReturn(wrapper);
-        when(wrapper.get(any(Request.class))).thenReturn(httpResponse);
+        when(wrapperFactory.createWrapper(any(APIRequest.class))).thenReturn(publicApiWrapper);
+        when(publicApiWrapper.get(any(Request.class))).thenReturn(httpResponse);
         when(httpResponse.getEntity()).thenReturn(httpEntity);
         when(httpResponse.getStatusLine()).thenReturn(statusLine);
         when(httpResponse.getAllHeaders()).thenReturn(new Header[]{});
@@ -97,22 +97,22 @@ public class SoundCloudRxHttpClientTest {
     public void shouldMakeGetRequestWithAPIWrapper() throws IOException {
         when(apiRequest.getMethod()).thenReturn("get");
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
-        verify(wrapper).get(any(Request.class));
+        verify(publicApiWrapper).get(any(Request.class));
     }
 
     @Test
     public void shouldMakePostRequestWithAPIWrapper() throws IOException {
         when(apiRequest.getMethod()).thenReturn("post");
-        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(publicApiWrapper.post(any(Request.class))).thenReturn(httpResponse);
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
-        verify(wrapper).post(any(Request.class));
+        verify(publicApiWrapper).post(any(Request.class));
     }
 
     @Test
     public void shouldMakeGetRequestWithSpecifiedURI() throws IOException {
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
-        verify(wrapper).get(argumentCaptor.capture());
+        verify(publicApiWrapper).get(argumentCaptor.capture());
         Request scRequest = argumentCaptor.getValue();
         expect(scRequest.toUrl()).toEqual(URI);
     }
@@ -120,10 +120,10 @@ public class SoundCloudRxHttpClientTest {
     @Test
     public void shouldMakePostRequestWithSpecifiedURI() throws IOException {
         when(apiRequest.getMethod()).thenReturn("post");
-        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(publicApiWrapper.post(any(Request.class))).thenReturn(httpResponse);
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
-        verify(wrapper).post(argumentCaptor.capture());
+        verify(publicApiWrapper).post(argumentCaptor.capture());
         Request scRequest = argumentCaptor.getValue();
         expect(scRequest.toUrl()).toEqual(URI);
     }
@@ -134,7 +134,7 @@ public class SoundCloudRxHttpClientTest {
         when(httpProperties.getApiMobileBaseUriPath()).thenReturn("/baseprivateapiuri");
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
-        verify(wrapper).get(argumentCaptor.capture());
+        verify(publicApiWrapper).get(argumentCaptor.capture());
         Request scRequest = argumentCaptor.getValue();
         expect(scRequest.toUrl()).toEqual("/baseprivateapiuri" + URI);
     }
@@ -142,12 +142,12 @@ public class SoundCloudRxHttpClientTest {
     @Test
     public void shouldAppendBaseUriIfPostRequestIsForPrivateAPI() throws IOException {
         when(apiRequest.getMethod()).thenReturn("post");
-        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(publicApiWrapper.post(any(Request.class))).thenReturn(httpResponse);
         when(apiRequest.isPrivate()).thenReturn(true);
         when(httpProperties.getApiMobileBaseUriPath()).thenReturn("/baseprivateapiuri");
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
-        verify(wrapper).post(argumentCaptor.capture());
+        verify(publicApiWrapper).post(argumentCaptor.capture());
         Request scRequest = argumentCaptor.getValue();
         expect(scRequest.toUrl()).toEqual("/baseprivateapiuri" + URI);
     }
@@ -156,26 +156,26 @@ public class SoundCloudRxHttpClientTest {
     public void shouldNotAppendBasePathIfAppPrefixPresent() throws IOException {
         when(apiRequest.getUriPath()).thenReturn(SoundCloudRxHttpClient.URI_APP_PREFIX);
         when(apiRequest.getMethod()).thenReturn("post");
-        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(publicApiWrapper.post(any(Request.class))).thenReturn(httpResponse);
         when(apiRequest.isPrivate()).thenReturn(true);
         when(httpProperties.getApiMobileBaseUriPath()).thenReturn("/baseprivateapiuri");
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
-        verify(wrapper).post(argumentCaptor.capture());
+        verify(publicApiWrapper).post(argumentCaptor.capture());
         Request scRequest = argumentCaptor.getValue();
         expect(scRequest.toUrl()).toEqual(URI_APP_PREFIX);
     }
 
     @Test
     public void shouldRaiseAPIExceptionIfInvalidTokenExists() throws IOException {
-        when(wrapper.get(any(Request.class))).thenThrow(InvalidTokenException.class);
+        when(publicApiWrapper.get(any(Request.class))).thenThrow(InvalidTokenException.class);
         rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
 
     @Test
     public void shouldRaiseAPIExceptionIfIOExceptionOccurs() throws IOException {
-        when(wrapper.get(any(Request.class))).thenThrow(IOException.class);
+        when(publicApiWrapper.get(any(Request.class))).thenThrow(IOException.class);
         rxHttpClient.fetchModels(apiRequest).subscribe(observer);
         verify(observer).onError(any(APIRequestException.class));
     }
@@ -305,7 +305,7 @@ public class SoundCloudRxHttpClientTest {
 
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
-        verify(wrapper).get(argumentCaptor.capture());
+        verify(publicApiWrapper).get(argumentCaptor.capture());
         Request request = argumentCaptor.getValue();
 
         expect(request.getParams().get("key")).toEqual("value");
@@ -321,7 +321,7 @@ public class SoundCloudRxHttpClientTest {
 
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
-        verify(wrapper).get(argumentCaptor.capture());
+        verify(publicApiWrapper).get(argumentCaptor.capture());
         Request request = argumentCaptor.getValue();
 
         expect(request.getParams().get("key")).toEqual("value1,value2");
@@ -336,12 +336,12 @@ public class SoundCloudRxHttpClientTest {
 
         when(apiRequest.getContent()).thenReturn(jsonSource);
         when(apiRequest.getMethod()).thenReturn("post");
-        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(publicApiWrapper.post(any(Request.class))).thenReturn(httpResponse);
         when(jsonTransformer.toJson(jsonSource)).thenReturn(jsonContent);
 
         rxHttpClient.fetchModels(apiRequest).subscribe(errorRaisingObserver());
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
-        verify(wrapper).post(argumentCaptor.capture());
+        verify(publicApiWrapper).post(argumentCaptor.capture());
         Request request = argumentCaptor.getValue();
 
         final HttpPost httpPost = request.buildRequest(HttpPost.class);
@@ -356,7 +356,7 @@ public class SoundCloudRxHttpClientTest {
 
         when(apiRequest.getContent()).thenReturn(jsonSource);
         when(apiRequest.getMethod()).thenReturn("post");
-        when(wrapper.post(any(Request.class))).thenReturn(httpResponse);
+        when(publicApiWrapper.post(any(Request.class))).thenReturn(httpResponse);
         when(jsonTransformer.toJson(jsonSource)).thenThrow(new IOException());
 
         rxHttpClient.fetchModels(apiRequest).subscribe(observer);
