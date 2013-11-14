@@ -12,13 +12,14 @@ import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
-import com.soundcloud.android.rx.observers.EmptyViewAware;
+import com.soundcloud.android.dagger.DaggerHelper;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observer;
 import rx.Subscription;
@@ -27,6 +28,8 @@ import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
 import static rx.android.OperationPaged.Page;
+
+import javax.inject.Inject;
 
 public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
@@ -37,7 +40,9 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private EmptyListView mEmptyListView;
     private ExploreTracksAdapter mAdapter;
     private ExploreTracksObserver mObserver;
-    private PlaybackOperations mPlaybackOperations;
+
+    @Inject
+    PlaybackOperations mPlaybackOperations;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
@@ -50,13 +55,11 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         return exploreTracksFragment;
     }
 
-    public ExploreTracksFragment() {
-        mPlaybackOperations = new PlaybackOperations();
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        DaggerHelper.inject(this);
 
         mAdapter = new ExploreTracksAdapter();
         mObserver = new ExploreTracksObserver();
