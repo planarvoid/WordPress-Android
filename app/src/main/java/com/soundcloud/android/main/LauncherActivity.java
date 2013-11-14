@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-public class Launch extends Activity {
+public class LauncherActivity extends Activity {
     private AccountOperations mAccountOperations;
 
     @Override
@@ -25,9 +25,9 @@ public class Launch extends Activity {
             @Override
             public void run() {
                 if (mAccountOperations.soundCloudAccountExists()) {
-                    startActivity(new Intent(Launch.this, MainActivity.class));
+                    startActivity(new Intent(LauncherActivity.this, MainActivity.class));
                 } else {
-                    mAccountOperations.addSoundCloudAccountManually(Launch.this);
+                    mAccountOperations.addSoundCloudAccountManually(LauncherActivity.this);
                 }
             }
         });

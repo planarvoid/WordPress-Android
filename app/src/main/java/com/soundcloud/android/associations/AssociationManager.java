@@ -4,7 +4,7 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.model.Playable;
@@ -78,10 +78,10 @@ public class AssociationManager {
 
     private void onAssociationChanged(Playable playable) {
         Intent intent = new Intent(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
-                .putExtra(CloudPlaybackService.BroadcastExtras.id, playable.getId())
-                .putExtra(CloudPlaybackService.BroadcastExtras.isRepost, playable.user_repost)
-                .putExtra(CloudPlaybackService.BroadcastExtras.isLike, playable.user_like)
-                .putExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, CloudPlaybackService.getPlaybackState().isSupposedToBePlaying());
+                .putExtra(PlaybackService.BroadcastExtras.id, playable.getId())
+                .putExtra(PlaybackService.BroadcastExtras.isRepost, playable.user_repost)
+                .putExtra(PlaybackService.BroadcastExtras.isLike, playable.user_like)
+                .putExtra(PlaybackService.BroadcastExtras.isSupposedToBePlaying, PlaybackService.getPlaybackState().isSupposedToBePlaying());
 
         mContext.sendBroadcast(intent);
         PlayerAppWidgetProvider.getInstance().notifyChange(mContext, intent);

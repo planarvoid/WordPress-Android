@@ -36,7 +36,7 @@ public class ExploreFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.explore_activity, container, false);
+        return inflater.inflate(R.layout.explore_fragment, container, false);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class ExploreFragment extends Fragment {
         TabPageIndicator mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
 
-        mPager.setCurrentItem(TAB_POPULAR_MUSIC);
+        mPager.setCurrentItem(TAB_CATEGORIES);
     }
 
     @Override

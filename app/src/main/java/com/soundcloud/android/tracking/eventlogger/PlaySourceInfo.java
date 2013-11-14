@@ -1,7 +1,6 @@
 package com.soundcloud.android.tracking.eventlogger;
 
 import com.google.common.base.Objects;
-import com.google.common.primitives.Longs;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.net.Uri;
@@ -52,9 +51,7 @@ public class PlaySourceInfo implements Parcelable {
     public static PlaySourceInfo fromUriParams(Uri uri) {
         final Builder builder = new Builder();
         final String initialTrackId = uri.getQueryParameter(KEY_INITIAL_TRACK_ID);
-        if (ScTextUtils.isNotBlank(initialTrackId)){
-            builder.initialTrackId(Longs.tryParse(initialTrackId));
-        }
+        builder.initialTrackId(ScTextUtils.safeParseLong(initialTrackId));
         return builder
                 .originUrl(uri.getQueryParameter(KEY_ORIGIN_URL))
                 .exploreVersion(uri.getQueryParameter(KEY_EXPLORE_VERSION))

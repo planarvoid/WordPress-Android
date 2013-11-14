@@ -7,7 +7,7 @@ import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
@@ -166,7 +166,7 @@ public class ArtworkTrackView extends PlayerTrackView {
                     public void run() {
                         final Context context = getContext();
                         if (context != null){
-                            context.startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.getId()));
+                            context.startService(new Intent(PlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, mTrack.getId()));
                         }
                     }
                 }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end

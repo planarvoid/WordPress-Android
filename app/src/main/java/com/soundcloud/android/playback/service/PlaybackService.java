@@ -62,10 +62,11 @@ import android.view.View;
 
 import java.lang.ref.WeakReference;
 
-public class CloudPlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
+public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
     public static final String TAG = "CloudPlaybackService";
 
-    private static @Nullable CloudPlaybackService instance;
+    private static @Nullable
+    PlaybackService instance;
 
 
     /**
@@ -83,7 +84,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
-    public static PlaybackState getPlaybackState() { return instance == null ? PlaybackState.STOPPED : instance.mPlaybackState; }
+    public static PlaybackState getPlaybackState() { return instance == null ? PlaybackState.STOPPED : instance.getPlaybackStateInternal(); }
     public static boolean isBuffering() {  return instance != null && instance._isBuffering(); }
     public static boolean isSeekable() {  return instance != null && instance._isSeekable(); }
 
@@ -181,9 +182,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private IRemoteAudioManager mFocus;
     private boolean mTransientFocusLoss;
 
-    private final IBinder mBinder = new LocalBinder<CloudPlaybackService>() {
-        @Override public CloudPlaybackService getService() {
-            return CloudPlaybackService.this;
+    private final IBinder mBinder = new LocalBinder<PlaybackService>() {
+        @Override public PlaybackService getService() {
+            return PlaybackService.this;
         }
     };
 
@@ -436,6 +437,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private void onTrackChanged(final Track track) {
         if (mFocus.isTrackChangeSupported()) {
+            // set initial data without bitmap so it doesn't have to wait
+            mFocus.onTrackChanged(track, null);
+
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
                 ImageLoader.getInstance().loadImage(artworkUri, new SimpleImageLoadingListener(){
@@ -534,7 +538,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             // this used to write the track back to storage - this should happen as
             // part of the sync/task
             sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_UPDATED)
-                                        .putExtra(CloudPlaybackService.BroadcastExtras.id, track.getId()));
+                                        .putExtra(PlaybackService.BroadcastExtras.id, track.getId()));
 
             if (track.equals(mCurrentTrack) && (!isPlaying() && mPlaybackState.isSupposedToBePlaying())){
                 // we were waiting on this track
@@ -550,7 +554,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         public void onError(Object context) {
             long id = context instanceof Number ? ((Number)context).longValue() : -1;
             sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_ERROR)
-                                .putExtra(CloudPlaybackService.BroadcastExtras.id, id));
+                                .putExtra(PlaybackService.BroadcastExtras.id, id));
             onUnstreamableTrack(id);
         }
     };
@@ -837,6 +841,10 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
+    /* package */ PlaybackState getPlaybackStateInternal() {
+        return mPlaybackState;
+    }
+
     /* package */ int getDuration() {
         return mCurrentTrack == null ? -1 : mCurrentTrack.duration;
     }
@@ -1000,15 +1008,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
 
     private static final class DelayedStopHandler extends Handler {
-        private WeakReference<CloudPlaybackService> serviceRef;
+        private WeakReference<PlaybackService> serviceRef;
 
-        private DelayedStopHandler(CloudPlaybackService service) {
-            serviceRef = new WeakReference<CloudPlaybackService>(service);
+        private DelayedStopHandler(PlaybackService service) {
+            serviceRef = new WeakReference<PlaybackService>(service);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            CloudPlaybackService service = serviceRef.get();
+            PlaybackService service = serviceRef.get();
             // Check again to make sure nothing is playing right now
             final PlaybackState playbackState = getPlaybackState();
             if (service != null && !playbackState.isSupposedToBePlaying()
@@ -1048,16 +1056,16 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private static final class PlayerHandler extends Handler {
         private static final float DUCK_VOLUME = 0.1f;
 
-        private WeakReference<CloudPlaybackService> serviceRef;
+        private WeakReference<PlaybackService> serviceRef;
         private float mCurrentVolume = 1.0f;
 
-        private PlayerHandler(CloudPlaybackService service) {
-            this.serviceRef = new WeakReference<CloudPlaybackService>(service);
+        private PlayerHandler(PlaybackService service) {
+            this.serviceRef = new WeakReference<PlaybackService>(service);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            final CloudPlaybackService service = serviceRef.get();
+            final PlaybackService service = serviceRef.get();
             if (service == null) {
                 return;
             }
@@ -1286,7 +1294,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         mPlayerHandler.sendEmptyMessageDelayed(CHECK_BUFFERING,500);
 
                         //  FADE_IN will call play()
-                        if (!mAutoPause && mFocus.requestMusicFocus(CloudPlaybackService.this, IAudioManager.FOCUS_GAIN)) {
+                        if (!mAutoPause && mFocus.requestMusicFocus(PlaybackService.this, IAudioManager.FOCUS_GAIN)) {
                             mPlayerHandler.removeMessages(FADE_OUT);
                             mPlayerHandler.removeMessages(FADE_IN);
                             setVolume(1.0f);
@@ -1317,13 +1325,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     StreamItem item = mCurrentTrack != null ? mProxy.getStreamItem(mCurrentTrack.getStreamUrlWithAppendedId()) : null;
                     Log.d(TAG, "stream disconnected, giving up");
                     mConnectRetries = 0;
-                    DebugUtils.reportMediaPlayerError(CloudPlaybackService.this, item, what, extra);
+                    DebugUtils.reportMediaPlayerError(PlaybackService.this, item, what, extra);
 
                     mp.release();
                     mMediaPlayer = null;
                     gotoIdleState(PlaybackState.ERROR);
 
-                    if (IOUtils.isConnected(CloudPlaybackService.this)) {
+                    if (IOUtils.isConnected(PlaybackService.this)) {
                         notifyChange(item != null && !item.isAvailable() ? Broadcasts.TRACK_UNAVAILABLE : Broadcasts.PLAYBACK_ERROR);
                     } else {
                         notifyChange(Broadcasts.STREAM_DIED);

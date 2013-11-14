@@ -4,6 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.ResolveActivity;
+import com.soundcloud.android.preferences.AccountSettingsActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.associations.FriendFinderActivity;
@@ -13,7 +14,6 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.creators.upload.UploadMonitorActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
-import com.soundcloud.android.preferences.AccountSettings;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -91,7 +91,7 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     }
 
     public void ignore_testAccountSettings() throws Exception {
-        assertActivityStarted(AccountSettings.class, Actions.ACCOUNT_PREF);
+        assertActivityStarted(AccountSettingsActivity.class, Actions.ACCOUNT_PREF);
     }
 
     public void ignore_testUploadMonitor() throws Exception {

@@ -21,7 +21,7 @@ public class PlayQueueManagerStoreTest {
     @Before
     public void before() throws Exception {
         playQueueStorage = new PlayQueueStorage();
-        List<Playable> likes = TestHelper.readResourceList("/com/soundcloud/android/service/sync/e1_likes.json");
+        List<Playable> likes = TestHelper.readResourceList("/com/soundcloud/android/sync/e1_likes.json");
         expect(TestHelper.bulkInsert(Content.ME_LIKES.uri, likes)).toEqual(3);
     }
 

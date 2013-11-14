@@ -16,10 +16,6 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
-import com.soundcloud.android.playback.service.PlayQueue;
-import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.service.PlayQueueStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
@@ -303,12 +299,12 @@ public class PlayQueueManagerTest {
     private void expectBroadcastPlayqueueChanged() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
-        expect(captor.getValue().getAction()).toEqual(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
+        expect(captor.getValue().getAction()).toEqual(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED);
     }
 
     private void expectBroadcastRelatedLoadChanges() {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
-        expect(captor.getValue().getAction()).toEqual(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED);
+        expect(captor.getValue().getAction()).toEqual(PlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED);
     }
 }

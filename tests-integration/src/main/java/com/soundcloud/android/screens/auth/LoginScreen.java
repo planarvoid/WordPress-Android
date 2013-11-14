@@ -70,6 +70,7 @@ public class LoginScreen {
     public void clickOnContinueButton() {
         solo.clickOnButton(R.string.btn_continue);
         waiter.waitForTextToDisappear("Logging you in");
+        solo.waitForText("Stream", 0, 15000, false);
     }
 
     public void loginAs(String username, String password) {

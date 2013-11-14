@@ -1,10 +1,9 @@
-package com.soundcloud.android.playback;
+package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.associations.AddCommentTask;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;

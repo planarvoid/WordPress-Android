@@ -9,8 +9,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.NowPlayingActionBarController;
 import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.preferences.Settings;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -29,7 +29,6 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -88,6 +87,17 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     // Override this in activities with custom content views
     protected void setContentView() {
         setContentView(R.layout.container_layout);
+    }
+
+    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
+    @Override
+    public void setTitle(CharSequence title) {
+        getSupportActionBar().setTitle(title);
+    }
+
+    @Override
+    public void setTitle(int titleId) {
+        getSupportActionBar().setTitle(titleId);
     }
 
     protected ActionBarController createActionBarController() {
@@ -179,7 +189,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     }
 
     public void pausePlayback() {
-        startService(new Intent(CloudPlaybackService.Actions.PAUSE_ACTION));
+        startService(new Intent(PlaybackService.Actions.PAUSE_ACTION));
     }
 
     public SoundCloudApplication getApp() {
@@ -233,7 +243,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
                         .setMessage(R.string.error_unauthorized_message).setNegativeButton(
                                 R.string.side_menu_settings, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                startActivity(new Intent(ScActivity.this, Settings.class));
+                                startActivity(new Intent(ScActivity.this, SettingsActivity.class));
                             }
                         }).setPositiveButton(
                                 android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -250,7 +260,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
                             }
                         }).create();
             case Consts.Dialogs.DIALOG_LOGOUT:
-                return Settings.createLogoutDialog(this);
+                return SettingsActivity.createLogoutDialog(this);
 
             case Consts.Dialogs.DIALOG_TRANSCODING_FAILED:
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_failed_title)

@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.playback.service.CloudPlaybackService.Actions;
-import static com.soundcloud.android.playback.service.CloudPlaybackService.Broadcasts;
-import static com.soundcloud.android.playback.service.CloudPlaybackService.PlayExtras;
+import static com.soundcloud.android.playback.service.PlaybackService.Actions;
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
+import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -21,18 +21,18 @@ import android.net.Uri;
 
 class PlaybackReceiver extends BroadcastReceiver {
 
-    private CloudPlaybackService mPlaybackService;
+    private PlaybackService mPlaybackService;
     private AssociationManager mAssociationManager;
     private AudioManager mAudioManager;
     private final AccountOperations mAccountOperations;
     private final PlayQueueManager mPlayQueueManager;
 
-    public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
+    public PlaybackReceiver(PlaybackService playbackService, AssociationManager associationManager,
                             AudioManager audioManager, PlayQueueManager playQueueManager) {
         this(playbackService, associationManager, audioManager, new AccountOperations(playbackService), playQueueManager);
     }
 
-    public PlaybackReceiver(CloudPlaybackService playbackService, AssociationManager associationManager,
+    public PlaybackReceiver(PlaybackService playbackService, AssociationManager associationManager,
                             AudioManager audioManager, AccountOperations accountOperations, PlayQueueManager playQueueManager) {
         this.mPlaybackService = playbackService;
         this.mAssociationManager = associationManager;
@@ -47,7 +47,7 @@ class PlaybackReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         String action = intent.getAction();
-        Log.d(CloudPlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
+        Log.d(PlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
 
         if (Actions.RESET_ALL.equals(action)) {
             mPlaybackService.resetAll();
@@ -83,7 +83,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
                 mPlayQueueManager.retryRelatedTracksFetch();
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
-                if (mPlaybackService.getPlaybackState() == PlaybackState.WAITING_FOR_PLAYLIST) {
+                if (mPlaybackService.getPlaybackStateInternal() == PlaybackState.WAITING_FOR_PLAYLIST) {
                     mPlaybackService.openCurrent();
                 }
             } else if (Actions.LOAD_TRACK_INFO.equals(action)) {
@@ -94,7 +94,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                     mPlaybackService.getInfoListener().onError(intent.getLongExtra(Track.EXTRA_ID, -1L));
                 }
             } else if (Actions.STOP_ACTION.equals(action)) {
-                if (mPlaybackService.getPlaybackState().isSupposedToBePlaying()) {
+                if (mPlaybackService.getPlaybackStateInternal().isSupposedToBePlaying()) {
                     mPlaybackService.saveProgressAndStop();
                 } else {
                     // make sure we go to a stopped stat. No-op if there already
@@ -102,7 +102,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                 }
             }
         } else {
-            Log.e(CloudPlaybackService.TAG, "Aborting playback service action, no soundcloud account(" + intent + ")");
+            Log.e(PlaybackService.TAG, "Aborting playback service action, no soundcloud account(" + intent + ")");
         }
     }
 
@@ -127,7 +127,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                 mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
             }
         } else {
-            Log.w(CloudPlaybackService.TAG, "Received play intent without a play queue");
+            Log.w(PlaybackService.TAG, "Received play intent without a play queue");
         }
     }
 }

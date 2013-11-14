@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.model.Playable;
@@ -14,7 +15,6 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import rx.Observable;
@@ -127,16 +127,16 @@ public class PlaybackOperations {
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
 
         // intent for playback service
-        if (CloudPlaybackService.getCurrentTrackId() != playInfo.initialTrack.getId()) {
+        if (PlaybackService.getCurrentTrackId() != playInfo.initialTrack.getId()) {
             sendIntentViaPlayInfo(context, playInfo);
         }
     }
 
     private void sendIntentViaPlayInfo(final Context context, final PlayInfo info) {
 
-        final Intent intent = new Intent(CloudPlaybackService.Actions.PLAY_ACTION);
-        intent.putExtra(CloudPlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
-        intent.putExtra(CloudPlaybackService.PlayExtras.trackingInfo, info.sourceInfo);
+        final Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
+        intent.putExtra(PlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
+        intent.putExtra(PlaybackService.PlayExtras.trackingInfo, info.sourceInfo);
 
         if (info.isStoredCollection()) {
             mTrackStorage.getTrackIdsForUriAsync(info.uri).subscribe(new DefaultObserver<List<Long>>() {

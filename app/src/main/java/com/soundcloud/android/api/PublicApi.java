@@ -26,12 +26,12 @@ public class PublicApi implements PublicCloudAPI {
     private PublicApiWrapper mApiWrapper;
 
     public PublicApi(Context context){
-        this(context, PublicApiWrapper.getInstance(context));
+        this(PublicApiWrapper.getInstance(context));
     }
 
     @VisibleForTesting
-    protected PublicApi(Context context, PublicApiWrapper publicApiWrapper) {
-        mApiWrapper = publicApiWrapper;
+    protected PublicApi(PublicApiWrapper wrapper) {
+        mApiWrapper = wrapper;
     }
 
     public HttpResponse head(Request resource) throws IOException {

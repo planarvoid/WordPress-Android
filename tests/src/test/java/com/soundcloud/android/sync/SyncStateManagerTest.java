@@ -2,18 +2,23 @@ package com.soundcloud.android.sync;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.net.Uri;
 
@@ -136,6 +141,14 @@ public class SyncStateManagerTest {
 
         syncStateManager.onCollectionAsyncQueryReturn(null, lc, onLocalCollectionChangeListener);
         verify(onLocalCollectionChangeListener).onLocalCollectionChanged(initLc);
+    }
+
+    @Test
+    public void shouldResolveContextToApplicationContextToPreventMemoryLeaks() {
+        Activity activity = mock(Activity.class);
+        when(activity.getApplicationContext()).thenReturn(activity);
+        new SyncStateManager(activity);
+        verify(activity, atLeastOnce()).getApplicationContext();
     }
 
     private LocalCollection insertLocalCollection(Uri contentUri) {

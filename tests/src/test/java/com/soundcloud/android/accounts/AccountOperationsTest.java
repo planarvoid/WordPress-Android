@@ -3,6 +3,7 @@ package com.soundcloud.android.accounts;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -332,6 +333,13 @@ public class AccountOperationsTest {
         currentUser.setPrimaryEmailConfirmed(false);
 
         expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeFalse();
+    }
+
+    @Test
+    public void shouldResolveContextToApplicationContextToPreventMemoryLeaks() {
+        Activity activity = mock(Activity.class);
+        new AccountOperations(activity);
+        verify(activity, atLeastOnce()).getApplicationContext();
     }
 
     private void mockExpiredEmailConfirmationReminder() {

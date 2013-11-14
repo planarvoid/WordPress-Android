@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackService;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -34,15 +34,15 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
 
     protected void linkPlayerControls(Context context) {
         // Connect up various buttons and touch events
-        final Intent previous = new Intent(CloudPlaybackService.Actions.PREVIOUS_ACTION);
+        final Intent previous = new Intent(PlaybackService.Actions.PREVIOUS_ACTION);
         setOnClickPendingIntent(R.id.prev, PendingIntent.getService(context,
                 0 /* requestCode */, previous, 0 /* flags */));
 
-        final Intent pause = new Intent(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
+        final Intent pause = new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION);
         setOnClickPendingIntent(R.id.pause, PendingIntent.getService(context,
                 0 /* requestCode */, pause, 0 /* flags */));
 
-        final Intent next = new Intent(CloudPlaybackService.Actions.NEXT_ACTION);
+        final Intent next = new Intent(PlaybackService.Actions.NEXT_ACTION);
         setOnClickPendingIntent(R.id.next, PendingIntent.getService(context,
                 0 /* requestCode */, next, 0 /* flags */));
     }

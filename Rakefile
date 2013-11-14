@@ -272,7 +272,9 @@ namespace :release do
     Mvn.install.
       projects('app').
       with_profiles('sign','soundcloud','release').
-      execute()
+    execute()
+
+    sh "git checkout app/AndroidManifest.xml"
   end
 
   desc "bumps the release version, pom files will be afected as well as AndroidManifest.xml files"

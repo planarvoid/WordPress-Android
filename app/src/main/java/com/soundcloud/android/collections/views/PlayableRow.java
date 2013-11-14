@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.behavior.PlayableHolder;
@@ -13,7 +14,6 @@ import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.provider.ScContentProvider;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
 import com.soundcloud.android.collections.ListRow;
 
 import android.content.Context;
@@ -127,7 +127,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
     @Override
     protected void setTitle() {
-        if (mPlayableHolder.getPlayable().getId() == CloudPlaybackService.getCurrentTrackId()) {
+        if (mPlayableHolder.getPlayable().getId() == PlaybackService.getCurrentTrackId()) {
             if (mSpanBuilder == null) mSpanBuilder = new SpannableStringBuilder();
 
             mSpanBuilder.clear();

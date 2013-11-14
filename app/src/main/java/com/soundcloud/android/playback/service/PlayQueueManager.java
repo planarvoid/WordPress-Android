@@ -154,13 +154,13 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     private void setNewRelatedLoadingState(AppendState appendState) {
         mPlayQueue.setAppendState(appendState);
-        final Intent intent = new Intent(CloudPlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED)
+        final Intent intent = new Intent(PlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED)
                 .putExtra(PlayQueue.EXTRA, mPlayQueue);
         mContext.sendBroadcast(intent);
     }
 
     private void broadcastPlayQueueChanged() {
-        Intent intent = new Intent(CloudPlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
+        Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
                 .putExtra(PlayQueue.EXTRA, mPlayQueue);
         mContext.sendBroadcast(intent);
     }

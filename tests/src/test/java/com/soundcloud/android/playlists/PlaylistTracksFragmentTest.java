@@ -35,6 +35,7 @@ public class PlaylistTracksFragmentTest {
     @Before
     public void setUp() throws Exception {
         fragment = new PlaylistTracksFragment();
+        when(activity.getApplicationContext()).thenReturn(Robolectric.application);
         when(activity.getContentResolver()).thenReturn(Robolectric.application.getContentResolver());
         Robolectric.shadowOf(fragment).setActivity(activity);
         Robolectric.shadowOf(fragment).setAttached(true);

@@ -8,7 +8,7 @@ import com.soundcloud.android.cache.WaveformCache;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
 import org.jetbrains.annotations.Nullable;
@@ -688,7 +688,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
             mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
             queueUnique(UI_UPDATE_COMMENT_POSITION);
 
-        } else if (input.view == mPlayerTouchBar && CloudPlaybackService.isSeekable()) {
+        } else if (input.view == mPlayerTouchBar && PlaybackService.isSeekable()) {
             mode = TOUCH_MODE_SEEK_DRAG;
             mLastAutoComment = null; //reset auto comment in case they seek backward
             mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();

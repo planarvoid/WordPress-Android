@@ -24,7 +24,7 @@ public class FetchUserTaskTest {
 
         addHttpResponseRule(
             createRegexRequestMatcherForUriWithClientId("GET", "/users/12345"),
-            new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("../user.json"))));
+            new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("user.json"))));
 
         final User[] user = {null};
         FetchModelTask.Listener<User> listener = new FetchModelTask.Listener<User>() {

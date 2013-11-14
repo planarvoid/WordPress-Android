@@ -6,6 +6,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,6 +23,7 @@ import android.support.v4.app.DialogFragment;
 import java.lang.ref.WeakReference;
 
 public abstract class AuthTaskFragment extends DialogFragment {
+    private static final String TAG = AuthTaskFragment.class.getSimpleName();
 
     private AuthTask mTask;
     private AuthTaskResult mResult;
@@ -116,6 +118,10 @@ public abstract class AuthTaskFragment extends DialogFragment {
             return ((AuthTaskException) exception).getFirstError();
         } else {
             // as a fallback, just say connection problem
+            if(exception != null){
+                Log.d(TAG, "Received unexpected error/exception : " + exception.toString());
+                exception.printStackTrace();
+            }
             return activity.getString(R.string.authentication_error_no_connection_message);
         }
     }

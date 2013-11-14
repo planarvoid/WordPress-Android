@@ -5,7 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.associations.WhoToFollowActivity;
-import com.soundcloud.android.preferences.Settings;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
@@ -91,7 +91,7 @@ public class ActionBarController {
                 return true;
 
             case R.id.action_settings:
-                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), Settings.class));
+                mOwner.getActivity().startActivity(new Intent(mOwner.getActivity(), SettingsActivity.class));
                 return true;
 
             case R.id.action_record:

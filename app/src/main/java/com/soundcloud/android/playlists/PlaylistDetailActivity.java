@@ -4,11 +4,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
@@ -38,7 +38,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (CloudPlaybackService.Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
+            if (PlaybackService.Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
                 mFragment.getAdapter().notifyDataSetChanged();
             }
         }
@@ -70,7 +70,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
 
         // listen for playback changes, so that we can update the now-playing indicator
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(CloudPlaybackService.Broadcasts.PLAYSTATE_CHANGED);
+        intentFilter.addAction(PlaybackService.Broadcasts.PLAYSTATE_CHANGED);
         registerReceiver(mPlaybackStatusListener, intentFilter);
     }
 
@@ -92,7 +92,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             if (playlistChanged) refresh();
 
             if (getIntent().getBooleanExtra(EXTRA_SCROLL_TO_PLAYING_TRACK, false)) {
-                mFragment.scrollToPosition(CloudPlaybackService.getPlayPosition());
+                mFragment.scrollToPosition(PlaybackService.getPlayPosition());
             }
         } else {
             Toast.makeText(this, R.string.playlist_removed, Toast.LENGTH_SHORT).show();

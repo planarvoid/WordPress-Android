@@ -1,7 +1,7 @@
 
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.playback.service.CloudPlaybackService.Broadcasts;
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
@@ -13,7 +13,14 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.views.PlayerTrackView;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.playback.views.AddCommentDialog;
@@ -62,7 +69,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private boolean mActivityPaused, mChangeTrackFast;
     private PlayerTrackPager mTrackPager;
     private TransportBarView mTransportBar;
-    private @CheckForNull CloudPlaybackService mPlaybackService;
+    private @CheckForNull
+    PlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
 
@@ -115,7 +123,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @Override
     public boolean onSupportNavigateUp() {
-        Uri uri = CloudPlaybackService.getPlayQueueUri();
+        Uri uri = PlaybackService.getPlayQueueUri();
         Intent upIntent = null;
         // had a case where URI was null; guess this can happen if the playback service was never started? ugh.
         if (uri != null) {
@@ -161,9 +169,9 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         for (PlayerTrackView ptv : mTrackPagerAdapter.getPlayerTrackViews()) {
             ptv.onScrollComplete();
         }
-        if (CloudPlaybackService.getPlayPosition() != getCurrentDisplayedTrackPosition() // different track
+        if (PlaybackService.getPlayPosition() != getCurrentDisplayedTrackPosition() // different track
                 && !mHandler.hasMessages(SEND_CURRENT_QUEUE_POSITION) // not already changing
-                && (mChangeTrackFast || CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()) // responding to transport click or already playing
+                && (mChangeTrackFast || PlaybackService.getPlaybackState().isSupposedToBePlaying()) // responding to transport click or already playing
                 ) {
             sendTrackChangeOnDelay();
         }
@@ -180,7 +188,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @Override
     public long sendSeek(float seekPercent) {
-        if (CloudPlaybackService.isSeekable() && mPlaybackService != null) {
+        if (PlaybackService.isSeekable() && mPlaybackService != null) {
             mSeekPos = -1;
             return mPlaybackService.seek(seekPercent, true);
         } else {
@@ -191,10 +199,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     public long setSeekMarker(int queuePosition, float seekPercent) {
         if (mPlaybackService != null) {
-            if (CloudPlaybackService.getPlayPosition() != queuePosition) {
+            if (PlaybackService.getPlayPosition() != queuePosition) {
                 mPlaybackService.setQueuePosition(queuePosition);
             } else {
-                if (CloudPlaybackService.isSeekable()) {
+                if (PlaybackService.isSeekable()) {
                     // returns where would we be if we had seeked
                     mSeekPos = mPlaybackService.seek(seekPercent, false);
                     return mSeekPos;
@@ -263,7 +271,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         }
     }
 
-    protected void onPlaybackServiceBound(@NotNull CloudPlaybackService service) {
+    protected void onPlaybackServiceBound(@NotNull PlaybackService service) {
         if (mPendingPlayPosition != -1) {
             service.setQueuePosition(mPendingPlayPosition);
             mPendingPlayPosition = -1;
@@ -295,7 +303,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             // Play from a View Intent, this probably came from quicksearch
             if (intent.getData() != null) {
                 playQueue = new PlayQueue(UriUtils.getLastSegmentAsLong(intent.getData()));
-                startService(new Intent(CloudPlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueue.EXTRA, playQueue));
+                startService(new Intent(PlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueue.EXTRA, playQueue));
             }
 
         } else if (intent.hasExtra(Track.EXTRA_ID)) {
@@ -307,7 +315,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             playQueue = new PlayQueue(Lists.newArrayList(track.getId()), 0);
 
             if (Actions.PLAY.equals(action)){
-                startService(new Intent(CloudPlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueue.EXTRA, playQueue));
+                startService(new Intent(PlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueue.EXTRA, playQueue));
             }
         }
         return playQueue;
@@ -318,7 +326,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         super.onStart();
         mActivityPaused = false;
 
-        bindService(new Intent(this, CloudPlaybackService.class), osc, 0);
+        bindService(new Intent(this, PlaybackService.class), osc, 0);
         IntentFilter f = new IntentFilter();
         f.addAction(Broadcasts.PLAYQUEUE_CHANGED);
         f.addAction(Broadcasts.RELATED_LOAD_STATE_CHANGED);
@@ -349,8 +357,9 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         } else {
                 /* service doesn't exist or playqueue is empty and not loading.
                    start it, it will reload queue and broadcast changes */
-            startService(new Intent(this, CloudPlaybackService.class));
+            startService(new Intent(this, PlaybackService.class));
         }
+        mIsFirstLoad = false;
     }
 
     @Override
@@ -370,7 +379,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         if (track != null) {
             if (mTrackDetailsView != null) {
                 if (track.shouldLoadInfo()) {
-                    startService(new Intent(CloudPlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, track.getId()));
+                    startService(new Intent(PlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA_ID, track.getId()));
                     mTrackDetailsView.setTrack(track, true);
                 } else {
                     mTrackDetailsView.setTrack(track);
@@ -386,7 +395,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         @Override
         public void onServiceConnected(ComponentName classname, IBinder obj) {
             if (obj instanceof LocalBinder) {
-                mPlaybackService = (CloudPlaybackService) ((LocalBinder)obj).getService();
+                mPlaybackService = (PlaybackService) ((LocalBinder)obj).getService();
                 onPlaybackServiceBound(mPlaybackService);
             }
         }
@@ -407,10 +416,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         public void onClick(View v) {
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
-            final CloudPlaybackService playbackService = mPlaybackService;
+            final PlaybackService playbackService = mPlaybackService;
             if (playbackService != null && mPlayQueue != PlayQueue.EMPTY) {
 
-                if (!CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()
+                if (!PlaybackService.getPlaybackState().isSupposedToBePlaying()
                         && getCurrentDisplayedTrackPosition() != mPlayQueue.getPosition()) {
                     // play whatever track is currently on the screen
                     playbackService.setQueuePosition(getCurrentDisplayedTrackPosition());
@@ -418,7 +427,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     playbackService.togglePlayback();
                 }
             } else {
-                startService(new Intent(CloudPlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
+                startService(new Intent(PlaybackService.Actions.TOGGLEPLAYBACK_ACTION));
             }
 
             setPlaybackState();
@@ -435,7 +444,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 final int playPosition = mPlayQueue.getPosition();
                 if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
 
-                    final Track currentTrack = CloudPlaybackService.getCurrentTrack();
+                    final Track currentTrack = PlaybackService.getCurrentTrack();
                     if (currentTrack != null) {
                         track(Media.fromTrack(currentTrack), Media.Action.Backward);
                     }
@@ -448,14 +457,14 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                         refreshTrackPager();
                     }
 
-                } else if (CloudPlaybackService.isSeekable()) {
+                } else if (PlaybackService.isSeekable()) {
                     mPlaybackService.seek(0, true);
 
                 } else {
                     mPlaybackService.restartTrack();
                 }
             } else {
-                startService(new Intent(CloudPlaybackService.Actions.PREVIOUS_ACTION));
+                startService(new Intent(PlaybackService.Actions.PREVIOUS_ACTION));
             }
         }
     };
@@ -466,7 +475,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
-            final Track currentTrack = CloudPlaybackService.getCurrentTrack();
+            final Track currentTrack = PlaybackService.getCurrentTrack();
             if (currentTrack != null) {
                 track(Media.fromTrack(currentTrack), Media.Action.Forward);
             }
@@ -483,7 +492,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     }
                 }
             } else {
-                startService(new Intent(CloudPlaybackService.Actions.NEXT_ACTION));
+                startService(new Intent(PlaybackService.Actions.NEXT_ACTION));
             }
 
         }
@@ -498,19 +507,19 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     private long refreshNow() {
-        long progress = CloudPlaybackService.getCurrentProgress();
+        long progress = PlaybackService.getCurrentProgress();
         if (mPlaybackService != null){
             final PlayerTrackView ptv = getTrackView(mPlayQueue.getPosition());
             if (ptv != null) {
-                ptv.setProgress(progress, CloudPlaybackService.getLoadingPercent(),
-                        Consts.SdkSwitches.useSmoothProgress && CloudPlaybackService.getPlaybackState() == PlaybackState.PLAYING);
+                ptv.setProgress(progress, PlaybackService.getLoadingPercent(),
+                        Consts.SdkSwitches.useSmoothProgress && PlaybackService.getPlaybackState() == PlaybackState.PLAYING);
             }
         }
         long remaining = REFRESH_DELAY - (progress % REFRESH_DELAY);
 
         // return the number of milliseconds until the next full second, so
         // the counter can be updated at just the right time
-        return !CloudPlaybackService.getPlaybackState().isSupposedToBePlaying() ? REFRESH_DELAY : remaining;
+        return !PlaybackService.getPlaybackState().isSupposedToBePlaying() ? REFRESH_DELAY : remaining;
     }
 
     private static final class PlayerHandler extends Handler {
@@ -546,18 +555,18 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     /**
      * Gets a playQueue based on either the playqueue in the starting intent or from the service.
      * The decision is based on whether the intent playqueue exists and whether the service has loaded that playqueue
-     * already. If not, we show the temporary playqueue and wait for  {@link CloudPlaybackService.Broadcasts#PLAYQUEUE_CHANGED}
+     * already. If not, we show the temporary playqueue and wait for  {@link com.soundcloud.android.playback.service.PlaybackService.Broadcasts#PLAYQUEUE_CHANGED}
      */
     private PlayQueue getInitialPlayQueue(boolean isFirstLoad) {
         final PlayQueue intentPlayQueue = isFirstLoad ? getPlayQueueFromIntent(getIntent()) : PlayQueue.EMPTY;
 
         final boolean waitingForServiceToLoadQueue = !intentPlayQueue.isEmpty()
-                && intentPlayQueue.getCurrentTrackId() != CloudPlaybackService.getCurrentTrackId();
+                && intentPlayQueue.getCurrentTrackId() != PlaybackService.getCurrentTrackId();
 
         if (waitingForServiceToLoadQueue){
             return intentPlayQueue;
         } else {
-            return CloudPlaybackService.getPlayQueue();
+            return PlaybackService.getPlayQueue();
         }
     }
 
@@ -566,7 +575,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final int queuePos = intent.getIntExtra(CloudPlaybackService.BroadcastExtras.queuePosition, -1);
+            final int queuePos = intent.getIntExtra(PlaybackService.BroadcastExtras.queuePosition, -1);
             String action = intent.getAction();
             if (action.equals(Broadcasts.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
@@ -590,7 +599,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
                     boolean wasOnEmptyView = getCurrentDisplayedTrackView() == null;
                     if (wasOnEmptyView && getCurrentDisplayedTrackView() != null &&
-                            CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()){
+                            PlaybackService.getPlaybackState().isSupposedToBePlaying()){
                         sendTrackChangeOnDelay();
                     }
                     setPlaybackState();
@@ -611,14 +620,14 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     final PlayerTrackView trackView = getTrackView(queuePos);
                     if (trackView != null) {
                         if (action.equals(Broadcasts.PLAYBACK_COMPLETE)){
-                            trackView.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
+                            trackView.setPlaybackStatus(false, intent.getLongExtra(PlaybackService.BroadcastExtras.position, 0));
                         } else {
                             trackView.handleStatusIntent(intent);
                         }
                     }
                 } else {
                     if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)
-                            && intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1) == getCurrentDisplayedTrackId()){
+                            && intent.getLongExtra(PlaybackService.BroadcastExtras.id, -1) == getCurrentDisplayedTrackId()){
                         updatePlayerInfoPanelFromTrackPager();
                     }
                     // unhandled here, pass along to trackviews who may be interested
@@ -653,7 +662,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         }
         setPlaybackState();
         long next = refreshNow();
-        if (CloudPlaybackService.getPlaybackState().isSupposedToBePlaying()){
+        if (PlaybackService.getPlaybackState().isSupposedToBePlaying()){
             queueNextRefresh(next);
         }
     }
@@ -670,15 +679,15 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     private void setBufferingState() {
-        final PlayerTrackView playerTrackView = getTrackViewById(CloudPlaybackService.getCurrentTrackId());
+        final PlayerTrackView playerTrackView = getTrackViewById(PlaybackService.getCurrentTrackId());
         if (playerTrackView != null) {
             // set buffering state of current track
-            playerTrackView.setBufferingState(CloudPlaybackService.isBuffering());
+            playerTrackView.setBufferingState(PlaybackService.isBuffering());
         }
     }
 
     private void setPlaybackState() {
-        final boolean showPlayState = CloudPlaybackService.getPlaybackState().isSupposedToBePlaying();
+        final boolean showPlayState = PlaybackService.getPlaybackState().isSupposedToBePlaying();
         if (showPlayState) {
             long next = refreshNow();
             queueNextRefresh(next);

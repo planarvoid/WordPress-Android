@@ -2,7 +2,7 @@ package com.soundcloud.android.tests;
 
 import com.jayway.android.robotium.solo.Condition;
 import com.soundcloud.android.R;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
 
 import android.view.View;
@@ -22,10 +22,10 @@ public class Waiter {
 
             @Override
             public boolean isSatisfied() {
-                return !solo.searchText(text, true);
+                return !solo.searchText(text, 0, false);
             }
         };
-        return solo.waitForCondition(condition, this.TIMEOUT);
+        return solo.waitForCondition(condition, this.NETWORK_TIMEOUT);
     }
 
     public boolean waitForWebViewToLoad(final WebView webViewToCheck) {
@@ -57,7 +57,7 @@ public class Waiter {
         Condition condition = new Condition() {
             @Override
             public boolean isSatisfied() {
-                return (CloudPlaybackService.getPlaybackState() == PlaybackState.PLAYING);
+                return (PlaybackService.getPlaybackState() == PlaybackState.PLAYING);
             }
         };
         return solo.waitForCondition(condition, this.NETWORK_TIMEOUT);

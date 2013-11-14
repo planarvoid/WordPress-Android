@@ -41,7 +41,7 @@ public class SyncStateManager extends ScheduledOperations {
     private final Map<Long, ContentObserver> mContentObservers;
 
     public SyncStateManager(Context context) {
-        this(context.getContentResolver());
+        this(context.getApplicationContext().getContentResolver());
     }
 
     public SyncStateManager(ContentResolver resolver) {

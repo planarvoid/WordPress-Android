@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -135,7 +136,7 @@ public class StatsView extends View {
             if (counts[i] <= 0) continue;
 
             Drawable icon   = icons[i];
-            String   string = Long.toString(counts[i]);
+            String   string = ScTextUtils.formatNumberWithCommas(counts[i]);
 
             if (hasDrawn) {
                 mSeparator.setBounds(x, 0, x + mSeparatorWidth, getHeight());

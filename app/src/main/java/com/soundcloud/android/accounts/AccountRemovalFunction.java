@@ -8,12 +8,12 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
 import com.soundcloud.android.sync.SyncStateManager;
 import rx.Observer;
 import rx.Subscription;
@@ -90,7 +90,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
         FBToken.clear(mContext);
 
         mContext.sendBroadcast(new Intent(Actions.LOGGING_OUT));
-        mContext.sendBroadcast(new Intent(CloudPlaybackService.Actions.RESET_ALL));
+        mContext.sendBroadcast(new Intent(PlaybackService.Actions.RESET_ALL));
 
 
         mC2DMReceiver.unregister(mContext);

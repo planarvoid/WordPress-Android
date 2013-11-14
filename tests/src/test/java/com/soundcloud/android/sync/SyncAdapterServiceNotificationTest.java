@@ -20,7 +20,7 @@ import java.util.List;
 public class SyncAdapterServiceNotificationTest extends SyncAdapterServiceTestBase {
     @Test
     public void testIncomingNotificationMessage() throws Exception {
-        Activities activities = getActivities("/com/soundcloud/android/service/sync/e1_stream.json");
+        Activities activities = getActivities("/com/soundcloud/android/sync/e1_stream.json");
         String message = NotificationMessage.getIncomingNotificationMessage(
                 DefaultTestRunner.application, activities);
 

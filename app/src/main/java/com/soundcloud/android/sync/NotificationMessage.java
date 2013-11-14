@@ -1,8 +1,5 @@
 package com.soundcloud.android.sync;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -10,8 +7,10 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.Activities;
+import com.soundcloud.android.service.sync.NotificationImageDownloader;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -19,10 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
-import android.view.View;
 
 import java.util.List;
 
@@ -149,28 +145,17 @@ class NotificationMessage {
                                                   final Intent intent,
                                                   final int id,
                                                   final String artworkUri) {
-
-        final String largeIcon = ImageSize.formatUriForNotificationLargeIcon(context, artworkUri);
-        if (!Consts.SdkSwitches.useRichNotifications || !ImageUtils.checkIconShouldLoad(largeIcon)) {
+        final String largeIconUri = ImageSize.formatUriForNotificationLargeIcon(context, artworkUri);
+        if (!Consts.SdkSwitches.useRichNotifications || !ImageUtils.checkIconShouldLoad(largeIconUri)) {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
+            // cannot use imageloader here as the weak reference to the fake image will get dropped and the image won't load (sometimes)
+            new NotificationImageDownloader(){
                 @Override
-                public void run() {
-                    ImageLoader.getInstance().loadImage(largeIcon, new SimpleImageLoadingListener() {
-                        @Override
-                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                            showDashboardNotification(context, ticker, intent, title, message, id, null);
-                        }
-
-                        @Override
-                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                            showDashboardNotification(context, ticker, intent, title, message, id, loadedImage);
-                        }
-                    });
-
+                protected void onPostExecute(Bitmap bitmap) {
+                    showDashboardNotification(context, ticker, intent, title, message, id, bitmap);
                 }
-            });
+            }.execute(largeIconUri);
         }
     }
 
@@ -180,7 +165,7 @@ class NotificationMessage {
                                                   CharSequence title,
                                                   CharSequence message,
                                                   int id,
-                                                  Bitmap bmp) {
+                                                  @Nullable Bitmap bmp) {
 
         final PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);

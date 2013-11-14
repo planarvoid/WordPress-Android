@@ -1,9 +1,11 @@
 package com.soundcloud.android.playback.views;
 
 
-import static com.soundcloud.android.playback.service.CloudPlaybackService.BroadcastExtras;
-import static com.soundcloud.android.playback.service.CloudPlaybackService.Broadcasts;
+import static com.soundcloud.android.playback.service.PlaybackService.BroadcastExtras;
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
@@ -13,6 +15,9 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.PlayerActivity;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackState;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
@@ -116,6 +121,10 @@ public class PlayerTrackView extends FrameLayout implements
         }
 
         mInfoAndEngagements.setTrack(track);
+        if (mQueuePosition == PlaybackService.getPlayPosition()){
+            setProgress(PlaybackService.getCurrentProgress(), PlaybackService.getLoadingPercent(),
+                    Consts.SdkSwitches.useSmoothProgress && PlaybackService.getPlaybackState() == PlaybackState.PLAYING);
+        }
     }
 
     private void refreshComments() {

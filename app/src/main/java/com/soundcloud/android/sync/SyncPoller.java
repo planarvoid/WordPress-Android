@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class SyncPoller implements Runnable {
-    private static final int POLL_DELAY = 5 * 60 * 1000;
+    private static final int POLL_DELAY = 10 * 60 * 1000;
 
     private final Handler mHandler;
     private final Thread mWatchedThread;
@@ -34,7 +34,7 @@ public class SyncPoller implements Runnable {
 
     @Override
     public void run() {
-        final String msg = "Sync has run for over " + (5 * ++mPollCount) + " minutes " + mSyncTargetUris;
+        final String msg = "Sync has run for over " + (10 * ++mPollCount) + " minutes " + mSyncTargetUris;
         SoundCloudApplication.handleSilentException(msg, new SyncTimeoutException(msg, mWatchedThread.getStackTrace()));
         schedule();
     }

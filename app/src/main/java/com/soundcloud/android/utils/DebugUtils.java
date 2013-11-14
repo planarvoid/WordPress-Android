@@ -5,8 +5,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.common.base.Charsets;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.playback.service.CloudPlaybackService;
 import com.soundcloud.android.playback.streaming.StreamItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -113,8 +113,8 @@ public class DebugUtils {
     }
 
     public static void reportMediaPlayerError(Context context, StreamItem item, int what, int extra) {
-        if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-            Log.d(CloudPlaybackService.TAG,
+        if (Log.isLoggable(PlaybackService.TAG, Log.DEBUG)) {
+            Log.d(PlaybackService.TAG,
                     String.format("mediaPlayer error (what: %d, extra: %d, item: %s)", what, extra, item));
         }
         if (shouldReportPlaybackErrors(context)) {
