@@ -1435,4 +1435,10 @@
         <item name="android:background">@drawable/margin_right_bg</item>
     </style>
 
+    <style name="MarginedContent">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">0.4</item>
+    </style>
+
 </resources>

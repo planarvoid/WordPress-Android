@@ -69,12 +69,10 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     }
 
     private Fragment findNavigationFragment() {
-        FragmentManager manager = getSupportFragmentManager();
-        if (getResources().getBoolean(R.bool.fixed_nav)) {
-            return manager.findFragmentById(R.id.fixed_navigation_fragment_id);
-        } else {
-            return manager.findFragmentById(R.id.navigation_fragment_id);
-        }
+        boolean isLayoutWithFixedNav = findViewById(R.id.navigation_fragment_id) == null;
+        return getSupportFragmentManager().findFragmentById(isLayoutWithFixedNav ?
+            R.id.fixed_navigation_fragment_id :
+            R.id.navigation_fragment_id);
     }
 
     private void handleLoggedInUser(ApplicationProperties appProperties, Observer<User> observer) {

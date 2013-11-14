@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <bool name="player_time_show_arrow">true</bool>
-    <bool name="fixed_nav">true</bool>
 </resources>

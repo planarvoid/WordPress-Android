@@ -7,9 +7,7 @@
     <View style="@style/MarginLeft"/>
 
     <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.4">
+            style="@style/MarginedContent">
 
         <include layout="@layout/playable_interaction_common_layout"
                  android:layout_width="match_parent"
