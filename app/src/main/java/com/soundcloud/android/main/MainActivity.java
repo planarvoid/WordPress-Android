@@ -2,7 +2,6 @@ package com.soundcloud.android.main;
 
 import static rx.android.AndroidObservables.fromActivity;
 
-import android.support.v4.app.FragmentManager;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;

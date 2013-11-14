@@ -4,18 +4,6 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:baselineAligned="false">
-    <RelativeLayout android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2">
-        <include layout="@layout/player_activity_common"
-                 android:layout_width="match_parent"
-                 android:layout_height="match_parent"
-                 android:layout_weight="2"/>
-        <View android:layout_width="wrap_content"
-              android:layout_height="match_parent"
-              android:background="@drawable/shadow_left"
-              android:layout_alignParentRight="true"/>
-    </RelativeLayout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:id="@+id/player_info_view"
@@ -32,8 +20,19 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:layout_width="match_parent"/>
-
-
     </LinearLayout>
+
+    <RelativeLayout android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2">
+        <include layout="@layout/player_activity_common"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:layout_weight="2"/>
+        <View android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:background="@drawable/shadow_right"
+              android:layout_alignParentLeft="true"/>
+    </RelativeLayout>
 
 </LinearLayout>
