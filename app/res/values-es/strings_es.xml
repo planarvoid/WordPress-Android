@@ -205,7 +205,6 @@
   <string name="image_load_error">Ocurrió un error al cargar la imagen</string>
   <string name="image_where">¿Cómo le gustaría añadir una imagen?</string>
   <string name="info_empty_other_message">Esta persona no ha añadido una descripción del perfil todavía.</string>
-  <string name="info_empty_you_action">Editar perfil</string>
   <string name="info_empty_you_message">El perfil está vacío. ¡Deje que los demás le conozcan!</string>
   <string name="list_empty_activity_action">Haga públicos sus sonidos</string>
   <string name="list_empty_activity_message">¡Vaya! Sus sonidos no tienen ni comentarios ni ningún me gusta. ¡Pero puede hacer que esto cambie si los hace públicos!\n\n Comparta sus sonidos con amigos y redes sociales para que la actividad de sus sonidos crezca.</string>
