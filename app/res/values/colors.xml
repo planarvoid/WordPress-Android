@@ -93,4 +93,6 @@
     <color name="dialog_button_focused">#fff</color>
     <color name="dialog_button_pressed">#dbdbdb</color>
 
+    <color name="playerTrackDetailsBg">#fff</color>
+
 </resources>

@@ -508,21 +508,13 @@
     </style>
 
     <style name="Player.TrackInfo.Row">
-        <item name="android:clickable">true</item>
-        <item name="android:background">@drawable/list_selector_gray</item>
-
         <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/bottom_separator</item>
     </style>
 
-    <style name="Player.TrackInfo.SeparatorRow">
-        <item name="android:background">@color/track_info_separator</item>
-        <item name="android:layout_span">2</item>
-    </style>
-
-    <style name="Player.TrackInfo.SeparatorView">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/track_info_separator</item>
+    <style name="Player.TrackInfo.Row.Clickable">
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/track_info_clickable_row_bg</item>
     </style>
 
     <style name="Player.TrackInfo.Icon">
@@ -856,7 +848,7 @@
         <item name="android:textColor">@color/txt_description_color</item>
         <item name="android:textSize">14sp</item>
         <item name="android:paddingTop">10dip</item>
-        <item name="android:paddingBottom">10dip</item>
+        <item name="android:paddingBottom">5dip</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_left</item>
         <item name="android:paddingRight">@dimen/list_item_padding_right</item>
         <item name="android:linksClickable">true</item>
