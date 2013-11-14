@@ -142,5 +142,6 @@
 
     <dimen name="navigation_drawer_width">240dp</dimen>
 
-    <dimen name="nav_drawer_profile_item_height">160dp</dimen>
+    <dimen name="full_image_margin">20dp</dimen>
+
 </resources>
