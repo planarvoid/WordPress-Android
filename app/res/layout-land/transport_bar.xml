@@ -8,7 +8,7 @@
         <ImageButton android:layout_centerInParent="true"
                      android:id="@+id/prev"
                      style="@style/btn_sc_transport"
-                     android:src="@drawable/ic_prev_states"/>
+                     android:src="@drawable/prev"/>
     </RelativeLayout>
     <RelativeLayout android:layout_weight="1"
                     android:layout_width="0dp"
@@ -16,7 +16,7 @@
         <ImageButton android:layout_centerInParent="true"
                      android:id="@+id/pause"
                      style="@style/btn_sc_transport"
-                     android:src="@drawable/ic_play_states"/>
+                     android:src="@drawable/play"/>
     </RelativeLayout>
     <RelativeLayout android:layout_weight="1"
                     android:layout_width="0dp"
@@ -24,7 +24,7 @@
         <ImageButton android:layout_centerInParent="true"
                      android:id="@+id/next"
                      style="@style/btn_sc_transport"
-                     android:src="@drawable/ic_next_states"/>
+                     android:src="@drawable/next"/>
     </RelativeLayout>
     <RelativeLayout android:layout_weight="1"
                         android:layout_width="0dp"

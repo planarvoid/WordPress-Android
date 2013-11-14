@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Transformation;
@@ -30,9 +29,6 @@ public class TransportBarView extends LinearLayout {
         inflater.inflate(R.layout.transport_bar, this);
 
         setBackgroundResource(R.color.dark_bg);
-        setGravity(Gravity.CENTER_VERTICAL);
-        final int pad = (int) (context.getResources().getDisplayMetrics().density*5);
-        setPadding(0,pad,0,pad);
 
         mPauseButton = (ImageButton) findViewById(R.id.pause);
         mPauseButton.requestFocus();
@@ -41,8 +37,8 @@ public class TransportBarView extends LinearLayout {
         mToggleComment = (ToggleButton) findViewById(R.id.comment);
         mToggleComment.setSaveEnabled(false); // do not save comment state. UI too complicated to restore currently
 
-        mPauseState = getResources().getDrawable(R.drawable.ic_pause_states);
-        mPlayState = getResources().getDrawable(R.drawable.ic_play_states);
+        mPauseState = getResources().getDrawable(R.drawable.pause);
+        mPlayState = getResources().getDrawable(R.drawable.play);
         mNextHolder = (RelativeLayout) mNextButton.getParent();
     }
 
