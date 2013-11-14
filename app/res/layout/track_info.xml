@@ -5,11 +5,7 @@
     <View android:layout_width="match_parent"
           android:layout_height="2dp"
           android:background="@drawable/player_track_horiz_separator_bg"/>
-    <ViewStub android:id="@+id/stub_loading"
-              android:inflatedId="@+id/loading_layout"
-              android:layout="@layout/track_info_loading_layout"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"/>
+    <include layout="@layout/info_loading_stub"/>
     <ScrollView android:layout_width="match_parent"
                 android:id="@+id/info_view"
                 android:layout_height="match_parent">
