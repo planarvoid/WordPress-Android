@@ -56,22 +56,6 @@
     </style>
 
 
-    <!-- ****** Adapter View Components ****** -->
-
-    <style name="TextAppearance.EmptyView">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">italic</item>
-    </style>
-
-    <style name="TextAppearance.PullToRefresh">
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/list_txt_pull_size</item>
-    </style>
-
-    <style name="TextAppearance.PullToRefreshSub">
-        <item name="android:textSize">@dimen/list_txt_sub_size</item>
-    </style>
-
     <!-- ****** Comment Panel ****** -->
 
     <style name="TextAppearance.Comment">
