@@ -1,8 +1,8 @@
 import android.app.Activity;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import android.content.Context;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.State;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackState;
 import android.util.Log;
 
 aspect AnalyticAspects {
