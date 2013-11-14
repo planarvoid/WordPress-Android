@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:baselineAligned="false"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
               android:orientation="horizontal"
               android:id="@+id/container">
 
-    <RelativeLayout android:layout_width="@dimen/navigation_drawer_width"
-                    android:layout_height="match_parent">
+    <RelativeLayout android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
         <com.soundcloud.android.explore.UserBrowserImageView android:id="@+id/user_image"
                                                              android:layout_width="match_parent"
                                                              android:layout_height="match_parent"
                                                              android:background="@drawable/placeholder_cells"
-                                                             android:scaleType="centerCrop"/>
+                                                             android:scaleType="centerCrop"
+                                                             android:layout_above="@+id/follow_container"/>
+
         <View android:id="@+id/suggested_user_selector"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"/>
+              android:layout_height="match_parent"
+              android:layout_above="@+id/follow_container"/>
 
         <LinearLayout android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
@@ -23,30 +27,39 @@
                       android:layout_alignParentTop="true"
                       android:orientation="vertical"
                       android:layout_marginLeft="13dp"
-                      android:layout_marginTop="13dp">
+                      android:layout_marginTop="32dp">
 
             <com.soundcloud.android.view.JaggedTextView android:id="@+id/username"
                                                         style="@style/BlackOverlayText.Regular"/>
-            <com.soundcloud.android.view.JaggedTextView android:id="@+id/location"
-                                                        style="@style/BlackOverlayText.RegularSubtext"/>
+            <com.soundcloud.android.view.CustomFontTextView android:id="@+id/followers"
+                                                        style="@style/BlackOverlayText.RegularSubtext"
+                                                        android:drawableLeft="@drawable/drawer_follower"
+                                                        android:drawablePadding="3dp"/>
         </LinearLayout>
 
-        <ToggleButton android:id="@id/toggle_btn_follow"
-                      android:layout_alignParentBottom="true"
-                      android:layout_marginBottom="9dp"
-                      android:layout_marginRight="9dp"
-                      android:layout_centerHorizontal="true"
-                      android:textOn="Following"
-                      android:textOff="Follow"
-                      android:textColor="@android:color/white"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      style="@style/UserToggleButton"/>
+        <LinearLayout
+            android:id="@+id/follow_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#f2f2f2"
+            android:layout_alignParentBottom="true">
+
+            <ToggleButton
+                    android:id="@+id/toggle_btn_follow"
+                    android:layout_width="wrap_content"
+                    android:textOn="@string/btn_following"
+                    android:textOff="@string/btn_follow"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginBottom="32dp"
+                    style="@style/UserBrowser.ToggleButton"/>
+        </LinearLayout>
+
     </RelativeLayout>
 
-    <FrameLayout android:layout_width="wrap_content"
-                  android:layout_weight="1"
+    <FrameLayout android:layout_width="0dp"
                   android:layout_height="match_parent"
+                  android:layout_weight="2"
                   android:orientation="vertical">
         <LinearLayout android:orientation="vertical"
                       android:layout_height="match_parent"
@@ -55,11 +68,11 @@
                     android:background="@color/playerControlBackground"
                     android:id="@+id/indicator"
                     android:layout_height="wrap_content"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     />
             <android.support.v4.view.ViewPager
                     android:id="@+id/pager"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     />
