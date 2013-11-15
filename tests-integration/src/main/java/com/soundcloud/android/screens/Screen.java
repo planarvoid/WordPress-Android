@@ -23,4 +23,11 @@ public class Screen {
         waiter.waitForTextToDisappear("Loading");
     }
 
+    public void swipeLeft() {
+        solo.swipeLeft();
+    }
+
+    public void swipeRight() {
+        solo.swipeRight();
+    }
 }

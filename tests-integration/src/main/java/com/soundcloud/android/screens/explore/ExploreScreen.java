@@ -81,7 +81,6 @@ public class ExploreScreen extends Screen {
     }
 
     public void swipeLeftToTrendingAudio() {
-        solo.sleep(2000);
         solo.swipeLeft();
         assertTrue("Swipe did not bring up expected tab", solo.waitForCondition(new CurrentTabTitleCondition(TRENDING_AUDIO_TAB_TEXT), 2000));
     }

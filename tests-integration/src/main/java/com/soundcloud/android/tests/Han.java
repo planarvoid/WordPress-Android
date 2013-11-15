@@ -201,9 +201,11 @@ public class Han  {
         float x = screenWidth / 2.0f;
         float y = screenHeight / 2.0f;
 
-        final int steps = 1;
+        //each ~50 pixels is one step
+        final int steps = (int) x / 50;
+
         if (side == Solo.LEFT) {
-            drag((screenHeight * 0.75f), 0, y, y, steps);
+            drag(x, 0, y, y, steps);
         } else if (side == Solo.RIGHT) {
             drag(x, screenWidth, y, y, steps);
         }

@@ -50,7 +50,9 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     public void testTrendingAudioIsDisplayedUsingSwiping() {
         exploreScreen.openExploreFromMenu();
-        exploreScreen.swipeLeftToTrendingAudio();
+        exploreScreen.swipeLeft();
+        exploreScreen.swipeLeft();
+        assertEquals("Current tab should be TRENDING AUDIO", "TRENDING AUDIO", exploreScreen.currentTabTitle());
         assertEquals("Invalid number of genres found", 15, exploreScreen.getItemsOnTrendingAudioList());
     }
 
