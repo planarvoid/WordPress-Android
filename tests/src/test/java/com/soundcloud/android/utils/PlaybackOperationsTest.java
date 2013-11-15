@@ -263,6 +263,7 @@ public class PlaybackOperationsTest {
     public void loadTrackShouldReplaceNullTrackForDummy() {
         Observable<Track> observable = Observable.just(null);
         when(trackStorage.getTrackAsync(1L)).thenReturn(observable);
+        when(modelManager.cache(track)).thenReturn(track);
 
         Observer<Track> observer = mock(Observer.class);
         playbackOperations.loadTrack(1L).subscribe(observer);
