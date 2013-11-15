@@ -3,7 +3,6 @@ package com.soundcloud.android.explore;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ExploreTracksCategory;
 
-import android.R;
 import android.os.Bundle;
 
 public class ExploreTracksCategoryActivity extends ScActivity {
@@ -20,7 +19,7 @@ public class ExploreTracksCategoryActivity extends ScActivity {
             exploreTracksFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.content, exploreTracksFragment)
+                    .add(android.R.id.content, exploreTracksFragment)
                     .commit();
         }
     }
