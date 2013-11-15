@@ -310,7 +310,7 @@ public class ProfileActivity extends ScActivity implements
                 mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
             }
         });
-
+        setFollowersMessage(user);
     }
 
     @Override
@@ -406,14 +406,10 @@ public class ProfileActivity extends ScActivity implements
 
     private String generateFollowersMessage() {
         String followCount = ScTextUtils.formatNumberWithCommas(mInitialFollowersCount);
-        return getResources().getQuantityString(isFollowing() ?
+        return getResources().getQuantityString(mToggleFollow.isChecked() ?
                 R.plurals.following_message :
                 R.plurals.followers_message,
                 mInitialFollowersCount, followCount);
-    }
-
-    private boolean isFollowing() {
-        return mFollowingOperations.isFollowing(mUser);
     }
 
     public User getUser() {
