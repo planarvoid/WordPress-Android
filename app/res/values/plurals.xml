@@ -47,4 +47,15 @@
         <item quantity="other">%d followers</item>
     </plurals>
 
+    <!-- Profiles -->
+    <plurals name="followers_message">
+        <item quantity="one">Followed by %s person</item>
+        <item quantity="other">Followed by %s people</item>
+    </plurals>
+    <plurals name="following_message">
+        <item quantity="zero">Followed by you</item>
+        <item quantity="one">Followed by you and %s other person</item>
+        <item quantity="other">Followed by you and %s other people</item>
+    </plurals>
+
 </resources>

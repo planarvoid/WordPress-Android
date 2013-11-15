@@ -223,6 +223,10 @@
         <item name="android:textOff">@string/btn_follow</item>
     </style>
 
+    <style name="UserBrowser.ToggleButton.Follow.Large">
+        <item name="android:textSize">@dimen/tablet_followers_text</item>
+    </style>
+
     <style name="OnboardSuggestedUserCategoryText">
         <item name="android:textColor">@color/listTxtValue</item>
         <item name="android:textSize">@dimen/list_txt_main_size</item>

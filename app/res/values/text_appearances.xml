@@ -88,4 +88,9 @@
         <item name="android:textSize">@dimen/explore_suggested_track_category_bottom_text_size</item>
     </style>
 
+    <style name="TextAppearance.FollowingMessage">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">@dimen/tablet_followers_text</item>
+    </style>
+
 </resources>

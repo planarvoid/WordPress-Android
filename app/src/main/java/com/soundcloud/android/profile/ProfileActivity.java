@@ -69,7 +69,7 @@ public class ProfileActivity extends ScActivity implements
 
     /* package */ @Nullable User mUser;
 
-    private TextView mUsername, mFullName, mFollowerCount, mTrackCount, mLocation;
+    private TextView mUsername, mFullName, mFollowerCount, mFollowerMessage, mTrackCount, mLocation;
     private ToggleButton mToggleFollow;
     private View mVrStats;
     private ImageView mUserImage;
@@ -84,6 +84,8 @@ public class ProfileActivity extends ScActivity implements
     private FollowingOperations mFollowingOperations;
     private final UserStorage mUserStorage = new UserStorage();
     private String mCurrentAvatarUrl;
+
+    private int mInitialFollowersCount;
 
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
@@ -109,6 +111,7 @@ public class ProfileActivity extends ScActivity implements
         mLocation = (TextView) findViewById(R.id.location);
 
         mFollowerCount = (TextView) findViewById(R.id.followers);
+        mFollowerMessage = (TextView) findViewById(R.id.followers_message);
         mTrackCount = (TextView) findViewById(R.id.tracks);
         mVrStats = findViewById(R.id.vr_stats);
 
@@ -278,6 +281,7 @@ public class ProfileActivity extends ScActivity implements
 
     public void onFollowChanged() {
         mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
+        setFollowersMessage(mUser);
     }
 
     private void trackScreen() {
@@ -331,6 +335,9 @@ public class ProfileActivity extends ScActivity implements
         if (user == null || user.getId() < 0) return;
         mUser = user;
 
+        // Initial count prevents fluctuations from being reflected in followers message
+        mInitialFollowersCount = user.followers_count;
+
         if (!isEmpty(user.username)) mUsername.setText(user.username);
 
         if (mFullName != null){
@@ -364,6 +371,8 @@ public class ProfileActivity extends ScActivity implements
             }
         }
 
+        setFollowersMessage(user);
+
         if (mLocation != null){
             if (ScTextUtils.isBlank(user.getLocation())) {
                 mLocation.setVisibility(View.GONE);
@@ -382,6 +391,29 @@ public class ProfileActivity extends ScActivity implements
 
         supportInvalidateOptionsMenu();
 
+    }
+
+    private void setFollowersMessage(User user) {
+        if (mFollowerMessage != null){
+            if (user.followers_count <= 0 || isLoggedInUser()) {
+                mFollowerMessage.setVisibility(View.GONE);
+            } else {
+                mFollowerMessage.setVisibility(View.VISIBLE);
+                mFollowerMessage.setText(generateFollowersMessage());
+            }
+        }
+    }
+
+    private String generateFollowersMessage() {
+        String followCount = ScTextUtils.formatNumberWithCommas(mInitialFollowersCount);
+        return getResources().getQuantityString(isFollowing() ?
+                R.plurals.following_message :
+                R.plurals.followers_message,
+                mInitialFollowersCount, followCount);
+    }
+
+    private boolean isFollowing() {
+        return mFollowingOperations.isFollowing(mUser);
     }
 
     public User getUser() {

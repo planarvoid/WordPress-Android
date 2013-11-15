@@ -16,8 +16,8 @@ import android.util.AttributeSet;
  */
 public class UserBrowserImageView extends OptimisedImageView {
 
-    private static final double GRADIENT_START_POSITION = .8;
-    private static final int[] GRADIENT_COLORS = new int[]{Color.TRANSPARENT, 0x5F000000, 0x9F000000};
+    private static final double GRADIENT_START_POSITION = .7;
+    private static final int[] GRADIENT_COLORS = new int[]{Color.TRANSPARENT, 0x5F000000, 0xAA000000};
     private static final float[] GRADIENT_POSITIONS = new float[]{0, .6F, 1};
 
     private Paint mPaint = new Paint();
@@ -45,7 +45,7 @@ public class UserBrowserImageView extends OptimisedImageView {
             r.left = clipBounds.left;
             r.right = clipBounds.right;
             r.top = (int) ((clipBounds.bottom - clipBounds.top) * GRADIENT_START_POSITION + clipBounds.top);
-            r.bottom = clipBounds.bottom - 1;
+            r.bottom = clipBounds.bottom;
             canvas.drawRect(r, mPaint);
         }
     }
