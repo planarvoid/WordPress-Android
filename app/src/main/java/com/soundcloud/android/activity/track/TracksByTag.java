@@ -12,8 +12,7 @@ import android.os.Bundle;
 public class TracksByTag extends ScActivity {
 
     public static final String EXTRA_TAG = "tag";
-    private static final String FILTER_TAG = "filter.tag";
-    private static final String FILTER_GENRE = "filter.genre";
+    private static final String FILTER_KEY = "filter.genre_or_tag";
     public static final String EXTRA_GENRE = "genre";
 
     @Override
@@ -21,17 +20,23 @@ public class TracksByTag extends ScActivity {
         super.onCreate(savedInstanceState);
         Intent i = getIntent();
         if (savedInstanceState == null) {
-            Uri contentUri = Content.TRACK_SEARCH.uri;
+
+            Uri.Builder contentUriBuilder = Content.TRACK_SEARCH.uri.buildUpon().appendQueryParameter("q", "*");
             if (i.hasExtra("tag")) {
-                setTitle(getString(R.string.list_header_tracks_by_tag, i.getStringExtra(EXTRA_TAG)));
-                //TODO: discovery currently have a server side bug where searching for upper case tags results in 503s
-                final String searchTag = i.getStringExtra(EXTRA_TAG).toLowerCase();
-                contentUri = contentUri.buildUpon().appendQueryParameter(FILTER_TAG, searchTag).build();
+                final String tag = i.getStringExtra(EXTRA_TAG);
+                setTitle(getString(R.string.list_header_tracks_by_tag, tag));
+                addFragment(contentUriBuilder.appendQueryParameter(FILTER_KEY, tag).build());
+
             } else if (i.hasExtra("genre")) {
-                setTitle(getString(R.string.list_header_tracks_by_genre, i.getStringExtra(EXTRA_GENRE)));
-                contentUri = contentUri.buildUpon().appendQueryParameter(FILTER_GENRE, i.getStringExtra(EXTRA_GENRE)).build();
+                final String genre = i.getStringExtra(EXTRA_GENRE);
+                setTitle(getString(R.string.list_header_tracks_by_genre, genre));
+                addFragment(contentUriBuilder.appendQueryParameter(FILTER_KEY, genre).build());
             }
-            getSupportFragmentManager().beginTransaction().add(android.R.id.content, ScListFragment.newInstance(contentUri)).commit();
+
         }
+    }
+
+    private void addFragment(Uri contentUri) {
+        getSupportFragmentManager().beginTransaction().add(android.R.id.content, ScListFragment.newInstance(contentUri)).commit();
     }
 }
