@@ -83,6 +83,7 @@ public class ProfileActivity extends ScActivity implements
     private AccountOperations mAccountOperations;
     private FollowingOperations mFollowingOperations;
     private final UserStorage mUserStorage = new UserStorage();
+    private String mCurrentAvatarUrl;
 
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
@@ -372,8 +373,12 @@ public class ProfileActivity extends ScActivity implements
             }
         }
 
-        ImageLoader.getInstance().displayImage(ImageSize.formatUriForFullDisplay(getResources(), user.getNonDefaultAvatarUrl()),
-                mUserImage, ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
+        if (mCurrentAvatarUrl == null || !mCurrentAvatarUrl.equals(user.getNonDefaultAvatarUrl())){
+            mCurrentAvatarUrl = user.getNonDefaultAvatarUrl();
+            ImageLoader.getInstance().displayImage(ImageSize.formatUriForFullDisplay(getResources(), mCurrentAvatarUrl),
+                    mUserImage, ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
+
+        }
 
         supportInvalidateOptionsMenu();
 
