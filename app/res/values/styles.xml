@@ -861,13 +861,13 @@
     <style name="btn_sc_transport" parent="Widget.AppCompat.ActionButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@drawable/item_background_dark</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="btn_sc_transport_comment" parent="btn_sc_transport">
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>
-        <item name="android:background">@drawable/transport_comment_bg</item>
+        <item name="android:background">@drawable/toggle_player_comment_states</item>
         <item name="android:contentDescription">@string/accessibility_comment_action</item>
     </style>
 
@@ -880,6 +880,7 @@
     <style name="btn_sc_widget_transport" parent="Widget.AppCompat.ActionButton">
         <item name="android:layout_width">50dp</item>
         <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="btn_sc_widget_like" parent="btn_sc_widget">

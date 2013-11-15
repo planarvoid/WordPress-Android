@@ -37,8 +37,8 @@ public class TransportBarView extends LinearLayout {
         mToggleComment = (ToggleButton) findViewById(R.id.comment);
         mToggleComment.setSaveEnabled(false); // do not save comment state. UI too complicated to restore currently
 
-        mPauseState = getResources().getDrawable(R.drawable.pause);
-        mPlayState = getResources().getDrawable(R.drawable.play);
+        mPauseState = getResources().getDrawable(R.drawable.ic_pause_states);
+        mPlayState = getResources().getDrawable(R.drawable.ic_play_states);
         mNextHolder = (RelativeLayout) mNextButton.getParent();
     }
 
