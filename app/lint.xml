@@ -85,6 +85,11 @@
         <ignore path="res/layout/tour_radio_group.xml"/>
     </issue>
 
+    <issue id="InconsistentLayout">
+        <!-- Portrait trackview has more views hence more ids than landscape -->
+        <ignore path="res/layout/player_track.xml" />
+    </issue>
+
     <issue id="IconXmlAndPng">
         <!-- These are basically symlinks to re-use resources -->
         <ignore path="res/drawable-xhdpi/btn_rec_edit_default.xml"/>

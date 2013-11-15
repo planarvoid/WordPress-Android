@@ -4,10 +4,12 @@ import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.Event
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.net.Uri;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 public class TrackSourceInfo {
 
@@ -64,11 +66,24 @@ public class TrackSourceInfo {
         return mSource;
     }
 
-    public String createEventLoggerParams(Uri sourceUri){
+    public String createEventLoggerParams(){
+        final String query = createEventLoggerBuilder().build().getQuery();
+        return ScTextUtils.isBlank(query) ? ScTextUtils.EMPTY_STRING : query.toString();
+    }
 
+    public String createEventLoggerParamsForSet(String setId, String setPosition){
+        final Uri.Builder builder = createEventLoggerBuilder();
+        builder.appendQueryParameter(EventLoggerKeys.SET_ID, setId);
+        builder.appendQueryParameter(EventLoggerKeys.SET_POSITION, setPosition);
+
+        final String query = builder.build().getQuery();
+        return ScTextUtils.isBlank(query) ? ScTextUtils.EMPTY_STRING : query.toString();
+    }
+
+    private Uri.Builder createEventLoggerBuilder() {
         final Uri.Builder builder = new Uri.Builder();
         if (ScTextUtils.isNotBlank(mOriginUrl)){
-            builder.appendQueryParameter(EventLoggerKeys.ORIGIN_URL, mOriginUrl);
+            builder.appendQueryParameter(EventLoggerKeys.ORIGIN_URL, formatOriginUrl(mOriginUrl));
         }
 
         if (ScTextUtils.isNotBlank(mTrigger)){
@@ -82,13 +97,7 @@ public class TrackSourceInfo {
         if (ScTextUtils.isNotBlank(mSourceVersion)){
             builder.appendQueryParameter(EventLoggerKeys.SOURCE_VERSION, mSourceVersion);
         }
-
-        if (sourceUri != null && Content.match(sourceUri) == Content.PLAYLIST) {
-            builder.appendQueryParameter(EventLoggerKeys.SET, sourceUri.getLastPathSegment());
-        }
-
-        final String query = builder.build().getQuery();
-        return ScTextUtils.isBlank(query) ? ScTextUtils.EMPTY_STRING : query.toString();
+        return builder;
     }
 
     @Override
@@ -110,5 +119,14 @@ public class TrackSourceInfo {
     @Override
     public int hashCode() {
         return Objects.hashCode(mTrigger, mSource, mSourceVersion);
+    }
+
+    private String formatOriginUrl(String originUrl) {
+        try {
+            return URLEncoder.encode(originUrl.toLowerCase().replace(" ", "_"), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return ScTextUtils.EMPTY_STRING;
     }
 }

@@ -1,15 +1,11 @@
 package com.soundcloud.android.dao;
 
-import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
-import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
-
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Association;
-import com.soundcloud.android.model.ScResource;
-import com.soundcloud.android.model.SoundAssociation;
-import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserAssociation;
+import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.BulkInsertMap;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -25,14 +21,12 @@ import rx.Subscription;
 import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.net.Uri;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static com.soundcloud.android.dao.ResolverHelper.getWhereInClause;
+import static com.soundcloud.android.dao.ResolverHelper.longListToStringArr;
 
 /**
  * Use this storage facade to persist information about user-to-user relations to the database.
@@ -45,12 +39,8 @@ public class UserAssociationStorage extends ScheduledOperations {
     private final UserAssociationDAO mUserAssociationDAO;
     private final UserAssociationDAO mFollowingsDAO;
 
-    public UserAssociationStorage() {
-        this(ScSchedulers.STORAGE_SCHEDULER, SoundCloudApplication.instance.getContentResolver());
-    }
-
-    public UserAssociationStorage(Context context){
-        this(ScSchedulers.STORAGE_SCHEDULER, context.getContentResolver());
+    public UserAssociationStorage(Context context) {
+        this(ScSchedulers.STORAGE_SCHEDULER, SoundCloudApplication.fromContext(context).getContentResolver());
     }
 
     public UserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {

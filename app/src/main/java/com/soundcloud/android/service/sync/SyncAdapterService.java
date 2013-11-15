@@ -72,8 +72,6 @@ public class SyncAdapterService extends Service {
              */
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-                if (DEBUG_CANCEL) DebugUtils.setLogLevels();
-
                 Wrapper.setBackgroundMode(true);
 
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
@@ -232,7 +230,7 @@ public class SyncAdapterService extends Service {
                 }
 
                 // see if there are any local playlists that need to be pushed
-                if (new UserAssociationStorage().hasFollowingsNeedingSync()) {
+                if (new UserAssociationStorage(app).hasFollowingsNeedingSync()) {
                     urisToSync.add(Content.ME_FOLLOWINGS.uri);
                 }
 
@@ -245,7 +243,7 @@ public class SyncAdapterService extends Service {
 
                 urisToSync.addAll(dueForSync);
 
-                if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || manual) {
+                if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.USER_STALE_TIME) || manual) {
                     urisToSync.add(Content.ME.uri);
                 }
                 if (!urisToSync.isEmpty()) {

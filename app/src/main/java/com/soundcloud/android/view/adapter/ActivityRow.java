@@ -118,32 +118,19 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
 
     private void setImageSpan() {
         if (mSpanBuilder == null) return;
-        mSpanBuilder.setSpan(new DrawableSpan(isPressed() ? getPressedDrawable() :
-                getDrawable(), DrawableSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mSpanBuilder.setSpan(new DrawableSpan(getDrawable(), DrawableSpan.ALIGN_BASELINE),
+                0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         mTitle.setText(mSpanBuilder);
     }
 
-    @Override
-    public void setPressed(boolean pressed) {
-        super.setPressed(pressed);
-        setImageSpan();
-    }
-
-    protected abstract Drawable doGetDrawable(boolean pressed);
+    protected abstract Drawable doGetDrawable();
 
 
     private Drawable getDrawable() {
         if (mDrawable == null) {
-            mDrawable = doGetDrawable(false);
+            mDrawable = doGetDrawable();
         }
         return mDrawable;
-    }
-
-    private Drawable getPressedDrawable() {
-        if (mPressedDrawable == null) {
-            mPressedDrawable = doGetDrawable(true);
-        }
-        return mPressedDrawable;
     }
 
     @Override

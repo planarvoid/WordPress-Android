@@ -1,25 +1,15 @@
 package com.soundcloud.android.dialog;
 
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.dao.PlaylistStorage;
-import com.soundcloud.android.dao.SoundAssociationStorage;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.operations.PlaylistOperations;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.service.sync.SyncStateManager;
-import rx.Observable;
-import rx.util.functions.Action1;
-import rx.util.functions.Func1;
 
-import android.accounts.Account;
-import android.content.ContentResolver;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
@@ -68,10 +58,11 @@ public class CreatePlaylistDialogFragment extends PlaylistDialogFragment {
         initialBuilder.setPositiveButton(R.string.done, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (TextUtils.isEmpty(input.getText())) {
+                final String playlistTitle = input.getText().toString().trim();
+                if (TextUtils.isEmpty(playlistTitle)) {
                     Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
                 } else {
-                    createPlaylist(input.getText(), mApplicationProperties.isDevBuildRunningOnDalvik() && privacy.isChecked());
+                    createPlaylist(playlistTitle, mApplicationProperties.isDevBuildRunningOnDalvik() && privacy.isChecked());
                     getDialog().dismiss();
                 }
             }
@@ -79,33 +70,9 @@ public class CreatePlaylistDialogFragment extends PlaylistDialogFragment {
         return initialBuilder;
     }
 
-    private void createPlaylist(final Editable text, final boolean isPrivate) {
-        final User loggedInUser = ((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser();
-        final Account account = mAccountOpertations.getSoundCloudAccount();
-
-        PlaylistStorage playlistStorage = getPlaylistStorage();
-        // insert the new playlist into the database
-        playlistStorage.createNewUserPlaylistAsync(
-                loggedInUser,
-                String.valueOf(text),
-                isPrivate,
-                getArguments().getLong(KEY_TRACK_ID)
-        ).mapMany(new Func1<Playlist, Observable<SoundAssociation>>() {
-            @Override
-            public Observable<SoundAssociation> call(Playlist playlist) {
-                // store the newly created playlist as a sound association
-                final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage();
-                return soundAssociationStorage.addCreationAsync(playlist);
-            }
-        }).subscribe(new Action1<SoundAssociation>() {
-            @Override
-            public void call(SoundAssociation soundAssociation) {
-                // force to stale so we know to update the playlists next time it is viewed
-                final SyncStateManager syncStateManager = new SyncStateManager(getActivity());
-                syncStateManager.forceToStale(Content.ME_PLAYLISTS).toBlockingObservable().last();
-                // request sync to push playlist at next possible opportunity
-                ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, new Bundle());
-            }
-        });
+    private void createPlaylist(final String title, final boolean isPrivate) {
+        PlaylistOperations playlistOperations = new PlaylistOperations(getActivity());
+        final User currentUser = SoundCloudApplication.instance.getLoggedInUser();
+        fireAndForget(playlistOperations.createNewPlaylist(currentUser, title, isPrivate, getArguments().getLong(KEY_TRACK_ID)));
     }
 }

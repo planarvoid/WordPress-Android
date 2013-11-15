@@ -108,6 +108,11 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
 
         @Override
+        public String getMessage() {
+            return toString();
+        }
+
+        @Override
         public String toString() {
             return Objects.toStringHelper(getClass())
                     .add("response_status", statusLine).add("request", request).toString();

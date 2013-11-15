@@ -3,7 +3,7 @@
       package="com.soundcloud.android"
       android:versionName="2.7.0"
       android:installLocation="auto"
-      android:versionCode="72">
+      android:versionCode="73">
 
     <supports-screens android:anyDensity="true"/>
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16"/>
@@ -69,7 +69,7 @@
             </intent-filter>
 
 
-            <intent-filter android:priority="10">
+            <intent-filter android:priority="10" android:label="@string/side_menu_stream">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
@@ -78,7 +78,7 @@
             </intent-filter>
 
             <!-- TODO -->
-            <intent-filter android:priority="10">
+            <intent-filter android:priority="10" android:label="@string/side_menu_explore">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
@@ -234,7 +234,7 @@
         <activity android:configChanges="orientation|keyboardHidden" android:label="Connect" android:name=".activity.auth.Connect" android:theme="@style/Theme.SoundCloud.NoActionBar">
         </activity>
 
-        <activity android:label="" android:launchMode="singleTask" android:name=".activity.PlayerActivity" android:theme="@style/Theme.SoundCloud" android:windowSoftInputMode="adjustPan">
+        <activity android:label="@string/title_now_playing" android:launchMode="singleTask" android:name=".activity.PlayerActivity" android:theme="@style/Theme.SoundCloud" android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -457,6 +457,15 @@
 
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_record"/>
         </receiver>
+
+        <receiver android:name="com.soundcloud.android.analytics.LocalyticsReferralReceiver"
+                  android:enabled="true"
+                  android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+
 
         <!-- headphone + remoteclient control -->
         <receiver android:name=".service.playback.RemoteControlReceiver">

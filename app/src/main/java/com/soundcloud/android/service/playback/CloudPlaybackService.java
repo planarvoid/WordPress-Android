@@ -77,20 +77,28 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String TAG = "CloudPlaybackService";
 
     private static @Nullable CloudPlaybackService instance;
-    private static State state = STOPPED;
+
+
+    /**
+     * do not use mCurrentTrack here, as there is a race condition between broadcasting PlayQueueChanged and setting mCurrentTrack
+     * see {@link com.soundcloud.android.activity.PlayerActivity#onStart()}
+     */
+    public static long getCurrentTrackId() { return instance == null || instance.getPlayQueueInternal().isEmpty() ?
+            -1L : instance.getPlayQueueInternal().getCurrentTrackId(); }
 
     // static convenience accessors
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
-    public static long getCurrentTrackId() { return instance == null || instance.mCurrentTrack == null ? -1L : instance.mCurrentTrack.getId(); }
-    public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
+    public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && getPlaybackState().isSupposedToBePlaying(); }
     public static PlayQueue getPlayQueue() { return instance == null ? PlayQueue.EMPTY : instance.clonePlayQueue(); }
     public static @Nullable Uri getPlayQueueUri() { return instance == null ? null : instance.getPlayQueueInternal().getSourceUri(); }
     public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
-    public static State getPlaybackState() { return state; }
+    public static State getPlaybackState() { return instance == null ? STOPPED : instance.state; }
     public static boolean isBuffering() {  return instance != null && instance._isBuffering(); }
     public static boolean isSeekable() {  return instance != null && instance._isSeekable(); }
+
+    private static void setState(State newState) { if (instance != null) instance.state = newState;}
 
     // public service actions
     public interface Actions {
@@ -146,6 +154,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
 
+    private State state = STOPPED;
+
     private @Nullable MediaPlayer mMediaPlayer;
     private int mLoadPercent = 0;       // track buffer indicator
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
@@ -195,6 +205,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private PlayEventTracker mPlayEventTracker;
 
     private AnalyticsEngine mAnalyticsEngine;
+    private String mCurrentEventLoggerParams;
 
     public PlayEventTracker getPlayEventTracker() {
         return mPlayEventTracker;
@@ -440,6 +451,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private void onTrackChanged(final Track track) {
         if (mFocus.isTrackChangeSupported()) {
+            // set initial data without bitmap so it doesn't have to wait
+            mFocus.onTrackChanged(track, null);
+
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
                 ImageLoader.getInstance().loadImage(artworkUri, new SimpleImageLoadingListener(){
@@ -469,13 +483,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     // TODO : Handle tracks that are not in local storage (quicksearch)
     /* package */ void openCurrent(final Media.Action action) {
-        final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
-        mPlaybackOperations.loadTrack(currentTrackId).subscribe(new DefaultObserver<Track>() {
-            @Override
-            public void onNext(Track track) {
-                openCurrent(track, action);
-            }
-        });
+        if (!getPlayQueueInternal().isEmpty()){
+            final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
+            mPlaybackOperations.loadTrack(currentTrackId).subscribe(new DefaultObserver<Track>() {
+                @Override
+                public void onNext(Track track) {
+                    openCurrent(track, action);
+                }
+            });
+        }
     }
 
     /* package */ void openCurrent(Track track, Media.Action action) {
@@ -500,6 +516,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 track(Media.fromTrack(mCurrentTrack), action);
 
                 mCurrentTrack = track;
+                // we have to cache these so we can properly deliver stop events after playqueue changes
+                mCurrentEventLoggerParams = getPlayQueueInternal().getCurrentEventLoggerParams();
+
                 notifyChange(Broadcasts.META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
 
@@ -518,14 +537,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     private void trackPlayEvent(Track newTrack) {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId,
-                getPlayQueueInternal().getEventLoggerParamsForTrack(newTrack.getId()));
+        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId, mCurrentEventLoggerParams);
     }
 
     private void trackStopEvent() {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId,
-                getPlayQueueInternal().getEventLoggerParamsForTrack(mCurrentTrack.getId()));
+        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId, mCurrentEventLoggerParams);
     }
 
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
@@ -831,7 +848,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public void setQueuePosition(int pos) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setQueuePosition("+pos+")");
 
-        if (getPlayQueueInternal().getPosition() != pos && getPlayQueueInternal().setPosition(pos)) {
+        final PlayQueue playQueue = getPlayQueueInternal();
+        if (playQueue.getPosition() != pos && playQueue.setPosition(pos)) {
+            playQueue.setCurrentTrackToUserTriggered();
             openCurrent();
         }
     }
@@ -1009,6 +1028,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         public void handleMessage(Message msg) {
             CloudPlaybackService service = serviceRef.get();
             // Check again to make sure nothing is playing right now
+            final State state = getPlaybackState();
             if (service != null && !state.isSupposedToBePlaying()
                     && state != PAUSED_FOCUS_LOST
                     && !service.mServiceInUse
@@ -1060,6 +1080,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 return;
             }
 
+            State state = getPlaybackState();
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "handleMessage(" + msg.what + ", state=" + state + ")");
             }
@@ -1101,7 +1122,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         } else {
                             if (service != null && service.mMediaPlayer != null) service.mMediaPlayer.pause();
                             mCurrentVolume = 0f;
-                            state = PAUSED_FOCUS_LOST;
+                            setState(PAUSED_FOCUS_LOST);;
                         }
                         service.setVolume(mCurrentVolume);
                     } else {

@@ -19,9 +19,9 @@ public class AffiliationActivityRow extends ActivityRow {
     }
 
     @Override
-    protected Drawable doGetDrawable(boolean pressed) {
+    protected Drawable doGetDrawable() {
         Drawable drawable =
-                getResources().getDrawable(pressed ? R.drawable.activity_following_white_50 : R.drawable.activity_following);
+                getResources().getDrawable(R.drawable.activity_following);
         drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
         return drawable;
     }

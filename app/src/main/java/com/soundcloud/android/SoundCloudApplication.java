@@ -48,6 +48,7 @@ import android.preference.PreferenceManager;
 
 public class SoundCloudApplication extends Application implements Tracker {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
+    private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1000 * 1000; // available mem in bytes
 
     @Deprecated public static ScModelManager MODEL_MANAGER;
 
@@ -62,6 +63,7 @@ public class SoundCloudApplication extends Application implements Tracker {
     public void onCreate() {
         super.onCreate();
 
+        instance = this;
         new MigrationEngine(this).migrate();
 
         ApplicationProperties appProperties = new ApplicationProperties(getResources());
@@ -82,7 +84,7 @@ public class SoundCloudApplication extends Application implements Tracker {
         if (ApplicationProperties.shouldReportCrashes()) {
             Crashlytics.start(this);
         }
-        instance = this;
+
         IOUtils.checkState(this);
         createImageLoader();
 
@@ -163,11 +165,15 @@ public class SoundCloudApplication extends Application implements Tracker {
     }
 
     protected void createImageLoader() {
-        ImageLoader.getInstance().init(
-                new ImageLoaderConfiguration.Builder(this)
-                .defaultDisplayImageOptions(ImageOptionsFactory.cache())
-                .build()
-        );
+        final ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(this);
+        builder.defaultDisplayImageOptions(ImageOptionsFactory.cache());
+        final long availableMemory = Runtime.getRuntime().maxMemory();
+        // Here are some reference values for available mem: Wildfire: 16,777,216; Nexus S: 33,554,432; Nexus 4: 201,326,592
+        if (availableMemory < LOW_MEM_DEVICE_THRESHOLD) {
+            // cut down to half of what UIL would reserve by default (div 8) on low mem devices
+            builder.memoryCacheSize((int) (availableMemory / 16));
+        }
+        ImageLoader.getInstance().init(builder.build());
 
         FileCache.installFileCache(IOUtils.getCacheDir(this));
     }

@@ -20,9 +20,9 @@ public class LikeActivityRow extends ActivityRow {
     }
 
     @Override
-    protected Drawable doGetDrawable(boolean pressed) {
+    protected Drawable doGetDrawable() {
         Drawable drawable =
-                getResources().getDrawable(pressed ? R.drawable.activity_like_white_50 : R.drawable.activity_like);
+                getResources().getDrawable(R.drawable.activity_like);
         drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
         return drawable;
     }

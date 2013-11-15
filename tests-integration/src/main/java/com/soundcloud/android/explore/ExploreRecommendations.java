@@ -1,7 +1,5 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.tests.TestUser.testUser;
-
 import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
@@ -20,7 +18,7 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        AccountAssistant.loginAs(getInstrumentation(), testUser.getUsername(), testUser.getPassword());
+        AccountAssistant.loginAsDefault(getInstrumentation());
         super.setUp();
 
         exploreScreen = new ExploreScreen(this);
@@ -31,7 +29,8 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
 
     public void testPlayingTrendingMusicTrack() {
         menuScreen.openExplore();
-        String trackName = exploreScreen.playPopularTrack(10);
+        exploreScreen.touchTrendingMusicTab();
+        String trackName = exploreScreen.playPopularTrack(1);
         assertEquals(trackName, playerScreen.trackTitle());
     }
 
@@ -39,7 +38,7 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
         menuScreen.openExplore();
         exploreScreen.touchGenresTab();
         exploreScreen.clickElectronicGenre();
-        String trackName = exploreScreen.playPopularTrack(8);
+        String trackName = exploreScreen.playPopularTrack(1);
         assertEquals(trackName, playerScreen.trackTitle());
     }
 

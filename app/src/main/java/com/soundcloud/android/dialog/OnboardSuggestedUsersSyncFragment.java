@@ -1,16 +1,18 @@
 package com.soundcloud.android.dialog;
 
 
+import static rx.android.AndroidObservables.fromFragment;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.operations.following.FollowingOperations;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.sync.SyncInitiator;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
-import rx.android.RxFragmentObserver;
-import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,7 +30,8 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
     public OnboardSuggestedUsersSyncFragment() {
     }
 
-    public OnboardSuggestedUsersSyncFragment(@Nullable FollowingOperations followingOperations) {
+    @VisibleForTesting
+    OnboardSuggestedUsersSyncFragment(@Nullable FollowingOperations followingOperations) {
         mFollowingOperations = followingOperations;
     }
 
@@ -37,10 +40,11 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         if (mFollowingOperations == null) {
-            mFollowingOperations = new FollowingOperations().observeOn(AndroidSchedulers.mainThread());
+            mFollowingOperations = new FollowingOperations();
         }
 
-        mSubscription = mFollowingOperations.waitForActivities(getActivity()).subscribe(new FollowingsSyncObserver(this));
+        mSubscription = fromFragment(this, mFollowingOperations.waitForActivities(getActivity()))
+                .subscribe(new FollowingsSyncObserver());
     }
 
     @Override
@@ -68,31 +72,27 @@ public class OnboardSuggestedUsersSyncFragment extends Fragment {
         getActivity().finish();
     }
 
-    public static class FollowingsSyncObserver extends RxFragmentObserver<OnboardSuggestedUsersSyncFragment, Boolean> {
+    class FollowingsSyncObserver extends DefaultObserver<Boolean> {
 
-        public FollowingsSyncObserver(OnboardSuggestedUsersSyncFragment fragment) {
-            super(fragment);
+        @Override
+        public void onNext(Boolean success) {
+            finish(success);
         }
 
         @Override
-        public void onNext(OnboardSuggestedUsersSyncFragment fragment, Boolean success) {
-            fragment.finish(success);
-        }
-
-        @Override
-        public void onCompleted(OnboardSuggestedUsersSyncFragment fragment) {
+        public void onCompleted() {
             // onNext might have already finished it
-            if (!fragment.getActivity().isFinishing()) {
-                fragment.finish(true);
+            if (!getActivity().isFinishing()) {
+                finish(true);
             }
         }
 
         @Override
-        public void onError(OnboardSuggestedUsersSyncFragment fragment, Throwable error) {
-            error.printStackTrace();
+        public void onError(Throwable error) {
+            super.onError(error);
             // send sync adapter request for followings so retry logic will kick in
-            SyncInitiator.pushFollowingsToApi(new AccountOperations(fragment.getActivity()).getSoundCloudAccount());
-            fragment.finish(false);
+            SyncInitiator.pushFollowingsToApi(new AccountOperations(getActivity()).getSoundCloudAccount());
+            finish(false);
         }
     }
 

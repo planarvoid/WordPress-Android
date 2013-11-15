@@ -5,9 +5,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.fragment.ScListFragment;
 import com.soundcloud.android.provider.Content;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
 
 public class WhoToFollowActivity extends ScActivity {
     @Override
@@ -17,14 +15,8 @@ public class WhoToFollowActivity extends ScActivity {
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.content_frame, ScListFragment.newInstance(Content.SUGGESTED_USERS))
+                    .add(android.R.id.content, ScListFragment.newInstance(Content.SUGGESTED_USERS))
                     .commit();
         }
-    }
-
-    @Override
-    public void setContentView(View layout) {
-        super.setContentView(layout);
-        layout.setBackgroundColor(Color.WHITE);
     }
 }

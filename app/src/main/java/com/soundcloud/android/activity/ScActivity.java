@@ -34,10 +34,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 
 import java.lang.ref.WeakReference;
 
@@ -69,8 +66,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        super.setContentView(R.layout.container);
-
         if (getSupportActionBar() != null) {
             mActionBarController = createActionBarController();
         }
@@ -82,6 +77,18 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         registerReceiver(mGeneralIntentListener, new IntentFilter(f));
 
 
+    }
+
+    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
+    @Override
+    public void setTitle(CharSequence title) {
+        getSupportActionBar().setTitle(title);
+    }
+
+    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
+    @Override
+    public void setTitle(int titleId) {
+        getSupportActionBar().setTitle(titleId);
     }
 
     protected ActionBarController createActionBarController() {
@@ -107,16 +114,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
     public boolean restoreActionBar() {
         return false;
-    }
-
-    @Override
-    public void setContentView(int id) {
-        setContentView(View.inflate(this, id, new FrameLayout(this)));
-    }
-
-    @Override
-    public void setContentView(View layout) {
-        ((ViewGroup) findViewById(R.id.content_frame)).addView(layout);
     }
 
     @Override

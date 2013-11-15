@@ -115,7 +115,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     }
 
     public void clearAll(){
-        SharedPreferencesUtils.apply(mSharedPreferences.edit().remove(PLAYQUEUE_URI_PREF_KEY));
+        clearPlayQueueUri(mSharedPreferences);
         mPlayQueueStorage.clearState();
         mPlayQueue = PlayQueue.EMPTY;
     }
@@ -190,4 +190,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         }
     }
 
+    public static void clearPlayQueueUri(SharedPreferences defaultSharedPreferences){
+        SharedPreferencesUtils.apply(defaultSharedPreferences.edit().remove(PLAYQUEUE_URI_PREF_KEY));
+    }
 }

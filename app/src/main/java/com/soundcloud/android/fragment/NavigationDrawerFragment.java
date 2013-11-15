@@ -108,9 +108,18 @@ public class NavigationDrawerFragment extends Fragment {
             if (Actions.STREAM.equals(action)) {
                 selectItem(NavItem.STREAM.ordinal());
                 return true;
-
             } else if (Actions.YOUR_LIKES.equals(action)) {
                 selectItem(NavItem.LIKES.ordinal());
+                return true;
+            }
+        }
+
+        if (intent.getData() != null) {
+            if (intent.getData().getLastPathSegment().equals("stream")) {
+                selectItem(NavItem.STREAM.ordinal());
+                return true;
+            } else if (intent.getData().getLastPathSegment().equals("explore")) {
+                selectItem(NavItem.EXPLORE.ordinal());
                 return true;
             }
         }
@@ -163,7 +172,6 @@ public class NavigationDrawerFragment extends Fragment {
         // If the drawer is open, show the global app actions in the action bar. See also
         // showGlobalContextActionBar, which controls the top-left area of the action bar.
         if (isDrawerOpen()) {
-            inflater.inflate(R.menu.global, menu);
             showGlobalContextActionBar();
         }
         super.onCreateOptionsMenu(menu, inflater);
@@ -272,7 +280,8 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     public boolean isDrawerOpen() {
-        return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(getView());
+        final View view = getView();
+        return mDrawerLayout != null && view != null && mDrawerLayout.isDrawerOpen(view);
     }
 
     public void closeDrawer() {
@@ -283,10 +292,11 @@ public class NavigationDrawerFragment extends Fragment {
 
     public void updateProfileItem(User user) {
         mProfileViewHolder.username.setText(user.getUsername());
+        int followersCount = user.followers_count < 0 ? 0 : user.followers_count;
         mProfileViewHolder.followers.setText(getResources().getQuantityString(
-                R.plurals.number_of_followers, user.followers_count, user.followers_count));
+                R.plurals.number_of_followers, followersCount, followersCount));
 
-        String imageUri = ImageSize.T500.formatUri(user.getNonDefaultAvatarUrl());
+        String imageUri = ImageSize.formatUriForFullDisplay(getResources(), user.getNonDefaultAvatarUrl());
         ImageLoader.getInstance().displayImage(imageUri, mProfileViewHolder.imageView,
                 ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
     }
@@ -301,7 +311,7 @@ public class NavigationDrawerFragment extends Fragment {
             mDrawerLayout.closeDrawer(getView());
         }
         if (mCallbacks != null) {
-            mCallbacks.onNavigationDrawerItemSelected(position);
+            mCallbacks.onNavigationDrawerItemSelected(position, isDrawerOpen());
         }
     }
 
@@ -328,7 +338,7 @@ public class NavigationDrawerFragment extends Fragment {
         /**
          * Called when an item in the navigation drawer is selected.
          */
-        void onNavigationDrawerItemSelected(int position);
+        void onNavigationDrawerItemSelected(int position, boolean drawerOpen);
     }
 
     private static class ProfileViewHolder {

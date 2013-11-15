@@ -64,7 +64,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
         viewHolder.playcount.setText(itemView.getResources().getString(R.string.playcount, playcountWithCommas));
 
         viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
-        final String artworkUri = track.getArtworkOrAvatar(ImageSize.getPlayerImageSize(itemView.getResources()));
+        final String artworkUri = track.getArtworkOrAvatar(ImageSize.getFullImageSize(itemView.getResources()));
         ImageLoader.getInstance().displayImage(artworkUri, viewHolder.imageView, mDisplayImageOptions);
 
         mGridSpacer.configureItemPadding(itemView, position, getCount());

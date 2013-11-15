@@ -629,7 +629,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mLastState = mCurrentState;
         mActionButton.setEnabled(true);
 
-        invalidateOptionsMenu(); // adjusts color of you button
+        supportInvalidateOptionsMenu(); // adjusts color of you button
 
         if (mCurrentState != CreateState.GENERATING_WAVEFORM && mGeneratingWaveformProgressBar != null) {
             if (mGeneratingWaveformProgressBar.getParent() == mGaugeHolder) mGaugeHolder.removeView(mGeneratingWaveformProgressBar);

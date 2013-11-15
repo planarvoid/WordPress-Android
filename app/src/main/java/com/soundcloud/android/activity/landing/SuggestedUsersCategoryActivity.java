@@ -57,7 +57,7 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
         final long itemId = item.getItemId();
         if (itemId == R.id.menu_select_all || itemId == R.id.menu_deselect_all) {
             mCategoryFragment.toggleFollowings(itemId == R.id.menu_select_all);
-            invalidateOptionsMenu();
+            supportInvalidateOptionsMenu();
             return true;
         } else {
             return super.onOptionsItemSelected(item);

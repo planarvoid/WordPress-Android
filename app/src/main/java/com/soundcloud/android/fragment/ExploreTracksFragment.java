@@ -1,7 +1,12 @@
 package com.soundcloud.android.fragment;
 
-import static rx.android.OperationPaged.Page;
-
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -23,13 +28,7 @@ import rx.android.AndroidObservables;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
+import static rx.android.OperationPaged.Page;
 
 public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
@@ -94,7 +93,8 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mAdapter.getItem(position));
-        mPlaybackOperations.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag());
+        mPlaybackOperations.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag(),
+                "explore:" + getExploreCategory().getTitle()); // todo, no hardcoding tags once we implement full eventlogger
     }
 
     @Override
@@ -106,6 +106,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         mEmptyListView.setOnRetryListener(new EmptyListView.RetryListener() {
             @Override
             public void onEmptyViewRetry() {
+                mSuggestedTracksObservable = buildSuggestedTracksObservable();
                 loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
             }
         });

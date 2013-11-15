@@ -16,16 +16,21 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -33,6 +38,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.SSLCertificateSocketFactory;
 import android.net.SSLSessionCache;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -133,15 +139,6 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
                 setDateFormat(new CloudDateFormat());
     }
 
-
-
-    @Override
-    protected void logRequest(Class<? extends HttpRequestBase> reqType, Request request) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, reqType.getSimpleName()+" "+request);
-        }
-    }
-
     @Override
     public void setProxy(URI proxy) {
         super.setProxy(proxy);
@@ -169,6 +166,55 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
 
     @Override public ObjectMapper getMapper() {
         return mObjectMapper;
+    }
+
+    // add a bunch of logging in debug mode to make it easier to see and debug API request
+    @Override
+    public HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException {
+        // sends the request
+        HttpResponse response = null;
+        try {
+            response = super.safeExecute(target, request);
+        } finally {
+            logRequest(request, response);
+        }
+
+        return response;
+    }
+
+    private void logRequest(HttpUriRequest request, @Nullable HttpResponse response) {
+        if (!mApplicationProperties.isReleaseBuild()) {
+            String report = generateRequestResponseLog(request, response);
+            // we log using INFO level, since request logs can be useful in beta builds
+            Log.i(TAG, report);
+        } else if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+            // always report 401s of requestes originating from the UI into Crashlytics for release builds,
+            // since they are causing us some trouble
+
+            // delaying this final check to here so that we do not parse the request URI for every single prod
+            // request we send
+            final boolean isForegroundRequest = Uri.parse(request.getURI().toString())
+                    .getQueryParameter(BACKGROUND_PARAMETER) == null;
+
+            if (isForegroundRequest) {
+                String report = generateRequestResponseLog(request, response);
+                AccountOperations accountOperations = new AccountOperations(mContext);
+                UnauthorizedException exception = new UnauthorizedException(report, accountOperations.getSoundCloudToken());
+                SoundCloudApplication.handleSilentException("Received 401 Unauthorized", exception);
+            }
+        }
+    }
+
+    public static String generateRequestResponseLog(HttpUriRequest request, @Nullable HttpResponse response) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(request.getMethod()).append(" ").append(request.getURI());
+        sb.append(";headers=");
+        final Header[] headers = request.getAllHeaders();
+        for (Header header : headers) {
+            sb.append(header.toString()).append(";");
+        }
+        sb.append("response=").append(response == null ? "NULL" : response.getStatusLine());
+        return sb.toString();
     }
 
     @Override @SuppressWarnings("unchecked")
@@ -285,10 +331,6 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
     private InputStream getInputStream(HttpResponse response, Request originalRequest) throws IOException {
         final int code = response.getStatusLine().getStatusCode();
         switch (code) {
-            case HttpStatus.SC_UNAUTHORIZED:
-                throw new InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
-                        response.getStatusLine().getReasonPhrase());
-
             case HttpStatus.SC_NOT_FOUND:
                 throw new NotFoundException();
             default:
@@ -406,6 +448,13 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         @Override
         public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
             return dateFormat.format(date, toAppendTo, fieldPosition);
+        }
+    }
+
+    public static class UnauthorizedException extends InvalidTokenException {
+
+        public UnauthorizedException(String requestLog, @Nullable Token token) {
+            super(401, requestLog + "; token=" + token);
         }
     }
 }

@@ -1,22 +1,5 @@
 package com.soundcloud.android.screens.explore;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.handmark.pulltorefresh.library.PullToRefreshGridView;
-import com.jayway.android.robotium.solo.Condition;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.PlayerActivity;
-import com.soundcloud.android.model.TrackSummary;
-import com.soundcloud.android.screens.MenuScreen;
-import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.tests.Waiter;
-import com.viewpagerindicator.FixedWeightTabPageIndicator;
-
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.test.ActivityInstrumentationTestCase2;
@@ -24,8 +7,22 @@ import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.handmark.pulltorefresh.library.PullToRefreshGridView;
+import com.jayway.android.robotium.solo.Condition;
+import com.soundcloud.android.R;
+import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.screens.MenuScreen;
+import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.tests.Waiter;
+import com.viewpagerindicator.FixedWeightTabPageIndicator;
 
 import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 public class ExploreScreen extends Screen {
 
@@ -49,18 +46,25 @@ public class ExploreScreen extends Screen {
 
     public void openExploreFromMenu(){
         menuScreen.openExplore();
-        assertEquals("Could not find Trending Music after opening explore", TRENDING_MUSIC_TAB_TEXT, currentTabTitle());
-
     }
 
     public void touchGenresTab() {
-        assertTrue("Could not touch the genres tab", touchTab(GENRES_TAB_TEXT));
-        solo.waitForViewId(R.id.suggested_tracks_categories_list, 2000);
+        touchTab(GENRES_TAB_TEXT);
+        waiter.waitForViewId(R.id.suggested_tracks_categories_list);
+        waiter.waitForListContent();
         assertEquals("Could not get to genres section", GENRES_TAB_TEXT, currentTabTitle());
+    }
+
+    public void touchTrendingMusicTab() {
+        touchTab(TRENDING_MUSIC_TAB_TEXT);
+        solo.sleep(3000);
+        waiter.waitForViewId(R.id.suggested_tracks_categories_list);
+        waiter.waitForListContent();
     }
 
     public void clickElectronicGenre() {
         solo.clickOnText("Electronic");
+        solo.sleep(2000);
         waiter.waitForListContent();
     }
 
@@ -72,10 +76,12 @@ public class ExploreScreen extends Screen {
 
     public void swipeRightToGenres() {
         solo.swipeRight();
-        assertTrue("Swipe did not bring up expected tab", solo.waitForCondition(new CurrentTabTitleCondition(GENRES_TAB_TEXT), 2000));
+        waiter.waitForListContent();
+        //assertTrue("Swipe did not bring up expected tab", solo.waitForCondition(new CurrentTabTitleCondition(GENRES_TAB_TEXT), 2000));
     }
 
     public void swipeLeftToTrendingAudio() {
+        solo.sleep(2000);
         solo.swipeLeft();
         assertTrue("Swipe did not bring up expected tab", solo.waitForCondition(new CurrentTabTitleCondition(TRENDING_AUDIO_TAB_TEXT), 2000));
     }
@@ -90,15 +96,15 @@ public class ExploreScreen extends Screen {
     }
 
     public String playPopularTrack(int trackNumber) {
-        PullToRefreshGridView tracksList = (PullToRefreshGridView)solo.getView(R.id.suggested_tracks_grid);
-        ListAdapter exploreTracksAdapter = tracksList.getRefreshableView().getAdapter();
-        checkArgument(trackNumber <= exploreTracksAdapter.getCount(), "Not enough items in list to play track " + trackNumber);
-        solo.scrollToItem(trackNumber-1);
-        List<TextView> textViewsForClickedItem = solo.clickInList(1);
-        solo.waitForActivity(PlayerActivity.class);
-        TrackSummary trackSummaryForPlayedTrack = (TrackSummary)exploreTracksAdapter.getItem(trackNumber - 1);
-        validateThatClickedTrackMatchesExpectedTrackToPlay(textViewsForClickedItem, trackSummaryForPlayedTrack);
-        return trackSummaryForPlayedTrack.getTitle();
+        PullToRefreshGridView gridView = (PullToRefreshGridView) solo.getView(R.id.suggested_tracks_grid);
+        if (gridView == null) {
+            throw new RuntimeException("No Tracks present");
+        }
+        View view = gridView.getRefreshableView().getChildAt(trackNumber);
+        TextView textView = (TextView) view.findViewById(R.id.title);
+        String title = textView.getText().toString();
+        solo.clickOnView(view);
+        return title;
     }
 
     private void validateThatClickedTrackMatchesExpectedTrackToPlay(List<TextView> textViewsForClickedItem, TrackSummary trackSummaryForPlayedTrack) {

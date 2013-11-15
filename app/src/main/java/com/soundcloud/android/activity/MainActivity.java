@@ -1,7 +1,12 @@
 package com.soundcloud.android.activity;
 
-import static rx.android.AndroidObservables.fromActivity;
-
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -22,13 +27,7 @@ import net.hockeyapp.android.UpdateManager;
 import rx.Observer;
 import rx.subscriptions.CompositeSubscription;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.view.Menu;
-import android.view.MenuItem;
+import static rx.android.AndroidObservables.fromActivity;
 
 public class MainActivity extends ScActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -111,7 +110,7 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
+    public void onNavigationDrawerItemSelected(int position, boolean isOpen) {
         switch (NavigationDrawerFragment.NavItem.values()[position]) {
             case PROFILE:
                 // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
@@ -149,6 +148,13 @@ public class MainActivity extends ScActivity implements NavigationDrawerFragment
                 break;
         }
 
+        if (!isOpen){
+            /**
+             * In this case, restoreActionBar will not be called since it is already closed.
+             * This probably came from {@link NavigationDrawerFragment#handleIntent(android.content.Intent)}
+             */
+            setTitle(mLastTitle);
+        }
     }
 
     private void attachFragment(Fragment fragment, String tag, int titleResId) {

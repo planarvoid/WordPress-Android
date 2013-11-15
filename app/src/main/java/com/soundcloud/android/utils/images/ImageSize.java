@@ -82,11 +82,11 @@ public enum ImageSize {
         }
     }
 
-    public static String formatUriForPlayer(Resources resources, String uri) {
-        return getPlayerImageSize(resources).formatUri(uri);
+    public static String formatUriForFullDisplay(Resources resources, String uri) {
+        return getFullImageSize(resources).formatUri(uri);
     }
 
-    public static ImageSize getPlayerImageSize(Resources resources) {
+    public static ImageSize getFullImageSize(Resources resources) {
         ImageSize imageSize = ImageSize.fromString(resources.getString(R.string.full_image_size));
         if (imageSize != Unknown){
             return imageSize;

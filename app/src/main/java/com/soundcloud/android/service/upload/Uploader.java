@@ -155,7 +155,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             mSoundAssociationStorage.addCreation(track);
 
             //request to update my collection
-            mSyncStateManager.forceToStale(Content.ME_SOUNDS.uri);
+            mSyncStateManager.forceToStale(Content.ME_SOUNDS);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + track);
 

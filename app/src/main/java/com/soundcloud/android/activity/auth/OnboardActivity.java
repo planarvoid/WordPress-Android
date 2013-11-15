@@ -494,7 +494,7 @@ public class OnboardActivity extends AbstractLoginActivity implements Login.Logi
         } else if (names.length == 1){
             onGoogleAccountSelected(names[0]);
         } else {
-            ContextThemeWrapper cw = new ContextThemeWrapper( this, R.style.SelectGoogleAccountDialogTheme );
+            ContextThemeWrapper cw = new ContextThemeWrapper( this, R.style.Theme_ScDialog );
             final AlertDialog.Builder builder = new AlertDialog.Builder(cw).setTitle(R.string.dialog_select_google_account);
             builder.setItems(names, new DialogInterface.OnClickListener() {
                 @Override

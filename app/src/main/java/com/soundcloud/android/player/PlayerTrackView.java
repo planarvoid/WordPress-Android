@@ -6,6 +6,7 @@ import static com.soundcloud.android.service.playback.CloudPlaybackService.Broad
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.PlayerActivity;
@@ -17,6 +18,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.State;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -184,6 +186,13 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         if (mTrackFlipper != null && changed) {
             onTrackDetailsFlip(mTrackFlipper, false);
         }
+
+        if (mQueuePosition == CloudPlaybackService.getPlayPosition()){
+            setProgress(CloudPlaybackService.getCurrentProgress(), CloudPlaybackService.getLoadingPercent(),
+                    Consts.SdkSwitches.useSmoothProgress && CloudPlaybackService.getPlaybackState() == State.PLAYING);
+        }
+
+
     }
 
     private void refreshComments() {

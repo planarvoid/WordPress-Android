@@ -5,8 +5,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Longs;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.net.Uri;
 import android.os.Parcel;
@@ -39,7 +41,7 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
     }
     public PlayQueue(List<Long> trackIds, int playPosition) {
         mTrackIds = trackIds;
-        mPosition = playPosition;
+        mPosition = playPosition < 0 || playPosition >= trackIds.size() ? 0 : playPosition;
     }
 
     public PlayQueue(List<Long> trackIds, int playPosition, PlaySourceInfo playSourceInfo) {
@@ -105,7 +107,6 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
     public boolean setPosition(int position) {
         if (position < mTrackIds.size()) {
             mPosition = position;
-            mCurrentTrackIsUserTriggered = true;
             return true;
         } else {
             return false;
@@ -148,13 +149,17 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
         return mAppendState == AppendState.EMPTY;
     }
 
-    public String getEventLoggerParamsForTrack() {
-        return getEventLoggerParamsForTrack(getCurrentTrackId());
-    }
-    public String getEventLoggerParamsForTrack(long trackId) {
-        final TrackSourceInfo trackSourceInfo = mPlaySourceInfo.getTrackSource(trackId);
+    public String getCurrentEventLoggerParams() {
+        if (isEmpty()) return ScTextUtils.EMPTY_STRING;
+
+        final TrackSourceInfo trackSourceInfo = mPlaySourceInfo.getTrackSource(getCurrentTrackId());
         trackSourceInfo.setTrigger(mCurrentTrackIsUserTriggered);
-        return trackSourceInfo.createEventLoggerParams(mSourceUri);
+
+        if (mSourceUri != null && Content.match(mSourceUri) == Content.PLAYLIST) {
+            return trackSourceInfo.createEventLoggerParamsForSet(mSourceUri.getLastPathSegment(), String.valueOf(mPosition));
+        } else {
+            return trackSourceInfo.createEventLoggerParams();
+        }
     }
 
     /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {

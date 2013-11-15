@@ -235,10 +235,12 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     private static Activities handleUnexpectedResponse(Request request, HttpResponse response) throws IOException {
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+        final int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode == HttpStatus.SC_NO_CONTENT) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
             return EMPTY;
-        } else  if (Wrapper.isStatusCodeClientError(response.getStatusLine().getStatusCode())){
+        } else if (Wrapper.isStatusCodeClientError(statusCode)) {
+            // a 404 also translates to Unauthorized here, since the API is a bit fucked up
             throw new CloudAPI.InvalidTokenException(response.getStatusLine().getStatusCode(),
                     response.getStatusLine().getReasonPhrase());
         } else {

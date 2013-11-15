@@ -247,37 +247,34 @@
     <string name="try_again">Volver a intentar</string>
     <string name="finish">Terminar</string>
 
-    <string name="category_facebook_friends">Amigos de Facebook</string>
-    <string name="category_facebook_likes">Me gusta en Facebook</string>
-
-    <string name="category_rock">Rock</string>
-    <string name="category_indie">Indie</string>
-    <string name="category_dubstep">Dubstep</string>
-    <string name="category_pop">Pop</string>
-    <string name="category_punk">Punk</string>
-    <string name="category_country">Country</string>
-    <string name="category_alternative">Alternativa</string>
-    <string name="category_electronic">Electrónica</string>
-    <string name="category_house">House</string>
-    <string name="category_rnb_and_soul">RnB y soul</string>
-    <string name="category_hiphop_and_rap">HipHop y rap</string>
-    <string name="category_reggae">Reggae</string>
-    <string name="category_singer_songwriter">Cantautor</string>
-    <string name="category_jazz_and_blues">Jazz y blues</string>
-    <string name="category_metal">Metal</string>
-    <string name="category_classical">Clásica</string>
-    <string name="category_folk_and_world">Gente y mundo</string>
-    <string name="category_ideas">Ideas</string>
-    <string name="category_business">Negocio</string>
-    <string name="category_religion_and_spirituality">Religión y espiritualidad</string>
-    <string name="category_audiobooks">Audio libros</string>
-    <string name="category_arts_and_entertainment">Arte y entretenimiento</string>
-    <string name="category_sports">Deportes</string>
-    <string name="category_science_and_technology">Ciencia y tecnología</string>
-    <string name="category_comedy">Comedia</string>
-    <string name="category_news">Noticia</string>
-    <string name="category_storytelling">Narración</string>
-    <string name="category_learning">Aprendizaje</string>
-
     <string name="error_onboarding_fail">Aún estamos trabajando para llenar tu Stream. Seguiremos intentándolo hasta que lo logremos! Por que no buscar &amp; descubrir aún mas música &amp; audio mientras tanto?</string>
+
+    <!-- explore -->
+    <string name="side_menu_explore">Explorar</string>
+
+    <string name="explore_genres">Géneros</string>
+    <string name="explore_category_header_music">Música</string>
+    <string name="explore_category_header_audio">Audio</string>
+
+    <string name="explore_category_trending_music">Música de moda</string>
+    <string name="explore_category_trending_audio">Audio de moda</string>
+
+    <string name="error_soundcloud_no_response">SoundCloud no responde.</string>
+    <string name="error_no_internet">No hay Internet.</string>
+    <string name="error_connect_and_try_again">Conéctate y vuelve a intentarlo.</string>
+
+    <string name="player_no_recommended_tracks">No se han encontrado pistas relacionadas. Intenta explorar algo nuevo.</string>
+
+    <string name="appending_failed">Error al cargar. Toca para volver a intentarlo.</string>
+
+    <string name="playcount">%s reproducciones</string>
+
+    <string name="player_fetching_related_message_1">Solo un segundo</string>
+    <string name="player_fetching_related_message_2">Estamos obteniendo tu próxima pista</string>
+
+    <string name="showcase_explore_title">Explorar</string>
+    <string name="showcase_explore_message">Escucha lo nuevo y popular\nElige una pista y ecucha sonidos relacionados durante horas</string>
+
+    <string name="navigation_drawer_open">Abre el panel de navegación</string>
+    <string name="navigation_drawer_close">Cierra el panel de navegación</string>
 </resources>

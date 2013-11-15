@@ -1,18 +1,9 @@
 package com.soundcloud.android.tests;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-
-import com.jayway.android.robotium.solo.By;
-import com.jayway.android.robotium.solo.Condition;
-import com.jayway.android.robotium.solo.Solo;
-import com.soundcloud.android.R;
-
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -20,11 +11,18 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
+import com.jayway.android.robotium.solo.By;
+import com.jayway.android.robotium.solo.Condition;
+import com.jayway.android.robotium.solo.Solo;
+import com.soundcloud.android.R;
+import com.soundcloud.android.fragment.NavigationDrawerFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static junit.framework.Assert.*;
 
 /**
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
@@ -164,6 +162,11 @@ public class Han  {
         return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
     }
 
+    public NavigationDrawerFragment getCurrentNavigationDrawer(){
+        final FragmentActivity fragmentActivity = (FragmentActivity) solo.getCurrentActivity();
+        return (NavigationDrawerFragment) fragmentActivity.getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+    }
+
     public void swipeLeft() {
         swipeHorizontal(Solo.LEFT);
     }
@@ -200,7 +203,7 @@ public class Han  {
 
         final int steps = 1;
         if (side == Solo.LEFT) {
-            drag(x, 0, y, y, steps);
+            drag((screenHeight * 0.75f), 0, y, y, steps);
         } else if (side == Solo.RIGHT) {
             drag(x, screenWidth, y, y, steps);
         }
@@ -344,6 +347,10 @@ public class Han  {
         return solo.searchText(text,0,false,true);
     }
 
+    public boolean searchText(String text, int minimumNumberOfMatches, boolean scroll) {
+        return solo.searchText(text, minimumNumberOfMatches, false);
+    }
+
     public void typeText(EditText editText, String text) {
         solo.typeText(editText, text);
     }
@@ -379,7 +386,6 @@ public class Han  {
         } catch (Throwable throwable) {
             throw new RuntimeException("Could not click on action bar home button on UI Thread", throwable);
         }
-
     }
 
     public void scrollToItem(int item) {
@@ -388,6 +394,14 @@ public class Han  {
 
     public List<TextView> clickInList(int item) {
         return solo.clickInList(item);
+    }
+
+    public void waitForDialogToClose(long timeout) {
+        solo.waitForDialogToClose(timeout);
+    }
+
+    public boolean waitForText(String text, int minimumNumberOfMatches, long timeout, boolean scroll) {
+        return solo.waitForText(text, minimumNumberOfMatches, timeout, scroll);
     }
 }
 

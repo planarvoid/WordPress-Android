@@ -194,7 +194,7 @@ public class UserBrowser extends ScActivity implements
         super.onStart();
 
         // update action bar record option based on recorder status
-        invalidateOptionsMenu();
+        supportInvalidateOptionsMenu();
         IntentFilter filter = new IntentFilter();
         filter.addAction(SoundRecorder.RECORD_STARTED);
         filter.addAction(SoundRecorder.RECORD_ERROR);
@@ -356,7 +356,7 @@ public class UserBrowser extends ScActivity implements
         ImageLoader.getInstance().displayImage(user.getNonDefaultAvatarUrl(), mIcon,
                 ImageOptionsFactory.adapterView(R.drawable.avatar_badge_large));
 
-        invalidateOptionsMenu();
+        supportInvalidateOptionsMenu();
 
     }
 
@@ -390,7 +390,7 @@ public class UserBrowser extends ScActivity implements
     private final BroadcastReceiver mRecordListener = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                invalidateOptionsMenu();
+                supportInvalidateOptionsMenu();
             }
     };
 

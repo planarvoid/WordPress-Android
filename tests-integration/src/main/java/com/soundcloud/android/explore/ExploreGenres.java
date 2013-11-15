@@ -1,12 +1,12 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.tests.TestUser.testUser;
-
 import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.screens.explore.ExploreGenreScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
+
+import static com.soundcloud.android.tests.TestUser.testUser;
 
 public class ExploreGenres extends ActivityTestCase<MainActivity> {
     private ExploreScreen exploreScreen;
@@ -26,14 +26,13 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
 
     public void testElectronicMusicCategoryHasContent(){
         menuScreen.openExplore();
-        exploreScreen.touchGenresTab();
+        assertEquals("GENRE is the default tab for explore", "GENRES", exploreScreen.currentTabTitle());
         exploreScreen.clickElectronicGenre();
         assertEquals(15, exploreGenreScreen.getItemsOnList());
     }
 
     public void testElectronicMusicCategoryPullToRefresh(){
         menuScreen.openExplore();
-        exploreScreen.touchGenresTab();
         exploreScreen.clickElectronicGenre();
         assertEquals(15, exploreGenreScreen.getItemsOnList());
         exploreGenreScreen.pullToRefresh();
@@ -42,7 +41,6 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
 
     public void testElectronicMusicCategoryLoadsNextPageOfTracks(){
         menuScreen.openExplore();
-        exploreScreen.touchGenresTab();
         exploreScreen.clickElectronicGenre();
         assertEquals(15, exploreGenreScreen.getItemsOnList());
         exploreGenreScreen.scrollToBottomOfTracksListAndLoadMoreItems();

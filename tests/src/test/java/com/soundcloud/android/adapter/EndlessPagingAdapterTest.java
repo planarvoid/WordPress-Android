@@ -90,13 +90,13 @@ public class EndlessPagingAdapterTest {
     }
 
     @Test
-    public void appendRowShouldBeErrorRowWhenLoadingData() {
+    public void appendRowShouldBeErrorRowWhenLoadingDataFails() {
         Observable<Page<List<Parcelable>>> fail = Observable.error(new Exception("fail!"));
 
         loadFirstPageThen(fail);
 
         expect(adapter.getCount()).toBe(4); // 3 data items + 1 error row
-        expect(adapter.isEnabled(adapter.getCount() - 1)).toBeTrue(); // error row should be interactive
+        expect(adapter.isEnabled(adapter.getCount() - 1)).toBeFalse(); // error has a custom click handler
     }
 
     @Test
@@ -105,7 +105,8 @@ public class EndlessPagingAdapterTest {
 
         loadFirstPageThen(fail);
 
-        expect(adapter.isEnabled(adapter.getCount() - 1)).toBeTrue();
+        final View errorRow = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
+        expect(Robolectric.shadowOf(errorRow).getOnClickListener()).not.toBeNull();
     }
 
     @Test

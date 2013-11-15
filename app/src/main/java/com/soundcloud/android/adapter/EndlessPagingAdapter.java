@@ -51,7 +51,7 @@ public abstract class EndlessPagingAdapter<T extends Parcelable> extends ItemAda
 
     @Override
     public boolean isEnabled(int position) {
-        return getItemViewType(position) != IGNORE_ITEM_VIEW_TYPE || mAppendState == AppendState.ERROR;
+        return getItemViewType(position) != IGNORE_ITEM_VIEW_TYPE;
     }
 
     @Override

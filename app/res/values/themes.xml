@@ -8,7 +8,13 @@
         <item name="android:popupAnimationStyle">@style/Animation.Popup</item>
 
         <item name="android:windowContentOverlay">@drawable/action_bar_shadow</item>
+
+        <item name="android:editTextStyle">@style/EditText</item>
         <item name="android:listViewStyle">@style/ListView</item>
+        <item name="android:checkboxStyle">@style/CheckBox</item>
+        <item name="android:spinnerStyle">@style/Spinner</item>
+        <item name="android:dropDownSpinnerStyle">@style/Spinner.DropDown</item>
+        <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItem</item>
 
         <!-- PullToRefresh specific -->
         <item name="ptrAnimationStyle">flip</item>
@@ -40,18 +46,24 @@
         <item name="android:displayOptions">homeAsUp|showTitle</item>
     </style>
 
+    <style name="Theme.SoundCloud.Widget.Base" parent="@style/Theme.AppCompat">
+        <item name="searchViewAutoCompleteTextView">@style/SearchAutoCompleteTextView</item>
+        <item name="searchViewTextField">@drawable/textfield_search_selected_holo_dark</item>
+        <item name="searchViewSearchIcon">@drawable/actionbar_search</item>
+    </style>
+
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
-    <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat">
+    <style name="Theme.SoundCloud.Widget" parent="Theme.SoundCloud.Widget.Base">
         <item name="popupMenuStyle">@style/PopupMenu</item>
         <item name="dropDownListViewStyle">@style/DropDownListView</item>
-        <item name="searchViewAutoCompleteTextView">@style/SearchAutoCompleteTextView</item>
     </style>
 
     <style name="Theme.SoundCloud.NoBg">
         <item name="android:windowBackground">@null</item>
     </style>
 
-    <style name="Theme.SoundCloud.NoActionBar" parent="@android:style/Theme.Light.NoTitleBar">
+    <style name="Theme.SoundCloud.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <style name="Theme.ScAuth" parent="Theme.SoundCloud.NoActionBar">

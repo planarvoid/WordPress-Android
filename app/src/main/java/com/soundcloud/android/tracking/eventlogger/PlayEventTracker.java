@@ -35,7 +35,8 @@ public class PlayEventTracker {
         String TRIGGER = "trigger";
         String SOURCE = "source";
         String SOURCE_VERSION = "source_version";
-        String SET = "set";
+        String SET_ID = "set_id";
+        String SET_POSITION = "set_position";
     }
 
     private static final int INSERT_TOKEN = 0;

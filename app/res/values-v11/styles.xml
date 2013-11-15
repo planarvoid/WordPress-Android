@@ -3,4 +3,14 @@
     <style name="Widget.ScTabPageIndicator" parent="Widget.ScTabPageIndicatorBase">
         <item name="android:showDividers">middle</item>
     </style>
+
+    <style name="Spinner" parent="android:Widget.Holo.Light.Spinner">
+        <item name="android:background">@drawable/spinner_background_holo_light</item>
+        <item name="android:dropDownSelector">@drawable/list_selector_holo_light</item>
+    </style>
+
+    <style name="Spinner.DropDown">
+        <item name="android:spinnerMode">dropdown</item>
+    </style>
+
 </resources>

@@ -42,7 +42,7 @@ public class SyncStateManager extends ScheduledOperations {
     private final Map<Long, ContentObserver> mContentObservers;
 
     public SyncStateManager(Context context) {
-        this(context.getContentResolver());
+        this(context.getApplicationContext().getContentResolver());
     }
 
     public SyncStateManager(ContentResolver resolver) {
@@ -96,10 +96,6 @@ public class SyncStateManager extends ScheduledOperations {
         return mLocalCollectionDao.update(lc.getId(), cv);
     }
 
-    public Observable<Void> forceToStale(final Content content) {
-        return forceToStale(content.uri);
-    }
-
     public boolean delete(Content content) {
         return mLocalCollectionDao.deleteUri(content.uri);
     }
@@ -108,21 +104,24 @@ public class SyncStateManager extends ScheduledOperations {
         mLocalCollectionDao.deleteAll();
     }
 
-    public Observable<Void> forceToStale(final Uri uri) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Void>() {
+    public Observable<Boolean> forceToStaleAsync(final Content content) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Void> observer) {
-                LocalCollection lc = fromContent(uri);
-                ContentValues cv = new ContentValues();
-                cv.put(DBHelper.Collections.LAST_SYNC, 0);
-                cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, 0);
-
-                mLocalCollectionDao.update(lc.getId(), cv);
+            public Subscription onSubscribe(Observer<? super Boolean> observer) {
+                observer.onNext(forceToStale(content));
                 observer.onCompleted();
-
                 return Subscriptions.empty();
             }
         }));
+    }
+
+    public Boolean forceToStale(final Content content) {
+        LocalCollection lc = fromContent(content.uri);
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Collections.LAST_SYNC, 0);
+        cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, 0);
+
+        return mLocalCollectionDao.update(lc.getId(), cv);
     }
 
     public boolean onSyncComplete(ApiSyncResult result, LocalCollection collection) {

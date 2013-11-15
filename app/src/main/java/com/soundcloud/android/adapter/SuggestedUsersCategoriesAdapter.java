@@ -6,9 +6,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.CategoryGroup;
 import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.operations.following.FollowingOperations;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.view.SingleLineCollectionTextView;
+import rx.Observable;
 import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Context;
@@ -88,7 +90,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
     }
 
     public SuggestedUsersCategoriesAdapter(EnumSet<Section> activeSections, FollowingOperations followingOperations) {
-        mFollowingOperations = followingOperations.observeOn(AndroidSchedulers.mainThread());
+        mFollowingOperations = followingOperations;
         mCategories = new ArrayList<Category>(INITIAL_LIST_CAPACITY);
         mCategoryGroups = new TreeSet<CategoryGroup>(new CategoryGroupComparator());
         mListPositionsToSections = new SparseArray<Section>();
@@ -215,13 +217,15 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 final boolean shouldFollow = ((CompoundButton) v).isChecked();
                 final Category toggleCategory = getItem((Integer) v.getTag());
                 final Set<Long> followedUserIds = mFollowingOperations.getFollowedUserIds();
+                Observable<UserAssociation> toggleFollowings;
                 if (shouldFollow) {
                     final List<SuggestedUser> notFollowedUsers = toggleCategory.getNotFollowedUsers(followedUserIds);
-                    mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers).subscribe(mNotifyWhenDoneObserver);
+                    toggleFollowings = mFollowingOperations.addFollowingsBySuggestedUsers(notFollowedUsers);
                 } else {
                     final List<SuggestedUser> followedUsers = toggleCategory.getFollowedUsers(followedUserIds);
-                    mFollowingOperations.removeFollowingsBySuggestedUsers(followedUsers).subscribe(mNotifyWhenDoneObserver);
+                    toggleFollowings = mFollowingOperations.removeFollowingsBySuggestedUsers(followedUsers);
                 }
+                toggleFollowings.observeOn(AndroidSchedulers.mainThread()).subscribe(mNotifyWhenDoneObserver);
             }
         });
         return viewHolder;
@@ -263,7 +267,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
         }
     }
 
-    private final DefaultObserver mNotifyWhenDoneObserver = new DefaultObserver() {
+    private final DefaultObserver<UserAssociation> mNotifyWhenDoneObserver = new DefaultObserver<UserAssociation>() {
         @Override
         public void onCompleted() {
             notifyDataSetChanged();

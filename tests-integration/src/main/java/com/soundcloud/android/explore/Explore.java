@@ -1,12 +1,12 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.tests.TestUser.testUser;
-
 import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Waiter;
+
+import static com.soundcloud.android.tests.TestUser.testUser;
 
 public class Explore extends ActivityTestCase<MainActivity> {
     private Waiter waiter;
@@ -28,11 +28,14 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     public void testTrendingMusicIsDisplayed() {
         exploreScreen.openExploreFromMenu();
+        exploreScreen.touchTrendingMusicTab();
+        assertEquals("Current tab is TRENDING MUSIC", "TRENDING MUSIC", exploreScreen.currentTabTitle());
         assertEquals("Invalid number of trending music items", 15, exploreScreen.getItemsOnTrendingMusicList());
     }
 
     public void testTrendingMusicPullToRefresh() {
         exploreScreen.openExploreFromMenu();
+        exploreScreen.touchTrendingMusicTab();
         assertEquals("Invalid number of trending music items", 15, exploreScreen.getItemsOnTrendingMusicList());
         exploreScreen.pullToRefresh();
         assertEquals("Invalid number of trending music items", 15, exploreScreen.getItemsOnTrendingMusicList());
@@ -40,6 +43,7 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     public void testTendingMusicLoadsNextPage(){
         exploreScreen.openExploreFromMenu();
+        exploreScreen.touchTrendingMusicTab();
         exploreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
         assertEquals("There should be additional trending tracks in list", 25, exploreScreen.getItemsOnTrendingMusicList());
     }
@@ -73,13 +77,12 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
     public void testGenresAreDisplayedUsingSwiping() {
         exploreScreen.openExploreFromMenu();
-        exploreScreen.swipeRightToGenres();
         assertEquals("Invalid number of genres found", 22, exploreScreen.getNumberOfItemsInGenresTab());
     }
 
     public void testGenresAreDisplayedWhenTouchingTab() {
         exploreScreen.openExploreFromMenu();
-        exploreScreen.touchGenresTab();
+        exploreScreen.touchTrendingMusicTab();
         assertEquals("Invalid number of genres found", 22, exploreScreen.getNumberOfItemsInGenresTab());
     }
 

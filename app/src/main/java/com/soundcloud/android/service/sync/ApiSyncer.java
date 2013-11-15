@@ -139,7 +139,7 @@ public class ApiSyncer extends SyncStrategy {
                     result = syncMyConnections();
                     if (result.change == ApiSyncResult.CHANGED) {
                         // connections changed so make sure friends gets auto synced next opportunity
-                        mSyncStateManager.forceToStale(Content.ME_FRIENDS.uri);
+                        mSyncStateManager.forceToStale(Content.ME_FRIENDS);
                     }
                     break;
             }

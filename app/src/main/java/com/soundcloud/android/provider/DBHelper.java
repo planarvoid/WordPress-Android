@@ -4,12 +4,16 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.dao.ResolverHelper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.service.playback.PlayQueueManager;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,7 +25,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DBHelper";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION  = 23;
+    public static final int DATABASE_VERSION  = 24;
     private static final String DATABASE_NAME = "SoundCloud";
 
     public DBHelper(Context context) {
@@ -106,6 +110,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 23:
                             success = upgradeTo23(db, oldVersion);
+                            break;
+                        case 24:
+                            success = upgradeTo24(db, oldVersion);
                             break;
                         default:
                             break;
@@ -298,9 +305,8 @@ public class DBHelper extends SQLiteOpenHelper {
     static final String DATABASE_CREATE_PLAY_QUEUE = "("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "track_id INTEGER," +
-            "position INTEGER," +
-            "user_id INTEGER, "+
-            "UNIQUE (track_id, position, user_id) ON CONFLICT IGNORE" +
+            "source VARCHAR(255),"+
+            "source_version VARCHAR(255)"+
             ");";
 
     /**
@@ -787,8 +793,8 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     public final static class PlayQueue implements BaseColumns{
         public static final String TRACK_ID = "track_id";
-        public static final String POSITION = "position";
-        public static final String USER_ID = "user_id";
+        public static final String SOURCE = "source";
+        public static final String SOURCE_VERSION = "source_version";
     }
 
 
@@ -1220,6 +1226,19 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade21 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
+    // Explore version. Includes PlayQueue refactoring and prep for eventlogger source tags
+    private static boolean upgradeTo24(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.PLAY_QUEUE.recreate(db);
+            PlayQueueManager.clearPlayQueueUri(PreferenceManager.getDefaultSharedPreferences(SoundCloudApplication.instance));
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade24 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;

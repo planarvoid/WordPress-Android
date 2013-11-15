@@ -2,18 +2,23 @@ package com.soundcloud.android.service.sync;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.dao.LocalCollectionDAO;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.net.Uri;
 
@@ -79,12 +84,12 @@ public class SyncStateManagerTest {
 
     @Test
     public void shouldForceToStale() throws Exception {
-        final Uri uri = Uri.parse("foo");
+        final Uri uri = Content.ME_SOUND_STREAM.uri;
         insertLocalCollection(uri);
         syncStateManager.updateLastSyncSuccessTime(uri, 200);
         expect(syncStateManager.fromContent(uri).last_sync_success).toEqual(200L);
 
-        syncStateManager.forceToStale(uri).toBlockingObservable().last();
+        syncStateManager.forceToStale(Content.ME_SOUND_STREAM);
         expect(syncStateManager.fromContent(uri).last_sync_success).toEqual(0L);
     }
 
@@ -136,6 +141,14 @@ public class SyncStateManagerTest {
 
         syncStateManager.onCollectionAsyncQueryReturn(null, lc, onLocalCollectionChangeListener);
         verify(onLocalCollectionChangeListener).onLocalCollectionChanged(initLc);
+    }
+
+    @Test
+    public void shouldResolveContextToApplicationContextToPreventMemoryLeaks() {
+        Activity activity = mock(Activity.class);
+        when(activity.getApplicationContext()).thenReturn(activity);
+        new SyncStateManager(activity);
+        verify(activity, atLeastOnce()).getApplicationContext();
     }
 
     private LocalCollection insertLocalCollection(Uri contentUri) {

@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class SyncPoller implements Runnable {
-    private static final int POLL_DELAY = 5 * 60 * 1000;
+    private static final int POLL_DELAY = 10 * 60 * 1000;
 
     private final Handler mHandler;
     private final Thread mWatchedThread;
@@ -34,8 +34,8 @@ public class SyncPoller implements Runnable {
 
     @Override
     public void run() {
-        final String msg = "[" + (++mPollCount) + "] " + mSyncTargetUris;
-        SoundCloudApplication.handleSilentException(msg, new SyncPollData(msg, mWatchedThread.getStackTrace()));
+        final String msg = "Sync has run for over " + (10 * ++mPollCount) + " minutes " + mSyncTargetUris;
+        SoundCloudApplication.handleSilentException(msg, new SyncTimeoutException(msg, mWatchedThread.getStackTrace()));
         schedule();
     }
 
@@ -50,15 +50,15 @@ public class SyncPoller implements Runnable {
         return Joiner.on(",").join(uriList);
     }
 
-    private static class SyncPollData extends Exception {
-        private SyncPollData(String message, StackTraceElement[] stackTraceElements) {
+    private static class SyncTimeoutException extends Exception {
+        private SyncTimeoutException(String message, StackTraceElement[] stackTraceElements) {
             super(message);
             setStackTrace(stackTraceElements);
         }
 
         @Override
         public String toString() {
-            return "SyncPollData :" + getMessage();
+            return "SyncTimeoutException : " + getMessage();
         }
     }
 }
