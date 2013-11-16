@@ -2,8 +2,9 @@ $ 75
   % v 2.7.3
   _ 2013-11-12
   ! Tablet UI
-    * Updated UI for tablets
-    * Bugfixes for Explore
+    * Fixed crash when using various sub-level activities
+    - Updated UI for tablets
+    - Bugfixes for Explore
 
 $ 74
   % v 2.7.2
