@@ -88,6 +88,7 @@
         <ignore path="res/layout-normal-port/tour_buttons.xml"/>
         <ignore path="res/layout-large-port/tour_buttons.xml"/>
         <ignore path="res/layout/tour_radio_group.xml"/>
+        <ignore path="res/layout/container_layout.xml"/>
     </issue>
 
     <issue id="InconsistentLayout">
