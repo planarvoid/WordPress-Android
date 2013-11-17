@@ -5,7 +5,6 @@ import android.webkit.WebView;
 import android.widget.ListAdapter;
 import com.jayway.android.robotium.solo.Condition;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
@@ -97,7 +96,7 @@ public class Waiter {
         solo.waitForDialogToClose(NETWORK_TIMEOUT);
     }
 
-    public void waitForActivity(Class<MainActivity> activityClass) {
+    public void waitForActivity(Class activityClass) {
         solo.waitForActivity(activityClass, TIMEOUT);
     }
 

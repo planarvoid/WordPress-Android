@@ -77,14 +77,9 @@ public class Explore extends ActivityTestCase<MainActivity> {
         assertEquals("There should be additional trending tracks in list", 25, exploreScreen.getItemsOnTrendingAudioList());
     }
 
-    public void testGenresAreDisplayedUsingSwiping() {
+    public void testGenresAreDisplayedByDefault() {
         exploreScreen.openExploreFromMenu();
-        assertEquals("Invalid number of genres found", 22, exploreScreen.getNumberOfItemsInGenresTab());
-    }
-
-    public void testGenresAreDisplayedWhenTouchingTab() {
-        exploreScreen.openExploreFromMenu();
-        exploreScreen.touchTrendingMusicTab();
+        assertEquals("Genres are displayed by default", "GENRES", exploreScreen.currentTabTitle());
         assertEquals("Invalid number of genres found", 22, exploreScreen.getNumberOfItemsInGenresTab());
     }
 }

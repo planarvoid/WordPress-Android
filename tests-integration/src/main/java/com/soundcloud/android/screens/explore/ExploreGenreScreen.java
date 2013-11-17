@@ -1,22 +1,19 @@
 package com.soundcloud.android.screens.explore;
 
-import static junit.framework.Assert.assertTrue;
-
+import android.widget.ListAdapter;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.explore.ExploreTracksCategoryActivity;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.tests.Waiter;
+import com.soundcloud.android.tests.Han;
 
-import android.test.ActivityInstrumentationTestCase2;
-import android.widget.ListAdapter;
+import static junit.framework.Assert.assertTrue;
 
 public class ExploreGenreScreen extends Screen {
 
-    private Waiter waiter;
-
-    public ExploreGenreScreen(ActivityInstrumentationTestCase2 testCase) {
-        super(testCase);
-        waiter = new Waiter(solo);
+    public ExploreGenreScreen(Han solo) {
+        super(solo);
+        waiter.waitForActivity(ExploreTracksCategoryActivity.class);
     }
 
     public int getItemsOnList() {

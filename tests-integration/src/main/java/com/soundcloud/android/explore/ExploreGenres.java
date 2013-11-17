@@ -21,13 +21,13 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
         AccountAssistant.loginAs(getInstrumentation(), testUser.getUsername(), testUser.getPassword());
         super.setUp();
         exploreScreen = new ExploreScreen(this);
-        exploreGenreScreen = new ExploreGenreScreen(this);
+        exploreGenreScreen = new ExploreGenreScreen(solo);
     }
 
     public void testElectronicMusicCategoryHasContent(){
         menuScreen.openExplore();
-        assertEquals("GENRE is the default tab for explore", "GENRES", exploreScreen.currentTabTitle());
-        exploreScreen.clickElectronicGenre();
+        exploreScreen.clickGenreItem("Electronic");
+//        exploreScreen.clickElectronicGenre();
         assertEquals(15, exploreGenreScreen.getItemsOnList());
     }
 

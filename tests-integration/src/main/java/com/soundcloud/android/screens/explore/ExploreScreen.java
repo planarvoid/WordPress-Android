@@ -64,8 +64,13 @@ public class ExploreScreen extends Screen {
 
     public void clickElectronicGenre() {
         solo.clickOnText("Electronic");
-        solo.sleep(2000);
         waiter.waitForListContent();
+    }
+
+    public ExploreGenreScreen clickGenreItem(String genreName) {
+        solo.clickOnText(genreName);
+        waiter.waitForListContent();
+        return new ExploreGenreScreen(solo);
     }
 
     public void touchTrendingAudioTab() {

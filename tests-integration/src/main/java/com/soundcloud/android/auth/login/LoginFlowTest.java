@@ -56,7 +56,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to sign in with my G+ credentials
     * So that I don't need to create another SC account
     */
-    public void ign_testGPlusLoginFlow()  {
+    public void testGPlusLoginFlow()  {
 
         signupScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
@@ -77,7 +77,7 @@ public class LoginFlowTest extends LoginTestCase {
     * As a Google account User
     * I want to sign in even if I don't have g+ profile
     */
-    public void ign_testNoGooglePlusAccountLogin()  {
+    public void testNoGooglePlusAccountLogin()  {
         signupScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
         loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
