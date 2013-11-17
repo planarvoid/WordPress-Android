@@ -109,8 +109,7 @@ public class PlaybackOperations {
                 if (track == null) {
                     track = new Track(trackId);
                 }
-                mModelManager.cache(track);
-                return track;
+                return mModelManager.cache(track);
             }
         }).observeOn(AndroidSchedulers.mainThread());
     }

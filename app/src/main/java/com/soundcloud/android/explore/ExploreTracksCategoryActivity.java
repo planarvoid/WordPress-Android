@@ -23,4 +23,9 @@ public class ExploreTracksCategoryActivity extends ScActivity {
                     .commit();
         }
     }
+
+    @Override
+    protected void setContentView() {
+        // nop, don't allow margins to be set here
+    }
 }

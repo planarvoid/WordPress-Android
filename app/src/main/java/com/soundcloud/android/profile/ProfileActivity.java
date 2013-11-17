@@ -29,6 +29,7 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.EventAware;
 import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
@@ -68,10 +69,10 @@ public class ProfileActivity extends ScActivity implements
 
     /* package */ @Nullable User mUser;
 
-    private TextView mUsername, mFullName, mFollowerCount, mTrackCount;
+    private TextView mUsername, mFullName, mFollowerCount, mFollowerMessage, mTrackCount, mLocation;
     private ToggleButton mToggleFollow;
     private View mVrStats;
-    private ImageView mIcon;
+    private ImageView mUserImage;
     private UserFragmentAdapter mAdapter;
     private FetchUserTask mLoadUserTask;
     protected ViewPager mPager;
@@ -82,6 +83,9 @@ public class ProfileActivity extends ScActivity implements
     private AccountOperations mAccountOperations;
     private FollowingOperations mFollowingOperations;
     private final UserStorage mUserStorage = new UserStorage();
+    private String mCurrentAvatarUrl;
+
+    private int mInitialFollowersCount;
 
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
@@ -101,24 +105,26 @@ public class ProfileActivity extends ScActivity implements
         mOldCloudAPI = new PublicApi(this);
         mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(this);
-        mIcon = (ImageView) findViewById(R.id.user_icon);
+        mUserImage = (ImageView) findViewById(R.id.user_image);
         mUsername = (TextView) findViewById(R.id.username);
         mFullName = (TextView) findViewById(R.id.fullname);
+        mLocation = (TextView) findViewById(R.id.location);
 
         mFollowerCount = (TextView) findViewById(R.id.followers);
+        mFollowerMessage = (TextView) findViewById(R.id.followers_message);
         mTrackCount = (TextView) findViewById(R.id.tracks);
         mVrStats = findViewById(R.id.vr_stats);
 
         setTitle(isLoggedInUser() ? R.string.side_menu_you : R.string.side_menu_profile);
         setTextShadowForGrayBg(mUsername, mFullName, mFollowerCount, mTrackCount);
 
-        mIcon.setOnClickListener(new View.OnClickListener() {
+        mUserImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mUser != null){
+                if (mUser != null) {
                     final String avatarUrl = mUser.getNonDefaultAvatarUrl();
                     if (!TextUtils.isEmpty(avatarUrl)) {
-                        new FullImageDialog(ProfileActivity.this, ImageSize.CROP.formatUri(avatarUrl)).show();
+                        new FullImageDialog(ProfileActivity.this, ImageSize.T500.formatUri(avatarUrl)).show();
                     }
                 }
 
@@ -275,6 +281,7 @@ public class ProfileActivity extends ScActivity implements
 
     public void onFollowChanged() {
         mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
+        setFollowersMessage(mUser);
     }
 
     private void trackScreen() {
@@ -303,7 +310,7 @@ public class ProfileActivity extends ScActivity implements
                 mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
             }
         });
-
+        setFollowersMessage(user);
     }
 
     @Override
@@ -328,36 +335,81 @@ public class ProfileActivity extends ScActivity implements
         if (user == null || user.getId() < 0) return;
         mUser = user;
 
+        // Initial count prevents fluctuations from being reflected in followers message
+        mInitialFollowersCount = user.followers_count;
+
         if (!isEmpty(user.username)) mUsername.setText(user.username);
 
-        if (isEmpty(user.full_name)) {
-            mFullName.setVisibility(View.GONE);
-        } else {
-            mFullName.setText(user.full_name);
-            mFullName.setVisibility(View.VISIBLE);
+        if (mFullName != null){
+            if (isEmpty(user.full_name)) {
+                mFullName.setVisibility(View.GONE);
+            } else {
+                mFullName.setText(user.full_name);
+                mFullName.setVisibility(View.VISIBLE);
+            }
         }
 
-        mVrStats.setVisibility((user.followers_count <= 0 || user.track_count <= 0) ? View.GONE : View.VISIBLE);
-
-        if (user.track_count <= 0) {
-            mTrackCount.setVisibility(View.GONE);
-        } else {
-            mTrackCount.setVisibility(View.VISIBLE);
-            mTrackCount.setText(String.valueOf(user.track_count));
+        if (mVrStats != null){
+            mVrStats.setVisibility((user.followers_count <= 0 || user.track_count <= 0) ? View.GONE : View.VISIBLE);
         }
 
-        if (user.followers_count <= 0) {
-            mFollowerCount.setVisibility(View.GONE);
-        } else {
-            mFollowerCount.setVisibility(View.VISIBLE);
-            mFollowerCount.setText(String.valueOf(user.followers_count));
+        if (mTrackCount != null){
+            if (user.track_count <= 0) {
+                mTrackCount.setVisibility(View.GONE);
+            } else {
+                mTrackCount.setVisibility(View.VISIBLE);
+                mTrackCount.setText(String.valueOf(user.track_count));
+            }
         }
 
-        ImageLoader.getInstance().displayImage(user.getNonDefaultAvatarUrl(), mIcon,
-                ImageOptionsFactory.adapterView(R.drawable.avatar_badge_large));
+        if (mFollowerCount != null){
+            if (user.followers_count <= 0) {
+                mFollowerCount.setVisibility(View.GONE);
+            } else {
+                mFollowerCount.setVisibility(View.VISIBLE);
+                mFollowerCount.setText(String.valueOf(user.followers_count));
+            }
+        }
+
+        setFollowersMessage(user);
+
+        if (mLocation != null){
+            if (ScTextUtils.isBlank(user.getLocation())) {
+                mLocation.setVisibility(View.GONE);
+            } else {
+                mLocation.setVisibility(View.VISIBLE);
+                mLocation.setText(String.valueOf(user.getLocation()));
+            }
+        }
+
+        if (mCurrentAvatarUrl == null || !mCurrentAvatarUrl.equals(user.getNonDefaultAvatarUrl())){
+            mCurrentAvatarUrl = user.getNonDefaultAvatarUrl();
+            ImageLoader.getInstance().displayImage(ImageSize.formatUriForFullDisplay(getResources(), mCurrentAvatarUrl),
+                    mUserImage, ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
+
+        }
 
         supportInvalidateOptionsMenu();
 
+    }
+
+    private void setFollowersMessage(User user) {
+        if (mFollowerMessage != null){
+            if (user.followers_count <= 0 || isLoggedInUser()) {
+                mFollowerMessage.setVisibility(View.GONE);
+            } else {
+                mFollowerMessage.setVisibility(View.VISIBLE);
+                mFollowerMessage.setText(generateFollowersMessage());
+            }
+        }
+    }
+
+    private String generateFollowersMessage() {
+        String followCount = ScTextUtils.formatNumberWithCommas(mInitialFollowersCount);
+        return getResources().getQuantityString(mToggleFollow.isChecked() ?
+                R.plurals.following_message :
+                R.plurals.followers_message,
+                mInitialFollowersCount, followCount);
     }
 
     public User getUser() {

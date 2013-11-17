@@ -66,7 +66,7 @@ public class PlayableBar extends IconLayout {
      *  update the displayed track
      * @param p the playable to display
      */
-    public void display(@NotNull PlayableHolder p) {
+    public void setTrack(@NotNull PlayableHolder p) {
 
         mPlayableHolder = p;
 

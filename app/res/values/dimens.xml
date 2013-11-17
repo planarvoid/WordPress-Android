@@ -18,7 +18,6 @@
 
     <dimen name="list_icon_margin_right">5dip</dimen>
 
-    <dimen name="list_txt_pull_size">16sp</dimen>
     <dimen name="list_txt_main_size">14sp</dimen>
     <dimen name="list_txt_sub_size">12sp</dimen>
     <dimen name="list_txt_sub_2_size">10sp</dimen>
@@ -27,8 +26,6 @@
     <dimen name="comment_panel_created_at_size">12sp</dimen>
 
     <dimen name="list_text_margin_left">5dip</dimen>
-
-    <dimen name="user_browser_info_username_margin_bottom">0dip</dimen>
 
     <!-- can't change one of these without change them all -->
     <dimen name="player_time_height">28dp</dimen>
@@ -141,6 +138,8 @@
     <dimen name="view_pager_divider_width">1dp</dimen>
 
     <dimen name="navigation_drawer_width">240dp</dimen>
+    <dimen name="full_image_margin">20dp</dimen>
 
-    <dimen name="nav_drawer_profile_item_height">160dp</dimen>
+    <dimen name="tablet_followers_text">16sp</dimen>
+
 </resources>

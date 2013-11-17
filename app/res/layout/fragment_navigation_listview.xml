@@ -1,9 +1,9 @@
 <ListView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_drawer_listview"
+    android:id="@+id/nav_listview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:choiceMode="singleChoice"
     android:background="#F3F3F3"
     android:listSelector="@drawable/list_selector_gray"
-    tools:context="com.soundcloud.android.fragment.NavigationDrawerFragment" />
+    tools:context="com.soundcloud.android.fragment.NavigationFragment" />

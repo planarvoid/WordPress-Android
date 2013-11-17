@@ -14,8 +14,7 @@ public class ActivitiesActivity extends ScActivity {
 
         if (state == null) {
             getSupportFragmentManager().beginTransaction()
-                    //.add(mRootView.getContentHolderId(), ActivitiesFragment.create(Content.ME_ACTIVITIES)).commit();
-                    .add(android.R.id.content, ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
+                    .add(getContentHolderViewId(), ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
         }
     }
 }

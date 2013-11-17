@@ -73,7 +73,7 @@ public class SuggestedUsersAdapter extends BaseAdapter {
     private ItemViewHolder getItemViewHolder(View convertView) {
         ItemViewHolder viewHolder;
         viewHolder = new ItemViewHolder();
-        viewHolder.imageView = (ImageView) convertView.findViewById(R.id.suggested_user_image);
+        viewHolder.imageView = (ImageView) convertView.findViewById(R.id.user_image);
         viewHolder.username = (TextView) convertView.findViewById(R.id.username);
         viewHolder.location = (TextView) convertView.findViewById(R.id.location);
         viewHolder.toggleFollow = (ToggleButton) convertView.findViewById(R.id.toggle_btn_follow);

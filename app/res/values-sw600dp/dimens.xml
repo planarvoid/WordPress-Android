@@ -4,4 +4,17 @@
 
     <dimen name="explore_suggested_track_item_height">250dp</dimen>
     <dimen name="explore_category_page_size">.5px</dimen><!-- ratio used for pager adapter -->
+
+    <dimen name="full_image_margin">40dp</dimen>
+
+    <dimen name="rec_header_you_button_width">60dp</dimen>
+    <dimen name="rec_toggle_fade_margin_top">30dp</dimen>
+    <dimen name="tab_text_size">18sp</dimen>
+
+    <dimen name="list_icon_width">80dp</dimen>
+    <dimen name="list_icon_height">80dp</dimen>
+    <dimen name="user_page_icon_size">@dimen/list_icon_width</dimen>
+
+    <dimen name="navigation_drawer_width">350dp</dimen>
+
 </resources>

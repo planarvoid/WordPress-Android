@@ -79,9 +79,8 @@
 
     <style name="Theme.FullImageDialog" parent="Theme.FramelessDialog">
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_margin">5dip</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
     </style>
 
     <!-- styles for android-styled-dialogs library -->
@@ -222,6 +221,10 @@
         <item name="android:id">@id/toggle_btn_follow</item>
         <item name="android:textOn">@string/btn_following</item>
         <item name="android:textOff">@string/btn_follow</item>
+    </style>
+
+    <style name="UserBrowser.ToggleButton.Follow.Large">
+        <item name="android:textSize">@dimen/tablet_followers_text</item>
     </style>
 
     <style name="OnboardSuggestedUserCategoryText">
@@ -508,21 +511,13 @@
     </style>
 
     <style name="Player.TrackInfo.Row">
-        <item name="android:clickable">true</item>
-        <item name="android:background">@drawable/list_selector_gray</item>
-
         <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/bottom_separator</item>
     </style>
 
-    <style name="Player.TrackInfo.SeparatorRow">
-        <item name="android:background">@color/track_info_separator</item>
-        <item name="android:layout_span">2</item>
-    </style>
-
-    <style name="Player.TrackInfo.SeparatorView">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/track_info_separator</item>
+    <style name="Player.TrackInfo.Row.Clickable">
+        <item name="android:clickable">true</item>
+        <item name="android:background">@drawable/track_info_clickable_row_bg</item>
     </style>
 
     <style name="Player.TrackInfo.Icon">
@@ -856,7 +851,7 @@
         <item name="android:textColor">@color/txt_description_color</item>
         <item name="android:textSize">14sp</item>
         <item name="android:paddingTop">10dip</item>
-        <item name="android:paddingBottom">10dip</item>
+        <item name="android:paddingBottom">5dip</item>
         <item name="android:paddingLeft">@dimen/list_item_padding_left</item>
         <item name="android:paddingRight">@dimen/list_item_padding_right</item>
         <item name="android:linksClickable">true</item>
@@ -867,9 +862,9 @@
         <item name="android:textSize">@dimen/player_comment_bar_txt_size</item>
     </style>
 
-    <style name="btn_sc_transport">
-        <item name="android:layout_width">50dp</item>
-        <item name="android:layout_height">60dp</item>
+    <style name="btn_sc_transport" parent="Widget.AppCompat.ActionButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
 
@@ -886,11 +881,9 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <style name="btn_sc_widget_transport" parent="btn_sc_widget">
-        <item name="android:layout_width">60dip</item>
-        <item name="android:layout_height">42dip</item>
-        <item name="android:padding">0dip</item>
-        <item name="android:layout_margin">0dip</item>
+    <style name="btn_sc_widget_transport" parent="Widget.AppCompat.ActionButton">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
 
@@ -1293,7 +1286,7 @@
         <item name="android:paddingLeft">7dp</item>
         <item name="android:paddingRight">7dp</item>
         <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:textSize">14dp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/gray_text</item>
     </style>
@@ -1302,9 +1295,12 @@
         <item name="android:scaleType">centerInside</item>
     </style>
 
-    <style name="SuggestedUserToggleButton">
+    <style name="UserToggleButton">
         <item name="android:background">@null</item>-->
         <item name="android:button">@drawable/btn_check_round</item>-->
+    </style>
+
+    <style name="UserToggleButton.Suggested">
         <item name="android:layout_width">40dp</item>
         <item name="android:layout_height">40dp</item>
         <item name="android:layout_alignParentRight">true</item>
@@ -1329,14 +1325,12 @@
         <item name="android:layout_marginBottom">@dimen/tour_bottom_bar_height</item>
         <item name="android:layout_alignParentBottom">true</item>
     </style>
-    <style name="FullImageDialogImageViewBase">
+    <style name="FullImageDialogImageView">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_centerInParent">true</item>
-        <item name="android:layout_margin">10dip</item>
-    </style>
-    <style name="FullImageDialogImageView" parent="FullImageDialogImageViewBase">
         <item name="android:scaleType">fitCenter</item>
-        <item name="android:layout_height">fill_parent</item>
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_margin">@dimen/full_image_margin</item>
     </style>
 
     <style name="ExploreTrackGridItemSelector">
@@ -1418,4 +1412,24 @@
     <style name="ShowcaseDetailText" parent="TextAppearance.ShowcaseView.Detail">
         <item name="android:textColor">#ffffff</item>
     </style>
+
+    <!-- Tablet layouts -->
+
+    <style name="MarginLeft">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">0.1</item>
+        <item name="android:background">@drawable/margin_left_bg</item>
+    </style>
+
+    <style name="MarginRight" parent="MarginLeft">
+        <item name="android:background">@drawable/margin_right_bg</item>
+    </style>
+
+    <style name="MarginedContent">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">0.4</item>
+    </style>
+
 </resources>

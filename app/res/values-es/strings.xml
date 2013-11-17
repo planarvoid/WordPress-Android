@@ -152,9 +152,7 @@
 
     <string name="error_server_problems_message">Hubo un problema al procesar tu solicitud. Por favor, inténtelo de nuevo más tarde.</string>
 
-    <string name="accessibility_menu">Abrir menú</string>
     <string name="accessibility_action_bar_waveform">Mostrar pista de reproducción actual</string>
-    <string name="accessibility_exit_search">Salir del modo búsqueda</string>
     <string name="accessibility_infix_reposted">republicado</string>
     <string name="accessibility_infix_liked">me ha gustado</string>
     <string name="accessibility_infix_commented">comentado en</string>
@@ -189,8 +187,6 @@
     <string name="accessibility_next_track">Siguiente pista</string>
     <string name="accessibility_toggle_playback">Activar repetición</string>
     <string name="accessibility_previous_track">Pista anterior</string>
-
-    <string name="accessibility_action_bar_playlist">Volver a la lista de reproducción actual</string>
 
     <string name="playlist_info_header_text">Esta lista contiene %1$s, tiempo total: %2$s</string>
     <string name="imprint">Grabar</string>

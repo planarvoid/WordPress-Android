@@ -15,6 +15,7 @@ import com.jayway.android.robotium.solo.By;
 import com.jayway.android.robotium.solo.Condition;
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
+import com.soundcloud.android.R.id;
 import com.soundcloud.android.main.NavigationDrawerFragment;
 
 import java.util.ArrayList;
@@ -168,7 +169,7 @@ public class Han  {
 
     public NavigationDrawerFragment getCurrentNavigationDrawer(){
         final FragmentActivity fragmentActivity = (FragmentActivity) solo.getCurrentActivity();
-        return (NavigationDrawerFragment) fragmentActivity.getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        return (NavigationDrawerFragment) fragmentActivity.getSupportFragmentManager().findFragmentById(id.navigation_fragment_id);
     }
 
     public void swipeLeft() {

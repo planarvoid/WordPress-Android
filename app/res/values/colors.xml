@@ -11,12 +11,8 @@
     <color name="listTxtRecSecondary">#FFcccccc</color>
     <color name="listTxtCreatedAt">#FFc9c9c9</color>
     <color name="listTxtTrackUser">#FF828282</color>
-
-    <color name="statsColor">#FF828282</color>
-    <color name="statsColorPressed">#88FFFFFF</color>
-
     <color name="listTxtDarkValue">#FFFFFFFF</color>
-    <color name="listTxtDarkValuePressed">#88FFFFFF</color>
+    <color name="statsColor">#FF828282</color>
 
     <color name="dark_bg">#FF252525</color>
 
@@ -82,8 +78,6 @@
     <color name="search_item_selected_color">#ffffff</color>
     <color name="search_item_pressed_color">@color/scOrange</color>
 
-    <color name="track_info_separator">#FFE5E5E5</color>
-
     <color name="txt_description_color">#FF666666</color>
 
     <color name="dark_gray_text">#FF333333</color>
@@ -92,5 +86,7 @@
     <color name="dialog_separator">@color/scOrange</color>
     <color name="dialog_button_focused">#fff</color>
     <color name="dialog_button_pressed">#dbdbdb</color>
+
+    <color name="playerTrackDetailsBg">#fff</color>
 
 </resources>

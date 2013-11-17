@@ -70,7 +70,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
     public void display(int position, Parcelable p) {
         checkArgument(p instanceof PlayableHolder, "Not a valid playable holder: " + p);
 
-        super.display((PlayableHolder) p);
+        super.setTrack((PlayableHolder) p);
 
         Playable playable = mPlayableHolder.getPlayable();
         setupReposter();

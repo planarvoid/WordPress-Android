@@ -1,6 +1,14 @@
-$ 73
-  % v 2.7.1
+$ 75
+  % v 2.7.3
   _ 2013-11-12
+  ! Tablet UI
+    * Fixed crash when using various sub-level activities
+    - Updated UI for tablets
+    - Bugfixes for Explore
+
+$ 74
+  % v 2.7.2
+  _ 2013-11
   ! Introducing Explore
     * Brand new Explore feature: discover trending music & audio
     * Cleaner, simpler design with a new side menu for the most-used functions

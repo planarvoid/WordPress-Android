@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="empty_message_margin_left_right">80dp</dimen>
-    <dimen name="explore_category_page_size">.5px</dimen><!-- ratio used for pager adapter -->
+    <dimen name="explore_category_page_size">1px</dimen><!-- ratio used for pager adapter -->
+
+    <dimen name="player_time_width">10dp</dimen><!-- will correspond to the arrow height -->
+    <dimen name="player_time_bottom_margin">-10dp</dimen><!-- will correspond to the arrow height -->
+    <dimen name="player_time_height">28dp</dimen>
 </resources>

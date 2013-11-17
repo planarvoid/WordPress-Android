@@ -4,8 +4,8 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.main.NavigationFragment;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
@@ -30,11 +30,11 @@ public class MenuScreen {
     }
 
     public ListView rootMenu() {
-        return (ListView) solo.waitForViewId(R.id.nav_drawer_listview, 20000);
+        return (ListView) solo.waitForViewId(R.id.nav_listview, 20000);
     }
 
     public View youMenu() {
-        return rootMenu().getChildAt(NavigationDrawerFragment.NavItem.PROFILE.ordinal());
+        return rootMenu().getChildAt(NavigationFragment.NavItem.PROFILE.ordinal());
     }
 
     public View clickHomeButton() {
@@ -59,6 +59,4 @@ public class MenuScreen {
         waiter.waitForViewId(R.id.suggested_tracks_categories_list);
         waiter.waitForListContent();
     }
-
-
 }

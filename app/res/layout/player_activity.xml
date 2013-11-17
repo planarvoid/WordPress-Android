@@ -3,23 +3,5 @@
                 android:id="@+id/container"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
-    <LinearLayout android:layout_width="fill_parent"
-                  android:orientation="vertical"
-                  android:gravity="bottom"
-                  android:layout_height="fill_parent">
-        <com.soundcloud.android.playback.views.PlayerTrackPager
-                        android:id="@+id/track_view"
-                        android:layout_width="fill_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"/>
-        <View android:layout_width="fill_parent"
-                  android:layout_height="1dip"
-                  android:background="#FF555555"/>
-        <FrameLayout android:layout_width="fill_parent"
-                     android:layout_height="@dimen/player_transport_height">
-            <com.soundcloud.android.playback.views.TransportBarView android:id="@+id/transport_bar"
-                                                      android:layout_height="fill_parent"
-                                                      android:layout_width="fill_parent"/>
-        </FrameLayout>
-    </LinearLayout>
+    <include layout="@layout/player_activity_common"/>
 </RelativeLayout>

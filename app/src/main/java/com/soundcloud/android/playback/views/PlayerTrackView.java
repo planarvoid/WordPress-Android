@@ -10,64 +10,48 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewStub;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.ToggleButton;
-import android.widget.ViewFlipper;
 
 import java.util.List;
 
 @SuppressWarnings("deprecation")
-public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.LoadCommentsListener, WaveformControllerLayout.WaveformListener {
-
-    private ImageView mAvatar;
-    private WaveformControllerLayout mWaveformController;
-    private FrameLayout mUnplayableLayout;
-
-    private PlayableBar mTrackInfoBar;
-    private @Nullable ViewFlipper mTrackFlipper;            // can be null in landscape mode
-    private @Nullable
-    PlayerTrackDetailsLayout mTrackDetailsView; // ditto
+public class PlayerTrackView extends FrameLayout implements
+        LoadCommentsTask.LoadCommentsListener, WaveformControllerLayout.WaveformListener {
 
     @NotNull
     protected Track mTrack;
-    private int mQueuePosition;
-    private long mDuration;
     protected boolean mOnScreen;
-    private boolean mIsCommenting;
+    protected WaveformControllerLayout mWaveformController;
 
-    private ToggleButton mToggleInfo;
-    private PlayableActionButtonsController mActionButtons;
+    private FrameLayout mUnplayableLayout;
+    private int mQueuePosition;
+    private boolean mIsCommenting;
+    private long mDuration;
+
     private PublicCloudAPI oldCloudApi;
     @NotNull
     protected PlayerTrackViewListener mListener;
+    private PlayableInfoAndEngagementsController mInfoAndEngagements;
 
     public interface PlayerTrackViewListener extends WaveformControllerLayout.WaveformListener {
         void onAddToPlaylist(Track track);
@@ -81,45 +65,11 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
 
         mListener = (PlayerTrackViewListener) context;// NO!!!
         oldCloudApi = new PublicApi(context.getApplicationContext());
-        mTrackInfoBar = (PlayableBar) findViewById(R.id.playable_bar);
-        mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
-
-        findViewById(R.id.btn_addToSet).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListener.onAddToPlaylist(mTrack);
-            }
-        });
-
-        mTrackInfoBar.addTextShadows();
-
-        mAvatar = (ImageView) findViewById(R.id.icon);
-        mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
-        mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ProfileActivity.startFromPlayable(getContext(), mTrack);
-            }
-        });
-
-        findViewById(R.id.playable_private_indicator).setVisibility(View.GONE);
-
-        mToggleInfo = (ToggleButton) findViewById(R.id.toggle_info);
-        if (mToggleInfo != null) {
-            mToggleInfo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mTrackFlipper != null) {
-                        onTrackDetailsFlip(mTrackFlipper, mToggleInfo.isChecked());
-                    }
-                }
-            });
-        }
-
-        mActionButtons = new PlayableActionButtonsController(this);
 
         ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformControllerLayout) findViewById(R.id.waveform_controller);
         mWaveformController.setListener(mListener);
+        mInfoAndEngagements = new PlayableInfoAndEngagementsController(this, mListener);
     }
 
     // TODO, this is currently true all the time
@@ -150,22 +100,12 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     }
 
     protected void setTrackInternal(@NotNull Track track, boolean priority) {
-        final boolean changed = !track.equals(mTrack);
-
         mTrack = track;
         mWaveformController.updateTrack(mTrack, mQueuePosition, priority);
-        mTrackInfoBar.display(mTrack);
-        updateAvatar(priority);
-
-        if (mTrackDetailsView != null) {
-            mTrackDetailsView.fillTrackDetails(mTrack);
-        }
 
         if (mDuration != mTrack.duration) {
             mDuration = mTrack.duration;
         }
-
-        mActionButtons.update(track);
 
         if ((mTrack.isWaitingOnState() || mTrack.isStreamable()) && mTrack.last_playback_error == -1) {
             hideUnplayable();
@@ -180,16 +120,11 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             refreshComments();
         }
 
-        if (mTrackFlipper != null && changed) {
-            onTrackDetailsFlip(mTrackFlipper, false);
-        }
-
+        mInfoAndEngagements.setTrack(track);
         if (mQueuePosition == PlaybackService.getPlayPosition()){
             setProgress(PlaybackService.getCurrentProgress(), PlaybackService.getLoadingPercent(),
                     Consts.SdkSwitches.useSmoothProgress && PlaybackService.getPlaybackState() == PlaybackState.PLAYING);
         }
-
-
     }
 
     private void refreshComments() {
@@ -219,55 +154,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         mWaveformController.setSuppressComments(false);
     }
 
-    private void updateAvatar(boolean postAtFront) {
-        if (mTrack != null && mTrack.getUser() != null) {
-            final User user = mTrack.getUser();
-            ImageLoader.getInstance().displayImage(user.getListAvatarUri(getContext()), mAvatar);
-        } else {
-            ImageLoader.getInstance().cancelDisplayTask(mAvatar);
-        }
-    }
-
-    public void onTrackDetailsFlip(@NotNull ViewFlipper trackFlipper, boolean showDetails) {
-        if (mTrack != null && showDetails && trackFlipper.getDisplayedChild() == 0) {
-            mListener.onCloseCommentMode();
-
-            SoundCloudApplication.fromContext(getContext()).track(Page.Sounds_info__main, mTrack);
-            mWaveformController.closeComment(false);
-            if (mTrackDetailsView == null) {
-                mTrackDetailsView = new PlayerTrackDetailsLayout(getContext());
-                trackFlipper.addView(mTrackDetailsView);
-            }
-
-            // according to this logic, we will only load the info if we haven't yet or there was an error
-            // there is currently no manual or stale refresh logic
-            if (mTrack.shouldLoadInfo()) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        final Context context = getContext();
-                        if (context != null){
-                            context.startService(new Intent(PlaybackService.Actions.LOAD_TRACK_INFO).putExtra(Track.EXTRA, mTrack));
-                        }
-                    }
-                }, 400); //flipper animation time is 250, so this should be enough to allow the animation to end
-
-                mTrackDetailsView.fillTrackDetails(mTrack, true);
-            } else {
-                mTrackDetailsView.fillTrackDetails(mTrack);
-            }
-
-            trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_in));
-            trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
-            trackFlipper.showNext();
-        } else if (!showDetails && trackFlipper.getDisplayedChild() == 1){
-            trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
-            trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_out));
-            trackFlipper.showPrevious();
-        }
-        if (mToggleInfo != null) mToggleInfo.setChecked(showDetails);
-    }
-
     public void onDataConnected() {
         mWaveformController.onDataConnected();
     }
@@ -285,10 +171,6 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
     protected void onCommentModeChanged(boolean isCommenting, boolean animated) {
         mIsCommenting = isCommenting;
         getWaveformController().setCommentMode(isCommenting);
-
-        if (mTrackFlipper != null && mIsCommenting) {
-            onTrackDetailsFlip(mTrackFlipper, false);
-        }
     }
 
     public int getPlayPosition() {
@@ -361,7 +243,7 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.id, -1)) {
                 mTrack.user_like = intent.getBooleanExtra(BroadcastExtras.isLike, false);
                 mTrack.user_repost = intent.getBooleanExtra(BroadcastExtras.isRepost, false);
-                mActionButtons.update(mTrack);
+                mInfoAndEngagements.setTrack(mTrack);
             }
 
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
@@ -373,15 +255,11 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
             Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(BroadcastExtras.id, -1));
             if (t != null) {
                 setTrackInternal(t, mOnScreen);
-                if (mTrackDetailsView != null) {
-                    mTrackDetailsView.fillTrackDetails(mTrack);
-                }
+                onTrackInfoChanged();
             }
 
         } else if (Playable.ACTION_SOUND_INFO_ERROR.equals(action)) {
-            if (mTrackDetailsView != null) {
-                mTrackDetailsView.fillTrackDetails(mTrack);
-            }
+            onTrackInfoChanged();
 
         } else if (Broadcasts.BUFFERING.equals(action)) {
             setBufferingState(true);
@@ -406,6 +284,12 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         } else if (Broadcasts.SEEK_COMPLETE.equals(action)) {
             mWaveformController.onSeekComplete();
         }
+    }
+
+    protected void onTrackInfoChanged() {
+    }
+
+    protected void onAssociationsChanged() {
     }
 
     private void onUnplayable(Intent intent) {
@@ -461,10 +345,13 @@ public class PlayerTrackView extends LinearLayout implements LoadCommentsTask.Lo
         return mTrack == null ? -1 : mTrack.getId();
     }
 
+    public Track getTrack() {
+        return mTrack;
+    }
+
     public void clear() {
         mOnScreen = false;
         onStop(true);
-        mAvatar.setImageBitmap(null);
         mWaveformController.reset(true);
         mWaveformController.setOnScreen(false);
     }

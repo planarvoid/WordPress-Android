@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                style="@style/PlayerActionContainer"
+                android:gravity="center_vertical">
+    <include layout="@layout/player_action_common"/>
+
+    <View style="@style/PlayerActionSeparator"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp" />
+
+    <ImageButton android:id="@id/btn_share"
+                 style="@style/PlayerAction.Button.Share"/>
+
+</LinearLayout>

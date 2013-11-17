@@ -43,7 +43,12 @@
 
     <style name="ActionBar.SoundCloud" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/dark_bg</item>
-        <item name="android:displayOptions">homeAsUp|showTitle</item>
+
+        <!-- Duplicated options for AppCompat with non-native action bar -->
+        <item name="android:logo">@drawable/actionbar_logo</item>
+        <item name="logo">@drawable/actionbar_logo</item>
+        <item name="android:displayOptions">homeAsUp|showTitle|useLogo|showHome</item>
+        <item name="displayOptions">homeAsUp|showTitle|useLogo|showHome</item>
     </style>
 
     <style name="Theme.SoundCloud.Widget.Base" parent="@style/Theme.AppCompat">

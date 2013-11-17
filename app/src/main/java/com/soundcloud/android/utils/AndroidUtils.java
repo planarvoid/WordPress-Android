@@ -212,7 +212,7 @@ public final class AndroidUtils {
 
     public static void setTextShadowForGrayBg(TextView... views) {
         for (TextView tv : views) {
-            tv.setShadowLayer(1, 0, 1, Color.WHITE);
+            if (tv != null) tv.setShadowLayer(1, 0, 1, Color.WHITE);
         }
     }
 

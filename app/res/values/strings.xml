@@ -78,9 +78,7 @@
 
     <string name="error_server_problems_message">There was a problem processing your request. Please try again later.</string>
 
-    <string name="accessibility_menu">Open menu</string>
     <string name="accessibility_action_bar_waveform">Show currently playing track</string>
-    <string name="accessibility_exit_search">Leave search mode</string>
     <string name="accessibility_infix_reposted">reposted</string>
     <string name="accessibility_infix_liked">liked</string>
     <string name="accessibility_infix_commented">commented on</string>
@@ -95,8 +93,6 @@
     <string name="accessibility_next_track">Next track</string>
     <string name="accessibility_toggle_playback">Toggle playback</string>
     <string name="accessibility_previous_track">Previous Track</string>
-
-    <string name="accessibility_action_bar_playlist">Go back to the current playing playlist</string>
 
     <string name="playlist_info_header_text">This playlist contains %1$s, total time: %2$s</string>
     <string name="imprint">Imprint</string>
@@ -136,14 +132,11 @@
     <string name="version">Version</string>
     <string name="unavailable">Unavailable</string>
 
-    <string name="title_account_settings">Account Settings</string>
     <string name="title_notification_settings">Notification Settings</string>
     <string name="title_about">About</string>
     <string name="title_legal">Legal</string>
 
     <string name="title_now_playing">Now Playing</string>
-
-    <string name="search">Search</string>
 
     <!-- onboarding -->
     <string name="suggested_users_genres_large_title">Choose your favorite categories</string>

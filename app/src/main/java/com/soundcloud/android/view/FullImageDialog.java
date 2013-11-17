@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.view.ViewGroup;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -7,7 +8,6 @@ import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.MotionEventUtils;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -30,6 +30,7 @@ public class FullImageDialog extends Dialog {
         setCancelable(true);
         setCanceledOnTouchOutside(true);
         setContentView(R.layout.full_image_dialog);
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         mActivityRef = new WeakReference<Activity>(context);
         final ImageView image = (ImageView) this.findViewById(R.id.image);
@@ -74,7 +75,7 @@ public class FullImageDialog extends Dialog {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN && MotionEventUtils.isOutOfBounds(event, this)) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
             cancel();
             return true;
         } else {

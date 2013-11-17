@@ -60,6 +60,9 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView();
+
         mAccountOperations = new AccountOperations(this);
         mPublicCloudAPI = new PublicApi(this);
         connectivityListener = new NetworkConnectivityListener();
@@ -81,13 +84,17 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
     }
 
+    // Override this in activities with custom content views
+    protected void setContentView() {
+        setContentView(R.layout.container_layout);
+    }
+
     // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
     @Override
     public void setTitle(CharSequence title) {
         getSupportActionBar().setTitle(title);
     }
 
-    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
     @Override
     public void setTitle(int titleId) {
         getSupportActionBar().setTitle(titleId);
@@ -382,5 +389,12 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         }
         finish();
         return true;
+    }
+
+    /**
+     * Convenience method to get the content id for usage in one-off fragments
+     */
+    public static int getContentHolderViewId() {
+        return R.id.holder;
     }
 }

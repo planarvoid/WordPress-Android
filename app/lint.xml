@@ -26,6 +26,10 @@
     <!-- Px looks better in some cases -->
     <issue id="PxUsage" severity="ignore"/>
 
+    <issue id="ObseleteLayoutParams">
+        <ignore path="res/layout/track_info.xml"/>
+    </issue>
+
     <!-- Sometimes NestedWeights are necessities -->
     <issue id="NestedWeights">
         <ignore path="res/layout/abs__search_view.xml"/>
@@ -84,11 +88,15 @@
         <ignore path="res/layout-normal-port/tour_buttons.xml"/>
         <ignore path="res/layout-large-port/tour_buttons.xml"/>
         <ignore path="res/layout/tour_radio_group.xml"/>
+        <ignore path="res/layout/container_layout.xml"/>
     </issue>
 
     <issue id="InconsistentLayout">
         <!-- Portrait trackview has more views hence more ids than landscape -->
         <ignore path="res/layout/player_track.xml" />
+        <ignore path="res/layout/user_browser.xml" />
+        <ignore path="res/layout/player_action_bar.xml" />
+        <ignore path="res/layout/main_activity.xml" />
     </issue>
 
     <issue id="IconXmlAndPng">

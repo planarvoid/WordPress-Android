@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Transformation;
@@ -29,10 +28,7 @@ public class TransportBarView extends LinearLayout {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.transport_bar, this);
 
-        setBackgroundResource(R.drawable.black_transport_bar_gradient);
-        setGravity(Gravity.CENTER_VERTICAL);
-        final int pad = (int) (context.getResources().getDisplayMetrics().density*5);
-        setPadding(0,pad,0,pad);
+        setBackgroundResource(R.color.dark_bg);
 
         mPauseButton = (ImageButton) findViewById(R.id.pause);
         mPauseButton.requestFocus();

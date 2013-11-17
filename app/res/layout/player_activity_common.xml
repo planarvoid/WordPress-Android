@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent"
+              android:orientation="vertical"
+              android:gravity="bottom"
+              android:layout_height="fill_parent">
+    <com.soundcloud.android.playback.views.PlayerTrackPager
+            android:id="@+id/track_view"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+    <View android:layout_width="fill_parent"
+          android:layout_height="1dip"
+          android:background="#FF555555"/>
+    <FrameLayout android:layout_width="fill_parent"
+                 android:layout_height="@dimen/player_transport_height">
+        <com.soundcloud.android.playback.views.TransportBarView android:id="@+id/transport_bar"
+                                                                android:layout_height="fill_parent"
+                                                                android:layout_width="fill_parent"/>
+    </FrameLayout>
+</LinearLayout>

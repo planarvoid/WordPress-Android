@@ -45,7 +45,7 @@ public class ParallaxImageView extends AspectRatioImageView {
             final int desiredFocalPoint = (int) (-(drawable.getIntrinsicHeight()) * mFocalPoint);
             matrix.setTranslate(0, desiredFocalPoint);
             matrix.postScale(scaleFactor, scaleFactor, 0, 0);
-            matrix.postTranslate(0, (b-t)/(2) + mParallaxOffset);
+            matrix.postTranslate(0, Math.min((b-t)/(2) + mParallaxOffset, -desiredFocalPoint*scaleFactor));
             setImageMatrix(matrix);
         }
         return super.setFrame(l, t, r, b);

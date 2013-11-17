@@ -34,7 +34,7 @@
 
         <CheckBox android:id="@id/btn_user_bucket_select_all"
                       android:layout_centerVertical="true"
-                      style="@style/SuggestedUserToggleButton"/>
+                      style="@style/UserToggleButton.Suggested"/>
 
     </RelativeLayout>
 
