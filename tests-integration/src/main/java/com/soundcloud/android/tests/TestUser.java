@@ -1,5 +1,15 @@
 package com.soundcloud.android.tests;
 
+import android.content.Context;
+import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.content.UserAssociationSyncer;
+import rx.concurrency.Schedulers;
+
+import java.io.IOException;
+
 public class TestUser {
     private final String username, email, password;
 
@@ -19,6 +29,25 @@ public class TestUser {
 
     public String getPassword() {
         return this.password;
+    }
+
+    public void unfollowAll(Context context) {
+        try {
+            new UserAssociationSyncer(context).syncContent(Content.ME_FOLLOWINGS.uri, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        final FollowingOperations followingOperations = new FollowingOperations(Schedulers.immediate());
+        for (long userId : followingOperations.getFollowedUserIds()){
+            followingOperations.removeFollowing(new User(userId));
+        }
+
+        try {
+            new UserAssociationSyncer(context).syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
