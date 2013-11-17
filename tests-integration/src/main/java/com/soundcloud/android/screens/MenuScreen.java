@@ -13,6 +13,8 @@ public class MenuScreen {
     private Han solo;
     private Waiter waiter;
 
+    private static int explore_selector = R.string.side_menu_explore;
+
     public MenuScreen(Han solo) {
         this.solo = solo;
         this.waiter = new Waiter(solo);
@@ -41,7 +43,7 @@ public class MenuScreen {
                 solo.clickOnActionBarHomeButton();
             }
         });
-
+        solo.sleep(1000);
         return youMenu();
     }
 
@@ -51,9 +53,10 @@ public class MenuScreen {
     }
 
     public void openExplore() {
-        View item = rootMenu().getChildAt(NavigationFragment.NavItem.EXPLORE.ordinal());
-        clickHomeButton();
-        solo.clickOnView(item);
+        solo.clickOnActionBarHomeButton();
+        waiter.waitForDrawerToOpen();
+        solo.clickOnText(explore_selector);
+        waiter.waitForViewId(R.id.suggested_tracks_categories_list);
         waiter.waitForListContent();
     }
 }

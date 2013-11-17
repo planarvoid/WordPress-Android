@@ -1,13 +1,11 @@
 package com.soundcloud.android.onboarding.auth;
 
+import android.test.suitebuilder.annotation.Suppress;
+import android.widget.EditText;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.IntegrationTestHelper;
-
-import android.test.suitebuilder.annotation.Suppress;
-import android.widget.EditText;
 
 import java.util.UUID;
 
@@ -18,7 +16,6 @@ public class SignUpTest extends ActivityTestCase<OnboardActivity> {
 
     @Override
     public void setUp() throws Exception {
-        IntegrationTestHelper.logOut(getInstrumentation());
         super.setUp();
 
         if (applicationProperties.isRunningOnEmulator()) {

@@ -5,11 +5,10 @@ import com.soundcloud.android.tests.Han;
 
 import android.widget.TextView;
 
-public class PlayerScreen {
-    protected Han solo;
+public class PlayerScreen extends Screen {
 
     public PlayerScreen(Han solo) {
-        this.solo = solo;
+        super(solo);
     }
 
     public String trackTitle() {

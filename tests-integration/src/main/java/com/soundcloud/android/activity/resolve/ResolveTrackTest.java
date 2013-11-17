@@ -10,7 +10,6 @@ public abstract class ResolveTrackTest extends ResolveBaseTest {
         waiter.waitForPlayerPlaying();
         assertEquals("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]", playerScreen.trackTitle());
 
-        // make sure track doesn't keep playing in the background
         solo.clickOnView(R.id.pause);
     }
 }

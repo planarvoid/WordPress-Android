@@ -1,18 +1,16 @@
 package com.soundcloud.android.whoToFollow;
 
+
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.screens.auth.OnboardScreen;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersCategoryScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.Waiter;
 
 public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
 
     private Waiter waiter;
-    protected OnboardScreen onboardScreen;
     protected SignUpScreen signUpScreen;
     protected SuggestedUsersScreen suggestedUsersScreen;
     protected SuggestedUsersCategoryScreen suggestedUsersCategoryScreen;
@@ -23,10 +21,8 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
 
     public void setUp() throws Exception {
         super.setUp();
-        IntegrationTestHelper.logOut(getInstrumentation());
         suggestedUsersScreen = new SuggestedUsersScreen(solo);
         suggestedUsersCategoryScreen = new SuggestedUsersCategoryScreen(solo);
-        onboardScreen = new OnboardScreen(solo);
         signUpScreen  = new SignUpScreen(solo);
         waiter = new Waiter(solo);
     }
@@ -65,7 +61,6 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
 
     @Override
     public void tearDown() throws Exception {
-        IntegrationTestHelper.logOut(getInstrumentation());
         super.tearDown();
     }
 
@@ -74,7 +69,7 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
     }
 
     private void createNewUser() {
-        onboardScreen.clickSignUpButton();
+        signUpScreen.clickSignUpButton();
 
         // TODO : Re-use the same user
         signUpScreen.typeEmail(generateEmail());

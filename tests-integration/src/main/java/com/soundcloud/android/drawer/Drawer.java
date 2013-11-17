@@ -1,8 +1,9 @@
 package com.soundcloud.android.drawer;
 
+
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.IntegrationTestHelper;
 
 
 public class Drawer extends ActivityTestCase<LauncherActivity> {
@@ -13,7 +14,7 @@ public class Drawer extends ActivityTestCase<LauncherActivity> {
 
     @Override
     protected void setUp() throws Exception {
-        IntegrationTestHelper.loginAsDefault(getInstrumentation());
+        AccountAssistant.loginAsDefault(getInstrumentation());
         super.setUp();
     }
 

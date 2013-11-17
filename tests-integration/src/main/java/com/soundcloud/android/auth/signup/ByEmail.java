@@ -9,7 +9,7 @@ public class ByEmail extends SignUpTestCase {
     }
 
     public void testUserFollowSingleSuccess() throws Exception {
-        onboardScreen.clickSignUpButton();
+        signupScreen.clickSignUpButton();
 
         // TODO : Re-use the same user
         signUpScreen.typeEmail(generateEmail());

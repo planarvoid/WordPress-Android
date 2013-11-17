@@ -1,20 +1,19 @@
 package com.soundcloud.android.analytics;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.preferences.SettingsActivity;
-import com.soundcloud.android.playback.service.PlaybackState;
-import com.soundcloud.android.utils.Log;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackState;
+import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.utils.Log;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * The engine which drives sending analytics. Important that all analytics providers to this engine

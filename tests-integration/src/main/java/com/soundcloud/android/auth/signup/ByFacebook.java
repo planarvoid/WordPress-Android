@@ -1,9 +1,10 @@
 package com.soundcloud.android.auth.signup;
 
-import static com.soundcloud.android.tests.TestUser.Facebook;
-
 import com.soundcloud.android.auth.SignUpTestCase;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
+import com.soundcloud.android.tests.AccountAssistant;
+
+import static com.soundcloud.android.tests.TestUser.Facebook;
 
 public class ByFacebook extends SignUpTestCase {
     FBWebViewScreen fbWebViewScreen;
@@ -19,7 +20,8 @@ public class ByFacebook extends SignUpTestCase {
     }
 
     public void testUserFollowSingleSuccess() throws Exception {
-        onboardScreen.clickSignUpButton();
+        assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
+        signupScreen.clickSignUpButton();
 
         signUpScreen.clickFacebookButton();
         signUpScreen.acceptTerms();
@@ -38,5 +40,6 @@ public class ByFacebook extends SignUpTestCase {
 
         suggestedUsersScreen.goToFacebook();
         assertTrue(suggestedUsersCategoryScreen.hasAllUsersSelected());
+        Facebook.unfollowAll(getInstrumentation().getTargetContext());
     }
 }

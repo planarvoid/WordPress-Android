@@ -3,19 +3,20 @@ package com.soundcloud.android.auth.login;
 
 import android.webkit.WebView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.auth.LoginTestCase;
+import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
-import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.auth.LoginTestCase;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
-import com.soundcloud.android.tests.IntegrationTestHelper;
+import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.Waiter;
 
-import static com.soundcloud.android.tests.TestUser.*;
+import static com.soundcloud.android.tests.TestUser.GPlusAccount;
+import static com.soundcloud.android.tests.TestUser.noGPlusAccount;
+import static com.soundcloud.android.tests.TestUser.scAccount;
+import static com.soundcloud.android.tests.TestUser.scTestAccount;
 
 /*
  * As a User
@@ -27,14 +28,9 @@ public class LoginFlowTest extends LoginTestCase {
     private FBWebViewScreen FBWebViewScreen;
     private Waiter waiter;
 
-    public LoginFlowTest() {
-        super();
-    }
-
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        IntegrationTestHelper.logOut(getInstrumentation());
 
         recoveryScreen  = new RecoverPasswordScreen(solo);
         menuScreen      = new MenuScreen(solo);
@@ -48,7 +44,8 @@ public class LoginFlowTest extends LoginTestCase {
      * So that I can listen to my favourite tracks
      */
     public void testSCUserLoginFlow()  {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
+
         loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
 
         assertEquals(scTestAccount.getUsername(), menuScreen.getUserName());
@@ -61,7 +58,7 @@ public class LoginFlowTest extends LoginTestCase {
     */
     public void testGPlusLoginFlow()  {
 
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
 
         //FIXME Assuming that we have more than one g+ account, there should be another test for this
@@ -81,7 +78,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to sign in even if I don't have g+ profile
     */
     public void testNoGooglePlusAccountLogin()  {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
         loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
 
@@ -106,7 +103,7 @@ public class LoginFlowTest extends LoginTestCase {
             log("Facebook SSO is available, not testing WebFlow");
 
         }
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.clickOnFBSignInButton();
 
         //Then termsOfUse dialog should be shown
@@ -144,7 +141,7 @@ public class LoginFlowTest extends LoginTestCase {
      * So that I can correct myself
      */
     public void testLoginWithWrongCredentials() {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), "wrong-password", false);
 
         solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
@@ -152,7 +149,7 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.clickOkButton();
 
         solo.assertActivity(OnboardActivity.class);
-        assertNull(getLoggedInUser().username);
+        assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
     }
 
     /*
@@ -161,13 +158,14 @@ public class LoginFlowTest extends LoginTestCase {
      * So that I am sure no one can modify my account
      */
     public void testLoginAndLogout()  {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
         waiter.waitForListContent();
         menuScreen.logout();
 
-        assertNull(getLoggedInUser().username);
         solo.assertActivity(OnboardActivity.class);
+        assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
+
     }
 
     /*
@@ -176,7 +174,7 @@ public class LoginFlowTest extends LoginTestCase {
     * So that I don't need to recreate my account
     */
     public void testRecoverPassword() throws Throwable {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.clickForgotPassword();
         recoveryScreen.typeEmail("some-email-" + System.currentTimeMillis() + "@baz" + System.currentTimeMillis() + ".com");
         recoveryScreen.clickOkButton();
@@ -191,14 +189,10 @@ public class LoginFlowTest extends LoginTestCase {
     * So that I know what went wrong
     */
     public void testRecoverPasswordNoInput()  {
-        onboardScreen.clickLogInButton();
+        signupScreen.clickLogInButton();
         loginScreen.clickForgotPassword();
         loginScreen.clickOkButton();
 
         solo.assertText(R.string.authentication_error_incomplete_fields, "Error message should be shown");
-    }
-
-    private User getLoggedInUser() {
-        return ((SoundCloudApplication)getActivity().getApplication()).getLoggedInUser();
     }
 }

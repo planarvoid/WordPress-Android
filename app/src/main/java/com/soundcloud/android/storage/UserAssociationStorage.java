@@ -1,8 +1,10 @@
 package com.soundcloud.android.storage;
 
-import static com.soundcloud.android.storage.ResolverHelper.getWhereInClause;
-import static com.soundcloud.android.storage.ResolverHelper.longListToStringArr;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.ScResource;
@@ -10,12 +12,12 @@ import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.storage.provider.BulkInsertMap;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.storage.provider.BulkInsertMap;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -25,14 +27,12 @@ import rx.Subscription;
 import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.net.Uri;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static com.soundcloud.android.storage.ResolverHelper.getWhereInClause;
+import static com.soundcloud.android.storage.ResolverHelper.longListToStringArr;
 
 /**
  * Use this storage facade to persist information about user-to-user relations to the database.

@@ -1,32 +1,32 @@
 package com.soundcloud.android.main;
 
-import static rx.android.AndroidObservables.fromActivity;
-
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
-import com.soundcloud.android.explore.ExploreFragment;
-import com.soundcloud.android.collections.ScListFragment;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.accounts.UserOperations;
-import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.rx.Event;
-import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.onboarding.auth.AuthenticatorService;
-import net.hockeyapp.android.UpdateManager;
-import rx.Observer;
-import rx.subscriptions.CompositeSubscription;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.accounts.UserOperations;
+import com.soundcloud.android.collections.ScListFragment;
+import com.soundcloud.android.explore.ExploreFragment;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.onboarding.auth.AuthenticatorService;
+import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
+import com.soundcloud.android.profile.MeActivity;
+import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.Event;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.storage.provider.Content;
+import net.hockeyapp.android.UpdateManager;
+import rx.Observer;
+import rx.subscriptions.CompositeSubscription;
+
+import static rx.android.AndroidObservables.fromActivity;
+
 
 public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks {
 

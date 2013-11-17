@@ -1,29 +1,5 @@
 package com.soundcloud.android.creators.record;
 
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.EDIT;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.EDIT_PLAYBACK;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_PLAYBACK;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_RECORD;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.PLAYBACK;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.RECORD;
-
-import com.jayway.android.robotium.solo.Solo;
-import com.soundcloud.android.R;
-import com.soundcloud.android.preferences.DevSettings;
-import com.soundcloud.android.creators.record.reader.VorbisReader;
-import com.soundcloud.android.creators.upload.LocationPickerActivity;
-import com.soundcloud.android.creators.upload.UploadActivity;
-import com.soundcloud.android.creators.upload.UploadService;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.IntegrationTestHelper;
-import com.soundcloud.android.tests.Runner;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Env;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +10,22 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.ToggleButton;
+import com.jayway.android.robotium.solo.Solo;
+import com.soundcloud.android.R;
+import com.soundcloud.android.creators.record.reader.VorbisReader;
+import com.soundcloud.android.creators.upload.LocationPickerActivity;
+import com.soundcloud.android.creators.upload.UploadActivity;
+import com.soundcloud.android.creators.upload.UploadService;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.preferences.DevSettings;
+import com.soundcloud.android.tests.AccountAssistant;
+import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.tests.Runner;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.api.Env;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +34,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.EDIT;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.EDIT_PLAYBACK;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_PLAYBACK;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_RECORD;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.PLAYBACK;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.RECORD;
 
 public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordActivity> {
     // longer recordings on emulator
@@ -73,7 +72,7 @@ public abstract class AbstractRecordingTestCase extends ActivityTestCase<RecordA
 
     @Override
     public void setUp() throws Exception {
-        IntegrationTestHelper.loginAsDefault(getInstrumentation());
+        AccountAssistant.loginAsDefault(getInstrumentation());
         recordingTime = applicationProperties.isRunningOnEmulator() ? 6000 : 2000;
         intents = Collections.synchronizedMap(new LinkedHashMap<String, Intent>());
         lbm = LocalBroadcastManager.getInstance(getActivity());

@@ -1,24 +1,23 @@
 package com.soundcloud.android.creators.record;
 
 
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_PLAYBACK;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_RECORD;
-import static com.soundcloud.android.creators.record.RecordActivity.CreateState.RECORD;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.preferences.DevSettings;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.creators.upload.UploadActivity;
-import com.soundcloud.android.tests.IntegrationTestHelper;
-import com.soundcloud.android.tests.SlowTest;
-
 import android.content.Intent;
 import android.os.Build;
 import android.test.suitebuilder.annotation.Suppress;
+import com.soundcloud.android.R;
+import com.soundcloud.android.creators.upload.UploadActivity;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.preferences.DevSettings;
+import com.soundcloud.android.profile.MeActivity;
+import com.soundcloud.android.tests.AccountAssistant;
+import com.soundcloud.android.tests.SlowTest;
 
 import java.io.File;
+
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_PLAYBACK;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.IDLE_RECORD;
+import static com.soundcloud.android.creators.record.RecordActivity.CreateState.RECORD;
 
 @SlowTest
 public class NormalRecordingTest extends AbstractRecordingTestCase {
@@ -302,8 +301,9 @@ public class NormalRecordingTest extends AbstractRecordingTestCase {
         record(recordingTime);
         solo.assertText(R.string.rec_your_sound_is_saved_locally_at);
         solo.clickOnView(R.id.home);
-        solo.clickOnText(IntegrationTestHelper.USERNAME);
+        solo.clickOnText(AccountAssistant.USERNAME);
         solo.assertActivity(MeActivity.class);
+
     }
 
     public void ignore_testShouldOnlyDisplayedSavedLocallyMessageOnce() throws Exception {

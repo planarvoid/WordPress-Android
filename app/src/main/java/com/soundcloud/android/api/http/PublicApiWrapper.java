@@ -92,7 +92,8 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     @Deprecated
     public PublicApiWrapper(Context context) {
-        this(context,  new HttpProperties(), new AccountOperations(context), new ApplicationProperties(context.getResources()));
+        this(context,  new HttpProperties(context), new AccountOperations(context), new ApplicationProperties(context.getResources()));
+
     }
     @Deprecated
     protected PublicApiWrapper(Context context, HttpProperties properties, AccountOperations accountOperations,

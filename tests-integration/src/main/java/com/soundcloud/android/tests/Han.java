@@ -3,23 +3,30 @@ package com.soundcloud.android.tests;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.SystemClock;
-import android.test.InstrumentationTestCase;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
-import android.widget.*;
+import android.widget.AbsListView;
+import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.TextView;
 import com.jayway.android.robotium.solo.By;
 import com.jayway.android.robotium.solo.Condition;
 import com.jayway.android.robotium.solo.Solo;
-import com.jayway.android.robotium.solo.WebElement;
 import com.soundcloud.android.R;
+import com.soundcloud.android.R.id;
+import com.soundcloud.android.main.NavigationDrawerFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 /**
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
@@ -43,20 +50,12 @@ public class Han  {
         clickOnText(getString(android.R.string.ok));
     }
 
-    public boolean scrollDown() {
-        return solo.scrollDown();
-    }
-
     public void clickOnDone() {
         clickOnButtonResId(R.string.btn_done);
     }
 
     public void clickOnPublish() {
         clickOnButtonResId(R.string.btn_publish);
-    }
-
-    public WebElement getWebElement(By by, int index) {
-        return solo.getWebElement(by, index);
     }
 
     public void clearTextInWebElement(By by) {
@@ -91,17 +90,9 @@ public class Han  {
         solo.clickLongOnView(view);
     }
 
-    public void clickOnMenuItem(int resId) {
-        solo.clickOnMenuItem(getString(resId));
-    }
-
     public void assertText(int resId, Object... args) {
         final String text = getString(resId, args);
         assertTrue("Text '" + text + "' not found", solo.waitForText(Pattern.quote(text)));
-    }
-
-    public void assertVisibleTextId(int resId, Object... args) {
-        assertTrue(solo.waitForText(Pattern.quote(getString(resId, args)), 0, DEFAULT_TIMEOUT, false, true));
     }
 
     public void assertVisibleText(String text, long timeout) {
@@ -131,6 +122,10 @@ public class Han  {
         return (T) activity;
     }
 
+    public void clickOnActionBarItem(int itemId) {
+        solo.clickOnActionBarItem(itemId);
+    }
+
     public void assertActivityFinished() {
         Activity a = solo.getCurrentActivity();
         assertNotNull("activity is null", a);
@@ -146,15 +141,18 @@ public class Han  {
         solo.clickOnButton(getString(resId));
     }
 
-    public void performClick(InstrumentationTestCase test, int resId) throws Throwable {
-        final View view = getView(resId);
+    public void performClick(final View view) {
         assertNotNull("view is null", view);
-        test.runTestOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                view.performClick();
-            }
-        });
+        try {
+            solo.getCurrentActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    view.performClick();
+                }
+            });
+        } catch (Throwable throwable) {
+            throw new RuntimeException("Could not click on view on UI Thread", throwable);
+        }
         solo.sleep(500);
     }
 
@@ -163,37 +161,32 @@ public class Han  {
         return solo.getCurrentActivity().getString(resId, args);
     }
 
-    public List<ListView> getCurrentListViews(){
-        return solo.getCurrentViews(ListView.class);
-    }
-
-    public AbsListView getCurrentListView(){
-        final ArrayList<AbsListView> currentListViews = solo.getCurrentViews(AbsListView.class);
-        return currentListViews == null || currentListViews.isEmpty() ? null : currentListViews.get(0);
-    }
-
     public GridView getCurrentGridView(){
+        solo.waitForView(GridView.class);
         final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
         return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
     }
 
-
-    public ArrayList<TextView> clickInList(int line){
-        return solo.clickInList(line);
-    }
-
-    public ArrayList<TextView> clickInList(int line, int listIndex) {
-        return solo.clickInList(line, listIndex);
+    public NavigationDrawerFragment getCurrentNavigationDrawer(){
+        final FragmentActivity fragmentActivity = (FragmentActivity) solo.getCurrentActivity();
+        return (NavigationDrawerFragment) fragmentActivity.getSupportFragmentManager().findFragmentById(id.navigation_fragment_id);
     }
 
     public void swipeLeft() {
-        swipe(Solo.LEFT);
-        solo.sleep(SWIPE_SLEEP);
+        swipeHorizontal(Solo.LEFT);
     }
 
     public void swipeRight() {
-        swipe(Solo.RIGHT);
-        solo.sleep(SWIPE_SLEEP);
+        swipeHorizontal(Solo.RIGHT);
+    }
+
+    public void swipeDownToRefresh() {
+        Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
+
+        final int screenHeight = display.getHeight();
+        final int screenWidth = display.getWidth();
+
+        drag(screenWidth/4, screenWidth/4, screenHeight/4, screenHeight/2, 10);
     }
 
     public void enterTextId(int resId, String text) {
@@ -203,7 +196,7 @@ public class Han  {
         } else fail("could not find edit text with id " + resId);
     }
 
-    public void swipe(int side) {
+    public void swipeHorizontal(int side) {
         Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
 
         final int screenHeight = display.getHeight();
@@ -213,7 +206,9 @@ public class Han  {
         float x = screenWidth / 2.0f;
         float y = screenHeight / 2.0f;
 
-        final int steps = 1;
+        //each ~50 pixels is one step
+        final int steps = (int) x / 50;
+
         if (side == Solo.LEFT) {
             drag(x, 0, y, y, steps);
         } else if (side == Solo.RIGHT) {
@@ -222,11 +217,6 @@ public class Han  {
     }
 
     public int getScreenWidth() {
-        Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
-        return display.getWidth();
-    }
-
-    public int getScreenHeight() {
         Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
         return display.getWidth();
     }
@@ -285,10 +275,6 @@ public class Han  {
         return solo.waitForView(view);
     }
 
-    public void clickOnButton(String text) {
-        solo.clickOnButton(text);
-    }
-
     public void clickOnButton(Integer resource) {
         solo.clickOnButton(getString(resource));
     }
@@ -329,10 +315,6 @@ public class Han  {
         solo.sleep(time);
     }
 
-    public void assertCurrentActivity(String message, String name) {
-        solo.assertCurrentActivity(message, name);
-    }
-
     public <T extends View> T getView(Class<T> viewClass, int index) {
         T view = solo.getView(viewClass, index);
         assertNotNull(view);
@@ -352,42 +334,13 @@ public class Han  {
     }
 
 
-    /**
-     * Tell the CI/development machine (i.e. maven build process) to take a screenshot
-     * @see <a href="https://github.com/rtyley/android-screenshot-lib/blob/master/celebrity/src/main/java/com/github/rtyley/android/screenshot/celebrity/Screenshots.java">
-     *     android-screenshot-lib
-     *     </a>
-     */
-    public void poseForScreenshot() {
-        poseForScreenshotWithKeyValueString("");
-    }
-
-    public void poseForScreenshot(String name) {
-        poseForScreenshotWithKeyValue("name", name);
-    }
-
-    public boolean scrollUp() {
-        return solo.scrollUp();
-    }
 
     public boolean scrollListToTop(int index) {
         return solo.scrollListToTop(index);
     }
 
-    public void clickOnActionBarItem(int itemId) {
-        solo.clickOnActionBarItem(itemId);
-    }
-
-    private void poseForScreenshotWithKeyValue(String key, String value) {
-        poseForScreenshotWithKeyValueString(key + "=" + value);
-    }
-
-    private void poseForScreenshotWithKeyValueString(String keyValueString) {
-        /* Note that the log message can not be blank, otherwise it won't register with logcat. */
-        Log.d("screenshot_request", "{" + keyValueString + "}");
-
-        /* Wait for the development machine to take the screenshot (can take about 900ms) */
-        solo.sleep(1000);
+    public void scrollToBottom(AbsListView view) {
+        solo.scrollListToBottom(view);
     }
 
     public void assertTextFound(String text, boolean onlyVisible) {
@@ -395,6 +348,10 @@ public class Han  {
     }
     public boolean searchText(String text, boolean onlyVisible) {
         return solo.searchText(text, onlyVisible);
+    }
+
+    public boolean searchTextWithoutScrolling(String text){
+        return solo.searchText(text,0,false,true);
     }
 
     public boolean searchText(String text, int minimumNumberOfMatches, boolean scroll) {
@@ -417,10 +374,6 @@ public class Han  {
         solo.clickOnWebElement(by);
     }
 
-    public boolean waitForDialogToOpen(long timeout) {
-        return solo.waitForDialogToOpen(timeout);
-    }
-
     public void takeScreenshot(String name) {
         solo.takeScreenshot(name);
     }
@@ -430,7 +383,24 @@ public class Han  {
     }
 
     public void clickOnActionBarHomeButton() {
-        solo.clickOnActionBarHomeButton();
+        try {
+            solo.getCurrentActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    solo.clickOnActionBarHomeButton();
+                }
+            });
+        } catch (Throwable throwable) {
+            throw new RuntimeException("Could not click on action bar home button on UI Thread", throwable);
+        }
+    }
+
+    public void scrollToItem(int item) {
+        solo.scrollListToLine(0, item - 1);
+    }
+
+    public List<TextView> clickInList(int item) {
+        return solo.clickInList(item);
     }
 
     public void waitForDialogToClose(long timeout) {

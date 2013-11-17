@@ -1,6 +1,7 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.R.string;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
@@ -14,8 +15,8 @@ public class SignUpScreen {
     private Han solo;
 
     public SignUpScreen(Han driver) {
-        solo    = driver;
-        waiter  = new Waiter(solo);
+        solo = driver;
+        waiter = new Waiter(solo);
     }
 
     public void clickFacebookButton() {
@@ -31,32 +32,43 @@ public class SignUpScreen {
     }
 
     public void typeEmail(String email) {
-        solo.enterText(email(), email );
+        solo.enterText(email(), email);
     }
 
     public void typePassword(String password) {
         solo.enterText(password(), password);
     }
 
-    public View getDoneButton(){
+    public View getDoneButton() {
         return solo.getView(R.id.btn_signup);
     }
 
-    public void signup(){
+    public void clickSignUpButton() {
+        solo.clickOnView(R.id.signup_btn);
+        solo.waitForViewId(R.id.btn_signup, 5000);
+    }
+
+    public void clickLogInButton() {
+        solo.clickOnButtonResId(R.string.authentication_log_in);
+        waiter.waitForText(solo.getString(string.btn_done));
+    }
+
+    public void signup() {
         solo.clickOnView(R.id.btn_signup);
         solo.waitForViewId(R.id.btn_accept_terms, 1000);
     }
 
-    public void acceptTerms(){
+    public void acceptTerms() {
         solo.clickOnView(R.id.btn_accept_terms);
+        waiter.waitForLogInDialog();
     }
 
-    public void skipInfo(){
+    public void skipInfo() {
         solo.assertText(R.string.authentication_add_info_msg);
         solo.clickOnButtonResId(R.string.btn_skip);
     }
 
-    public void waitForSuggestedUsers(){
+    public void waitForSuggestedUsers() {
         solo.waitForActivity(SuggestedUsersActivity.class);
         waiter.waitForListContent();
     }

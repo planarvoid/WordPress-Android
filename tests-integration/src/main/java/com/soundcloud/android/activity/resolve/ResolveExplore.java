@@ -3,8 +3,8 @@ package com.soundcloud.android.activity.resolve;
 import com.soundcloud.android.main.ResolveActivity;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
-import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.Waiter;
 
 import android.content.Intent;
@@ -23,7 +23,8 @@ public class ResolveExplore extends ActivityTestCase<ResolveActivity> {
     @Override
     protected void setUp() throws Exception {
         Uri uri = Uri.parse("http://soundcloud.com/explore");
-        IntegrationTestHelper.loginAsDefault(getInstrumentation());
+        AccountAssistant.loginAsDefault(getInstrumentation());
+        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(uri));
         super.setUp();
 
@@ -37,7 +38,7 @@ public class ResolveExplore extends ActivityTestCase<ResolveActivity> {
 
     @Override
     public void tearDown() throws Exception {
-        IntegrationTestHelper.logOut(getInstrumentation());
+        AccountAssistant.logOut(getInstrumentation());
         super.tearDown();
     }
 }

@@ -47,7 +47,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void tearDown() throws Exception {
-        IntegrationTestHelper.logOut(getInstrumentation());
+        AccountAssistant.logOut(getInstrumentation());
         if (solo != null) {
             solo.finishOpenedActivities();
         }
@@ -80,9 +80,9 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
 
     @Override
     protected void runTest() throws Throwable {
-
         try{
             super.runTest();
+            Log.d("TEST", String.format("%s, %s", getClass().getName(), getName()));
         }
         catch (Throwable t) {
             String testCaseName = String.format("%s.%s", getClass().getName(), getName());
