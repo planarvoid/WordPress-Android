@@ -6,7 +6,7 @@ import com.at.ATParams;
 import com.at.ATTag;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.model.Plan;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -81,7 +81,7 @@ public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeList
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         preferences.registerOnSharedPreferenceChangeListener(this);
-        mIsEnabled = preferences.getBoolean(Settings.ANALYTICS_ENABLED, true);
+        mIsEnabled = preferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
     }
 
     public void track(Event event, Object... args) {
@@ -133,8 +133,8 @@ public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeList
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (Settings.ANALYTICS_ENABLED.equals(s)) {
-            mIsEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true);
+        if (SettingsActivity.ANALYTICS_ENABLED.equals(s)) {
+            mIsEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
         }
     }
 

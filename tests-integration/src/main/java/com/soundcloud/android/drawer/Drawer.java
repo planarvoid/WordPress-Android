@@ -1,14 +1,15 @@
 package com.soundcloud.android.drawer;
 
-import com.soundcloud.android.activity.Launch;
+
+import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 
 
-public class Drawer extends ActivityTestCase<Launch> {
+public class Drawer extends ActivityTestCase<LauncherActivity> {
 
     public Drawer() {
-        super(Launch.class);
+        super(LauncherActivity.class);
     }
 
     @Override

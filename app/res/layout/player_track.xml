@@ -3,7 +3,7 @@
        android:layout_width="match_parent"
        android:layout_height="match_parent">
 
-    <com.soundcloud.android.view.adapter.PlayableBar
+    <com.soundcloud.android.collections.views.PlayableBar
             android:id="@+id/playable_bar"
             android:background="@drawable/player_track_header_background"
             android:focusable="true"
@@ -42,7 +42,7 @@
                   android:layout_height="match_parent"
                   android:visibility="gone"/>
 
-            <com.soundcloud.android.view.play.WaveformController
+            <com.soundcloud.android.playback.views.WaveformControllerLayout
                     android:id="@+id/waveform_controller"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"

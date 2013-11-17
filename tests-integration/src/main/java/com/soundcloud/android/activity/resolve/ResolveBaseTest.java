@@ -1,17 +1,14 @@
 package com.soundcloud.android.activity.resolve;
 
-import com.soundcloud.android.activity.ResolveActivity;
-
-import com.soundcloud.android.tests.AccountAssistant;
-import com.soundcloud.android.tests.ActivityTestCase;
-
-import com.soundcloud.android.screens.PlayerScreen;
-import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.tests.Waiter;
-
 
 import android.content.Intent;
 import android.net.Uri;
+import com.soundcloud.android.main.ResolveActivity;
+import com.soundcloud.android.screens.PlayerScreen;
+import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.tests.AccountAssistant;
+import com.soundcloud.android.tests.ActivityTestCase;
+import com.soundcloud.android.tests.Waiter;
 
 public abstract class ResolveBaseTest extends ActivityTestCase<ResolveActivity> {
     protected static final int DEFAULT_WAIT = 30 * 1000;
@@ -29,17 +26,12 @@ public abstract class ResolveBaseTest extends ActivityTestCase<ResolveActivity> 
     protected void setUp() throws Exception {
         AccountAssistant.loginAsDefault(getInstrumentation());
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
+        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
+
         super.setUp();
         waiter = new Waiter(solo);
 
         profileScreen = new ProfileScreen(solo);
         playerScreen = new PlayerScreen(solo);
     }
-
-    @Override
-    public void tearDown() throws Exception {
-        AccountAssistant.logOut(getInstrumentation());
-        super.tearDown();
-    }
-
 }

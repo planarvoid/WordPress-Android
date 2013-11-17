@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity.resolve;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.PlayerActivity;
+import com.soundcloud.android.playback.PlayerActivity;
 
 public abstract class ResolveTrackTest extends ResolveBaseTest {
 
@@ -10,7 +10,6 @@ public abstract class ResolveTrackTest extends ResolveBaseTest {
         waiter.waitForPlayerPlaying();
         assertEquals("STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]", playerScreen.trackTitle());
 
-        // make sure track doesn't keep playing in the background
         solo.clickOnView(R.id.pause);
     }
 }

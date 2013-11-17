@@ -3,10 +3,10 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.audio.reader.VorbisReader;
-import com.soundcloud.android.audio.reader.WavReader;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.creators.record.reader.VorbisReader;
+import com.soundcloud.android.creators.record.reader.WavReader;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.IOUtils;

@@ -15,14 +15,17 @@ import com.jayway.android.robotium.solo.By;
 import com.jayway.android.robotium.solo.Condition;
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
-import com.soundcloud.android.fragment.NavigationDrawerFragment;
+import com.soundcloud.android.main.NavigationDrawerFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 /**
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
@@ -158,6 +161,7 @@ public class Han  {
     }
 
     public GridView getCurrentGridView(){
+        solo.waitForView(GridView.class);
         final ArrayList<GridView> currentGridViews = solo.getCurrentViews(GridView.class);
         return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
     }

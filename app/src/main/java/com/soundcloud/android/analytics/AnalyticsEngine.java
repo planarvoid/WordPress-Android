@@ -1,20 +1,19 @@
 package com.soundcloud.android.analytics;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.State;
-import com.soundcloud.android.utils.Log;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackState;
+import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.utils.Log;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * The engine which drives sending analytics. Important that all analytics providers to this engine
@@ -49,7 +48,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         mAnalyticsProviders = Lists.newArrayList(analyticsProviders);
         mAnalyticsProperties = analyticsProperties;
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true);
+        mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
         mCloudPlaybackStateWrapper = cloudPlaybackStateWrapper;
     }
 
@@ -130,8 +129,8 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (Settings.ANALYTICS_ENABLED.equalsIgnoreCase(key)) {
-            mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS_ENABLED, true);
+        if (SettingsActivity.ANALYTICS_ENABLED.equalsIgnoreCase(key)) {
+            mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
 
             if (!mAnalyticsPreferenceEnabled){
                 closeSession();
@@ -147,8 +146,8 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     //To make testing easier
     protected static class CloudPlayerStateWrapper {
         public boolean isPlayerPlaying() {
-            State playbackState = CloudPlaybackService.getPlaybackState();
-            return playbackState.isSupposedToBePlaying();
+            PlaybackState playbackPlaybackState = PlaybackService.getPlaybackState();
+            return playbackPlaybackState.isSupposedToBePlaying();
         }
     }
 }

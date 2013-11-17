@@ -3,19 +3,20 @@ package com.soundcloud.android.auth.login;
 
 import android.webkit.WebView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.auth.FacebookSSO;
-import com.soundcloud.android.activity.auth.FacebookWebFlow;
-import com.soundcloud.android.activity.auth.OnboardActivity;
 import com.soundcloud.android.auth.LoginTestCase;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
+import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.Waiter;
 
-import static com.soundcloud.android.tests.TestUser.*;
+import static com.soundcloud.android.tests.TestUser.GPlusAccount;
+import static com.soundcloud.android.tests.TestUser.noGPlusAccount;
+import static com.soundcloud.android.tests.TestUser.scAccount;
+import static com.soundcloud.android.tests.TestUser.scTestAccount;
 
 /*
  * As a User
@@ -30,7 +31,6 @@ public class LoginFlowTest extends LoginTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        AccountAssistant.logOut(getInstrumentation());
 
         recoveryScreen  = new RecoverPasswordScreen(solo);
         menuScreen      = new MenuScreen(solo);
@@ -45,6 +45,7 @@ public class LoginFlowTest extends LoginTestCase {
      */
     public void testSCUserLoginFlow()  {
         signupScreen.clickLogInButton();
+
         loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
 
         assertEquals(scTestAccount.getUsername(), menuScreen.getUserName());
@@ -55,7 +56,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to sign in with my G+ credentials
     * So that I don't need to create another SC account
     */
-    public void testGPlusLoginFlow()  {
+    public void ign_testGPlusLoginFlow()  {
 
         signupScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
@@ -76,7 +77,7 @@ public class LoginFlowTest extends LoginTestCase {
     * As a Google account User
     * I want to sign in even if I don't have g+ profile
     */
-    public void testNoGooglePlusAccountLogin()  {
+    public void ign_testNoGooglePlusAccountLogin()  {
         signupScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
         loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
@@ -98,7 +99,7 @@ public class LoginFlowTest extends LoginTestCase {
     public void testLoginWithFacebookWebFlow() throws Throwable {
 
         // TODO: Control FB SSO on the device.
-        if (FacebookSSO.isSupported(getInstrumentation().getTargetContext())) {
+        if (FacebookSSOActivity.isSupported(getInstrumentation().getTargetContext())) {
             log("Facebook SSO is available, not testing WebFlow");
 
         }
@@ -111,7 +112,7 @@ public class LoginFlowTest extends LoginTestCase {
 
         loginScreen.clickOnContinueButton();
 
-        WebView webView = solo.assertActivity(FacebookWebFlow.class).getWebView();
+        WebView webView = solo.assertActivity(FacebookWebFlowActivity.class).getWebView();
         assertNotNull(webView);
         assertTrue(waiter.waitForWebViewToLoad(webView));
 
@@ -148,7 +149,7 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.clickOkButton();
 
         solo.assertActivity(OnboardActivity.class);
-        assertNull(getLoggedInUser().username);
+        assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
     }
 
     /*
@@ -162,8 +163,9 @@ public class LoginFlowTest extends LoginTestCase {
         waiter.waitForListContent();
         menuScreen.logout();
 
-        assertNull(getLoggedInUser().username);
         solo.assertActivity(OnboardActivity.class);
+        assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
+
     }
 
     /*
@@ -192,9 +194,5 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.clickOkButton();
 
         solo.assertText(R.string.authentication_error_incomplete_fields, "Error message should be shown");
-    }
-
-    private User getLoggedInUser() {
-        return ((SoundCloudApplication)getActivity().getApplication()).getLoggedInUser();
     }
 }

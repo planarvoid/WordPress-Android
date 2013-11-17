@@ -2,7 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.images.ImageSize;
 import org.junit.Test;

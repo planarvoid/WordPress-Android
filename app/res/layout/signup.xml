@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.soundcloud.android.activity.auth.SignUp xmlns:android="http://schemas.android.com/apk/res/android"
+<com.soundcloud.android.onboarding.auth.SignUpLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                              android:layout_width="fill_parent"
                                              android:layout_height="fill_parent">
     <LinearLayout style="@style/SignUp.Content">
@@ -63,4 +63,4 @@
                   android:text="@string/authentication_by_signing_in_I_agree_to_the"
                   android:layout_marginBottom="20dp"/>
     </LinearLayout>
-</com.soundcloud.android.activity.auth.SignUp>
+</com.soundcloud.android.onboarding.auth.SignUpLayout>

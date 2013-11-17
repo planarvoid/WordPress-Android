@@ -9,19 +9,19 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.dao.ResolverHelper;
-import com.soundcloud.android.json.Views;
+import com.soundcloud.android.storage.ResolverHelper;
+import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.streaming.StreamItem;
-import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.android.task.fetch.FetchModelTask;
-import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.playback.streaming.StreamItem;
+import com.soundcloud.android.playback.LoadCommentsTask;
+import com.soundcloud.android.tasks.FetchModelTask;
+import com.soundcloud.android.tasks.FetchTrackTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -392,7 +392,7 @@ public class Track extends Playable implements PlayableHolder {
     }
 
     // TODO, THIS SUCKS
-    public FetchModelTask<Track> refreshInfoAsync(AndroidCloudAPI api, FetchModelTask.Listener<Track> listener) {
+    public FetchModelTask<Track> refreshInfoAsync(PublicCloudAPI api, FetchModelTask.Listener<Track> listener) {
         if (load_info_task == null && AndroidUtils.isTaskFinished(load_info_task)) {
             load_info_task = new FetchTrackTask(api, getId());
         }

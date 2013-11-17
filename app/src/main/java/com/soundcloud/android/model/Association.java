@@ -6,10 +6,10 @@ import com.soundcloud.android.model.behavior.Creation;
 import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.model.behavior.Refreshable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
-import com.soundcloud.android.provider.BulkInsertMap;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.storage.provider.BulkInsertMap;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 

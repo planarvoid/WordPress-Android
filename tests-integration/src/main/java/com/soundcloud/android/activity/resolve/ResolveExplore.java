@@ -1,13 +1,14 @@
 package com.soundcloud.android.activity.resolve;
 
-import android.content.Intent;
-import android.net.Uri;
-import com.soundcloud.android.activity.ResolveActivity;
+import com.soundcloud.android.main.ResolveActivity;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.Waiter;
+
+import android.content.Intent;
+import android.net.Uri;
 
 public class ResolveExplore extends ActivityTestCase<ResolveActivity> {
     protected static final int DEFAULT_WAIT = 30 * 1000;
@@ -23,6 +24,7 @@ public class ResolveExplore extends ActivityTestCase<ResolveActivity> {
     protected void setUp() throws Exception {
         Uri uri = Uri.parse("http://soundcloud.com/explore");
         AccountAssistant.loginAsDefault(getInstrumentation());
+        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(uri));
         super.setUp();
 

@@ -1,7 +1,8 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.SuggestedUsersActivity;
+import com.soundcloud.android.R.string;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
@@ -49,7 +50,7 @@ public class SignUpScreen {
 
     public void clickLogInButton() {
         solo.clickOnButtonResId(R.string.authentication_log_in);
-        solo.waitForViewId(R.id.btn_login, 5000);
+        waiter.waitForText(solo.getString(string.btn_done));
     }
 
     public void signup() {
@@ -59,6 +60,7 @@ public class SignUpScreen {
 
     public void acceptTerms() {
         solo.clickOnView(R.id.btn_accept_terms);
+        waiter.waitForLogInDialog();
     }
 
     public void skipInfo() {

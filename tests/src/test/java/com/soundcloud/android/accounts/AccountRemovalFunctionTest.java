@@ -18,14 +18,14 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.dao.ActivitiesStorage;
-import com.soundcloud.android.dao.CollectionStorage;
-import com.soundcloud.android.dao.UserAssociationStorage;
-import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.CollectionStorage;
+import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueue;
-import com.soundcloud.android.service.sync.SyncStateManager;
+import com.soundcloud.android.playback.service.PlayQueue;
+import com.soundcloud.android.sync.SyncStateManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -205,7 +205,7 @@ public class AccountRemovalFunctionTest {
         ArgumentCaptor<Intent> argumentCaptor = ArgumentCaptor.forClass(Intent.class);
         verify(context, times(2)).sendBroadcast(argumentCaptor.capture());
         Intent broadcastIntent = argumentCaptor.getAllValues().get(1);
-        assertThat(broadcastIntent.getAction(), is(CloudPlaybackService.Actions.RESET_ALL));
+        assertThat(broadcastIntent.getAction(), is(PlaybackService.Actions.RESET_ALL));
     }
 
     @Test

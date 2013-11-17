@@ -3,7 +3,7 @@ package com.soundcloud.android.c2dm;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.sync.SyncAdapterService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

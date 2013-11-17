@@ -2,7 +2,7 @@ package com.soundcloud.android.cache;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
-import com.soundcloud.android.task.fetch.WaveformFetcher;
+import com.soundcloud.android.playback.WaveformFetcher;
 
 import android.support.v4.util.LruCache;
 

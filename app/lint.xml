@@ -63,18 +63,19 @@
     </issue>
 
     <issue id="SetJavaScriptEnabled">
-        <ignore path="src/main/java/com/soundcloud/android/activity/auth/Connect.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/activity/auth/FacebookWebFlow.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/activity/WebViewActivity.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/onboarding/auth/Connect.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/onboarding/auth/FacebookWebFlow.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/main/WebViewActivity.java"/>
     </issue>
 
     <issue id="ValidFragment">
         <!-- allow non-default constructors for test dependency injection -->
-        <ignore path="src/main/java/com/soundcloud/android/fragment/SuggestedUsersCategoriesFragment.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/fragment/SuggestedUsersCategoryFragment.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/fragment/ExploreTracksFragment.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/fragment/ExploreTracksCategoriesFragment.java"/>
-        <ignore path="src/main/java/com/soundcloud/android/dialog/OnboardSuggestedUsersSyncFragment.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/onboarding/suggestions/SuggestedUsersFragment.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/onboarding/suggestions/SuggestedUsersCategoriesFragment.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/onboarding/suggestions/SuggestedUsersCategoryFragment.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/onboarding/suggestions/OnboardSuggestedUsersSyncFragment.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/explore/ExploreTracksFragment.java"/>
+        <ignore path="src/main/java/com/soundcloud/android/explore/ExploreTracksCategoriesFragment.java"/>
     </issue>
 
     <issue id="MergeRootFrame">
@@ -120,22 +121,11 @@
     </issue>
 
     <issue id="FloatMath">
-        <ignore path="target/classes/com/actionbarsherlock/internal/nineoldandroids/view/animation/AnimatorProxy.class"/>
         <ignore path="target/classes/com/viewpagerindicator/LinePageIndicator.class"/>
         <ignore path="target/classes/com/handmark/pulltorefresh/library/PullToRefreshWebView.class"/>
         <ignore path="target/classes/com/handmark/pulltorefresh/library/PullToRefreshWebView$InternalWebViewSDK9.class"/>
     </issue>
 
-    <issue id="DefaultLocale">
-        <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingButton.class"/>
-        <ignore path="target/classes/com/actionbarsherlock/internal/widget/CapitalizingTextView.class"/>
-    </issue>
-
     <!-- can't resolve mvn dependencies at this point -->
     <issue id="MissingRegistered" severity="ignore"/>
-
-    <!-- we use custom Fragment constructors in unit tests to pass in dependencies -->
-    <issue id="ValidFragment">
-        <ignore path="src/main/java/com/soundcloud/android/fragment/SuggestedUsersFragment.java"/>
-    </issue>
 </lint>

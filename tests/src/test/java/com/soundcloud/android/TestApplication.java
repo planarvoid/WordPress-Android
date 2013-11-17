@@ -2,8 +2,9 @@ package com.soundcloud.android;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.soundcloud.android.api.http.Wrapper;
-import com.soundcloud.android.audio.WavHeader;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.creators.record.WavHeader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.api.Token;
@@ -23,7 +24,7 @@ public class TestApplication extends SoundCloudApplication {
     public final Token token;
     public final List<Event> trackedEvents = new ArrayList<Event>();
     public final List<Intent> broadcasts = new ArrayList<Intent>();
-    private Wrapper mCloudApi;
+    private PublicApiWrapper mCloudApi;
     public TestApplication() {
         this(new Token("access", null, Token.SCOPE_NON_EXPIRING));
     }
@@ -35,11 +36,11 @@ public class TestApplication extends SoundCloudApplication {
     @Override
     public void onCreate(){
         super.onCreate();
-        mCloudApi = Wrapper.getInstance(this);
+        mCloudApi = PublicApiWrapper.getInstance(this);
         mCloudApi.setToken(token);
 
     }
-    public AndroidCloudAPI getCloudAPI(){
+    public PublicCloudAPI getCloudAPI(){
         return mCloudApi;
     }
 

@@ -7,7 +7,7 @@
                   android:layout_height="fill_parent"
                   android:orientation="vertical"
                   android:weightSum="10">
-        <com.soundcloud.android.view.PlayerTrackPager
+        <com.soundcloud.android.playback.views.PlayerTrackPager
                         android:id="@+id/track_view"
                         android:layout_width="fill_parent"
                         android:layout_height="0dp"
@@ -15,7 +15,7 @@
         <FrameLayout android:layout_weight="2"
                      android:layout_width="fill_parent"
                      android:layout_height="0dp">
-            <com.soundcloud.android.view.play.TransportBarView android:id="@+id/transport_bar"
+            <com.soundcloud.android.playback.views.TransportBarView android:id="@+id/transport_bar"
                                                       android:layout_height="fill_parent"
                                                       android:layout_width="fill_parent"/>
         </FrameLayout>

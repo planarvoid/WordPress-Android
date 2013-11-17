@@ -9,17 +9,18 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.dao.TrackStorage;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.model.Association;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.PlayQueue;
+import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -76,7 +77,7 @@ public class PlaybackOperationsTest {
         Intent startedService = application.getNextStartedService();
 
         expect(startedService).not.toBeNull();
-        expect(startedService.getAction()).toBe(CloudPlaybackService.Actions.PLAY_ACTION);
+        expect(startedService.getAction()).toBe(PlaybackService.Actions.PLAY_ACTION);
 
         PlayQueue playQueue = startedService.getParcelableExtra(PlayQueue.EXTRA);
         expect(playQueue.size()).toBe(1);
@@ -109,7 +110,7 @@ public class PlaybackOperationsTest {
         Intent startedService = application.getNextStartedService();
 
         expect(startedService).not.toBeNull();
-        expect(startedService.getAction()).toBe(CloudPlaybackService.Actions.PLAY_ACTION);
+        expect(startedService.getAction()).toBe(PlaybackService.Actions.PLAY_ACTION);
 
         PlayQueue playQueue = startedService.getParcelableExtra(PlayQueue.EXTRA);
         expect(playQueue).not.toBeNull();
@@ -146,7 +147,7 @@ public class PlaybackOperationsTest {
         Intent startedService = application.getNextStartedService();
 
         expect(startedService).not.toBeNull();
-        expect(startedService.getBooleanExtra(CloudPlaybackService.PlayExtras.fetchRelated, false)).toBeTrue();
+        expect(startedService.getBooleanExtra(PlaybackService.PlayExtras.fetchRelated, false)).toBeTrue();
     }
 
     @Test
@@ -157,7 +158,7 @@ public class PlaybackOperationsTest {
         Intent startedService = application.getNextStartedService();
 
         expect(startedService).not.toBeNull();
-        PlaySourceInfo playSourceInfo = startedService.getParcelableExtra(CloudPlaybackService.PlayExtras.trackingInfo);
+        PlaySourceInfo playSourceInfo = startedService.getParcelableExtra(PlaybackService.PlayExtras.trackingInfo);
         expect(playSourceInfo.getExploreTag()).toEqual("tracking_tag");
         expect(playSourceInfo.getInitialTrackId()).toEqual(track.getId());
     }
@@ -170,7 +171,7 @@ public class PlaybackOperationsTest {
         Intent startedService = application.getNextStartedService();
 
         expect(startedService).not.toBeNull();
-        PlaySourceInfo playSourceInfo = startedService.getParcelableExtra(CloudPlaybackService.PlayExtras.trackingInfo);
+        PlaySourceInfo playSourceInfo = startedService.getParcelableExtra(PlaybackService.PlayExtras.trackingInfo);
         expect(playSourceInfo.getOriginUrl()).toEqual("explore:trending music");
     }
 

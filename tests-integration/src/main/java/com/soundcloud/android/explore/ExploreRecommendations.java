@@ -1,6 +1,6 @@
 package com.soundcloud.android.explore;
 
-import com.soundcloud.android.activity.MainActivity;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlayerScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
@@ -40,11 +40,5 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
         exploreScreen.clickElectronicGenre();
         String trackName = exploreScreen.playPopularTrack(1);
         assertEquals(trackName, playerScreen.trackTitle());
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        AccountAssistant.logOut(getInstrumentation());
-        super.tearDown();
     }
 }

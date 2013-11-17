@@ -4,8 +4,8 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.auth.OnboardActivity;
-import com.soundcloud.android.fragment.NavigationDrawerFragment;
+import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 

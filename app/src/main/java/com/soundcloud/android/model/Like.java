@@ -1,6 +1,6 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 
 import android.database.Cursor;
 

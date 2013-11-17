@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity.resolve;
 
-import com.soundcloud.android.activity.track.PlaylistDetailActivity;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 
 public abstract class ResolveSetTest extends ResolveBaseTest {
 

@@ -10,7 +10,7 @@ import com.pivotallabs.greatexpectations.matchers.IterableMatcher;
 import com.pivotallabs.greatexpectations.matchers.ObjectMatcher;
 import com.pivotallabs.greatexpectations.matchers.SetMatcher;
 import com.pivotallabs.greatexpectations.matchers.StringMatcher;
-import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.ContentMatcher;
 import com.soundcloud.android.robolectric.ContentResolverMatcher;
 import com.soundcloud.android.robolectric.CursorMatcher;

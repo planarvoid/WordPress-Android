@@ -1,15 +1,15 @@
 package com.soundcloud.android.screens.auth;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.landing.SuggestedUsersCategoryActivity;
-import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.operations.following.FollowingOperations;
-import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.view.GridViewCompat;
-
 import android.view.ViewGroup;
+import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import com.soundcloud.android.R;
+import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.model.SuggestedUser;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
+import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.view.GridViewCompat;
 
 import java.util.Set;
 
@@ -64,8 +64,7 @@ public class SuggestedUsersCategoryScreen {
 
     private boolean testAll(boolean isFollowing){
         waitForUsers();
-
-        ListAdapter adapter = solo.getCurrentGridView().getAdapter();
+        ListAdapter adapter = suggestedUsersGrid().getAdapter();
         Set<Long> followingIds = new FollowingOperations().getFollowedUserIds();
         for (int i = 0; i < adapter.getCount(); i++){
             final boolean actual = followingIds.contains(((SuggestedUser) adapter.getItem(i)).getId());
@@ -80,5 +79,9 @@ public class SuggestedUsersCategoryScreen {
         solo.waitForActivity(SuggestedUsersCategoryActivity.class);
         solo.waitForViewId(R.id.suggested_users_grid, 10000);
         solo.waitForViewId(R.id.username, 10000);
+    }
+
+    private GridView suggestedUsersGrid(){
+        return solo.getCurrentGridView();
     }
 }

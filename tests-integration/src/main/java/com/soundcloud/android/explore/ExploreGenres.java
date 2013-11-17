@@ -1,6 +1,6 @@
 package com.soundcloud.android.explore;
 
-import com.soundcloud.android.activity.MainActivity;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.explore.ExploreGenreScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
@@ -46,12 +46,4 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
         exploreGenreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
         assertEquals("There should be additional electronic music tracks on the list", 25, exploreGenreScreen.getItemsOnList());
     }
-
-
-    @Override
-    protected void tearDown() throws Exception {
-        AccountAssistant.logOut(getInstrumentation());
-        super.tearDown();
-    }
-
 }

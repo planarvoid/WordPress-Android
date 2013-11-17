@@ -1,17 +1,5 @@
 package com.soundcloud.android.tests;
 
-import static junit.framework.Assert.assertNotNull;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.api.http.Wrapper;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
@@ -19,6 +7,17 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.http.PublicApiWrapper;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.tasks.FetchUserTask;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+import com.soundcloud.api.Token;
+
+import static junit.framework.Assert.assertNotNull;
 
 public final class AccountAssistant {
     public static final String USERNAME = "android-testing";
@@ -36,9 +35,8 @@ public final class AccountAssistant {
                                   final String username,
                                   final String password) throws Exception {
 
-
         final Account account = getAccount(instrumentation.getTargetContext());
-        if (account != null && !account.name.equals(username)) {
+        if (account != null && account.name.equals(username)) {
             Log.i(TAG, "Already logged in");
             return account;
         } else if (account != null && !account.name.equals(username)) {
@@ -46,22 +44,19 @@ public final class AccountAssistant {
                 throw new RuntimeException("Could not log out of SoundCloud Account");
             }
         }
-
         return login(username, password, instrumentation);
-
     }
 
     private static Account login(String username, String password, Instrumentation instrumentation) {
-
-
         Log.i(TAG, "Logging in");
+
         Context context = instrumentation.getTargetContext();
-        Wrapper wrapper = new Wrapper(context);
+        PublicApiWrapper publicApiWrapper = new PublicApiWrapper(context);
         Token token;
         User user;
         try {
-            token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
-            user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
+            token = publicApiWrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
+            user = new FetchUserTask(publicApiWrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
         } catch (Exception e) {
             Log.w(AccountAssistant.class.getSimpleName(), e);
             throw new AssertionError("error logging in: "+e.getMessage());
@@ -72,8 +67,6 @@ public final class AccountAssistant {
         return account;
 
     }
-
-
 
     public static boolean logOut(Instrumentation instrumentation) throws Exception {
         return logOut(instrumentation.getTargetContext());
@@ -86,8 +79,11 @@ public final class AccountAssistant {
             return false;
         }
 
+        Log.i(TAG, String.format("LoggedInUser: %s", getAccount(context).name));
+
         AccountManager am = AccountManager.get(context);
         AccountManagerFuture<Boolean> removeAccountFuture = am.removeAccount(accountOperations.getSoundCloudAccount(),null,null);
+
         return removeAccountFuture.getResult();
     }
 

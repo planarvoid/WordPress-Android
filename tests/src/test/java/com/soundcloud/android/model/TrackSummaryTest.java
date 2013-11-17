@@ -2,7 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.api.http.Wrapper;
+import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.images.ImageSize;
@@ -31,7 +31,7 @@ public class TrackSummaryTest {
         expect(trackSummary.getWaveformUrl()).toEqual("https://wis.sndcdn.com/whVhoRw2gpUh.png");
         expect(trackSummary.getArtworkUrl()).toEqual("http://i1.sndcdn.com/artworks-000056989650-zm98k6-large.jpg?5e64f12");
         expect(trackSummary.getUserTags()).toContainExactly("Jazz","Film");
-        expect(trackSummary.getCreatedAt()).toEqual(Wrapper.CloudDateFormat.fromString("2013/08/17 07:50:03 +0000"));
+        expect(trackSummary.getCreatedAt()).toEqual(PublicApiWrapper.CloudDateFormat.fromString("2013/08/17 07:50:03 +0000"));
         expect(trackSummary.getSharing()).toBe(Sharing.PRIVATE);
         expect(trackSummary.getStats().getPlaybackCount()).toEqual(4901L);
         expect(trackSummary.getPermalinkUrl()).toEqual("http://soundcloud.com/asdffdsa");

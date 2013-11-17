@@ -5,9 +5,11 @@ import android.webkit.WebView;
 import android.widget.ListAdapter;
 import com.jayway.android.robotium.solo.Condition;
 import com.soundcloud.android.R;
-import com.soundcloud.android.fragment.NavigationDrawerFragment;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.State;
+import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.main.NavigationDrawerFragment;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playback.service.PlaybackState;
+
 
 public class Waiter {
     public Han solo;
@@ -67,7 +69,7 @@ public class Waiter {
         Condition condition = new Condition() {
             @Override
             public boolean isSatisfied() {
-                return (CloudPlaybackService.getPlaybackState() == State.PLAYING);
+                return (PlaybackService.getPlaybackState() == PlaybackState.PLAYING);
             }
         };
         return solo.waitForCondition(condition, this.NETWORK_TIMEOUT);
@@ -89,5 +91,17 @@ public class Waiter {
         };
 
         return solo.waitForCondition(condition, this.TIMEOUT);
+    }
+
+    public void waitForLogInDialog() {
+        solo.waitForDialogToClose(NETWORK_TIMEOUT);
+    }
+
+    public void waitForActivity(Class<MainActivity> activityClass) {
+        solo.waitForActivity(activityClass, TIMEOUT);
+    }
+
+    public void waitForText(String text) {
+        solo.waitForText(text, 1, TIMEOUT, false);
     }
 }

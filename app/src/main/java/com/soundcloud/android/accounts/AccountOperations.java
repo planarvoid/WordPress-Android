@@ -1,28 +1,28 @@
 package com.soundcloud.android.accounts;
 
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.auth.SignupVia;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Token;
-import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
+import com.soundcloud.api.Token;
+import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 
 import java.io.IOException;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class AccountOperations {
     public enum AccountInfoKeys {
@@ -132,6 +132,9 @@ public class AccountOperations {
 
     @Nullable
     public String getAccountDataString(String key) {
+        Log.d(AccountOperations.class.getSimpleName(), key);
+        Log.d(AccountOperations.class.getSimpleName(), String.format("%s", getSoundCloudAccount() == null ? "null" : "account" +
+                ""));
         if (soundCloudAccountExists()) {
             return accountManager.getUserData(getSoundCloudAccount(), key);
         }

@@ -2,9 +2,9 @@ package com.soundcloud.android.cache;
 
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.service.sync.SyncStateManager;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,6 +1,6 @@
 package com.soundcloud.android.explore;
 
-import com.soundcloud.android.activity.MainActivity;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -22,8 +22,8 @@ public class Explore extends ActivityTestCase<MainActivity> {
         super.setUp();
 
         waiter = new Waiter(solo);
-        waiter.waitForListContent();
         exploreScreen = new ExploreScreen(this);
+        waiter.waitForListContent();
     }
 
     public void testTrendingMusicIsDisplayed() {
@@ -86,12 +86,5 @@ public class Explore extends ActivityTestCase<MainActivity> {
         exploreScreen.openExploreFromMenu();
         exploreScreen.touchTrendingMusicTab();
         assertEquals("Invalid number of genres found", 22, exploreScreen.getNumberOfItemsInGenresTab());
-    }
-
-
-    @Override
-    protected void tearDown() throws Exception {
-        AccountAssistant.logOut(getInstrumentation());
-        super.tearDown();
     }
 }

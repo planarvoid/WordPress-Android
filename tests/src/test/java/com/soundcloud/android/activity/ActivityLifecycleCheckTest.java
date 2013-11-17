@@ -9,7 +9,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.ClassPath;
-import com.soundcloud.android.activity.auth.AbstractLoginActivity;
+import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
 import com.soundcloud.android.cropimage.MonitoredActivity;
 import org.junit.Test;
 

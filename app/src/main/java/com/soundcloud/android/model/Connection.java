@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.DBHelper;
 
 import android.content.ContentValues;
 import android.database.Cursor;
