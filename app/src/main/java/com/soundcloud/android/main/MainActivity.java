@@ -1,11 +1,7 @@
 package com.soundcloud.android.main;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.view.Menu;
+import static rx.android.AndroidObservables.fromActivity;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -25,7 +21,12 @@ import net.hockeyapp.android.UpdateManager;
 import rx.Observer;
 import rx.subscriptions.CompositeSubscription;
 
-import static rx.android.AndroidObservables.fromActivity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
 
 public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks {
 
@@ -142,8 +143,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
                 fragment = getSupportFragmentManager().findFragmentByTag("explore_fragment");
                 if (fragment == null) {
                     fragment = new ExploreFragment();
+                    attachFragment(fragment, "explore_fragment", R.string.side_menu_explore);
                 }
-                attachFragment(fragment, "explore_fragment", R.string.side_menu_explore);
                 break;
 
             case LIKES:
