@@ -16,7 +16,6 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -25,7 +24,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -334,7 +332,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
             case HttpStatus.SC_NOT_FOUND:
                 throw new NotFoundException();
             default:
-                if (!isStatusCodeOk(code)) {
+                if (!isStatusCodeOk(code) && !mApplicationProperties.isReleaseBuild()) {
                     final UnexpectedResponseException exception = new UnexpectedResponseException(originalRequest, response.getStatusLine());
                     SoundCloudApplication.handleSilentException("Get InputStream failed", exception);
                     throw exception;
