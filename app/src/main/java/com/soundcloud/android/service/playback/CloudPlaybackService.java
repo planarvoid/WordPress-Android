@@ -456,7 +456,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                ImageLoader.getInstance().loadImage(artworkUri, new SimpleImageLoadingListener(){
+                ImageLoader.getInstance().loadImage(artworkUri, new ImageUtils.ViewlessLoadingListener(){
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                         super.onLoadingComplete(imageUri, view, loadedImage);
@@ -826,7 +826,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
                 playbackRemoteViews.clearIcon();
-                ImageLoader.getInstance().loadImage(artworkUri, new SimpleImageLoadingListener() {
+                ImageLoader.getInstance().loadImage(artworkUri, new ImageUtils.ViewlessLoadingListener() {
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                         super.onLoadingComplete(imageUri, view, loadedImage);

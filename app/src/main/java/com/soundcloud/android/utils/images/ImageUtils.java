@@ -1,14 +1,11 @@
 package com.soundcloud.android.utils.images;
 
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.MemoryCacheUtil;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ScTextUtils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -511,5 +508,17 @@ public final class ImageUtils {
         return BitmapFactory.decodeResource(res, resId, options);
     }
 
-
+    /**
+     * Listener that will hold a strong reference to the fake imageview so loading tasks that do not have
+     * view population will actually succeed. This is a workaround for
+     * https://github.com/nostra13/Android-Universal-Image-Loader/issues/356
+     */
+    public static class ViewlessLoadingListener extends SimpleImageLoadingListener{
+        View hardViewRef;
+        @Override
+        public void onLoadingStarted(String imageUri, View view) {
+            super.onLoadingStarted(imageUri, view);
+            hardViewRef = view;
+        }
+    }
 }
