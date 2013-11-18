@@ -1,8 +1,10 @@
 $ 75
   % v 2.7.3
-  _ 2013-11-12
+  _ 2013-11-18
   ! Tablet UI
-    * Fixed crash when using various sub-level activities
+    * Fixed recording crash
+    * Fixed inconsistent titles and navigation selection
+    - Fixed crash when using various sub-level activities
     - Updated UI for tablets
     - Bugfixes for Explore
 
