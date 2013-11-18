@@ -1,12 +1,13 @@
 package com.soundcloud.android.actionbar;
 
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
-import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.WhoToFollowActivity;
+import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 
@@ -132,6 +133,22 @@ public class ActionBarController {
                 return false;
             }
         });
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                mActivity.startActivity(new Intent(Intent.ACTION_VIEW)
+                        .setData(Content.SEARCH_ITEM.forQuery(s)));
+                // clear focus as a workaround for https://code.google.com/p/android/issues/detail?id=24599
+                mSearchView.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
+
         mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
