@@ -2,9 +2,9 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.create.NewConnectionTask;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -22,7 +22,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class Connect extends ScActivity {
+public class Connect extends Activity {
 
     private WebView mWebView;
 
