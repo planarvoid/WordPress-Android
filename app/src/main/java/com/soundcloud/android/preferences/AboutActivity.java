@@ -31,4 +31,10 @@ public class AboutActivity extends Activity {
     protected void onPause() {
         super.onPause();
     }
+
+    @Override
+    public boolean onNavigateUp() {
+        finish();
+        return true;
+    }
 }
