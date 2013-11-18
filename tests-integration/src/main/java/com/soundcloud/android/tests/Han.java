@@ -167,7 +167,7 @@ public class Han  {
         return currentGridViews == null || currentGridViews.isEmpty() ? null : currentGridViews.get(0);
     }
 
-    public NavigationDrawerFragment getCurrentNavigationDrawer(){
+    public NavigationDrawerFragment getCurrentNavigationDrawer() {
         final FragmentActivity fragmentActivity = (FragmentActivity) solo.getCurrentActivity();
         return (NavigationDrawerFragment) fragmentActivity.getSupportFragmentManager().findFragmentById(id.navigation_fragment_id);
     }
@@ -409,6 +409,14 @@ public class Han  {
 
     public boolean waitForText(String text, int minimumNumberOfMatches, long timeout, boolean scroll) {
         return solo.waitForText(text, minimumNumberOfMatches, timeout, scroll);
+    }
+
+    public void openSystemMenu() {
+        solo.sendKey(solo.MENU);
+    }
+
+    public void waitForFragmentByTag(String fragment_tag, int timeout) {
+        solo.waitForFragmentByTag(fragment_tag, timeout);
     }
 }
 

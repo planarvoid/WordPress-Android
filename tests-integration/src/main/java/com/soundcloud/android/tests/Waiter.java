@@ -92,6 +92,19 @@ public class Waiter {
         return solo.waitForCondition(condition, this.TIMEOUT);
     }
 
+    public boolean waitForDrawerToClose() {
+        final NavigationDrawerFragment navigationDrawerFragment = solo.getCurrentNavigationDrawer();
+
+        Condition condition = new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return !navigationDrawerFragment.isDrawerOpen();
+            }
+        };
+
+        return solo.waitForCondition(condition, this.TIMEOUT);
+    }
+
     public void waitForLogInDialog() {
         solo.waitForDialogToClose(NETWORK_TIMEOUT);
     }
@@ -102,5 +115,10 @@ public class Waiter {
 
     public void waitForText(String text) {
         solo.waitForText(text, 1, TIMEOUT, false);
+    }
+
+    public void waitForFragmentByTag(String fragment_tag) {
+        solo.waitForFragmentByTag(fragment_tag, TIMEOUT);
+
     }
 }

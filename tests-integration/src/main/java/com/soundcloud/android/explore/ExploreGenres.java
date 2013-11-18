@@ -20,7 +20,7 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
     public void setUp() throws Exception {
         AccountAssistant.loginAs(getInstrumentation(), testUser.getUsername(), testUser.getPassword());
         super.setUp();
-        exploreScreen = new ExploreScreen(this);
+        exploreScreen = new ExploreScreen(solo);
         exploreGenreScreen = new ExploreGenreScreen(solo);
     }
 

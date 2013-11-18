@@ -22,7 +22,7 @@ public class Explore extends ActivityTestCase<MainActivity> {
         super.setUp();
 
         waiter = new Waiter(solo);
-        exploreScreen = new ExploreScreen(this);
+        exploreScreen = new ExploreScreen(solo);
         waiter.waitForListContent();
     }
 

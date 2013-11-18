@@ -2,7 +2,6 @@ package com.soundcloud.android.screens.explore;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -13,10 +12,11 @@ import com.google.common.collect.Iterables;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.jayway.android.robotium.solo.Condition;
 import com.soundcloud.android.R;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.tests.Waiter;
+import com.soundcloud.android.tests.Han;
 import com.viewpagerindicator.FixedWeightTabPageIndicator;
 
 import java.util.List;
@@ -25,6 +25,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 public class ExploreScreen extends Screen {
+    private static final Class ACTIVITY = MainActivity.class;
 
     private static final String GENRES_TAB_TEXT = "GENRES";
     private static final String TRENDING_AUDIO_TAB_TEXT = "TRENDING AUDIO";
@@ -35,13 +36,21 @@ public class ExploreScreen extends Screen {
             return input.getId() == R.id.title;
         }
     };
-    private Waiter waiter;
     private MenuScreen menuScreen;
 
-    public ExploreScreen(ActivityInstrumentationTestCase2 testCase) {
-        super(testCase);
-        this.waiter = new Waiter(solo);
+    public ExploreScreen(Han solo) {
+        super(solo);
+
+        waiter.waitForFragmentByTag("explore_fragment");
+
+        waiter.waitForActivity(ACTIVITY);
+
         this.menuScreen = new MenuScreen(solo);
+    }
+
+    @Override
+    protected Class getActivity() {
+        return ACTIVITY;
     }
 
     public void openExploreFromMenu(){

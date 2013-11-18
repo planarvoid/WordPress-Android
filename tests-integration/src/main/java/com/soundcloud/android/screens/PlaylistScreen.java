@@ -1,25 +1,17 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.tests.Han;
 
-import android.widget.TextView;
-
-public class PlayerScreen extends Screen {
+public class PlaylistScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
 
-    public PlayerScreen(Han solo) {
+    public PlaylistScreen(Han solo) {
         super(solo);
     }
 
     @Override
     protected Class getActivity() {
         return ACTIVITY;
-    }
-
-    public String trackTitle() {
-        TextView textView = (TextView)solo.getView(R.id.playable_title);
-        return textView.getText().toString();
     }
 }

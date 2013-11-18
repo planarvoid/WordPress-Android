@@ -3,15 +3,9 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
-import android.test.ActivityInstrumentationTestCase2;
-
-public class Screen {
+public abstract class Screen {
     protected Han solo;
     protected Waiter waiter;
-
-    public Screen(ActivityInstrumentationTestCase2 testCas2) {
-        this(new Han(testCas2.getInstrumentation(), testCas2.getActivity()));
-    }
 
     public Screen(Han solo) {
         this.solo = solo;
@@ -30,4 +24,11 @@ public class Screen {
     public void swipeRight() {
         solo.swipeRight();
     }
+
+
+    public boolean isVisible() {
+        return getActivity().getSimpleName().equals(solo.getCurrentActivity().getClass().getSimpleName());
+    }
+
+    abstract protected Class getActivity();
 }

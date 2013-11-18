@@ -21,7 +21,7 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
         AccountAssistant.loginAsDefault(getInstrumentation());
         super.setUp();
 
-        exploreScreen = new ExploreScreen(this);
+        exploreScreen = new ExploreScreen(solo);
         playerScreen        = new PlayerScreen(solo);
         waiter              = new Waiter(solo);
         waiter.waitForListContent();
