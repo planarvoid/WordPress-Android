@@ -27,7 +27,6 @@ import rx.subscriptions.CompositeSubscription;
 
 import static rx.android.AndroidObservables.fromActivity;
 
-
 public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks {
 
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
@@ -44,7 +43,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        mNavigationFragment = (NavigationFragment) findNavigationFragment();
+        mNavigationFragment = findNavigationFragment();
         mNavigationFragment.initState(savedInstanceState);
 
         mAccountOperations = new AccountOperations(this);
@@ -67,9 +66,9 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         mSubscription.add(Event.CURRENT_USER_UPDATED.subscribe(userObserver));
     }
 
-    private Fragment findNavigationFragment() {
+    private NavigationFragment findNavigationFragment() {
         boolean isLayoutWithFixedNav = findViewById(R.id.navigation_fragment_id) == null;
-        return getSupportFragmentManager().findFragmentById(isLayoutWithFixedNav ?
+        return (NavigationFragment) getSupportFragmentManager().findFragmentById(isLayoutWithFixedNav ?
             R.id.fixed_navigation_fragment_id :
             R.id.navigation_fragment_id);
     }
@@ -92,7 +91,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         super.onNewIntent(intent);
         mNavigationFragment.handleIntent(intent);
         // the title/selection may have changed as a result of this intent, so store the new title to prevent overwriting
-        mLastTitle = getTitle();
+        mLastTitle = getSupportActionBar().getTitle();
     }
 
     @Override
