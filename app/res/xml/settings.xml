@@ -88,7 +88,7 @@
 
             <intent android:action="android.intent.action.VIEW"
                     android:targetPackage="com.soundcloud.android"
-                    android:targetClass="com.soundcloud.android.activity.settings.Legal"/>
+                    android:targetClass="com.soundcloud.android.preferences.LegalActivity"/>
         </PreferenceScreen>
 
         <Preference
