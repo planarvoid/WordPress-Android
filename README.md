@@ -13,11 +13,14 @@ Beware! You need Maven > 3.0.4 but < 3.1.0 due to
     Apache Maven 3.0.4 (r1232337; 2012-01-17 09:44:56+0100)
 
 
-Add thess lines to your .zshrc (or bash or whatever) [version numbers may change]
+Add thess lines to your .zshrc (or bash's .bash_profile or whatever)
 
-    export ANDROID_HOME=/usr/local/Cellar/android-sdk/r20
-    export ANDROID_SDK_ROOT=/usr/local/Cellar/android-sdk/r20
-    export ANDROID_SDK_HOME=/usr/local/Cellar/android-sdk/r20
+    ANDROID_HOME=/usr/local/opt/android-sdk/
+    export ANDROID_HOME=$ANDROID_HOME
+    export ANDROID_SDK_ROOT=$ANDROID_HOME
+    export ANDROID_SDK_HOME=$ANDROID_HOME
+
+    export JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
 
 Run
 
