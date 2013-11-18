@@ -107,6 +107,18 @@ public class ConnectActivity extends Activity {
         mWebView.loadUrl(url);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // do not remove until we remove aspectJ
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // do not remove until we remove aspectJ
+    }
+
     private void removeAllCookies() {
         CookieSyncManager.createInstance(this);
         CookieManager.getInstance().removeAllCookie();
