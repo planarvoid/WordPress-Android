@@ -85,7 +85,7 @@ public class ProfileActivity extends ScActivity implements
     private final UserStorage mUserStorage = new UserStorage();
     private String mCurrentAvatarUrl;
 
-    private int mInitialFollowersCount;
+    private int mInitialOtherFollowers;
 
     public static boolean startFromPlayable(Context context, Playable playable) {
         if (playable != null) {
@@ -281,7 +281,7 @@ public class ProfileActivity extends ScActivity implements
 
     public void onFollowChanged() {
         mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
-        setFollowersMessage(mUser);
+        setFollowersMessage();
     }
 
     private void trackScreen() {
@@ -310,7 +310,7 @@ public class ProfileActivity extends ScActivity implements
                 mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
             }
         });
-        setFollowersMessage(user);
+        setFollowersMessage();
     }
 
     @Override
@@ -336,7 +336,10 @@ public class ProfileActivity extends ScActivity implements
         mUser = user;
 
         // Initial count prevents fluctuations from being reflected in followers message
-        mInitialFollowersCount = user.followers_count;
+        mInitialOtherFollowers = user.followers_count;
+        if (mFollowingOperations.isFollowing(mUser)) {
+            mInitialOtherFollowers--;
+        }
 
         if (!isEmpty(user.username)) mUsername.setText(user.username);
 
@@ -371,7 +374,7 @@ public class ProfileActivity extends ScActivity implements
             }
         }
 
-        setFollowersMessage(user);
+        setFollowersMessage();
 
         if (mLocation != null){
             if (ScTextUtils.isBlank(user.getLocation())) {
@@ -386,16 +389,14 @@ public class ProfileActivity extends ScActivity implements
             mCurrentAvatarUrl = user.getNonDefaultAvatarUrl();
             ImageLoader.getInstance().displayImage(ImageSize.formatUriForFullDisplay(getResources(), mCurrentAvatarUrl),
                     mUserImage, ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
-
         }
 
         supportInvalidateOptionsMenu();
-
     }
 
-    private void setFollowersMessage(User user) {
-        if (mFollowerMessage != null){
-            if (user.followers_count <= 0 || isLoggedInUser()) {
+    private void setFollowersMessage() {
+        if (mFollowerMessage != null) {
+            if (isLoggedInUser()) {
                 mFollowerMessage.setVisibility(View.GONE);
             } else {
                 mFollowerMessage.setVisibility(View.VISIBLE);
@@ -405,11 +406,18 @@ public class ProfileActivity extends ScActivity implements
     }
 
     private String generateFollowersMessage() {
-        String followCount = ScTextUtils.formatNumberWithCommas(mInitialFollowersCount);
-        return getResources().getQuantityString(mToggleFollow.isChecked() ?
-                R.plurals.following_message :
-                R.plurals.followers_message,
-                mInitialFollowersCount, followCount);
+        if (mToggleFollow.isChecked()) {
+            return mInitialOtherFollowers == 0 ?
+                    getString(R.string.following_zero) :
+                    formatFollowQuantity(R.plurals.following_message);
+        } else {
+            return formatFollowQuantity(R.plurals.followers_message);
+        }
+    }
+
+    private String formatFollowQuantity(int resource) {
+        String followCount = ScTextUtils.formatNumberWithCommas(mInitialOtherFollowers);
+        return getResources().getQuantityString(resource, mInitialOtherFollowers, followCount);
     }
 
     public User getUser() {
