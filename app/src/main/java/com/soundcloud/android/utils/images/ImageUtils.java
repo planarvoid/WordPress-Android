@@ -517,7 +517,6 @@ public final class ImageUtils {
         View hardViewRef;
         @Override
         public void onLoadingStarted(String imageUri, View view) {
-            super.onLoadingStarted(imageUri, view);
             hardViewRef = view;
         }
     }
