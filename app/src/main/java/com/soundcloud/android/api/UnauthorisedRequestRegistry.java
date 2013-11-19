@@ -19,7 +19,7 @@ import android.content.SharedPreferences;
 import java.util.concurrent.TimeUnit;
 
 public class UnauthorisedRequestRegistry extends ScheduledOperations{
-    private static final String TAG = "UnauthorisedRequestRegistry";
+    private static final String TAG = "RequestRegistry";
     private static final String SHARED_PREFERENCE_NAME = "UnauthorisedRequestRegister";
     private static final long NO_OBSERVED_TIME = 0L;
     private static final String OBSERVED_TIMESTAMP_KEY = "first_observed_timestamp";
