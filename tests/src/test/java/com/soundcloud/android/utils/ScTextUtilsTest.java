@@ -7,6 +7,8 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.res.Resources;
+
 @RunWith(DefaultTestRunner.class)
 public class ScTextUtilsTest {
 
@@ -174,6 +176,22 @@ public class ScTextUtilsTest {
         expect(ScTextUtils.safeParseLong("")).toEqual(-1L);
         expect(ScTextUtils.safeParseLong("not a long")).toEqual(-1L);
         expect(ScTextUtils.safeParseLong(null)).toEqual(-1L);
+    }
+
+    @Test
+    public void shouldFormatFollowingMessage() {
+        Resources r = Robolectric.application.getResources();
+        expect(ScTextUtils.formatFollowingMessage(r, 0)).toEqual("Followed by you");
+        expect(ScTextUtils.formatFollowingMessage(r, 1)).toEqual("Followed by you and 1 other person");
+        expect(ScTextUtils.formatFollowingMessage(r, 100001)).toEqual("Followed by you and 100,001 other people");
+    }
+
+    @Test
+    public void shouldFormatFollowersMessage() {
+        Resources r = Robolectric.application.getResources();
+        expect(ScTextUtils.formatFollowersMessage(r, 0)).toEqual("Followed by 0 people");
+        expect(ScTextUtils.formatFollowersMessage(r, 1)).toEqual("Followed by 1 person");
+        expect(ScTextUtils.formatFollowersMessage(r, 100001)).toEqual("Followed by 100,001 people");
     }
 
     private void expectEmailValid(String string){

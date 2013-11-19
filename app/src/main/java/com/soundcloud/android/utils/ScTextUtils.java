@@ -218,6 +218,19 @@ public class ScTextUtils {
         }
     }
 
+    public static String formatFollowingMessage(Resources r, int otherFollowers) {
+        if (otherFollowers == 0) {
+            return r.getString(R.string.following_zero);
+        } else {
+            String others = formatNumberWithCommas(otherFollowers);
+            return r.getQuantityString(R.plurals.following_message, otherFollowers, others);
+        }
+    }
+
+    public static String formatFollowersMessage(Resources r, int followers) {
+        return r.getQuantityString(R.plurals.followers_message, followers, formatNumberWithCommas(followers));
+    }
+
     public static class ClickSpan extends ClickableSpan {
         private OnClickListener mListener;
         private boolean mUnderline;

@@ -407,17 +407,10 @@ public class ProfileActivity extends ScActivity implements
 
     private String generateFollowersMessage() {
         if (mToggleFollow.isChecked()) {
-            return mInitialOtherFollowers == 0 ?
-                    getString(R.string.following_zero) :
-                    formatFollowQuantity(R.plurals.following_message);
+            return ScTextUtils.formatFollowingMessage(getResources(), mInitialOtherFollowers);
         } else {
-            return formatFollowQuantity(R.plurals.followers_message);
+            return ScTextUtils.formatFollowersMessage(getResources(), mInitialOtherFollowers);
         }
-    }
-
-    private String formatFollowQuantity(int resource) {
-        String followCount = ScTextUtils.formatNumberWithCommas(mInitialOtherFollowers);
-        return getResources().getQuantityString(resource, mInitialOtherFollowers, followCount);
     }
 
     public User getUser() {
