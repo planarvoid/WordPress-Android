@@ -1,5 +1,6 @@
 package com.soundcloud.android.fragment;
 
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 import static com.soundcloud.android.service.playback.CloudPlaybackService.Broadcasts;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
@@ -9,7 +10,6 @@ import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.CommentAdapter;
@@ -23,6 +23,8 @@ import com.soundcloud.android.adapter.SoundAssociationAdapter;
 import com.soundcloud.android.adapter.UserAdapter;
 import com.soundcloud.android.adapter.UserAssociationAdapter;
 import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.api.UnauthorisedRequestObserver;
+import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
@@ -57,7 +59,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -99,6 +100,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
     private CollectionTask mAppendTask;
     protected String mNextHref;
+    private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
 
     protected int mStatusCode;
 
@@ -158,6 +160,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         mKeepGoing = true;
         setupListAdapter();
         accountOperations = new AccountOperations(getActivity());
+        unauthorisedRequestRegistry = UnauthorisedRequestRegistry.getInstance(getActivity());
     }
 
     @Override
@@ -498,10 +501,11 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
 
         // show unauthorized dialog if applicable
         if (data.responseCode == HttpStatus.SC_UNAUTHORIZED) {
-            final FragmentActivity activity = getActivity();
-            if (activity != null) {
-                activity.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
-            }
+            unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp()
+                    .subscribe(new UnauthorisedRequestObserver(getActivity()));
+        } else {
+            //Not sure if this needs to happen for every request which goes through this point Jon?
+            fireAndForget(unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp());
         }
 
     }
