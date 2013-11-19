@@ -4,6 +4,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FriendFinderFragment;
+import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DaggerHelper;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
@@ -28,7 +29,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 public class ExploreTracksCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
 
@@ -36,7 +36,8 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     private int mEmptyViewStatus;
 
     @Inject
-    Provider<Observable<ExploreTracksCategories>> mObservableProvider;
+    AndroidObservableFactory mObservableFactory;
+
     private Subscription mSubscription = Subscriptions.empty();
     private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
 
@@ -44,13 +45,11 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DaggerHelper.inject(this);
-        mCategoriesObservable = buildObservable(mObservableProvider.get());
+        mCategoriesObservable = buildObservable(mObservableFactory.create(this));
     }
 
     private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable(Observable<ExploreTracksCategories> observable){
         return observable.mapMany(CATEGORIES_TO_SECTIONS).replay();
-        // this will not work yet. It should be in the module, but we need to figure out assisted injections
-        //return AndroidObservables.fromFragment(this, observable).mapMany(CATEGORIES_TO_SECTIONS).replay();
     }
 
     @Override
@@ -78,7 +77,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
             @Override
             public void onEmptyViewRetry() {
                 setEmptyViewStatus(FriendFinderFragment.Status.WAITING);
-                mCategoriesObservable = buildObservable(mObservableProvider.get());
+                mCategoriesObservable = buildObservable(mObservableFactory.create(ExploreTracksCategoriesFragment.this));
                 mSubscription = loadCategories();
             }
         });

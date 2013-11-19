@@ -36,7 +36,7 @@ public class ExploreFragment extends Fragment implements ObjectGraphProvider {
     public void onCreate(Bundle state) {
         super.onCreate(state);
 
-        mObjectGraph = DaggerHelper.fromApplicationGraph(this, new ExploreModule(), new ExploreTracksCategoriesFragmentModule());
+        mObjectGraph = DaggerHelper.fromApplicationGraph(this, new ExploreModule(), new ExploreTracksCategoriesModule());
         mExplorePagerAdapter = new ExplorePagerAdapter(getChildFragmentManager());
     }
 

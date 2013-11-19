@@ -18,7 +18,7 @@ import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
-import com.soundcloud.android.explore.ExploreTracksCategoriesFragmentModule;
+import com.soundcloud.android.explore.ExploreTracksCategoriesModule;
 import com.soundcloud.android.migrations.MigrationEngine;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
@@ -154,7 +154,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     protected List<Object> getModules() {
         return Arrays.asList(
                 new ApplicationModule(this),
-                new ExploreTracksCategoriesFragmentModule()
+                new ExploreTracksCategoriesModule()
         );
     }
 
