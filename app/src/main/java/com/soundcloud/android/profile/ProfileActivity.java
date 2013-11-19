@@ -101,7 +101,7 @@ public class ProfileActivity extends ScActivity implements
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView(R.layout.user_browser);
+        setContentView(R.layout.profile_activity);
         mOldCloudAPI = new PublicApi(this);
         mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(this);

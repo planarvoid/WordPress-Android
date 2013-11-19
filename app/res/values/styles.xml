@@ -131,6 +131,12 @@
         <item name="clipPadding">16dp</item>
     </style>
 
+    <style name="Widget.ScTitlePageIndicator.Large" parent="Widget.ScTitlePageIndicator">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/tab_height</item>
+        <item name="android:background">@color/playerControlBackground</item>
+        <item name="topPadding">14dp</item>
+    </style>
 
     <style name="Widget.TextView" />
 
