@@ -270,6 +270,9 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     public void onDestroyView() {
         super.onDestroyView();
 
+        if (mContent == Content.ME_SOUNDS && mAdapter != null) {
+            ((MyTracksAdapter) mAdapter).onDestroy();
+        }
         // null out view references to avoid leaking the current Context in case we detach/re-attach
         mListView = null;
         mEmptyListView = null;
