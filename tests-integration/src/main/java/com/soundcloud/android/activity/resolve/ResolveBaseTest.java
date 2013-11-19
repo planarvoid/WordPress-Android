@@ -27,11 +27,7 @@ public abstract class ResolveBaseTest extends ActivityTestCase<ResolveActivity> 
         AccountAssistant.loginAsDefault(getInstrumentation());
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
         assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
-
         super.setUp();
         waiter = new Waiter(solo);
-
-        profileScreen = new ProfileScreen(solo);
-        playerScreen = new PlayerScreen(solo);
     }
 }

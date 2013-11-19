@@ -4,6 +4,7 @@ import com.soundcloud.android.TestConsts;
 import com.soundcloud.android.profile.ProfileActivity;
 
 import android.net.Uri;
+import com.soundcloud.android.screens.ProfileScreen;
 
 public class ResolveClickTrackingUrl extends ResolveBaseTest {
 
@@ -13,6 +14,7 @@ public class ResolveClickTrackingUrl extends ResolveBaseTest {
     }
 
     public void testResolveUrl() throws Exception {
+        profileScreen = new ProfileScreen(solo);
         solo.assertActivity(ProfileActivity.class, DEFAULT_WAIT);
         assertEquals("steveangello", profileScreen.userName());
     }
