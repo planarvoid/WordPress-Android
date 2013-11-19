@@ -7,7 +7,6 @@ import com.soundcloud.android.tests.Han;
 
 public class ProfileScreen extends Screen{
     private Class ACTIVITY = ProfileActivity.class;
-    protected Han solo;
 
     public ProfileScreen(Han solo) {
         super(solo);
