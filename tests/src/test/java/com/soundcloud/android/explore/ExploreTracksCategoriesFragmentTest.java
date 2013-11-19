@@ -1,8 +1,8 @@
 package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,15 +10,20 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
-import com.soundcloud.android.model.Section;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.RxTestHelper;
 import com.xtremelabs.robolectric.Robolectric;
+import dagger.Module;
+import dagger.ObjectGraph;
+import dagger.Provides;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.concurrency.AndroidSchedulers;
+import rx.observables.ConnectableObservable;
+import rx.util.functions.Func1;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,13 +44,13 @@ public class ExploreTracksCategoriesFragmentTest {
 
     @Test
     public void shouldAddMusicAndAudioSections(){
+        fragment = new ExploreTracksCategoriesFragment();
+
         final ExploreTracksCategory electronicCategory = new ExploreTracksCategory("electronic");
         final ExploreTracksCategory comedyCategory = new ExploreTracksCategory("comedy");
-        ExploreTracksOperations operations = mock(ExploreTracksOperations.class);
-        when(operations.getCategories()).thenReturn(Observable.just(createSectionsFrom(electronicCategory, comedyCategory)));
+        ObjectGraph.create(new TestModule(Observable.just(createSectionsFrom(electronicCategory, comedyCategory)))).inject(fragment);
 
-        fragment = new ExploreTracksCategoriesFragment(operations);
-        View fragmentLayout = setupFragment();
+        View fragmentLayout = createFragmentView();
 
         final ListView listView = (ListView) fragmentLayout.findViewById(R.id.suggested_tracks_categories_list);
         final ListAdapter adapter = listView.getAdapter();
@@ -56,22 +61,31 @@ public class ExploreTracksCategoriesFragmentTest {
 
     @Test
     public void shouldUnsubscribeFromObservableInOnDestroy() {
-        Subscription subscription = mock(Subscription.class);
+        Observable observable = Mockito.mock(Observable.class);
+        ConnectableObservable mockObservable = mock(ConnectableObservable.class);
 
-        fragment = new ExploreTracksCategoriesFragment(RxTestHelper.<Section<ExploreTracksCategory>>connectableObservableReturning(subscription));
-        setupFragment();
+        when(observable.mapMany(any(Func1.class))).thenReturn(observable);
+        when(observable.replay()).thenReturn(mockObservable);
+        when(mockObservable.observeOn(AndroidSchedulers.mainThread())).thenReturn(mockObservable);
 
+        final Subscription subscription = Mockito.mock(Subscription.class);
+        when(mockObservable.connect()).thenReturn(subscription);
+
+        fragment = new ExploreTracksCategoriesFragment();
+        ObjectGraph.create(new TestModule(observable)).inject(fragment);
+
+        createFragmentView();
         fragment.onDestroy();
         verify(subscription).unsubscribe();
     }
 
     @Test
     public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() {
-        ExploreTracksOperations operations = mock(ExploreTracksOperations.class);
-        when(operations.getCategories()).thenReturn(Observable.<ExploreTracksCategories>error(new Exception()));
+        fragment = new ExploreTracksCategoriesFragment();
+        final TestModule testModule = new TestModule(Observable.<ExploreTracksCategories>error(new Exception()));
+        ObjectGraph.create(testModule).inject(fragment);
 
-        fragment = new ExploreTracksCategoriesFragment(operations);
-        setupFragment();
+        createFragmentView();
 
         Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
         expect(retryButton).not.toBeNull();
@@ -79,12 +93,12 @@ public class ExploreTracksCategoriesFragmentTest {
 
         // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
         // If that wasn't the case, we'd simply replay a failed result.
-        verify(operations, times(2)).getCategories();
+        expect(testModule.observablesRequested).toEqual(2);
     }
 
     // HELPERS
 
-    private View setupFragment() {
+    private View createFragmentView() {
         Robolectric.shadowOf(fragment).setAttached(true);
         fragment.onCreate(null);
 
@@ -102,4 +116,22 @@ public class ExploreTracksCategoriesFragmentTest {
         sections.setAudio(audioCategories);
         return sections;
     }
+
+
+    @Module(complete = false, injects = {ExploreTracksCategoriesFragment.class}, overrides = true)
+    public class TestModule {
+        Observable<ExploreTracksCategories> connectableObservable;
+        private int observablesRequested = 0;
+
+        public TestModule(Observable<ExploreTracksCategories> connectableObservable) {
+            this.connectableObservable = connectableObservable;
+        }
+
+        @Provides
+        Observable<ExploreTracksCategories> provideCategoryObservable() {
+            observablesRequested++;
+            return connectableObservable;
+        }
+    }
+
 }

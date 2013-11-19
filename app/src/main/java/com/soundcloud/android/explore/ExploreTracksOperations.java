@@ -22,12 +22,15 @@ import rx.Observable;
 import rx.android.OperationPaged;
 import rx.util.functions.Func1;
 
+import javax.inject.Inject;
+
 public class ExploreTracksOperations extends ScheduledOperations {
 
     private static final int PAGE_SIZE = 15;
 
     private SoundCloudRxHttpClient mRxHttpClient;
 
+    @Inject
     public ExploreTracksOperations() {
         this(new SoundCloudRxHttpClient());
     }

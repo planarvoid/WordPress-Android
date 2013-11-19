@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -40,7 +39,6 @@ public class PlaybackOperations {
         this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage());
     }
 
-    @Inject
     public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage) {
         mModelManager = modelManager;
         mTrackStorage = trackStorage;

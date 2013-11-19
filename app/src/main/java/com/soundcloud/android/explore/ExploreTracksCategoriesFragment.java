@@ -1,17 +1,15 @@
 package com.soundcloud.android.explore;
 
-import static rx.android.AndroidObservables.fromFragment;
-
-import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FriendFinderFragment;
-import com.soundcloud.android.rx.observers.EmptyViewAware;
+import com.soundcloud.android.dagger.DaggerHelper;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ExploreTracksCategorySection;
 import com.soundcloud.android.model.Section;
+import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
@@ -29,48 +27,30 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class ExploreTracksCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener,
-        EmptyViewAware {
+import javax.inject.Inject;
+import javax.inject.Provider;
 
-    private static final Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>> CATEGORIES_TO_SECTIONS =
-            new Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>>() {
-                @Override
-                public Observable<Section<ExploreTracksCategory>> call(ExploreTracksCategories categories) {
-                    return Observable.from(
-                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.MUSIC.getTitleId(), categories.getMusic()),
-                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.AUDIO.getTitleId(), categories.getAudio())
-                    );
-                }
-            };
+public class ExploreTracksCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;
 
-    private ExploreTracksOperations mTracksOperations;
-    private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
+    @Inject
+    Provider<Observable<ExploreTracksCategories>> mObservableProvider;
     private Subscription mSubscription = Subscriptions.empty();
+    private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
 
-    public ExploreTracksCategoriesFragment() {
-        this(new ExploreTracksOperations());
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        DaggerHelper.inject(this);
+        mCategoriesObservable = buildObservable(mObservableProvider.get());
     }
 
-    @VisibleForTesting
-    protected ExploreTracksCategoriesFragment(ExploreTracksOperations operations) {
-        mTracksOperations = operations;
-        init(buildObservable());
-    }
-
-    @VisibleForTesting
-    protected ExploreTracksCategoriesFragment(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
-        init(observable);
-    }
-
-    private void init(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
-        mCategoriesObservable = observable;
-    }
-
-    private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable() {
-        return fromFragment(this, mTracksOperations.getCategories()).mapMany(CATEGORIES_TO_SECTIONS).replay();
+    private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable(Observable<ExploreTracksCategories> observable){
+        return observable.mapMany(CATEGORIES_TO_SECTIONS).replay();
+        // this will not work yet. It should be in the module, but we need to figure out assisted injections
+        //return AndroidObservables.fromFragment(this, observable).mapMany(CATEGORIES_TO_SECTIONS).replay();
     }
 
     @Override
@@ -98,7 +78,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
             @Override
             public void onEmptyViewRetry() {
                 setEmptyViewStatus(FriendFinderFragment.Status.WAITING);
-                mCategoriesObservable = buildObservable();
+                mCategoriesObservable = buildObservable(mObservableProvider.get());
                 mSubscription = loadCategories();
             }
         });
@@ -145,5 +125,16 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
         mCategoriesObservable.subscribe(new ListFragmentObserver<Section<ExploreTracksCategory>>(this));
         return mCategoriesObservable.connect();
     }
+
+    private static final Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>> CATEGORIES_TO_SECTIONS =
+            new Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>>() {
+                @Override
+                public Observable<Section<ExploreTracksCategory>> call(ExploreTracksCategories categories) {
+                    return Observable.from(
+                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.MUSIC.getTitleId(), categories.getMusic()),
+                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.AUDIO.getTitleId(), categories.getAudio())
+                    );
+                }
+            };
 
 }
