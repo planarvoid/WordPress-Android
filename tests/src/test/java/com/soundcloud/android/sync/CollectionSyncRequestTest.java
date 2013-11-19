@@ -2,19 +2,22 @@ package com.soundcloud.android.sync;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.UnauthorisedRequestObserver;
+import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.StatusLine;
@@ -23,8 +26,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import rx.Observable;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -47,9 +52,9 @@ public class CollectionSyncRequestTest {
     @Mock
     private SharedPreferences sharedPreferences;
     @Mock
-    private SharedPreferences.Editor sharedPreferencesEditor;
+    private UnauthorisedRequestRegistry authRegistry;
     @Mock
-    private ApplicationProperties applicationProperties;
+    private Observable<Void> observable;
 
     static final String NON_INTERACTIVE =
             "&" + URLEncoder.encode(PublicApiWrapper.BACKGROUND_PARAMETER) + "=1";
@@ -57,10 +62,8 @@ public class CollectionSyncRequestTest {
 
     @Before
     public void setup() {
-        initMocks(this);
         collectionSyncRequest = new CollectionSyncRequest(Robolectric.application,
-                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager,
-                sharedPreferences, applicationProperties);
+                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager, authRegistry);
     }
 
     @Test
@@ -143,23 +146,36 @@ public class CollectionSyncRequestTest {
     public void shouldCallOnSyncComplete() throws IOException {
         setupSuccessfulSync();
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
-
+        when(authRegistry.clearObservedUnauthorisedRequestTimestamp()).thenReturn(observable);
         collectionSyncRequest.onQueued();
         collectionSyncRequest.execute();
         verify(syncStateManager).onSyncComplete(apiSyncResult, localCollection);
+    }
+
+    @Test
+    public void shouldUpdateObservedUnAuthorisedRequestTimestampIfExceptionIsRaised() throws IOException {
+        setupSync();
+        when(syncStrategy.syncContent(any(Uri.class), anyString())).thenThrow(CloudAPI.InvalidTokenException.class);
+        when(authRegistry.updateObservedUnauthorisedRequestTimestamp()).thenReturn(observable);
+        collectionSyncRequest.onQueued();
+        collectionSyncRequest.execute();
+        verify(observable).subscribe(any(UnauthorisedRequestObserver.class));
+    }
+
+    @Test
+    public void shouldClearLastObservedUnauthorisedRequestTimestampAfterSuccessful() throws IOException {
+        setupSuccessfulSync();
+        when(authRegistry.clearObservedUnauthorisedRequestTimestamp()).thenReturn(observable);
+        collectionSyncRequest.onQueued();
+        collectionSyncRequest.execute();
+        verify(observable).subscribe(any(DefaultObserver.class));
+
     }
 
     private void setupSuccessfulSync() throws IOException {
         setupSync();
         apiSyncResult = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
         apiSyncResult.success = true;
-        when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
-    }
-
-    private void setupFailedSync() throws IOException {
-        setupSync();
-        apiSyncResult = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
-        apiSyncResult.success = false;
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
     }
 
@@ -174,7 +190,5 @@ public class CollectionSyncRequestTest {
         when(localCollection.getId()).thenReturn(1L);
         when(apiSyncerFactory.forContentUri(Robolectric.application, Content.ME_FOLLOWINGS.uri)).thenReturn(syncStrategy);
         when(syncStateManager.updateSyncState(1L, LocalCollection.SyncState.SYNCING)).thenReturn(true);
-        when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
-        when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
     }
 }
