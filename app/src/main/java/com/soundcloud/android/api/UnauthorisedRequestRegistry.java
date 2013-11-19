@@ -5,6 +5,7 @@ import static android.content.SharedPreferences.Editor;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
@@ -18,6 +19,7 @@ import android.content.SharedPreferences;
 import java.util.concurrent.TimeUnit;
 
 public class UnauthorisedRequestRegistry extends ScheduledOperations{
+    private static final String TAG = "UnauthorisedRequestRegistry";
     private static final String SHARED_PREFERENCE_NAME = "UnauthorisedRequestRegister";
     private static final long NO_OBSERVED_TIME = 0L;
     private static final String OBSERVED_TIMESTAMP_KEY = "first_observed_timestamp";
@@ -51,8 +53,10 @@ public class UnauthorisedRequestRegistry extends ScheduledOperations{
                 synchronized (sInstance) {
                     long firstObservedTime = mSharedPreference.getLong(OBSERVED_TIMESTAMP_KEY, NO_OBSERVED_TIME);
                     if (firstObservationTimeDoesNotExist(firstObservedTime)) {
+                        long now = System.currentTimeMillis();
+                        Log.d(TAG, "Updating the first observed unauthorised request timestamp to " + now);
                         Editor editor = mSharedPreference.edit();
-                        editor.putLong(OBSERVED_TIMESTAMP_KEY, System.currentTimeMillis());
+                        editor.putLong(OBSERVED_TIMESTAMP_KEY, now);
                         editor.commit();
                     }
                 }
@@ -69,6 +73,7 @@ public class UnauthorisedRequestRegistry extends ScheduledOperations{
             @Override
             public Subscription onSubscribe(Observer<? super Void> observer) {
                 synchronized (sInstance) {
+                    Log.d(TAG, "Clearing the observed timestamp");
                     Editor editor = mSharedPreference.edit();
                     editor.clear();
                     editor.commit();
@@ -94,6 +99,7 @@ public class UnauthorisedRequestRegistry extends ScheduledOperations{
                     observer.onNext(false);
                 } else {
                     long minutesSinceFirstObservation = TimeUnit.MINUTES.convert(System.currentTimeMillis() - firstObservedTime, TimeUnit.MILLISECONDS);
+                    Log.d(TAG, "Minutes since last observed unauthorised request" + minutesSinceFirstObservation);
                     observer.onNext(minutesSinceFirstObservation >= TIME_LIMIT_IN_MINUTES);
                 }
                 observer.onCompleted();
