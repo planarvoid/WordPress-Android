@@ -1,6 +1,8 @@
 package com.soundcloud.android.explore;
 
-import com.soundcloud.android.dagger.DaggerHelper;
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.dagger.ObjectGraphCreator;
+import com.soundcloud.android.dagger.ObjectGraphCreatorImpl;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ExploreTracksCategory;
@@ -12,11 +14,18 @@ public class ExploreTracksCategoryActivity extends ScActivity implements ObjectG
 
     private ObjectGraph mObjectGraph;
 
+    public ExploreTracksCategoryActivity() {
+        this(new ObjectGraphCreatorImpl());
+    }
+
+    @VisibleForTesting
+    protected ExploreTracksCategoryActivity(ObjectGraphCreator objectGraphCreator) {
+        mObjectGraph = objectGraphCreator.fromAppGraphWithModules(new ExploreModule());
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mObjectGraph = DaggerHelper.fromApplicationGraph(this, new ExploreModule());
 
         final ExploreTracksCategory category = getIntent().getParcelableExtra(ExploreTracksCategory.EXTRA);
         setTitle(category.getTitle());

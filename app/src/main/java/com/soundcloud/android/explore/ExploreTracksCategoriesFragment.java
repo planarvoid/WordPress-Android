@@ -5,7 +5,8 @@ import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FriendFinderFragment;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
-import com.soundcloud.android.dagger.DaggerHelper;
+import com.soundcloud.android.dagger.DependencyInjector;
+import com.soundcloud.android.dagger.DependencyInjectorImpl;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ExploreTracksCategorySection;
@@ -41,10 +42,20 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     private Subscription mSubscription = Subscriptions.empty();
     private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
 
+    private DependencyInjector mDependencyInjector;
+
+    public ExploreTracksCategoriesFragment() {
+        this(new DependencyInjectorImpl());
+    }
+
+    public ExploreTracksCategoriesFragment(DependencyInjector dependencyInjector) {
+        mDependencyInjector = dependencyInjector;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DaggerHelper.inject(this);
+        mDependencyInjector.inject(this);
         mCategoriesObservable = buildObservable(mObservableFactory.create(this));
     }
 

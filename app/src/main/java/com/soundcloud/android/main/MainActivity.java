@@ -2,13 +2,19 @@ package com.soundcloud.android.main;
 
 import static rx.android.AndroidObservables.fromActivity;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.UserOperations;
 import com.soundcloud.android.collections.ScListFragment;
+import com.soundcloud.android.dagger.ObjectGraphCreator;
+import com.soundcloud.android.dagger.ObjectGraphCreatorImpl;
+import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.explore.ExploreFragment;
+import com.soundcloud.android.explore.ExploreModule;
+import com.soundcloud.android.explore.ExploreTracksCategoriesModule;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
@@ -17,6 +23,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.provider.Content;
+import dagger.ObjectGraph;
 import net.hockeyapp.android.UpdateManager;
 import rx.Observer;
 import rx.subscriptions.CompositeSubscription;
@@ -28,7 +35,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
-public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks {
+public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks,
+        ObjectGraphProvider {
 
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
     private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
@@ -39,6 +47,20 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     private AccountOperations mAccountOperations;
     private CompositeSubscription mSubscription = new CompositeSubscription();
+
+    private ObjectGraph mObjectGraph;
+
+    public MainActivity() {
+        this(new ObjectGraphCreatorImpl());
+    }
+
+    @VisibleForTesting
+    protected MainActivity(ObjectGraphCreator objectGraphCreator) {
+        mObjectGraph = objectGraphCreator.fromAppGraphWithModules(
+                new ExploreModule(),
+                new ExploreTracksCategoriesModule()
+        );
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +130,12 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     protected void onDestroy() {
         UpdateManager.unregister();
         mSubscription.unsubscribe();
+        mObjectGraph = null;
         super.onDestroy();
+    }
+
+    public ObjectGraph getObjectGraph() {
+        return mObjectGraph;
     }
 
     @Override

@@ -12,7 +12,8 @@ import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
-import com.soundcloud.android.dagger.DaggerHelper;
+import com.soundcloud.android.dagger.DependencyInjector;
+import com.soundcloud.android.dagger.DependencyInjectorImpl;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
@@ -46,6 +47,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
+    private DependencyInjector mDependencyInjector;
 
     public static ExploreTracksFragment fromCategory(ExploreTracksCategory category) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
@@ -55,12 +57,19 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         return exploreTracksFragment;
     }
 
+    public ExploreTracksFragment() {
+        this(new DependencyInjectorImpl());
+    }
+
+    public ExploreTracksFragment(DependencyInjector dependencyInjector) {
+        mDependencyInjector = dependencyInjector;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DaggerHelper.inject(this);
-
+        mDependencyInjector.inject(this);
         mAdapter = new ExploreTracksAdapter();
         mObserver = new ExploreTracksObserver();
 

@@ -1,11 +1,8 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.dagger.DaggerHelper;
-import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.viewpagerindicator.TabPageIndicator;
-import dagger.ObjectGraph;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,13 +15,12 @@ import android.view.ViewGroup;
 
 import java.util.Locale;
 
-public class ExploreFragment extends Fragment implements ObjectGraphProvider {
+public class ExploreFragment extends Fragment {
 
     private static final int TAB_CATEGORIES = 0;
     private static final int TAB_POPULAR_MUSIC = 1;
     private static final int TAB_POPULAR_AUDIO = 2;
 
-    private ObjectGraph mObjectGraph;
     private ViewPager mPager;
     private ExplorePagerAdapter mExplorePagerAdapter;
 
@@ -35,8 +31,6 @@ public class ExploreFragment extends Fragment implements ObjectGraphProvider {
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-
-        mObjectGraph = DaggerHelper.fromApplicationGraph(this, new ExploreModule(), new ExploreTracksCategoriesModule());
         mExplorePagerAdapter = new ExplorePagerAdapter(getChildFragmentManager());
     }
 
@@ -65,16 +59,6 @@ public class ExploreFragment extends Fragment implements ObjectGraphProvider {
         // the dataset observer Android registers internally (and we're retaining the adapter instance)
         mPager.setAdapter(null);
         super.onDestroyView();
-    }
-
-    @Override
-    public void onDestroy() {
-        mObjectGraph = null;
-        super.onDestroy();
-    }
-
-    public ObjectGraph getObjectGraph() {
-        return mObjectGraph;
     }
 
     class ExplorePagerAdapter extends FragmentPagerAdapter {
