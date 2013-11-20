@@ -10,7 +10,13 @@ $ 75
 
 $ 74
   % v 2.7.2
-  _ 2013-11
+  _ 2013-11-20
+  ! Maintenance
+    * Bug fixes and stability improvements
+
+$ 73
+  % v 2.7.1
+  _ 2013-11-12
   ! Introducing Explore
     * Brand new Explore feature: discover trending music & audio
     * Cleaner, simpler design with a new side menu for the most-used functions
