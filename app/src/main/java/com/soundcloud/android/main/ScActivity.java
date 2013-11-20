@@ -71,13 +71,11 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         mUnauthoriedRequestReceiver = new UnauthorisedRequestReceiver(getApplicationContext(), getSupportFragmentManager());
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
+        registerReceiver(mLoggingOutListener, new IntentFilter(Actions.LOGGING_OUT));
         if (getSupportActionBar() != null) {
             mActionBarController = createActionBarController();
         }
 
-        registerReceiver(mLoggingOutListener, new IntentFilter(Actions.LOGGING_OUT));
-        registerReceiver(mUnauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
 
     }
 
@@ -128,7 +126,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
         try {
             unregisterReceiver(mLoggingOutListener);
-            unregisterReceiver(mUnauthoriedRequestReceiver);
         } catch (IllegalArgumentException e) {
             // this seems to happen in EmailConfirm. Seems like it doesn't respect the full lifecycle.
             SoundCloudApplication.handleSilentException("Couldnt unregister intent listeners", e);
@@ -156,7 +153,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     @Override
     protected void onResume() {
         super.onResume();
-
+        registerReceiver(mUnauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
         if (!mAccountOperations.soundCloudAccountExists()) {
             pausePlayback();
             finish();
@@ -173,6 +170,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     @Override
     protected void onPause() {
         super.onPause();
+        unregisterReceiver(mUnauthoriedRequestReceiver);
         mIsForeground = false;
         if (mActionBarController != null) {
             mActionBarController.onPause();

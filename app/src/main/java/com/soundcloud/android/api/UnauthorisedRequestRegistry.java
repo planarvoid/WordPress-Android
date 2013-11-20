@@ -1,126 +1,68 @@
 package com.soundcloud.android.api;
 
-import static android.content.SharedPreferences.Editor;
-
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.Log;
-import rx.Observable;
-import rx.Observer;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.concurrency.Schedulers;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
-public class UnauthorisedRequestRegistry extends ScheduledOperations {
+public class UnauthorisedRequestRegistry {
     private static final String TAG = "RequestRegistry";
-    private static final String SHARED_PREFERENCE_NAME = "UnauthorisedRequestRegister";
     private static final long NO_OBSERVED_TIME = 0L;
-    private static final String OBSERVED_TIMESTAMP_KEY = "first_observed_timestamp";
     private static final long TIME_LIMIT_IN_MINUTES = 2;
-    private static UnauthorisedRequestRegistry sInstance;
-    private final SharedPreferences mSharedPreferences;
-    private final UnauthorisedRequestObserver mUnauthorisedRequestObserver;
+    private static UnauthorisedRequestRegistry instance;
+    private Context mContext;
 
-    public static synchronized UnauthorisedRequestRegistry getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new UnauthorisedRequestRegistry(context, ScSchedulers.STORAGE_SCHEDULER, new UnauthorisedRequestObserver(context));
+    public static synchronized  UnauthorisedRequestRegistry getInstance(Context context){
+        if(instance == null){
+            instance = new UnauthorisedRequestRegistry(context, new AtomicLong(NO_OBSERVED_TIME));
         }
-        return sInstance;
+        return instance;
     }
 
     @VisibleForTesting
-    protected UnauthorisedRequestRegistry(Context context, UnauthorisedRequestRegistry instance,
-                                          UnauthorisedRequestObserver unauthorisedRequestObserver) {
-        this(context, Schedulers.currentThread(), unauthorisedRequestObserver);
-        sInstance = instance;
+    protected UnauthorisedRequestRegistry(Context context, AtomicLong lastObservedTime){
+        mLastObservedTime = lastObservedTime;
+        mContext = context.getApplicationContext();
     }
 
-    private UnauthorisedRequestRegistry(Context context, Scheduler scheduler,
-                                        UnauthorisedRequestObserver unauthorisedRequestObserver) {
-        super(scheduler);
-        mSharedPreferences = context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
-        mUnauthorisedRequestObserver = unauthorisedRequestObserver;
-    }
+    private final AtomicLong mLastObservedTime;
 
     public void updateObservedUnauthorisedRequestTimestamp() {
-        schedule(Observable.create(new Observable.OnSubscribeFunc() {
-
-            @Override
-            public Subscription onSubscribe(Observer observer) {
-                synchronized (sInstance) {
-                    long firstObservedTime = mSharedPreferences.getLong(OBSERVED_TIMESTAMP_KEY, NO_OBSERVED_TIME);
-                    if (firstObservationTimeDoesNotExist(firstObservedTime)) {
-                        long now = System.currentTimeMillis();
-                        Log.d(TAG, "Updating the first observed unauthorised request timestamp to " + now);
-                        Editor editor = mSharedPreferences.edit();
-                        editor.putLong(OBSERVED_TIMESTAMP_KEY, now);
-                        editor.commit();
-                    }
-                }
-                observer.onCompleted();
-                return Subscriptions.empty();
-            }
-        })).subscribe(mUnauthorisedRequestObserver);
-
-    }
-
-    public Observable clearObservedUnauthorisedRequestTimestampAsync() {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Void>() {
-
-            @Override
-            public Subscription onSubscribe(Observer observer) {
-                clearObservedUnauthorisedRequestTimestamp();
-                observer.onCompleted();
-                return Subscriptions.empty();
-            }
-        }));
-
+        boolean updated = mLastObservedTime.compareAndSet(NO_OBSERVED_TIME, System.currentTimeMillis());
+        Log.d(TAG, "Observed Unauthorised request timestamp update result = " + updated);
+        mContext.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
     }
 
     public void clearObservedUnauthorisedRequestTimestamp() {
-        synchronized (sInstance) {
-            Log.d(TAG, "Clearing the observed timestamp");
-            Editor editor = mSharedPreferences.edit();
-            editor.clear();
-            editor.commit();
+        Log.d(TAG, "Clearing Observed Unauthorised request timestamp");
+        mLastObservedTime.set(NO_OBSERVED_TIME);
+    }
+
+    public Boolean timeSinceFirstUnauthorisedRequestIsBeyondLimit() {
+        long lastObservedTime = mLastObservedTime.get();
+        if(lastObservedTime == NO_OBSERVED_TIME){
+            return false;
         }
 
-    }
-
-    public Observable<Boolean> timeSinceFirstUnauthorisedRequestIsBeyondLimit() {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Boolean> observer) {
-                long firstObservedTime;
-
-                synchronized (sInstance) {
-                    firstObservedTime = mSharedPreferences.getLong(OBSERVED_TIMESTAMP_KEY, NO_OBSERVED_TIME);
-                }
-
-                if (firstObservationTimeDoesNotExist(firstObservedTime)) {
-                    observer.onNext(false);
-                } else {
-                    long minutesSinceFirstObservation = TimeUnit.MINUTES.convert(System.currentTimeMillis() - firstObservedTime, TimeUnit.MILLISECONDS);
-                    Log.d(TAG, "Minutes since last observed unauthorised request " + minutesSinceFirstObservation);
-                    observer.onNext(minutesSinceFirstObservation >= TIME_LIMIT_IN_MINUTES);
-                }
-                observer.onCompleted();
-                return Subscriptions.empty();
-            }
-
-        }));
+        long minutesSinceFirstObservation = TimeUnit.MINUTES.convert(System.currentTimeMillis() - lastObservedTime, TimeUnit.MILLISECONDS);
+        Log.d(TAG, "Minutes since last observed unauthorised request " + minutesSinceFirstObservation);
+        return minutesSinceFirstObservation >= TIME_LIMIT_IN_MINUTES;
 
     }
 
-    private boolean firstObservationTimeDoesNotExist(long firstObservedTime) {
-        return firstObservedTime == NO_OBSERVED_TIME;
+    @VisibleForTesting
+    public long getLastObservedTime(){
+        return mLastObservedTime.get();
+    }
+
+    @VisibleForTesting
+    public void setLastObservedTime(long value){
+        mLastObservedTime.set(value);
     }
 
 }
