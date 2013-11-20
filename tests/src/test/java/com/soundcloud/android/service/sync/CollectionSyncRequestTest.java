@@ -15,7 +15,6 @@ import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.sync.content.SyncStrategy;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -146,7 +145,6 @@ public class CollectionSyncRequestTest {
     public void shouldCallOnSyncComplete() throws IOException {
         setupSuccessfulSync();
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
-        when(authRegistry.clearObservedUnauthorisedRequestTimestamp()).thenReturn(observable);
         collectionSyncRequest.onQueued();
         collectionSyncRequest.execute();
         verify(syncStateManager).onSyncComplete(apiSyncResult, localCollection);
@@ -165,10 +163,9 @@ public class CollectionSyncRequestTest {
     @Test
     public void shouldClearLastObservedUnauthorisedRequestTimestampAfterSuccessful() throws IOException {
         setupSuccessfulSync();
-        when(authRegistry.clearObservedUnauthorisedRequestTimestamp()).thenReturn(observable);
         collectionSyncRequest.onQueued();
         collectionSyncRequest.execute();
-        verify(observable).subscribe(any(DefaultObserver.class));
+        verify(authRegistry).clearObservedUnauthorisedRequestTimestamp();
 
     }
 

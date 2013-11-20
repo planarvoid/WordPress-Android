@@ -11,7 +11,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.analytics.AnalyticsProperties;
-import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.migrations.MigrationEngine;
@@ -69,8 +68,6 @@ public class SoundCloudApplication extends Application implements Tracker {
 
         ApplicationProperties appProperties = new ApplicationProperties(getResources());
         AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources());
-        UnauthorisedRequestRegistry.getInstance(this).clearObservedUnauthorisedRequestTimestamp();
-
 
         Log.i(TAG, "Application starting up in mode " + appProperties.getBuildType());
         Log.d(TAG, appProperties.toString());

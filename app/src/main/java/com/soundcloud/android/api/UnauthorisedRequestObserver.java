@@ -6,20 +6,16 @@ import com.soundcloud.android.rx.observers.DefaultObserver;
 import android.content.Context;
 import android.content.Intent;
 
-public class UnauthorisedRequestObserver extends DefaultObserver<Void> {
+public class UnauthorisedRequestObserver extends DefaultObserver {
 
     private Context mContext;
 
     public UnauthorisedRequestObserver(Context context) {
-        if(context != null){
-            mContext = context.getApplicationContext();
-        }
+        mContext = context.getApplicationContext();
     }
 
     @Override
     public void onCompleted() {
-        if(mContext != null){
-            mContext.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
-        }
+        mContext.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
     }
 }

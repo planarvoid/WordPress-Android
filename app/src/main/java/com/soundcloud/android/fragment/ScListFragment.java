@@ -111,6 +111,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private int mRetainedListPosition;
     private AccountOperations accountOperations;
     protected OldCloudAPI oldCloudApi;
+    private UnauthorisedRequestObserver unauthorisedRequestObserver;
 
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
@@ -160,6 +161,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         mKeepGoing = true;
         setupListAdapter();
         accountOperations = new AccountOperations(getActivity());
+        unauthorisedRequestObserver = new UnauthorisedRequestObserver(getActivity());
         unauthorisedRequestRegistry = UnauthorisedRequestRegistry.getInstance(getActivity());
     }
 
@@ -501,11 +503,11 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
 
         // show unauthorized dialog if applicable
         if (data.responseCode == HttpStatus.SC_UNAUTHORIZED) {
+
             unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp()
-                    .subscribe(new UnauthorisedRequestObserver(getActivity()));
+                    .subscribe(unauthorisedRequestObserver);
         } else {
-            //Not sure if this needs to happen for every request which goes through this point Jon?
-            fireAndForget(unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp());
+            fireAndForget(unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestampAsync());
         }
 
     }

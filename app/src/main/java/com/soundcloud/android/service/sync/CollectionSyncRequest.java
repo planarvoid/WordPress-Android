@@ -1,7 +1,5 @@
 package com.soundcloud.android.service.sync;
 
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
-
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.api.UnauthorisedRequestObserver;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
@@ -78,7 +76,7 @@ import java.io.IOException;
             Log.d(TAG, "syncing " + mContentUri);
             mResult = mApiSyncerFactory.forContentUri(mContext, mContentUri).syncContent(mContentUri, mAction);
             mSyncStateManager.onSyncComplete(mResult, localCollection);
-            fireAndForget(mRequestRegistry.clearObservedUnauthorisedRequestTimestamp());
+            mRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         } catch (CloudAPI.InvalidTokenException e) {
             mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             mResult = ApiSyncResult.fromAuthException(mContentUri);

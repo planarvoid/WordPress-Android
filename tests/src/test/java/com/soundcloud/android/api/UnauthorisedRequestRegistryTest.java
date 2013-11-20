@@ -11,8 +11,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.internal.matchers.GreaterOrEqual;
 import rx.Observer;
@@ -20,6 +22,7 @@ import rx.Observer;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+@RunWith(SoundCloudTestRunner.class)
 public class UnauthorisedRequestRegistryTest {
 
     private UnauthorisedRequestRegistry registry;
@@ -74,7 +77,7 @@ public class UnauthorisedRequestRegistryTest {
     @Test
     public void shouldResetFirstObservedTimeOfUnauthorisedRequest(){
         when(sharedPreference.edit()).thenReturn(editor);
-        registry.clearObservedUnauthorisedRequestTimestamp().subscribe(voidObserver);
+        registry.clearObservedUnauthorisedRequestTimestampAsync().subscribe(voidObserver);
         verify(editor).clear();
         verify(editor).commit();
         verify(voidObserver).onCompleted();

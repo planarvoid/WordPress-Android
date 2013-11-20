@@ -1,7 +1,5 @@
 package com.soundcloud.android.receiver;
 
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.dialog.TokenExpiredDialogFragment;
@@ -14,9 +12,9 @@ import android.support.v4.app.FragmentManager;
 
 public class UnauthorisedRequestReceiver extends BroadcastReceiver {
 
-    private UnauthorisedRequestRegistry mRequestRegistry;
-    private FragmentManager mFragmentManager;
-    private TokenExpiredDialogFragment mTokenExpiredDialog;
+    private final UnauthorisedRequestRegistry mRequestRegistry;
+    private final FragmentManager mFragmentManager;
+    private final TokenExpiredDialogFragment mTokenExpiredDialog;
 
     public UnauthorisedRequestReceiver(Context context, FragmentManager fragmentManager) {
         this(UnauthorisedRequestRegistry.getInstance(context), fragmentManager, new TokenExpiredDialogFragment());
@@ -34,15 +32,16 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        mRequestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit().subscribe(new DefaultObserver<Boolean>() {
-            @Override
-            public void onNext(Boolean expired) {
-                if (expired) {
-                    fireAndForget(mRequestRegistry.clearObservedUnauthorisedRequestTimestamp());
-                    mTokenExpiredDialog.show(mFragmentManager, TokenExpiredDialogFragment.TAG);
-                }
-            }
-        });
+        mRequestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit().
+                subscribe(new DefaultObserver<Boolean>() {
+                    @Override
+                    public void onNext(Boolean expired) {
+                        if (expired) {
+                            mRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
+                            mTokenExpiredDialog.show(mFragmentManager, TokenExpiredDialogFragment.TAG);
+                        }
+                    }
+                });
 
     }
 }

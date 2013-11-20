@@ -44,31 +44,29 @@ public class UnauthorisedRequestReceiverTest {
     }
 
     @Test
-    public void shouldNotShowDialogIfTimeLimitHasNotExpired(){
+    public void shouldNotShowDialogIfTimeLimitHasNotExpired() {
         when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(booleanObservable(false));
         receiver.onReceive(context, intent);
         verifyZeroInteractions(fragmentManager);
     }
 
     @Test
-    public void shouldNotClearObservedTimeStampIfLimitHasNotExpired(){
+    public void shouldNotClearObservedTimeStampIfLimitHasNotExpired() {
         when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(booleanObservable(false));
         receiver.onReceive(context, intent);
         verify(registry, never()).clearObservedUnauthorisedRequestTimestamp();
     }
 
     @Test
-    public void shouldShowDialogIfTimeLimitHasExpired(){
+    public void shouldShowDialogIfTimeLimitHasExpired() {
         when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(booleanObservable(true));
-        when(registry.clearObservedUnauthorisedRequestTimestamp()).thenReturn(voidObservable);
         receiver.onReceive(context, intent);
         verify(tokenExpiredDialog).show(fragmentManager, TokenExpiredDialogFragment.TAG);
     }
 
     @Test
-    public void shouldClearObservedTimestampIfShowingDialog(){
+    public void shouldClearObservedTimestampIfShowingDialog() {
         when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(booleanObservable(true));
-        when(registry.clearObservedUnauthorisedRequestTimestamp()).thenReturn(voidObservable);
         receiver.onReceive(context, intent);
         verify(registry).clearObservedUnauthorisedRequestTimestamp();
     }
