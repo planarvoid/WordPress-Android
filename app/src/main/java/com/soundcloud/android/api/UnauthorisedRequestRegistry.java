@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class UnauthorisedRequestRegistry {
     private static final String TAG = "RequestRegistry";
     private static final long NO_OBSERVED_TIME = 0L;
-    private static final long TIME_LIMIT_IN_MINUTES = 2;
+    private static final long TIME_LIMIT_IN_MILLISECONDS = TimeUnit.SECONDS.toMillis(60*2);
     private static UnauthorisedRequestRegistry instance;
     private Context mContext;
 
@@ -49,9 +49,9 @@ public class UnauthorisedRequestRegistry {
             return false;
         }
 
-        long minutesSinceFirstObservation = TimeUnit.MINUTES.convert(System.currentTimeMillis() - lastObservedTime, TimeUnit.MILLISECONDS);
-        Log.d(TAG, "Minutes since last observed unauthorised request " + minutesSinceFirstObservation);
-        return minutesSinceFirstObservation >= TIME_LIMIT_IN_MINUTES;
+        long millisecondsSinceLastObservation = System.currentTimeMillis() - lastObservedTime;
+        Log.d(TAG, "Milliseconds since last observed unauthorised request " + millisecondsSinceLastObservation);
+        return millisecondsSinceLastObservation >= TIME_LIMIT_IN_MILLISECONDS;
 
     }
 
