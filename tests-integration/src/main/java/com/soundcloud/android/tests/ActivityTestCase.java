@@ -1,8 +1,5 @@
 package com.soundcloud.android.tests;
 
-import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.screens.MenuScreen;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -10,6 +7,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.screens.MenuScreen;
 
 import java.util.regex.Pattern;
 
@@ -36,6 +35,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         getActivity();
 
         super.setUp(); // do not move, this has to run after the above
+
         getInstrumentation().getContext()
             .getSharedPreferences("showcase_internal", Context.MODE_PRIVATE)
             .edit()
@@ -48,9 +48,9 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         if (solo != null) {
             solo.finishOpenedActivities();
         }
+        super.tearDown();
         AccountAssistant.logOut(getInstrumentation());
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
-        super.tearDown();
         solo = null;
     }
 

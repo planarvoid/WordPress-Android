@@ -50,7 +50,6 @@ public class TestUser {
         }
     }
 
-
     public static final TestUser scAccount      = new TestUser("Steven Testowy",        "soundcloudtestuser@gmail.com", "s0undcl0ud");
     public static final TestUser scTestAccount  = new TestUser("android-testing",       "",                             "android-testing");
     public static final TestUser noGPlusAccount = new TestUser("Steven Testowy",        "soundcloudtestuser@gmail.com", "s0undcl0ud");

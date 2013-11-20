@@ -7,6 +7,7 @@ import com.soundcloud.android.auth.LoginTestCase;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
+import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
@@ -26,11 +27,13 @@ import static com.soundcloud.android.tests.TestUser.scTestAccount;
 public class LoginFlowTest extends LoginTestCase {
     private RecoverPasswordScreen recoveryScreen;
     private FBWebViewScreen FBWebViewScreen;
+    private HomeScreen homeScreen;
     private Waiter waiter;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        homeScreen = new HomeScreen(solo);
 
         recoveryScreen  = new RecoverPasswordScreen(solo);
         menuScreen      = new MenuScreen(solo);
@@ -44,7 +47,7 @@ public class LoginFlowTest extends LoginTestCase {
      * So that I can listen to my favourite tracks
      */
     public void testSCUserLoginFlow()  {
-        signupScreen.clickLogInButton();
+        homeScreen.clickLogInButton();
 
         loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
 

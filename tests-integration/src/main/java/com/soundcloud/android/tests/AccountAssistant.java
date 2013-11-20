@@ -2,7 +2,6 @@ package com.soundcloud.android.tests;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -17,6 +16,7 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 import static junit.framework.Assert.assertNotNull;
 
 public final class AccountAssistant {
@@ -65,7 +65,6 @@ public final class AccountAssistant {
         Account account = new AccountOperations(instrumentation.getTargetContext()).addOrReplaceSoundCloudAccount(user, token, SignupVia.NONE);
         assertNotNull("Account creation failed", account);
         return account;
-
     }
 
     public static boolean logOut(Instrumentation instrumentation) throws Exception {
@@ -81,11 +80,11 @@ public final class AccountAssistant {
 
         Log.i(TAG, String.format("LoggedInUser: %s", getAccount(context).name));
 
-        AccountManager am = AccountManager.get(context);
-        AccountManagerFuture<Boolean> removeAccountFuture = am.removeAccount(accountOperations.getSoundCloudAccount(),null,null);
-
-        return removeAccountFuture.getResult();
+        fireAndForget(new AccountOperations(context).removeSoundCloudAccount());
+        return true;
     }
+
+
 
     public static Account getAccount(Context context) {
         AccountManager am = AccountManager.get(context);
