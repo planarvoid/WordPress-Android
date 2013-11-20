@@ -2,16 +2,13 @@ package com.soundcloud.android.service.sync;
 
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.service.sync.content.SyncStrategy;
@@ -46,10 +43,6 @@ public class CollectionSyncRequestTest {
     private LocalCollection localCollection;
     @Mock
     private SharedPreferences sharedPreferences;
-    @Mock
-    private SharedPreferences.Editor sharedPreferencesEditor;
-    @Mock
-    private ApplicationProperties applicationProperties;
 
     static final String NON_INTERACTIVE =
             "&" + URLEncoder.encode(Wrapper.BACKGROUND_PARAMETER) + "=1";
@@ -57,10 +50,8 @@ public class CollectionSyncRequestTest {
 
     @Before
     public void setup() {
-        initMocks(this);
         collectionSyncRequest = new CollectionSyncRequest(Robolectric.application,
-                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager,
-                sharedPreferences, applicationProperties);
+                Content.ME_FOLLOWINGS.uri, SOME_ACTION, false, apiSyncerFactory, syncStateManager);
     }
 
     @Test
@@ -143,7 +134,6 @@ public class CollectionSyncRequestTest {
     public void shouldCallOnSyncComplete() throws IOException {
         setupSuccessfulSync();
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
-
         collectionSyncRequest.onQueued();
         collectionSyncRequest.execute();
         verify(syncStateManager).onSyncComplete(apiSyncResult, localCollection);
@@ -153,13 +143,6 @@ public class CollectionSyncRequestTest {
         setupSync();
         apiSyncResult = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
         apiSyncResult.success = true;
-        when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
-    }
-
-    private void setupFailedSync() throws IOException {
-        setupSync();
-        apiSyncResult = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
-        apiSyncResult.success = false;
         when(syncStrategy.syncContent(Content.ME_FOLLOWINGS.uri, SOME_ACTION)).thenReturn(apiSyncResult);
     }
 
@@ -174,7 +157,5 @@ public class CollectionSyncRequestTest {
         when(localCollection.getId()).thenReturn(1L);
         when(apiSyncerFactory.forContentUri(Robolectric.application, Content.ME_FOLLOWINGS.uri)).thenReturn(syncStrategy);
         when(syncStateManager.updateSyncState(1L, LocalCollection.SyncState.SYNCING)).thenReturn(true);
-        when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
-        when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
     }
 }

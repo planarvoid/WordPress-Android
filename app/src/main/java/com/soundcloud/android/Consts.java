@@ -71,7 +71,6 @@ public final class Consts {
 
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
-        int DIALOG_UNAUTHORIZED = 2;
         int DIALOG_DISCARD_RECORDING = 5;
         int DIALOG_UNSAVED_RECORDING = 6;
         int DIALOG_DELETE_RECORDING = 7;

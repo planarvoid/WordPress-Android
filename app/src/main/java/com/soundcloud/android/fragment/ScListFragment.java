@@ -9,7 +9,6 @@ import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.activity.MainActivity;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ActivityAdapter;
 import com.soundcloud.android.adapter.CommentAdapter;
@@ -42,7 +41,6 @@ import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,7 +55,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -494,14 +491,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         if (adapter.isEmpty() && mKeepGoing){
             // this can happen if we manually filter out the entire collection (e.g. all playlists)
             append(true);
-        }
-
-        // show unauthorized dialog if applicable
-        if (data.responseCode == HttpStatus.SC_UNAUTHORIZED) {
-            final FragmentActivity activity = getActivity();
-            if (activity != null) {
-                activity.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
-            }
         }
 
     }

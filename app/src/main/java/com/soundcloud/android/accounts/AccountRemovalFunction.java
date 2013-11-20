@@ -3,9 +3,11 @@ package com.soundcloud.android.accounts;
 import static com.soundcloud.android.activity.auth.FacebookSSO.FBToken;
 import static rx.Observable.OnSubscribeFunc;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
+import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.dao.ActivitiesStorage;
@@ -35,15 +37,17 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
     private final AccountManager mAccountManager;
     private final SyncStateManager mSyncStateManager;
     private final C2DMReceiver mC2DMReceiver;
+    private final UnauthorisedRequestRegistry mUnauthorisedRequestRegistry;
 
     public AccountRemovalFunction(Account soundCloudAccount, AccountManager accountManager, Context context) {
         this(soundCloudAccount, context, accountManager, new SyncStateManager(context), new CollectionStorage(context), new ActivitiesStorage(context),
-                new UserAssociationStorage(context), SoundRecorder.getInstance(context), new C2DMReceiver());
+                new UserAssociationStorage(context), SoundRecorder.getInstance(context), new C2DMReceiver(), UnauthorisedRequestRegistry.getInstance(context));
     }
 
-    AccountRemovalFunction(Account soundCloudAccount, Context context, AccountManager accountManager, SyncStateManager syncStateManager,
+    @VisibleForTesting
+    protected AccountRemovalFunction(Account soundCloudAccount, Context context, AccountManager accountManager, SyncStateManager syncStateManager,
                            CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
-                           SoundRecorder soundRecorder, C2DMReceiver c2DMReceiver) {
+                           SoundRecorder soundRecorder, C2DMReceiver c2DMReceiver, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
         mSoundCloudAccount = soundCloudAccount;
         mContext = context;
         mAccountManager = accountManager;
@@ -53,6 +57,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
         mUserAssociationStorage = userAssociationStorage;
         mSoundRecorder = soundRecorder;
         mC2DMReceiver = c2DMReceiver;
+        mUnauthorisedRequestRegistry = unauthorisedRequestRegistry;
     }
 
 
@@ -79,7 +84,7 @@ class AccountRemovalFunction implements OnSubscribeFunc<Void> {
      * TODO Should we just delete the private data directory? Context.getFilesDir()
      */
     private void finaliseAccountRemoval() {
-
+        mUnauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         mSyncStateManager.clear();
         mCollectionStorage.clear();
         mActivitiesStorage.clear(null);

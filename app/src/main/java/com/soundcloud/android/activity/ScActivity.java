@@ -8,6 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.api.OldCloudAPI;
+import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -31,7 +32,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
@@ -54,6 +54,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
     @Nullable
     protected ActionBarController mActionBarController;
+    private UnauthorisedRequestReceiver mUnauthoriedRequestReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,19 +63,13 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         mAndroidCloudAPI = new OldCloudAPI(this);
         connectivityListener = new NetworkConnectivityListener();
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
-
+        mUnauthoriedRequestReceiver = new UnauthorisedRequestReceiver(getApplicationContext(), getSupportFragmentManager());
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
+        registerReceiver(mLoggingOutListener, new IntentFilter(Actions.LOGGING_OUT));
         if (getSupportActionBar() != null) {
             mActionBarController = createActionBarController();
         }
-
-        IntentFilter f = new IntentFilter();
-        f.addAction(Consts.GeneralIntents.ACTIVITIES_UNSEEN_CHANGED);
-        f.addAction(Consts.GeneralIntents.UNAUTHORIZED);
-        f.addAction(Actions.LOGGING_OUT);
-        registerReceiver(mGeneralIntentListener, new IntentFilter(f));
 
 
     }
@@ -121,10 +116,10 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         super.onDestroy();
 
         try {
-            unregisterReceiver(mGeneralIntentListener);
-        } catch (IllegalArgumentException e){
+            unregisterReceiver(mLoggingOutListener);
+        } catch (IllegalArgumentException e) {
             // this seems to happen in EmailConfirm. Seems like it doesn't respect the full lifecycle.
-            Log.e(SoundCloudApplication.TAG,"Exception unregistering general intent listener: ", e);
+            SoundCloudApplication.handleSilentException("Couldnt unregister intent listeners", e);
         }
 
         connectivityListener.unregisterHandler(connHandler);
@@ -149,7 +144,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     @Override
     protected void onResume() {
         super.onResume();
-
+        registerReceiver(mUnauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
         if (!mAccountOperations.soundCloudAccountExists()) {
             pausePlayback();
             finish();
@@ -166,6 +161,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     @Override
     protected void onPause() {
         super.onPause();
+        unregisterReceiver(mUnauthoriedRequestReceiver);
         mIsForeground = false;
         if (mActionBarController != null) {
             mActionBarController.onPause();
@@ -229,19 +225,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     @Override
     protected Dialog onCreateDialog(int which) {
         switch (which) {
-            case Consts.Dialogs.DIALOG_UNAUTHORIZED:
-                return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
-                        .setMessage(R.string.error_unauthorized_message).setNegativeButton(
-                                R.string.side_menu_settings, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                startActivity(new Intent(ScActivity.this, Settings.class));
-                            }
-                        }).setPositiveButton(
-                                android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
-                            }
-                        }).create();
             case Consts.Dialogs.DIALOG_ERROR_LOADING:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_loading_title)
                         .setMessage(R.string.error_loading_message).setPositiveButton(
@@ -355,15 +338,10 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         return this;
     }
 
-    private final BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
+    private final BroadcastReceiver mLoggingOutListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(Consts.GeneralIntents.UNAUTHORIZED) && mIsForeground) {
-                safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
-            } else if (action.equals(Actions.LOGGING_OUT)){
-                finish();
-            }
+            finish();
         }
     };
 

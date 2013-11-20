@@ -1,18 +1,13 @@
 package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 
 import java.io.IOException;
 
@@ -24,12 +19,6 @@ import java.io.IOException;
 /* package */  class CollectionSyncRequest {
 
     public static final String TAG = ApiSyncService.class.getSimpleName();
-    public static final String PREFIX_LAST_SYNC_RESULT = "last_sync_result_";
-
-    public static final String PREF_VAL_SUCCESS = "success";
-    public static final String PREF_VAL_FAILED = "failed";
-    public static final String PREF_VAL_NULL = "[null]";
-
     private final Context mContext;
     private final Uri mContentUri;
     private final String mAction;
@@ -41,19 +30,16 @@ import java.io.IOException;
     private ApiSyncResult mResult;
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI){
-        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context),
-                PreferenceManager.getDefaultSharedPreferences(context), new ApplicationProperties(context.getResources()));
+        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context));
     }
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI,
-                                 ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager,
-                                 SharedPreferences sharedPreferences, ApplicationProperties applicationProperties) {
+                                 ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
         mContext = context;
         mContentUri = contentUri;
         mAction = action;
         mResult = new ApiSyncResult(mContentUri);
         mIsUi = isUI;
-
         mSyncStateManager = syncStateManager;
         mApiSyncerFactory = apiSyncerFactory;
     }
@@ -84,12 +70,9 @@ import java.io.IOException;
             Log.d(TAG, "syncing " + mContentUri);
             mResult = mApiSyncerFactory.forContentUri(mContext, mContentUri).syncContent(mContentUri, mAction);
             mSyncStateManager.onSyncComplete(mResult, localCollection);
-
         } catch (CloudAPI.InvalidTokenException e) {
             mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             mResult = ApiSyncResult.fromAuthException(mContentUri);
-            mContext.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
-
         } catch (AndroidCloudAPI.UnexpectedResponseException e) {
             mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             mResult = ApiSyncResult.fromUnexpectedResponseException(mContentUri);
@@ -146,9 +129,5 @@ import java.io.IOException;
                 '}';
     }
 
-    public class SyncRetryViolation extends Exception {
-        public SyncRetryViolation(String message) {
-            super(message);
-        }
-    }
+
 }
