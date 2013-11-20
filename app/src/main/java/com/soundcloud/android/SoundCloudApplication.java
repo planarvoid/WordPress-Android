@@ -48,9 +48,6 @@ import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
 import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class SoundCloudApplication extends Application implements ObjectGraphProvider, Tracker {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1000 * 1000; // available mem in bytes
@@ -75,7 +72,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         MODEL_MANAGER = new ScModelManager(this);
         instance = this;
 
-        mObjectGraph = ObjectGraph.create(getModules().toArray());
+        mObjectGraph = ObjectGraph.create(new ApplicationModule(this), new ExploreTracksCategoriesModule());
 
         new MigrationEngine(this).migrate();
 
@@ -149,13 +146,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         }
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
-    }
-
-    protected List<Object> getModules() {
-        return Arrays.asList(
-                new ApplicationModule(this),
-                new ExploreTracksCategoriesModule()
-        );
     }
 
     public ObjectGraph getObjectGraph() {
