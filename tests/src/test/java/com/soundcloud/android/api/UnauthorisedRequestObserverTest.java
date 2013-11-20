@@ -1,7 +1,6 @@
 package com.soundcloud.android.api;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
@@ -29,13 +28,6 @@ public class UnauthorisedRequestObserverTest {
         UnauthorisedRequestObserver observer = new UnauthorisedRequestObserver(context);
         observer.onCompleted();
         verify(context).sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
-    }
-
-    @Test
-    public void requestObserverShouldNotSendBroadcastAfterUpdatingTimestampIfContextIsNull() {
-        UnauthorisedRequestObserver observer = new UnauthorisedRequestObserver(null);
-        observer.onCompleted();
-        verifyZeroInteractions(context);
     }
 
 }

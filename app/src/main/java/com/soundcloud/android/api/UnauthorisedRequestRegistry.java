@@ -18,14 +18,14 @@ import android.content.SharedPreferences;
 
 import java.util.concurrent.TimeUnit;
 
-public class UnauthorisedRequestRegistry extends ScheduledOperations{
+public class UnauthorisedRequestRegistry extends ScheduledOperations {
     private static final String TAG = "RequestRegistry";
     private static final String SHARED_PREFERENCE_NAME = "UnauthorisedRequestRegister";
     private static final long NO_OBSERVED_TIME = 0L;
     private static final String OBSERVED_TIMESTAMP_KEY = "first_observed_timestamp";
     private static final long TIME_LIMIT_IN_MINUTES = 2;
     private static UnauthorisedRequestRegistry sInstance;
-    private final SharedPreferences mSharedPreference;
+    private final SharedPreferences mSharedPreferences;
 
     public static synchronized UnauthorisedRequestRegistry getInstance(Context context) {
         if (sInstance == null) {
@@ -41,21 +41,21 @@ public class UnauthorisedRequestRegistry extends ScheduledOperations{
     }
 
     private UnauthorisedRequestRegistry(Context context, Scheduler scheduler) {
-        mSharedPreference = context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
-        subscribeOn(scheduler);
+        super(scheduler);
+        mSharedPreferences = context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
     }
 
-    public Observable<Void> updateObservedUnauthorisedRequestTimestamp() {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<Void>() {
+    public Observable updateObservedUnauthorisedRequestTimestamp() {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc() {
 
             @Override
-            public Subscription onSubscribe(Observer<? super Void> observer) {
+            public Subscription onSubscribe(Observer observer) {
                 synchronized (sInstance) {
-                    long firstObservedTime = mSharedPreference.getLong(OBSERVED_TIMESTAMP_KEY, NO_OBSERVED_TIME);
+                    long firstObservedTime = mSharedPreferences.getLong(OBSERVED_TIMESTAMP_KEY, NO_OBSERVED_TIME);
                     if (firstObservationTimeDoesNotExist(firstObservedTime)) {
                         long now = System.currentTimeMillis();
                         Log.d(TAG, "Updating the first observed unauthorised request timestamp to " + now);
-                        Editor editor = mSharedPreference.edit();
+                        Editor editor = mSharedPreferences.edit();
                         editor.putLong(OBSERVED_TIMESTAMP_KEY, now);
                         editor.commit();
                     }
@@ -67,21 +67,26 @@ public class UnauthorisedRequestRegistry extends ScheduledOperations{
 
     }
 
-    public Observable<Void> clearObservedUnauthorisedRequestTimestamp() {
+    public Observable clearObservedUnauthorisedRequestTimestampAsync() {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<Void>() {
 
             @Override
-            public Subscription onSubscribe(Observer<? super Void> observer) {
-                synchronized (sInstance) {
-                    Log.d(TAG, "Clearing the observed timestamp");
-                    Editor editor = mSharedPreference.edit();
-                    editor.clear();
-                    editor.commit();
-                }
+            public Subscription onSubscribe(Observer observer) {
+                clearObservedUnauthorisedRequestTimestamp();
                 observer.onCompleted();
                 return Subscriptions.empty();
             }
         }));
+
+    }
+
+    public void clearObservedUnauthorisedRequestTimestamp() {
+        synchronized (sInstance) {
+            Log.d(TAG, "Clearing the observed timestamp");
+            Editor editor = mSharedPreferences.edit();
+            editor.clear();
+            editor.commit();
+        }
 
     }
 
@@ -92,7 +97,7 @@ public class UnauthorisedRequestRegistry extends ScheduledOperations{
                 long firstObservedTime;
 
                 synchronized (sInstance) {
-                    firstObservedTime = mSharedPreference.getLong(OBSERVED_TIMESTAMP_KEY, NO_OBSERVED_TIME);
+                    firstObservedTime = mSharedPreferences.getLong(OBSERVED_TIMESTAMP_KEY, NO_OBSERVED_TIME);
                 }
 
                 if (firstObservationTimeDoesNotExist(firstObservedTime)) {

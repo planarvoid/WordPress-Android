@@ -34,7 +34,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
@@ -132,7 +131,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
             unregisterReceiver(mUnauthoriedRequestReceiver);
         } catch (IllegalArgumentException e) {
             // this seems to happen in EmailConfirm. Seems like it doesn't respect the full lifecycle.
-            Log.e(SoundCloudApplication.TAG, "Exception unregistering intent listeners: ", e);
+            SoundCloudApplication.handleSilentException("Couldnt unregister intent listeners", e);
         }
 
         connectivityListener.unregisterHandler(connHandler);

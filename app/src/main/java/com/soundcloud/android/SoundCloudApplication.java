@@ -15,7 +15,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProperties;
-import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
@@ -79,8 +78,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
         ApplicationProperties appProperties = new ApplicationProperties(getResources());
         AnalyticsProperties analyticsProperties = new AnalyticsProperties(getResources());
-        UnauthorisedRequestRegistry.getInstance(this).clearObservedUnauthorisedRequestTimestamp();
-
 
         Log.i(TAG, "Application starting up in mode " + appProperties.getBuildType());
         Log.d(TAG, appProperties.toString());
