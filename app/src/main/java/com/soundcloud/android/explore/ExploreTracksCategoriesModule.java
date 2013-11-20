@@ -8,8 +8,8 @@ import dagger.Provides;
 public class ExploreTracksCategoriesModule {
 
     @Provides
-    AndroidObservableFactory provideFactory(){
-        return new AndroidObservableFactory(new ExploreTracksOperations().getCategories());
+    AndroidObservableFactory provideFactory(ExploreTracksOperations exploreTracksOperations){
+        return new AndroidObservableFactory(exploreTracksOperations.getCategories());
     }
 
 }
