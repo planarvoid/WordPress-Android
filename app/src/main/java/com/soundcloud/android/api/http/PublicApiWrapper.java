@@ -1,5 +1,7 @@
 package com.soundcloud.android.api.http;
 
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -12,6 +14,7 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -80,6 +83,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     private ObjectMapper mObjectMapper;
     private Context mContext;
     private String userAgent;
+    private UnauthorisedRequestRegistry mUnauthorisedRequestRegistry;
 
     public synchronized static PublicApiWrapper getInstance(Context context){
         if(instance == null){
@@ -97,14 +101,16 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     protected PublicApiWrapper(Context context, HttpProperties properties, AccountOperations accountOperations,
                                ApplicationProperties applicationProperties){
         this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
-                ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken(), applicationProperties);
+                ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken(), applicationProperties,
+                UnauthorisedRequestRegistry.getInstance(context));
     }
 
     private PublicApiWrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri,
-                             Token token, ApplicationProperties applicationProperties) {
+                    Token token, ApplicationProperties applicationProperties, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
         super(clientId, clientSecret, redirectUri, token);
         // context can be null in tests
         if (context == null) return;
+        mUnauthorisedRequestRegistry = unauthorisedRequestRegistry;
         mApplicationProperties = applicationProperties;
         mContext = context;
         mObjectMapper = mapper;
@@ -174,6 +180,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         HttpResponse response = null;
         try {
             response = super.safeExecute(target, request);
+            recordUnauthorisedRequestIfRequired(response);
         } finally {
             logRequest(request, response);
         }
@@ -181,12 +188,21 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         return response;
     }
 
+    private void recordUnauthorisedRequestIfRequired(HttpResponse response) {
+        if(responseIsUnauthorised(response)){
+            mUnauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
+        } else {
+            //Do this async so any potential errors do not stop the execution flow of the request
+            fireAndForget(mUnauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestampAsync());
+        }
+    }
+
     private void logRequest(HttpUriRequest request, @Nullable HttpResponse response) {
         if (!mApplicationProperties.isReleaseBuild()) {
             String report = generateRequestResponseLog(request, response);
             // we log using INFO level, since request logs can be useful in beta builds
             Log.i(TAG, report);
-        } else if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+        } else if (responseIsUnauthorised(response)) {
             // always report 401s of requestes originating from the UI into Crashlytics for release builds,
             // since they are causing us some trouble
 
@@ -202,6 +218,10 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
                 SoundCloudApplication.handleSilentException("Received 401 Unauthorized", exception);
             }
         }
+    }
+
+    private boolean responseIsUnauthorised(HttpResponse response) {
+        return response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED;
     }
 
     public static String generateRequestResponseLog(HttpUriRequest request, @Nullable HttpResponse response) {

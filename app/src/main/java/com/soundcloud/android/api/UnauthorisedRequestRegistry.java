@@ -26,27 +26,31 @@ public class UnauthorisedRequestRegistry extends ScheduledOperations {
     private static final long TIME_LIMIT_IN_MINUTES = 2;
     private static UnauthorisedRequestRegistry sInstance;
     private final SharedPreferences mSharedPreferences;
+    private final UnauthorisedRequestObserver mUnauthorisedRequestObserver;
 
     public static synchronized UnauthorisedRequestRegistry getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new UnauthorisedRequestRegistry(context, ScSchedulers.STORAGE_SCHEDULER);
+            sInstance = new UnauthorisedRequestRegistry(context, ScSchedulers.STORAGE_SCHEDULER, new UnauthorisedRequestObserver(context));
         }
         return sInstance;
     }
 
     @VisibleForTesting
-    protected UnauthorisedRequestRegistry(Context context, UnauthorisedRequestRegistry instance) {
-        this(context, Schedulers.currentThread());
+    protected UnauthorisedRequestRegistry(Context context, UnauthorisedRequestRegistry instance,
+                                          UnauthorisedRequestObserver unauthorisedRequestObserver) {
+        this(context, Schedulers.currentThread(), unauthorisedRequestObserver);
         sInstance = instance;
     }
 
-    private UnauthorisedRequestRegistry(Context context, Scheduler scheduler) {
+    private UnauthorisedRequestRegistry(Context context, Scheduler scheduler,
+                                        UnauthorisedRequestObserver unauthorisedRequestObserver) {
         super(scheduler);
         mSharedPreferences = context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+        mUnauthorisedRequestObserver = unauthorisedRequestObserver;
     }
 
-    public Observable updateObservedUnauthorisedRequestTimestamp() {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc() {
+    public void updateObservedUnauthorisedRequestTimestamp() {
+        schedule(Observable.create(new Observable.OnSubscribeFunc() {
 
             @Override
             public Subscription onSubscribe(Observer observer) {
@@ -63,7 +67,7 @@ public class UnauthorisedRequestRegistry extends ScheduledOperations {
                 observer.onCompleted();
                 return Subscriptions.empty();
             }
-        }));
+        })).subscribe(mUnauthorisedRequestObserver);
 
     }
 
@@ -104,7 +108,7 @@ public class UnauthorisedRequestRegistry extends ScheduledOperations {
                     observer.onNext(false);
                 } else {
                     long minutesSinceFirstObservation = TimeUnit.MINUTES.convert(System.currentTimeMillis() - firstObservedTime, TimeUnit.MILLISECONDS);
-                    Log.d(TAG, "Minutes since last observed unauthorised request" + minutesSinceFirstObservation);
+                    Log.d(TAG, "Minutes since last observed unauthorised request " + minutesSinceFirstObservation);
                     observer.onNext(minutesSinceFirstObservation >= TIME_LIMIT_IN_MINUTES);
                 }
                 observer.onCompleted();

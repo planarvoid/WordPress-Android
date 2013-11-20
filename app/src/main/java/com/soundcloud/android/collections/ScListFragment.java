@@ -1,7 +1,6 @@
 package com.soundcloud.android.collections;
 
 import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -12,8 +11,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.api.UnauthorisedRequestObserver;
-import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.associations.CommentAdapter;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -40,7 +37,6 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,7 +92,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private boolean mIgnorePlaybackStatus, mKeepGoing, mPendingSync;
     private CollectionTask mAppendTask;
     protected String mNextHref;
-    private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
 
     protected int mStatusCode;
 
@@ -107,7 +102,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private int mRetainedListPosition;
     private AccountOperations accountOperations;
     protected PublicApi publicApi;
-    private UnauthorisedRequestObserver unauthorisedRequestObserver;
 
     public static ScListFragment newInstance(Content content) {
         return newInstance(content.uri);
@@ -157,8 +151,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         mKeepGoing = true;
         setupListAdapter();
         accountOperations = new AccountOperations(getActivity());
-        unauthorisedRequestObserver = new UnauthorisedRequestObserver(getActivity());
-        unauthorisedRequestRegistry = UnauthorisedRequestRegistry.getInstance(getActivity());
     }
 
     @Override
@@ -498,15 +490,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         if (adapter.isEmpty() && mKeepGoing){
             // this can happen if we manually filter out the entire collection (e.g. all playlists)
             append(true);
-        }
-
-        // show unauthorized dialog if applicable
-        if (data.responseCode == HttpStatus.SC_UNAUTHORIZED) {
-
-            unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp()
-                    .subscribe(unauthorisedRequestObserver);
-        } else {
-            fireAndForget(unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestampAsync());
         }
 
     }

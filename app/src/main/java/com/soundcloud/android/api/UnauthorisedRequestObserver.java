@@ -6,7 +6,7 @@ import com.soundcloud.android.rx.observers.DefaultObserver;
 import android.content.Context;
 import android.content.Intent;
 
-public class UnauthorisedRequestObserver extends DefaultObserver {
+class UnauthorisedRequestObserver extends DefaultObserver {
 
     private Context mContext;
 
