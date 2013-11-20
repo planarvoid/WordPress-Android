@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
+import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -49,8 +50,12 @@ public class ExploreTracksCategoriesFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = new ExploreTracksCategoriesFragment();
-        ObjectGraph.create(new TestModule(factory)).inject(fragment);
+        fragment = new ExploreTracksCategoriesFragment(new DependencyInjector() {
+            @Override
+            public void inject(Fragment target) {
+                ObjectGraph.create(new TestModule(factory)).inject(fragment);
+            }
+        });
     }
 
     @Test
