@@ -3,7 +3,6 @@ package com.soundcloud.android.receiver;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.dialog.TokenExpiredDialogFragment;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,16 +31,9 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        mRequestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit().
-                subscribe(new DefaultObserver<Boolean>() {
-                    @Override
-                    public void onNext(Boolean expired) {
-                        if (expired) {
-                            mRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
-                            mTokenExpiredDialog.show(mFragmentManager, TokenExpiredDialogFragment.TAG);
-                        }
-                    }
-                });
-
+        if(mRequestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()){
+            mRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
+            mTokenExpiredDialog.show(mFragmentManager, TokenExpiredDialogFragment.TAG);
+        }
     }
 }

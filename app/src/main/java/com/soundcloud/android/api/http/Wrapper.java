@@ -1,7 +1,5 @@
 package com.soundcloud.android.api.http;
 
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -191,8 +189,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         if(responseIsUnauthorised(response)){
             mUnauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
         } else {
-            //Do this async so any potential errors do not stop the execution flow of the request
-            fireAndForget(mUnauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestampAsync());
+           mUnauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         }
     }
 

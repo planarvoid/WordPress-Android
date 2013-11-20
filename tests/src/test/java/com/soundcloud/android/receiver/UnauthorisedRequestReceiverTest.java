@@ -1,6 +1,5 @@
 package com.soundcloud.android.receiver;
 
-import static com.soundcloud.android.rx.TestObservables.booleanObservable;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -13,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -30,10 +28,6 @@ public class UnauthorisedRequestReceiverTest {
     @Mock
     private FragmentManager fragmentManager;
     @Mock
-    private Observable<Boolean> booleanObservable;
-    @Mock
-    private Observable<Void> voidObservable;
-    @Mock
     private Intent intent;
     @Mock
     private TokenExpiredDialogFragment tokenExpiredDialog;
@@ -45,28 +39,28 @@ public class UnauthorisedRequestReceiverTest {
 
     @Test
     public void shouldNotShowDialogIfTimeLimitHasNotExpired() {
-        when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(booleanObservable(false));
+        when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(false);
         receiver.onReceive(context, intent);
         verifyZeroInteractions(fragmentManager);
     }
 
     @Test
     public void shouldNotClearObservedTimeStampIfLimitHasNotExpired() {
-        when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(booleanObservable(false));
+        when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(false);
         receiver.onReceive(context, intent);
         verify(registry, never()).clearObservedUnauthorisedRequestTimestamp();
     }
 
     @Test
     public void shouldShowDialogIfTimeLimitHasExpired() {
-        when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(booleanObservable(true));
+        when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(true);
         receiver.onReceive(context, intent);
         verify(tokenExpiredDialog).show(fragmentManager, TokenExpiredDialogFragment.TAG);
     }
 
     @Test
     public void shouldClearObservedTimestampIfShowingDialog() {
-        when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(booleanObservable(true));
+        when(registry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()).thenReturn(true);
         receiver.onReceive(context, intent);
         verify(registry).clearObservedUnauthorisedRequestTimestamp();
     }
