@@ -8,11 +8,6 @@ public class ByEmail extends SignUpTestCase {
         super();
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testUserFollowSingleSuccess() throws Exception {
         signupScreen.clickSignUpButton();
 
