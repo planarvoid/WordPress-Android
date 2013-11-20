@@ -246,7 +246,7 @@ public class ArtworkTrackView extends PlayerTrackView {
         public Bitmap display(Bitmap bitmap, ImageView imageView, LoadedFrom loadedFrom) {
             imageView.setImageBitmap(bitmap);
             if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-                if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
+                if (loadedFrom == LoadedFrom.NETWORK) {
                     AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
                     mArtwork.getAnimation().setAnimationListener(new AnimUtils.SimpleAnimationListener() {
                         @Override
