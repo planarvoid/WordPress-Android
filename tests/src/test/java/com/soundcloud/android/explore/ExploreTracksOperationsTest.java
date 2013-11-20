@@ -10,12 +10,14 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.explore.ExploreTracksOperations;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import dagger.Module;
+import dagger.ObjectGraph;
+import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +41,8 @@ public class ExploreTracksOperationsTest {
 
     @Before
     public void setUp() {
-        exploreTracksOperations = new ExploreTracksOperations(soundCloudRxHttpClient);
+        exploreTracksOperations = new ExploreTracksOperations();
+        ObjectGraph.create(new TestModule()).inject(exploreTracksOperations);
     }
 
     @Test
@@ -89,5 +92,13 @@ public class ExploreTracksOperationsTest {
         verify(relatedObserver).onCompleted();
         verify(relatedObserver, never()).onError(any(Throwable.class));
 
+    }
+
+    @Module(complete = false, injects = {ExploreTracksOperations.class}, overrides = true)
+    public class TestModule {
+        @Provides
+        SoundCloudRxHttpClient provideSoundCloudRxHttpClient() {
+            return soundCloudRxHttpClient;
+        }
     }
 }

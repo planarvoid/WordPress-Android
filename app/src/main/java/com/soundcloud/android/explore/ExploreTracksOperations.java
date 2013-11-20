@@ -3,7 +3,6 @@ package com.soundcloud.android.explore;
 import static rx.android.OperationPaged.Page;
 import static rx.android.OperationPaged.paged;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
@@ -28,17 +27,11 @@ public class ExploreTracksOperations extends ScheduledOperations {
 
     private static final int PAGE_SIZE = 15;
 
-    private SoundCloudRxHttpClient mRxHttpClient;
+    @Inject
+    public SoundCloudRxHttpClient mRxHttpClient;
 
     @Inject
-    public ExploreTracksOperations() {
-        this(new SoundCloudRxHttpClient());
-    }
-
-    @VisibleForTesting
-    protected ExploreTracksOperations(SoundCloudRxHttpClient rxHttpClient) {
-        mRxHttpClient = rxHttpClient;
-    }
+    public ExploreTracksOperations() {}
 
     public Observable<ExploreTracksCategories> getCategories() {
         APIRequest<ExploreTracksCategories> request = SoundCloudAPIRequest.RequestBuilder.<ExploreTracksCategories>get(APIEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
