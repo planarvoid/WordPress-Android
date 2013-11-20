@@ -1,8 +1,6 @@
 package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.api.UnauthorisedRequestObserver;
-import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.http.Wrapper;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.utils.Log;
@@ -27,25 +25,21 @@ import java.io.IOException;
     private final boolean mIsUi;
     private final SyncStateManager mSyncStateManager;
     private ApiSyncerFactory mApiSyncerFactory;
-    private final UnauthorisedRequestRegistry mRequestRegistry;
 
     private LocalCollection localCollection;
     private ApiSyncResult mResult;
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI){
-        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context),
-                UnauthorisedRequestRegistry.getInstance(context));
+        this(context, contentUri, action, isUI, new ApiSyncerFactory(), new SyncStateManager(context));
     }
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action, boolean isUI,
-                                 ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager,
-                                 UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
+                                 ApiSyncerFactory apiSyncerFactory, SyncStateManager syncStateManager) {
         mContext = context;
         mContentUri = contentUri;
         mAction = action;
         mResult = new ApiSyncResult(mContentUri);
         mIsUi = isUI;
-        mRequestRegistry = unauthorisedRequestRegistry;
         mSyncStateManager = syncStateManager;
         mApiSyncerFactory = apiSyncerFactory;
     }
@@ -76,12 +70,9 @@ import java.io.IOException;
             Log.d(TAG, "syncing " + mContentUri);
             mResult = mApiSyncerFactory.forContentUri(mContext, mContentUri).syncContent(mContentUri, mAction);
             mSyncStateManager.onSyncComplete(mResult, localCollection);
-            mRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         } catch (CloudAPI.InvalidTokenException e) {
             mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             mResult = ApiSyncResult.fromAuthException(mContentUri);
-            mRequestRegistry.updateObservedUnauthorisedRequestTimestamp().subscribe(new UnauthorisedRequestObserver(mContext));
-
         } catch (AndroidCloudAPI.UnexpectedResponseException e) {
             mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             mResult = ApiSyncResult.fromUnexpectedResponseException(mContentUri);

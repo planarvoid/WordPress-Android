@@ -23,7 +23,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 @RunWith(SoundCloudTestRunner.class)
-public class UnauthorisedRequestRegistryTest {
+public class
+        UnauthorisedRequestRegistryTest {
 
     private UnauthorisedRequestRegistry registry;
     @Mock
@@ -35,21 +36,23 @@ public class UnauthorisedRequestRegistryTest {
     @Mock
     private UnauthorisedRequestRegistry staticInstance;
     @Mock
-    private Observer<Void> voidObserver;
+    private Observer emptyObserver;
     @Mock
     private Observer<Boolean> booleanObserver;
+    @Mock
+    private UnauthorisedRequestObserver unauthorisedRequestObserver;
 
     @Before
     public void setup() {
         initMocks(this);
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreference);
-        registry = new UnauthorisedRequestRegistry(context, staticInstance);
+        registry = new UnauthorisedRequestRegistry(context, staticInstance, unauthorisedRequestObserver);
     }
 
     @Test
     public void shouldRetrieveSharedPreferenceWithExpectedName(){
         reset(context);
-        registry = new UnauthorisedRequestRegistry(context, staticInstance);
+        registry = new UnauthorisedRequestRegistry(context, staticInstance, unauthorisedRequestObserver);
         verify(context).getSharedPreferences("UnauthorisedRequestRegister", Context.MODE_PRIVATE);
     }
 
@@ -59,29 +62,29 @@ public class UnauthorisedRequestRegistryTest {
         when(sharedPreference.getLong("first_observed_timestamp", 0L)).thenReturn(0L);
         when(sharedPreference.edit()).thenReturn(editor);
         when(editor.commit()).thenReturn(true);
-        registry.updateObservedUnauthorisedRequestTimestamp().subscribe(voidObserver);
+        registry.updateObservedUnauthorisedRequestTimestamp();
         verify(editor).putLong(eq("first_observed_timestamp"), longThat(new GreaterOrEqual<Long>(currentTime)));
-        verify(voidObserver).onCompleted();
-        verifyNoMoreInteractions(voidObserver);
+        verify(unauthorisedRequestObserver).onCompleted();
+        verifyNoMoreInteractions(unauthorisedRequestObserver);
     }
 
     @Test
     public void shouldNotUpdateObservedTimeOfUnauthorisedRequestsIfObservedBefore(){
         when(sharedPreference.getLong("first_observed_timestamp", 0L)).thenReturn(1L);
-        registry.updateObservedUnauthorisedRequestTimestamp().subscribe(voidObserver);
+        registry.updateObservedUnauthorisedRequestTimestamp();
         verify(sharedPreference, never()).edit();
-        verify(voidObserver).onCompleted();
-        verifyNoMoreInteractions(voidObserver);
+        verify(unauthorisedRequestObserver).onCompleted();
+        verifyNoMoreInteractions(unauthorisedRequestObserver);
     }
 
     @Test
     public void shouldResetFirstObservedTimeOfUnauthorisedRequest(){
         when(sharedPreference.edit()).thenReturn(editor);
-        registry.clearObservedUnauthorisedRequestTimestampAsync().subscribe(voidObserver);
+        registry.clearObservedUnauthorisedRequestTimestampAsync().subscribe(emptyObserver);
         verify(editor).clear();
         verify(editor).commit();
-        verify(voidObserver).onCompleted();
-        verifyNoMoreInteractions(voidObserver);
+        verify(emptyObserver).onCompleted();
+        verifyNoMoreInteractions(emptyObserver);
     }
 
     @Test

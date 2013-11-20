@@ -1,5 +1,7 @@
 package com.soundcloud.android.api.http;
 
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -12,11 +14,11 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -25,7 +27,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -82,6 +83,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
     private ObjectMapper mObjectMapper;
     private Context mContext;
     private String userAgent;
+    private UnauthorisedRequestRegistry mUnauthorisedRequestRegistry;
 
     public synchronized static Wrapper getInstance(Context context){
         if(instance == null){
@@ -98,14 +100,16 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
     protected Wrapper(Context context, HttpProperties properties, AccountOperations accountOperations,
                       ApplicationProperties applicationProperties){
         this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
-                ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken(), applicationProperties);
+                ANDROID_REDIRECT_URI, accountOperations.getSoundCloudToken(), applicationProperties,
+                UnauthorisedRequestRegistry.getInstance(context));
     }
 
     private Wrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri,
-                    Token token, ApplicationProperties applicationProperties) {
+                    Token token, ApplicationProperties applicationProperties, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
         super(clientId, clientSecret, redirectUri, token);
         // context can be null in tests
         if (context == null) return;
+        mUnauthorisedRequestRegistry = unauthorisedRequestRegistry;
         mApplicationProperties = applicationProperties;
         mContext = context;
         mObjectMapper = mapper;
@@ -175,6 +179,7 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         HttpResponse response = null;
         try {
             response = super.safeExecute(target, request);
+            recordUnauthorisedRequestIfRequired(response);
         } finally {
             logRequest(request, response);
         }
@@ -182,12 +187,21 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         return response;
     }
 
+    private void recordUnauthorisedRequestIfRequired(HttpResponse response) {
+        if(responseIsUnauthorised(response)){
+            mUnauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
+        } else {
+            //Do this async so any potential errors do not stop the execution flow of the request
+            fireAndForget(mUnauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestampAsync());
+        }
+    }
+
     private void logRequest(HttpUriRequest request, @Nullable HttpResponse response) {
         if (!mApplicationProperties.isReleaseBuild()) {
             String report = generateRequestResponseLog(request, response);
             // we log using INFO level, since request logs can be useful in beta builds
             Log.i(TAG, report);
-        } else if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+        } else if (responseIsUnauthorised(response)) {
             // always report 401s of requestes originating from the UI into Crashlytics for release builds,
             // since they are causing us some trouble
 
@@ -203,6 +217,10 @@ public class Wrapper extends ApiWrapper implements AndroidCloudAPI {
                 SoundCloudApplication.handleSilentException("Received 401 Unauthorized", exception);
             }
         }
+    }
+
+    private boolean responseIsUnauthorised(HttpResponse response) {
+        return response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED;
     }
 
     public static String generateRequestResponseLog(HttpUriRequest request, @Nullable HttpResponse response) {
