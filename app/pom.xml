@@ -376,7 +376,7 @@
         <dependency>
             <groupId>com.nostra13.universalimageloader</groupId>
             <artifactId>universal-image-loader</artifactId>
-            <version>1.8.6</version>
+            <version>1.8.6-SC</version>
         </dependency>
         <dependency>
             <groupId>com.github.espiandev</groupId>
