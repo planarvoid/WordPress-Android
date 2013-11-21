@@ -100,25 +100,8 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         return new NowPlayingActionBarController(this, mPublicCloudAPI);
     }
 
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        if (mActionBarController != null) {
-            //mActionBarController.onSaveInstanceState(savedInstanceState);
-        }
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if (mActionBarController != null) {
-            //mActionBarController.onRestoreInstanceState(savedInstanceState);
-        }
-    }
-
-    public boolean restoreActionBar() {
-        return false;
+    public void restoreActionBar() {
+        /** no-op. Used in {@link com.soundcloud.android.main.MainActivity#restoreActionBar()} */
     }
 
     @Override
@@ -230,10 +213,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
     protected void onDataConnectionChanged(boolean isConnected) {
         mIsConnected = isConnected;
-        if (isConnected) {
-            // clear image loading errors
-            // TODO, retry failed images??
-        }
     }
 
     @Override
