@@ -25,9 +25,6 @@
         <item name="vpiFixedWeightTabIndicatorStyle">@style/Widget.ScFixedTabPageIndicator</item>
 
         <item name="sdlDialogStyle">@style/DialogStyleLight</item>
-
-        <item name="showcaseViewStyle">@style/ScShowcaseTheme</item>
-
     </style>
 
     <style name="Theme.SoundCloud" parent="Theme.SoundCloud.Base">

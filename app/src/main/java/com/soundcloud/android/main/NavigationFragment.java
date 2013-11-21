@@ -1,6 +1,5 @@
 package com.soundcloud.android.main;
 
-import com.github.espiandev.showcaseview.ShowcaseView;
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Actions;
@@ -42,7 +41,6 @@ public class NavigationFragment extends Fragment {
     private ListView mListView;
 
     private int mCurrentSelectedPosition = NavItem.STREAM.ordinal();
-    private ShowcaseView mCurrentMenuShowcase;
 
     private ProfileViewHolder mProfileViewHolder;
 
@@ -190,16 +188,6 @@ public class NavigationFragment extends Fragment {
         updateProfileItem(((SoundCloudApplication) getActivity().getApplication()).getLoggedInUser(), res);
 
         return view;
-    }
-
-    protected void openShowcase() {
-        // no showcase view currently
-    }
-
-    protected void closeShowcase() {
-        if (mCurrentMenuShowcase != null && mCurrentMenuShowcase.isShown()) {
-            mCurrentMenuShowcase.hide();
-        }
     }
 
     // XXX we are passing in resources to overcome Robolectric 1 null getResources in Fragments
