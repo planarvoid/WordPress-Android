@@ -25,7 +25,8 @@
               android:layout_height="wrap_content"
               android:layout_width="wrap_content"
               android:layout_alignParentRight="true"
-              android:paddingRight="5dip"/>
+              android:paddingRight="5dip"
+              style="@style/CheckBox.Dark"/>
 
     <TextView android:id="@+id/txt_configure"
               android:layout_height="wrap_content"

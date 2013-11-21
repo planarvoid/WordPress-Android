@@ -33,11 +33,11 @@
                         android:layout_marginTop="5dip"
                         android:layout_below="@+id/metadata_layout">
 
-            <RadioButton android:id="@+id/rdo_public"
+                <RadioButton android:id="@+id/rdo_public"
                              android:checked="true"
                              android:text="@string/sc_upload_public"
                              android:layout_weight="1"
-                             style="@style/txt_record_rdo"
+                             style="@style/RadioButton.Dark"
                              android:layout_height="wrap_content"
                              android:layout_width="wrap_content"/>
 
@@ -45,7 +45,7 @@
                              android:checked="false"
                              android:text="@string/sc_upload_private"
                              android:layout_weight="1"
-                             style="@style/txt_record_rdo"
+                             style="@style/RadioButton.Dark"
                              android:layout_height="wrap_content"
                              android:layout_width="wrap_content"/>
             </RadioGroup>
