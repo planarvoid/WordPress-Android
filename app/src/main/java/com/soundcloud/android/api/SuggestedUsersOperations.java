@@ -39,7 +39,7 @@ public class SuggestedUsersOperations extends ScheduledOperations {
     public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
         APIRequest<List<CategoryGroup>> request = RequestBuilder.<List<CategoryGroup>>get(APIEndpoints.SUGGESTED_USER_CATEGORIES.path())
                 .forPrivateAPI(1)
-                .forResource(new TypeToken<List<CategoryGroup>>() {})
+                .forResource(new CategoryGroupListToken())
                 .build();
         return schedule(mRxHttpClient.<CategoryGroup>fetchModels(request));
     }
@@ -56,5 +56,13 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         return schedule(Observable.merge(getMusicAndSoundsSuggestions(), getFacebookSuggestions()));
     }
 
-    private static class CategoryGroupListToken extends TypeToken<List<CategoryGroup>> {}
+    private static class CategoryGroupListToken extends TypeToken<List<CategoryGroup>> {
+        //Needed because of a reflection issue on 2.2 devices, Exception is raised when logging happens in RxHttpClient
+        //http://stackoverflow.com/questions/8041142/reflection-not-fully-implemented-in-android-2-2
+        //This will prevent it from calling toString in TypeToken
+        @Override
+        public String toString() {
+            return "List<CategoryGroup>";
+        }
+    }
 }

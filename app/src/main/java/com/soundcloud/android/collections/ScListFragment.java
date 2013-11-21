@@ -12,24 +12,24 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.http.PublicApiWrapper;
-import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.associations.CommentAdapter;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.associations.FriendAdapter;
-import com.soundcloud.android.profile.MyTracksAdapter;
-import com.soundcloud.android.playlists.PlaylistChangedReceiver;
-import com.soundcloud.android.search.SearchAdapter;
 import com.soundcloud.android.associations.SoundAssociationAdapter;
 import com.soundcloud.android.associations.UserAssociationAdapter;
-import com.soundcloud.android.model.ContentStats;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playlist;
-import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.ApiSyncService;
-import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
+import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.model.ContentStats;
+import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.playlists.PlaylistChangedReceiver;
+import com.soundcloud.android.profile.MyTracksAdapter;
+import com.soundcloud.android.search.SearchAdapter;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
@@ -37,7 +37,6 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +51,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -492,14 +490,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         if (adapter.isEmpty() && mKeepGoing){
             // this can happen if we manually filter out the entire collection (e.g. all playlists)
             append(true);
-        }
-
-        // show unauthorized dialog if applicable
-        if (data.responseCode == HttpStatus.SC_UNAUTHORIZED) {
-            final FragmentActivity activity = getActivity();
-            if (activity != null) {
-                activity.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
-            }
         }
 
     }

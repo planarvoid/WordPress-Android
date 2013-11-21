@@ -17,6 +17,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
+import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.ActivitiesStorage;
@@ -78,13 +79,15 @@ public class AccountRemovalFunctionTest {
     private C2DMReceiver c2DMReceiver;
     @Mock
     private UserAssociationStorage userAssociationStorage;
+    @Mock
+    private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
 
 
     @Before
     public void setup(){
         initMocks(this);
         function = new AccountRemovalFunction(soundCloudAccount, context, accountManager, syncStateManager,
-                collectionStorage, activitiesStorage, userAssociationStorage, soundRecorder, c2DMReceiver);
+                collectionStorage, activitiesStorage, userAssociationStorage, soundRecorder, c2DMReceiver, unauthorisedRequestRegistry);
 
         when(accountManager.removeAccount(soundCloudAccount,null,null)).thenReturn(future);
         when(context.getSharedPreferences(anyString(),anyInt())).thenReturn(sharedPreferences);
@@ -248,6 +251,20 @@ public class AccountRemovalFunctionTest {
         when(future.getResult()).thenReturn(true);
         function.onSubscribe(observer);
         verify(userAssociationStorage).clear();
+    }
+
+    @Test
+    public void shouldClearLastObservedTimestampIfAccountRemovalSucceeds() throws AuthenticatorException, OperationCanceledException, IOException {
+        when(future.getResult()).thenReturn(true);
+        function.onSubscribe(observer);
+        verify(unauthorisedRequestRegistry).clearObservedUnauthorisedRequestTimestamp();
+    }
+
+    @Test
+    public void shouldNotClearLastObservedTimestampIfAccountRemovalFails() throws AuthenticatorException, OperationCanceledException, IOException {
+        when(future.getResult()).thenReturn(false);
+        function.onSubscribe(observer);
+        verifyZeroInteractions(unauthorisedRequestRegistry);
     }
 
 }
