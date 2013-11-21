@@ -127,8 +127,8 @@
                                            android:visibility="gone"
                                            android:layout_width="fill_parent"
                                            android:layout_height="@dimen/button_bar_height"
-                                           style="@style/rec_button_bar"
+                                           style="@style/dark_button_bar"
                                            android:layout_alignParentBottom="true"
-                                           app:button_background="@drawable/btn_transparent_bg_states"
+                                           app:button_background="@drawable/item_background_dark"
                                            app:separator_color="@color/recButtonBarSeparator"/>
 </RelativeLayout>

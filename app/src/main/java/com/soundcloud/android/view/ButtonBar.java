@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -106,8 +107,11 @@ public class ButtonBar extends LinearLayout {
 
     private Button getNewButton(MenuItem menuItem) {
         final Button b = new Button(getContext());
-        b.setBackgroundResource(R.drawable.btn_transparent_bg_states);
+        b.setBackgroundResource(R.drawable.item_background_dark);
         b.setTextColor(getResources().getColorStateList(R.drawable.txt_btn_dark_states));
+        b.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.button_bar_text_size));
+        int padding = getResources().getDimensionPixelSize(R.dimen.button_bar_button_padding);
+        b.setPadding(padding, 0, padding, 0);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT);
         lp.weight = 1;
         b.setLayoutParams(lp);

@@ -31,6 +31,7 @@
                         android:orientation="horizontal"
                         android:layout_alignParentBottom="false"
                         android:layout_marginTop="5dip"
+                        android:layout_marginBottom="5dip"
                         android:layout_below="@+id/metadata_layout">
 
                 <RadioButton android:id="@+id/rdo_public"
@@ -119,7 +120,7 @@
         </RelativeLayout>
     </ScrollView>
     <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
-                                                   style="@style/rec_button_bar"
-                                                   app:button_background="@drawable/btn_transparent_bg_states"
+                                                   style="@style/dark_button_bar"
+                                                   app:button_background="@drawable/item_background_dark"
                                                    app:separator_color="@color/recButtonBarSeparator"/>
 </LinearLayout>
