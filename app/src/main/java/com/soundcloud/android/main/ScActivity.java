@@ -1,5 +1,6 @@
 package com.soundcloud.android.main;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -153,6 +154,10 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     @Override
     protected void onResume() {
         super.onResume();
+
+        //Ensures that ImageLoader will be resumed if the preceding activity was killed during scrolling
+        ImageLoader.getInstance().resume();
+
         registerReceiver(mUnauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
         if (!mAccountOperations.soundCloudAccountExists()) {
             pausePlayback();
