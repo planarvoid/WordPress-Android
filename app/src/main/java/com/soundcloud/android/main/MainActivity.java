@@ -9,8 +9,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.UserOperations;
 import com.soundcloud.android.collections.ScListFragment;
-import com.soundcloud.android.dagger.ObjectGraphCreator;
-import com.soundcloud.android.dagger.ObjectGraphCreatorImpl;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.explore.ExploreFragment;
 import com.soundcloud.android.explore.ExploreModule;
@@ -50,12 +50,13 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     private ObjectGraph mObjectGraph;
 
+    @SuppressWarnings("unused")
     public MainActivity() {
-        this(new ObjectGraphCreatorImpl());
+        this(new DaggerDependencyInjector());
     }
 
     @VisibleForTesting
-    protected MainActivity(ObjectGraphCreator objectGraphCreator) {
+    protected MainActivity(DependencyInjector objectGraphCreator) {
         mObjectGraph = objectGraphCreator.fromAppGraphWithModules(
                 new ExploreModule(),
                 new ExploreTracksCategoriesModule()

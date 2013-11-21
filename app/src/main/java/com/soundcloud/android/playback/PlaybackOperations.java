@@ -41,6 +41,7 @@ public class PlaybackOperations {
         this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage());
     }
 
+
     public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage) {
         mModelManager = modelManager;
         mTrackStorage = trackStorage;

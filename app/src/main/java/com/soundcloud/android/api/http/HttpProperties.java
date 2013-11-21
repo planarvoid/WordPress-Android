@@ -10,6 +10,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import android.content.Context;
 import android.content.res.Resources;
 
+import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
@@ -29,7 +30,7 @@ public class HttpProperties {
     public HttpProperties(Context context){
         this(context.getResources());
     }
-
+    @Inject
     public HttpProperties(Resources resources){
         apiMobileBaseUriPath = resources.getString(R.string.api_mobile_base_uri_path);
         checkArgument(ScTextUtils.isNotBlank(apiMobileBaseUriPath), "API mobile base uri path cannot be blank");

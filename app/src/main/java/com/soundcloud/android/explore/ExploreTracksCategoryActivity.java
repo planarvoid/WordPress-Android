@@ -1,8 +1,8 @@
 package com.soundcloud.android.explore;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.dagger.ObjectGraphCreator;
-import com.soundcloud.android.dagger.ObjectGraphCreatorImpl;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ExploreTracksCategory;
@@ -14,12 +14,13 @@ public class ExploreTracksCategoryActivity extends ScActivity implements ObjectG
 
     private ObjectGraph mObjectGraph;
 
+    @SuppressWarnings("unused")
     public ExploreTracksCategoryActivity() {
-        this(new ObjectGraphCreatorImpl());
+        this(new DaggerDependencyInjector());
     }
 
     @VisibleForTesting
-    protected ExploreTracksCategoryActivity(ObjectGraphCreator objectGraphCreator) {
+    protected ExploreTracksCategoryActivity(DependencyInjector objectGraphCreator) {
         mObjectGraph = objectGraphCreator.fromAppGraphWithModules(new ExploreModule());
     }
 

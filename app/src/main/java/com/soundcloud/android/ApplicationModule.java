@@ -4,6 +4,8 @@ import com.soundcloud.android.model.ScModelManager;
 import dagger.Module;
 import dagger.Provides;
 
+import android.content.res.Resources;
+
 @Module(library = true)
 public class ApplicationModule {
 
@@ -21,6 +23,11 @@ public class ApplicationModule {
     @Provides
     public ScModelManager provideModelManager() {
         return SoundCloudApplication.MODEL_MANAGER;
+    }
+
+    @Provides
+    public Resources provideResources(){
+        return mApplication.getResources();
     }
 
 }

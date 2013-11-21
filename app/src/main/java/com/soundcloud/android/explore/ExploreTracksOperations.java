@@ -27,11 +27,15 @@ public class ExploreTracksOperations extends ScheduledOperations {
 
     private static final int PAGE_SIZE = 15;
 
-    @Inject
     public SoundCloudRxHttpClient mRxHttpClient;
 
+    public ExploreTracksOperations(){
+        this(new SoundCloudRxHttpClient());
+    }
     @Inject
-    public ExploreTracksOperations() {}
+    public ExploreTracksOperations(SoundCloudRxHttpClient rxHttpClient) {
+        mRxHttpClient = rxHttpClient;
+    }
 
     public Observable<ExploreTracksCategories> getCategories() {
         APIRequest<ExploreTracksCategories> request = SoundCloudAPIRequest.RequestBuilder.<ExploreTracksCategories>get(APIEndpoints.EXPLORE_TRACKS_CATEGORIES.path())

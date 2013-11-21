@@ -36,6 +36,8 @@ import rx.util.functions.Func1;
 
 import android.content.Context;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,6 +61,13 @@ public class SoundCloudRxHttpClient extends ScheduledOperations implements RxHtt
     public SoundCloudRxHttpClient(Scheduler scheduler) {
         this(new JacksonJsonTransformer(), new WrapperFactory(SoundCloudApplication.instance),
                 new HttpProperties(SoundCloudApplication.instance.getResources()));
+        subscribeOn(scheduler);
+    }
+
+    @Inject
+    public SoundCloudRxHttpClient(@Named("APIScheduler") Scheduler scheduler, JsonTransformer jsonTransformer,
+                                  SoundCloudApplication application, HttpProperties httpProperties) {
+        this(jsonTransformer, new WrapperFactory(application), httpProperties);
         subscribeOn(scheduler);
     }
 
