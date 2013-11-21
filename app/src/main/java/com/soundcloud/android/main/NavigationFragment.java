@@ -1,6 +1,5 @@
 package com.soundcloud.android.main;
 
-import android.content.res.Resources;
 import com.github.espiandev.showcaseview.ShowcaseView;
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -15,6 +14,7 @@ import com.soundcloud.android.utils.images.ImageSize;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -193,8 +193,7 @@ public class NavigationFragment extends Fragment {
     }
 
     protected void openShowcase() {
-        mCurrentMenuShowcase = Showcase.EXPLORE.insertShowcase(getActivity(),
-                mListView.getChildAt(2).findViewById(R.id.nav_item_text));
+        // no showcase view currently
     }
 
     protected void closeShowcase() {
