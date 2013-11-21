@@ -50,8 +50,9 @@
               android:layout_width="fill_parent"
               android:singleLine="true"
               android:ellipsize="end"
+              android:textCursorDrawable="@null"
               style="@style/txt_record_input"
               android:gravity="left"
-              android:inputType="textCapWords"
+              android:inputType="textCapSentences"
               android:hint="@string/what_hint"/>
 </merge>
