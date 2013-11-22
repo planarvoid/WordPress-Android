@@ -5,26 +5,25 @@ import static com.soundcloud.android.api.http.SoundCloudAPIRequest.RequestBuilde
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
-import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.storage.UserStorage;
 import rx.Observable;
 import rx.util.functions.Func1;
+
+import javax.inject.Inject;
 
 public class UserOperations extends ScheduledOperations {
 
     private final RxHttpClient mHttpClient;
     private final UserStorage mUserStorage;
 
+    @Inject
     public UserOperations(RxHttpClient httpClient, UserStorage userStorage) {
         mHttpClient = httpClient;
         mUserStorage = userStorage;
     }
 
-    public UserOperations() {
-        this(new SoundCloudRxHttpClient(), new UserStorage());
-    }
 
     public Observable<User> refreshCurrentUser() {
         final APIRequest<User> request = RequestBuilder.<User>get(APIEndpoints.CURRENT_USER.path())

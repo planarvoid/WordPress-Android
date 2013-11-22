@@ -1,11 +1,9 @@
 package com.soundcloud.android.accounts;
 
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Activity;
-import android.content.Context;
-import android.os.Bundle;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.annotations.VisibleForTesting;
@@ -19,10 +17,14 @@ import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 
-import java.io.IOException;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import javax.inject.Inject;
+import java.io.IOException;
 
 public class AccountOperations {
     public enum AccountInfoKeys {
@@ -56,8 +58,9 @@ public class AccountOperations {
                 new SoundCloudTokenOperations(context.getApplicationContext()));
     }
 
-    @VisibleForTesting
-    protected AccountOperations(AccountManager accountManager, Context context, SoundCloudTokenOperations tokenOperations) {
+
+    @Inject
+    public AccountOperations(AccountManager accountManager, Context context, SoundCloudTokenOperations tokenOperations) {
         this.accountManager = accountManager;
         this.context = context;
         this.tokenOperations = tokenOperations;

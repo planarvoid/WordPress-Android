@@ -7,6 +7,7 @@ import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.ClientUri;
@@ -27,13 +28,13 @@ public class ExploreTracksOperations extends ScheduledOperations {
 
     private static final int PAGE_SIZE = 15;
 
-    public SoundCloudRxHttpClient mRxHttpClient;
+    public RxHttpClient mRxHttpClient;
 
     public ExploreTracksOperations(){
         this(new SoundCloudRxHttpClient());
     }
     @Inject
-    public ExploreTracksOperations(SoundCloudRxHttpClient rxHttpClient) {
+    public ExploreTracksOperations(RxHttpClient rxHttpClient) {
         mRxHttpClient = rxHttpClient;
     }
 

@@ -21,7 +21,9 @@ import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.Event;
+import com.soundcloud.android.rx.RxModule;
 import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.provider.Content;
 import dagger.ObjectGraph;
 import net.hockeyapp.android.UpdateManager;
@@ -35,6 +37,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
+import javax.inject.Inject;
+
 public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks,
         ObjectGraphProvider {
 
@@ -44,10 +48,20 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private NavigationFragment mNavigationFragment;
     private CharSequence mLastTitle;
     private int mLastSelection = -1;
+    @Inject
+    public AccountOperations mAccountOperations;
+    @Inject
+    public CompositeSubscription mSubscription;
+    @Inject
+    public ApplicationProperties mApplicationProperties;
+    @Inject
+    public SoundCloudApplication application;
+    @Inject
+    public UserOperations mUserOperations;
+    @Inject
+    public ExploreFragment mExploreFragment;
 
-    private AccountOperations mAccountOperations;
-    private CompositeSubscription mSubscription = new CompositeSubscription();
-
+    private final DependencyInjector objectGraphCreator;
     private ObjectGraph mObjectGraph;
 
     @SuppressWarnings("unused")
@@ -57,21 +71,22 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     @VisibleForTesting
     protected MainActivity(DependencyInjector objectGraphCreator) {
-        mObjectGraph = objectGraphCreator.fromAppGraphWithModules(
-                new ExploreModule(),
-                new ExploreTracksCategoriesModule()
-        );
+        this.objectGraphCreator = objectGraphCreator;
     }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-
+        mObjectGraph = objectGraphCreator.fromAppGraphWithModules(
+                new ExploreModule(),
+                new ExploreTracksCategoriesModule(getSupportFragmentManager()),
+                new StorageModule(),
+                new RxModule()
+        );
+        mObjectGraph.inject(this);
         mNavigationFragment = findNavigationFragment();
         mNavigationFragment.initState(savedInstanceState);
 
-        mAccountOperations = new AccountOperations(this);
-        ApplicationProperties mApplicationProperties = new ApplicationProperties(getResources());
 
         final Observer<User> userObserver = new UpdateUserProfileObserver();
         if (savedInstanceState != null) {
@@ -99,10 +114,10 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     private void handleLoggedInUser(ApplicationProperties appProperties, Observer<User> observer) {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
-        User currentUser = SoundCloudApplication.instance.getLoggedInUser();
+        User currentUser = application.getLoggedInUser();
         if (!justAuthenticated && mAccountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
-            UserOperations userOperations = new UserOperations();
-            mSubscription.add(fromActivity(this, userOperations.refreshCurrentUser()).subscribe(observer));
+
+            mSubscription.add(fromActivity(this, mUserOperations.refreshCurrentUser()).subscribe(observer));
         }
 
         if (appProperties.isBetaBuildRunningOnDalvik()) {
@@ -150,15 +165,15 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     public void onNavigationItemSelected(int position, boolean setTitle) {
         if (position == mLastSelection) return;
         switch (NavigationFragment.NavItem.values()[position]) {
-            case PROFILE:
+            case PROFILE:{
                 // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
                 // don't forget to search for the TODOs related to this in NavigationFragment.
                 // --Your friend.
                 getSupportActionBar().setDisplayShowTitleEnabled(false); // prevents title text change flashing
                 startActivity(new Intent(this, MeActivity.class));
                 break;
-
-            case STREAM:
+            }
+            case STREAM:{
                 final Uri contentUri = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true) ?
                         Content.ME_SOUND_STREAM.uri :
                         Content.ME_SOUND_STREAM.uri.buildUpon()
@@ -166,24 +181,24 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
                 Fragment fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
                 attachFragment(fragment, "stream_fragment", R.string.side_menu_stream);
                 break;
-
-            case EXPLORE:
-                fragment = getSupportFragmentManager().findFragmentByTag("explore_fragment");
+            }
+            case EXPLORE:{
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag("explore_fragment");
                 if (fragment == null) {
-                    fragment = new ExploreFragment();
-                    attachFragment(fragment, "explore_fragment", R.string.side_menu_explore);
+                    attachFragment(mExploreFragment, "explore_fragment", R.string.side_menu_explore);
                 }
                 break;
-
-            case LIKES:
-                fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
+            }
+            case LIKES:{
+                Fragment fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
                 attachFragment(fragment, "likes_fragment", R.string.side_menu_likes);
                 break;
-
-            case PLAYLISTS:
-                fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
+            }
+            case PLAYLISTS:{
+                Fragment fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
                 attachFragment(fragment, "playlists_fragment", R.string.side_menu_playlists);
                 break;
+            }
         }
 
         if (setTitle){
