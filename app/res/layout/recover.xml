@@ -40,7 +40,7 @@
     <Button android:id="@+id/btn_ok"
                     android:layout_alignParentBottom="true"
                     android:text="@android:string/ok"
-                    android:background="@drawable/btn_auth_bg_states"
+                    android:background="@drawable/item_background_dark"
                     android:layout_width="fill_parent"
                     android:layout_height="@dimen/button_bar_height"/>
 </RelativeLayout>

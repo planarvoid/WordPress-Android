@@ -20,6 +20,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
+import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
 import android.content.Intent;
 import android.database.DataSetObserver;
@@ -40,7 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Tracking(page = Page.Record_details)
-public class UploadActivity extends ScActivity {
+public class UploadActivity extends ScActivity implements ISimpleDialogListener {
 
     private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
@@ -55,6 +56,8 @@ public class UploadActivity extends ScActivity {
     private PublicCloudAPI mOldCloudAPI;
 
     private static final int REC_ANOTHER = 0, POST = 1;
+
+    public static final int DIALOG_PICK_IMAGE = 1;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -275,6 +278,24 @@ public class UploadActivity extends ScActivity {
     private void recordingNotFound() {
         showToast(R.string.recording_not_found);
         finish();
+    }
+
+    @Override
+    public void onPositiveButtonClicked(int requestCode) {
+        switch (requestCode){
+            case DIALOG_PICK_IMAGE :
+                ImageUtils.startTakeNewPictureIntent(this, mRecording.generateImageFile(Recording.IMAGE_DIR),
+                        Consts.RequestCodes.GALLERY_IMAGE_TAKE);
+                break;
+        }
+    }
+
+    @Override
+    public void onNegativeButtonClicked(int requestCode) {
+        switch (requestCode){
+            case DIALOG_PICK_IMAGE :
+                ImageUtils.startPickImageIntent(this, Consts.RequestCodes.GALLERY_IMAGE_PICK);
+        }
     }
 
     @Override

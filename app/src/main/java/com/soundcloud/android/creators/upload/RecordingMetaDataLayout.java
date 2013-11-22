@@ -2,20 +2,20 @@ package com.soundcloud.android.creators.upload;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -75,7 +75,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         if (mLocation == null) preloadLocations();
     }
 
-    public void setActivity(final Activity activity) {
+    public void setActivity(final FragmentActivity activity) {
          mWhereText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,13 +105,12 @@ public class RecordingMetaDataLayout extends RelativeLayout {
 
 
         findViewById(R.id.txt_artwork_bg).setOnClickListener(
-
-            new ImageUtils.ImagePickListener(activity) {
-                @Override protected File getFile() {
-                    return getCurrentImageFile();
-                }
-            }
-        );
+                new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ImageUtils.showImagePickerDialog(activity, activity.getSupportFragmentManager(), UploadActivity.DIALOG_PICK_IMAGE);
+                    }
+                });
 
         mArtwork.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -224,10 +223,6 @@ public class RecordingMetaDataLayout extends RelativeLayout {
                 recording.longitude,
                 recording.latitude);
 
-    }
-
-    public File getCurrentImageFile() {
-        return (mRecording == null) ? null : mRecording.generateImageFile(Recording.IMAGE_DIR);
     }
 
     public void onDestroy(){

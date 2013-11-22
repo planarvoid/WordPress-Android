@@ -77,11 +77,11 @@
     </style>
 
     <style name="Theme.ScCreate" parent="Theme.SoundCloud">
-        <item name="android:windowBackground">@drawable/bg_rec</item>
+        <item name="android:windowBackground">@color/dark_gray_background</item>
     </style>
 
     <style name="Theme.Recover" parent="Theme.SoundCloud.NoActionBar">
-        <item name="android:windowBackground">@drawable/bg_rec</item>
+        <item name="android:colorBackground">@color/dark_gray_background</item>
     </style>
 
     <style name="Theme.Onboard" parent="Theme.SoundCloud">
