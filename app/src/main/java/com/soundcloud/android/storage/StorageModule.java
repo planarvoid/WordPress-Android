@@ -15,4 +15,11 @@ public class StorageModule {
     public UserDAO provideUserDAO(ContentResolver contentResolver){
         return new UserDAO(contentResolver);
     }
+
+    @Provides
+    @Singleton
+    public TrackDAO provideTrackDAO(ContentResolver contentResolver){
+        return new TrackDAO(contentResolver);
+    }
+
 }

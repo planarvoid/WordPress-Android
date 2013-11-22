@@ -34,4 +34,9 @@ public class ExploreTracksCategoriesFragmentModule {
                                             SoundCloudApplication application, HttpProperties httpProperties){
         return new SoundCloudRxHttpClient(scheduler, jsonTransformer, application, httpProperties);
     }
+
+    @Provides
+    public ExploreTracksCategoriesAdapter provideExplorePagerAdapter(){
+        return new ExploreTracksCategoriesAdapter();
+    }
 }
