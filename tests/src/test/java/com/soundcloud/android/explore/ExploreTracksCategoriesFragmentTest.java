@@ -55,6 +55,11 @@ public class ExploreTracksCategoriesFragmentTest {
             public void inject(Fragment target) {
                 ObjectGraph.create(new TestModule(factory)).inject(fragment);
             }
+
+            @Override
+            public ObjectGraph fromAppGraphWithModules(Object... modules) {
+                return null;
+            }
         });
     }
 

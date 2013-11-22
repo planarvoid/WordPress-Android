@@ -40,11 +40,14 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
     private EmptyListView mEmptyListView;
-    private ExploreTracksAdapter mAdapter;
-    private ExploreTracksObserver mObserver;
+
+    public ExploreTracksObserver mObserver;
 
     @Inject
-    PlaybackOperations mPlaybackOperations;
+    public ExploreTracksAdapter mAdapter;
+
+    @Inject
+    public PlaybackOperations mPlaybackOperations;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
@@ -71,7 +74,6 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
 
         mDependencyInjector.inject(this);
-        mAdapter = new ExploreTracksAdapter();
         mObserver = new ExploreTracksObserver();
 
         mSuggestedTracksObservable = buildSuggestedTracksObservable();

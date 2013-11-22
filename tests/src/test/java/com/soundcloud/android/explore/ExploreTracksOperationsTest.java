@@ -17,7 +17,6 @@ import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import dagger.Module;
 import dagger.ObjectGraph;
-import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,9 +95,6 @@ public class ExploreTracksOperationsTest {
 
     @Module(complete = false, injects = {ExploreTracksOperations.class}, overrides = true)
     public class TestModule {
-        @Provides
-        SoundCloudRxHttpClient provideSoundCloudRxHttpClient() {
-            return soundCloudRxHttpClient;
-        }
+
     }
 }
