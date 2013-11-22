@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.model.User;
@@ -22,23 +23,22 @@ import static junit.framework.Assert.assertNotNull;
 public final class AccountAssistant {
     public static final String USERNAME = "android-testing";
     public static final String PASSWORD = "android-testing";
-    public static final Integer TIMEOUT = 1000;
 
     private AccountAssistant() {}
     private static final String TAG = AccountAssistant.class.getSimpleName();
 
-    public static Account loginAsDefault(final Instrumentation instrumentation) throws Exception {
+    public static boolean loginAsDefault(final Instrumentation instrumentation) throws Exception {
         return loginAs(instrumentation, USERNAME, PASSWORD);
     }
 
-    public static Account loginAs(final Instrumentation instrumentation,
+    public static boolean loginAs(final Instrumentation instrumentation,
                                   final String username,
                                   final String password) throws Exception {
 
         final Account account = getAccount(instrumentation.getTargetContext());
         if (account != null && account.name.equals(username)) {
             Log.i(TAG, "Already logged in");
-            return account;
+            return false;
         } else if (account != null && !account.name.equals(username)) {
             if(!logOut(instrumentation)){
                 throw new RuntimeException("Could not log out of SoundCloud Account");
@@ -47,11 +47,11 @@ public final class AccountAssistant {
         return login(username, password, instrumentation);
     }
 
-    private static Account login(String username, String password, Instrumentation instrumentation) {
+    private static boolean login(String username, String password, Instrumentation instrumentation) {
         Log.i(TAG, "Logging in");
 
         Context context = instrumentation.getTargetContext();
-        PublicApiWrapper publicApiWrapper = new PublicApiWrapper(context);
+        PublicApiWrapper publicApiWrapper = PublicApiWrapper.getInstance(context);
         Token token;
         User user;
         try {
@@ -62,9 +62,8 @@ public final class AccountAssistant {
             throw new AssertionError("error logging in: "+e.getMessage());
         }
         assertNotNull("could not get test user", user);
-        Account account = new AccountOperations(instrumentation.getTargetContext()).addOrReplaceSoundCloudAccount(user, token, SignupVia.NONE);
-        assertNotNull("Account creation failed", account);
-        return account;
+
+        return SoundCloudApplication.instance.addUserAccountAndEnableSync(user, token, SignupVia.NONE);
     }
 
     public static boolean logOut(Instrumentation instrumentation) throws Exception {
