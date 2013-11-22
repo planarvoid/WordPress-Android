@@ -148,7 +148,7 @@ public class PlayQueueManagerTest {
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
         when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
 
-        PlayQueueManager.ResumeInfo resumeInfo = playQueueManager.loadPlayQueue();
+        ResumeInfo resumeInfo = playQueueManager.loadPlayQueue();
         expect(resumeInfo.getTrackId()).toEqual(456L);
         expect(resumeInfo.getTime()).toEqual(400L);
     }

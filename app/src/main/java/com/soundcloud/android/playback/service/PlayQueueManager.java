@@ -172,24 +172,6 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         mPlayQueueSubscription.unsubscribe();
     }
 
-    public static class ResumeInfo {
-        private long mTrackId;
-        private long mTime;
-
-        public ResumeInfo(long trackId, long time) {
-            this.mTrackId = trackId;
-            this.mTime = time;
-        }
-
-        public long getTrackId() {
-            return mTrackId;
-        }
-
-        public long getTime() {
-            return mTime;
-        }
-    }
-
     public static void clearPlayQueueUri(SharedPreferences defaultSharedPreferences){
         SharedPreferencesUtils.apply(defaultSharedPreferences.edit().remove(PLAYQUEUE_URI_PREF_KEY));
     }
