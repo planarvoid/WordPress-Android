@@ -27,18 +27,18 @@ public final class AccountAssistant {
     private AccountAssistant() {}
     private static final String TAG = AccountAssistant.class.getSimpleName();
 
-    public static boolean loginAsDefault(final Instrumentation instrumentation) throws Exception {
+    public static Account loginAsDefault(final Instrumentation instrumentation) throws Exception {
         return loginAs(instrumentation, USERNAME, PASSWORD);
     }
 
-    public static boolean loginAs(final Instrumentation instrumentation,
+    public static Account loginAs(final Instrumentation instrumentation,
                                   final String username,
                                   final String password) throws Exception {
 
         final Account account = getAccount(instrumentation.getTargetContext());
         if (account != null && account.name.equals(username)) {
             Log.i(TAG, "Already logged in");
-            return false;
+            return account;
         } else if (account != null && !account.name.equals(username)) {
             if(!logOut(instrumentation)){
                 throw new RuntimeException("Could not log out of SoundCloud Account");
@@ -47,7 +47,7 @@ public final class AccountAssistant {
         return login(username, password, instrumentation);
     }
 
-    private static boolean login(String username, String password, Instrumentation instrumentation) {
+    private static Account login(String username, String password, Instrumentation instrumentation) {
         Log.i(TAG, "Logging in");
 
         Context context = instrumentation.getTargetContext();
@@ -63,7 +63,12 @@ public final class AccountAssistant {
         }
         assertNotNull("could not get test user", user);
 
-        return SoundCloudApplication.instance.addUserAccountAndEnableSync(user, token, SignupVia.NONE);
+        if(SoundCloudApplication.instance.addUserAccountAndEnableSync(user, token, SignupVia.NONE)){
+            return getAccount(context);
+        };
+
+        return null;
+
     }
 
     public static boolean logOut(Instrumentation instrumentation) throws Exception {
