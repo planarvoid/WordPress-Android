@@ -72,7 +72,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     /**
      * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
-    public ResumeInfo loadPlayQueue() {
+    public PlaybackProgressInfo loadPlayQueue() {
         final String lastUri = mSharedPreferences.getString(PLAYQUEUE_URI_PREF_KEY, null);
         if (ScTextUtils.isNotBlank(lastUri)) {
             final PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
@@ -88,7 +88,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
                                 setNewPlayQueue(playQueue);
                             }
                         });
-                return new ResumeInfo(trackId, seekPos);
+                return new PlaybackProgressInfo(trackId, seekPos);
             } else {
                 final String message = "Unexpected track id when reloading playqueue: " + trackId;
                 SoundCloudApplication.handleSilentException(message, new IllegalArgumentException(message));
@@ -170,24 +170,6 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         mFetchRelatedSubscription = Subscriptions.empty();
 
         mPlayQueueSubscription.unsubscribe();
-    }
-
-    public static class ResumeInfo {
-        private long mTrackId;
-        private long mTime;
-
-        public ResumeInfo(long trackId, long time) {
-            this.mTrackId = trackId;
-            this.mTime = time;
-        }
-
-        public long getTrackId() {
-            return mTrackId;
-        }
-
-        public long getTime() {
-            return mTime;
-        }
     }
 
     public static void clearPlayQueueUri(SharedPreferences defaultSharedPreferences){

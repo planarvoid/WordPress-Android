@@ -116,7 +116,6 @@ public class NavigationDrawerFragment extends NavigationFragment {
                     return;
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-                closeShowcase();
             }
 
             @Override
@@ -126,7 +125,6 @@ public class NavigationDrawerFragment extends NavigationFragment {
                     return;
                 }
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-                openShowcase();
             }
         };
 

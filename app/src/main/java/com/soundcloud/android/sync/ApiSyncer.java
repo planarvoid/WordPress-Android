@@ -5,6 +5,7 @@ import static com.soundcloud.android.api.PublicCloudAPI.NotFoundException;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.TempEndpoints;
+import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.ConnectionDAO;
@@ -27,6 +28,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.android.sync.exception.PlaylistUpdateException;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -423,7 +425,14 @@ public class ApiSyncer extends SyncStrategy {
                 log("Pushing new playlist content to api: " + content);
 
                 Request r = Content.PLAYLIST.request(contentUri).withContent(content, "application/json");
-                p = mApi.update(r);
+                final ScResource scResource = mApi.update(r);
+                if (scResource instanceof Playlist){
+                    p = (Playlist) scResource;
+                } else {
+                    // Debugging. Return objects sometimes are not playlists. In this case the user will lose addition.
+                    // This is an edge case so I think its acceptable until we can figure out the root of the problem [JS]
+                    SoundCloudApplication.handleSilentException("Error updating playlist " + p, new PlaylistUpdateException(content));
+                }
             }
             if (c != null) c.close();
 

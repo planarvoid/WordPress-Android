@@ -10,7 +10,7 @@
                   style="@style/txt_record_title"/>
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/ScrollView01"
-                android:background="@drawable/bg_rec"
+                android:background="@color/dark_gray_background"
                 android:layout_weight="1"
                 android:layout_height="0dp"
                 android:layout_width="fill_parent"
@@ -48,7 +48,7 @@
     <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
                                                        android:layout_width="fill_parent"
                                                        android:layout_height="60dp"
-                                                       style="@style/rec_button_bar"
-                                                       app:button_background="@drawable/btn_transparent_bg_states"
+                                                       style="@style/dark_button_bar"
+                                                       app:button_background="@drawable/item_background_dark"
                                                        app:separator_color="@color/recButtonBarSeparator"/>
 </LinearLayout>

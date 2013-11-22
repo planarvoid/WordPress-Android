@@ -46,7 +46,7 @@ public class ActionBarController {
         @NotNull
         public ActionBarActivity getActivity();
         public int getMenuResourceId();
-        public boolean restoreActionBar();
+        public void restoreActionBar();
     }
 
     public ActionBarController(@NotNull ActionBarOwner owner, PublicCloudAPI publicCloudAPI) {
