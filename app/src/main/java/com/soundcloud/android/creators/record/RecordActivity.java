@@ -5,12 +5,12 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
-import com.soundcloud.android.storage.RecordingStorage;
+import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -45,6 +45,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -907,6 +908,11 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
 
     @Override
     public void onNegativeButtonClicked(int requestCode) {
+    }
+
+    private File getCurrentArtworkFile() {
+        final Recording recording = getRecorder().getRecording();
+        return (recording == null) ? null : recording.generateImageFile(Recording.IMAGE_DIR);
     }
 
     private void showDeleteRecordingDialog() {

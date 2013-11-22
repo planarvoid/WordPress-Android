@@ -5,10 +5,10 @@ import static com.soundcloud.android.SoundCloudApplication.handleSilentException
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,7 +31,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 
 @Tracking(page = Page.Entry_signup__details)
 public class UserDetailsLayout extends RelativeLayout {
@@ -40,6 +40,7 @@ public class UserDetailsLayout extends RelativeLayout {
     public interface UserDetailsHandler {
         void onSubmitDetails(String username, File avatarFile);
         void onSkipDetails();
+        FragmentActivity getFragmentActivity();
     }
     public UserDetailsLayout(Context context) {
         super(context);
@@ -107,11 +108,13 @@ public class UserDetailsLayout extends RelativeLayout {
             }
         });
 
-        avatarText.setOnClickListener(new ImageUtils.ImagePickListener((Activity) context) {
+        avatarText.setOnClickListener(new OnClickListener() {
             @Override
-            protected File getFile() {
-                mAvatarFile = createTempAvatarFile();
-                return mAvatarFile;
+            public void onClick(View v) {
+                final FragmentActivity activity = mUserDetailsHandler.getFragmentActivity();
+                ImageUtils.showImagePickerDialog(activity, activity.getSupportFragmentManager(),
+                        OnboardActivity.DIALOG_PICK_IMAGE);
+
             }
         });
 
@@ -127,7 +130,7 @@ public class UserDetailsLayout extends RelativeLayout {
         });
     }
 
-    private void setImage(final File file) {
+    public void setImage(final File file) {
         if (file != null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setImage("+file+")");
 
@@ -147,18 +150,14 @@ public class UserDetailsLayout extends RelativeLayout {
         }
     }
 
-    private @Nullable File createTempAvatarFile()  {
-        try {
-            return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp", IOUtils.getCacheDir(getContext()));
-        } catch (IOException e) {
-            Log.w(TAG, "error creating avatar temp file", e);
-            return null;
-        }
+    public File generateTempAvatarFile(){
+        mAvatarFile = ImageUtils.createTempAvatarFile(getContext());
+        return mAvatarFile;
     }
 
     public void onImagePick(int resultCode, Intent result) {
         if (resultCode == Activity.RESULT_OK) {
-            File tmpAvatar = createTempAvatarFile();
+            File tmpAvatar = ImageUtils.createTempAvatarFile(getContext());
             if (tmpAvatar != null) {
                 mAvatarFile = tmpAvatar;
                 ImageUtils.sendCropIntent((Activity) getContext(), result.getData(), Uri.fromFile(mAvatarFile));

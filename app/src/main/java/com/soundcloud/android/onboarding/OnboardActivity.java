@@ -7,32 +7,35 @@ import static com.soundcloud.android.utils.AnimUtils.showView;
 import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
-import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
 import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
+import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
 import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.FacebookSwitcherActivity;
+import com.soundcloud.android.onboarding.auth.GooglePlusSignInTaskFragment;
 import com.soundcloud.android.onboarding.auth.LoginLayout;
+import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
 import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.onboarding.auth.SignUpLayout;
 import com.soundcloud.android.onboarding.auth.SignupLog;
+import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.UserDetailsLayout;
-import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
-import com.soundcloud.android.onboarding.auth.GooglePlusSignInTaskFragment;
-import com.soundcloud.android.onboarding.auth.LoginTaskFragment;
-import com.soundcloud.android.onboarding.auth.SignupTaskFragment;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
+import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import net.hockeyapp.android.UpdateManager;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,6 +46,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -62,11 +66,12 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class OnboardActivity extends AbstractLoginActivity implements LoginLayout.LoginHandler, SignUpLayout.SignUpHandler, UserDetailsLayout.UserDetailsHandler, AcceptTermsLayout.AcceptTermsHandler {
+public class OnboardActivity extends AbstractLoginActivity implements ISimpleDialogListener, LoginLayout.LoginHandler, SignUpLayout.SignUpHandler, UserDetailsLayout.UserDetailsHandler, AcceptTermsLayout.AcceptTermsHandler {
 
     private static final String FOREGROUND_TAG = "foreground";
     private static final String PARALLAX_TAG = "parallax";
     private static final String SIGNUP_DIALOG_TAG = "signup_dialog";
+    public static final int DIALOG_PICK_IMAGE = 1;
 
     protected enum StartState {
         TOUR, LOGIN, SIGN_UP, SIGN_UP_DETAILS, ACCEPT_TERMS;
@@ -367,6 +372,11 @@ public class OnboardActivity extends AbstractLoginActivity implements LoginLayou
                 onAuthTaskComplete(mUser, SignupVia.API, false);
             }
         }.execute();
+    }
+
+    @Override
+    public FragmentActivity getFragmentActivity() {
+        return this;
     }
 
     @Override
@@ -672,6 +682,24 @@ public class OnboardActivity extends AbstractLoginActivity implements LoginLayou
                 break;
             }
 
+        }
+    }
+
+    @Override
+    public void onPositiveButtonClicked(int requestCode) {
+        switch (requestCode){
+            case DIALOG_PICK_IMAGE :
+                ImageUtils.startTakeNewPictureIntent(this, getUserDetails().generateTempAvatarFile(),
+                        Consts.RequestCodes.GALLERY_IMAGE_TAKE);
+                break;
+        }
+    }
+
+    @Override
+    public void onNegativeButtonClicked(int requestCode) {
+        switch (requestCode){
+            case DIALOG_PICK_IMAGE :
+                ImageUtils.startPickImageIntent(this, Consts.RequestCodes.GALLERY_IMAGE_PICK);
         }
     }
 

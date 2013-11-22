@@ -6,15 +6,15 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
+import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -30,6 +30,7 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -389,57 +390,46 @@ public final class ImageUtils {
                 || url.contains("default_avatar"));
     }
 
-    /**
-     * Shows a dialog with the choice to take a new picture or select one from the gallery.
-     */
-    public static abstract  class ImagePickListener implements View.OnClickListener {
-        private final Activity mActivity;
-
-        public ImagePickListener(Activity activity) {
-            mActivity = activity;
-        }
-
-        protected abstract File getFile();
-
-        public void onClick() {}
-        public void onExistingImage()  {}
-        public void onNewImage() {}
-
-        @Override public void onClick(View view) {
-            onClick();
-            new AlertDialog.Builder(mActivity)
-                    .setMessage(R.string.image_where)
-                    .setPositiveButton(R.string.take_new_picture, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            onNewImage();
-                            final File file = getFile();
-                            if (file != null) {
-                                Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                                    .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-                                try {
-                                    mActivity.startActivityForResult(i, Consts.RequestCodes.GALLERY_IMAGE_TAKE);
-                                } catch (ActivityNotFoundException e) {
-                                    AndroidUtils.showToast(mActivity, R.string.take_new_picture_error);
-                                }
-                            }
-                        }
-                    }).setNegativeButton(R.string.use_existing_image, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            onExistingImage();
-                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
-                            try {
-                                mActivity.startActivityForResult(intent, Consts.RequestCodes.GALLERY_IMAGE_PICK);
-                            } catch (ActivityNotFoundException e) {
-                                AndroidUtils.showToast(mActivity, R.string.use_existing_image_error);
-                            }
-                        }
-            })
-            .create()
-            .show();
+    public static File createTempAvatarFile(Context context) {
+        try {
+            return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp", IOUtils.getCacheDir(context));
+        } catch (IOException e) {
+            Log.w(TAG, "error creating avatar temp file", e);
+            return null;
         }
     }
+
+    public static void showImagePickerDialog(Context context, FragmentManager fragmentManager, int requestCode){
+        SimpleDialogFragment.createBuilder(context, fragmentManager)
+                .setRequestCode(requestCode)
+                .setMessage(R.string.image_where)
+                .setPositiveButtonText(R.string.take_new_picture)
+                .setNegativeButtonText(R.string.use_existing_image)
+                .show();
+    }
+
+    public static void startTakeNewPictureIntent(Activity activity, File destinationFile, int requestCode){
+        if (destinationFile != null) {
+            Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destinationFile));
+            try {
+                activity.startActivityForResult(i, requestCode);
+            } catch (ActivityNotFoundException e) {
+                AndroidUtils.showToast(activity, R.string.take_new_picture_error);
+            }
+        }
+    }
+
+    public static void startPickImageIntent(Activity activity, int requestCode){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
+        try {
+            activity.startActivityForResult(intent, requestCode);
+        } catch (ActivityNotFoundException e) {
+            AndroidUtils.showToast(activity, R.string.use_existing_image_error);
+        }
+    }
+
+
 
     public static void sendCropIntent(Activity activity, Uri imageUri) {
         sendCropIntent(activity, imageUri, imageUri, RECOMMENDED_IMAGE_SIZE, RECOMMENDED_IMAGE_SIZE);
