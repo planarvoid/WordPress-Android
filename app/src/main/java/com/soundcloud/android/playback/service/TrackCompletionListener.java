@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import com.google.common.annotations.VisibleForTesting;
 
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.util.Log;
 
 @VisibleForTesting
@@ -52,14 +53,14 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
     }
 
     private long getTargetStopPosition(MediaPlayer mp) {
-
         if (mPlaybackService.hasValidSeekPosition()){
             return mPlaybackService.getSeekPos();
 
         } else if (mPlaybackService.isTryingToResumeTrack()){
             return mPlaybackService.getResumeTime();
 
-        } else if (mediaPlayerHasReset(mp)) {
+        } else if (mediaPlayerHasReset(mp) || (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN)) {
+            // We are > JellyBean in which getCurrentPosition is totally unreliable or
             // mediaplayer seems to reset itself to 0 before this is called in certain builds, so pretend it's finished
             return mPlaybackService.getDuration();
 

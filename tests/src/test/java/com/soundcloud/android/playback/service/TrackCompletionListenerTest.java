@@ -7,16 +7,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.media.MediaPlayer;
+import android.os.Build;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackCompletionListenerTest {
-
 
     private TrackCompletionListener trackCompletionListener;
 
@@ -32,6 +33,9 @@ public class TrackCompletionListenerTest {
 
     @Before
     public void setUp() throws Exception {
+        // Default to JellyBean for normal functionality
+        TestHelper.setSdkVersion(Build.VERSION_CODES.JELLY_BEAN);
+
         trackCompletionListener = new TrackCompletionListener(playbackService);
         when(playbackService.getDuration()).thenReturn(DURATION);
         when(playbackService._isSeekable()).thenReturn(true);
@@ -77,6 +81,14 @@ public class TrackCompletionListenerTest {
 
         verify(playbackService).setResumeTimeAndInvokeErrorListener(same(mediaPlayer), eq(new ResumeInfo(TRACK_ID, resumeTime)));
         verify(playbackService, never()).onTrackEnded();
+    }
+
+    @Test
+    public void shouldInvokeOnCompleteIfBuildAfterJellyBeanAndNotSeekingOrResuming() {
+        TestHelper.setSdkVersion(Build.VERSION_CODES.JELLY_BEAN + 1);
+        when(playbackService.getPlaybackStateInternal()).thenReturn(PlaybackState.PLAYING);
+        trackCompletionListener.onCompletion(mediaPlayer);
+        verify(playbackService).onTrackEnded();
     }
 
     @Test
