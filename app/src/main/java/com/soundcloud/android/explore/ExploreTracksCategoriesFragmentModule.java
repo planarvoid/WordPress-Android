@@ -11,20 +11,11 @@ import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
 
-import android.content.res.Resources;
-import android.support.v4.app.FragmentManager;
-
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Module(complete = false, injects = {ExploreTracksCategoriesFragment.class})
-public class ExploreTracksCategoriesModule {
-
-    private FragmentManager fragmentManager;
-
-    public ExploreTracksCategoriesModule(FragmentManager fragmentManager){
-        this.fragmentManager = fragmentManager;
-    }
+public class ExploreTracksCategoriesFragmentModule {
 
     @Provides
     AndroidObservableFactory provideFactory(ExploreTracksOperations exploreTracksOperations){
@@ -43,11 +34,4 @@ public class ExploreTracksCategoriesModule {
                                             SoundCloudApplication application, HttpProperties httpProperties){
         return new SoundCloudRxHttpClient(scheduler, jsonTransformer, application, httpProperties);
     }
-
-    @Provides
-    public ExplorePagerAdapter provideExplorePagerAdapter(Resources resources, FragmentManager fragmentManager){
-        return new ExplorePagerAdapter(resources, fragmentManager);
-    }
-
-
 }
