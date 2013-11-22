@@ -882,7 +882,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             case DIALOG_UNSAVED_RECORDING:
                 return createUnsavedRecordingDialog();
             default:
-                return null;
+                throw new IllegalArgumentException("No Dialog handler for " + which);
         }
     }
 
