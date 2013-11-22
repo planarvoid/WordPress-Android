@@ -18,6 +18,8 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.ButtonBar;
+import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
+import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -48,7 +50,7 @@ import java.util.Date;
 import java.util.List;
 
 @Tracking(page = Page.Record_main)
-public class RecordActivity extends ScActivity implements CreateWaveDisplay.Listener {
+public class RecordActivity extends ScActivity implements CreateWaveDisplay.Listener, ISimpleDialogListener {
 
     public static final int REQUEST_UPLOAD_SOUND  = 1;
 
@@ -76,6 +78,11 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
 
     private ProgressBar mGeneratingWaveformProgressBar;
 
+    private static final int DIALOG_DISCARD_RECORDING = 1;
+    private static final int DIALOG_UNSAVED_RECORDING = 2;
+    private static final int DIALOG_DELETE_RECORDING = 3;
+    private static final int DIALOG_REVERT_RECORDING = 4;
+
     public enum CreateState {
         GENERATING_WAVEFORM,
         IDLE_RECORD,
@@ -86,14 +93,14 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         EDIT_PLAYBACK;
 
         public boolean isEdit() { return this == EDIT || this == EDIT_PLAYBACK; }
-    }
 
+    }
     static interface MenuItems {
+
         int RESET = 1;
         int DELETE = 2;
         int SAVE = 3;
     }
-
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -241,7 +248,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         configurePlaybackInfo();
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -262,6 +268,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         }
     }
 
+
     private void onRecordingError(String message) {
         mRecordErrorMessage = message;
         updateUi(CreateState.IDLE_RECORD);
@@ -274,10 +281,10 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             public void onClick(View v) {
                 if (!mCurrentState.isEdit()) {
                     track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
-                    showDialog(Consts.Dialogs.DIALOG_DISCARD_RECORDING);
+                    showDiscardRecordingDialog();
                 } else {
                     track(Click.Record_Edit_Revert_To_Original);
-                    showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
+                    showRevertRecordingDialog();
                 }
             }
         }), R.string.reset);
@@ -285,7 +292,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             @Override
             public void onClick(View v) {
                 track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
-                showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
+                showDeleteRecordingDialog();
             }
         }), R.string.delete);
         buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.SAVE, new View.OnClickListener() {
@@ -396,13 +403,13 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     /* package */ void reset() {
         reset(false);
     }
+
     /* package */ void reset(boolean deleteRecording) {
         mSeenSavedMessage = false;
         mRecorder.reset(deleteRecording);
         mWaveDisplay.reset();
         updateUi(CreateState.IDLE_RECORD);
     }
-
     public SoundRecorder getRecorder() {
         return mRecorder;
     }
@@ -462,7 +469,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                     getCurrentUserId());
 
             if (!mUnsavedRecordings.isEmpty()) {
-                showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
+                showDialog(DIALOG_UNSAVED_RECORDING);
             }
         }
 
@@ -663,7 +670,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         mButtonBar.toggleVisibility(MenuItems.DELETE, showDelete, true);
     }
 
-
     private void setPlayButtonDrawable(boolean playing){
         if (playing){
             mPlayButton.setImageResource(R.drawable.btn_rec_play_pause_states);
@@ -673,6 +679,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             mPlayEditButton.setImageResource(R.drawable.btn_rec_play_states);
         }
     }
+
 
     private void hideEditControls(){
        if (mHasEditControlGroup){
@@ -871,84 +878,65 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
 
     @Override public Dialog onCreateDialog(int which) {
         switch (which) {
-            case Consts.Dialogs.DIALOG_UNSAVED_RECORDING:
+            case DIALOG_UNSAVED_RECORDING:
                 return createUnsavedRecordingDialog();
-
-            case Consts.Dialogs.DIALOG_DISCARD_RECORDING:
-                return createDiscardRecordingDialog();
-
-            case Consts.Dialogs.DIALOG_REVERT_RECORDING:
-                return createRevertRecordingDialog();
-
-            case Consts.Dialogs.DIALOG_DELETE_RECORDING:
-                return createDeleteRecordingDialog();
-
-            case Consts.Dialogs.DIALOG_INSTALL_PROCESSOR:
-                return createInstallProcessorDialog();
-
             default:
                 return null;
         }
     }
 
-    private Dialog createInstallProcessorDialog() {
-        return new AlertDialog.Builder(this)
-                .setTitle(null)
-                .setMessage(R.string.dialog_install_processor)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setNegativeButton(android.R.string.no, null)
-                .create();
+    @Override
+    public void onPositiveButtonClicked(int requestCode) {
+        switch (requestCode){
+            case DIALOG_DISCARD_RECORDING :
+                reset(true);
+                break;
+
+            case DIALOG_DELETE_RECORDING :
+                track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
+                reset(true);
+                break;
+
+            case DIALOG_REVERT_RECORDING :
+                track(Click.Record_Edit_Revert_To_Original);
+                mRecorder.revertFile();
+                updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
+                break;
+        }
     }
 
-    private Dialog createDeleteRecordingDialog() {
-        return new AlertDialog.Builder(this)
+    @Override
+    public void onNegativeButtonClicked(int requestCode) {
+    }
+
+    private void showDeleteRecordingDialog() {
+        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setRequestCode(DIALOG_DISCARD_RECORDING)
                 .setTitle(null)
                 .setMessage(R.string.dialog_confirm_delete_recording_message)
-                .setPositiveButton(android.R.string.yes,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
-                                reset(true);
-                            }
-                        })
-                .setNegativeButton(android.R.string.no, null)
-                .create();
+                .setPositiveButtonText(android.R.string.yes)
+                .setNegativeButtonText(android.R.string.no)
+                .show();
     }
 
-    private Dialog createRevertRecordingDialog() {
-        return new AlertDialog.Builder(this)
+    private void showRevertRecordingDialog() {
+        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setRequestCode(DIALOG_REVERT_RECORDING)
                 .setTitle(null)
                 .setMessage(R.string.dialog_revert_recording_message)
-                .setPositiveButton(android.R.string.yes,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                track(Click.Record_Edit_Revert_To_Original);
-                                mRecorder.revertFile();
-                                updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
-                            }
-                        })
-                .setNegativeButton(android.R.string.no, null)
-                .create();
+                .setPositiveButtonText(android.R.string.yes)
+                .setNegativeButtonText(android.R.string.no)
+                .show();
     }
 
-    private Dialog createDiscardRecordingDialog() {
-        return new AlertDialog.Builder(this)
+    private void showDiscardRecordingDialog() {
+        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
+                .setRequestCode(DIALOG_DISCARD_RECORDING)
                 .setTitle(null)
                 .setMessage(R.string.dialog_reset_recording_message)
-                .setPositiveButton(android.R.string.yes,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                reset(true);
-                            }
-                        })
-                .setNegativeButton(android.R.string.no, null)
-                .create();
+                .setPositiveButtonText(android.R.string.yes)
+                .setNegativeButtonText(android.R.string.no)
+                .show();
     }
 
     private Dialog createUnsavedRecordingDialog() {
