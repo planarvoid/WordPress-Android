@@ -389,6 +389,34 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return mInfoListener;
     }
 
+    boolean isTryingToResumeTrack(){
+        return mResumeInfo != null && mResumeInfo.getTrackId() == getTrackId();
+    }
+
+    long getResumeTime(){
+        return mResumeInfo != null ? mResumeInfo.getTime() : 0;
+    }
+
+    boolean hasValidSeekPosition(){
+        return mSeekPos != -1;
+    }
+
+    long getSeekPos(){
+        return mSeekPos;
+    }
+
+    void setResumeTimeAndInvokeErrorListener(MediaPlayer mediaPlayer, ResumeInfo resumeInfo){
+        // track ended prematurely (probably end of buffer, unreported IO error),
+        mResumeInfo = resumeInfo;
+        errorListener.onError(mediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
+    }
+
+    void onTrackEnded(){
+        trackStopEvent();
+        track(Media.fromTrack(mCurrentTrack), Media.Action.Stop);
+        mPlayerHandler.sendEmptyMessage(PlaybackService.TRACK_ENDED);
+    }
+
     private void scheduleServiceShutdownCheck() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "scheduleServiceShutdownCheck()");
@@ -1334,35 +1362,5 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private Tracker getTracker() {
         return (Tracker) getApplication();
     }
-
-    boolean isTryingToResumeTrack(){
-        return mResumeInfo != null && mResumeInfo.getTrackId() == getTrackId();
-    }
-
-    long getResumeTime(){
-        return mResumeInfo != null ? mResumeInfo.getTime() : 0;
-    }
-
-    boolean hasValidSeekPosition(){
-        return mSeekPos != -1;
-    }
-
-    long getSeekPos(){
-        return mSeekPos;
-    }
-
-    void setResumeTimeAndInvokeErrorListener(MediaPlayer mediaPlayer, ResumeInfo resumeInfo){
-        // track ended prematurely (probably end of buffer, unreported IO error),
-        mResumeInfo = resumeInfo;
-        errorListener.onError(mediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
-    }
-
-    void onTrackEnded(){
-        trackStopEvent();
-        track(Media.fromTrack(mCurrentTrack), Media.Action.Stop);
-        mPlayerHandler.sendEmptyMessage(PlaybackService.TRACK_ENDED);
-    }
-
-
 
 }

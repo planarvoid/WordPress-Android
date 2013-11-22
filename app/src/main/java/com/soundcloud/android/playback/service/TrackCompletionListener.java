@@ -31,7 +31,7 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
             final ResumeInfo resumeInfo = new ResumeInfo(currentTrackId, lastPosition);
             mPlaybackService.setResumeTimeAndInvokeErrorListener(mp, resumeInfo);
 
-            Log.w(PlaybackService.TAG, "premature end of track (targetpos=" + lastPosition + ")");
+            Log.w(PlaybackService.TAG, "premature end of track (lastPosition=" + lastPosition + ")");
 
         } else if (mPlaybackService.getPlaybackStateInternal().isError()) {
             // onComplete must have been called in error state
@@ -42,14 +42,14 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
         }
     }
 
-    private boolean shouldAutoRetry(long lastPosition) {
-        return mPlaybackService._isSeekable() && mPlaybackService.getDuration() - lastPosition > COMPLETION_TOLERANCE_MS;
-    }
-
     private void logCompletionState() {
         if (Log.isLoggable(PlaybackService.TAG, Log.DEBUG)) {
             Log.d(PlaybackService.TAG, "onCompletion(state=" + mPlaybackService.getPlaybackStateInternal() + ")");
         }
+    }
+
+    private boolean shouldAutoRetry(long lastPosition) {
+        return mPlaybackService._isSeekable() && mPlaybackService.getDuration() - lastPosition > COMPLETION_TOLERANCE_MS;
     }
 
     private long getTargetStopPosition(MediaPlayer mp) {
@@ -59,7 +59,7 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
         } else if (mPlaybackService.isTryingToResumeTrack()){
             return mPlaybackService.getResumeTime();
 
-        } else if (mediaPlayerHasReset(mp) || (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN)) {
+        } else if ((Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) || mediaPlayerHasReset(mp)) {
             // We are > JellyBean in which getCurrentPosition is totally unreliable or
             // mediaplayer seems to reset itself to 0 before this is called in certain builds, so pretend it's finished
             return mPlaybackService.getDuration();
