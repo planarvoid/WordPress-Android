@@ -79,10 +79,11 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
 
     private ProgressBar mGeneratingWaveformProgressBar;
 
-    private static final int DIALOG_DISCARD_RECORDING = 1;
-    private static final int DIALOG_UNSAVED_RECORDING = 2;
-    private static final int DIALOG_DELETE_RECORDING = 3;
-    private static final int DIALOG_REVERT_RECORDING = 4;
+    private static enum Dialogs {
+        DISCARD_RECORDING, UNSAVED_RECORDING, DELETE_RECORDING, REVERT_RECORDING;
+    }
+
+
 
     public enum CreateState {
         GENERATING_WAVEFORM,
@@ -470,7 +471,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                     getCurrentUserId());
 
             if (!mUnsavedRecordings.isEmpty()) {
-                showDialog(DIALOG_UNSAVED_RECORDING);
+                showDialog(Dialogs.UNSAVED_RECORDING.ordinal());
             }
         }
 
@@ -878,27 +879,26 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     }
 
     @Override public Dialog onCreateDialog(int which) {
-        switch (which) {
-            case DIALOG_UNSAVED_RECORDING:
-                return createUnsavedRecordingDialog();
-            default:
-                throw new IllegalArgumentException("No Dialog handler for " + which);
+        if (which == Dialogs.UNSAVED_RECORDING.ordinal()){
+            return createUnsavedRecordingDialog();
+        } else {
+            throw new IllegalArgumentException("Unexpected dialog request code " + which);
         }
     }
 
     @Override
     public void onPositiveButtonClicked(int requestCode) {
-        switch (requestCode){
-            case DIALOG_DISCARD_RECORDING :
+        switch (Dialogs.values()[requestCode]){
+            case DISCARD_RECORDING :
                 reset(true);
                 break;
 
-            case DIALOG_DELETE_RECORDING :
+            case DELETE_RECORDING :
                 track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
                 reset(true);
                 break;
 
-            case DIALOG_REVERT_RECORDING :
+            case REVERT_RECORDING :
                 track(Click.Record_Edit_Revert_To_Original);
                 mRecorder.revertFile();
                 updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
@@ -917,7 +917,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
 
     private void showDeleteRecordingDialog() {
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setRequestCode(DIALOG_DISCARD_RECORDING)
+                .setRequestCode(Dialogs.DELETE_RECORDING.ordinal())
                 .setTitle(null)
                 .setMessage(R.string.dialog_confirm_delete_recording_message)
                 .setPositiveButtonText(android.R.string.yes)
@@ -927,7 +927,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
 
     private void showRevertRecordingDialog() {
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setRequestCode(DIALOG_REVERT_RECORDING)
+                .setRequestCode(Dialogs.REVERT_RECORDING.ordinal())
                 .setTitle(null)
                 .setMessage(R.string.dialog_revert_recording_message)
                 .setPositiveButtonText(android.R.string.yes)
@@ -937,7 +937,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
 
     private void showDiscardRecordingDialog() {
         SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setRequestCode(DIALOG_DISCARD_RECORDING)
+                .setRequestCode(Dialogs.DISCARD_RECORDING.ordinal())
                 .setTitle(null)
                 .setMessage(R.string.dialog_reset_recording_message)
                 .setPositiveButtonText(android.R.string.yes)
