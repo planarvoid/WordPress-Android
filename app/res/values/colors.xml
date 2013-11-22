@@ -88,5 +88,6 @@
     <color name="dialog_button_pressed">#dbdbdb</color>
 
     <color name="playerTrackDetailsBg">#fff</color>
+    <color name="dark_gray_background">#333</color>
 
 </resources>
