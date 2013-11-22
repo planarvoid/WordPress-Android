@@ -23,7 +23,7 @@ public class Explore extends ActivityTestCase<MainActivity> {
 
         waiter = new Waiter(solo);
         exploreScreen = new ExploreScreen(solo);
-        waiter.waitForListContent();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
     }
 
     public void testTrendingMusicIsDisplayed() {

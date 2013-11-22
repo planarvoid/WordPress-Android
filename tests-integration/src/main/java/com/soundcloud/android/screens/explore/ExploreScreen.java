@@ -60,7 +60,7 @@ public class ExploreScreen extends Screen {
     public void touchGenresTab() {
         touchTab(GENRES_TAB_TEXT);
         waiter.waitForViewId(R.id.suggested_tracks_categories_list);
-        waiter.waitForListContent();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals("Could not get to genres section", GENRES_TAB_TEXT, currentTabTitle());
     }
 
@@ -68,17 +68,17 @@ public class ExploreScreen extends Screen {
         touchTab(TRENDING_MUSIC_TAB_TEXT);
         solo.sleep(3000);
         waiter.waitForViewId(R.id.suggested_tracks_categories_list);
-        waiter.waitForListContent();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
     }
 
     public void clickElectronicGenre() {
         solo.clickOnText("Electronic");
-        waiter.waitForListContent();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
     }
 
     public ExploreGenreScreen clickGenreItem(String genreName) {
         solo.clickOnText(genreName);
-        waiter.waitForListContent();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
         return new ExploreGenreScreen(solo);
     }
 
@@ -90,7 +90,7 @@ public class ExploreScreen extends Screen {
 
     public void swipeRightToGenres() {
         solo.swipeRight();
-        waiter.waitForListContent();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
         //assertTrue("Swipe did not bring up expected tab", solo.waitForCondition(new CurrentTabTitleCondition(GENRES_TAB_TEXT), 2000));
     }
 
