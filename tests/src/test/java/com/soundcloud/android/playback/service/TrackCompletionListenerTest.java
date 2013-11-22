@@ -79,7 +79,7 @@ public class TrackCompletionListenerTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(resumeTime);
         trackCompletionListener.onCompletion(mediaPlayer);
 
-        verify(playbackService).setResumeTimeAndInvokeErrorListener(same(mediaPlayer), eq(new ResumeInfo(TRACK_ID, resumeTime)));
+        verify(playbackService).setResumeTimeAndInvokeErrorListener(same(mediaPlayer), eq(new PlaybackProgressInfo(TRACK_ID, resumeTime)));
         verify(playbackService, never()).onTrackEnded();
     }
 

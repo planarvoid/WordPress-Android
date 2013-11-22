@@ -160,7 +160,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private PublicCloudAPI mOldCloudApi;
 
     @Nullable
-    private ResumeInfo mResumeInfo;      // info to resume a previous play session
+    private PlaybackProgressInfo mResumeInfo;      // info to resume a previous play session
     private long mSeekPos = -1;         // desired seek position
     private int mConnectRetries = 0;
     private long mLastRefresh;          // time last refresh hit was sent
@@ -377,7 +377,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     public void saveProgressAndStop() {
         pause();
-        mResumeInfo = new ResumeInfo(getProgress(), getCurrentTrackId());
+        mResumeInfo = new PlaybackProgressInfo(getProgress(), getCurrentTrackId());
         stop();
     }
 
@@ -405,7 +405,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return mSeekPos;
     }
 
-    void setResumeTimeAndInvokeErrorListener(MediaPlayer mediaPlayer, ResumeInfo resumeInfo){
+    void setResumeTimeAndInvokeErrorListener(MediaPlayer mediaPlayer, PlaybackProgressInfo resumeInfo){
         // track ended prematurely (probably end of buffer, unreported IO error),
         mResumeInfo = resumeInfo;
         errorListener.onError(mediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);

@@ -1,10 +1,10 @@
 package com.soundcloud.android.playback.service;
 
-public class ResumeInfo {
+public class PlaybackProgressInfo {
     private long mTrackId;
     private long mTime;
 
-    public ResumeInfo(long trackId, long time) {
+    public PlaybackProgressInfo(long trackId, long time) {
         this.mTrackId = trackId;
         this.mTime = time;
     }
@@ -22,7 +22,7 @@ public class ResumeInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ResumeInfo that = (ResumeInfo) o;
+        PlaybackProgressInfo that = (PlaybackProgressInfo) o;
 
         if (mTime != that.mTime) return false;
         if (mTrackId != that.mTrackId) return false;

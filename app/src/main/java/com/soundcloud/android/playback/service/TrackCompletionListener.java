@@ -13,7 +13,6 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
     static final int COMPLETION_TOLERANCE_MS = 3000;
     private PlaybackService mPlaybackService;
 
-    @VisibleForTesting
     TrackCompletionListener(PlaybackService playbackService) {
         mPlaybackService = playbackService;
     }
@@ -28,7 +27,7 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
         if (shouldAutoRetry(lastPosition)) {
 
             final long currentTrackId = mPlaybackService.getPlayQueueInternal().getCurrentTrackId();
-            final ResumeInfo resumeInfo = new ResumeInfo(currentTrackId, lastPosition);
+            final PlaybackProgressInfo resumeInfo = new PlaybackProgressInfo(currentTrackId, lastPosition);
             mPlaybackService.setResumeTimeAndInvokeErrorListener(mp, resumeInfo);
 
             Log.w(PlaybackService.TAG, "premature end of track (lastPosition=" + lastPosition + ")");
