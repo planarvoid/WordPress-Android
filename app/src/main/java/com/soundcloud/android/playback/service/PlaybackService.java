@@ -1230,12 +1230,18 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     Log.d(TAG, "Not clearing seek, waiting for buffer");
                 }
 
-
                 mWaitingForSeek = false;
                 notifyChange(Broadcasts.SEEK_COMPLETE);
 
                 // respect pauses during seeks
-                if (!mPlaybackState.isSupposedToBePlaying()) safePause();
+                if (!mPlaybackState.isSupposedToBePlaying()) {
+                    safePause();
+                } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN){
+                    // KitKat sucks, and doesn't resume playback after seeking sometimes, with no discernible
+                    // output. Toggling playback seems to fix it
+                    mp.pause();
+                    mp.start();
+                }
             }
         }
     };
