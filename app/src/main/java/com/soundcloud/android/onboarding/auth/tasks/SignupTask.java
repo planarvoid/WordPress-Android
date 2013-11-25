@@ -49,12 +49,17 @@ public class SignupTask extends AuthTask {
             // do token exchange
             Token token;
             try {
+
+                // TODO, remove once we figure out if this is the master/slave delay issue for tokens
+                Thread.sleep(3000);
+
                 token = mTokenInformationGenerator.getToken(params[0]);
                 if (token == null || !app.addUserAccountAndEnableSync(result.getUser(), token, SignupVia.API)) {
                     return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }
             } catch (IOException e) {
                 return AuthTaskResult.failure(e);
+            } catch (InterruptedException e) {
             }
         }
         return result;
