@@ -3,6 +3,7 @@ package com.soundcloud.android.explore;
 import com.soundcloud.android.R;
 import com.viewpagerindicator.TabPageIndicator;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -17,14 +18,14 @@ public class ExploreFragment extends Fragment {
     private ViewPager mPager;
 
     @Inject
+    Resources mResources;
+
     @Inject
     ExplorePagerAdapterFactory mExplorePagerAdapterFactory;
 
     private ExplorePagerAdapter mExplorePagerAdapter;
 
-    @Inject
-    public ExploreFragment(ExplorePagerAdapterFactory explorePagerAdapterFactory) {
-        mExplorePagerAdapterFactory = explorePagerAdapterFactory;
+    public ExploreFragment() {
         setRetainInstance(true);
     }
 
@@ -45,7 +46,7 @@ public class ExploreFragment extends Fragment {
         mPager = (ViewPager) view.findViewById(R.id.pager);
         mPager.setAdapter(mExplorePagerAdapter);
         mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
-        mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
+        mPager.setPageMargin(mResources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
         TabPageIndicator mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
