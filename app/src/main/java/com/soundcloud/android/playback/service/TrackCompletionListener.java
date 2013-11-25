@@ -30,7 +30,9 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
             final PlaybackProgressInfo resumeInfo = new PlaybackProgressInfo(currentTrackId, lastPosition);
             mPlaybackService.setResumeTimeAndInvokeErrorListener(mp, resumeInfo);
 
-            Log.w(PlaybackService.TAG, "premature end of track (lastPosition=" + lastPosition + ")");
+            final int duration = mPlaybackService.getDuration();
+            Log.w(PlaybackService.TAG, "premature end of track [lastPosition = " + lastPosition
+                    + ", duration = " + duration + ", diff = "+ (duration - lastPosition) + "]");
 
         } else if (mPlaybackService.getPlaybackStateInternal().isError()) {
             // onComplete must have been called in error state
@@ -53,18 +55,26 @@ class TrackCompletionListener implements MediaPlayer.OnCompletionListener {
 
     private long getTargetStopPosition(MediaPlayer mp) {
         if (mPlaybackService.hasValidSeekPosition()){
-            return mPlaybackService.getSeekPos();
+            final long seekPos = mPlaybackService.getSeekPos();
+            Log.d(PlaybackService.TAG, "Calculating end pos from Seek position " + seekPos);
+            return seekPos;
 
         } else if (mPlaybackService.isTryingToResumeTrack()){
-            return mPlaybackService.getResumeTime();
+            final long resumeTime = mPlaybackService.getResumeTime();
+            Log.d(PlaybackService.TAG, "Calculating end pos from resume position " + resumeTime);
+            return resumeTime;
 
         } else if ((Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) || mediaPlayerHasReset(mp)) {
             // We are > JellyBean in which getCurrentPosition is totally unreliable or
             // mediaplayer seems to reset itself to 0 before this is called in certain builds, so pretend it's finished
-            return mPlaybackService.getDuration();
+            final int duration = mPlaybackService.getDuration();
+            Log.d(PlaybackService.TAG, "Calculating end pos from completion position " + duration);
+            return duration;
 
         } else {
-            return mp.getCurrentPosition();
+            final int currentPosition = mp.getCurrentPosition();
+            Log.d(PlaybackService.TAG, "Calculating end pos from current position " + currentPosition);
+            return currentPosition;
         }
     }
 
