@@ -14,11 +14,11 @@ import javax.inject.Inject;
 
 public class ExploreFragment extends Fragment {
 
-
     private ViewPager mPager;
 
     @Inject
-    public ExplorePagerAdapterFactory mExplorePagerAdapterFactory;
+    @Inject
+    ExplorePagerAdapterFactory mExplorePagerAdapterFactory;
 
     private ExplorePagerAdapter mExplorePagerAdapter;
 

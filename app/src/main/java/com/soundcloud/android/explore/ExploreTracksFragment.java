@@ -44,10 +44,10 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     public ExploreTracksObserver mObserver;
 
     @Inject
-    public ExploreTracksAdapter mAdapter;
+    ExploreTracksAdapter mAdapter;
 
     @Inject
-    public PlaybackOperations mPlaybackOperations;
+    PlaybackOperations mPlaybackOperations;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
