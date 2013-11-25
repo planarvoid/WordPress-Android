@@ -98,6 +98,9 @@ public class StatsView extends View {
         final int paddingTop = getPaddingTop();
         final int paddingBottom = getPaddingBottom();
 
+        Paint.FontMetricsInt fm = textPaint.getFontMetricsInt();
+        int textHeight = fm.descent - fm.ascent + fm.leading;
+
         for (int i = 0; i < mIcons.length; i++) {
             if (counts[i] <= 0) continue;
             Drawable icon   = mIcons[i];
@@ -113,7 +116,7 @@ public class StatsView extends View {
             width += mBounds.width();
             width += mItemPadding;
 
-            height = Math.max(icon.getIntrinsicHeight() + mOffsets[i], Math.max(height, mBounds.height()));
+            height = Math.max(height, Math.max(icon.getIntrinsicHeight() + mOffsets[i], textHeight));
             hasDrawn = true;
         }
 
