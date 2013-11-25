@@ -20,6 +20,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
+import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
 import android.content.Intent;
 import android.database.DataSetObserver;
@@ -40,7 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Tracking(page = Page.Record_details)
-public class UploadActivity extends ScActivity {
+public class UploadActivity extends ScActivity implements ISimpleDialogListener {
 
     private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
@@ -56,6 +57,8 @@ public class UploadActivity extends ScActivity {
 
     private static final int REC_ANOTHER = 0, POST = 1;
 
+    public static final int DIALOG_PICK_IMAGE = 1;
+
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -66,7 +69,7 @@ public class UploadActivity extends ScActivity {
 
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, this, getCurrentUserId())) != null) {
-            setContentView(mRecording.isPrivateMessage() ? R.layout.sc_message_upload : R.layout.sc_upload);
+            setUploadLayout(mRecording.isPrivateMessage() ? R.layout.sc_message_upload : R.layout.sc_upload);
             mRecordingMetadata.setRecording(mRecording, false);
 
             if (mRecording.external_upload) {
@@ -87,15 +90,14 @@ public class UploadActivity extends ScActivity {
         }
     }
 
-    @Override
-    public void setContentView(int layoutId) {
+    private void setUploadLayout(int layoutId){
         super.setContentView(layoutId);
         mRecordingMetadata = (RecordingMetaDataLayout) findViewById(R.id.metadata_layout);
         mRecordingMetadata.setActivity(this);
 
         final int backStringId = !mRecording.external_upload ? R.string.record_another_sound :
-                                 mRecording.isLegacyRecording() ? R.string.delete :
-                                 R.string.cancel;
+                mRecording.isLegacyRecording() ? R.string.delete :
+                        R.string.cancel;
 
         ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(REC_ANOTHER, new View.OnClickListener() {
             @Override
@@ -114,9 +116,9 @@ public class UploadActivity extends ScActivity {
             public void onClick(View v) {
                 PlaybackStream ps = mRecording.getPlaybackStream();
                 track(Click.Record_Share_Post,
-                      mRecording.tip_key == null ? "tip_unknown" : mRecording.tip_key,
-                      ps != null && ps.isTrimmed() ? "trimmed" : "not_trimmed",
-                      ps != null && ps.isFading()  ? "fading"  : "not_fading");
+                        mRecording.tip_key == null ? "tip_unknown" : mRecording.tip_key,
+                        ps != null && ps.isTrimmed() ? "trimmed" : "not_trimmed",
+                        ps != null && ps.isFading()  ? "fading"  : "not_fading");
                 if (mRecording != null) {
                     saveRecording();
                     mRecording.upload(UploadActivity.this);
@@ -131,7 +133,7 @@ public class UploadActivity extends ScActivity {
 
         if (mRecording.isPrivateMessage()) {
             ((TextView) findViewById(R.id.txt_private_message_upload_message))
-                            .setText(getString(R.string.private_message_upload_message, mRecording.getRecipientUsername()));
+                    .setText(getString(R.string.private_message_upload_message, mRecording.getRecipientUsername()));
         } else {
             mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
             mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
@@ -161,7 +163,7 @@ public class UploadActivity extends ScActivity {
             mAccessListLayout.registerDataSetObserver(new DataSetObserver() {
                 @Override public void onChanged() {
                     findViewById(R.id.btn_add_emails).setVisibility(
-                        mAccessListLayout.isEmpty() ? View.VISIBLE : View.GONE
+                            mAccessListLayout.isEmpty() ? View.VISIBLE : View.GONE
                     );
                 }
             });
@@ -276,6 +278,24 @@ public class UploadActivity extends ScActivity {
     private void recordingNotFound() {
         showToast(R.string.recording_not_found);
         finish();
+    }
+
+    @Override
+    public void onPositiveButtonClicked(int requestCode) {
+        switch (requestCode){
+            case DIALOG_PICK_IMAGE :
+                ImageUtils.startTakeNewPictureIntent(this, mRecording.generateImageFile(Recording.IMAGE_DIR),
+                        Consts.RequestCodes.GALLERY_IMAGE_TAKE);
+                break;
+        }
+    }
+
+    @Override
+    public void onNegativeButtonClicked(int requestCode) {
+        switch (requestCode){
+            case DIALOG_PICK_IMAGE :
+                ImageUtils.startPickImageIntent(this, Consts.RequestCodes.GALLERY_IMAGE_PICK);
+        }
     }
 
     @Override

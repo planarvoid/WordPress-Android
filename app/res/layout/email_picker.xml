@@ -29,7 +29,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="fill_parent"
-                    android:background="@drawable/btn_transparent_bg_states"
+                    android:background="@drawable/item_background_dark"
                     android:textColor="@drawable/txt_btn_dark_states"
                     android:text="@string/email_picker_clear"/>
             <View android:layout_height="fill_parent"
@@ -39,7 +39,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="fill_parent"
-                    android:background="@drawable/btn_transparent_bg_states"
+                    android:background="@drawable/item_background_dark"
                     android:textColor="@drawable/txt_btn_dark_states"
                     android:text="@android:string/ok"/>
         </LinearLayout>

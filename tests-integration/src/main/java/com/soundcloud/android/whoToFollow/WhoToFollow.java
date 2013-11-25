@@ -29,7 +29,7 @@ public class WhoToFollow extends ActivityTestCase<OnboardActivity> {
 
     public void testCheckmarkSelection() throws Exception {
         createNewUser();
-        waiter.waitForListContent();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
 
         suggestedUsersScreen.clickToggleCategoryCheckmark(1);
         suggestedUsersScreen.clickCategory(1);

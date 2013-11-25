@@ -5,6 +5,7 @@ import android.webkit.WebView;
 import android.widget.ListAdapter;
 import com.jayway.android.robotium.solo.Condition;
 import com.soundcloud.android.R;
+import com.soundcloud.android.R.id;
 import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
@@ -40,18 +41,31 @@ public class Waiter {
         return solo.waitForCondition(condition,this.NETWORK_TIMEOUT );
     }
 
-    public boolean waitForListContent() {
+    private boolean waitForListContent() {
+        return solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                final View view = solo.getView(id.empty_view_progress);
+                return view == null || !view.isShown();
+            }
+        }, this.NETWORK_TIMEOUT);
+    }
+
+    public boolean waitForListContentAndRetryIfLoadingFailed() {
         View progress = solo.waitForViewId(R.id.empty_view_progress, TIMEOUT);
         if (progress != null){
-            return solo.waitForCondition(new Condition() {
-                @Override
-                public boolean isSatisfied() {
-                    final View view = solo.getView(R.id.empty_view_progress);
-                    return view == null || !view.isShown();
-                }
-            }, this.NETWORK_TIMEOUT);
+            return waitForListContent();
         } else {
+            retryIfFailed();
             return false;
+        }
+    }
+
+    //TODO: We should have an error screen class defined
+    private void retryIfFailed() {
+        if(solo.searchText("Retry", 0, false)){
+            solo.clickOnButtonResId(id.btn_retry);
+            waitForListContent();
         }
     }
 

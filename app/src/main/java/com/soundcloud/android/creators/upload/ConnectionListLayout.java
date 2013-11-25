@@ -96,8 +96,8 @@ public class ConnectionListLayout extends LinearLayout {
     private View getSeparator() {
         final View v = new View(this.getContext());
         v.setLayoutParams(new LayoutParams(
-                LayoutParams.FILL_PARENT,
-                1));
+                LayoutParams.MATCH_PARENT,
+                getResources().getDimensionPixelOffset(R.dimen.connection_list_divider_height)));
 
         v.setBackgroundColor(getResources().getColor(R.color.recordUploadBorder));
         return v;

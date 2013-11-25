@@ -24,7 +24,7 @@ public class ExploreRecommendations extends ActivityTestCase<MainActivity> {
         exploreScreen = new ExploreScreen(solo);
         playerScreen        = new PlayerScreen(solo);
         waiter              = new Waiter(solo);
-        waiter.waitForListContent();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
     }
 
     public void testPlayingTrendingMusicTrack() {

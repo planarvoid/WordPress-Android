@@ -81,7 +81,7 @@ public class SuggestedUsersScreen {
     public HomeScreen finish() {
         solo.clickOnActionBarItem(R.id.finish);
         solo.waitForActivity(MainActivity.class, 60000);
-        waiter.waitForListContent();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
         return new HomeScreen(solo);
     }
 }

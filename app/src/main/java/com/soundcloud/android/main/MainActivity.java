@@ -220,11 +220,10 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         mLastTitle = getString(titleResId);
     }
 
-    public boolean restoreActionBar() {
+    public void restoreActionBar() {
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mLastTitle);
-        return true;
     }
 
     @Override

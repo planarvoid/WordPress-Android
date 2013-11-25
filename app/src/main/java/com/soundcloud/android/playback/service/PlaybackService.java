@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -67,7 +66,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private static @Nullable
     PlaybackService instance;
-
 
     /**
      * do not use mCurrentTrack here, as there is a race condition between broadcasting PlayQueueChanged and setting mCurrentTrack
@@ -162,7 +160,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private PublicCloudAPI mOldCloudApi;
 
     @Nullable
-    private PlayQueueManager.ResumeInfo mResumeInfo;      // info to resume a previous play session
+    private PlaybackProgressInfo mResumeInfo;      // info to resume a previous play session
     private long mSeekPos = -1;         // desired seek position
     private int mConnectRetries = 0;
     private long mLastRefresh;          // time last refresh hit was sent
@@ -196,6 +194,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private AnalyticsEngine mAnalyticsEngine;
     private String mCurrentEventLoggerParams;
+    private TrackCompletionListener mCompletionListener;
 
     public PlayEventTracker getPlayEventTracker() {
         return mPlayEventTracker;
@@ -239,6 +238,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         mPlayQueueManager = new PlayQueueManager(this, new PlayQueueStorage(), new ExploreTracksOperations(),
                 PreferenceManager.getDefaultSharedPreferences(this), SoundCloudApplication.MODEL_MANAGER);
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mAudioManager, mPlayQueueManager);
+
+        mCompletionListener = new TrackCompletionListener(this);
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(Actions.PLAY_ACTION);
@@ -376,7 +377,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     public void saveProgressAndStop() {
         pause();
-        mResumeInfo = new PlayQueueManager.ResumeInfo(getProgress(), getCurrentTrackId());
+        mResumeInfo = new PlaybackProgressInfo(getProgress(), getCurrentTrackId());
         stop();
     }
 
@@ -386,6 +387,34 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     public FetchModelTask.Listener<Track> getInfoListener() {
         return mInfoListener;
+    }
+
+    boolean isTryingToResumeTrack(){
+        return mResumeInfo != null && mResumeInfo.getTrackId() == getTrackId();
+    }
+
+    long getResumeTime(){
+        return mResumeInfo != null ? mResumeInfo.getTime() : 0;
+    }
+
+    boolean hasValidSeekPosition(){
+        return mSeekPos != -1;
+    }
+
+    long getSeekPos(){
+        return mSeekPos;
+    }
+
+    void setResumeTimeAndInvokeErrorListener(MediaPlayer mediaPlayer, PlaybackProgressInfo resumeInfo){
+        // track ended prematurely (probably end of buffer, unreported IO error),
+        mResumeInfo = resumeInfo;
+        errorListener.onError(mediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
+    }
+
+    void onTrackEnded(){
+        trackStopEvent();
+        track(Media.fromTrack(mCurrentTrack), Media.Action.Stop);
+        mPlayerHandler.sendEmptyMessage(PlaybackService.TRACK_ENDED);
     }
 
     private void scheduleServiceShutdownCheck() {
@@ -617,7 +646,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setOnPreparedListener(preparedlistener);
             mMediaPlayer.setOnSeekCompleteListener(seekListener);
-            mMediaPlayer.setOnCompletionListener(completionListener);
+            mMediaPlayer.setOnCompletionListener(mCompletionListener);
             mMediaPlayer.setOnErrorListener(errorListener);
             mMediaPlayer.setOnBufferingUpdateListener(bufferingListener);
             mMediaPlayer.setOnInfoListener(infolistener);
@@ -955,7 +984,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         openCurrent();
     }
 
-    private PlayQueue getPlayQueueInternal() {
+    PlayQueue getPlayQueueInternal() {
         return mPlayQueueManager.getCurrentPlayQueue();
     }
 
@@ -1229,40 +1258,18 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     Log.d(TAG, "Not clearing seek, waiting for buffer");
                 }
 
-
                 mWaitingForSeek = false;
                 notifyChange(Broadcasts.SEEK_COMPLETE);
 
                 // respect pauses during seeks
-                if (!mPlaybackState.isSupposedToBePlaying()) safePause();
-            }
-        }
-    };
-
-    final MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
-        public void onCompletion(MediaPlayer mp) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onCompletion(state="+ mPlaybackState +")");
-            }
-            // mediaplayer seems to reset itself to 0 before this is called in certain builds, so if so,
-            // pretend it's finished
-            final long targetPosition = (mSeekPos != -1) ? mSeekPos :
-                                        (mResumeInfo != null && mResumeInfo.getTrackId() == getTrackId()) ? mResumeInfo.getTime() :
-                                        (mp.getCurrentPosition() <= 0 && mPlaybackState == PlaybackState.PLAYING) ? getDuration() : mp.getCurrentPosition();
-            // premature track end ?
-            if (isSeekable() && getDuration() - targetPosition > 3000) {
-                Log.w(TAG, "premature end of track (targetpos="+targetPosition+")");
-                // track ended prematurely (probably end of buffer, unreported IO error),
-                // so try to resume at last time
-                mResumeInfo = new PlayQueueManager.ResumeInfo(getCurrentTrackId(), targetPosition);
-                errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
-            } else if (!mPlaybackState.isError()) {
-                trackStopEvent();
-                track(Media.fromTrack(mCurrentTrack), Media.Action.Stop);
-                mPlayerHandler.sendEmptyMessage(TRACK_ENDED);
-            } else {
-                // onComplete must have been called in error state
-                stop();
+                if (!mPlaybackState.isSupposedToBePlaying()) {
+                    safePause();
+                } else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN){
+                    // KitKat sucks, and doesn't resume playback after seeking sometimes, with no discernible
+                    // output. Toggling playback seems to fix it
+                    mp.pause();
+                    mp.start();
+                }
             }
         }
     };
@@ -1291,7 +1298,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     // normal play, unless first start (autopause=true)
                     } else {
                         // sometimes paused for buffering happens right after prepare, so check buffering on a delay
-                        mPlayerHandler.sendEmptyMessageDelayed(CHECK_BUFFERING,500);
+                        mPlayerHandler.sendEmptyMessageDelayed(CHECK_BUFFERING, 500);
 
                         //  FADE_IN will call play()
                         if (!mAutoPause && mFocus.requestMusicFocus(PlaybackService.this, IAudioManager.FOCUS_GAIN)) {
@@ -1355,4 +1362,5 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private Tracker getTracker() {
         return (Tracker) getApplication();
     }
+
 }

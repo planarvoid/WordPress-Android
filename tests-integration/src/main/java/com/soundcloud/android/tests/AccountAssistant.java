@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.model.User;
@@ -22,7 +23,6 @@ import static junit.framework.Assert.assertNotNull;
 public final class AccountAssistant {
     public static final String USERNAME = "android-testing";
     public static final String PASSWORD = "android-testing";
-    public static final Integer TIMEOUT = 1000;
 
     private AccountAssistant() {}
     private static final String TAG = AccountAssistant.class.getSimpleName();
@@ -51,7 +51,7 @@ public final class AccountAssistant {
         Log.i(TAG, "Logging in");
 
         Context context = instrumentation.getTargetContext();
-        PublicApiWrapper publicApiWrapper = new PublicApiWrapper(context);
+        PublicApiWrapper publicApiWrapper = PublicApiWrapper.getInstance(context);
         Token token;
         User user;
         try {
@@ -62,9 +62,12 @@ public final class AccountAssistant {
             throw new AssertionError("error logging in: "+e.getMessage());
         }
         assertNotNull("could not get test user", user);
-        Account account = new AccountOperations(instrumentation.getTargetContext()).addOrReplaceSoundCloudAccount(user, token, SignupVia.NONE);
-        assertNotNull("Account creation failed", account);
-        return account;
+
+        if(SoundCloudApplication.instance.addUserAccountAndEnableSync(user, token, SignupVia.NONE)){
+            return getAccount(context);
+        };
+
+        return null;
     }
 
     public static boolean logOut(Instrumentation instrumentation) throws Exception {

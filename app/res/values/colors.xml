@@ -31,9 +31,6 @@
     <color name="recordListItemBackground">#ff999999</color>
 
     <color name="btnDarkFlat">#242424</color>
-    <color name="btnOrangePressedStart">@color/scOrange</color>
-    <color name="btnOrangePressedEnd">#ff3300</color>
-    <color name="btnTransparentSelectedStroke">#80ffffff</color>
     <color name="recButtonBarSeparator">#ff000000</color>
 
     <color name="recButtonBarBgStart">#333333</color>
@@ -88,5 +85,6 @@
     <color name="dialog_button_pressed">#dbdbdb</color>
 
     <color name="playerTrackDetailsBg">#fff</color>
+    <color name="dark_gray_background">#333</color>
 
 </resources>

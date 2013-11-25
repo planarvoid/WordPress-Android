@@ -8,10 +8,10 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScResource;
@@ -37,7 +37,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.SSLCertificateSocketFactory;
 import android.net.SSLSessionCache;
-import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -104,7 +103,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
     private PublicApiWrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret, URI redirectUri,
-                    Token token, ApplicationProperties applicationProperties, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
+                             Token token, ApplicationProperties applicationProperties, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
         super(clientId, clientSecret, redirectUri, token);
         // context can be null in tests
         if (context == null) return;
@@ -199,21 +198,6 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
             String report = generateRequestResponseLog(request, response);
             // we log using INFO level, since request logs can be useful in beta builds
             Log.i(TAG, report);
-        } else if (responseIsUnauthorised(response)) {
-            // always report 401s of requestes originating from the UI into Crashlytics for release builds,
-            // since they are causing us some trouble
-
-            // delaying this final check to here so that we do not parse the request URI for every single prod
-            // request we send
-            final boolean isForegroundRequest = Uri.parse(request.getURI().toString())
-                    .getQueryParameter(BACKGROUND_PARAMETER) == null;
-
-            if (isForegroundRequest) {
-                String report = generateRequestResponseLog(request, response);
-                AccountOperations accountOperations = new AccountOperations(mContext);
-                UnauthorizedException exception = new UnauthorizedException(report, accountOperations.getSoundCloudToken());
-                SoundCloudApplication.handleSilentException("Received 401 Unauthorized", exception);
-            }
         }
     }
 
