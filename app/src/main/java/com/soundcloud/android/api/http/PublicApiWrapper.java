@@ -37,7 +37,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.SSLCertificateSocketFactory;
 import android.net.SSLSessionCache;
-import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -199,21 +198,6 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
             String report = generateRequestResponseLog(request, response);
             // we log using INFO level, since request logs can be useful in beta builds
             Log.i(TAG, report);
-        } else if (responseIsUnauthorised(response)) {
-            // always report 401s of requestes originating from the UI into Crashlytics for release builds,
-            // since they are causing us some trouble
-
-            // delaying this final check to here so that we do not parse the request URI for every single prod
-            // request we send
-            final boolean isForegroundRequest = Uri.parse(request.getURI().toString())
-                    .getQueryParameter(BACKGROUND_PARAMETER) == null;
-
-            if (isForegroundRequest) {
-                String report = generateRequestResponseLog(request, response);
-                AccountOperations accountOperations = new AccountOperations(mContext);
-                UnauthorizedException exception = new UnauthorizedException(report, accountOperations.getSoundCloudToken());
-                SoundCloudApplication.handleSilentException("Received 401 Unauthorized", exception);
-            }
         }
     }
 
