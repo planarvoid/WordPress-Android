@@ -16,18 +16,22 @@ public class ExploreFragment extends Fragment {
 
 
     private ViewPager mPager;
-    private final ExplorePagerAdapter mExplorePagerAdapter;
-
 
     @Inject
-    public ExploreFragment(ExplorePagerAdapter explorePagerAdapter) {
-        mExplorePagerAdapter = explorePagerAdapter;
+    public ExplorePagerAdapterFactory mExplorePagerAdapterFactory;
+
+    private ExplorePagerAdapter mExplorePagerAdapter;
+
+    @Inject
+    public ExploreFragment(ExplorePagerAdapterFactory explorePagerAdapterFactory) {
+        mExplorePagerAdapterFactory = explorePagerAdapterFactory;
         setRetainInstance(true);
     }
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
+        mExplorePagerAdapter = mExplorePagerAdapterFactory.create(this.getChildFragmentManager());
     }
 
     @Override

@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import javax.inject.Inject;
 import java.util.Locale;
 
 public class ExplorePagerAdapter extends FragmentPagerAdapter {
@@ -18,11 +17,9 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
 
     private final Resources mResources;
 
-    @Inject
     public ExplorePagerAdapter(Resources resources, FragmentManager fm) {
         super(fm);
         mResources = resources;
-
     }
 
     @Override
