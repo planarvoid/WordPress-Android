@@ -63,7 +63,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     @Inject
     public ExploreFragment mExploreFragment;
 
-    private final DependencyInjector objectGraphCreator;
+    private final DependencyInjector mDependencyInjector;
     private ObjectGraph mObjectGraph;
 
     @SuppressWarnings("unused")
@@ -73,13 +73,13 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     @VisibleForTesting
     protected MainActivity(DependencyInjector objectGraphCreator) {
-        this.objectGraphCreator = objectGraphCreator;
+        this.mDependencyInjector = objectGraphCreator;
     }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        mObjectGraph = objectGraphCreator.fromAppGraphWithModules(
+        mObjectGraph = mDependencyInjector.fromAppGraphWithModules(
                 new ExploreModule(),
                 new ExploreFragmentModule(getSupportFragmentManager()),
                 new ExploreTracksCategoriesFragmentModule(),
