@@ -67,7 +67,7 @@ public class MenuScreen {
         waiter.waitForDrawerToOpen();
         solo.clickOnText(explore_selector);
         waiter.waitForViewId(R.id.suggested_tracks_categories_list);
-        waiter.waitForListContent();
+        waiter.waitForListContentAndRetryIfLoadingFailed();
     }
 
     public boolean isOpened() {

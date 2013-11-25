@@ -108,13 +108,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     protected void onDestroy() {
         super.onDestroy();
 
-        try {
-            unregisterReceiver(mLoggingOutListener);
-        } catch (IllegalArgumentException e) {
-            // this seems to happen in EmailConfirm. Seems like it doesn't respect the full lifecycle.
-            SoundCloudApplication.handleSilentException("Couldnt unregister intent listeners", e);
-        }
-
+        safeUnregisterReceiver(mLoggingOutListener);
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
         if (mActionBarController != null) {
@@ -158,7 +152,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mUnauthoriedRequestReceiver);
+        safeUnregisterReceiver(mUnauthoriedRequestReceiver);
         mIsForeground = false;
         if (mActionBarController != null) {
             mActionBarController.onPause();
@@ -358,5 +352,15 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
      */
     public static int getContentHolderViewId() {
         return R.id.holder;
+    }
+
+    private void safeUnregisterReceiver(BroadcastReceiver receiver) {
+        try {
+            unregisterReceiver(receiver);
+        } catch (IllegalArgumentException e) {
+            // This should not happen if the receiver is registered/unregistered in complementary methods and
+            // the full lifecycle is respected, but it does.
+            SoundCloudApplication.handleSilentException("Couldnt unregister receiver", e);
+        }
     }
 }
