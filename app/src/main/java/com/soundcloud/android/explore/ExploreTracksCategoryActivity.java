@@ -23,7 +23,6 @@ public class ExploreTracksCategoryActivity extends ScActivity implements ObjectG
     @VisibleForTesting
     protected ExploreTracksCategoryActivity(DependencyInjector objectGraphCreator) {
         mObjectGraph = objectGraphCreator.fromAppGraphWithModules(
-                new ExploreModule(),
                 new ExploreTracksFragmentModule(),
                 new StorageModule());
     }
