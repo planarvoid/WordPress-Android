@@ -49,17 +49,17 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private CharSequence mLastTitle;
     private int mLastSelection = -1;
     @Inject
-    public AccountOperations mAccountOperations;
+    AccountOperations mAccountOperations;
     @Inject
-    public CompositeSubscription mSubscription;
+    CompositeSubscription mSubscription;
     @Inject
-    public ApplicationProperties mApplicationProperties;
+    ApplicationProperties mApplicationProperties;
     @Inject
-    public SoundCloudApplication application;
+    SoundCloudApplication application;
     @Inject
-    public UserOperations mUserOperations;
+    UserOperations mUserOperations;
     @Inject
-    public ExploreFragment mExploreFragment;
+    ExploreFragment mExploreFragment;
 
     private final DependencyInjector mDependencyInjector;
     private ObjectGraph mObjectGraph;
