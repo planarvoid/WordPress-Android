@@ -40,7 +40,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     AndroidObservableFactory mObservableFactory;
 
     @Inject
-    ExploreTracksCategoriesAdapter mExploreTracksCategoriesAdapter;
+    ExploreTracksCategoriesAdapter mCategoriesAdapter;
 
     private Subscription mSubscription = Subscriptions.empty();
     private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
@@ -79,8 +79,6 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
         startActivity(intent);
     }
 
-
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -98,7 +96,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
 
         ListView listview = getListView();
         listview.setOnItemClickListener(this);
-        listview.setAdapter(mExploreTracksCategoriesAdapter);
+        listview.setAdapter(mCategoriesAdapter);
         listview.setEmptyView(mEmptyListView);
         listview.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), false, true));
 
@@ -134,7 +132,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     }
 
     private Subscription loadCategories() {
-        mCategoriesObservable.subscribe(mExploreTracksCategoriesAdapter);
+        mCategoriesObservable.subscribe(mCategoriesAdapter);
         mCategoriesObservable.subscribe(new ListFragmentObserver<Section<ExploreTracksCategory>>(this));
         return mCategoriesObservable.connect();
     }
