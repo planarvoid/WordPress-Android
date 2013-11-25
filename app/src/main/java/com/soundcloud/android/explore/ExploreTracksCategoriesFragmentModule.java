@@ -18,25 +18,25 @@ import javax.inject.Singleton;
 public class ExploreTracksCategoriesFragmentModule {
 
     @Provides
-    AndroidObservableFactory provideFactory(ExploreTracksOperations exploreTracksOperations){
+    AndroidObservableFactory provideObservableFactory(ExploreTracksOperations exploreTracksOperations) {
         return new AndroidObservableFactory(exploreTracksOperations.getCategories());
     }
 
     @Provides
     @Singleton
-    public JsonTransformer provideJsonTransformer(){
+    public JsonTransformer provideJsonTransformer() {
         return new JacksonJsonTransformer();
     }
 
     @Provides
     @Singleton
     public RxHttpClient provideRxHttpClient(@Named("APIScheduler") Scheduler scheduler, JsonTransformer jsonTransformer,
-                                            SoundCloudApplication application, HttpProperties httpProperties){
+                                            SoundCloudApplication application, HttpProperties httpProperties) {
         return new SoundCloudRxHttpClient(scheduler, jsonTransformer, application, httpProperties);
     }
 
     @Provides
-    public ExploreTracksCategoriesAdapter provideExplorePagerAdapter(){
+    public ExploreTracksCategoriesAdapter provideCategoriesAdapter() {
         return new ExploreTracksCategoriesAdapter();
     }
 }
