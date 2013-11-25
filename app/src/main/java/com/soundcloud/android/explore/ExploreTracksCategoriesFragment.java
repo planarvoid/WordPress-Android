@@ -134,7 +134,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     }
 
     private Subscription loadCategories() {
-        mCategoriesObservable.subscribe(getListAdapter());
+        mCategoriesObservable.subscribe(mExploreTracksCategoriesAdapter);
         mCategoriesObservable.subscribe(new ListFragmentObserver<Section<ExploreTracksCategory>>(this));
         return mCategoriesObservable.connect();
     }

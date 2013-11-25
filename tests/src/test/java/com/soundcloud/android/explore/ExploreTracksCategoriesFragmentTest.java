@@ -13,6 +13,8 @@ import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
+import com.soundcloud.android.model.ExploreTracksCategorySection;
+import com.soundcloud.android.model.Section;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
@@ -33,8 +35,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 
@@ -67,17 +67,16 @@ public class ExploreTracksCategoriesFragmentTest {
     public void shouldAddMusicAndAudioSections(){
         final ExploreTracksCategory electronicCategory = new ExploreTracksCategory("electronic");
         final ExploreTracksCategory comedyCategory = new ExploreTracksCategory("comedy");
-        final Observable<ExploreTracksCategories> observable = Observable.just(createSectionsFrom(electronicCategory, comedyCategory));
-
+        ExploreTracksCategories sections = createSectionsFrom(electronicCategory, comedyCategory);
+        final Observable<ExploreTracksCategories> observable = Observable.just(sections);
         when(factory.create(any(Fragment.class))).thenReturn(observable);
 
-        View fragmentLayout = createFragmentView();
-        final ListView listView = (ListView) fragmentLayout.findViewById(R.id.suggested_tracks_categories_list);
-        final ListAdapter adapter = listView.getAdapter();
+        createFragmentView();
 
-        expect(adapter.getCount()).toBe(2); // should have 2 sections
-        expect(adapter.getItem(0)).toBe(electronicCategory);
-        expect(adapter.getItem(1)).toBe(comedyCategory);
+        verify(adapter).onNext(new Section<ExploreTracksCategory>(
+                ExploreTracksCategorySection.MUSIC.getTitleId(), Lists.newArrayList(electronicCategory)));
+        verify(adapter).onNext(new Section<ExploreTracksCategory>(
+                ExploreTracksCategorySection.AUDIO.getTitleId(), Lists.newArrayList(comedyCategory)));
     }
 
     @Test
@@ -131,7 +130,7 @@ public class ExploreTracksCategoriesFragmentTest {
         return sections;
     }
 
-    @Module(complete = false, injects = {ExploreTracksCategoriesFragment.class}, overrides = true)
+    @Module(injects = ExploreTracksCategoriesFragment.class)
     public class TestModule {
         AndroidObservableFactory observableFactory;
 
@@ -140,8 +139,13 @@ public class ExploreTracksCategoriesFragmentTest {
         }
 
         @Provides
-        AndroidObservableFactory provideObservableFactory() {
-            return observableFactory;
+        AndroidObservableFactory provideFactory() {
+            return factory;
+        }
+
+        @Provides
+        ExploreTracksCategoriesAdapter provideExplorePagerAdapter() {
+            return adapter;
         }
     }
 
