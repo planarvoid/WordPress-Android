@@ -13,8 +13,7 @@ import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.explore.ExploreFragment;
-import com.soundcloud.android.explore.ExploreTracksCategoriesFragmentModule;
-import com.soundcloud.android.explore.ExploreTracksFragmentModule;
+import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
@@ -78,8 +77,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         mObjectGraph = mDependencyInjector.fromAppGraphWithModules(
-                new ExploreTracksCategoriesFragmentModule(),
-                new ExploreTracksFragmentModule(),
+                new ExploreModule(),
                 new StorageModule(),
                 new RxModule()
         );
