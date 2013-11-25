@@ -2,14 +2,9 @@ $ 75
   % v 2.7.3
   _ 2013-11-22
   ! Tablet UI
-    * Playback fixes for KitKat. PLEASE test playback rigorously and give us feedback (even if you aren't on KitKat), especially if you spot any new issues.
-    * Updated some UX in the Upload screen for usability and consistency
-    * Various other bug fixes
-    - Fixed recording crash
-    - Fixed inconsistent titles and navigation selection
-    - Fixed crash when using various sub-level activities
-    - Updated UI for tablets
-    - Bugfixes for Explore
+    * Updated tablet interface
+    * Small UI adjustments for Creation screens
+    * Bug fixes and performance enhancements
 
 $ 74
   % v 2.7.2
