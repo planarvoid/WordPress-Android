@@ -45,7 +45,7 @@ public class PlayQueueManagerTest {
     private PlayQueueManager playQueueManager;
 
     @Mock
-    private PlayQueue playQueue = Mockito.mock(PlayQueue.class);
+    private TrackingPlayQueue playQueue = Mockito.mock(TrackingPlayQueue.class);
     @Mock
     private Context context;
     @Mock
@@ -144,7 +144,7 @@ public class PlayQueueManagerTest {
     public void shouldReturnResumeInfoWhenReloadingPlayQueue(){
         String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        Observable<PlayQueue> observable = Mockito.mock(Observable.class);
+        Observable<TrackingPlayQueue> observable = Mockito.mock(Observable.class);
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
         when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
 
@@ -156,7 +156,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldReloadPlayQueueFromLocalStorage(){
         String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
-        Observable<PlayQueue> observable = Mockito.mock(Observable.class);
+        Observable<TrackingPlayQueue> observable = Mockito.mock(Observable.class);
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
         when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
@@ -169,8 +169,8 @@ public class PlayQueueManagerTest {
     public void shouldSetNewPlayQueueWhenReloadingPlayQueueReturns(){
         String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L, 3L), 2);
-        when(playQueueStorage.getPlayQueueAsync(anyInt(), any(PlaySourceInfo.class))).thenReturn(Observable.<PlayQueue>just(playQueue));
+        TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(1L, 2L, 3L), 2);
+        when(playQueueStorage.getPlayQueueAsync(anyInt(), any(PlaySourceInfo.class))).thenReturn(Observable.<TrackingPlayQueue>just(playQueue));
         playQueueManager.loadPlayQueue();
         expect(playQueueManager.getCurrentPlayQueue()).toContainExactly(1L, 2L, 3L);
     }
@@ -221,7 +221,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
         final TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        playQueueManager.setNewPlayQueue(new PlayQueue(123L));
+        playQueueManager.setNewPlayQueue(new TrackingPlayQueue(123L));
         playQueueManager.onNext(new RelatedTracksCollection(Lists.<TrackSummary>newArrayList(trackSummary), "123"));
 
         expect(playQueueManager.getCurrentPlayQueue()).toContainExactly(123L, trackSummary.getId());
@@ -271,10 +271,10 @@ public class PlayQueueManagerTest {
     @Test
     public void clearAllShouldSetPlayQueueToEmpty() throws Exception {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
-        playQueueManager.setNewPlayQueue(new PlayQueue(1L));
-        expect(playQueueManager.getCurrentPlayQueue()).not.toBe(PlayQueue.EMPTY);
+        playQueueManager.setNewPlayQueue(new TrackingPlayQueue(1L));
+        expect(playQueueManager.getCurrentPlayQueue()).not.toBe(TrackingPlayQueue.EMPTY);
         playQueueManager.clearAll();
-        expect(playQueueManager.getCurrentPlayQueue()).toBe(PlayQueue.EMPTY);
+        expect(playQueueManager.getCurrentPlayQueue()).toBe(TrackingPlayQueue.EMPTY);
 
     }
 

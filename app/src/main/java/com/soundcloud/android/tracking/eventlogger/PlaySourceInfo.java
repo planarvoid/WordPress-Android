@@ -18,6 +18,7 @@ public class PlaySourceInfo implements Parcelable {
     }
 
     private static final String KEY_ORIGIN_URL = "playSource-originUrl";
+
     private static final String KEY_INITIAL_TRACK_ID = "playSource-initialTrackId";
     private static final String KEY_EXPLORE_VERSION = "playSource-exploreVersion";
     private static final String KEY_RECOMMENDER_VERSION = "playSource-recommenderVersion";

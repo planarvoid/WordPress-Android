@@ -80,6 +80,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                 setRepostStatus(intent.getData(), false);
             } else if (Actions.PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
+
             } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
                 mPlayQueueManager.retryRelatedTracksFetch();
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
@@ -118,7 +119,7 @@ class PlaybackReceiver extends BroadcastReceiver {
 
     private void handlePlayAction(Intent intent) {
         if (intent.hasExtra(PlayQueue.EXTRA)) {
-            PlayQueue playQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
+            TrackingPlayQueue playQueue = intent.getParcelableExtra(TrackingPlayQueue.EXTRA);
 
             mPlayQueueManager.setNewPlayQueue(playQueue);
             mPlaybackService.openCurrent();

@@ -1,21 +1,19 @@
-package com.soundcloud.android.playback;
+package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.playback.service.PlayQueue;
+import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import rx.Observable;
 import rx.android.concurrency.AndroidSchedulers;
@@ -162,7 +160,7 @@ public class PlaybackOperations {
     /**
      * Remove duplicates from playqueue, preserving the ordering with regards to the item they clicked on
      */
-    private PlayQueue createDeDupedPlayQueue(List<Long> idList, int playPosition, PlaySourceInfo sourceInfo, Uri uri){
+    private TrackingPlayQueue createDeDupedPlayQueue(List<Long> idList, int playPosition, PlaySourceInfo sourceInfo, Uri uri){
         final Set <Long> seenIds = Sets.newHashSetWithExpectedSize(idList.size());
         final long playedId = idList.get(playPosition);
 
@@ -178,7 +176,7 @@ public class PlaybackOperations {
                 i++;
             }
         }
-        return new PlayQueue(idList, playPosition, sourceInfo, uri);
+        return new TrackingPlayQueue(idList, playPosition, sourceInfo, uri);
     }
 
     private static class PlayInfo {

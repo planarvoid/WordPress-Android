@@ -109,7 +109,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void sendingNewPlayQueueShouldForwardItToPlayQueueManager() {
-        PlayQueue playQueue = new PlayQueue(1L);
+        TrackingPlayQueue playQueue = new TrackingPlayQueue(1L);
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlayQueue.EXTRA, playQueue);
 
@@ -121,7 +121,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void sendingNewPlayQueueShouldOpenCurrentTrackInPlaybackService() {
-        PlayQueue playQueue = new PlayQueue(1L);
+        TrackingPlayQueue playQueue = new TrackingPlayQueue(1L);
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlayQueue.EXTRA, playQueue);
 
@@ -132,7 +132,7 @@ public class PlaybackReceiverTest {
 
     @Test
     public void sendingNewPlayQueueShouldOptionallyFetchRelatedTracks() {
-        PlayQueue playQueue = new PlayQueue(1L);
+        TrackingPlayQueue playQueue = new TrackingPlayQueue(1L);
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlayQueue.EXTRA, playQueue);
         intent.putExtra(PlaybackService.PlayExtras.fetchRelated, true);

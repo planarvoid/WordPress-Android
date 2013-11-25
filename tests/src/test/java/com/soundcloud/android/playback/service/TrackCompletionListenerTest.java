@@ -24,7 +24,7 @@ public class TrackCompletionListenerTest {
     @Mock
     PlaybackService playbackService;
     @Mock
-    PlayQueue playQueue;
+    TrackingPlayQueue playQueue;
     @Mock
     MediaPlayer mediaPlayer;
 

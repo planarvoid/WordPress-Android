@@ -2,7 +2,7 @@ package com.soundcloud.android.collections;
 
 
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.collections.views.IconLayout;
 import com.soundcloud.android.collections.views.PlayableRow;
 

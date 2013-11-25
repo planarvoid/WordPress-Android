@@ -32,7 +32,6 @@ import com.soundcloud.android.tracking.eventlogger.PlayEventTrackingApi;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import org.jetbrains.annotations.Nullable;
@@ -863,7 +862,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void setQueuePosition(int pos) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setQueuePosition("+pos+")");
 
-        final PlayQueue playQueue = getPlayQueueInternal();
+        final TrackingPlayQueue playQueue = getPlayQueueInternal();
         if (playQueue.getPosition() != pos && playQueue.setPosition(pos)) {
             playQueue.setCurrentTrackToUserTriggered();
             openCurrent();
@@ -984,7 +983,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         openCurrent();
     }
 
-    PlayQueue getPlayQueueInternal() {
+    TrackingPlayQueue getPlayQueueInternal() {
         return mPlayQueueManager.getCurrentPlayQueue();
     }
 

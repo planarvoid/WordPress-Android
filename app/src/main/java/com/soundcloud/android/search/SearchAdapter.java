@@ -4,7 +4,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.collections.views.IconLayout;
 import com.soundcloud.android.collections.views.PlayableRow;
 import com.soundcloud.android.collections.views.UserlistRow;

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.model.Association;

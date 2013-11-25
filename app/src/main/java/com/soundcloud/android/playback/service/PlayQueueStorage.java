@@ -76,10 +76,10 @@ public class PlayQueueStorage extends ScheduledOperations implements Storage<Pla
         }));
     }
 
-    public Observable<PlayQueue> getPlayQueueAsync(final int playPosition, final PlaySourceInfo playSourceInfo) {
-        return schedule(Observable.create(new Observable.OnSubscribeFunc<PlayQueue>() {
+    public Observable<TrackingPlayQueue> getPlayQueueAsync(final int playPosition, final PlaySourceInfo playSourceInfo) {
+        return schedule(Observable.create(new Observable.OnSubscribeFunc<TrackingPlayQueue>() {
             @Override
-            public Subscription onSubscribe(Observer<? super PlayQueue> observer) {
+            public Subscription onSubscribe(Observer<? super TrackingPlayQueue> observer) {
                 final BooleanSubscription subscription = new BooleanSubscription();
                 Cursor cursor = mResolver.query(Content.PLAY_QUEUE.uri, new String[]{DBHelper.PlayQueue.TRACK_ID}, null, null, null);
                 if (!subscription.isUnsubscribed()) {
@@ -91,7 +91,7 @@ public class PlayQueueStorage extends ScheduledOperations implements Storage<Pla
                             while (cursor.moveToNext()) {
                                 trackIds.add(cursor.getLong(cursor.getColumnIndex(DBHelper.PlayQueue.TRACK_ID)));
                             }
-                            PlayQueue playQueue = new PlayQueue(trackIds, playPosition, playSourceInfo);
+                            TrackingPlayQueue playQueue = new TrackingPlayQueue(trackIds, playPosition, playSourceInfo);
                             observer.onNext(playQueue);
                             observer.onCompleted();
                         } finally {

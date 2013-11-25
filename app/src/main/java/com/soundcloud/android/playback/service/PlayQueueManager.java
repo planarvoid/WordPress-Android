@@ -35,7 +35,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     private final ExploreTracksOperations mExploreTrackOperations;
     private final ScModelManager mModelManager;
 
-    private PlayQueue mPlayQueue = PlayQueue.EMPTY;
+    private TrackingPlayQueue mPlayQueue = TrackingPlayQueue.EMPTY;
     private Subscription mFetchRelatedSubscription = Subscriptions.empty();
     private Subscription mPlayQueueSubscription = Subscriptions.empty();
     private Observable<RelatedTracksCollection> mRelatedTracksObservable;
@@ -51,7 +51,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         mModelManager = modelManager;
     }
 
-    public void setNewPlayQueue(PlayQueue playQueue) {
+    public void setNewPlayQueue(TrackingPlayQueue playQueue) {
         stopLoadingOperations();
 
         mPlayQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
@@ -82,9 +82,9 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
                 mPlayQueueSubscription = mPlayQueueStorage.getPlayQueueAsync(
                         playQueueUri.getPos(), playQueueUri.getPlaySourceInfo())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Action1<PlayQueue>() {
+                        .subscribe(new Action1<TrackingPlayQueue>() {
                             @Override
-                            public void call(PlayQueue playQueue) {
+                            public void call(TrackingPlayQueue playQueue) {
                                 setNewPlayQueue(playQueue);
                             }
                         });
@@ -117,10 +117,10 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     public void clearAll(){
         clearPlayQueueUri(mSharedPreferences);
         mPlayQueueStorage.clearState();
-        mPlayQueue = PlayQueue.EMPTY;
+        mPlayQueue = TrackingPlayQueue.EMPTY;
     }
 
-    public PlayQueue getCurrentPlayQueue() {
+    public TrackingPlayQueue getCurrentPlayQueue() {
         return mPlayQueue;
     }
 

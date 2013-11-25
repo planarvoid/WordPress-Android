@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper.Recordings;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.collections.views.IconLayout;
 import com.soundcloud.android.collections.views.PlayableRow;
 
