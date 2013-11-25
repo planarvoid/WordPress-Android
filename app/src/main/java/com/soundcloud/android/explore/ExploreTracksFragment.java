@@ -41,7 +41,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     private EmptyListView mEmptyListView;
 
-    public ExploreTracksObserver mObserver;
+    private ExploreTracksObserver mObserver;
 
     @Inject
     ExploreTracksAdapter mAdapter;
