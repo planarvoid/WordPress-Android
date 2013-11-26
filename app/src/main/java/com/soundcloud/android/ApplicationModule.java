@@ -7,7 +7,9 @@ import dagger.Provides;
 import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.preference.PreferenceManager;
 
 @Module(library = true)
 public class ApplicationModule {
@@ -47,6 +49,11 @@ public class ApplicationModule {
     @Provides
     public ContentResolver provideContentResolver(){
         return mApplication.getContentResolver();
+    }
+
+    @Provides
+    public SharedPreferences provideDefaultSharedPreferences(){
+        return PreferenceManager.getDefaultSharedPreferences(mApplication);
     }
 
 }
