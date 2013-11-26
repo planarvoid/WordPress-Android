@@ -5,7 +5,7 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
 import android.util.Log;
 
-aspect AnalyticAspects {
+aspect AnalyticsAspect {
 	private AnalyticsEngine analyticsEngine;
 
 	pointcut activityOnCreate(Activity activity) : execution(* Activity.onCreate(..)) && target(activity);
