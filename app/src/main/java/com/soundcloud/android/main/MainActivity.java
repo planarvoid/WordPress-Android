@@ -6,7 +6,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.UserOperations;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
@@ -47,8 +46,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private NavigationFragment mNavigationFragment;
     private CharSequence mLastTitle;
     private int mLastSelection = -1;
-    @Inject
-    AccountOperations mAccountOperations;
+
     @Inject
     CompositeSubscription mSubscription;
     @Inject

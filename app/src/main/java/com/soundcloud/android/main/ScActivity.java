@@ -39,6 +39,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 /**
@@ -52,6 +53,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     private Boolean mIsConnected;
     private boolean mIsForeground;
 
+    @Inject
     protected AccountOperations mAccountOperations;
     protected PublicCloudAPI mPublicCloudAPI;
 
