@@ -22,15 +22,15 @@ public class DaggerDependencyInjector implements DependencyInjector{
         return SoundCloudApplication.instance.getObjectGraph().plus(modules);
     }
 
-    private ObjectGraphProvider getObjectGraphProvider(Fragment target){
+    private ObjectGraphProvider getObjectGraphProvider(Fragment target) {
         final Activity hostActivity = target.getActivity();
-        if (hostActivity == null){
+        if (hostActivity == null) {
             throw new IllegalStateException("Fragment requested to be injected, host activity is not a object graph provider : " + target.getClass().getSimpleName());
         }
-            if (hostActivity instanceof ObjectGraphProvider) {
-                return ((ObjectGraphProvider) hostActivity);
-            } else {
-                return ((ObjectGraphProvider) hostActivity.getApplication());
-            }
+        if (hostActivity instanceof ObjectGraphProvider) {
+            return ((ObjectGraphProvider) hostActivity);
+        } else {
+            return ((ObjectGraphProvider) hostActivity.getApplication());
+        }
     }
 }
