@@ -1,17 +1,18 @@
 package com.soundcloud.android.playback.streaming;
 
-import android.content.Context;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.utils.BufferUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.util.Locale;
 
 abstract class DataTask extends StreamItemTask {
     static final String LOG_TAG = StreamLoader.LOG_TAG;
+    static final String SUCCESS_KEY = "success";
 
     final Range byteRange, chunkRange;
     final ByteBuffer buffer;
@@ -46,8 +48,7 @@ abstract class DataTask extends StreamItemTask {
 
     @Override
     public Bundle execute() throws IOException {
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
-            Log.d(LOG_TAG, String.format("fetching chunk %d for item %s with range %s", chunkRange.start, item, byteRange));
+        Log.d(LOG_TAG, String.format("fetching chunk %d for item %s with range %s", chunkRange.start, item, byteRange));
 
         final Bundle b = new Bundle();
         final URL redirect = item.redirectUrl();
@@ -64,27 +65,16 @@ abstract class DataTask extends StreamItemTask {
             case HttpStatus.SC_PARTIAL_CONTENT:
                 // already handled in getData()
                 buffer.flip();
-                b.putBoolean("success", true);
+                b.putBoolean(SUCCESS_KEY, true);
                 break;
-            // link has expired
-            case HttpStatus.SC_FORBIDDEN:
-                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
-                    Log.d(LOG_TAG, "invalidating redirect url");
-                item.invalidateRedirectUrl();
-                item.setHttpError(status);
-                break;
-            // permanent failure
-            case HttpStatus.SC_PAYMENT_REQUIRED:
-            case HttpStatus.SC_NOT_FOUND:
-            case HttpStatus.SC_GONE:
-                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
-                    Log.d(LOG_TAG, "marking item as unavailable");
-                item.markUnavailable(status);
-                break;
-
             default:
                 item.setHttpError(status);
-                throw new IOException("unexpected status code received: " + status);
+                if (PublicApiWrapper.isStatusCodeClientError(status)) {
+                    item.invalidateRedirectUrl();
+                    Log.d(LOG_TAG, "invalidating redirect url");
+                } else {
+                    throw new IOException("unexpected status code received: " + status);
+                }
         }
         return b;
     }
