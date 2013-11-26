@@ -2,12 +2,11 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.storage.Storage;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.storage.Storage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.rx.ScheduledOperations;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.Observer;
@@ -76,7 +75,7 @@ public class PlayQueueStorage extends ScheduledOperations implements Storage<Pla
         }));
     }
 
-    public Observable<TrackingPlayQueue> getPlayQueueAsync(final int playPosition, final PlaySourceInfo playSourceInfo) {
+    public Observable<TrackingPlayQueue> getPlayQueueAsync(final int playPosition, final PlaySessionSource playSessionSource) {
         return schedule(Observable.create(new Observable.OnSubscribeFunc<TrackingPlayQueue>() {
             @Override
             public Subscription onSubscribe(Observer<? super TrackingPlayQueue> observer) {
@@ -91,7 +90,10 @@ public class PlayQueueStorage extends ScheduledOperations implements Storage<Pla
                             while (cursor.moveToNext()) {
                                 trackIds.add(cursor.getLong(cursor.getColumnIndex(DBHelper.PlayQueue.TRACK_ID)));
                             }
-                            TrackingPlayQueue playQueue = new TrackingPlayQueue(trackIds, playPosition, playSourceInfo);
+                            TrackingPlayQueue playQueue = new TrackingPlayQueue(trackIds, playPosition, playSessionSource);
+
+                            // TODO recreate the TrackSourceInfo objects
+
                             observer.onNext(playQueue);
                             observer.onCompleted();
                         } finally {

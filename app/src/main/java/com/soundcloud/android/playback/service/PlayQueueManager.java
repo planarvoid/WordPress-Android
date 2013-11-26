@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 import static com.soundcloud.android.playback.service.PlayQueue.AppendState;
+import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
@@ -11,6 +11,7 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.Observable;
@@ -80,7 +81,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
             final long trackId = playQueueUri.getTrackId();
             if (trackId > 0) {
                 mPlayQueueSubscription = mPlayQueueStorage.getPlayQueueAsync(
-                        playQueueUri.getPos(), playQueueUri.getPlaySourceInfo())
+                        playQueueUri.getPos(), playQueueUri.getPlaySessionSource())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Action1<TrackingPlayQueue>() {
                             @Override
@@ -132,11 +133,11 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     @Override
     public void onNext(RelatedTracksCollection relatedTracks) {
-        mPlayQueue.getPlaySourceInfo().setRecommenderVersion(relatedTracks.getSourceVersion());
+        TrackSourceInfo trackSourceInfo = TrackSourceInfo.fromExplore(relatedTracks.getSourceVersion());
         for (TrackSummary item : relatedTracks) {
             final Track track = new Track(item);
             mModelManager.cache(track);
-            mPlayQueue.addTrackId(track.getId());
+            mPlayQueue.addTrack(track.getId(), trackSourceInfo);
         }
         mGotRelatedTracks = true;
     }

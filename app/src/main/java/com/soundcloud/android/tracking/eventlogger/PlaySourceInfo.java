@@ -19,7 +19,6 @@ public class PlaySourceInfo implements Parcelable {
 
     private static final String KEY_ORIGIN_URL = "playSource-originUrl";
 
-    private static final String KEY_INITIAL_TRACK_ID = "playSource-initialTrackId";
     private static final String KEY_EXPLORE_VERSION = "playSource-exploreVersion";
     private static final String KEY_RECOMMENDER_VERSION = "playSource-recommenderVersion";
 
@@ -35,7 +34,6 @@ public class PlaySourceInfo implements Parcelable {
 
     private PlaySourceInfo(Builder builder) {
         this();
-        if (builder.mInitialTrackId > 0) mData.putLong(KEY_INITIAL_TRACK_ID, builder.mInitialTrackId);
         if (ScTextUtils.isNotBlank(builder.mOriginUrl)) mData.putString(KEY_ORIGIN_URL, builder.mOriginUrl);
         if (ScTextUtils.isNotBlank(builder.mExploreVersion)) mData.putString(KEY_EXPLORE_VERSION, builder.mExploreVersion);
         if (ScTextUtils.isNotBlank(builder.mRecommenderVersion)) mData.putString(KEY_RECOMMENDER_VERSION, builder.mRecommenderVersion);
@@ -51,8 +49,6 @@ public class PlaySourceInfo implements Parcelable {
      */
     public static PlaySourceInfo fromUriParams(Uri uri) {
         final Builder builder = new Builder();
-        final String initialTrackId = uri.getQueryParameter(KEY_INITIAL_TRACK_ID);
-        builder.initialTrackId(ScTextUtils.safeParseLong(initialTrackId));
         return builder
                 .originUrl(uri.getQueryParameter(KEY_ORIGIN_URL))
                 .exploreVersion(uri.getQueryParameter(KEY_EXPLORE_VERSION))
@@ -66,10 +62,6 @@ public class PlaySourceInfo implements Parcelable {
 
     public String getRecommenderVersion() {
         return mData.getString(KEY_RECOMMENDER_VERSION);
-    }
-
-    public Long getInitialTrackId() {
-        return mData.getLong(KEY_INITIAL_TRACK_ID);
     }
 
     public String getExploreTag() {
@@ -98,15 +90,15 @@ public class PlaySourceInfo implements Parcelable {
      * @param trackId the currently playing track
      */
     public TrackSourceInfo getTrackSource(long trackId) {
-        if (trackId == getInitialTrackId()){
-            if (getExploreTag() != null){
-                return TrackSourceInfo.fromExplore(getExploreTag(), getOriginUrl());
-            }
-        } else {
-            if (getRecommenderVersion() != null) {
-                return TrackSourceInfo.fromRecommender(getRecommenderVersion(), getOriginUrl());
-            }
-        }
+//        if (trackId == getInitialTrackId()){
+//            if (getExploreTag() != null){
+//                return TrackSourceInfo.fromExplore(getExploreTag(), getOriginUrl());
+//            }
+//        } else {
+//            if (getRecommenderVersion() != null) {
+//                return TrackSourceInfo.fromRecommender(getRecommenderVersion(), getOriginUrl());
+//            }
+//        }
         return new TrackSourceInfo();
     }
 
@@ -151,17 +143,11 @@ public class PlaySourceInfo implements Parcelable {
     }
 
     public static class Builder {
-        private long mInitialTrackId;
         private String mOriginUrl;
         private String mExploreVersion;
         private String mRecommenderVersion;
 
         public Builder() {}
-
-        public Builder initialTrackId(long initialTrackId) {
-            mInitialTrackId = initialTrackId;
-            return this;
-        }
 
         public Builder originUrl(String originUrl) {
             mOriginUrl = originUrl;

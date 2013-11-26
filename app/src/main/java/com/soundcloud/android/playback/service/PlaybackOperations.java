@@ -14,7 +14,8 @@ import com.soundcloud.android.model.behavior.PlayableHolder;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
+import com.soundcloud.android.utils.UriUtils;
 import rx.Observable;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.util.functions.Func1;
@@ -33,6 +34,9 @@ public class PlaybackOperations {
     private ScModelManager mModelManager;
     private TrackStorage mTrackStorage;
 
+    // todo
+    Uri mTempPageOrigin = Uri.parse("http://putsomethinghere.com");
+
     public PlaybackOperations() {
         this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage());
     }
@@ -45,32 +49,47 @@ public class PlaybackOperations {
     /**
      * Single play, the tracklist will be of length 1
      */
+
     public void playTrack(Context context, Track track) {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().build();
-        playFromInfo(context, new PlayInfo(track, false, playSourceInfo));
+        playTrack(context, track, mTempPageOrigin);
+    }
+
+    public void playTrack(Context context, Track track, Uri pageOrigin) {
+        playFromInfo(context, PlayInitInfo.fromTrack(track, new PlaySessionSource(pageOrigin)));
     }
 
     /**
      * Created by anything played from the {@link com.soundcloud.android.explore.ExploreFragment} section.
      */
-    public void playExploreTrack(Context context, Track track, String exploreTag, String originUrl) {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().initialTrackId(track.getId())
-                .originUrl(originUrl).exploreVersion(exploreTag).build();
-        playFromInfo(context, new PlayInfo(track, true, playSourceInfo));
+    public void playExploreTrack(Context context, Track track, String exploreTag) {
+        playExploreTrack(context, track, exploreTag, mTempPageOrigin);
+    }
+    public void playExploreTrack(Context context, Track track, String exploreTag, Uri originPage) {
+        final PlayInitInfo playInitInfo = PlayInitInfo.fromExplore(track, new PlaySessionSource(originPage),
+                TrackSourceInfo.fromExplore(exploreTag));
+        playFromInfo(context, playInitInfo);
     }
 
     /**
      * From a uri with an initial track to show while loading the full playlist from the DB.
      * Used in {@link com.soundcloud.android.playlists.PlaylistTracksFragment}
      */
-    public void playFromUriWithInitialTrack(Context context, Uri uri, int startPosition, Track initialTrack) {
-        PlayInfo playInfo = PlayInfo.fromUri(uri, startPosition);
-        playInfo.initialTrack = initialTrack;
-        playInfo.sourceInfo = new PlaySourceInfo.Builder().build();
-        playFromInfo(context, playInfo);
+
+    public void playFromPlaylist(Context context, Uri uri, int startPosition, Track initialTrack) {
+        playFromPlaylist(context, uri, startPosition, initialTrack, mTempPageOrigin);
+    }
+
+    public void playFromPlaylist(Context context, Uri uri, int startPosition, Track initialTrack, Uri originPage) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(originPage, UriUtils.getLastSegmentAsLong(uri));
+        final PlayInitInfo playInitInfo = PlayInitInfo.fromUriWithTrack(uri, startPosition, initialTrack, playSessionSource);
+        playFromInfo(context, playInitInfo);
     }
 
     public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri) {
+        playFromAdapter(context, data, position, uri, mTempPageOrigin);
+    }
+
+    public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri, Uri originPage) {
         if (position >= data.size() || !(data.get(position) instanceof PlayableHolder)) {
             throw new AssertionError("Invalid item " + position + ", must be a playable");
         }
@@ -89,9 +108,10 @@ public class PlaybackOperations {
                 }
             }
 
-            PlayInfo playInfo = PlayInfo.fromUriWithTrack(uri, adjustedPosition, tracks.get(adjustedPosition));
-            playInfo.initialTracklist = tracks;
-            playFromInfo(context, playInfo);
+            PlayInitInfo playInitInfo = PlayInitInfo.fromUriWithTrack(uri, adjustedPosition, tracks.get(adjustedPosition),
+                    new PlaySessionSource(originPage));
+            playInitInfo.initialTracklist = tracks;
+            playFromInfo(context, playInitInfo);
 
         } else if (playable instanceof Playlist) {
             PlaylistDetailActivity.start(context, (Playlist) playable, mModelManager);
@@ -116,31 +136,30 @@ public class PlaybackOperations {
         return mTrackStorage.createPlayImpressionAsync(track);
     }
 
-    private void playFromInfo(Context context, PlayInfo playInfo) {
-        mModelManager.cache(playInfo.initialTrack);
+    private void playFromInfo(Context context, PlayInitInfo playInitInfo) {
+        mModelManager.cache(playInitInfo.initialTrack);
 
         // intent for player activity
         context.startActivity(new Intent(Actions.PLAYER)
-                .putExtra(Track.EXTRA_ID, playInfo.initialTrack.getId())
+                .putExtra(Track.EXTRA_ID, playInitInfo.initialTrack.getId())
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
 
         // intent for playback service
-        if (PlaybackService.getCurrentTrackId() != playInfo.initialTrack.getId()) {
-            sendIntentViaPlayInfo(context, playInfo);
+        if (PlaybackService.getCurrentTrackId() != playInitInfo.initialTrack.getId()) {
+            sendIntentViaPlayInfo(context, playInitInfo);
         }
     }
 
-    private void sendIntentViaPlayInfo(final Context context, final PlayInfo info) {
+    private void sendIntentViaPlayInfo(final Context context, final PlayInitInfo info) {
 
         final Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlaybackService.PlayExtras.fetchRelated, info.fetchRelated);
-        intent.putExtra(PlaybackService.PlayExtras.trackingInfo, info.sourceInfo);
 
         if (info.isStoredCollection()) {
             mTrackStorage.getTrackIdsForUriAsync(info.uri).subscribe(new DefaultObserver<List<Long>>() {
                 @Override
                 public void onNext(List<Long> idList) {
-                    intent.putExtra(PlayQueue.EXTRA, createDeDupedPlayQueue(idList, info.position, info.sourceInfo, info.uri));
+                    intent.putExtra(PlayQueue.EXTRA, createDeDupedPlayQueue(idList, info));
                     context.startService(intent);
                 }
             });
@@ -152,7 +171,7 @@ public class PlaybackOperations {
                     return input.getId();
                 }
             });
-            intent.putExtra(PlayQueue.EXTRA, createDeDupedPlayQueue(idList, info.position, info.sourceInfo, Uri.EMPTY));
+            intent.putExtra(PlayQueue.EXTRA, createDeDupedPlayQueue(idList, info));
             context.startService(intent);
         }
     }
@@ -160,56 +179,65 @@ public class PlaybackOperations {
     /**
      * Remove duplicates from playqueue, preserving the ordering with regards to the item they clicked on
      */
-    private TrackingPlayQueue createDeDupedPlayQueue(List<Long> idList, int playPosition, PlaySourceInfo sourceInfo, Uri uri){
+    private TrackingPlayQueue createDeDupedPlayQueue(List<Long> idList, PlayInitInfo playInitInfo){
         final Set <Long> seenIds = Sets.newHashSetWithExpectedSize(idList.size());
-        final long playedId = idList.get(playPosition);
+        final long playedId = idList.get(playInitInfo.startPosition);
 
         int i = 0;
         Iterator<Long> iter = idList.iterator();
         while (iter.hasNext()) {
             final long val = iter.next().longValue();
-            if (i != playPosition && (seenIds.contains(val) || val == playedId)) {
+            if (i != playInitInfo.startPosition && (seenIds.contains(val) || val == playedId)) {
                 iter.remove();
-                if (i < playPosition) playPosition--;
+                if (i < playInitInfo.startPosition) playInitInfo.startPosition--;
             } else {
                 seenIds.add(val);
                 i++;
             }
         }
-        return new TrackingPlayQueue(idList, playPosition, sourceInfo, uri);
+        return new TrackingPlayQueue(idList, playInitInfo.startPosition, playInitInfo.playSessionSource, playInitInfo.trackSourceInfo);
     }
 
-    private static class PlayInfo {
+    private static class PlayInitInfo {
 
-        private int position;
+        private int startPosition;
         private Uri uri;
         private Track initialTrack;
         private List<Track> initialTracklist;
         private boolean fetchRelated;
-        private PlaySourceInfo sourceInfo;
 
-        private PlayInfo() {
+        private PlaySessionSource playSessionSource;
+        private TrackSourceInfo trackSourceInfo;
+
+        private PlayInitInfo(PlaySessionSource playSessionSource) {
+            this.playSessionSource = playSessionSource;
         }
 
-        private PlayInfo(Track track, boolean fetchRelated, PlaySourceInfo playSourceInfo) {
-            this.initialTrack = track;
-            this.initialTracklist = Lists.newArrayList(track);
-            this.fetchRelated = fetchRelated;
-            this.sourceInfo = playSourceInfo;
+        private static PlayInitInfo fromTrack(Track track, PlaySessionSource playSessionSource){
+            PlayInitInfo playInitInfo = new PlayInitInfo(playSessionSource);
+            playInitInfo.initialTrack = track;
+            playInitInfo. initialTracklist = Lists.newArrayList(track);
+            return playInitInfo;
         }
 
-        private static PlayInfo fromUriWithTrack(Uri uri, int startPosition, Track initialTrack) {
-            PlayInfo playInfo = fromUri(uri, startPosition);
-            playInfo.initialTrack = initialTrack;
-            playInfo.sourceInfo = new PlaySourceInfo.Builder().build();
-            return playInfo;
+        private static PlayInitInfo fromExplore(Track track, PlaySessionSource playSessionSource, TrackSourceInfo trackSourceInfo) {
+            PlayInitInfo playInitInfo = fromTrack(track, playSessionSource);
+            playInitInfo.fetchRelated = true;
+            playInitInfo.trackSourceInfo = trackSourceInfo;
+            return playInitInfo;
         }
 
-        private static PlayInfo fromUri(Uri uri, int startPosition) {
-            PlayInfo playInfo = new PlayInfo();
-            playInfo.uri = uri;
-            playInfo.position = startPosition;
-            return playInfo;
+        private static PlayInitInfo fromUri(Uri uri, int startPosition, PlaySessionSource playSessionSource) {
+            PlayInitInfo playInitInfo = new PlayInitInfo(playSessionSource);
+            playInitInfo.uri = uri;
+            playInitInfo.startPosition = startPosition;
+            return playInitInfo;
+        }
+
+        private static PlayInitInfo fromUriWithTrack(Uri uri, int startPosition, Track initialTrack, PlaySessionSource playSessionSource) {
+            PlayInitInfo playInitInfo = fromUri(uri, startPosition, playSessionSource);
+            playInitInfo.initialTrack = initialTrack;
+            return playInitInfo;
         }
 
         public boolean isStoredCollection() {

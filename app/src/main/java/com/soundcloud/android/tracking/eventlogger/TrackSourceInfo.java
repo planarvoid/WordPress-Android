@@ -24,20 +24,18 @@ public class TrackSourceInfo {
     private String mTrigger;
     private String mSource;
     private String mSourceVersion;
-    private String mOriginUrl;
 
-    public static TrackSourceInfo fromRecommender(String recommenderVersion, String originUrl){
-        return fromSource(SOURCE_RECOMMENDER, recommenderVersion, originUrl);
+    public static TrackSourceInfo fromRecommender(String recommenderVersion){
+        return fromSource(SOURCE_RECOMMENDER, recommenderVersion);
     }
 
-    public static TrackSourceInfo fromExplore(String exploreVersion, String originUrl){
-        return fromSource(SOURCE_EXPLORE, exploreVersion, originUrl);
+    public static TrackSourceInfo fromExplore(String exploreVersion){
+        return fromSource(SOURCE_EXPLORE, exploreVersion);
     }
 
-    private static TrackSourceInfo fromSource(String source, String version, String originUrl){
+    private static TrackSourceInfo fromSource(String source, String version){
         TrackSourceInfo trackSourceInfo = new TrackSourceInfo(source);
         trackSourceInfo.mSourceVersion = version;
-        trackSourceInfo.mOriginUrl = originUrl;
         return trackSourceInfo;
     }
 
@@ -66,13 +64,13 @@ public class TrackSourceInfo {
         return mSource;
     }
 
-    public String createEventLoggerParams(){
-        final String query = createEventLoggerBuilder().build().getQuery();
+    public String createEventLoggerParams(String originUrl){
+        final String query = createEventLoggerBuilder(originUrl).build().getQuery();
         return ScTextUtils.isBlank(query) ? ScTextUtils.EMPTY_STRING : query.toString();
     }
 
-    public String createEventLoggerParamsForSet(String setId, String setPosition){
-        final Uri.Builder builder = createEventLoggerBuilder();
+    public String createEventLoggerParamsForSet(String setId, String setPosition, String originUrl){
+        final Uri.Builder builder = createEventLoggerBuilder(originUrl);
         builder.appendQueryParameter(EventLoggerKeys.SET_ID, setId);
         builder.appendQueryParameter(EventLoggerKeys.SET_POSITION, setPosition);
 
@@ -80,10 +78,10 @@ public class TrackSourceInfo {
         return ScTextUtils.isBlank(query) ? ScTextUtils.EMPTY_STRING : query.toString();
     }
 
-    private Uri.Builder createEventLoggerBuilder() {
+    private Uri.Builder createEventLoggerBuilder(String originUrl) {
         final Uri.Builder builder = new Uri.Builder();
-        if (ScTextUtils.isNotBlank(mOriginUrl)){
-            builder.appendQueryParameter(EventLoggerKeys.ORIGIN_URL, formatOriginUrl(mOriginUrl));
+        if (ScTextUtils.isNotBlank(originUrl)){
+            builder.appendQueryParameter(EventLoggerKeys.ORIGIN_URL, formatOriginUrl(originUrl));
         }
 
         if (ScTextUtils.isNotBlank(mTrigger)){

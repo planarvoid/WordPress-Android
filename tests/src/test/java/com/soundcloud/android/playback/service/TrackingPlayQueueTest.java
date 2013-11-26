@@ -3,9 +3,9 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,13 +17,11 @@ public class TrackingPlayQueueTest {
 
     @Test
     public void shouldBeParcelable() throws Exception {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder()
-                .exploreVersion("explore")
-                .originUrl("url/123")
-                .recommenderVersion("version1")
-                .build();
 
-        TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(1L,2L,3L), 0, playSourceInfo, Content.ME_LIKES.uri);
+        final TrackSourceInfo trackSourceInfo = TrackSourceInfo.fromExplore("version:1");
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Uri.parse("origin:page"), 123L);
+
+        TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(1L,2L,3L), 0, playSessionSource, trackSourceInfo);
         playQueue.setAppendState(TrackingPlayQueue.AppendState.IDLE);
         playQueue.setCurrentTrackToUserTriggered();
         String eventLoggerParams = playQueue.getCurrentEventLoggerParams();
@@ -35,9 +33,9 @@ public class TrackingPlayQueueTest {
         expect(copy).toContainExactly(1L,2L,3L);
         expect(copy.getPosition()).toBe(0);
         expect(copy.getAppendState()).toEqual(TrackingPlayQueue.AppendState.IDLE);
-        expect(copy.getPlaySourceInfo()).toEqual(playSourceInfo);
+        expect(copy.getPlaySessionSource()).toEqual(playSessionSource);
         expect(copy.getCurrentEventLoggerParams()).toEqual(eventLoggerParams);
-        expect(copy.getSourceUri()).toEqual(Content.ME_LIKES.uri);
+        expect(copy.getOriginPage()).toEqual(Content.ME_LIKES.uri);
     }
 
     @Test
@@ -93,21 +91,19 @@ public class TrackingPlayQueueTest {
 
     @Test
     public void shouldReturnSetAsPartOfLoggerParams() {
-        TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(1L, 2L), 1, PlaySourceInfo.empty(), Content.PLAYLIST.forId(54321L));
+        TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(1L, 2L), 1, PlaySessionSource.EMPTY);
         expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&set_id=54321&set_position=1");
     }
 
     @Test
     public void shouldReturnExploreVersionInEventLoggerParamsWhenCurrentTrackIsInitialTrack() {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().initialTrackId(123L).exploreVersion("exp1").build();
-        TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(123L, 456L), 0, playSourceInfo, Uri.EMPTY);
+        TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(123L, 456L), 0, PlaySessionSource.EMPTY);
         expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&source=explore&source_version=exp1");
     }
 
     @Test
     public void shouldReturnRecommenderVersionInEventLoggerParamsWhenCurrentTrackIsNotInitialTrack() {
-        final PlaySourceInfo playSourceInfo = new PlaySourceInfo.Builder().initialTrackId(123L).recommenderVersion("rec1").build();
-        TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(123L, 456L), 1, playSourceInfo, Uri.EMPTY);
+        TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(123L, 456L), 1, PlaySessionSource.EMPTY);
         expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&source=recommender&source_version=rec1");
     }
 

@@ -146,7 +146,7 @@ public class PlayQueueManagerTest {
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
         Observable<TrackingPlayQueue> observable = Mockito.mock(Observable.class);
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
-        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
+        when(playQueueStorage.getPlayQueueAsync(2, PlaySessionSource.EMPTY)).thenReturn(observable);
 
         PlaybackProgressInfo resumeInfo = playQueueManager.loadPlayQueue();
         expect(resumeInfo.getTrackId()).toEqual(456L);
@@ -159,7 +159,7 @@ public class PlayQueueManagerTest {
         Observable<TrackingPlayQueue> observable = Mockito.mock(Observable.class);
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        when(playQueueStorage.getPlayQueueAsync(2, PlaySourceInfo.empty())).thenReturn(observable);
+        when(playQueueStorage.getPlayQueueAsync(2, PlaySessionSource.EMPTY)).thenReturn(observable);
 
         playQueueManager.loadPlayQueue();
         verify(observable).subscribe(any(Action1.class));
@@ -170,7 +170,7 @@ public class PlayQueueManagerTest {
         String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
         TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(1L, 2L, 3L), 2);
-        when(playQueueStorage.getPlayQueueAsync(anyInt(), any(PlaySourceInfo.class))).thenReturn(Observable.<TrackingPlayQueue>just(playQueue));
+        when(playQueueStorage.getPlayQueueAsync(anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<TrackingPlayQueue>just(playQueue));
         playQueueManager.loadPlayQueue();
         expect(playQueueManager.getCurrentPlayQueue()).toContainExactly(1L, 2L, 3L);
     }

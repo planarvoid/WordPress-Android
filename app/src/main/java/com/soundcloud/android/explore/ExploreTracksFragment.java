@@ -1,24 +1,19 @@
 package com.soundcloud.android.explore;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
+import static rx.android.OperationPaged.Page;
+
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
-import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.PlaybackOperations;
+import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
-import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observer;
 import rx.Subscription;
@@ -26,7 +21,14 @@ import rx.android.AndroidObservables;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
-import static rx.android.OperationPaged.Page;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.GridView;
 
 public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
@@ -92,7 +94,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mAdapter.getItem(position));
         mPlaybackOperations.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag(),
-                "explore:" + getExploreCategory().getTitle()); // todo, no hardcoding tags once we implement full eventlogger
+                Uri.parse("explore:" + getExploreCategory().getTitle())); // todo, no hardcoding tags once we implement full eventlogger
     }
 
     @Override

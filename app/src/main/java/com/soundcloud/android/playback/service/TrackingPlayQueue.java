@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -9,58 +8,70 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 class TrackingPlayQueue extends PlayQueue {
-    public static final TrackingPlayQueue EMPTY = new TrackingPlayQueue(Collections.<Long>emptyList(), -1,PlaySourceInfo.empty());
+
+    // TODO, get rid of this, it is mutable
+    public static final TrackingPlayQueue EMPTY = new TrackingPlayQueue(Collections.<Long>emptyList(), -1,
+            PlaySessionSource.EMPTY, TrackSourceInfo.EMPTY);
+
     private boolean mCurrentTrackIsUserTriggered;
-
-
-    private PlaySourceInfo mPlaySourceInfo = PlaySourceInfo.empty();
-    private Uri mSourceUri = Uri.EMPTY; // just for "back to set" functionality in the Action Bar
-
-    public TrackingPlayQueue(Long id) {
-        super(id);
-    }
+    private TrackSourceInfoMap mTrackSourceInfoMap;
+    private PlaySessionSource mPlaySessionSource;
 
     public TrackingPlayQueue(Parcel in) {
         super(in);
-
         mCurrentTrackIsUserTriggered = in.readInt() == 1;
-        mSourceUri = in.readParcelable(Uri.class.getClassLoader());
-        mPlaySourceInfo = new PlaySourceInfo(in.readBundle());
+        mPlaySessionSource = in.readParcelable(PlaySessionSource.class.getClassLoader());
+        //mOriginUrl = in.readString();
     }
 
-    public TrackingPlayQueue(List<Long> trackIds, int playPosition) {
+    public TrackingPlayQueue(List<Long> trackIds, int playPosition, PlaySessionSource playSessionSource) {
         super(trackIds, playPosition);
+        mPlaySessionSource = playSessionSource;
     }
 
-    public TrackingPlayQueue(List<Long> trackIds, int playPosition, PlaySourceInfo playSourceInfo) {
-        super(trackIds, playPosition);
-        mPlaySourceInfo = playSourceInfo;
+    public TrackingPlayQueue(List<Long> currentTrackIds, int startPosition,
+                             PlaySessionSource playSessionSource, TrackSourceInfo initialTrackSourceInfo) {
+        this(currentTrackIds, startPosition, playSessionSource);
+        mTrackSourceInfoMap = new TrackSourceInfoMap(currentTrackIds, initialTrackSourceInfo);
     }
 
-    public TrackingPlayQueue(List<Long> currentTrackIds, int playPosition, PlaySourceInfo playSourceInfo, Uri sourceUri) {
-        this(currentTrackIds, playPosition, playSourceInfo);
-        mSourceUri = sourceUri;
+    @VisibleForTesting
+    TrackingPlayQueue(ArrayList<Long> trackIds, int position) {
+        super(trackIds, position);
     }
 
-    public Uri getSourceUri() {
-        return mSourceUri;
+    @VisibleForTesting
+    TrackingPlayQueue(long trackId) {
+        super(trackId);
     }
 
-    public PlaySourceInfo getPlaySourceInfo() {
-        return mPlaySourceInfo;
+    public Uri getOriginPage() {
+        return mPlaySessionSource.getOriginPage();
     }
 
     public void setCurrentTrackToUserTriggered() {
         mCurrentTrackIsUserTriggered = true;
     }
 
-    /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {
-        return new PlayQueueUri().toUri(currentTrackId, mPosition, seekPos, mPlaySourceInfo);
+    public PlaySessionSource getPlaySessionSource() {
+        return mPlaySessionSource;
     }
+
+    /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {
+        return new PlayQueueUri().toUri(currentTrackId, mPosition, seekPos, mPlaySessionSource);
+    }
+
+    public void addTrack(long id, TrackSourceInfo trackSourceInfo) {
+        super.addTrackId(id);
+        mTrackSourceInfoMap.put(id, trackSourceInfo);
+    }
+
 
     public boolean moveToPrevious() {
         boolean changed = super.moveToPrevious();
@@ -72,31 +83,32 @@ class TrackingPlayQueue extends PlayQueue {
 
     public boolean moveToNext(boolean userTriggered) {
         boolean changed = super.moveToNext();
-        if (changed){
+        if (changed) {
             mCurrentTrackIsUserTriggered = userTriggered;
         }
         return changed;
     }
 
     public String getCurrentEventLoggerParams() {
-        if (isEmpty()) return ScTextUtils.EMPTY_STRING;
-
-        final TrackSourceInfo trackSourceInfo = mPlaySourceInfo.getTrackSource(getCurrentTrackId());
-        trackSourceInfo.setTrigger(mCurrentTrackIsUserTriggered);
-
-        if (mSourceUri != null && Content.match(mSourceUri) == Content.PLAYLIST) {
-            return trackSourceInfo.createEventLoggerParamsForSet(mSourceUri.getLastPathSegment(), String.valueOf(mPosition));
-        } else {
-            return trackSourceInfo.createEventLoggerParams();
-        }
+        return ScTextUtils.EMPTY_STRING;
+//        if (isEmpty()) return ScTextUtils.EMPTY_STRING;
+//
+//        final TrackSourceInfo trackSourceInfo = mTrackSourceInfoMap.get(getCurrentTrackId());
+//        trackSourceInfo.setTrigger(mCurrentTrackIsUserTriggered);
+//
+//        final String originUrl = "PUT CONTEXT HERE";
+//        if (mOriginPage != null && Content.match(mOriginPage) == Content.PLAYLIST) {
+//            return trackSourceInfo.createEventLoggerParamsForSet(mOriginPage.getLastPathSegment(), String.valueOf(mPosition), originUrl);
+//        } else {
+//            return trackSourceInfo.createEventLoggerParams(originUrl);
+//        }
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeInt(mCurrentTrackIsUserTriggered ? 1 : 0);
-        dest.writeParcelable(mSourceUri, 0);
-        dest.writeBundle(mPlaySourceInfo.getData());
+        dest.writeParcelable(mPlaySessionSource, 0);
     }
 
     public static final Parcelable.Creator<TrackingPlayQueue> CREATOR = new Parcelable.Creator<TrackingPlayQueue>() {
@@ -108,4 +120,21 @@ class TrackingPlayQueue extends PlayQueue {
             return new TrackingPlayQueue[size];
         }
     };
+
+    private static class TrackSourceInfoMap extends HashMap<Long, TrackSourceInfo> {
+        public TrackSourceInfoMap(List<Long> trackIds, TrackSourceInfo trackSourceInfo) {
+            super(trackIds.size());
+            for (Long l : trackIds){
+                put(l, trackSourceInfo);
+            }
+        }
+
+        public TrackSourceInfo get(Long key, TrackSourceInfo defaultValue) {
+            TrackSourceInfo ret = get(key);
+            if (ret == null) {
+                return TrackSourceInfo.EMPTY;
+            }
+            return ret;
+        }
+    }
 }
