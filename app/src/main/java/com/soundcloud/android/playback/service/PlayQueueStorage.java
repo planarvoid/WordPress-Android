@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.storage.Storage;
@@ -19,14 +18,16 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class PlayQueueStorage extends ScheduledOperations implements Storage<PlayQueue> {
 
     private final ContentResolver mResolver;
 
-    public PlayQueueStorage() {
-        mResolver = SoundCloudApplication.instance.getContentResolver();
+    @Inject
+    public PlayQueueStorage(ContentResolver contentResolver) {
+        mResolver = contentResolver;
     }
 
     public void clearState() {

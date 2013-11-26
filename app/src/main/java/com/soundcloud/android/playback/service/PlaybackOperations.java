@@ -3,10 +3,18 @@ package com.soundcloud.android.playback.service;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.APIEndpoints;
+import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.http.RxHttpClient;
+import com.soundcloud.android.api.http.SoundCloudAPIRequest;
+import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
+import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
@@ -15,6 +23,7 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.UriUtils;
 import rx.Observable;
 import rx.android.concurrency.AndroidSchedulers;
@@ -30,21 +39,39 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+// TODO, move to playback package level
 public class PlaybackOperations {
 
     private ScModelManager mModelManager;
     private TrackStorage mTrackStorage;
+    private RxHttpClient mRxHttpClient;
 
     Uri mTempPageOrigin = Uri.parse("http://putsomethinghere.com");
 
     public PlaybackOperations() {
-        this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage());
+        this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage(), new SoundCloudRxHttpClient());
     }
 
     @Inject
-    public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage) {
+    public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage, RxHttpClient rxHttpClient) {
         mModelManager = modelManager;
         mTrackStorage = trackStorage;
+        mRxHttpClient = rxHttpClient;
+    }
+
+    public Observable<RelatedTracksCollection> getRelatedTracks(long trackId) {
+        final ClientUri clientUri = ClientUri.fromTrack(trackId);
+        if (clientUri != null){
+            final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), clientUri.toEncodedString());
+            final APIRequest<RelatedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RelatedTracksCollection>get(endpoint)
+                    .forPrivateAPI(1)
+                    .forResource(TypeToken.of(RelatedTracksCollection.class)).build();
+
+            return mRxHttpClient.fetchModels(request);
+        } else {
+            Log.e(this, "Unable to parse client URI from id " + trackId);
+        }
+        return null;
     }
 
     /**

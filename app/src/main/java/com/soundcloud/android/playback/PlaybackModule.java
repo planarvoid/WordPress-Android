@@ -4,6 +4,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlayQueueStorage;
 import com.soundcloud.android.playback.service.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaybackService;
 import dagger.Module;
 import dagger.Provides;
 
@@ -13,7 +14,7 @@ import android.content.SharedPreferences;
 
 import javax.inject.Singleton;
 
-@Module(complete = false, library = true)
+@Module(complete = false, library = true, injects = PlaybackService.class)
 public class PlaybackModule {
 
     @Provides

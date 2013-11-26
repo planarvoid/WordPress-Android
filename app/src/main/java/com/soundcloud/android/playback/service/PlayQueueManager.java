@@ -6,7 +6,6 @@ import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.explore.ExploreTracksOperations;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
@@ -25,6 +24,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import javax.inject.Inject;
+
 public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     @VisibleForTesting
@@ -33,8 +34,8 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     private final Context mContext;
     private final PlayQueueStorage mPlayQueueStorage;
     private final SharedPreferences mSharedPreferences;
-    private final ExploreTracksOperations mExploreTrackOperations;
     private final ScModelManager mModelManager;
+    private final PlaybackOperations mPlaybackOperations;
 
     private TrackingPlayQueue mPlayQueue = TrackingPlayQueue.EMPTY;
     private Subscription mFetchRelatedSubscription = Subscriptions.empty();
@@ -43,11 +44,12 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     private boolean mGotRelatedTracks;
 
-    public PlayQueueManager(Context context, PlayQueueStorage playQueueStorage, ExploreTracksOperations exploreTracksOperations,
+    @Inject
+    public PlayQueueManager(Context context, PlayQueueStorage playQueueStorage, PlaybackOperations playbackOperations,
                             SharedPreferences sharedPreferences, ScModelManager modelManager) {
         mContext = context;
         mPlayQueueStorage = playQueueStorage;
-        mExploreTrackOperations = exploreTracksOperations;
+        mPlaybackOperations = playbackOperations;
         mSharedPreferences = sharedPreferences;
         mModelManager = modelManager;
     }
@@ -107,7 +109,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     }
 
     public void fetchRelatedTracks(long trackId){
-        mRelatedTracksObservable = mExploreTrackOperations.getRelatedTracks(trackId);
+        mRelatedTracksObservable = mPlaybackOperations.getRelatedTracks(trackId);
         loadRelatedTracks();
     }
 

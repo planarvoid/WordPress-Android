@@ -11,15 +11,16 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.explore.ExploreTracksOperations;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import dagger.Module;
+import dagger.ObjectGraph;
+import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,24 +37,23 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
+import javax.inject.Inject;
 import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
     private final String playQueueUri = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400&playSource-recommenderVersion=v1&playSource-exploreVersion=2&playSource-originUrl=1&playSource-initialTrackId=1";
 
-    private PlayQueueManager playQueueManager;
-
-    @Mock
-    private TrackingPlayQueue playQueue = Mockito.mock(TrackingPlayQueue.class);
+    @Inject
+    PlayQueueManager playQueueManager;
     @Mock
     private Context context;
     @Mock
+    private TrackingPlayQueue playQueue;
+    @Mock
     private PlayQueueStorage playQueueStorage;
     @Mock
-    private ExploreTracksOperations exploreTracksOperations;
-    @Mock
-    private PlaySourceInfo trackingInfo;
+    private PlaybackOperations playbackOperations;
     @Mock
     private ScModelManager modelManager;
     @Mock
@@ -63,7 +63,9 @@ public class PlayQueueManagerTest {
 
     @Before
     public void before() {
-        playQueueManager = new PlayQueueManager(context, playQueueStorage, exploreTracksOperations, sharedPreferences, modelManager);
+
+        ObjectGraph.create(new TestModule()).inject(this);
+
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.just(PlayQueue.EMPTY));
@@ -195,16 +197,16 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldGetRelatedTracksObservableWhenFetchingRelatedTracks(){
         final Observable mock = Mockito.mock(Observable.class);
-        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(mock);
+        when(playbackOperations.getRelatedTracks(anyLong())).thenReturn(mock);
 
         playQueueManager.fetchRelatedTracks(123L);
-        verify(exploreTracksOperations).getRelatedTracks(123L);
+        verify(playbackOperations).getRelatedTracks(123L);
     }
 
     @Test
     public void shouldSubscribeToRelatedTracksObservableWhenFetchingRelatedTracks(){
         final Observable<RelatedTracksCollection> mock = Mockito.mock(Observable.class);
-        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(mock);
+        when(playbackOperations.getRelatedTracks(anyLong())).thenReturn(mock);
 
         playQueueManager.fetchRelatedTracks(123L);
         verify(mock).subscribe(playQueueManager);
@@ -212,7 +214,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks(){
-        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(Mockito.mock(Observable.class));
+        when(playbackOperations.getRelatedTracks(anyLong())).thenReturn(Mockito.mock(Observable.class));
         playQueueManager.fetchRelatedTracks(123L);
         expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.LOADING);
         expectBroadcastRelatedLoadChanges();
@@ -281,7 +283,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldRetryWithSameObservable() throws Exception {
         final Observable observable = Mockito.mock(Observable.class);
-        when(exploreTracksOperations.getRelatedTracks(anyLong())).thenReturn(observable);
+        when(playbackOperations.getRelatedTracks(anyLong())).thenReturn(observable);
         playQueueManager.fetchRelatedTracks(123L);
         playQueueManager.retryRelatedTracksFetch();
         verify(observable, times(2)).subscribe(any(Observer.class));
@@ -306,5 +308,38 @@ public class PlayQueueManagerTest {
         ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
         verify(context).sendBroadcast(captor.capture());
         expect(captor.getValue().getAction()).toEqual(PlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED);
+    }
+
+    @Module(library = true, injects = PlayQueueManagerTest.class)
+    class TestModule {
+        @Provides
+        Context provideContext(){
+            return context;
+        }
+
+        @Provides
+        TrackingPlayQueue provideTrackingPlayQueue(){
+            return playQueue;
+        }
+
+        @Provides
+        PlayQueueStorage providePlayQueueStorage(){
+            return playQueueStorage;
+        }
+
+        @Provides
+        PlaybackOperations providePlaybackOperations(){
+            return playbackOperations;
+        }
+
+        @Provides
+        ScModelManager provideModelManager(){
+            return modelManager;
+        }
+
+        @Provides
+        SharedPreferences provideSharedPreferences(){
+            return sharedPreferences;
+        }
     }
 }
