@@ -36,6 +36,7 @@ import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class MainActivity extends ScActivity implements NavigationFragment.NavigationCallbacks,
         ObjectGraphProvider {
@@ -56,10 +57,14 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     @Inject
     UserOperations mUserOperations;
     @Inject
-    ExploreFragment mExploreFragment;
+    Provider<ExploreFragment> mExploreFragmentProvider;
 
     private final DependencyInjector mDependencyInjector;
     private ObjectGraph mObjectGraph;
+    private ScListFragment mLikesFragment;
+    private ScListFragment mStreamFragment;
+    private ExploreFragment mExploreFragment;
+    private ScListFragment mPlaylistsFragment;
 
     @SuppressWarnings("unused")
     public MainActivity() {
@@ -174,25 +179,29 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
                         Content.ME_SOUND_STREAM.uri :
                         Content.ME_SOUND_STREAM.uri.buildUpon()
                                 .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
-                Fragment fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
-                attachFragment(fragment, "stream_fragment", R.string.side_menu_stream);
+                if (mStreamFragment == null) {
+                    mStreamFragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
+                }
+                attachFragment(mStreamFragment, "stream_fragment", R.string.side_menu_stream);
                 break;
             }
             case EXPLORE:{
-                Fragment fragment = getSupportFragmentManager().findFragmentByTag("explore_fragment");
-                if (fragment == null) {
-                    attachFragment(mExploreFragment, "explore_fragment", R.string.side_menu_explore);
-                }
+                mExploreFragment = mExploreFragmentProvider.get();
+                attachFragment(mExploreFragment, "explore_fragment", R.string.side_menu_explore);
                 break;
             }
             case LIKES:{
-                Fragment fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
-                attachFragment(fragment, "likes_fragment", R.string.side_menu_likes);
+                if (mLikesFragment == null) {
+                    mLikesFragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
+                }
+                attachFragment(mLikesFragment, "likes_fragment", R.string.side_menu_likes);
                 break;
             }
             case PLAYLISTS:{
-                Fragment fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
-                attachFragment(fragment, "playlists_fragment", R.string.side_menu_playlists);
+                if (mPlaylistsFragment == null) {
+                    mPlaylistsFragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
+                }
+                attachFragment(mPlaylistsFragment, "playlists_fragment", R.string.side_menu_playlists);
                 break;
             }
         }
