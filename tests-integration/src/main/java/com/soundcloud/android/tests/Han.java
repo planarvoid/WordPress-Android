@@ -41,6 +41,9 @@ public class Han  {
         solo = new Solo(instrumentation, activity);
     }
 
+    public Solo getSolo() {
+        return solo;
+    }
     @SuppressWarnings("UnusedDeclaration")
     public Han(Instrumentation instrumentation) {
         solo = new Solo(instrumentation);
@@ -417,6 +420,10 @@ public class Han  {
 
     public void waitForFragmentByTag(String fragment_tag, int timeout) {
         solo.waitForFragmentByTag(fragment_tag, timeout);
+    }
+
+    public void clickInList(int line, int index) {
+        solo.clickInList(line, index);
     }
 }
 

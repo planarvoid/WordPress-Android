@@ -1,8 +1,5 @@
 package com.soundcloud.android.screens;
 
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.R.id;
 import com.soundcloud.android.R.string;
@@ -13,12 +10,17 @@ import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
 public class MenuScreen {
-    private Han solo;
-    private Waiter waiter;
-    private int explore_selector = R.string.side_menu_explore;
-    private int likes_selector = R.string.side_menu_likes;
-    private int playlist_selector = string.side_menu_playlists;
+    protected Han solo;
+    protected Waiter waiter;
+    protected int explore_selector = R.string.side_menu_explore;
+    protected int likes_selector = R.string.side_menu_likes;
+    protected int playlist_selector = string.side_menu_playlists;
+    protected int profiles_selector = id.username;
 
     public MenuScreen(Han solo) {
         this.solo = solo;
@@ -34,6 +36,7 @@ public class MenuScreen {
         solo.waitForViewId(R.id.tour_bottom_bar, 5000);
     }
 
+    //TODO: Move this to systemSettingsScreen
     public SettingsScreen clickSystemSettings() {
         solo.clickOnActionBarItem(id.action_settings);
         return new SettingsScreen(solo);
@@ -47,6 +50,7 @@ public class MenuScreen {
         return rootMenu().getChildAt(NavigationFragment.NavItem.PROFILE.ordinal());
     }
 
+    //TODO: move this to ActionBarScreen
     public View clickHomeButton() {
         solo.getCurrentActivity().runOnUiThread(new Runnable() {
             public void run() {
@@ -82,7 +86,8 @@ public class MenuScreen {
 
     public ProfileScreen clickProfile() {
         solo.clickOnView(R.id.username);
-        return new ProfileScreen(solo);
+        waiter.waitForDrawerToClose();
+        return new MyProfileScreen(solo);
     }
 
     public ExploreScreen clickExplore() {
