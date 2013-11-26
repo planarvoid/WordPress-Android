@@ -16,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import javax.inject.Inject;
 import java.util.Locale;
 public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
@@ -24,9 +26,10 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
     private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.gridView();
     private GridSpacer mGridSpacer;
 
-    public ExploreTracksAdapter() {
+    @Inject
+    public ExploreTracksAdapter(GridSpacer gridSpacer) {
         super(INITIAL_LIST_SIZE, R.layout.grid_loading_item);
-        mGridSpacer = new GridSpacer();
+        mGridSpacer = gridSpacer;
     }
 
     @Override

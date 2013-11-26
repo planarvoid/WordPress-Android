@@ -1,12 +1,13 @@
 package com.soundcloud.android.accounts;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
+
+import javax.inject.Inject;
 
 class SoundCloudTokenOperations {
 
@@ -29,12 +30,13 @@ class SoundCloudTokenOperations {
 
     private final AccountManager mAccountManager;
 
+
     public SoundCloudTokenOperations(Context context){
         this(AccountManager.get(context));
     }
 
-    @VisibleForTesting
-    protected SoundCloudTokenOperations(AccountManager mAccountManager) {
+    @Inject
+    public SoundCloudTokenOperations(AccountManager mAccountManager) {
         this.mAccountManager = mAccountManager;
     }
 

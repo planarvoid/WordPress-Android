@@ -10,10 +10,9 @@ import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
 
+public class DrawerTest extends ActivityTestCase<LauncherActivity> {
 
-public class Drawer extends ActivityTestCase<LauncherActivity> {
-
-    public Drawer() {
+    public DrawerTest() {
         super(LauncherActivity.class);
     }
 
@@ -27,14 +26,14 @@ public class Drawer extends ActivityTestCase<LauncherActivity> {
     public void testOpeningOverflowDoesNotCloseDrawer() throws Exception {
         menuScreen.clickHomeButton();
         solo.openSystemMenu();
-        assertEquals("Drawer should be open when opening system menu", true, menuScreen.isOpened());
+        assertEquals("DrawerTest should be open when opening system menu", true, menuScreen.isOpened());
     }
 
     public void testDrawerClosesWhenOverflowMenuItemPicked() throws Exception {
         menuScreen.clickHomeButton();
         solo.openSystemMenu();
         menuScreen.clickSystemSettings();
-        assertEquals("Drawer should be closed after picking system menu item", false, menuScreen.isOpened());
+        assertEquals("DrawerTest should be closed after picking system menu item", false, menuScreen.isOpened());
     }
 
     public void testDrawerProfileButtonOpensProfile() {

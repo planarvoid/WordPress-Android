@@ -12,6 +12,10 @@ import com.soundcloud.android.utils.ScTextUtils;
 import android.content.res.Resources;
 import android.os.Build;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class ApplicationProperties {
 
     public enum BuildType{
@@ -30,6 +34,7 @@ public class ApplicationProperties {
             "full_x86".equals(Build.PRODUCT)   || "sdk_x86".equals(Build.PRODUCT);
 
 
+    @Inject
     public ApplicationProperties(Resources resources){
         checkNotNull(resources, "Resources should not be null");
         String buildType = resources.getString(string.build_type);

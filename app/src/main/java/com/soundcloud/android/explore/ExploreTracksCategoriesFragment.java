@@ -1,17 +1,17 @@
 package com.soundcloud.android.explore;
 
-import static rx.android.AndroidObservables.fromFragment;
-
-import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FriendFinderFragment;
-import com.soundcloud.android.rx.observers.EmptyViewAware;
+import com.soundcloud.android.dagger.AndroidObservableFactory;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.ExploreTracksCategorySection;
 import com.soundcloud.android.model.Section;
+import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
@@ -29,48 +29,41 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class ExploreTracksCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener,
-        EmptyViewAware {
+import javax.inject.Inject;
 
-    private static final Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>> CATEGORIES_TO_SECTIONS =
-            new Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>>() {
-                @Override
-                public Observable<Section<ExploreTracksCategory>> call(ExploreTracksCategories categories) {
-                    return Observable.from(
-                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.MUSIC.getTitleId(), categories.getMusic()),
-                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.AUDIO.getTitleId(), categories.getAudio())
-                    );
-                }
-            };
+public class ExploreTracksCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;
 
-    private ExploreTracksOperations mTracksOperations;
-    private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
+    @Inject
+    AndroidObservableFactory mObservableFactory;
+
+    @Inject
+    ExploreTracksCategoriesAdapter mCategoriesAdapter;
+
     private Subscription mSubscription = Subscriptions.empty();
+    private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
+
+    private DependencyInjector mDependencyInjector;
 
     public ExploreTracksCategoriesFragment() {
-        this(new ExploreTracksOperations());
+        this(new DaggerDependencyInjector());
     }
 
-    @VisibleForTesting
-    protected ExploreTracksCategoriesFragment(ExploreTracksOperations operations) {
-        mTracksOperations = operations;
-        init(buildObservable());
+    public ExploreTracksCategoriesFragment(DependencyInjector dependencyInjector) {
+        mDependencyInjector = dependencyInjector;
     }
 
-    @VisibleForTesting
-    protected ExploreTracksCategoriesFragment(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
-        init(observable);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mDependencyInjector.inject(this);
+        mCategoriesObservable = buildObservable(mObservableFactory.create(this));
     }
 
-    private void init(ConnectableObservable<Section<ExploreTracksCategory>> observable) {
-        mCategoriesObservable = observable;
-    }
-
-    private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable() {
-        return fromFragment(this, mTracksOperations.getCategories()).mapMany(CATEGORIES_TO_SECTIONS).replay();
+    private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable(Observable<ExploreTracksCategories> observable){
+        return observable.mapMany(CATEGORIES_TO_SECTIONS).replay();
     }
 
     @Override
@@ -86,8 +79,6 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
         startActivity(intent);
     }
 
-
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -98,14 +89,14 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
             @Override
             public void onEmptyViewRetry() {
                 setEmptyViewStatus(FriendFinderFragment.Status.WAITING);
-                mCategoriesObservable = buildObservable();
+                mCategoriesObservable = buildObservable(mObservableFactory.create(ExploreTracksCategoriesFragment.this));
                 mSubscription = loadCategories();
             }
         });
 
         ListView listview = getListView();
         listview.setOnItemClickListener(this);
-        listview.setAdapter(new ExploreTracksCategoriesAdapter());
+        listview.setAdapter(mCategoriesAdapter);
         listview.setEmptyView(mEmptyListView);
         listview.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), false, true));
 
@@ -141,9 +132,20 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     }
 
     private Subscription loadCategories() {
-        mCategoriesObservable.subscribe(getListAdapter());
+        mCategoriesObservable.subscribe(mCategoriesAdapter);
         mCategoriesObservable.subscribe(new ListFragmentObserver<Section<ExploreTracksCategory>>(this));
         return mCategoriesObservable.connect();
     }
+
+    private static final Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>> CATEGORIES_TO_SECTIONS =
+            new Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>>() {
+                @Override
+                public Observable<Section<ExploreTracksCategory>> call(ExploreTracksCategories categories) {
+                    return Observable.from(
+                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.MUSIC.getTitleId(), categories.getMusic()),
+                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.AUDIO.getTitleId(), categories.getAudio())
+                    );
+                }
+            };
 
 }

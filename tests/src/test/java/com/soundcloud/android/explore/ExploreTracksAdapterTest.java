@@ -6,12 +6,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.explore.ExploreTracksAdapter;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
+import dagger.Module;
+import dagger.ObjectGraph;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -20,15 +22,27 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreTracksAdapterTest {
 
-    private ExploreTracksAdapter adapter;
+    @Module(complete = false, includes = { ExploreTracksFragmentModule.class }, injects = {ExploreTracksAdapterTest.class}, overrides = true)
+    public class TestModule {
+
+    }
+
+    @Inject
+    ExploreTracksAdapter mAdapter;
+
+    @Before
+    public void setUp() {
+        ObjectGraph.create(new TestModule()).inject(this);
+    }
 
     @Test
     public void shouldCreateItemView() {
-        adapter = new ExploreTracksAdapter();
-        View itemView = adapter.createItemView(0, new FrameLayout(Robolectric.application));
+        View itemView = mAdapter.createItemView(0, new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
         expect(itemView.findViewById(R.id.suggested_track_image)).not.toBeNull();
@@ -38,16 +52,15 @@ public class ExploreTracksAdapterTest {
 
     @Test
     public void shouldBindItemView() throws CreateModelException {
-        adapter = new ExploreTracksAdapter();
         TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        adapter.addItem(track);
+        mAdapter.addItem(track);
 
         View itemView = mock(View.class);
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
         ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
-        adapter.bindItemView(0, itemView);
+        mAdapter.bindItemView(0, itemView);
 
         expect(viewHolder.title.getText()).toEqual(track.getTitle());
         expect(viewHolder.username.getText()).toEqual(track.getUserName());
@@ -55,17 +68,16 @@ public class ExploreTracksAdapterTest {
 
     @Test
     public void shouldHideGenreIfNoGenreAvailable() throws CreateModelException {
-        adapter = new ExploreTracksAdapter();
         TrackSummary track = TestHelper.getModelFactory().createModel(TrackSummary.class);
         track.setGenre(null);
-        adapter.addItem(track);
+        mAdapter.addItem(track);
 
         View itemView = mock(View.class);
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
         ExploreTracksAdapter.ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
-        adapter.bindItemView(0, itemView);
+        mAdapter.bindItemView(0, itemView);
 
         expect(viewHolder.genre.getVisibility()).toEqual(View.GONE);
     }

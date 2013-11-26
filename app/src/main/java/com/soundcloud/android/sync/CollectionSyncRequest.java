@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.model.LocalCollection;
@@ -8,7 +7,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 
 import java.io.IOException;
@@ -75,8 +73,6 @@ import java.io.IOException;
         } catch (CloudAPI.InvalidTokenException e) {
             mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             mResult = ApiSyncResult.fromAuthException(mContentUri);
-            mContext.sendBroadcast(new Intent(Consts.GeneralIntents.UNAUTHORIZED));
-
         } catch (PublicCloudAPI.UnexpectedResponseException e) {
             mSyncStateManager.updateSyncState(localCollection.getId(), LocalCollection.SyncState.IDLE);
             mResult = ApiSyncResult.fromUnexpectedResponseException(mContentUri);

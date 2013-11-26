@@ -9,6 +9,7 @@ import com.soundcloud.android.R.id;
 import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
+import com.soundcloud.android.utils.Log;
 
 
 public class Waiter {
@@ -134,5 +135,16 @@ public class Waiter {
     public void waitForFragmentByTag(String fragment_tag) {
         solo.waitForFragmentByTag(fragment_tag, TIMEOUT);
 
+    }
+
+    public boolean waitForElement(final View view) {
+        Condition condition = new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                Log.i("asdf", String.format("solo visibility: %d", solo.getView(view.getId()).getVisibility()));
+                return ( solo.getView(view.getId()).getVisibility() == View.VISIBLE);
+            }
+        };
+        return solo.waitForCondition(condition, this.TIMEOUT);
     }
 }

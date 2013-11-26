@@ -3,11 +3,11 @@ package com.soundcloud.android.explore;
 import static rx.android.OperationPaged.Page;
 import static rx.android.OperationPaged.paged;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.ClientUri;
@@ -22,18 +22,19 @@ import rx.Observable;
 import rx.android.OperationPaged;
 import rx.util.functions.Func1;
 
+import javax.inject.Inject;
+
 public class ExploreTracksOperations extends ScheduledOperations {
 
     private static final int PAGE_SIZE = 15;
 
-    private SoundCloudRxHttpClient mRxHttpClient;
+    public RxHttpClient mRxHttpClient;
 
-    public ExploreTracksOperations() {
+    public ExploreTracksOperations(){
         this(new SoundCloudRxHttpClient());
     }
-
-    @VisibleForTesting
-    protected ExploreTracksOperations(SoundCloudRxHttpClient rxHttpClient) {
+    @Inject
+    public ExploreTracksOperations(RxHttpClient rxHttpClient) {
         mRxHttpClient = rxHttpClient;
     }
 

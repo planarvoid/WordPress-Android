@@ -482,7 +482,7 @@ namespace :ci do
 
   task :test_acceptance do
     Mvn.install.projects('tests-integration').
-      with_profiles('sign', 'debug').
+      with_profiles('sign', 'debug', 'phone-test').
       use_local_repo.
     execute()
   end

@@ -1,6 +1,7 @@
 package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -8,24 +9,32 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
+import com.soundcloud.android.dagger.AndroidObservableFactory;
+import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
+import com.soundcloud.android.model.ExploreTracksCategorySection;
 import com.soundcloud.android.model.Section;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.RxTestHelper;
 import com.xtremelabs.robolectric.Robolectric;
+import dagger.Module;
+import dagger.ObjectGraph;
+import dagger.Provides;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 import rx.Subscription;
+import rx.observables.ConnectableObservable;
+import rx.util.functions.Func1;
 
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 
@@ -36,42 +45,61 @@ public class ExploreTracksCategoriesFragmentTest {
 
     @Mock
     private ExploreTracksCategoriesAdapter adapter;
+    @Mock
+    private AndroidObservableFactory factory;
+
+    @Before
+    public void setUp() throws Exception {
+        fragment = new ExploreTracksCategoriesFragment(new DependencyInjector() {
+            @Override
+            public void inject(Fragment target) {
+                ObjectGraph.create(new TestModule(factory)).inject(fragment);
+            }
+
+            @Override
+            public ObjectGraph fromAppGraphWithModules(Object... modules) {
+                return null;
+            }
+        });
+    }
 
     @Test
     public void shouldAddMusicAndAudioSections(){
         final ExploreTracksCategory electronicCategory = new ExploreTracksCategory("electronic");
         final ExploreTracksCategory comedyCategory = new ExploreTracksCategory("comedy");
-        ExploreTracksOperations operations = mock(ExploreTracksOperations.class);
-        when(operations.getCategories()).thenReturn(Observable.just(createSectionsFrom(electronicCategory, comedyCategory)));
+        ExploreTracksCategories sections = createSectionsFrom(electronicCategory, comedyCategory);
+        final Observable<ExploreTracksCategories> observable = Observable.just(sections);
+        when(factory.create(any(Fragment.class))).thenReturn(observable);
 
-        fragment = new ExploreTracksCategoriesFragment(operations);
-        View fragmentLayout = setupFragment();
+        createFragmentView();
 
-        final ListView listView = (ListView) fragmentLayout.findViewById(R.id.suggested_tracks_categories_list);
-        final ListAdapter adapter = listView.getAdapter();
-        expect(adapter.getCount()).toBe(2); // should have 2 sections
-        expect(adapter.getItem(0)).toBe(electronicCategory);
-        expect(adapter.getItem(1)).toBe(comedyCategory);
+        verify(adapter).onNext(new Section<ExploreTracksCategory>(
+                ExploreTracksCategorySection.MUSIC.getTitleId(), Lists.newArrayList(electronicCategory)));
+        verify(adapter).onNext(new Section<ExploreTracksCategory>(
+                ExploreTracksCategorySection.AUDIO.getTitleId(), Lists.newArrayList(comedyCategory)));
     }
 
     @Test
     public void shouldUnsubscribeFromObservableInOnDestroy() {
-        Subscription subscription = mock(Subscription.class);
+        Observable observable = Mockito.mock(Observable.class);
+        ConnectableObservable mockObservable = mock(ConnectableObservable.class);
+        final Subscription subscription = Mockito.mock(Subscription.class);
 
-        fragment = new ExploreTracksCategoriesFragment(RxTestHelper.<Section<ExploreTracksCategory>>connectableObservableReturning(subscription));
-        setupFragment();
+        when(factory.create(any(Fragment.class))).thenReturn(observable);
+        when(observable.mapMany(any(Func1.class))).thenReturn(observable);
+        when(observable.replay()).thenReturn(mockObservable);
+        when(mockObservable.connect()).thenReturn(subscription);
 
+        createFragmentView();
         fragment.onDestroy();
         verify(subscription).unsubscribe();
     }
 
     @Test
     public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() {
-        ExploreTracksOperations operations = mock(ExploreTracksOperations.class);
-        when(operations.getCategories()).thenReturn(Observable.<ExploreTracksCategories>error(new Exception()));
+        when(factory.create(any(Fragment.class))).thenReturn(Observable.<ExploreTracksCategories>error(new Exception()));
 
-        fragment = new ExploreTracksCategoriesFragment(operations);
-        setupFragment();
+        createFragmentView();
 
         Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
         expect(retryButton).not.toBeNull();
@@ -79,12 +107,11 @@ public class ExploreTracksCategoriesFragmentTest {
 
         // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
         // If that wasn't the case, we'd simply replay a failed result.
-        verify(operations, times(2)).getCategories();
+        verify(factory, times(2)).create(fragment);
     }
 
     // HELPERS
-
-    private View setupFragment() {
+    private View createFragmentView() {
         Robolectric.shadowOf(fragment).setAttached(true);
         fragment.onCreate(null);
 
@@ -102,4 +129,24 @@ public class ExploreTracksCategoriesFragmentTest {
         sections.setAudio(audioCategories);
         return sections;
     }
+
+    @Module(injects = ExploreTracksCategoriesFragment.class)
+    public class TestModule {
+        AndroidObservableFactory observableFactory;
+
+        public TestModule(AndroidObservableFactory observableFactory) {
+            this.observableFactory = observableFactory;
+        }
+
+        @Provides
+        AndroidObservableFactory provideFactory() {
+            return factory;
+        }
+
+        @Provides
+        ExploreTracksCategoriesAdapter provideExplorePagerAdapter() {
+            return adapter;
+        }
+    }
+
 }

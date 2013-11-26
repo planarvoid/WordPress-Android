@@ -59,13 +59,6 @@
                     <test>
                         <debug>false</debug>
                         <coverage>false</coverage>
-
-                        <!--
-                        <excludeAnnotations>
-                          <excludeAnnotation>com.soundcloud.android.tests.SlowTest</excludeAnnotation>
-                        </excludeAnnotations>
-                        -->
-
                         <createReport>true</createReport>
                     </test>
                 </configuration>
@@ -74,6 +67,45 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>phone-test</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                        <artifactId>android-maven-plugin</artifactId>
+                        <configuration>
+                            <test>
+                                <excludeAnnotations>
+                                    <excludeAnnotation>com.soundcloud.android.tests.TabletTest</excludeAnnotation>
+                                </excludeAnnotations>
+                            </test>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>tablet-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                        <artifactId>android-maven-plugin</artifactId>
+                        <configuration>
+                            <test>
+                                <annotations>
+                                    <annotation>com.soundcloud.android.tests.TabletTest</annotation>
+                                </annotations>
+                            </test>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>release</id>
             <build>

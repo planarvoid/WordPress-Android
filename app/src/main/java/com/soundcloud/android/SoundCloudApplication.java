@@ -1,15 +1,9 @@
 package com.soundcloud.android;
 
-import android.accounts.Account;
-import android.annotation.TargetApi;
-import android.app.ActivityManager;
-import android.app.Application;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
-import android.os.StrictMode;
-import android.preference.PreferenceManager;
+import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
+import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORITY;
+import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
+
 import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -17,6 +11,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.migrations.MigrationEngine;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
@@ -38,31 +33,47 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
+import dagger.ObjectGraph;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.soundcloud.android.accounts.AccountOperations.AccountInfoKeys;
-import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORITY;
-import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
+import android.accounts.Account;
+import android.annotation.TargetApi;
+import android.app.ActivityManager;
+import android.app.Application;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.os.StrictMode;
+import android.preference.PreferenceManager;
 
-public class SoundCloudApplication extends Application implements Tracker {
+public class SoundCloudApplication extends Application implements ObjectGraphProvider, Tracker {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1000 * 1000; // available mem in bytes
 
-    @Deprecated public static ScModelManager MODEL_MANAGER;
+    // Remove these fields when we've moved to a full DI solution
+    @Deprecated
+    public static SoundCloudApplication instance;
+    @Deprecated
+    public static ScModelManager MODEL_MANAGER;
 
     private ATTracker mTracker;
 
     private User mLoggedInUser;
     private AccountOperations accountOperations;
 
-    public static SoundCloudApplication instance;
+    private ObjectGraph mObjectGraph;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        MODEL_MANAGER = new ScModelManager(this);
         instance = this;
+
+        mObjectGraph = ObjectGraph.create(new ApplicationModule(this));
+
         new MigrationEngine(this).migrate();
 
         ApplicationProperties appProperties = new ApplicationProperties(getResources());
@@ -89,9 +100,6 @@ public class SoundCloudApplication extends Application implements Tracker {
 
         accountOperations = new AccountOperations(this);
         final Account account = accountOperations.getSoundCloudAccount();
-
-
-        MODEL_MANAGER = new ScModelManager(this);
 
         if (account != null) {
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
@@ -138,6 +146,10 @@ public class SoundCloudApplication extends Application implements Tracker {
         }
 
         FacebookSSOActivity.extendAccessTokenIfNeeded(this);
+    }
+
+    public ObjectGraph getObjectGraph() {
+        return mObjectGraph;
     }
 
     public synchronized User getLoggedInUser() {
