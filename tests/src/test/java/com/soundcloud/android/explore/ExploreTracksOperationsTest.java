@@ -9,13 +9,16 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
-import com.soundcloud.android.explore.ExploreTracksOperations;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import dagger.Module;
+import dagger.ObjectGraph;
+import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,13 +28,15 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreTracksOperationsTest {
 
-    private ExploreTracksOperations exploreTracksOperations;
+    @Inject
+    ExploreTracksOperations exploreTracksOperations;
     @Mock
     private SoundCloudRxHttpClient soundCloudRxHttpClient;
     @Mock
@@ -39,7 +44,7 @@ public class ExploreTracksOperationsTest {
 
     @Before
     public void setUp() {
-        exploreTracksOperations = new ExploreTracksOperations(soundCloudRxHttpClient);
+        ObjectGraph.create(new TestModule()).inject(this);
     }
 
     @Test
@@ -89,5 +94,14 @@ public class ExploreTracksOperationsTest {
         verify(relatedObserver).onCompleted();
         verify(relatedObserver, never()).onError(any(Throwable.class));
 
+    }
+
+    @Module(injects = ExploreTracksOperationsTest.class)
+    public class TestModule {
+
+        @Provides
+        RxHttpClient provideHttpClient() {
+            return soundCloudRxHttpClient;
+        }
     }
 }

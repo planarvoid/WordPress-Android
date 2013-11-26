@@ -5,17 +5,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
-import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.playback.service.PlayQueue;
+import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import rx.Observable;
 import rx.android.concurrency.AndroidSchedulers;
@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,10 +36,12 @@ public class PlaybackOperations {
     private ScModelManager mModelManager;
     private TrackStorage mTrackStorage;
 
+
     public PlaybackOperations() {
         this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage());
     }
 
+    @Inject
     public PlaybackOperations(ScModelManager modelManager, TrackStorage trackStorage) {
         mModelManager = modelManager;
         mTrackStorage = trackStorage;

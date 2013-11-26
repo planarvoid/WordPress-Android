@@ -68,7 +68,6 @@ public final class AccountAssistant {
         };
 
         return null;
-
     }
 
     public static boolean logOut(Instrumentation instrumentation) throws Exception {

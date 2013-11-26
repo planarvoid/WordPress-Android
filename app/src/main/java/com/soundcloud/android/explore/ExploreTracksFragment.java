@@ -1,24 +1,21 @@
 package com.soundcloud.android.explore;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
+import static rx.android.OperationPaged.Page;
+
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
-import com.soundcloud.android.rx.observers.EmptyViewAware;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observer;
 import rx.Subscription;
@@ -26,7 +23,15 @@ import rx.android.AndroidObservables;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
-import static rx.android.OperationPaged.Page;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.GridView;
+
+import javax.inject.Inject;
 
 public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
@@ -35,12 +40,18 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
     private EmptyListView mEmptyListView;
-    private ExploreTracksAdapter mAdapter;
+
     private ExploreTracksObserver mObserver;
-    private PlaybackOperations mPlaybackOperations;
+
+    @Inject
+    ExploreTracksAdapter mAdapter;
+
+    @Inject
+    PlaybackOperations mPlaybackOperations;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
+    private DependencyInjector mDependencyInjector;
 
     public static ExploreTracksFragment fromCategory(ExploreTracksCategory category) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
@@ -51,14 +62,18 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     }
 
     public ExploreTracksFragment() {
-        mPlaybackOperations = new PlaybackOperations();
+        this(new DaggerDependencyInjector());
+    }
+
+    public ExploreTracksFragment(DependencyInjector dependencyInjector) {
+        mDependencyInjector = dependencyInjector;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAdapter = new ExploreTracksAdapter();
+        mDependencyInjector.inject(this);
         mObserver = new ExploreTracksObserver();
 
         mSuggestedTracksObservable = buildSuggestedTracksObservable();
