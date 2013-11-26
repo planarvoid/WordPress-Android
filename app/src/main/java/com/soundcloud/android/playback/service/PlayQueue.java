@@ -1,78 +1,136 @@
 package com.soundcloud.android.playback.service;
 
-
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Longs;
+import com.soundcloud.android.model.PlayQueueItem;
+import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
+import com.soundcloud.android.utils.ScTextUtils;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.net.Uri;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
-public class PlayQueue implements Parcelable, Iterable<Long> {
-    public static final String EXTRA = "PlayQueue";
-    public static final PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1);
-    protected int mPosition;
+class PlayQueue {
 
-    private List<Long> mTrackIds = Collections.emptyList();
-    private AppendState mAppendState = AppendState.IDLE;
+    // TODO, get rid of this, it is mutable
+    public static final PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1,
+            PlaySessionSource.EMPTY, TrackSourceInfo.EMPTY);
 
-    public enum AppendState {
-        IDLE, LOADING, ERROR, EMPTY;
+    private boolean mCurrentTrackIsUserTriggered;
+    private PlaySessionSource mPlaySessionSource;
+
+    private List<PlayQueueItem> mPlayQueueItems;
+    private int mPosition;
+
+    public PlayQueue(List<Long> currentTrackIds, int startPosition,
+                     PlaySessionSource playSessionSource, TrackSourceInfo initialTrackSourceInfo) {
+        setPlayQueueFromIds(currentTrackIds, initialTrackSourceInfo);
+        mPosition = startPosition;
+        mPlaySessionSource = playSessionSource;
     }
 
-    public PlayQueue(Long id) {
-        mTrackIds = Lists.newArrayList(id);
-        mPosition = 0;
-    }
-    public PlayQueue(List<Long> trackIds, int playPosition) {
-        mTrackIds = trackIds;
-        mPosition = playPosition < 0 || playPosition >= trackIds.size() ? 0 : playPosition;
+    public PlayQueue(List<Long> trackIds, int playPosition, PlaySessionSource playSessionSource) {
+        this(trackIds, playPosition, playSessionSource, TrackSourceInfo.EMPTY);
     }
 
     @VisibleForTesting
-    public PlayQueue(ArrayList<Long> trackIds, int playPosition, AppendState appendState) {
-        this(trackIds, playPosition);
-        mAppendState = appendState;
-    }
-
-    public PlayQueue(Parcel in) {
-        final int size = in.readInt();
-        long[] trackIds = new long[size];
-        in.readLongArray(trackIds);
-
-        mTrackIds = Lists.newArrayListWithExpectedSize(trackIds.length);
-        for (long n : trackIds) mTrackIds.add(n);
-
-        mPosition = in.readInt();
-        mAppendState = AppendState.valueOf(in.readString());
+    PlayQueue(ArrayList<Long> trackIds, int position) {
+        this(trackIds, position, PlaySessionSource.EMPTY, TrackSourceInfo.EMPTY);
 
     }
 
-    @Override
-    public Iterator<Long> iterator() {
-        return mTrackIds.iterator();
+    @VisibleForTesting
+    PlayQueue(long trackId) {
+     this(Lists.newArrayList(trackId), 0);
     }
 
-    /* package */ void setAppendState(AppendState appendState) {
-        mAppendState = appendState;
+    public PlayQueue(List<PlayQueueItem> playQueueItems, PlaySessionSource playSessionSource) {
+        mPlayQueueItems = playQueueItems;
+        mPlaySessionSource = playSessionSource;
     }
 
-    public AppendState getAppendState() {
-        return mAppendState;
+    public PlayQueueView getViewWithAppendState(PlaybackOperations.AppendState appendState) {
+        return new PlayQueueView(getTrackIds(), mPosition, appendState);
+    }
+
+    public Collection<PlayQueueItem> getItems() {
+        return mPlayQueueItems;
+    }
+
+    private void setPlayQueueFromIds(List<Long> trackIds, final TrackSourceInfo trackSourceInfo){
+        mPlayQueueItems = Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
+            @Nullable
+            @Override
+            public PlayQueueItem apply(@Nullable Long input) {
+                return new PlayQueueItem(input, trackSourceInfo.getSource(), trackSourceInfo.getSourceVersion());
+            }
+        });
+    }
+
+    public Uri getOriginPage() {
+        return mPlaySessionSource.getOriginPage();
+    }
+
+    public void setCurrentTrackToUserTriggered() {
+        mCurrentTrackIsUserTriggered = true;
+    }
+
+    public PlaySessionSource getPlaySessionSource() {
+        return mPlaySessionSource;
+    }
+
+    /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {
+        return new PlayQueueUri().toUri(currentTrackId, mPosition, seekPos, mPlaySessionSource);
+    }
+
+    public void addTrack(long id, TrackSourceInfo trackSourceInfo) {
+        mPlayQueueItems.add(new PlayQueueItem(id, trackSourceInfo.getSource(), trackSourceInfo.getSourceVersion()));
+    }
+
+    public boolean moveToPrevious() {
+        if (mPosition > 0) {
+            mPosition--;
+            mCurrentTrackIsUserTriggered = true;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean moveToNext(boolean userTriggered) {
+        if (mPosition < mPlayQueueItems.size() - 1) {
+            mPosition++;
+            mCurrentTrackIsUserTriggered = userTriggered;
+            return true;
+        }
+        return false;
+    }
+
+    public String getCurrentEventLoggerParams() {
+        return ScTextUtils.EMPTY_STRING;
+//        if (isEmpty()) return ScTextUtils.EMPTY_STRING;
+//
+//        final TrackSourceInfo trackSourceInfo = mTrackSourceInfoMap.get(getCurrentTrackId());
+//        trackSourceInfo.setTrigger(mCurrentTrackIsUserTriggered);
+//
+//        final String originUrl = "PUT CONTEXT HERE";
+//        if (mOriginPage != null && Content.match(mOriginPage) == Content.PLAYLIST) {
+//            return trackSourceInfo.createEventLoggerParamsForSet(mOriginPage.getLastPathSegment(), String.valueOf(mPosition), originUrl);
+//        } else {
+//            return trackSourceInfo.createEventLoggerParams(originUrl);
+//        }
+    }
+
+    public long getCurrentTrackId() {
+        return mPlayQueueItems.get(mPosition).getTrackId();
     }
 
     public boolean isEmpty() {
-        return mTrackIds.isEmpty();
-    }
-
-    public int size() {
-        return mTrackIds.size();
+        return mPlayQueueItems.isEmpty();
     }
 
     public int getPosition() {
@@ -80,7 +138,7 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
     }
 
     public boolean setPosition(int position) {
-        if (position < mTrackIds.size()) {
+        if (position < mPlayQueueItems.size()) {
             mPosition = position;
             return true;
         } else {
@@ -88,86 +146,13 @@ public class PlayQueue implements Parcelable, Iterable<Long> {
         }
     }
 
-    public void addTrackId(long id) {
-        mTrackIds.add(id);
+    private List<Long> getTrackIds(){
+        List<Long> trackIds = Lists.transform(mPlayQueueItems, new Function<PlayQueueItem, Long>() {
+            @Override
+            public Long apply(PlayQueueItem input) {
+                return input.getId();
+            }
+        });
+        return trackIds;
     }
-
-    public long getCurrentTrackId() {
-        return getTrackIdAt(mPosition);
-    }
-
-    public long getTrackIdAt(int position) {
-        return mTrackIds.get(position);
-    }
-
-    public int getPositionOfTrackId(long trackId) {
-        return mTrackIds.indexOf(trackId);
-    }
-
-
-    public boolean isLoading() {
-        return mAppendState == AppendState.LOADING;
-    }
-
-    public boolean lastLoadFailed() {
-        return mAppendState == AppendState.ERROR;
-    }
-
-    public boolean lastLoadWasEmpty() {
-        return mAppendState == AppendState.EMPTY;
-    }
-
-    public boolean moveToPrevious() {
-        if (mPosition > 0) {
-            mPosition--;
-            return true;
-        }
-        return false;
-    }
-
-    public boolean moveToNext() {
-        if (!isLastTrack()) {
-            mPosition++;
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isLastTrack() {
-        return mPosition >= mTrackIds.size() - 1;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(mTrackIds.size());
-        dest.writeLongArray(Longs.toArray(mTrackIds));
-        dest.writeInt(mPosition);
-        dest.writeString(mAppendState.name());
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Parcelable.Creator<PlayQueue> CREATOR = new Parcelable.Creator<PlayQueue>() {
-        public PlayQueue createFromParcel(Parcel in) {
-            return new PlayQueue(in);
-        }
-
-        public PlayQueue[] newArray(int size) {
-            return new PlayQueue[size];
-        }
-    };
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(getClass())
-                .add("Track IDs", mTrackIds)
-                .add("Size", size())
-                .add("Play Position", mPosition)
-                .add("Append State", mAppendState)
-                .toString();
-    }
-
 }

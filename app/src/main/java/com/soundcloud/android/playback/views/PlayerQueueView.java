@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.view.EmptyListView;
 import rx.Observable;
 
@@ -30,11 +30,11 @@ public class PlayerQueueView extends FrameLayout {
         mTrackView.setOnScreen(true);
     }
 
-    public void showEmptyViewWithState(PlayQueue.AppendState appendState) {
+    public void showEmptyViewWithState(PlaybackOperations.AppendState appendState) {
         showEmptyView();
-        if (appendState == PlayQueue.AppendState.LOADING) {
+        if (appendState == PlaybackOperations.AppendState.LOADING) {
             mEmptyView.setStatus(EmptyListView.Status.WAITING);
-        } else if (appendState == PlayQueue.AppendState.ERROR) {
+        } else if (appendState == PlaybackOperations.AppendState.ERROR) {
             mEmptyView.setStatus(EmptyListView.Status.ERROR);
         } else {
             mEmptyView.setStatus(EmptyListView.Status.OK);

@@ -19,13 +19,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.exception.OperationFailedException;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.c2dm.C2DMReceiver;
+import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.sync.SyncStateManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +64,7 @@ public class AccountRemovalFunctionTest {
     @Mock
     private SoundRecorder soundRecorder;
     @Mock
-    private PlayQueue playQueue;
+    private PlayQueueView playQueue;
     @Mock
     private Observer<Void> observer;
     @Mock

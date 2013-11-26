@@ -53,7 +53,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.Parcel;
 import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
@@ -77,7 +76,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     // static convenience accessors
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && getPlaybackState().isSupposedToBePlaying(); }
-    public static PlayQueue getPlayQueue() { return instance == null ? PlayQueue.EMPTY : instance.clonePlayQueue(); }
+    public static PlayQueueView getPlayQueue() { return instance == null ? PlayQueueView.EMPTY : instance.getPlayQueueView(); }
     public static @Nullable Uri getPlayQueueUri() { return instance == null ? null : instance.getPlayQueueInternal().getOriginPage(); }
     public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
@@ -205,9 +204,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public interface PlayExtras{
         String track = Track.EXTRA;
         String trackId = Track.EXTRA_ID;
-        String unmute = "unmute"; // used by alarm clock
-        String fetchRelated = "fetch_related";
         String trackingInfo = "tracking_info";
+        String trackIdList = "track_id_list";
+        String startPosition = "startPosition";
+        String playSessionSource = "play_seesion_source";
     }
 
     public interface BroadcastExtras{
@@ -865,7 +865,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void setQueuePosition(int pos) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setQueuePosition("+pos+")");
 
-        final TrackingPlayQueue playQueue = getPlayQueueInternal();
+        final PlayQueue playQueue = getPlayQueueInternal();
         if (playQueue.getPosition() != pos && playQueue.setPosition(pos)) {
             playQueue.setCurrentTrackToUserTriggered();
             openCurrent();
@@ -986,16 +986,12 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         openCurrent();
     }
 
-    TrackingPlayQueue getPlayQueueInternal() {
+    PlayQueue getPlayQueueInternal() {
         return mPlayQueueManager.getCurrentPlayQueue();
     }
 
-    private PlayQueue clonePlayQueue(){
-        PlayQueue original = mPlayQueueManager.getCurrentPlayQueue();
-        Parcel parcel = Parcel.obtain();
-        original.writeToParcel(parcel, 0);
-        parcel.setDataPosition(0);
-        return PlayQueue.CREATOR.createFromParcel(parcel);
+    private PlayQueueView getPlayQueueView(){
+        return mPlayQueueManager.getPlayQueueView();
     }
 
 

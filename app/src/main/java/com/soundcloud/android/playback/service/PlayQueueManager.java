@@ -1,15 +1,16 @@
 package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.soundcloud.android.playback.service.PlayQueue.AppendState;
 import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
+import com.soundcloud.android.storage.PlayQueueStorage;
 import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
@@ -19,12 +20,14 @@ import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
+import rx.util.functions.Func1;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
@@ -37,12 +40,13 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     private final ScModelManager mModelManager;
     private final PlaybackOperations mPlaybackOperations;
 
-    private TrackingPlayQueue mPlayQueue = TrackingPlayQueue.EMPTY;
+    private PlayQueue mPlayQueue = PlayQueue.EMPTY;
     private Subscription mFetchRelatedSubscription = Subscriptions.empty();
     private Subscription mPlayQueueSubscription = Subscriptions.empty();
     private Observable<RelatedTracksCollection> mRelatedTracksObservable;
 
     private boolean mGotRelatedTracks;
+    private PlaybackOperations.AppendState mAppendState = PlaybackOperations.AppendState.IDLE;
 
     @Inject
     public PlayQueueManager(Context context, PlayQueueStorage playQueueStorage, PlaybackOperations playbackOperations,
@@ -54,7 +58,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         mModelManager = modelManager;
     }
 
-    public void setNewPlayQueue(TrackingPlayQueue playQueue) {
+    public void setNewPlayQueue(PlayQueue playQueue) {
         stopLoadingOperations();
 
         mPlayQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
@@ -62,7 +66,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         broadcastPlayQueueChanged();
 
         saveCurrentPosition(0L);
-        fireAndForget(mPlayQueueStorage.storeAsync(mPlayQueue));
+        fireAndForget(mPlayQueueStorage.storeCollectionAsync(mPlayQueue.getItems()));
     }
 
     public void saveCurrentPosition(long currentTrackProgress) {
@@ -82,12 +86,16 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
             final long seekPos = playQueueUri.getSeekPos();
             final long trackId = playQueueUri.getTrackId();
             if (trackId > 0) {
-                mPlayQueueSubscription = mPlayQueueStorage.getPlayQueueAsync(
-                        playQueueUri.getPos(), playQueueUri.getPlaySessionSource())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Action1<TrackingPlayQueue>() {
+                mPlayQueueSubscription = mPlayQueueStorage.getPlayQueueItemsAsync()
+                        .observeOn(AndroidSchedulers.mainThread()).map(new Func1<List<PlayQueueItem>, PlayQueue>() {
                             @Override
-                            public void call(TrackingPlayQueue playQueue) {
+                            public PlayQueue call(List<PlayQueueItem> playQueueItems) {
+                                return new PlayQueue(playQueueItems, playQueueUri.getPlaySessionSource());
+                            }
+
+                        }).subscribe(new Action1<PlayQueue>() {
+                            @Override
+                            public void call(PlayQueue playQueue) {
                                 setNewPlayQueue(playQueue);
                             }
                         });
@@ -120,15 +128,19 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     public void clearAll(){
         clearPlayQueueUri(mSharedPreferences);
         mPlayQueueStorage.clearState();
-        mPlayQueue = TrackingPlayQueue.EMPTY;
+        mPlayQueue = PlayQueue.EMPTY;
     }
 
-    public TrackingPlayQueue getCurrentPlayQueue() {
+    public PlayQueue getCurrentPlayQueue() {
         return mPlayQueue;
     }
 
+    public PlayQueueView getPlayQueueView() {
+        return mPlayQueue.getViewWithAppendState(mAppendState);
+    }
+
     private void loadRelatedTracks() {
-        setNewRelatedLoadingState(AppendState.LOADING);
+        setNewRelatedLoadingState(PlaybackOperations.AppendState.LOADING);
         mGotRelatedTracks = false;
         mFetchRelatedSubscription = mRelatedTracksObservable.subscribe(this);
     }
@@ -147,24 +159,24 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     @Override
     public void onCompleted() {
         // TODO, save new tracks to database
-        setNewRelatedLoadingState(mGotRelatedTracks ? AppendState.IDLE : AppendState.EMPTY);
+        setNewRelatedLoadingState(mGotRelatedTracks ? PlaybackOperations.AppendState.IDLE : PlaybackOperations.AppendState.EMPTY);
     }
 
     @Override
     public void onError(Throwable e) {
-        setNewRelatedLoadingState(AppendState.ERROR);
+        setNewRelatedLoadingState(PlaybackOperations.AppendState.ERROR);
     }
 
-    private void setNewRelatedLoadingState(AppendState appendState) {
-        mPlayQueue.setAppendState(appendState);
+    private void setNewRelatedLoadingState(PlaybackOperations.AppendState appendState) {
+        mAppendState = appendState;
         final Intent intent = new Intent(PlaybackService.Broadcasts.RELATED_LOAD_STATE_CHANGED)
-                .putExtra(PlayQueue.EXTRA, mPlayQueue);
+                .putExtra(PlayQueueView.EXTRA, mPlayQueue.getViewWithAppendState(appendState));
         mContext.sendBroadcast(intent);
     }
 
     private void broadcastPlayQueueChanged() {
         Intent intent = new Intent(PlaybackService.Broadcasts.PLAYQUEUE_CHANGED)
-                .putExtra(PlayQueue.EXTRA, mPlayQueue);
+                .putExtra(PlayQueueView.EXTRA, mPlayQueue.getViewWithAppendState(mAppendState));
         mContext.sendBroadcast(intent);
     }
 

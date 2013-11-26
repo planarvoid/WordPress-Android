@@ -40,7 +40,7 @@ public class PlaybackReceiverTest {
     @Mock
     private AssociationManager associationManager;
     @Mock
-    private PlayQueue playQueue;
+    private PlayQueueView playQueue;
     @Mock
     private AudioManager audioManager;
     @Mock

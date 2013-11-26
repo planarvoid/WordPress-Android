@@ -7,65 +7,77 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.os.Parcel;
-
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueTest {
 
     @Test
-    public void shouldBeParcelable() throws Exception {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L, 3L), 0);
-        playQueue.setAppendState(PlayQueue.AppendState.IDLE);
-
-        Parcel parcel = Parcel.obtain();
-        playQueue.writeToParcel(parcel, 0);
-        PlayQueue copy = PlayQueue.CREATOR.createFromParcel(parcel);
-
-        expect(copy).toContainExactly(1L, 2L, 3L);
-        expect(copy.getPosition()).toBe(0);
-        expect(copy.getAppendState()).toEqual(PlayQueue.AppendState.IDLE);
+    public void shouldSuccessfullyMoveToNextTrack() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
+        expect(playQueue.moveToNext(false)).toBeTrue();
+        expect(playQueue.getPosition()).toBe(1);
     }
 
     @Test
-    public void shouldBuildInititialPlayQueueFromASingleTrackId() {
-        PlayQueue playQueue = new PlayQueue(1L);
-        expect(playQueue).toContainExactly(1L);
-        expect(playQueue.getPosition()).toBe(0);
+    public void shouldNotMoveToNextTrackIfAtEndOfQueue() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 1);
+        expect(playQueue.moveToNext(false)).toBeFalse();
+        expect(playQueue.getPosition()).toBe(1);
     }
 
     @Test
-    public void shouldBuildInititialPlayQueueWithPositionOutOfLowerBounds() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), -1);
-        expect(playQueue).toContainExactly(1L, 2L);
-        expect(playQueue.getPosition()).toBe(0);
+    public void shouldSetCurrentTriggerToManual() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
+        playQueue.setCurrentTrackToUserTriggered();
+        checkManualTrigger(playQueue);
     }
 
     @Test
-    public void shouldBuildInitialPlayQueueWithPositionOutOfUpperBounds() throws Exception {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 2);
-        expect(playQueue).toContainExactly(1L, 2L);
-        expect(playQueue.getPosition()).toBe(0);
+    public void moveToNextShouldResultInAutoTrigger() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
+        expect(playQueue.moveToNext(false)).toBeTrue();
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto");
     }
 
     @Test
-    public void shouldSuccessfullySetPositionIfNewPositionIsWithinLowerBounds() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L, 3L), 0);
-        expect(playQueue.setPosition(0)).toBeTrue();
-        expect(playQueue.getPosition()).toBe(0);
+    public void moveToNextShouldResultInManualTrigger() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
+        expect(playQueue.moveToNext(true)).toBeTrue();
+        checkManualTrigger(playQueue);
     }
 
     @Test
-    public void shouldSuccessfullySetPositionIfNewPositionIsWithinUpperBounds() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L, 3L), 0);
-        expect(playQueue.setPosition(2)).toBeTrue();
-        expect(playQueue.getPosition()).toBe(2);
+    public void moveToPreviousShouldResultInManualTrigger() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 1);
+        expect(playQueue.moveToPrevious()).toBeTrue();
+        checkManualTrigger(playQueue);
     }
 
     @Test
-    public void shouldFailToSetPositionIfNewPositionIsNotWithinBounds() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L, 3L), 0);
-        expect(playQueue.setPosition(3)).toBeFalse();
-        expect(playQueue.getPosition()).toBe(0);
+    public void shouldReturnSetAsPartOfLoggerParams() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 1, PlaySessionSource.EMPTY);
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&set_id=54321&set_position=1");
+    }
+
+    @Test
+    public void shouldReturnExploreVersionInEventLoggerParamsWhenCurrentTrackIsInitialTrack() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(123L, 456L), 0, PlaySessionSource.EMPTY);
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&source=explore&source_version=exp1");
+    }
+
+    @Test
+    public void shouldReturnRecommenderVersionInEventLoggerParamsWhenCurrentTrackIsNotInitialTrack() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(123L, 456L), 1, PlaySessionSource.EMPTY);
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&source=recommender&source_version=rec1");
+    }
+
+    @Test
+    public void shouldReturnEmptyEventLoggerParamsWhenQueueIsEmpty() throws Exception {
+        expect(PlayQueue.EMPTY.getCurrentEventLoggerParams()).toEqual("");
+
+    }
+
+    private void checkManualTrigger(PlayQueue playQueue) {
+        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=manual");
     }
 
     @Test
@@ -80,36 +92,6 @@ public class PlayQueueTest {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
         expect(playQueue.moveToPrevious()).toBeFalse();
         expect(playQueue.getPosition()).toBe(0);
-    }
-
-    @Test
-    public void shouldSuccessfullyMoveToNextTrack() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
-        expect(playQueue.moveToNext()).toBeTrue();
-        expect(playQueue.getPosition()).toBe(1);
-    }
-
-    @Test
-    public void shouldNotMoveToNextTrackIfAtEndOfQueue() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 1);
-        expect(playQueue.moveToNext()).toBeFalse();
-        expect(playQueue.getPosition()).toBe(1);
-    }
-
-    @Test
-    public void isLastTrackForSingleTrackReturnsTrue() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L), 0);
-
-        expect(playQueue.isLastTrack()).toBeTrue();
-    }
-
-    @Test
-    public void isLastTrackForMultipleTracksReflectsPositionInQueue() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
-
-        expect(playQueue.isLastTrack()).toBeFalse();
-        playQueue.moveToNext();
-        expect(playQueue.isLastTrack()).toBeTrue();
     }
 
 }

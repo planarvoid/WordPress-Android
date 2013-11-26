@@ -33,7 +33,7 @@ public class TrackSourceInfo {
         return fromSource(SOURCE_EXPLORE, exploreVersion);
     }
 
-    private static TrackSourceInfo fromSource(String source, String version){
+    public static TrackSourceInfo fromSource(String source, String version){
         TrackSourceInfo trackSourceInfo = new TrackSourceInfo(source);
         trackSourceInfo.mSourceVersion = version;
         return trackSourceInfo;

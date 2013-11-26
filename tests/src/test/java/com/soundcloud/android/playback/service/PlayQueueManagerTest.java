@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
@@ -11,12 +10,14 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.PlayQueueStorage;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import dagger.Module;
 import dagger.ObjectGraph;
@@ -38,7 +39,9 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
@@ -49,7 +52,7 @@ public class PlayQueueManagerTest {
     @Mock
     private Context context;
     @Mock
-    private TrackingPlayQueue playQueue;
+    private PlayQueue playQueue;
     @Mock
     private PlayQueueStorage playQueueStorage;
     @Mock
@@ -68,7 +71,7 @@ public class PlayQueueManagerTest {
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
-        when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.just(PlayQueue.EMPTY));
+        when(playQueueStorage.storeCollectionAsync(any(Collection.class))).thenReturn(Observable.<Collection<PlayQueueItem>>empty());
         when(playQueue.isEmpty()).thenReturn(true);
     }
 
@@ -109,10 +112,10 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldStoreTracksWhenSettingNewPlayQueue(){
-        Observable<PlayQueue> observable = Mockito.mock(Observable.class);
-        when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
+        final Observable mock = Mockito.mock(Observable.class);
+        when(playQueueStorage.storeCollectionAsync(playQueue.getItems())).thenReturn(mock);
         playQueueManager.setNewPlayQueue(playQueue);
-        verify(observable).subscribe(any(Observer.class));
+        verify(mock).subscribe(any(Observer.class));
     }
 
     @Test
@@ -146,9 +149,9 @@ public class PlayQueueManagerTest {
     public void shouldReturnResumeInfoWhenReloadingPlayQueue(){
         String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        Observable<TrackingPlayQueue> observable = Mockito.mock(Observable.class);
+        Observable<List<PlayQueueItem>> observable = Mockito.mock(Observable.class);
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
-        when(playQueueStorage.getPlayQueueAsync(2, PlaySessionSource.EMPTY)).thenReturn(observable);
+        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(observable);
 
         PlaybackProgressInfo resumeInfo = playQueueManager.loadPlayQueue();
         expect(resumeInfo.getTrackId()).toEqual(456L);
@@ -158,10 +161,10 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldReloadPlayQueueFromLocalStorage(){
         String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
-        Observable<TrackingPlayQueue> observable = Mockito.mock(Observable.class);
+        Observable<List<PlayQueueItem>> observable = Mockito.mock(Observable.class);
         when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        when(playQueueStorage.getPlayQueueAsync(2, PlaySessionSource.EMPTY)).thenReturn(observable);
+        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(observable);
 
         playQueueManager.loadPlayQueue();
         verify(observable).subscribe(any(Action1.class));
@@ -171,10 +174,15 @@ public class PlayQueueManagerTest {
     public void shouldSetNewPlayQueueWhenReloadingPlayQueueReturns(){
         String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        TrackingPlayQueue playQueue = new TrackingPlayQueue(Lists.newArrayList(1L, 2L, 3L), 2);
-        when(playQueueStorage.getPlayQueueAsync(anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<TrackingPlayQueue>just(playQueue));
+        final PlayQueueItem playQueueItem = Mockito.mock(PlayQueueItem.class);
+        final PlayQueueItem playQueueItem2 = Mockito.mock(PlayQueueItem.class);
+        when(playQueueItem.getId()).thenReturn(1L);
+        when(playQueueItem2.getId()).thenReturn(2L);
+
+        List<PlayQueueItem> playQueueItems = Lists.newArrayList(playQueueItem, playQueueItem2);
+        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(Observable.<List<PlayQueueItem>>just(playQueueItems));
         playQueueManager.loadPlayQueue();
-        expect(playQueueManager.getCurrentPlayQueue()).toContainExactly(1L, 2L, 3L);
+        expect(playQueueManager.getPlayQueueView()).toContainExactly(1L, 2L);
     }
 
     @Test
@@ -216,17 +224,17 @@ public class PlayQueueManagerTest {
     public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks(){
         when(playbackOperations.getRelatedTracks(anyLong())).thenReturn(Mockito.mock(Observable.class));
         playQueueManager.fetchRelatedTracks(123L);
-        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.LOADING);
+        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackOperations.AppendState.LOADING);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
         final TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        playQueueManager.setNewPlayQueue(new TrackingPlayQueue(123L));
+        playQueueManager.setNewPlayQueue(new PlayQueue(123L));
         playQueueManager.onNext(new RelatedTracksCollection(Lists.<TrackSummary>newArrayList(trackSummary), "123"));
 
-        expect(playQueueManager.getCurrentPlayQueue()).toContainExactly(123L, trackSummary.getId());
+        expect(playQueueManager.getPlayQueueView()).toContainExactly(123L, trackSummary.getId());
 
         ArgumentCaptor<Track> captor = ArgumentCaptor.forClass(Track.class);
         verify(modelManager).cache(captor.capture());
@@ -237,21 +245,21 @@ public class PlayQueueManagerTest {
     public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad(){
         playQueueManager.onNext(new RelatedTracksCollection(Collections.<TrackSummary>emptyList(), "123"));
         playQueueManager.onCompleted();
-        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.IDLE);
+        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackOperations.AppendState.IDLE);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad(){
         playQueueManager.onCompleted();
-        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.EMPTY);
+        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackOperations.AppendState.EMPTY);
         expectBroadcastRelatedLoadChanges();
     }
 
     @Test
     public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled(){
         playQueueManager.onError(new Throwable());
-        expect(playQueueManager.getCurrentPlayQueue().getAppendState()).toEqual(PlayQueue.AppendState.ERROR);
+        expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackOperations.AppendState.ERROR);
         expectBroadcastRelatedLoadChanges();
     }
 
@@ -273,10 +281,10 @@ public class PlayQueueManagerTest {
     @Test
     public void clearAllShouldSetPlayQueueToEmpty() throws Exception {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
-        playQueueManager.setNewPlayQueue(new TrackingPlayQueue(1L));
-        expect(playQueueManager.getCurrentPlayQueue()).not.toBe(TrackingPlayQueue.EMPTY);
+        playQueueManager.setNewPlayQueue(new PlayQueue(1L));
+        expect(playQueueManager.getCurrentPlayQueue()).not.toBe(PlayQueue.EMPTY);
         playQueueManager.clearAll();
-        expect(playQueueManager.getCurrentPlayQueue()).toBe(TrackingPlayQueue.EMPTY);
+        expect(playQueueManager.getCurrentPlayQueue()).toBe(PlayQueue.EMPTY);
 
     }
 
@@ -318,7 +326,7 @@ public class PlayQueueManagerTest {
         }
 
         @Provides
-        TrackingPlayQueue provideTrackingPlayQueue(){
+        PlayQueue provideTrackingPlayQueue(){
             return playQueue;
         }
 

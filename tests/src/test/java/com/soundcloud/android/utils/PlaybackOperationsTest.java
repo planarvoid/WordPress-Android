@@ -22,7 +22,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
-import com.soundcloud.android.playback.service.PlayQueue;
+import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -96,7 +96,7 @@ public class PlaybackOperationsTest {
         expect(startedService).not.toBeNull();
         expect(startedService.getAction()).toBe(PlaybackService.Actions.PLAY_ACTION);
 
-        PlayQueue playQueue = startedService.getParcelableExtra(PlayQueue.EXTRA);
+        PlayQueueView playQueue = startedService.getParcelableExtra(PlayQueueView.EXTRA);
         expect(playQueue.size()).toBe(1);
         expect(playQueue.getTrackIdAt(0)).toBe(track.getId());
     }
@@ -129,7 +129,7 @@ public class PlaybackOperationsTest {
         expect(startedService).not.toBeNull();
         expect(startedService.getAction()).toBe(PlaybackService.Actions.PLAY_ACTION);
 
-        PlayQueue playQueue = startedService.getParcelableExtra(PlayQueue.EXTRA);
+        PlayQueueView playQueue = startedService.getParcelableExtra(PlayQueueView.EXTRA);
         expect(playQueue).not.toBeNull();
         expect(playQueue.getPosition()).toBe(1);
         expect(playQueue.size()).toBe(2);
@@ -147,24 +147,13 @@ public class PlaybackOperationsTest {
         Intent startedService = application.getNextStartedService();
 
         expect(startedService).not.toBeNull();
-        PlayQueue playQueue = startedService.getParcelableExtra(PlayQueue.EXTRA);
+        PlayQueueView playQueue = startedService.getParcelableExtra(PlayQueueView.EXTRA);
         expect(playQueue).not.toBeNull();
         expect(playQueue.size()).toBe(3);
         expect(playQueue.getPosition()).toBe(2);
         expect(playQueue.getTrackIdAt(0)).toBe(2L);
         expect(playQueue.getTrackIdAt(1)).toBe(3L);
         expect(playQueue.getTrackIdAt(2)).toBe(1L);
-    }
-
-    @Test
-    public void playExploreTrackShouldSignalServiceToFetchRelatedTracks() throws Exception {
-        playbackOperations.playExploreTrack(Robolectric.application, track, "ignored here");
-
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        Intent startedService = application.getNextStartedService();
-
-        expect(startedService).not.toBeNull();
-        expect(startedService.getBooleanExtra(PlaybackService.PlayExtras.fetchRelated, false)).toBeTrue();
     }
 
 //    @Test
@@ -215,7 +204,7 @@ public class PlaybackOperationsTest {
         Intent startedService = application.getNextStartedService();
 
         expect(startedService).not.toBeNull();
-        PlayQueue playQueue = startedService.getParcelableExtra(PlayQueue.EXTRA);
+        PlayQueueView playQueue = startedService.getParcelableExtra(PlayQueueView.EXTRA);
         expect(playQueue).not.toBeNull();
         expect(playQueue.size()).toBe(2);
         expect(playQueue.getPosition()).toBe(1);
@@ -233,7 +222,7 @@ public class PlaybackOperationsTest {
         Intent startedService = application.getNextStartedService();
 
         expect(startedService).not.toBeNull();
-        PlayQueue playQueue = startedService.getParcelableExtra(PlayQueue.EXTRA);
+        PlayQueueView playQueue = startedService.getParcelableExtra(PlayQueueView.EXTRA);
         expect(playQueue).not.toBeNull();
         expect(playQueue.size()).toBe(2);
         expect(playQueue.getPosition()).toBe(1); // adjusted the position to ignore the playlist

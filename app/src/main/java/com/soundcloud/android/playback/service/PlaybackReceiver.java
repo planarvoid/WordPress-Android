@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.service.PlaybackService.Actions;
 import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
 
+import com.google.common.primitives.Longs;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.AssociationManager;
@@ -18,6 +19,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
+
+import java.util.List;
 
 class PlaybackReceiver extends BroadcastReceiver {
 
@@ -118,15 +121,21 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private void handlePlayAction(Intent intent) {
-        if (intent.hasExtra(PlayQueue.EXTRA)) {
-            TrackingPlayQueue playQueue = intent.getParcelableExtra(TrackingPlayQueue.EXTRA);
+
+        if (intent.hasExtra(PlayExtras.trackIdList)) {
+
+            final List<Long> trackIds = Longs.asList(intent.getLongArrayExtra(PlayExtras.trackIdList));
+            final int startPosition = intent.getIntExtra(PlayExtras.startPosition, 0);
+            final PlaySessionSource playSessionSource = intent.getParcelableExtra(PlayExtras.playSessionSource);
+            PlayQueue playQueue = new PlayQueue(trackIds, startPosition, playSessionSource);
 
             mPlayQueueManager.setNewPlayQueue(playQueue);
             mPlaybackService.openCurrent();
 
-            if (intent.getBooleanExtra(PlayExtras.fetchRelated, false) && !playQueue.isEmpty()){
-                mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
-            }
+//            if (intent.getBooleanExtra(PlayExtras.fetchRelated, false) && !playQueue.isEmpty()){
+//                mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
+//            }
+
         } else {
             Log.w(PlaybackService.TAG, "Received play intent without a play queue");
         }

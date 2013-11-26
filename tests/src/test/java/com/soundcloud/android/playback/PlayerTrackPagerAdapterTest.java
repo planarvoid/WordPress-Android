@@ -11,12 +11,12 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.playback.views.PlayerQueueView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.playback.service.PlayQueue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ public class PlayerTrackPagerAdapterTest {
     @Mock
     private PlaybackOperations playbackOperations;
     @Mock
-    private PlayQueue playQueue;
+    private PlayQueueView playQueue;
 
 
     @Before
@@ -66,7 +66,7 @@ public class PlayerTrackPagerAdapterTest {
     @Test
     public void shouldCreateSingleItemQueue() throws Exception {
         final Track track = TestHelper.getModelFactory().createModel(Track.class);
-        adapter.setPlayQueue(new PlayQueue(track.getId()));
+        adapter.setPlayQueue(new PlayQueueView(track.getId()));
         expect(adapter.getCount()).toEqual(1);
         expect(adapter.getItem(0)).toBe(track.getId());
     }
@@ -178,7 +178,7 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void shouldReplaceEmptyView() {
-        adapter.setPlayQueue(new PlayQueue(Lists.newArrayList(1L), 0, PlayQueue.AppendState.LOADING));
+        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.LOADING));
 
         final ViewGroup parent = mock(ViewGroup.class);
         final PlayerQueueView playerQueueView1 = mock(PlayerQueueView.class);
@@ -191,9 +191,9 @@ public class PlayerTrackPagerAdapterTest {
         adapter.getView(1L, playerQueueView1, parent);
         adapter.getView(PlayerTrackPagerAdapter.EMPTY_VIEW_ID, playerQueueView2, parent);
 
-        verify(playerQueueView2).showEmptyViewWithState(PlayQueue.AppendState.LOADING);
+        verify(playerQueueView2).showEmptyViewWithState(PlaybackOperations.AppendState.LOADING);
 
-        adapter.setPlayQueue(new PlayQueue(Lists.newArrayList(1L, 2L), 0, PlayQueue.AppendState.IDLE));
+        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L, 2L), 0, PlaybackOperations.AppendState.IDLE));
         adapter.reloadEmptyView();
         verify(playerQueueView2).showTrack(any(rx.Observable.class), anyInt(), anyBoolean());
 
@@ -233,10 +233,10 @@ public class PlayerTrackPagerAdapterTest {
     }
 
     private void addPlayerTrackViews(PlayerTrackView trackView1, PlayerTrackView trackView2) {
-        addPlayerTrackViews(new PlayQueue(Lists.newArrayList(1L, 2L), 0), trackView1, trackView2);
+        addPlayerTrackViews(new PlayQueueView(Lists.newArrayList(1L, 2L), 0), trackView1, trackView2);
     }
 
-    private void addPlayerTrackViews(PlayQueue playQueue, PlayerTrackView trackView1, PlayerTrackView trackView2) {
+    private void addPlayerTrackViews(PlayQueueView playQueue, PlayerTrackView trackView1, PlayerTrackView trackView2) {
         adapter.setPlayQueue(playQueue);
 
         final ViewGroup parent = mock(ViewGroup.class);
