@@ -33,7 +33,7 @@ public class ExploreTracksAdapterTest {
     }
 
     @Inject
-    public ExploreTracksAdapter mAdapter;
+    ExploreTracksAdapter mAdapter;
 
     @Before
     public void setUp() {
