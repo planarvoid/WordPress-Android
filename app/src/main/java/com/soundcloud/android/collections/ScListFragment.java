@@ -140,6 +140,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         }
         // should happen once per activity lifecycle
         startObservingChanges();
+        mEmptyListViewFactory = new EmptyListViewFactory().forContent(activity, mContentUri, null);
     }
 
     @Override
@@ -147,7 +148,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         publicApi = new PublicApi(getActivity());
-        mEmptyListViewFactory = new EmptyListViewFactory().forContent(getActivity(), mContentUri, null);
         mKeepGoing = true;
         setupListAdapter();
         accountOperations = new AccountOperations(getActivity());
