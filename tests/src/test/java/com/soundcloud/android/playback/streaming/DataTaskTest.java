@@ -36,12 +36,12 @@ public class DataTaskTest {
     }
 
     @Test
-    public void shoudlReturnSuccessBundleOnOkCode() throws Exception {
+    public void shouldReturnSuccessBundleOnOkCode() throws Exception {
         expect(createDataTask(HttpStatus.SC_OK).execute().getBoolean(DataTask.SUCCESS_KEY)).toBeTrue();
     }
 
     @Test
-    public void shoudlReturnSuccessBundleOnPartialContentCode() throws Exception {
+    public void shouldReturnSuccessBundleOnPartialContentCode() throws Exception {
         expect(createDataTask(HttpStatus.SC_PARTIAL_CONTENT).execute().getBoolean(DataTask.SUCCESS_KEY)).toBeTrue();
     }
 
@@ -64,7 +64,7 @@ public class DataTaskTest {
     }
 
     @Test(expected = IOException.class)
-    public void shoudlThrowIOExceptionOnServerErrorCode() throws Exception {
+    public void shouldThrowIOExceptionOnServerErrorCode() throws Exception {
         createDataTask(HttpStatus.SC_INTERNAL_SERVER_ERROR).execute();
     }
 

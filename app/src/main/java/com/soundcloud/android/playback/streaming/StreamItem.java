@@ -113,22 +113,16 @@ public class StreamItem implements Parcelable {
 
     public boolean markUnavailable(int statusCode) {
         mHttpErrorStatus = statusCode;
-        if (PublicApiWrapper.isStatusCodeClientError(statusCode)) {
-            mUnavailable = true;
-            return true;
-        } else {
-            return false;
-        }
+        mUnavailable = PublicApiWrapper.isStatusCodeClientError(statusCode);
+        return mUnavailable;
     }
 
     public boolean invalidateRedirectUrl(int statusCode) {
         mHttpErrorStatus = statusCode;
         if (PublicApiWrapper.isStatusCodeClientError(statusCode)){
             mRedirectedUrl = null;
-            return true;
-        } else {
-            return false;
         }
+        return mRedirectedUrl == null;
     }
 
     public int getHttpError() {
