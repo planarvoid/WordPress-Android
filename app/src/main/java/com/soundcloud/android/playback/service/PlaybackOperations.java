@@ -19,7 +19,6 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
-import com.soundcloud.android.playback.PlayQueueInitializer;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.TrackStorage;
@@ -47,7 +46,7 @@ public class PlaybackOperations {
     private TrackStorage mTrackStorage;
     private RxHttpClient mRxHttpClient;
 
-    Uri mTempPageOrigin = Uri.parse("http://putsomethinghere.com");
+    Uri TEMP_ORIGIN = Uri.parse("http://putsomethinghere.com");
 
     public PlaybackOperations() {
         this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage(), new SoundCloudRxHttpClient());
@@ -94,9 +93,9 @@ public class PlaybackOperations {
     /**
      * Single play, the tracklist will be of length 1
      */
-
+    @Deprecated
     public void playTrack(Context context, Track track) {
-        playTrack(context, track, mTempPageOrigin);
+        playTrack(context, track, TEMP_ORIGIN);
     }
 
     public void playTrack(Context context, Track track, Uri pageOrigin) {
@@ -107,8 +106,6 @@ public class PlaybackOperations {
      * Created by anything played from the {@link com.soundcloud.android.explore.ExploreFragment} section.
      */
     public void playExploreTrack(Context context, Track track, String exploreTag, Uri originPage) {
-        final PlayQueueInitializer playQueueInitializer = PlayQueueInitializer.fromExplore(track, new PlaySessionSource(originPage),
-                TrackSourceInfo.fromExplore(exploreTag));
         playTrack(context, track, new PlaySessionSource(originPage, TrackSourceInfo.fromExplore(exploreTag)));
     }
 
@@ -123,9 +120,9 @@ public class PlaybackOperations {
      * From a uri with an initial track to show while loading the full playlist from the DB.
      * Used in {@link com.soundcloud.android.playlists.PlaylistTracksFragment}
      */
-
+    @Deprecated
     public void playFromPlaylist(Context context, Uri uri, int startPosition, Track initialTrack) {
-        playFromPlaylist(context, uri, startPosition, initialTrack, mTempPageOrigin);
+        playFromPlaylist(context, uri, startPosition, initialTrack, TEMP_ORIGIN);
     }
 
     public void playFromPlaylist(Context context, Uri uri, int startPosition, Track initialTrack, Uri originPage) {
@@ -133,8 +130,9 @@ public class PlaybackOperations {
         playFromUri(context, uri, startPosition, initialTrack, playSessionSource);
     }
 
+    @Deprecated
     public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri) {
-        playFromAdapter(context, data, position, uri, mTempPageOrigin);
+        playFromAdapter(context, data, position, uri, TEMP_ORIGIN);
     }
 
     public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri, Uri originPage) {
