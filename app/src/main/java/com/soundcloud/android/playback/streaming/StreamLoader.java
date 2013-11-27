@@ -1,12 +1,12 @@
 package com.soundcloud.android.playback.streaming;
 
-import android.content.Context;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.utils.BatteryListener;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -355,7 +355,7 @@ public class StreamLoader {
                 }
             } else if (msg.obj instanceof DataTask) {
                 DataTask t = (DataTask) msg.obj;
-                if (msg.peekData() == null || !msg.getData().containsKey("success")) {
+                if (msg.peekData() == null || !msg.getData().getBoolean(DataTask.SUCCESS_KEY)) {
                     // some failure, re-add item to queue, will be retried next time
                     loader.mHighPriorityQ.addItem(t.item, t.chunkRange.toIndex());
                 } else {
