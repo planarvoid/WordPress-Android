@@ -28,7 +28,6 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.UriUtils;
 import rx.Observable;
@@ -120,7 +119,7 @@ public class PlaybackOperations {
      * Created by anything played from the {@link com.soundcloud.android.explore.ExploreFragment} section.
      */
     public void playExploreTrack(Context context, Track track, String exploreTag, Uri originPage) {
-        playTrack(context, track, new PlaySessionSource(originPage, TrackSourceInfo.fromExplore(exploreTag)));
+        playTrack(context, track, new PlaySessionSource(originPage, exploreTag));
     }
 
 

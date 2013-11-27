@@ -12,7 +12,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.storage.PlayQueueStorage;
-import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
+import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.Observable;
@@ -87,19 +87,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
             final long seekPos = playQueueUri.getSeekPos();
             final long trackId = playQueueUri.getTrackId();
             if (trackId > 0) {
-                mPlayQueueSubscription = mPlayQueueStorage.getPlayQueueItemsAsync()
-                        .observeOn(AndroidSchedulers.mainThread()).map(new Func1<List<PlayQueueItem>, PlayQueue>() {
-                            @Override
-                            public PlayQueue call(List<PlayQueueItem> playQueueItems) {
-                                return new PlayQueue(playQueueItems, playQueueUri.getPlaySessionSource());
-                            }
-
-                        }).subscribe(new Action1<PlayQueue>() {
-                            @Override
-                            public void call(PlayQueue playQueue) {
-                                setNewPlayQueue(playQueue);
-                            }
-                        });
+                mPlayQueueSubscription = getLastStoredPlayQueue(playQueueUri.getPlaySessionSource());
                 return new PlaybackProgressInfo(trackId, seekPos);
             } else {
                 final String message = "Unexpected track id when reloading playqueue: " + trackId;
@@ -148,11 +136,11 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     @Override
     public void onNext(RelatedTracksCollection relatedTracks) {
-        TrackSourceInfo trackSourceInfo = TrackSourceInfo.fromExplore(relatedTracks.getSourceVersion());
         for (TrackSummary item : relatedTracks) {
             final Track track = new Track(item);
             mModelManager.cache(track);
-            mPlayQueue.addTrack(track.getId(), trackSourceInfo);
+            mPlayQueue.addTrack(track.getId(), PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
+                    relatedTracks.getSourceVersion());
         }
         mGotRelatedTracks = true;
     }
@@ -166,6 +154,22 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     @Override
     public void onError(Throwable e) {
         setNewRelatedLoadingState(PlaybackOperations.AppendState.ERROR);
+    }
+
+    private Subscription getLastStoredPlayQueue(final PlaySessionSource playSessionSource) {
+        return mPlayQueueStorage.getPlayQueueItemsAsync()
+                .observeOn(AndroidSchedulers.mainThread()).map(new Func1<List<PlayQueueItem>, PlayQueue>() {
+                    @Override
+                    public PlayQueue call(List<PlayQueueItem> playQueueItems) {
+                        return new PlayQueue(playQueueItems, playSessionSource);
+                    }
+
+                }).subscribe(new Action1<PlayQueue>() {
+                    @Override
+                    public void call(PlayQueue playQueue) {
+                        setNewPlayQueue(playQueue);
+                    }
+                });
     }
 
     private void setNewRelatedLoadingState(PlaybackOperations.AppendState appendState) {

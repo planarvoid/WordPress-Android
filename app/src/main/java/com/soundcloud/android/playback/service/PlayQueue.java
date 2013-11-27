@@ -4,9 +4,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.tracking.eventlogger.EventLoggerParamsBuilder;
 import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
-import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.net.Uri;
@@ -20,8 +21,7 @@ import java.util.List;
 class PlayQueue {
 
     // TODO, get rid of this, it is mutable
-    public static final PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1,
-            PlaySessionSource.EMPTY, TrackSourceInfo.EMPTY);
+    public static final PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1, PlaySessionSource.EMPTY);
 
     private boolean mCurrentTrackIsUserTriggered;
     private PlaySessionSource mPlaySessionSource;
@@ -29,21 +29,15 @@ class PlayQueue {
     private List<PlayQueueItem> mPlayQueueItems;
     private int mPosition;
 
-    public PlayQueue(List<Long> currentTrackIds, int startPosition,
-                     PlaySessionSource playSessionSource, TrackSourceInfo initialTrackSourceInfo) {
-        setPlayQueueFromIds(currentTrackIds, initialTrackSourceInfo);
+    public PlayQueue(List<Long> trackIds, int startPosition, PlaySessionSource playSessionSource) {
+        setPlayQueueFromIds(trackIds, playSessionSource);
         mPosition = startPosition;
         mPlaySessionSource = playSessionSource;
     }
 
-    public PlayQueue(List<Long> trackIds, int playPosition, PlaySessionSource playSessionSource) {
-        this(trackIds, playPosition, playSessionSource, TrackSourceInfo.EMPTY);
-    }
-
     @VisibleForTesting
     PlayQueue(ArrayList<Long> trackIds, int position) {
-        this(trackIds, position, PlaySessionSource.EMPTY, TrackSourceInfo.EMPTY);
-
+        this(trackIds, position, PlaySessionSource.EMPTY);
     }
 
     @VisibleForTesting
@@ -64,12 +58,12 @@ class PlayQueue {
         return mPlayQueueItems;
     }
 
-    private void setPlayQueueFromIds(List<Long> trackIds, final TrackSourceInfo trackSourceInfo){
+    private void setPlayQueueFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource){
         mPlayQueueItems = Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
             @Nullable
             @Override
             public PlayQueueItem apply(@Nullable Long input) {
-                return new PlayQueueItem(input, trackSourceInfo.getSource(), trackSourceInfo.getSourceVersion());
+                return new PlayQueueItem(input, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion());
             }
         }));
     }
@@ -86,16 +80,12 @@ class PlayQueue {
         mCurrentTrackIsUserTriggered = true;
     }
 
-    public PlaySessionSource getPlaySessionSource() {
-        return mPlaySessionSource;
-    }
-
     /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {
         return new PlayQueueUri().toUri(currentTrackId, mPosition, seekPos, mPlaySessionSource);
     }
 
-    public void addTrack(long id, TrackSourceInfo trackSourceInfo) {
-        mPlayQueueItems.add(new PlayQueueItem(id, trackSourceInfo.getSource(), trackSourceInfo.getSourceVersion()));
+    public void addTrack(long id, String source, String sourceVersion) {
+        mPlayQueueItems.add(new PlayQueueItem(id, source, sourceVersion));
     }
 
     public boolean moveToPrevious() {
@@ -117,22 +107,31 @@ class PlayQueue {
     }
 
     public String getCurrentEventLoggerParams() {
-        return ScTextUtils.EMPTY_STRING;
-//        if (isEmpty()) return ScTextUtils.EMPTY_STRING;
-//
-//        final TrackSourceInfo trackSourceInfo = mTrackSourceInfoMap.get(getCurrentTrackId());
-//        trackSourceInfo.setTrigger(mCurrentTrackIsUserTriggered);
-//
-//        final String originUrl = "PUT CONTEXT HERE";
-//        if (mOriginPage != null && Content.match(mOriginPage) == Content.PLAYLIST) {
-//            return trackSourceInfo.createEventLoggerParamsForSet(mOriginPage.getLastPathSegment(), String.valueOf(mPosition), originUrl);
-//        } else {
-//            return trackSourceInfo.createEventLoggerParams(originUrl);
-//        }
+        if (isEmpty()) return ScTextUtils.EMPTY_STRING;
+
+        EventLoggerParamsBuilder builder = new EventLoggerParamsBuilder(mCurrentTrackIsUserTriggered);
+        builder.origin(getOriginPage());
+        builder.source(getCurrentTrackSource());
+        builder.sourceVersion(getCurrentTrackSourceVersion());
+        if (isPlayingSet()) {
+            builder.set(getSetId(), getPosition());
+        }
+        return builder.build();
+    }
+
+    private boolean isPlayingSet() {
+        return getSetId() > Playable.NOT_SET;
     }
 
     public long getCurrentTrackId() {
         return mPlayQueueItems.get(mPosition).getTrackId();
+    }
+
+    public String getCurrentTrackSource() {
+        return mPlayQueueItems.get(mPosition).getSource();
+    }
+    public String getCurrentTrackSourceVersion() {
+        return mPlayQueueItems.get(mPosition).getSourceVersion();
     }
 
     public boolean isEmpty() {
