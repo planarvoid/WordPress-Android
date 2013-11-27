@@ -12,7 +12,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.DetachableResultReceiver;
-import com.soundcloud.android.playback.service.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
 import com.soundcloud.android.collections.ScListView;

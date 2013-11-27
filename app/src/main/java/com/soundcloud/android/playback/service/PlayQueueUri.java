@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 
 import android.net.Uri;
 import android.text.TextUtils;

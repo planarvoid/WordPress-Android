@@ -3,7 +3,7 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.playback.service.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.collections.views.IconLayout;
 import com.soundcloud.android.collections.views.PlayableRow;
 

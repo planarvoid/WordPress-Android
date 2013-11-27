@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback.service;
+package com.soundcloud.android.playback;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -23,6 +23,8 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.behavior.PlayableHolder;
+import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.TrackStorage;

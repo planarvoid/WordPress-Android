@@ -9,7 +9,6 @@ import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.collections.BasePagerAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
-import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.playback.views.PlayerQueueView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import org.jetbrains.annotations.Nullable;

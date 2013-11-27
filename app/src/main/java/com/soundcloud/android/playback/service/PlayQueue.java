@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
+import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
 

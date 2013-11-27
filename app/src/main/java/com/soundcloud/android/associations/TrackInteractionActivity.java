@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.playback.service.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackOperations;
 
 import android.content.Intent;
 import android.net.Uri;

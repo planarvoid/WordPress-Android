@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

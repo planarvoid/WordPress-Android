@@ -1,7 +1,6 @@
-package com.soundcloud.android.playback.service;
+package com.soundcloud.android.tracking.eventlogger;
 
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.tracking.eventlogger.TrackSourceInfo;
 
 import android.net.Uri;
 import android.os.Parcel;
@@ -13,12 +12,12 @@ public class PlaySessionSource implements Parcelable{
 
     private final Uri mOriginPage;
     private final long mSetId;
-    private final TrackSourceInfo mTrackSourceInfo;
+    private final TrackSourceInfo mInitialTrackSourceInfo;
 
     public PlaySessionSource(Parcel in) {
         mSetId = in.readLong();
         mOriginPage = in.readParcelable(PlaySessionSource.class.getClassLoader());
-        mTrackSourceInfo = TrackSourceInfo.fromSource(in.readString(), in.readString());
+        mInitialTrackSourceInfo = TrackSourceInfo.fromSource(in.readString(), in.readString());
     }
 
     public PlaySessionSource() {
@@ -40,14 +39,14 @@ public class PlaySessionSource implements Parcelable{
     public PlaySessionSource(Uri originPage, TrackSourceInfo trackSourceInfo, long setId) {
         mOriginPage = originPage;
         mSetId = setId;
-        mTrackSourceInfo = trackSourceInfo;
+        mInitialTrackSourceInfo = trackSourceInfo;
     }
 
-    Uri getOriginPage() {
+    public Uri getOriginPage() {
         return mOriginPage;
     }
 
-    long getSetId() {
+    public long getSetId() {
         return mSetId;
     }
 
@@ -60,8 +59,8 @@ public class PlaySessionSource implements Parcelable{
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(mSetId);
         dest.writeParcelable(mOriginPage, 0);
-        dest.writeString(mTrackSourceInfo.getSource());
-        dest.writeString(mTrackSourceInfo.getSourceVersion());
+        dest.writeString(mInitialTrackSourceInfo.getSource());
+        dest.writeString(mInitialTrackSourceInfo.getSourceVersion());
     }
 
     public static final Parcelable.Creator<PlaySessionSource> CREATOR = new Parcelable.Creator<PlaySessionSource>() {
@@ -83,7 +82,7 @@ public class PlaySessionSource implements Parcelable{
 
         if (mSetId != that.mSetId) return false;
         if (!mOriginPage.equals(that.mOriginPage)) return false;
-        if (!mTrackSourceInfo.equals(that.mTrackSourceInfo)) return false;
+        if (!mInitialTrackSourceInfo.equals(that.mInitialTrackSourceInfo)) return false;
 
         return true;
     }
@@ -92,7 +91,7 @@ public class PlaySessionSource implements Parcelable{
     public int hashCode() {
         int result = mOriginPage.hashCode();
         result = 31 * result + (int) (mSetId ^ (mSetId >>> 32));
-        result = 31 * result + mTrackSourceInfo.hashCode();
+        result = 31 * result + mInitialTrackSourceInfo.hashCode();
         return result;
     }
 }
