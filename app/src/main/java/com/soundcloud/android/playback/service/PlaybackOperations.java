@@ -1,5 +1,9 @@
 package com.soundcloud.android.playback.service;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
@@ -33,6 +37,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,6 +46,14 @@ import java.util.Set;
 
 // TODO, move to playback package level
 public class PlaybackOperations {
+
+    private static final Predicate<ScModel> PLAYABLE_HOLDER_PREDICATE = new Predicate<ScModel>() {
+        @Override
+        public boolean apply(ScModel input) {
+            return input instanceof PlayableHolder &&
+                    ((PlayableHolder) input).getPlayable() instanceof Track;
+        }
+    };
 
     private ScModelManager mModelManager;
     private TrackStorage mTrackStorage;
@@ -143,22 +156,13 @@ public class PlaybackOperations {
         Playable playable = ((PlayableHolder) data.get(position)).getPlayable();
         if (playable instanceof Track) {
 
-            List<Long> trackIds = new ArrayList<Long>(data.size());
-            // Required for mixed adapters (e.g. mix of users and tracks, we only want tracks)
-            int adjustedPosition = position;
-            for (int i = 0; i < data.size(); i++) {
-                if (data.get(i) instanceof PlayableHolder && ((PlayableHolder) data.get(i)).getPlayable() instanceof Track) {
-                    trackIds.add( ((PlayableHolder) data.get(i)).getPlayable().getId());
-                } else if (i < position) {
-                    adjustedPosition--;
-                }
-            }
-
             final PlaySessionSource playSessionSource = new PlaySessionSource(originPage);
+            final int adjustedPosition = Collections2.filter(data.subList(0, position), PLAYABLE_HOLDER_PREDICATE).size();
+
             if (uri != null){
-                playFromUri(context, uri, adjustedPosition, (Track) playable, playSessionSource);
+                playFromUri(context, uri, position, (Track) playable, playSessionSource);
             } else {
-                playFromIdList(context, trackIds, adjustedPosition, (Track) playable, playSessionSource);
+                playFromIdList(context, getPlayableIdsFromModels(data), adjustedPosition, (Track) playable, playSessionSource);
             }
 
         } else if (playable instanceof Playlist) {
@@ -166,6 +170,17 @@ public class PlaybackOperations {
         } else {
             throw new AssertionError("Unexpected playable type");
         }
+    }
+
+    private ArrayList<Long> getPlayableIdsFromModels(List<? extends ScModel> data) {
+        final Iterable<Playable> playables = (Iterable<Playable>) Iterables.filter(data, PLAYABLE_HOLDER_PREDICATE);
+        Iterable<Long> trackIds = Iterables.transform(playables, new Function<Playable, Long>() {
+            @Override
+            public Long apply(Playable input) {
+                return input.getId();
+            }
+        });
+        return Lists.newArrayList(trackIds);
     }
 
     private void playFromUri(final Context context, Uri uri, final int startPosition, Track initialTrack, final PlaySessionSource playSessionSource){
