@@ -179,7 +179,7 @@ public class PlaybackOperations {
                 public void onNext(List<Long> idList) {
                     final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
                     final Intent playIntent = getPlayIntent(idList, adjustedPosition, playSessionSource);
-                    context.startActivity(playIntent);
+                    context.startService(playIntent);
                 }
             });
         }
@@ -191,7 +191,7 @@ public class PlaybackOperations {
         if (isNotCurrentlyPlaying(initialTrack)) {
             final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
             final Intent playIntent = getPlayIntent(idList, adjustedPosition, playSessionSource);
-            context.startActivity(playIntent);
+            context.startService(playIntent);
         }
     }
 
