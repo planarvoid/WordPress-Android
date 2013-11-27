@@ -37,7 +37,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -183,15 +182,15 @@ public class PlaybackOperations {
         return Lists.newArrayList(trackIds);
     }
 
-    private void playFromUri(final Context context, Uri uri, final int startPosition, Track initialTrack, final PlaySessionSource playSessionSource){
+    private void playFromUri(final Context context, Uri uri, final int startPosition, final Track initialTrack, final PlaySessionSource playSessionSource){
         cacheAndGoToPlayer(context, initialTrack);
 
         if (isNotCurrentlyPlaying(initialTrack)) {
             mTrackStorage.getTrackIdsForUriAsync(uri).subscribe(new DefaultObserver<List<Long>>() {
                 @Override
                 public void onNext(List<Long> idList) {
-                    final int adjustedPosition = getDeduplicatedIdList(idList, startPosition);
-                    final Intent playIntent = getPlayIntent(idList, adjustedPosition, playSessionSource);
+                    final int updatedPosition = correctStartPositionAndDeduplicateList(idList, startPosition, initialTrack);
+                    final Intent playIntent = getPlayIntent(idList, updatedPosition, playSessionSource);
                     context.startService(playIntent);
                 }
             });
@@ -229,6 +228,18 @@ public class PlaybackOperations {
         intent.putExtra(PlaybackService.PlayExtras.startPosition, startPosition);
         intent.putExtra(PlaybackService.PlayExtras.playSessionSource, playSessionSource);
         return intent;
+    }
+
+    private int correctStartPositionAndDeduplicateList(List<Long> idList, int startPosition, final Track initialTrack) {
+        int updatedPosition = idList.get(startPosition) == initialTrack.getId() ? startPosition :
+                Iterables.indexOf(idList, new Predicate<Long>() {
+                    @Override
+                    public boolean apply(Long input) {
+                        return input == initialTrack.getId();
+                    }
+                });
+
+        return getDeduplicatedIdList(idList, updatedPosition);
     }
 
     /**

@@ -24,13 +24,17 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
+import com.soundcloud.android.model.activities.Activities;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.storage.ActivitiesDAOTest;
+import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.SyncAdapterServiceTest;
 import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -51,6 +55,7 @@ import rx.util.functions.Func1;
 import android.content.Intent;
 import android.net.Uri;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -173,6 +178,19 @@ public class PlaybackOperationsTest {
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         checkStartIntent(application.getNextStartedService(), 1, 1L, 2L);
     }
+
+    @Test
+    public void playFromAdapterWithUriShouldAdjustPlayPositionWithUpdatedContent() throws IOException {
+        final List<Playable> playables = Lists.newArrayList(new Track(1L), new Playlist(), new Track(2L));
+        final ArrayList<Long> value = Lists.newArrayList(5L, 1L, 2L);
+
+        when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(value));
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        checkStartIntent(application.getNextStartedService(), 2, 5L, 1L, 2L);
+    }
+
 
     @Test
     public void playFromAdapterShouldStartPlaylistActivity() throws Exception {
