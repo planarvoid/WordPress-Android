@@ -20,7 +20,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
 
     static final ComponentName THIS_APPWIDGET =
             new ComponentName("com.soundcloud.android",
-                    "com.soundcloud.android.service.playback.PlayerAppWidgetProvider");
+                    "com.soundcloud.android.playback.service.PlayerAppWidgetProvider");
 
     private static PlayerAppWidgetProvider sInstance;
 
