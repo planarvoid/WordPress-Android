@@ -25,11 +25,11 @@ public class PlaySessionSource implements Parcelable{
         this(Uri.EMPTY);
     }
 
-    PlaySessionSource(Uri originPage) {
+    public PlaySessionSource(Uri originPage) {
         this(originPage, ScModel.NOT_SET);
     }
 
-    PlaySessionSource(Uri originPage, long setId) {
+    public PlaySessionSource(Uri originPage, long setId) {
         this(originPage, TrackSourceInfo.EMPTY, setId);
     }
 
@@ -73,4 +73,26 @@ public class PlaySessionSource implements Parcelable{
             return new PlaySessionSource[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PlaySessionSource)) return false;
+
+        PlaySessionSource that = (PlaySessionSource) o;
+
+        if (mSetId != that.mSetId) return false;
+        if (!mOriginPage.equals(that.mOriginPage)) return false;
+        if (!mTrackSourceInfo.equals(that.mTrackSourceInfo)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mOriginPage.hashCode();
+        result = 31 * result + (int) (mSetId ^ (mSetId >>> 32));
+        result = 31 * result + mTrackSourceInfo.hashCode();
+        return result;
+    }
 }

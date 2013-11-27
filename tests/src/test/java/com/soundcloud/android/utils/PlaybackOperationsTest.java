@@ -24,18 +24,14 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
-import com.soundcloud.android.model.activities.Activities;
-import com.soundcloud.android.playback.service.PlayQueueView;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.storage.ActivitiesDAOTest;
-import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.SyncAdapterServiceTest;
-import com.soundcloud.android.tracking.eventlogger.PlaySourceInfo;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import org.junit.Before;
@@ -66,6 +62,8 @@ public class PlaybackOperationsTest {
     private PlaybackOperations playbackOperations;
     private Track track;
 
+    private Uri ORIGIN_PAGE_URI = Uri.parse("page:uri");
+
     @Mock
     private ScModelManager modelManager;
     @Mock
@@ -95,10 +93,10 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTrackShouldStartPlaybackServiceWithPlayQueueFromInitialTrack() {
-        playbackOperations.playTrack(Robolectric.application, track);
+        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_PAGE_URI);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 0, track.getId());
+        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_PAGE_URI), track.getId());
     }
 
     @Test
@@ -115,33 +113,34 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromUriShouldStartPlaybackServiceWithPlayQueueFromTracksCollection() {
-        TestHelper.insertAsSoundAssociation(new Track(1L), Association.Type.TRACK_LIKE);
-        TestHelper.insertAsSoundAssociation(new Track(2L), Association.Type.TRACK_LIKE);
-        expect(Content.ME_LIKES).toHaveCount(2);
+    public void playFromUriShouldStartPlaybackServiceWithPlayQueueFromTracksCollection() throws CreateModelException {
+        List<Track> tracks = TestHelper.createTracks(3);
+        Playlist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
         playbackOperations = new PlaybackOperations(modelManager, new TrackStorage().<TrackStorage>subscribeOn(Schedulers.immediate()), rxHttpClient);
-        playbackOperations.playFromPlaylist(Robolectric.application, Content.ME_LIKES.uri, 1, track);
+        playbackOperations.playFromPlaylist(Robolectric.application, playlist.toUri(), 1, tracks.get(1), ORIGIN_PAGE_URI);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1, 2L, 1L);
+        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_PAGE_URI, playlist.getId()),
+                tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
     }
 
     @Test
     public void playFromAdapterShouldRemoveDuplicates() throws Exception {
         ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L), new Track(3L), new Track(2L), new Track(1L));
 
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 4, null);
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 4, null, ORIGIN_PAGE_URI);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 2, 2L, 3L, 1L);
+        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_PAGE_URI), 2L, 3L, 1L);
 
     }
 
-    private void checkStartIntent(Intent startintent, int startPosition, Long... ids){
+    private void checkStartIntent(Intent startintent, int startPosition, PlaySessionSource playSessionSource, Long... ids){
         expect(startintent).not.toBeNull();
         expect(startintent.getAction()).toBe(PlaybackService.Actions.PLAY_ACTION);
         expect(startintent.getIntExtra(PlayExtras.startPosition, -1)).toBe(startPosition);
+        expect(startintent.getParcelableExtra(PlayExtras.playSessionSource)).toEqual(playSessionSource);
         final List<Long> trackIdList = Longs.asList(startintent.getLongArrayExtra(PlayExtras.trackIdList));
         expect(trackIdList).toContainExactly(ids);
     }
@@ -163,20 +162,20 @@ public class PlaybackOperationsTest {
     public void playFromAdapterShouldStartPlaybackServiceWithListOfTracks() throws Exception {
         ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L));
 
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null);
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_PAGE_URI);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1, 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_PAGE_URI), 1L, 2L);
     }
 
     @Test
     public void playFromAdapterShouldIgnoreItemsThatAreNotTracks() throws Exception {
         List<Playable> playables = Lists.newArrayList(new Track(1L), new Playlist(), new Track(2L));
 
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, null);
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, null, ORIGIN_PAGE_URI);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1, 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_PAGE_URI), 1L, 2L);
     }
 
     @Test
@@ -185,10 +184,10 @@ public class PlaybackOperationsTest {
         final ArrayList<Long> value = Lists.newArrayList(5L, 1L, 2L);
 
         when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(value));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri);
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri, ORIGIN_PAGE_URI);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 2, 5L, 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_PAGE_URI), 5L, 1L, 2L);
     }
 
 

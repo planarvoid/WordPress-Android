@@ -501,6 +501,16 @@ public class TestHelper {
         accountOperations.setAccountData(USER_ID.getKey(), Long.toString(id));
     }
 
+    public static List<Track> createTracks(int count) throws CreateModelException {
+        if (count < 1) return Collections.EMPTY_LIST;
+
+        List<Track> items = new ArrayList<Track>();
+        for (int i = 0; i < count; i++) {
+            items.add(TestHelper.getModelFactory().createModel(Track.class));
+        }
+        return items;
+    }
+
     public static List<User> createUsers(int count) {
         if (count < 1) return Collections.EMPTY_LIST;
 
