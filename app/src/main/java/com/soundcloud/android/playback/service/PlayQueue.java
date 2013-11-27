@@ -65,17 +65,21 @@ class PlayQueue {
     }
 
     private void setPlayQueueFromIds(List<Long> trackIds, final TrackSourceInfo trackSourceInfo){
-        mPlayQueueItems = Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
+        mPlayQueueItems = Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
             @Nullable
             @Override
             public PlayQueueItem apply(@Nullable Long input) {
                 return new PlayQueueItem(input, trackSourceInfo.getSource(), trackSourceInfo.getSourceVersion());
             }
-        });
+        }));
     }
 
     public Uri getOriginPage() {
         return mPlaySessionSource.getOriginPage();
+    }
+
+    public long getSetId() {
+        return mPlaySessionSource.getSetId();
     }
 
     public void setCurrentTrackToUserTriggered() {

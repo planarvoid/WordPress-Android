@@ -32,7 +32,7 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.android.concurrency.AndroidSchedulers;
-import rx.util.functions.Action1;
+import rx.util.functions.Func1;
 
 import android.content.Context;
 import android.content.Intent;
@@ -150,9 +150,13 @@ public class PlayQueueManagerTest {
     public void shouldReturnResumeInfoWhenReloadingPlayQueue(){
         String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        Observable<List<PlayQueueItem>> observable = Mockito.mock(Observable.class);
-        when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
-        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(observable);
+
+        Observable<List<PlayQueueItem>> itemObservable = Mockito.mock(Observable.class);
+        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(itemObservable);
+        when(itemObservable.observeOn(AndroidSchedulers.mainThread())).thenReturn(itemObservable);
+
+        Observable<PlayQueue> queueObservable = Mockito.mock(Observable.class);
+        when(itemObservable.map(any(Func1.class))).thenReturn(queueObservable);
 
         PlaybackProgressInfo resumeInfo = playQueueManager.loadPlayQueue();
         expect(resumeInfo.getTrackId()).toEqual(456L);
@@ -161,29 +165,27 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldReloadPlayQueueFromLocalStorage(){
-        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
-        Observable<List<PlayQueueItem>> observable = Mockito.mock(Observable.class);
-        when(observable.observeOn(AndroidSchedulers.mainThread())).thenReturn(observable);
+        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400&setId=123&originUrl=origin%3Apage";
         when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(observable);
 
-        playQueueManager.loadPlayQueue();
-        verify(observable).subscribe(any(Action1.class));
-    }
+        Observable<List<PlayQueueItem>> mockObservable = Mockito.mock(Observable.class);
+        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(mockObservable);
 
-    @Test
-    public void shouldSetNewPlayQueueWhenReloadingPlayQueueReturns(){
-        String uriString = "content://com.soundcloud.android.provider.ScContentProvider/me/playqueue?trackId=456&playlistPos=2&seekPos=400";
-        when(sharedPreferences.getString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, null)).thenReturn(uriString);
-        final PlayQueueItem playQueueItem = Mockito.mock(PlayQueueItem.class);
-        final PlayQueueItem playQueueItem2 = Mockito.mock(PlayQueueItem.class);
-        when(playQueueItem.getId()).thenReturn(1L);
-        when(playQueueItem2.getId()).thenReturn(2L);
+        PlayQueueItem playQueueItem1 = new PlayQueueItem(1L, "source1", "version1");
+        PlayQueueItem playQueueItem2 = new PlayQueueItem(2L, "source2", "version2");
+        List<PlayQueueItem> items = Lists.newArrayList(playQueueItem1, playQueueItem2);
+        Observable<List<PlayQueueItem>> itemObservable = Observable.just(items);
 
-        List<PlayQueueItem> playQueueItems = Lists.newArrayList(playQueueItem, playQueueItem2);
-        when(playQueueStorage.getPlayQueueItemsAsync()).thenReturn(Observable.<List<PlayQueueItem>>just(playQueueItems));
-        playQueueManager.loadPlayQueue();
-        expect(playQueueManager.getPlayQueueView()).toContainExactly(1L, 2L);
+        when(mockObservable.observeOn(AndroidSchedulers.mainThread())).thenReturn(itemObservable);
+
+        PlaybackProgressInfo playbackProgressInfo = playQueueManager.loadPlayQueue();
+        expect(playbackProgressInfo.getTime()).toEqual(400L);
+        expect(playbackProgressInfo.getTrackId()).toEqual(456L);
+
+        final PlayQueue currentPlayQueue = playQueueManager.getCurrentPlayQueue();
+        expect(currentPlayQueue.getItems()).toContainExactly(playQueueItem1, playQueueItem2);
+        expect(currentPlayQueue.getOriginPage()).toEqual(Uri.parse("origin:page"));
+        expect(currentPlayQueue.getSetId()).toEqual(123L);
     }
 
     @Test
