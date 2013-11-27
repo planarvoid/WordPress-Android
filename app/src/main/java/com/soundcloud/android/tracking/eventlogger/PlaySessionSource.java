@@ -12,6 +12,7 @@ public class PlaySessionSource implements Parcelable{
 
     private final Uri mOriginPage;
     private final long mSetId;
+
     private final TrackSourceInfo mInitialTrackSourceInfo;
 
     public PlaySessionSource(Parcel in) {
@@ -48,6 +49,10 @@ public class PlaySessionSource implements Parcelable{
 
     public long getSetId() {
         return mSetId;
+    }
+
+    public TrackSourceInfo getInitialTrackSourceInfo() {
+        return mInitialTrackSourceInfo;
     }
 
     @Override
