@@ -6,6 +6,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import org.jetbrains.annotations.NotNull;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcelable;
@@ -38,6 +39,15 @@ public class PlayQueueItem extends ScModel implements Parcelable, Persisted {
 
     public String getSourceVersion() {
         return mSourceVersion;
+    }
+
+    @Override
+    public ContentValues buildContentValues() {
+        ContentValues cv = super.buildContentValues();
+        cv.put(DBHelper.PlayQueue.TRACK_ID, mTrackId);
+        cv.put(DBHelper.PlayQueue.SOURCE, mSource);
+        cv.put(DBHelper.PlayQueue.SOURCE_VERSION, mSourceVersion);
+        return cv;
     }
 
     @Override
