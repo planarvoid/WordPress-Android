@@ -1,6 +1,10 @@
 package com.soundcloud.android.playback.streaming;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.AdditionalMatchers.and;
+import static org.mockito.AdditionalMatchers.geq;
+import static org.mockito.AdditionalMatchers.lt;
+import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +31,8 @@ public class DataTaskTest {
     @Before
     public void setUp() throws Exception {
         when(streamItem.redirectUrl()).thenReturn(new URL("http", "domain.com", "file"));
+        when(streamItem.invalidateRedirectUrl(and(geq(HttpStatus.SC_BAD_REQUEST),lt(HttpStatus.SC_INTERNAL_SERVER_ERROR)))).thenReturn(true);
+        when(streamItem.invalidateRedirectUrl(or(lt(HttpStatus.SC_BAD_REQUEST), geq(HttpStatus.SC_INTERNAL_SERVER_ERROR)))).thenReturn(false);
     }
 
     @Test
@@ -40,24 +46,21 @@ public class DataTaskTest {
     }
 
     @Test
-    public void shoudlInvalidateRedirectUrlAndSetHttpErrorOnStreamItemOnBadRequest() throws Exception {
-        createDataTask(HttpStatus.SC_BAD_REQUEST).execute();
-        verify(streamItem).invalidateRedirectUrl();
-        verify(streamItem).setHttpError(HttpStatus.SC_BAD_REQUEST);
+    public void shouldReturnFailBundleOnBadRequest() throws Exception {
+        expect(createDataTask(HttpStatus.SC_BAD_REQUEST).execute().getBoolean(DataTask.SUCCESS_KEY)).toBeFalse();
+        verify(streamItem).invalidateRedirectUrl(HttpStatus.SC_BAD_REQUEST);
     }
 
     @Test
-    public void shoudlInvalidateRedirectUrlAndSetHttpErrorOnStreamItemOnForbidden() throws Exception {
-        createDataTask(HttpStatus.SC_FORBIDDEN).execute();
-        verify(streamItem).invalidateRedirectUrl();
-        verify(streamItem).setHttpError(HttpStatus.SC_FORBIDDEN);
+    public void shouldReturnFailBundleOnForbidden() throws Exception {
+        expect(createDataTask(HttpStatus.SC_FORBIDDEN).execute().getBoolean(DataTask.SUCCESS_KEY)).toBeFalse();
+        verify(streamItem).invalidateRedirectUrl(HttpStatus.SC_FORBIDDEN);
     }
 
     @Test
-    public void shoudlInvalidateRedirectUrlAndSetHttpErrorOnStreamItemOnNotFound() throws Exception {
-        createDataTask(HttpStatus.SC_NOT_FOUND).execute();
-        verify(streamItem).invalidateRedirectUrl();
-        verify(streamItem).setHttpError(HttpStatus.SC_NOT_FOUND);
+    public void shouldReturnFailBundleOnStreamItemOnNotFound() throws Exception {
+        expect(createDataTask(HttpStatus.SC_NOT_FOUND).execute().getBoolean(DataTask.SUCCESS_KEY)).toBeFalse();
+        verify(streamItem).invalidateRedirectUrl(HttpStatus.SC_NOT_FOUND);
     }
 
     @Test(expected = IOException.class)

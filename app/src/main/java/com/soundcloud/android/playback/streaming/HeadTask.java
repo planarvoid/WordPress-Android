@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.streaming;
 
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Stream;
 import org.apache.http.HttpStatus;
@@ -37,12 +36,9 @@ class HeadTask extends StreamItemTask implements HttpStatus {
             final int statusCode = e.getStatusCode();
 
             b.putInt("status", statusCode);
-
-            if (PublicApiWrapper.isStatusCodeClientError(statusCode)) {
-                item.markUnavailable(statusCode);
+            if (item.markUnavailable(statusCode)){
                 return b;
             } else {
-                item.setHttpError(statusCode);
                 throw e;
             }
         }

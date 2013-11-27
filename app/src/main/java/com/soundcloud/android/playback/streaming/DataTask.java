@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.streaming;
 
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
-import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Request;
@@ -68,10 +67,8 @@ abstract class DataTask extends StreamItemTask {
                 b.putBoolean(SUCCESS_KEY, true);
                 break;
             default:
-                item.setHttpError(status);
-                if (PublicApiWrapper.isStatusCodeClientError(status)) {
-                    item.invalidateRedirectUrl();
-                    Log.d(LOG_TAG, "invalidating redirect url");
+                if (item.invalidateRedirectUrl(status)) {
+                    Log.d(LOG_TAG, "invalidated redirect url");
                 } else {
                     throw new IOException("unexpected status code received: " + status);
                 }
