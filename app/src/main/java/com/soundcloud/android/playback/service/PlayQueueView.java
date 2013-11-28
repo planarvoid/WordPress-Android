@@ -18,26 +18,25 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     public static final String EXTRA = "PlayQueue";
     public static final PlayQueueView EMPTY = new PlayQueueView(Collections.<Long>emptyList(), -1);
 
-    protected int mPosition;
-
-    private List<Long> mTrackIds = Collections.emptyList();
-    private AppendState mAppendState = AppendState.IDLE;
+    private final List<Long> mTrackIds;
+    private final AppendState mAppendState;
+    private int mPosition;
 
     public PlayQueueView(Long id) {
-        mTrackIds = Lists.newArrayList(id);
-        mPosition = 0;
+        this(Lists.newArrayList(id), 0);
     }
+
     public PlayQueueView(List<Long> trackIds, int playPosition) {
-        mTrackIds = trackIds;
-        mPosition = playPosition < 0 || playPosition >= trackIds.size() ? 0 : playPosition;
+        this(trackIds, playPosition, AppendState.IDLE);
     }
 
     public PlayQueueView(List<Long> trackIds, int playPosition, AppendState appendState) {
-        this(trackIds, playPosition);
+        mTrackIds = trackIds;
+        mPosition = playPosition < 0 || playPosition >= trackIds.size() ? 0 : playPosition;
         mAppendState = appendState;
     }
 
-    public PlayQueueView(Parcel in) {
+    private PlayQueueView(Parcel in) {
         final int size = in.readInt();
         long[] trackIds = new long[size];
         in.readLongArray(trackIds);
@@ -52,10 +51,6 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     @Override
     public Iterator<Long> iterator() {
         return mTrackIds.iterator();
-    }
-
-    /* package */ void setAppendState(AppendState appendState) {
-        mAppendState = appendState;
     }
 
     public AppendState getAppendState() {
@@ -83,10 +78,6 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
         }
     }
 
-    public void addTrackId(long id) {
-        mTrackIds.add(id);
-    }
-
     public long getCurrentTrackId() {
         return getTrackIdAt(mPosition);
     }
@@ -98,7 +89,6 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     public int getPositionOfTrackId(long trackId) {
         return mTrackIds.indexOf(trackId);
     }
-
 
     public boolean isLastTrack() {
         return mPosition >= mTrackIds.size() - 1;
@@ -147,6 +137,4 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
                 .add("Play Position", mPosition)
                 .toString();
     }
-
-
 }
