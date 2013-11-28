@@ -60,6 +60,11 @@ public class PlaySessionSource implements Parcelable{
         return mSetId;
     }
 
+    // TODO, finalize this once we implement page tracking
+    public boolean originatedInExplore(){
+        return mOriginPage.getScheme().equals("explore");
+    }
+
     public String getInitialSource() {
         return ScTextUtils.isNotBlank(mExploreVersion) ? DiscoverySource.EXPLORE.value() : ScTextUtils.EMPTY_STRING;
     }

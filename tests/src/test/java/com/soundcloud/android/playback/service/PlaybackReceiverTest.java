@@ -137,18 +137,18 @@ public class PlaybackReceiverTest {
 
         verify(playbackService).openCurrent();
     }
-//
-//    @Test
-//    public void sendingNewPlayQueueShouldOptionallyFetchRelatedTracks() {
-//        TrackingPlayQueue playQueue = new TrackingPlayQueue(1L);
-//        Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
-//        intent.putExtra(PlayQueue.EXTRA, playQueue);
-//        intent.putExtra(PlaybackService.PlayExtras.fetchRelated, true);
-//
-//        playbackReceiver.onReceive(Robolectric.application, intent);
-//
-//        verify(playQueueManager).fetchRelatedTracks(1L);
-//    }
+
+    @Test
+    public void sendingNewPlayQueueShouldOptionallyFetchRelatedTracks() {
+        Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
+        intent.putExtra(PlaybackService.PlayExtras.trackIdList, new long[]{1L});
+        intent.putExtra(PlaybackService.PlayExtras.playSessionSource, new PlaySessionSource(Uri.parse("explore:page"), 123L, "verion1"));
+        intent.putExtra(PlaybackService.PlayExtras.startPosition, 0);
+
+        playbackReceiver.onReceive(Robolectric.application, intent);
+
+        verify(playQueueManager).fetchRelatedTracks(1L);
+    }
 
     @Test
     public void shouldAddLikeForTrackViaIntent() throws Exception {

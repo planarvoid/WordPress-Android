@@ -133,9 +133,9 @@ class PlaybackReceiver extends BroadcastReceiver {
             mPlayQueueManager.setNewPlayQueue(playQueue);
             mPlaybackService.openCurrent();
 
-//            if (intent.getBooleanExtra(PlayExtras.fetchRelated, false) && !playQueue.isEmpty()){
-//                mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
-//            }
+            if (playSessionSource.originatedInExplore() && !playQueue.isEmpty()){
+                mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
+            }
 
         } else {
             Log.w(PlaybackService.TAG, "Received play intent without a play queue");
