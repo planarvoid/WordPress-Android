@@ -320,6 +320,15 @@ public class AnalyticsEngineTest {
         verify(analyticsProviderTwo, never()).trackScreen(anyString());
     }
 
+    @Test
+    public void shouldNotTrackScreenIfNoSessionIsOpen() {
+        setAnalyticsPreferenceAndPropertyEnabled();
+        initialiseAnalyticsEngine();
+
+        analyticsEngine.trackScreen("screen");
+        verify(analyticsProviderOne, never()).trackScreen(anyString());
+        verify(analyticsProviderTwo, never()).trackScreen(anyString());
+    }
     private void setAnalyticsPropertyDisabledPreferenceEnabled() {
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
         when(sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true)).thenReturn(true);

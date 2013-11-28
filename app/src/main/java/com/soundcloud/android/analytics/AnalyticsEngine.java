@@ -94,7 +94,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
      * Tracks a single screen (Activity or Fragment) under the given tag
      */
     public void trackScreen(String screenTag) {
-        if (analyticsIsEnabled()) {
+        if (analyticsIsEnabled() && sActivitySessionOpen.get()) {
             for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
                 analyticsProvider.trackScreen(screenTag);
             }
