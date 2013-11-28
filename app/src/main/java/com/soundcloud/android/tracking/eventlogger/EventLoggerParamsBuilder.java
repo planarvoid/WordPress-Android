@@ -67,7 +67,7 @@ public class EventLoggerParamsBuilder {
             builder.appendQueryParameter(PlayEventTracker.EventLoggerKeys.SET_ID, String.valueOf(mSetId));
             builder.appendQueryParameter(PlayEventTracker.EventLoggerKeys.SET_POSITION, String.valueOf(mSetPosition));
         }
-        return builder.build().toString();
+        return builder.build().getQuery().toString();
     }
 
     private String formatOriginUrl(String originUrl) {

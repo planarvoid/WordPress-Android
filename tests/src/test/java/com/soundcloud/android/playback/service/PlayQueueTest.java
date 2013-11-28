@@ -67,12 +67,6 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void shouldReturnRecommenderVersionInEventLoggerParamsWhenCurrentTrackIsNotInitialTrack() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(123L, 456L), 1, PlaySessionSource.EMPTY);
-        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&source=recommender&source_version=rec1");
-    }
-
-    @Test
     public void shouldReturnEmptyEventLoggerParamsWhenQueueIsEmpty() throws Exception {
         expect(PlayQueue.empty().getCurrentEventLoggerParams()).toEqual("");
 
