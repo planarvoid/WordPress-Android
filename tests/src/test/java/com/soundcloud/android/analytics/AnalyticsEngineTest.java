@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.Event;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -329,6 +330,48 @@ public class AnalyticsEngineTest {
         verify(analyticsProviderOne, never()).trackScreen(anyString());
         verify(analyticsProviderTwo, never()).trackScreen(anyString());
     }
+
+    @Test
+    public void shouldRespondToEnterScreenEventsByForwardingToWrappedProviders() {
+        setAnalyticsPreferenceAndPropertyEnabled();
+        initialiseAnalyticsEngine();
+        analyticsEngine.openSessionForActivity();
+
+        Event.SCREEN_ENTERED.publish("screen");
+
+        verify(analyticsProviderOne).trackScreen(eq("screen"));
+        verify(analyticsProviderTwo).trackScreen(eq("screen"));
+    }
+
+    @Test
+    public void shouldOnlySubscribeToEnterScreenEventOnce() {
+        setAnalyticsPreferenceAndPropertyEnabled();
+        initialiseAnalyticsEngine();
+        analyticsEngine.openSessionForActivity();
+        analyticsEngine.openSessionForActivity();
+
+        Event.SCREEN_ENTERED.publish("screen");
+
+        verify(analyticsProviderOne, times(1)).trackScreen(eq("screen"));
+        verify(analyticsProviderTwo, times(1)).trackScreen(eq("screen"));
+    }
+
+    // this is in fact a necessary requirement since AnalyticsEngine is a singleton, and unsubscribing
+    // from one Activity must not reuse event subscriptions from previous Activities
+    @Test
+    public void shouldResubscribeToEnterScreenEventAfterOpenCloseSessionCycle() {
+        setAnalyticsPreferenceAndPropertyEnabled();
+        initialiseAnalyticsEngine();
+        analyticsEngine.openSessionForActivity();
+        analyticsEngine.closeSessionForActivity();
+        analyticsEngine.openSessionForActivity();
+
+        Event.SCREEN_ENTERED.publish("screen");
+
+        verify(analyticsProviderOne, times(1)).trackScreen(eq("screen"));
+        verify(analyticsProviderTwo, times(1)).trackScreen(eq("screen"));
+    }
+
     private void setAnalyticsPropertyDisabledPreferenceEnabled() {
         when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
         when(sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true)).thenReturn(true);
@@ -354,7 +397,8 @@ public class AnalyticsEngineTest {
     }
 
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(analyticsProperties, playbackWrapper, sharedPreferences, analyticsProviderOne, analyticsProviderTwo);
+        analyticsEngine = new AnalyticsEngine(analyticsProperties, playbackWrapper, sharedPreferences,
+                analyticsProviderOne, analyticsProviderTwo);
     }
 
 }
