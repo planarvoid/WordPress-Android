@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import org.junit.Test;
@@ -93,6 +94,15 @@ public class PlayQueueTest {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L), 0);
         expect(playQueue.moveToPrevious()).toBeFalse();
         expect(playQueue.getPosition()).toBe(0);
+    }
+
+    @Test
+    public void shouldReturnPlayQueueViewWithAppendState() {
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(1L, 2L, 3L), 2);
+        final PlayQueueView playQueueView = playQueue.getViewWithAppendState(PlaybackOperations.AppendState.LOADING);
+        expect(playQueueView).toContainExactly(1L, 2L, 3L);
+        expect(playQueueView.getPosition()).toBe(2);
+        expect(playQueueView.getAppendState()).toEqual(PlaybackOperations.AppendState.LOADING);
     }
 
 }

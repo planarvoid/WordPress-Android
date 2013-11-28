@@ -156,7 +156,7 @@ class PlayQueue {
         List<Long> trackIds = Lists.transform(mPlayQueueItems, new Function<PlayQueueItem, Long>() {
             @Override
             public Long apply(PlayQueueItem input) {
-                return input.getId();
+                return input.getTrackId();
             }
         });
         return trackIds;
