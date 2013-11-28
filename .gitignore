@@ -9,17 +9,15 @@ soundcloud-android.iws
 app/gen-external-apklibs/
 tests-integration/gen-external-apklibs/
 classes/
-
-# keystore
-ks/
-
-# idea
 .idea
 *.iml
 out
 tmp
 gen
 lint_files
+
+# keystore
+ks/
 
 #eclipse
 .classpath
@@ -52,3 +50,6 @@ tests-*.sqlite
 coverage-error.log
 
 app/res/values/app_properties*.xml
+
+# RVM, in case you use RVM + Replicant
+.rvmrc
