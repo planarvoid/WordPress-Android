@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
@@ -24,7 +25,7 @@ class PlayQueue {
     public static final PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1, PlaySessionSource.EMPTY);
 
     private boolean mCurrentTrackIsUserTriggered;
-    private PlaySessionSource mPlaySessionSource;
+    private PlaySessionSource mPlaySessionSource = PlaySessionSource.EMPTY;
 
     private List<PlayQueueItem> mPlayQueueItems;
     private int mPosition;
@@ -159,5 +160,27 @@ class PlayQueue {
             }
         });
         return trackIds;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlayQueue playQueue = (PlayQueue) o;
+
+        return Objects.equal(mCurrentTrackIsUserTriggered, playQueue.mCurrentTrackIsUserTriggered) &&
+                Objects.equal(mPosition, playQueue.mPosition) &&
+                Objects.equal(mPlayQueueItems, playQueue.mPlayQueueItems) &&
+                Objects.equal(mPlaySessionSource, playQueue.mPlaySessionSource);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (mCurrentTrackIsUserTriggered ? 1 : 0);
+        result = 31 * result + mPlaySessionSource.hashCode();
+        result = 31 * result + mPlayQueueItems.hashCode();
+        result = 31 * result + mPosition;
+        return result;
     }
 }
