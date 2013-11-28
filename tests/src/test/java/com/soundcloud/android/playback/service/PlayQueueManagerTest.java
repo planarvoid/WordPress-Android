@@ -19,6 +19,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.PlayQueueStorage;
+import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import dagger.Module;
 import dagger.ObjectGraph;
@@ -234,7 +235,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
         final TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        playQueueManager.setNewPlayQueue(new PlayQueue(123L));
+        playQueueManager.setNewPlayQueue(new PlayQueue(Lists.newArrayList(123L), 0, PlaySessionSource.EMPTY));
         playQueueManager.onNext(new RelatedTracksCollection(Lists.<TrackSummary>newArrayList(trackSummary), "123"));
 
         expect(playQueueManager.getPlayQueueView()).toContainExactly(123L, trackSummary.getId());
@@ -284,7 +285,7 @@ public class PlayQueueManagerTest {
     @Test
     public void clearAllShouldSetPlayQueueToEmpty() throws Exception {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
-        playQueueManager.setNewPlayQueue(new PlayQueue(1L));
+        playQueueManager.setNewPlayQueue(new PlayQueue(Lists.newArrayList(1L), 0, PlaySessionSource.EMPTY));
         expect(playQueueManager.getCurrentPlayQueue()).not.toEqual(PlayQueue.empty());
         playQueueManager.clearAll();
         expect(playQueueManager.getCurrentPlayQueue()).toEqual(PlayQueue.empty());

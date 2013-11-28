@@ -13,38 +13,25 @@ import com.soundcloud.android.utils.ScTextUtils;
 
 import android.net.Uri;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 class PlayQueue {
 
+    private List<PlayQueueItem> mPlayQueueItems;
+    private int mPosition;
+    private PlaySessionSource mPlaySessionSource = PlaySessionSource.EMPTY;
+    private boolean mCurrentTrackIsUserTriggered;
+
     public static PlayQueue empty(){
         return new PlayQueue(Collections.<Long>emptyList(), -1, PlaySessionSource.EMPTY);
     }
-
-    private boolean mCurrentTrackIsUserTriggered;
-    private PlaySessionSource mPlaySessionSource = PlaySessionSource.EMPTY;
-
-    private List<PlayQueueItem> mPlayQueueItems;
-    private int mPosition;
 
     public PlayQueue(List<Long> trackIds, int startPosition, PlaySessionSource playSessionSource) {
         setPlayQueueFromIds(trackIds, playSessionSource);
         mPosition = startPosition;
         mPlaySessionSource = playSessionSource;
-    }
-
-    @VisibleForTesting
-    PlayQueue(ArrayList<Long> trackIds, int position) {
-        this(trackIds, position, PlaySessionSource.EMPTY);
-    }
-
-    @VisibleForTesting
-    PlayQueue(long trackId) {
-     this(Lists.newArrayList(trackId), 0);
     }
 
     public PlayQueue(List<PlayQueueItem> playQueueItems, PlaySessionSource playSessionSource) {
@@ -60,30 +47,12 @@ class PlayQueue {
         return mPlayQueueItems;
     }
 
-    private void setPlayQueueFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource){
-        mPlayQueueItems = Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
-            @Nullable
-            @Override
-            public PlayQueueItem apply(@Nullable Long input) {
-                return new PlayQueueItem(input, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion());
-            }
-        }));
-    }
-
     public Uri getOriginPage() {
         return mPlaySessionSource.getOriginPage();
     }
 
-    public long getSetId() {
-        return mPlaySessionSource.getSetId();
-    }
-
     public void setCurrentTrackToUserTriggered() {
         mCurrentTrackIsUserTriggered = true;
-    }
-
-    /* package */ Uri getPlayQueueState(long seekPos, long currentTrackId) {
-        return new PlayQueueUri().toUri(currentTrackId, mPosition, seekPos, mPlaySessionSource);
     }
 
     public void addTrack(long id, String source, String sourceVersion) {
@@ -121,19 +90,8 @@ class PlayQueue {
         return builder.build();
     }
 
-    private boolean isPlayingSet() {
-        return getSetId() > Playable.NOT_SET;
-    }
-
     public long getCurrentTrackId() {
         return mPlayQueueItems.get(mPosition).getTrackId();
-    }
-
-    public String getCurrentTrackSource() {
-        return mPlayQueueItems.get(mPosition).getSource();
-    }
-    public String getCurrentTrackSourceVersion() {
-        return mPlayQueueItems.get(mPosition).getSourceVersion();
     }
 
     public boolean isEmpty() {
@@ -151,6 +109,36 @@ class PlayQueue {
         } else {
             return false;
         }
+    }
+
+    @VisibleForTesting
+    long getSetId() {
+        return mPlaySessionSource.getSetId();
+    }
+
+    @VisibleForTesting
+    Uri getPlayQueueState(long seekPos, long currentTrackId) {
+        return new PlayQueueUri().toUri(currentTrackId, mPosition, seekPos, mPlaySessionSource);
+    }
+
+    private void setPlayQueueFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource){
+        mPlayQueueItems = Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
+            @Override
+            public PlayQueueItem apply(Long input) {
+                return new PlayQueueItem(input, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion());
+            }
+        }));
+    }
+
+    private boolean isPlayingSet() {
+        return getSetId() > Playable.NOT_SET;
+    }
+
+    private String getCurrentTrackSource() {
+        return mPlayQueueItems.get(mPosition).getSource();
+    }
+    private String getCurrentTrackSourceVersion() {
+        return mPlayQueueItems.get(mPosition).getSourceVersion();
     }
 
     private List<Long> getTrackIds(){
