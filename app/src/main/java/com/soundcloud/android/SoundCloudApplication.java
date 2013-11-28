@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORIT
 import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
 
 import com.crashlytics.android.Crashlytics;
+import com.localytics.android.Constants;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -89,6 +90,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
         if(analyticsProperties.isAnalyticsEnabled()){
             mTracker = new ATTracker(this);
+            Constants.IS_LOGGABLE = appProperties.isDebugBuild();
         }
 
         if (ApplicationProperties.shouldReportCrashes()) {
