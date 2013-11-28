@@ -63,7 +63,9 @@ public final class Consts {
         boolean useCustomNotificationLayouts = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
         boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         boolean canDetermineActivityBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-        boolean useCustomFonts = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
+        boolean useCustomFonts = Build.VERSION.SDK_INT == Build.VERSION_CODES.GINGERBREAD ||
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.GINGERBREAD_MR1 ||
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
         // Gingerbread delivers proper playback buffering events
         boolean useSmoothProgress = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
 
