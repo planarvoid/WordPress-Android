@@ -1,8 +1,7 @@
 package com.soundcloud.android.analytics;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -10,10 +9,12 @@ import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.utils.Log;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * The engine which drives sending analytics. Important that all analytics providers to this engine
@@ -87,6 +88,17 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             }
         }
         Log.d(TAG, "Didn't close analytics session for player");
+    }
+
+    /**
+     * Tracks a single screen (Activity or Fragment) under the given tag
+     */
+    public void trackScreen(String screenTag) {
+        if (analyticsIsEnabled()) {
+            for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+                analyticsProvider.trackScreen(screenTag);
+            }
+        }
     }
 
     @VisibleForTesting

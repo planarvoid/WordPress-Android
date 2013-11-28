@@ -1,7 +1,8 @@
 package com.soundcloud.android.analytics;
 
-import android.content.Context;
 import com.localytics.android.LocalyticsSession;
+
+import android.content.Context;
 
 class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private LocalyticsSession mLocalyticsSession;
@@ -17,13 +18,22 @@ class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void openSession() {
         mLocalyticsSession.open();
-        mLocalyticsSession.upload();
     }
 
     @Override
     public void closeSession() {
         mLocalyticsSession.close();
         mLocalyticsSession.upload();
+    }
+
+    @Override
+    public void flush() {
+        mLocalyticsSession.upload();
+    }
+
+    @Override
+    public void trackScreen(String screenTag) {
+        mLocalyticsSession.tagScreen(screenTag);
     }
 
 }

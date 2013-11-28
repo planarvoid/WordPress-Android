@@ -3,6 +3,8 @@ package com.soundcloud.android.analytics;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.analytics.AnalyticsEngine.CloudPlayerStateWrapper;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -56,11 +58,6 @@ public class AnalyticsEngineTest {
         verifyZeroInteractions(analyticsProviderTwo);
     }
 
-    private void setAnalyticsPropertyEnabledPreferenceDisabled() {
-        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
-        when(sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true)).thenReturn(false);
-    }
-
     @Test
     public void shouldNotCallOpenSessionOnAnyProvidersIfAnalyticsPropertyDisabled(){
         setAnalyticsPropertyDisabledPreferenceEnabled();
@@ -68,11 +65,6 @@ public class AnalyticsEngineTest {
         analyticsEngine.openSessionForActivity();
         verifyZeroInteractions(analyticsProviderOne);
         verifyZeroInteractions(analyticsProviderTwo);
-    }
-
-    private void setAnalyticsPropertyDisabledPreferenceEnabled() {
-        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
-        when(sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true)).thenReturn(true);
     }
 
     @Test
@@ -293,6 +285,49 @@ public class AnalyticsEngineTest {
         analyticsEngine.closeSessionForPlayer();
         verify(analyticsProviderOne, never()).closeSession();
         verify(analyticsProviderTwo, never()).closeSession();
+    }
+
+    @Test
+    public void shouldTrackScreenForAllProvidersIfSessionIsOpen() {
+        setAnalyticsPreferenceAndPropertyEnabled();
+        initialiseAnalyticsEngine();
+        analyticsEngine.openSessionForActivity();
+
+        analyticsEngine.trackScreen("screen");
+        verify(analyticsProviderOne).trackScreen(eq("screen"));
+        verify(analyticsProviderTwo).trackScreen(eq("screen"));
+    }
+
+    @Test
+    public void shouldNotTrackScreenIfAnalyticsDisabledViaPropertyFile() {
+        setAnalyticsPropertyDisabledPreferenceEnabled();
+        initialiseAnalyticsEngine();
+        analyticsEngine.openSessionForActivity();
+
+        analyticsEngine.trackScreen("screen");
+        verify(analyticsProviderOne, never()).trackScreen(anyString());
+        verify(analyticsProviderTwo, never()).trackScreen(anyString());
+    }
+
+    @Test
+    public void shouldNotTrackScreenIfAnalyticsDisabledViaUserPreferences() {
+        setAnalyticsPropertyEnabledPreferenceDisabled();
+        initialiseAnalyticsEngine();
+        analyticsEngine.openSessionForActivity();
+
+        analyticsEngine.trackScreen("screen");
+        verify(analyticsProviderOne, never()).trackScreen(anyString());
+        verify(analyticsProviderTwo, never()).trackScreen(anyString());
+    }
+
+    private void setAnalyticsPropertyDisabledPreferenceEnabled() {
+        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(true);
+        when(sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true)).thenReturn(true);
+    }
+
+    private void setAnalyticsPropertyEnabledPreferenceDisabled() {
+        when(analyticsProperties.isAnalyticsDisabled()).thenReturn(false);
+        when(sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true)).thenReturn(false);
     }
 
     private void setAnalyticsPreferenceAndPropertyEnabled() {
