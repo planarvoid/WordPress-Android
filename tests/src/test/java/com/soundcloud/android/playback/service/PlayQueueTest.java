@@ -74,7 +74,7 @@ public class PlayQueueTest {
 
     @Test
     public void shouldReturnEmptyEventLoggerParamsWhenQueueIsEmpty() throws Exception {
-        expect(PlayQueue.EMPTY.getCurrentEventLoggerParams()).toEqual("");
+        expect(PlayQueue.empty().getCurrentEventLoggerParams()).toEqual("");
 
     }
 

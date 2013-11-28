@@ -41,7 +41,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     private final ScModelManager mModelManager;
     private final PlaybackOperations mPlaybackOperations;
 
-    private PlayQueue mPlayQueue = PlayQueue.EMPTY;
+    private PlayQueue mPlayQueue = PlayQueue.empty();
     private Subscription mFetchRelatedSubscription = Subscriptions.empty();
     private Subscription mPlayQueueSubscription = Subscriptions.empty();
     private Observable<RelatedTracksCollection> mRelatedTracksObservable;
@@ -117,7 +117,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     public void clearAll(){
         clearPlayQueueUri(mSharedPreferences);
         mPlayQueueStorage.clearState();
-        mPlayQueue = PlayQueue.EMPTY;
+        mPlayQueue = PlayQueue.empty();
     }
 
     public PlayQueue getCurrentPlayQueue() {

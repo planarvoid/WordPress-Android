@@ -21,8 +21,9 @@ import java.util.List;
 
 class PlayQueue {
 
-    // TODO, get rid of this, it is mutable
-    public static final PlayQueue EMPTY = new PlayQueue(Collections.<Long>emptyList(), -1, PlaySessionSource.EMPTY);
+    public static PlayQueue empty(){
+        return new PlayQueue(Collections.<Long>emptyList(), -1, PlaySessionSource.EMPTY);
+    }
 
     private boolean mCurrentTrackIsUserTriggered;
     private PlaySessionSource mPlaySessionSource = PlaySessionSource.EMPTY;

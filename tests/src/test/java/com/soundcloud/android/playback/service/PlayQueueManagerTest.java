@@ -285,9 +285,9 @@ public class PlayQueueManagerTest {
     public void clearAllShouldSetPlayQueueToEmpty() throws Exception {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
         playQueueManager.setNewPlayQueue(new PlayQueue(1L));
-        expect(playQueueManager.getCurrentPlayQueue()).not.toBe(PlayQueue.EMPTY);
+        expect(playQueueManager.getCurrentPlayQueue()).not.toEqual(PlayQueue.empty());
         playQueueManager.clearAll();
-        expect(playQueueManager.getCurrentPlayQueue()).toBe(PlayQueue.EMPTY);
+        expect(playQueueManager.getCurrentPlayQueue()).toEqual(PlayQueue.empty());
 
     }
 
