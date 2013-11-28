@@ -2,10 +2,8 @@ package com.soundcloud.android.auth;
 
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.auth.SignUpScreen;
 import com.soundcloud.android.tests.ActivityTestCase;
-import sun.misc.Launcher;
 
 public class AuthTestCase extends ActivityTestCase<LauncherActivity> {
 

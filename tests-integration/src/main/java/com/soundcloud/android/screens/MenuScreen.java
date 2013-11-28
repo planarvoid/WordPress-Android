@@ -51,14 +51,14 @@ public class MenuScreen {
     }
 
     //TODO: move this to ActionBarScreen
-    public View clickHomeButton() {
+    public MenuScreen open() {
         solo.getCurrentActivity().runOnUiThread(new Runnable() {
             public void run() {
                 solo.clickOnActionBarHomeButton();
             }
         });
         waiter.waitForDrawerToOpen();
-        return youMenu();
+        return new MenuScreen(solo);
     }
 
     public String getUserName() {
