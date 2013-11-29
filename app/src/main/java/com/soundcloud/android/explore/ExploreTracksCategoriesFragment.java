@@ -6,6 +6,7 @@ import static com.soundcloud.android.explore.ExploreTracksCategoriesAdapter.MUSI
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FriendFinderFragment;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
@@ -68,7 +69,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     @Override
     public void onResume() {
         super.onResume();
-        Event.SCREEN_ENTERED.publish("explore:genres");
+        Event.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get());
     }
 
     private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable(Observable<ExploreTracksCategories> observable){
@@ -93,8 +94,8 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
 
     private String getScreenTrackingTag(ExploreTracksCategory category, int position) {
         final int sectionId = mCategoriesAdapter.getSection(position).getSectionId();
-        final String categoryTrackingTag = category.getTitle().toLowerCase().replaceAll(" ", "_");
-        return "explore:genres:" + (sectionId == AUDIO_SECTION ? "audio:" : "music:") + categoryTrackingTag;
+        Screen screen = sectionId == AUDIO_SECTION ? Screen.EXPLORE_AUDIO_GENRE : Screen.EXPLORE_MUSIC_GENRE;
+        return screen.get(category.getTitle());
     }
 
     @Override
