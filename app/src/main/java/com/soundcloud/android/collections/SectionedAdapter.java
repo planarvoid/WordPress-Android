@@ -1,7 +1,6 @@
 package com.soundcloud.android.collections;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.model.Section;
 import rx.Observer;
 
 import android.os.Parcelable;

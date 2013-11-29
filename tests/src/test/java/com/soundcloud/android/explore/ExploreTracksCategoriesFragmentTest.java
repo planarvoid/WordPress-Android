@@ -13,7 +13,7 @@ import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
-import com.soundcloud.android.model.Section;
+import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
