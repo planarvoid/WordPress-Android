@@ -124,8 +124,6 @@ public class LoginFlowTest extends LoginTestCase {
         FBWebViewScreen.submit();
 
         assertEquals(scAccount.getUsername(), menuScreen.getUserName());
-        assertNotNull("FB request timed out", webView.getUrl());
-        assertTrue("got url:" + webView.getUrl(), webView.getUrl().contains("facebook.com"));
     }
 
     /*
