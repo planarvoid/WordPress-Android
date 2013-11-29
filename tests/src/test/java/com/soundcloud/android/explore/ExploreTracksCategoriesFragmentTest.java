@@ -2,19 +2,22 @@ package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
+import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
-import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.Event;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
 import dagger.ObjectGraph;
@@ -25,17 +28,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.util.functions.Func1;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreTracksCategoriesFragmentTest {
@@ -43,9 +51,13 @@ public class ExploreTracksCategoriesFragmentTest {
     private ExploreTracksCategoriesFragment fragment;
 
     @Mock
+    private ListView listView;
+    @Mock
     private ExploreTracksCategoriesAdapter adapter;
     @Mock
     private AndroidObservableFactory factory;
+    @Mock
+    private Observer<String> screenTrackingObserver;
 
     @Before
     public void setUp() throws Exception {
@@ -60,15 +72,15 @@ public class ExploreTracksCategoriesFragmentTest {
                 return null;
             }
         });
+        Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
     }
 
     @Test
     public void shouldAddMusicAndAudioSections(){
         final ExploreTracksCategory electronicCategory = new ExploreTracksCategory("electronic");
         final ExploreTracksCategory comedyCategory = new ExploreTracksCategory("comedy");
-        ExploreTracksCategories sections = createSectionsFrom(electronicCategory, comedyCategory);
-        final Observable<ExploreTracksCategories> observable = Observable.just(sections);
-        when(factory.create(any(Fragment.class))).thenReturn(observable);
+        ExploreTracksCategories categories = createSectionsFrom(electronicCategory, comedyCategory);
+        addCategoriesToFragment(categories);
 
         createFragmentView();
 
@@ -105,6 +117,60 @@ public class ExploreTracksCategoriesFragmentTest {
         // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
         // If that wasn't the case, we'd simply replay a failed result.
         verify(factory, times(2)).create(fragment);
+    }
+
+    @Test
+    public void shouldPublishEnterScreenEventInOnResume() {
+        Subscription subscription = Event.SCREEN_ENTERED.subscribe(screenTrackingObserver);
+
+        fragment.onResume();
+        verify(screenTrackingObserver).onNext(eq("explore:genres"));
+
+        verifyNoMoreInteractions(screenTrackingObserver);
+        subscription.unsubscribe();
+    }
+
+    @Test
+    public void shouldGenerateAndPassCorrectScreenTrackingTagWhenSelectingMusicCategory() {
+        ExploreTracksCategories categories = createSectionsFrom(
+                new ExploreTracksCategory("electronic"), new ExploreTracksCategory("comedy"));
+        addCategoriesToFragment(categories);
+
+        createFragmentView();
+
+        fragment.onItemClick(listView, null, 0, -1);
+
+        Intent firedIntent = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
+        expect(firedIntent).not.toBeNull();
+        expect(firedIntent.getStringExtra(ExploreTracksFragment.SCREEN_TRACKING_TAG_EXTRA)).toEqual(
+                "explore:genres:music:electronic");
+    }
+
+    @Test
+    public void shouldGenerateAndPassCorrectScreenTrackingTagWhenSelectingAudioCategory() {
+        ExploreTracksCategories categories = createSectionsFrom(
+                new ExploreTracksCategory("electronic"), new ExploreTracksCategory("Religion & Spirituality"));
+        addCategoriesToFragment(categories);
+
+        createFragmentView();
+
+        fragment.onItemClick(listView, null, 1, -1);
+
+        Intent firedIntent = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
+        expect(firedIntent).not.toBeNull();
+        expect(firedIntent.getStringExtra(ExploreTracksFragment.SCREEN_TRACKING_TAG_EXTRA)).toEqual(
+                "explore:genres:audio:religion_&_spirituality");
+    }
+
+    private void addCategoriesToFragment(ExploreTracksCategories categories) {
+        final Observable<ExploreTracksCategories> observable = Observable.just(
+                categories);
+        when(factory.create(any(Fragment.class))).thenReturn(observable);
+        when(listView.getHeaderViewsCount()).thenReturn(0);
+        when(adapter.getSection(0)).thenReturn(buildMusicSection(categories.getMusic()));
+        when(adapter.getSection(1)).thenReturn(buildAudioSection(categories.getAudio()));
+        when(adapter.getItem(0)).thenReturn(categories.getMusic().get(0));
+        when(adapter.getItem(1)).thenReturn(categories.getAudio().get(0));
     }
 
     private Section<ExploreTracksCategory> buildMusicSection(List<ExploreTracksCategory> categories) {

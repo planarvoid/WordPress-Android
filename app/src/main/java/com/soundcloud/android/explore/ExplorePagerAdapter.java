@@ -33,9 +33,9 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
             case TAB_CATEGORIES:
                 return new ExploreTracksCategoriesFragment();
             case TAB_POPULAR_MUSIC:
-                return ExploreTracksFragment.fromCategory(ExploreTracksCategory.POPULAR_MUSIC_CATEGORY);
+                return ExploreTracksFragment.create(ExploreTracksCategory.POPULAR_MUSIC_CATEGORY, "explore:trending_music");
             case TAB_POPULAR_AUDIO:
-                return ExploreTracksFragment.fromCategory(ExploreTracksCategory.POPULAR_AUDIO_CATEGORY);
+                return ExploreTracksFragment.create(ExploreTracksCategory.POPULAR_AUDIO_CATEGORY, "explore:trending_audio");
         }
         throw new RuntimeException("Unexpected position for getItem " + position);
     }

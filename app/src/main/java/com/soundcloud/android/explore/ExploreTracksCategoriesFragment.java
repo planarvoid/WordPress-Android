@@ -13,6 +13,7 @@ import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
@@ -64,6 +65,12 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
         mCategoriesObservable = buildObservable(mObservableFactory.create(this));
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Event.SCREEN_ENTERED.publish("explore:genres");
+    }
+
     private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable(Observable<ExploreTracksCategories> observable){
         return observable.mapMany(CATEGORIES_TO_SECTIONS).replay();
     }
@@ -77,8 +84,17 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Intent intent = new Intent(getActivity(), ExploreTracksCategoryActivity.class);
         final int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
-        intent.putExtra(ExploreTracksCategory.EXTRA, getListAdapter().getItem(adjustedPosition));
+        final ExploreTracksCategory category = mCategoriesAdapter.getItem(adjustedPosition);
+
+        intent.putExtra(ExploreTracksCategory.EXTRA, category);
+        intent.putExtra(ExploreTracksFragment.SCREEN_TRACKING_TAG_EXTRA, getScreenTrackingTag(category, adjustedPosition));
         startActivity(intent);
+    }
+
+    private String getScreenTrackingTag(ExploreTracksCategory category, int position) {
+        final int sectionId = mCategoriesAdapter.getSection(position).getSectionId();
+        final String categoryTrackingTag = category.getTitle().toLowerCase().replaceAll(" ", "_");
+        return "explore:genres:" + (sectionId == AUDIO_SECTION ? "audio:" : "music:") + categoryTrackingTag;
     }
 
     @Override
@@ -107,10 +123,6 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
 
     private ListView getListView() {
         return (ListView) getView().findViewById(R.id.suggested_tracks_categories_list);
-    }
-
-    private ExploreTracksCategoriesAdapter getListAdapter() {
-        return (ExploreTracksCategoriesAdapter) getListView().getAdapter();
     }
 
     @Override
