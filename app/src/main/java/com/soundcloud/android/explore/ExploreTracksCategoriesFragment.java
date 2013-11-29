@@ -141,10 +141,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
             new Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>>() {
                 @Override
                 public Observable<Section<ExploreTracksCategory>> call(ExploreTracksCategories categories) {
-                    return Observable.from(
-                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.MUSIC.getTitleId(), categories.getMusic()),
-                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.AUDIO.getTitleId(), categories.getAudio())
-                    );
+                    return Observable.from(Section.music(categories.getMusic()), Section.audio(categories.getAudio()));
                 }
             };
 

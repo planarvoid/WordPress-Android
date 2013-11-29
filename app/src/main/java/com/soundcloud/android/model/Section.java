@@ -1,20 +1,36 @@
 package com.soundcloud.android.model;
 
-import java.util.Collections;
+import com.soundcloud.android.R;
+
 import java.util.List;
 
 public class Section<T> {
 
-    private int mTitleId;
-    private List<T> mItems = Collections.emptyList();
+    public static final int AUDIO = 0;
+    public static final int MUSIC = 1;
 
-    public Section(int titleId, List<T> items) {
-        this.mTitleId = titleId;
+    private final int mSectionId;
+    private final List<T> mItems;
+
+    public static <T> Section<T> music(List<T> items) {
+        return new Section<T>(MUSIC, items);
+    }
+
+    public static <T> Section<T> audio(List<T> items) {
+        return new Section<T>(AUDIO, items);
+    }
+
+    private Section(int sectionId, List<T> items) {
+        this.mSectionId = sectionId;
         this.mItems = items;
     }
 
     public int getTitleId() {
-        return mTitleId;
+        return mSectionId == AUDIO ? R.string.explore_category_header_audio : R.string.explore_category_header_music;
+    }
+
+    public int getSectionId() {
+        return mSectionId;
     }
 
     public List<T> getItems() {
@@ -29,7 +45,7 @@ public class Section<T> {
 
         Section section = (Section) o;
 
-        if (mTitleId != section.mTitleId) return false;
+        if (mSectionId != section.mSectionId) return false;
         if (!mItems.equals(section.mItems)) return false;
 
         return true;
@@ -37,7 +53,7 @@ public class Section<T> {
 
     @Override
     public int hashCode() {
-        int result = mTitleId;
+        int result = mSectionId;
         result = 31 * result + mItems.hashCode();
         return result;
     }

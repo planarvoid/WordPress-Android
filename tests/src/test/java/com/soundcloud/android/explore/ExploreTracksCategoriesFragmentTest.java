@@ -13,7 +13,6 @@ import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
-import com.soundcloud.android.model.ExploreTracksCategorySection;
 import com.soundcloud.android.model.Section;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -73,10 +72,8 @@ public class ExploreTracksCategoriesFragmentTest {
 
         createFragmentView();
 
-        verify(adapter).onNext(new Section<ExploreTracksCategory>(
-                ExploreTracksCategorySection.MUSIC.getTitleId(), Lists.newArrayList(electronicCategory)));
-        verify(adapter).onNext(new Section<ExploreTracksCategory>(
-                ExploreTracksCategorySection.AUDIO.getTitleId(), Lists.newArrayList(comedyCategory)));
+        verify(adapter).onNext(Section.music(Lists.newArrayList(electronicCategory)));
+        verify(adapter).onNext(Section.audio(Lists.newArrayList(comedyCategory)));
     }
 
     @Test
