@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.xtremelabs.robolectric.Robolectric;
@@ -65,8 +66,10 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldSetSectionViewTypes() {
-        adapter.onNext(Section.audio(Lists.newArrayList(mock(Parcelable.class), mock(Parcelable.class))));
-        adapter.onNext(Section.music(Lists.newArrayList(mock(Parcelable.class))));
+        adapter.onNext(new Section(0, R.string.explore_category_header_audio,
+                Lists.newArrayList(mock(Parcelable.class), mock(Parcelable.class))));
+        adapter.onNext(new Section(1, R.string.explore_category_header_music,
+                Lists.newArrayList(mock(Parcelable.class))));
 
         expect(adapter.getItemViewType(0)).toEqual(SectionedAdapter.ViewTypes.SECTION.ordinal());
         expect(adapter.getItemViewType(1)).toEqual(SectionedAdapter.ViewTypes.DEFAULT.ordinal());
@@ -75,8 +78,10 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldSetSectionHeaderOnViews() {
-        adapter.onNext(Section.audio(Lists.newArrayList(mock(Parcelable.class), mock(Parcelable.class))));
-        adapter.onNext(Section.music(Lists.newArrayList(mock(Parcelable.class))));
+        adapter.onNext(new Section(0, R.string.explore_category_header_audio,
+                Lists.newArrayList(mock(Parcelable.class), mock(Parcelable.class))));
+        adapter.onNext(new Section(1, R.string.explore_category_header_music,
+                Lists.newArrayList(mock(Parcelable.class))));
 
         SectionedTestListRow sectionedRow = mock(SectionedTestListRow.class);
         when(sectionedRow.getResources()).thenReturn(Robolectric.application.getResources());

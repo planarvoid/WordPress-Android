@@ -1,32 +1,21 @@
 package com.soundcloud.android.collections;
 
-import com.soundcloud.android.R;
-
 import java.util.List;
 
 public class Section<T> {
 
-    public static final int AUDIO = 0;
-    public static final int MUSIC = 1;
-
     private final int mSectionId;
+    private final int mTitleId;
     private final List<T> mItems;
 
-    public static <T> Section<T> music(List<T> items) {
-        return new Section<T>(MUSIC, items);
-    }
-
-    public static <T> Section<T> audio(List<T> items) {
-        return new Section<T>(AUDIO, items);
-    }
-
-    private Section(int sectionId, List<T> items) {
+    public Section(int sectionId, int titleId, List<T> items) {
         this.mSectionId = sectionId;
+        this.mTitleId = titleId;
         this.mItems = items;
     }
 
     public int getTitleId() {
-        return mSectionId == AUDIO ? R.string.explore_category_header_audio : R.string.explore_category_header_music;
+        return mTitleId;
     }
 
     public int getSectionId() {

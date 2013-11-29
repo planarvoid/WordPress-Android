@@ -11,6 +11,9 @@ import android.view.ViewGroup;
 
 public class ExploreTracksCategoriesAdapter extends SectionedAdapter<ExploreTracksCategory> {
 
+    static final int AUDIO_SECTION = 0;
+    static final int MUSIC_SECTION = 1;
+
     @Override
     protected ExploreTracksCategoryRow createItemView(int position, ViewGroup parent) {
         final LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());

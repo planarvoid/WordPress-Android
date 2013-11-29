@@ -1,16 +1,18 @@
 package com.soundcloud.android.explore;
 
+import static com.soundcloud.android.explore.ExploreTracksCategoriesAdapter.AUDIO_SECTION;
+import static com.soundcloud.android.explore.ExploreTracksCategoriesAdapter.MUSIC_SECTION;
+
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FriendFinderFragment;
+import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
-import com.soundcloud.android.model.ExploreTracksCategorySection;
-import com.soundcloud.android.model.Section;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
@@ -141,8 +143,9 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
             new Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>>() {
                 @Override
                 public Observable<Section<ExploreTracksCategory>> call(ExploreTracksCategories categories) {
-                    return Observable.from(Section.music(categories.getMusic()), Section.audio(categories.getAudio()));
+                    return Observable.from(
+                            new Section<ExploreTracksCategory>(MUSIC_SECTION, R.string.explore_category_header_music, categories.getMusic()),
+                            new Section<ExploreTracksCategory>(AUDIO_SECTION, R.string.explore_category_header_audio, categories.getAudio()));
                 }
             };
-
 }

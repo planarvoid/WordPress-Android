@@ -72,8 +72,8 @@ public class ExploreTracksCategoriesFragmentTest {
 
         createFragmentView();
 
-        verify(adapter).onNext(Section.music(Lists.newArrayList(electronicCategory)));
-        verify(adapter).onNext(Section.audio(Lists.newArrayList(comedyCategory)));
+        verify(adapter).onNext(buildMusicSection(Lists.newArrayList(electronicCategory)));
+        verify(adapter).onNext(buildAudioSection(Lists.newArrayList(comedyCategory)));
     }
 
     @Test
@@ -105,6 +105,16 @@ public class ExploreTracksCategoriesFragmentTest {
         // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
         // If that wasn't the case, we'd simply replay a failed result.
         verify(factory, times(2)).create(fragment);
+    }
+
+    private Section<ExploreTracksCategory> buildMusicSection(List<ExploreTracksCategory> categories) {
+        return new Section<ExploreTracksCategory>(ExploreTracksCategoriesAdapter.MUSIC_SECTION,
+                R.string.explore_category_header_music, categories);
+    }
+
+    private Section<ExploreTracksCategory> buildAudioSection(List<ExploreTracksCategory> categories) {
+        return new Section<ExploreTracksCategory>(ExploreTracksCategoriesAdapter.AUDIO_SECTION,
+                R.string.explore_category_header_audio, categories);
     }
 
     // HELPERS
