@@ -14,8 +14,8 @@ import com.soundcloud.android.utils.Log;
 
 public class Waiter {
     public Han solo;
-    public final int TIMEOUT = 10000;
-    public final int NETWORK_TIMEOUT = 20000;
+    public final int TIMEOUT = 10 * 1000;
+    public final int NETWORK_TIMEOUT = 60 * 1000;
 
     public Waiter(Han driver) {
         solo = driver;
@@ -141,8 +141,19 @@ public class Waiter {
         Condition condition = new Condition() {
             @Override
             public boolean isSatisfied() {
-                Log.i("asdf", String.format("solo visibility: %d", solo.getView(view.getId()).getVisibility()));
+                Log.i("asdf", String.format("View visibility: %d", solo.getView(view.getId()).getVisibility()));
                 return ( solo.getView(view.getId()).getVisibility() == View.VISIBLE);
+            }
+        };
+        return solo.waitForCondition(condition, this.TIMEOUT);
+    }
+
+    public boolean waitForElement(final int content) {
+        Condition condition = new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                Log.i("asdf", String.format("ViewID visibility: %d", solo.getView(content).getVisibility()));
+                return ( solo.getView(content).getVisibility() == View.VISIBLE);
             }
         };
         return solo.waitForCondition(condition, this.TIMEOUT);

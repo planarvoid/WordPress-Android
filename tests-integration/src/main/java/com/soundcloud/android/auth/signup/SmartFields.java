@@ -5,7 +5,8 @@ import com.soundcloud.android.auth.SignUpTestCase;
 public class SmartFields extends SignUpTestCase {
 
     public void testDoneButtonBehavior() throws Exception {
-        signupScreen.clickSignUpButton();
+        signUpScreen = homeScreen.clickSignUpButton();
+
         assertFalse(signUpScreen.getDoneButton().isEnabled());
 
         signUpScreen.typeEmail("slawomir@aol.com");

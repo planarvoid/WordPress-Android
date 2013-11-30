@@ -68,8 +68,9 @@ public class SignUpScreen {
         solo.clickOnButtonResId(R.string.btn_skip);
     }
 
-    public void waitForSuggestedUsers() {
+    public SuggestedUsersScreen waitForSuggestedUsers() {
         solo.waitForActivity(SuggestedUsersActivity.class);
         waiter.waitForListContentAndRetryIfLoadingFailed();
+        return new SuggestedUsersScreen(solo);
     }
 }

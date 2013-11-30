@@ -9,7 +9,7 @@ public class ByEmail extends SignUpTestCase {
     }
 
     public void testUserFollowSingleSuccess() throws Exception {
-        signupScreen.clickSignUpButton();
+        signUpScreen = homeScreen.clickSignUpButton();
 
         // TODO : Re-use the same user
         signUpScreen.typeEmail(generateEmail());
@@ -18,14 +18,14 @@ public class ByEmail extends SignUpTestCase {
         signUpScreen.signup();
         signUpScreen.acceptTerms();
         signUpScreen.skipInfo();
-        signUpScreen.waitForSuggestedUsers();
+        suggestedUsersScreen = signUpScreen.waitForSuggestedUsers();
 
-        assert(suggestedUsersScreen.hasContent());
-        assert(suggestedUsersScreen.hasMusicSection());
-        assert(suggestedUsersScreen.hasAudioSection());
+        assertTrue(suggestedUsersScreen.hasContent());
+        assertTrue(suggestedUsersScreen.hasMusicSection());
+        assertTrue(suggestedUsersScreen.hasAudioSection());
         assertFalse(suggestedUsersScreen.hasFacebookSection());
 
-        suggestedUsersScreen.rockOut();
+        suggestedUsersCategoryScreen = suggestedUsersScreen.rockOut();
 
         String followedUsername = suggestedUsersCategoryScreen.followRandomUser();
         solo.goBack();

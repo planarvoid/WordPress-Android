@@ -1,23 +1,24 @@
 package com.soundcloud.android.screens.auth;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
-import com.soundcloud.android.screens.HomeScreen;
-import com.soundcloud.android.tests.Han;
-import com.soundcloud.android.tests.Waiter;
-
+import android.R.id;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.soundcloud.android.R;
+import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
+import com.soundcloud.android.screens.HomeScreen;
+import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.tests.Han;
 
-public class SuggestedUsersScreen {
-    private final Waiter waiter;
-    private Han solo;
+public class SuggestedUsersScreen extends Screen {
+    public static final Class ACTIVITY = SuggestedUsersActivity.class;
 
-    public SuggestedUsersScreen(Han driver) {
-        solo = driver;
-        waiter = new Waiter(solo);
+    public SuggestedUsersScreen(Han solo) {
+        super(solo);
+        waiter.waitForActivity(ACTIVITY);
+        waiter.waitForElement(id.content);
     }
 
     public boolean hasContent(){
@@ -40,11 +41,11 @@ public class SuggestedUsersScreen {
         return solo.searchText(solo.getString(R.string.suggested_users_section_audio), true);
     }
 
-    public void rockOut(){
+    public SuggestedUsersCategoryScreen rockOut(){
         // TODO : do not click on text, but rather listview items
         solo.scrollListToTop(0);
         solo.clickOnText("Rock");
-        solo.waitForActivity(SuggestedUsersCategoryActivity.class);
+        return new SuggestedUsersCategoryScreen(solo);
     }
 
     public String subtextAtIndexEquals(int index) {
@@ -61,9 +62,9 @@ public class SuggestedUsersScreen {
         solo.waitForActivity(SuggestedUsersCategoryActivity.class);
     }
 
-    public void goToFacebook() {
+    public SuggestedUsersCategoryScreen goToFacebook() {
         solo.clickOnText("Facebook");
-        solo.waitForActivity(SuggestedUsersCategoryActivity.class);
+        return new SuggestedUsersCategoryScreen(solo);
     }
 
     private void clickOnCategoryElement(int index, int elementId) {
@@ -83,5 +84,10 @@ public class SuggestedUsersScreen {
         solo.waitForActivity(MainActivity.class, 60000);
         waiter.waitForListContentAndRetryIfLoadingFailed();
         return new HomeScreen(solo);
+    }
+
+    @Override
+    protected Class getActivity() {
+        return ACTIVITY;
     }
 }
