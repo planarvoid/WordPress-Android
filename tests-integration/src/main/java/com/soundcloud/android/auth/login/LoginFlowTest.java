@@ -35,7 +35,6 @@ public class LoginFlowTest extends LoginTestCase {
         super.setUp();
         homeScreen = new HomeScreen(solo);
 
-        recoveryScreen  = new RecoverPasswordScreen(solo);
         menuScreen      = new MenuScreen(solo);
         FBWebViewScreen = new FBWebViewScreen(solo);
         waiter          = new Waiter(solo);
@@ -47,10 +46,9 @@ public class LoginFlowTest extends LoginTestCase {
      * So that I can listen to my favourite tracks
      */
     public void testSCUserLoginFlow()  {
-        homeScreen.clickLogInButton();
-
+        loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), scTestAccount.getPassword());
-
+        //TODO: MainScreen.menu().getUsername();
         assertEquals(scTestAccount.getUsername(), menuScreen.getUserName());
     }
 
@@ -60,8 +58,7 @@ public class LoginFlowTest extends LoginTestCase {
     * So that I don't need to create another SC account
     */
     public void testGPlusLoginFlow()  {
-
-        signupScreen.clickLogInButton();
+        loginScreen = homeScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
 
         //FIXME Assuming that we have more than one g+ account, there should be another test for this
@@ -81,7 +78,7 @@ public class LoginFlowTest extends LoginTestCase {
     * I want to sign in even if I don't have g+ profile
     */
     public void testNoGooglePlusAccountLogin()  {
-        signupScreen.clickLogInButton();
+        loginScreen = homeScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
         loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
 
@@ -106,7 +103,7 @@ public class LoginFlowTest extends LoginTestCase {
             log("Facebook SSO is available, not testing WebFlow");
 
         }
-        signupScreen.clickLogInButton();
+        loginScreen = homeScreen.clickLogInButton();
         loginScreen.clickOnFBSignInButton();
 
         //Then termsOfUse dialog should be shown
@@ -142,7 +139,7 @@ public class LoginFlowTest extends LoginTestCase {
      * So that I can correct myself
      */
     public void testLoginWithWrongCredentials() {
-        signupScreen.clickLogInButton();
+        loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getUsername(), "wrong-password", false);
 
         solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
@@ -159,7 +156,7 @@ public class LoginFlowTest extends LoginTestCase {
      * So that I am sure no one can modify my account
      */
     public void testLoginAndLogout()  {
-        signupScreen.clickLogInButton();
+        loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
         waiter.waitForListContentAndRetryIfLoadingFailed();
         menuScreen.logout();
@@ -175,8 +172,8 @@ public class LoginFlowTest extends LoginTestCase {
     * So that I don't need to recreate my account
     */
     public void testRecoverPassword() throws Throwable {
-        signupScreen.clickLogInButton();
-        loginScreen.clickForgotPassword();
+        loginScreen = homeScreen.clickLogInButton();
+        recoveryScreen = loginScreen.clickForgotPassword();
         recoveryScreen.typeEmail("some-email-" + System.currentTimeMillis() + "@baz" + System.currentTimeMillis() + ".com");
         recoveryScreen.clickOkButton();
 
@@ -190,7 +187,7 @@ public class LoginFlowTest extends LoginTestCase {
     * So that I know what went wrong
     */
     public void testRecoverPasswordNoInput()  {
-        signupScreen.clickLogInButton();
+        loginScreen = homeScreen.clickLogInButton();
         loginScreen.clickForgotPassword();
         loginScreen.clickOkButton();
 
