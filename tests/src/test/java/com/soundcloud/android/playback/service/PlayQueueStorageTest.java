@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.Lists;
@@ -42,7 +44,7 @@ public class PlayQueueStorageTest {
     @Test
     public void clearStateShouldDeletePlayQueueUri() throws Exception {
         playQueueStorage.clearState();
-        verify(contentResolver).delete(Content.PLAY_QUEUE.uri, null, null);
+        verify(contentResolver).delete(eq(Content.PLAY_QUEUE.uri), isNull(String.class), eq(new String[]{}));
     }
 
     @Test
