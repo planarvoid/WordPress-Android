@@ -6,6 +6,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +24,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.util.functions.Func1;
 
@@ -42,7 +45,6 @@ public class PlayQueueOperationsTest {
 
     @Inject
     PlayQueueOperations playQueueOperations;
-
     @Mock
     private Context context;
     @Mock
@@ -51,6 +53,8 @@ public class PlayQueueOperationsTest {
     private SharedPreferences sharedPreferences;
     @Mock
     private SharedPreferences.Editor sharedPreferencesEditor;
+    @Mock
+    private PlayQueue playQueue;
 
     @Before
     public void before() {
@@ -108,12 +112,48 @@ public class PlayQueueOperationsTest {
         expect(playQueue.getSetId()).toEqual(SET_ID);
     }
 
-
     @Test
     public void shouldReturnNullWhenReloadingWithNoValidStoredLastTrack() throws Exception {
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(-1L);
         verifyZeroInteractions(playQueueStorage);
         expect(playQueueOperations.getLastStoredPlayQueue()).toBeNull();
+    }
+
+    @Test
+    public void saveShouldWritePlayQueueMetaDataToPreferences() throws Exception {
+        when(playQueue.getCurrentTrackId()).thenReturn(123L);
+        when(playQueue.getPosition()).thenReturn(4);
+        when(playQueue.getSetId()).thenReturn(456L);
+
+        expect(playQueueOperations.saveQueue(playQueue, 200L)).not.toBeNull();
+        verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.SEEK_POSITION.name(), 200L);
+        verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.TRACK_ID.name(), 123L);
+        verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.SET_ID.name(), 456L);
+        verify(sharedPreferencesEditor).putInt(PlayQueueOperations.Keys.PLAY_POSITION.name(), 4);
+    }
+
+    @Test
+    public void saveShouldStoreAllPlayQueueItems() throws Exception {
+        final Collection<PlayQueueItem> mock = Mockito.mock(Collection.class);
+        when(playQueue.getItems()).thenReturn(mock);
+
+        final Observable<Collection<PlayQueueItem>> mockObservable = Mockito.mock(Observable.class);
+        when(playQueueStorage.storeCollectionAsync(mock)).thenReturn(mockObservable);
+
+        final Subscription subscription = Mockito.mock(Subscription.class);
+        when(mockObservable.subscribe(any(Observer.class))).thenReturn(subscription);
+
+        expect(playQueueOperations.saveQueue(playQueue, 200L)).toBe(subscription);
+    }
+
+    @Test
+    public void clearShouldRemovePreferences() throws Exception {
+        playQueueOperations.clear();
+        verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.SEEK_POSITION.name());
+        verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.TRACK_ID.name());
+        verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.SET_ID.name());
+        verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.PLAY_POSITION.name());
+        verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.ORIGIN_URL.name());
     }
 
     @Module(library = true, injects = PlayQueueOperationsTest.class)

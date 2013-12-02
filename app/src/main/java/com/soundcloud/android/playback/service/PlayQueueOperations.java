@@ -74,18 +74,17 @@ public class PlayQueueOperations {
     public Subscription saveQueue(PlayQueue playQueue, long seekPosition) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
 
-        final long currentTrackId = playQueue.getCurrentTrackId();
-        if (currentTrackId != -1l) {
-            editor.putLong(Keys.TRACK_ID.name(), currentTrackId);
-        }
+        editor.putLong(Keys.TRACK_ID.name(), playQueue.getCurrentTrackId());
         editor.putInt(Keys.PLAY_POSITION.name(), playQueue.getPosition());
         editor.putLong(Keys.SEEK_POSITION.name(), seekPosition);
         editor.putLong(Keys.SET_ID.name(), playQueue.getSetId());
+
         final Uri origin = playQueue.getOriginPage();
         if (origin != null && origin != Uri.EMPTY) {
             editor.putString(Keys.ORIGIN_URL.name(), String.valueOf(origin));
         }
         SharedPreferencesUtils.apply(editor);
+
         return RxObserverHelper.fireAndForget(mPlayQueueStorage.storeCollectionAsync(playQueue.getItems()));
     }
 
