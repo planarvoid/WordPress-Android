@@ -59,7 +59,7 @@ public class PlaybackOperations {
     private TrackStorage mTrackStorage;
     private RxHttpClient mRxHttpClient;
 
-    Uri TEMP_ORIGIN = Uri.parse("http://putsomethinghere.com");
+    Uri TEMP_ORIGIN = Uri.EMPTY;
 
     public PlaybackOperations() {
         this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage(), new SoundCloudRxHttpClient());
