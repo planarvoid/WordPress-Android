@@ -117,8 +117,8 @@ class PlayQueue {
     }
 
     @VisibleForTesting
-    Uri getPlayQueueState(long seekPos, long currentTrackId) {
-        return new PlayQueueUri().toUri(currentTrackId, mPosition, seekPos, mPlaySessionSource);
+    Uri getPlayQueueStateUri(long seekPos, long currentTrackId) {
+        return new LastPlayQueueStateUri().toUri(currentTrackId, mPosition, seekPos, mPlaySessionSource);
     }
 
     private void setPlayQueueFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource){

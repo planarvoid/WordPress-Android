@@ -72,7 +72,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
 
     public void saveCurrentPosition(long currentTrackProgress) {
         if (!mPlayQueue.isEmpty()) {
-            final String playQueueState = mPlayQueue.getPlayQueueState(currentTrackProgress, mPlayQueue.getCurrentTrackId()).toString();
+            final String playQueueState = mPlayQueue.getPlayQueueStateUri(currentTrackProgress, mPlayQueue.getCurrentTrackId()).toString();
             SharedPreferencesUtils.apply(mSharedPreferences.edit().putString(PLAYQUEUE_URI_PREF_KEY, playQueueState));
         }
     }
@@ -83,11 +83,11 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     public PlaybackProgressInfo loadPlayQueue() {
         final String lastUri = mSharedPreferences.getString(PLAYQUEUE_URI_PREF_KEY, null);
         if (ScTextUtils.isNotBlank(lastUri)) {
-            final PlayQueueUri playQueueUri = new PlayQueueUri(lastUri);
-            final long seekPos = playQueueUri.getSeekPos();
-            final long trackId = playQueueUri.getTrackId();
+            final LastPlayQueueStateUri lastPlayQueueStateUri = new LastPlayQueueStateUri(lastUri);
+            final long seekPos = lastPlayQueueStateUri.getSeekPos();
+            final long trackId = lastPlayQueueStateUri.getTrackId();
             if (trackId > 0) {
-                mPlayQueueSubscription = getLastStoredPlayQueue(playQueueUri.getPlaySessionSource());
+                mPlayQueueSubscription = getLastStoredPlayQueue(lastPlayQueueStateUri.getPlaySessionSource());
                 return new PlaybackProgressInfo(trackId, seekPos);
             } else {
                 final String message = "Unexpected track id when reloading playqueue: " + trackId;

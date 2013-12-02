@@ -11,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
-public class PlayQueueUri {
+public class LastPlayQueueStateUri {
     // these will be stored as uri parameters
     private static final String PARAM_PLAYLIST_POS = "playlistPos";
     private static final String PARAM_SEEK_POS = "seekPos";
@@ -22,15 +22,15 @@ public class PlayQueueUri {
 
     public final Uri uri;
 
-    public PlayQueueUri() {
+    public LastPlayQueueStateUri() {
         this(Content.PLAY_QUEUE.uri);
     }
 
-    public PlayQueueUri(String uri) {
+    public LastPlayQueueStateUri(String uri) {
         this(Uri.parse(uri));
     }
 
-    public PlayQueueUri(Uri uri) {
+    public LastPlayQueueStateUri(Uri uri) {
         this.uri = uri == null ? Content.PLAY_QUEUE.uri : uri;
     }
 

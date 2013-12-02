@@ -106,7 +106,7 @@ public class PlayQueueManagerTest {
 
         when(playQueue.isEmpty()).thenReturn(false);
         when(playQueue.getCurrentTrackId()).thenReturn(3L);
-        when(playQueue.getPlayQueueState(0, 3L)).thenReturn(Uri.parse(playQueueState));
+        when(playQueue.getPlayQueueStateUri(0, 3L)).thenReturn(Uri.parse(playQueueState));
 
         playQueueManager.setNewPlayQueue(playQueue);
         verify(sharedPreferencesEditor).putString(PlayQueueManager.PLAYQUEUE_URI_PREF_KEY, playQueueState);
@@ -200,7 +200,7 @@ public class PlayQueueManagerTest {
 
         when(playQueue.isEmpty()).thenReturn(false);
         when(playQueue.getCurrentTrackId()).thenReturn(3L);
-        when(playQueue.getPlayQueueState(0, 3L)).thenReturn(Uri.parse(playQueueState));
+        when(playQueue.getPlayQueueStateUri(0, 3L)).thenReturn(Uri.parse(playQueueState));
 
         playQueueManager.setNewPlayQueue(playQueue);
         expect(playQueueManager.shouldReloadQueue()).toBeFalse();
