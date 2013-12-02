@@ -48,8 +48,6 @@ public class PlayQueueManagerTest {
     @Mock
     private PlayQueue playQueue;
     @Mock
-    private PlaybackOperations playbackOperations;
-    @Mock
     private ScModelManager modelManager;
     @Mock
     private SharedPreferences sharedPreferences;
@@ -156,16 +154,16 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldGetRelatedTracksObservableWhenFetchingRelatedTracks(){
         final Observable mock = Mockito.mock(Observable.class);
-        when(playbackOperations.getRelatedTracks(anyLong())).thenReturn(mock);
+        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(mock);
 
         playQueueManager.fetchRelatedTracks(123L);
-        verify(playbackOperations).getRelatedTracks(123L);
+        verify(playQueueOperations).getRelatedTracks(123L);
     }
 
     @Test
     public void shouldSubscribeToRelatedTracksObservableWhenFetchingRelatedTracks(){
         final Observable<RelatedTracksCollection> mock = Mockito.mock(Observable.class);
-        when(playbackOperations.getRelatedTracks(anyLong())).thenReturn(mock);
+        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(mock);
 
         playQueueManager.fetchRelatedTracks(123L);
         verify(mock).subscribe(playQueueManager);
@@ -173,7 +171,7 @@ public class PlayQueueManagerTest {
 
     @Test
     public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks(){
-        when(playbackOperations.getRelatedTracks(anyLong())).thenReturn(Mockito.mock(Observable.class));
+        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(Mockito.mock(Observable.class));
         playQueueManager.fetchRelatedTracks(123L);
         expect(playQueueManager.getPlayQueueView().getAppendState()).toEqual(PlaybackOperations.AppendState.LOADING);
         expectBroadcastRelatedLoadChanges();
@@ -240,7 +238,8 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldRetryWithSameObservable() throws Exception {
         final Observable observable = Mockito.mock(Observable.class);
-        when(playbackOperations.getRelatedTracks(anyLong())).thenReturn(observable);
+        when(playQueueOperations.getRelatedTracks(anyLong())).thenReturn(observable);
+
         playQueueManager.fetchRelatedTracks(123L);
         playQueueManager.retryRelatedTracksFetch();
         verify(observable, times(2)).subscribe(any(Observer.class));
@@ -268,11 +267,6 @@ public class PlayQueueManagerTest {
         @Provides
         PlayQueue provideTrackingPlayQueue(){
             return playQueue;
-        }
-
-        @Provides
-        PlaybackOperations providePlaybackOperations(){
-            return playbackOperations;
         }
 
         @Provides

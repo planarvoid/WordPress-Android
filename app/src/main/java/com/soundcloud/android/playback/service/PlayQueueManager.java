@@ -24,7 +24,6 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     private final Context mContext;
 
     private final ScModelManager mModelManager;
-    private final PlaybackOperations mPlaybackOperations;
     private final PlayQueueOperations mPlayQueueOperations;
 
     private PlayQueue mPlayQueue = PlayQueue.empty();
@@ -36,11 +35,9 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     private PlaybackOperations.AppendState mAppendState = PlaybackOperations.AppendState.IDLE;
 
     @Inject
-    public PlayQueueManager(Context context, PlaybackOperations playbackOperations,
-                            PlayQueueOperations playQueueOperations, ScModelManager modelManager) {
+    public PlayQueueManager(Context context, PlayQueueOperations playQueueOperations, ScModelManager modelManager) {
         mContext = context;
         mPlayQueueOperations = playQueueOperations;
-        mPlaybackOperations = playbackOperations;
         mModelManager = modelManager;
     }
 
@@ -88,7 +85,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     }
 
     public void fetchRelatedTracks(long trackId){
-        mRelatedTracksObservable = mPlaybackOperations.getRelatedTracks(trackId);
+        mRelatedTracksObservable = mPlayQueueOperations.getRelatedTracks(trackId);
         loadRelatedTracks();
     }
 

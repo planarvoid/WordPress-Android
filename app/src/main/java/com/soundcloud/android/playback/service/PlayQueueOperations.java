@@ -1,11 +1,19 @@
 package com.soundcloud.android.playback.service;
 
+import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.api.APIEndpoints;
+import com.soundcloud.android.api.http.APIRequest;
+import com.soundcloud.android.api.http.RxHttpClient;
+import com.soundcloud.android.api.http.SoundCloudAPIRequest;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.rx.observers.RxObserverHelper;
 import com.soundcloud.android.storage.PlayQueueStorage;
 import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import rx.Observable;
@@ -22,22 +30,20 @@ import java.util.List;
 
 public class PlayQueueOperations {
 
-    private static final String SHARED_PREFERENCES_KEY = "playlistPos";
+    static final String SHARED_PREFERENCES_KEY = "playlistPos";
     enum Keys {
         PLAY_POSITION, SEEK_POSITION, TRACK_ID, ORIGIN_URL, SET_ID
     }
 
     private final SharedPreferences mSharedPreferences;
     private final PlayQueueStorage mPlayQueueStorage;
-
-    public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage) {
-        this(context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE), playQueueStorage);
-    }
+    private RxHttpClient mRxHttpClient;
 
     @Inject
-    public PlayQueueOperations(SharedPreferences sharedPreferences, PlayQueueStorage playQueueStorage) {
-        mSharedPreferences = sharedPreferences;
+    public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage, RxHttpClient rxHttpClient) {
+        mSharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         mPlayQueueStorage = playQueueStorage;
+        mRxHttpClient = rxHttpClient;
     }
 
     public int getLastStoredSeekPosition() {
@@ -97,6 +103,21 @@ public class PlayQueueOperations {
         editor.remove(Keys.ORIGIN_URL.name());
         SharedPreferencesUtils.apply(editor);
         mPlayQueueStorage.clearState();
+    }
+
+    public Observable<RelatedTracksCollection> getRelatedTracks(long trackId) {
+        final ClientUri clientUri = ClientUri.fromTrack(trackId);
+        if (clientUri != null){
+            final String endpoint = String.format(APIEndpoints.RELATED_TRACKS.path(), clientUri.toEncodedString());
+            final APIRequest<RelatedTracksCollection> request = SoundCloudAPIRequest.RequestBuilder.<RelatedTracksCollection>get(endpoint)
+                    .forPrivateAPI(1)
+                    .forResource(TypeToken.of(RelatedTracksCollection.class)).build();
+
+            return mRxHttpClient.fetchModels(request);
+        } else {
+            Log.e(this, "Unable to parse client URI from id " + trackId);
+        }
+        return null;
     }
 
 

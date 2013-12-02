@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlayQueueOperations;
@@ -24,15 +25,14 @@ public class PlaybackModule {
 
     @Provides
     @Singleton
-    PlayQueueOperations providePlayQueueOperations(Context context, PlayQueueStorage playQueueStorage) {
-        return new PlayQueueOperations(context, playQueueStorage);
+    PlayQueueOperations providePlayQueueOperations(Context context, PlayQueueStorage playQueueStorage, RxHttpClient rxHttpClient) {
+        return new PlayQueueOperations(context, playQueueStorage, rxHttpClient);
     }
 
     @Provides
     @Singleton
-    PlayQueueManager providePlayQueueManager(Context context, PlaybackOperations playbackOperations,
-                                             PlayQueueOperations playQueueOperations, ScModelManager modelManager) {
-        return new PlayQueueManager(context, playbackOperations, playQueueOperations, modelManager);
+    PlayQueueManager providePlayQueueManager(Context context, PlayQueueOperations playQueueOperations, ScModelManager modelManager) {
+        return new PlayQueueManager(context, playQueueOperations, modelManager);
     }
 
     @Provides
