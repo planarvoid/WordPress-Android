@@ -79,6 +79,7 @@ public class Explore extends ActivityTestCase<MainActivity> {
     }
 
     public void testGenresAreDisplayedByDefault() {
+        waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals("Genres are displayed by default", "GENRES", exploreScreen.currentTabTitle());
         assertEquals("Invalid number of genres found", 22, exploreScreen.getNumberOfItemsInGenresTab());
     }
