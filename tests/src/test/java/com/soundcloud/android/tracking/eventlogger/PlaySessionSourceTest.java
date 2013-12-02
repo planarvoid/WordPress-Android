@@ -73,4 +73,19 @@ public class PlaySessionSourceTest {
         expect(copy.getInitialSource()).toEqual(PlaySessionSource.DiscoverySource.EXPLORE.value());
         expect(copy.getInitialSourceVersion()).toEqual(EXPLORE_TAG);
     }
+
+    @Test
+    public void shouldOriginateFromExploreWithExploreOrigin() {
+        expect(new PlaySessionSource(Uri.parse("explore:something")).originatedInExplore()).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotOriginateFromExploreWithNonExploreOrigin() {
+        expect(new PlaySessionSource(Uri.parse("stream:something")).originatedInExplore()).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotOriginateFromExploreWithEmptyOrigin() {
+        expect(new PlaySessionSource(Uri.EMPTY).originatedInExplore()).toBeFalse();
+    }
 }

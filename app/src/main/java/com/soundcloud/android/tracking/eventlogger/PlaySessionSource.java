@@ -62,7 +62,7 @@ public class PlaySessionSource implements Parcelable{
 
     // TODO, finalize this once we implement page tracking
     public boolean originatedInExplore(){
-        return mOriginPage.getScheme().equals("explore");
+        return "explore".equals(mOriginPage.getScheme());
     }
 
     public String getInitialSource() {
