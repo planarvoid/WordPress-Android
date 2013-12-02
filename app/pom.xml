@@ -130,7 +130,7 @@
                     <privateScope>true</privateScope>
                     <includes>
                         <!-- For Activities which need to be weaved -->
-                        <include>com/soundcloud/android/activity/**/*.java</include>
+                        <include>com/soundcloud/android/**/*.java</include>
                         <include>com/soundcloud/android/cropimage/**/*.java</include>
                         <include>aspect/*.aj</include>
                     </includes>
