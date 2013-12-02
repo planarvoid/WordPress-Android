@@ -178,6 +178,8 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private final class ScreenTrackingObserver extends DefaultObserver<String> {
         @Override
         public void onNext(String screenTag) {
+            //TODO Be defensive, check screenTag value
+            //If dev/beta build and empty crash the app, otherwise log silent error
             Log.d(TAG, "ScreenTrackingObserver onNext: " + screenTag);
             trackScreen(screenTag);
         }
