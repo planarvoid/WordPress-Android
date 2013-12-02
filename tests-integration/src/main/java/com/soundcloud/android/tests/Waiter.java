@@ -13,9 +13,10 @@ import com.soundcloud.android.utils.Log;
 
 
 public class Waiter {
+    private static final String TAG = Waiter.class.getSimpleName();
     public Han solo;
     public final int TIMEOUT = 10 * 1000;
-    public final int NETWORK_TIMEOUT = 60 * 1000;
+    public final int NETWORK_TIMEOUT = 120 * 1000;
 
     public Waiter(Han driver) {
         solo = driver;
@@ -47,7 +48,10 @@ public class Waiter {
             @Override
             public boolean isSatisfied() {
                 final View view = solo.getView(id.empty_view_progress);
-                return view == null || !view.isShown();
+                final boolean result = (view == null || !view.isShown());
+
+                Log.i(TAG, String.format("Spinner view found: %b", result));
+                return result;
             }
         }, this.NETWORK_TIMEOUT);
     }
@@ -141,7 +145,7 @@ public class Waiter {
         Condition condition = new Condition() {
             @Override
             public boolean isSatisfied() {
-                Log.i("asdf", String.format("View visibility: %d", solo.getView(view.getId()).getVisibility()));
+                Log.i(TAG, String.format("View visibility: %d", solo.getView(view.getId()).getVisibility()));
                 return ( solo.getView(view.getId()).getVisibility() == View.VISIBLE);
             }
         };
@@ -152,7 +156,7 @@ public class Waiter {
         Condition condition = new Condition() {
             @Override
             public boolean isSatisfied() {
-                Log.i("asdf", String.format("ViewID visibility: %d", solo.getView(content).getVisibility()));
+                Log.i(TAG, String.format("ViewID visibility: %d", solo.getView(content).getVisibility()));
                 return ( solo.getView(content).getVisibility() == View.VISIBLE);
             }
         };
