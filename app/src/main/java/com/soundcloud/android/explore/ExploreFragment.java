@@ -52,9 +52,12 @@ public class ExploreFragment extends Fragment {
 
         TabPageIndicator mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
-        mPager.setOnPageChangeListener(new ExplorePagerScreenListener());
+        mIndicator.setOnPageChangeListener(new ExplorePagerScreenListener());
         mPager.setCurrentItem(ExplorePagerAdapter.TAB_GENRES);
 
+        Event.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get()); // Workaround for the bug in ViewPager, which does not
+                                                                   // fire the onPageSelected() for the first
+                                                                   // item: https://code.google.com/p/android/issues/detail?id=27526
     }
 
     @Override

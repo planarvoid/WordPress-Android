@@ -50,8 +50,8 @@ public abstract class SectionedAdapter<ModelType extends Parcelable> extends Ite
     @Override
     protected void bindItemView(int position, View itemView) {
         if (itemView instanceof SectionedListRow){
-            final RowDescriptor descriptor = mListPositionsToSections.get(position);
-            final SectionedListRow sectionedListRow = (SectionedListRow) itemView;
+            RowDescriptor descriptor = mListPositionsToSections.get(position);
+            SectionedListRow sectionedListRow = (SectionedListRow) itemView;
 
             if (descriptor.isSectionHeader) {
                 sectionedListRow.showSectionHeaderWithText(itemView.getResources().getString(descriptor.section.getTitleId()));

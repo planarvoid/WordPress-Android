@@ -113,6 +113,13 @@ public class ExploreFragmentTest {
     public void shouldThrowExceptionIfUnknownScreenIsViewed() {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener();
         explorePagerScreenListener.onPageSelected(3);
+    }
 
+    @Test
+    public void shouldTrackExploreGenresScreenOnCreate() {
+        Event.SCREEN_ENTERED.subscribe(observer);
+        mExploreFragment.onViewCreated(mockLayout, null);
+        verify(observer).onNext("explore:genres");
+        verifyNoMoreInteractions(observer);
     }
 }

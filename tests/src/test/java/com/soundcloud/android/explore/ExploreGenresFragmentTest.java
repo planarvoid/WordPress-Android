@@ -5,19 +5,20 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
-import com.soundcloud.android.dagger.DependencyInjector;
+import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.Event;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
-import dagger.ObjectGraph;
 import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,34 +48,30 @@ public class ExploreGenresFragmentTest {
     private ExploreGenresFragment fragment;
 
     @Mock
-    private ListView listView;
-    @Mock
     private ExploreGenresAdapter adapter;
     @Mock
     private AndroidObservableFactory factory;
     @Mock
     private Observer<String> screenTrackingObserver;
+    @Mock
+    private ExploreGenre exploreGenre;
+    @Mock
+    private Observable observable;
+    @Mock
+    private ListView listView;
+    private MockInjector dependencyInjector;
 
     @Before
     public void setUp() throws Exception {
-        fragment = new ExploreGenresFragment(new DependencyInjector() {
-            @Override
-            public void inject(Fragment target) {
-                ObjectGraph.create(new TestModule(factory)).inject(fragment);
-            }
-
-            @Override
-            public ObjectGraph fromAppGraphWithModules(Object... modules) {
-                return null;
-            }
-        });
+        dependencyInjector = new MockInjector(new TestModule(factory));
+        fragment = new ExploreGenresFragment(dependencyInjector);
         Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
     }
 
     @Test
     public void shouldAddMusicAndAudioSections(){
-        final ExploreGenre electronicCategory = new ExploreGenre("electronic");
-        final ExploreGenre comedyCategory = new ExploreGenre("comedy");
+        ExploreGenre electronicCategory = new ExploreGenre("electronic");
+        ExploreGenre comedyCategory = new ExploreGenre("comedy");
         ExploreGenresSections categories = createSectionsFrom(electronicCategory, comedyCategory);
         addCategoriesToFragment(categories);
 
@@ -113,6 +110,16 @@ public class ExploreGenresFragmentTest {
         // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
         // If that wasn't the case, we'd simply replay a failed result.
         verify(factory, times(2)).create(fragment);
+    }
+
+    @Test
+    public void shouldPublishScreenEnterEventWhenOpeningSpecificGenre(){
+        dependencyInjector.inject(fragment);
+        Event.SCREEN_ENTERED.subscribe(screenTrackingObserver);
+        when(listView.getTag()).thenReturn("screentag");
+        fragment.onItemClick(listView, listView, 0,0);
+        verify(screenTrackingObserver).onNext("screentag");
+        verifyNoMoreInteractions(screenTrackingObserver);
     }
 
     private void addCategoriesToFragment(ExploreGenresSections categories) {

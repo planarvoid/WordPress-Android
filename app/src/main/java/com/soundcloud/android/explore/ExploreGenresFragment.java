@@ -14,6 +14,7 @@ import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
@@ -66,7 +67,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         mGenresObservable = buildObservable(mObservableFactory.create(this));
     }
 
-    private ConnectableObservable<Section<ExploreGenre>> buildObservable(Observable<ExploreGenresSections> observable){
+    private ConnectableObservable<Section<ExploreGenre>> buildObservable(Observable<ExploreGenresSections> observable) {
         return observable.mapMany(GENRES_TO_SECTIONS).replay();
     }
 
@@ -77,12 +78,14 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final Intent intent = new Intent(getActivity(), ExploreTracksCategoryActivity.class);
-        final int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
-        final ExploreGenre category = mGenresAdapter.getItem(adjustedPosition);
+        Intent intent = new Intent(getActivity(), ExploreTracksCategoryActivity.class);
+        int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
+        ExploreGenre category = mGenresAdapter.getItem(adjustedPosition);
 
         intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
         startActivity(intent);
+
+        Event.SCREEN_ENTERED.publish(view.getTag());
     }
 
     @Override
