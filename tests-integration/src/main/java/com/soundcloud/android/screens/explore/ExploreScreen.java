@@ -59,7 +59,7 @@ public class ExploreScreen extends Screen {
 
     public void touchGenresTab() {
         touchTab(GENRES_TAB_TEXT);
-        waiter.waitForViewId(R.id.suggested_tracks_categories_list);
+        waiter.waitForViewId(R.id.explore_genres_list);
         waiter.waitForListContentAndRetryIfLoadingFailed();
         assertEquals("Could not get to genres section", GENRES_TAB_TEXT, currentTabTitle());
     }
@@ -67,7 +67,7 @@ public class ExploreScreen extends Screen {
     public void touchTrendingMusicTab() {
         touchTab(TRENDING_MUSIC_TAB_TEXT);
         solo.sleep(3000);
-        waiter.waitForViewId(R.id.suggested_tracks_categories_list);
+        waiter.waitForViewId(R.id.explore_genres_list);
         waiter.waitForListContentAndRetryIfLoadingFailed();
     }
 
@@ -152,7 +152,7 @@ public class ExploreScreen extends Screen {
     }
 
     public int getNumberOfItemsInGenresTab() {
-        ListView currentListView = (ListView)solo.getView(R.id.suggested_tracks_categories_list);
+        ListView currentListView = (ListView)solo.getView(R.id.explore_genres_list);
         return currentListView.getAdapter().getCount();
     }
 

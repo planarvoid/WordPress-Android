@@ -163,8 +163,8 @@
     <string name="side_menu_explore">Explore</string>
 
     <string name="explore_genres">Genres</string>
-    <string name="explore_category_header_music">Music</string>
-    <string name="explore_category_header_audio">Audio</string>
+    <string name="explore_genre_header_music">Music</string>
+    <string name="explore_genre_header_audio">Audio</string>
 
     <string name="explore_category_trending_music">Trending Music</string>
     <string name="explore_category_trending_audio">Trending Audio</string>

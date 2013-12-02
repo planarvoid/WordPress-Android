@@ -24,7 +24,7 @@ public class ExplorePagerAdapterTest {
 
     @Test
     public void shouldCreateCategoriesFragmentForFirstPagerPage() {
-        expect(adapter.getItem(0)).toBeInstanceOf(ExploreTracksCategoriesFragment.class);
+        expect(adapter.getItem(0)).toBeInstanceOf(ExploreGenresFragment.class);
     }
 
 }

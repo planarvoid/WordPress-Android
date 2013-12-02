@@ -67,9 +67,9 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldSetSectionViewTypes() {
-        adapter.onNext(new Section(0, R.string.explore_category_header_audio,
+        adapter.onNext(new Section(0, R.string.explore_genre_header_audio,
                 Lists.newArrayList(mock(Parcelable.class), mock(Parcelable.class))));
-        adapter.onNext(new Section(1, R.string.explore_category_header_music,
+        adapter.onNext(new Section(1, R.string.explore_genre_header_music,
                 Lists.newArrayList(mock(Parcelable.class))));
 
         expect(adapter.getItemViewType(0)).toEqual(SectionedAdapter.ITEM_VIEW_TYPE_HEADER);
@@ -79,9 +79,9 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldReturnSectionAssociatedToGivenPosition() {
-        Section section1 = new Section(0, R.string.explore_category_header_audio,
+        Section section1 = new Section(0, R.string.explore_genre_header_audio,
                 Lists.newArrayList(mock(Parcelable.class), mock(Parcelable.class)));
-        Section section2 = new Section(1, R.string.explore_category_header_music,
+        Section section2 = new Section(1, R.string.explore_genre_header_music,
                 Lists.newArrayList(mock(Parcelable.class)));
 
         adapter.onNext(section1);
@@ -94,9 +94,9 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldSetSectionHeaderOnViews() {
-        adapter.onNext(new Section(0, R.string.explore_category_header_audio,
+        adapter.onNext(new Section(0, R.string.explore_genre_header_audio,
                 Lists.newArrayList(mock(Parcelable.class), mock(Parcelable.class))));
-        adapter.onNext(new Section(1, R.string.explore_category_header_music,
+        adapter.onNext(new Section(1, R.string.explore_genre_header_music,
                 Lists.newArrayList(mock(Parcelable.class))));
 
         SectionedTestListRow sectionedRow = mock(SectionedTestListRow.class);

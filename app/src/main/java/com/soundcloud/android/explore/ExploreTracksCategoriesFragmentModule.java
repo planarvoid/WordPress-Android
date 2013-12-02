@@ -4,7 +4,7 @@ import com.soundcloud.android.dagger.AndroidObservableFactory;
 import dagger.Module;
 import dagger.Provides;
 
-@Module(complete = false, injects = {ExploreTracksCategoriesFragment.class})
+@Module(complete = false, injects = {ExploreGenresFragment.class})
 public class ExploreTracksCategoriesFragmentModule {
 
     @Provides
@@ -13,7 +13,7 @@ public class ExploreTracksCategoriesFragmentModule {
     }
 
     @Provides
-    public ExploreTracksCategoriesAdapter provideCategoriesAdapter() {
-        return new ExploreTracksCategoriesAdapter();
+    public ExploreGenresAdapter provideCategoriesAdapter() {
+        return new ExploreGenresAdapter();
     }
 }

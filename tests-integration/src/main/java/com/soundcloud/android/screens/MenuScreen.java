@@ -70,7 +70,7 @@ public class MenuScreen {
         solo.clickOnActionBarHomeButton();
         waiter.waitForDrawerToOpen();
         solo.clickOnText(explore_selector);
-        waiter.waitForViewId(R.id.suggested_tracks_categories_list);
+        waiter.waitForViewId(R.id.explore_genres_list);
         waiter.waitForListContentAndRetryIfLoadingFailed();
     }
 

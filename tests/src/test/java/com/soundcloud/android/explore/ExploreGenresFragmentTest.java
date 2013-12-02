@@ -12,8 +12,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.model.ExploreTracksCategories;
-import com.soundcloud.android.model.ExploreTracksCategory;
+import com.soundcloud.android.model.ExploreGenre;
+import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
@@ -42,14 +42,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ExploreTracksCategoriesFragmentTest {
+public class ExploreGenresFragmentTest {
 
-    private ExploreTracksCategoriesFragment fragment;
+    private ExploreGenresFragment fragment;
 
     @Mock
     private ListView listView;
     @Mock
-    private ExploreTracksCategoriesAdapter adapter;
+    private ExploreGenresAdapter adapter;
     @Mock
     private AndroidObservableFactory factory;
     @Mock
@@ -57,7 +57,7 @@ public class ExploreTracksCategoriesFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        fragment = new ExploreTracksCategoriesFragment(new DependencyInjector() {
+        fragment = new ExploreGenresFragment(new DependencyInjector() {
             @Override
             public void inject(Fragment target) {
                 ObjectGraph.create(new TestModule(factory)).inject(fragment);
@@ -73,9 +73,9 @@ public class ExploreTracksCategoriesFragmentTest {
 
     @Test
     public void shouldAddMusicAndAudioSections(){
-        final ExploreTracksCategory electronicCategory = new ExploreTracksCategory("electronic");
-        final ExploreTracksCategory comedyCategory = new ExploreTracksCategory("comedy");
-        ExploreTracksCategories categories = createSectionsFrom(electronicCategory, comedyCategory);
+        final ExploreGenre electronicCategory = new ExploreGenre("electronic");
+        final ExploreGenre comedyCategory = new ExploreGenre("comedy");
+        ExploreGenresSections categories = createSectionsFrom(electronicCategory, comedyCategory);
         addCategoriesToFragment(categories);
 
         createFragmentView();
@@ -102,7 +102,7 @@ public class ExploreTracksCategoriesFragmentTest {
 
     @Test
     public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() {
-        when(factory.create(any(Fragment.class))).thenReturn(Observable.<ExploreTracksCategories>error(new Exception()));
+        when(factory.create(any(Fragment.class))).thenReturn(Observable.<ExploreGenresSections>error(new Exception()));
 
         createFragmentView();
 
@@ -115,8 +115,8 @@ public class ExploreTracksCategoriesFragmentTest {
         verify(factory, times(2)).create(fragment);
     }
 
-    private void addCategoriesToFragment(ExploreTracksCategories categories) {
-        final Observable<ExploreTracksCategories> observable = Observable.just(
+    private void addCategoriesToFragment(ExploreGenresSections categories) {
+        final Observable<ExploreGenresSections> observable = Observable.just(
                 categories);
         when(factory.create(any(Fragment.class))).thenReturn(observable);
         when(listView.getHeaderViewsCount()).thenReturn(0);
@@ -126,14 +126,14 @@ public class ExploreTracksCategoriesFragmentTest {
         when(adapter.getItem(1)).thenReturn(categories.getAudio().get(0));
     }
 
-    private Section<ExploreTracksCategory> buildMusicSection(List<ExploreTracksCategory> categories) {
-        return new Section<ExploreTracksCategory>(ExploreTracksCategoriesAdapter.MUSIC_SECTION,
-                R.string.explore_category_header_music, categories);
+    private Section<ExploreGenre> buildMusicSection(List<ExploreGenre> categories) {
+        return new Section<ExploreGenre>(ExploreGenresAdapter.MUSIC_SECTION,
+                R.string.explore_genre_header_music, categories);
     }
 
-    private Section<ExploreTracksCategory> buildAudioSection(List<ExploreTracksCategory> categories) {
-        return new Section<ExploreTracksCategory>(ExploreTracksCategoriesAdapter.AUDIO_SECTION,
-                R.string.explore_category_header_audio, categories);
+    private Section<ExploreGenre> buildAudioSection(List<ExploreGenre> categories) {
+        return new Section<ExploreGenre>(ExploreGenresAdapter.AUDIO_SECTION,
+                R.string.explore_genre_header_audio, categories);
     }
 
     // HELPERS
@@ -147,16 +147,16 @@ public class ExploreTracksCategoriesFragmentTest {
         return fragmentLayout;
     }
 
-    private ExploreTracksCategories createSectionsFrom(ExploreTracksCategory musicCat, ExploreTracksCategory audioCat) {
-        final ExploreTracksCategories sections = new ExploreTracksCategories();
-        final ArrayList<ExploreTracksCategory> musicCategories = Lists.newArrayList(musicCat);
+    private ExploreGenresSections createSectionsFrom(ExploreGenre musicCat, ExploreGenre audioCat) {
+        final ExploreGenresSections sections = new ExploreGenresSections();
+        final ArrayList<ExploreGenre> musicCategories = Lists.newArrayList(musicCat);
         sections.setMusic(musicCategories);
-        final ArrayList<ExploreTracksCategory> audioCategories = Lists.newArrayList(audioCat);
+        final ArrayList<ExploreGenre> audioCategories = Lists.newArrayList(audioCat);
         sections.setAudio(audioCategories);
         return sections;
     }
 
-    @Module(injects = ExploreTracksCategoriesFragment.class)
+    @Module(injects = ExploreGenresFragment.class)
     public class TestModule {
         AndroidObservableFactory observableFactory;
 
@@ -170,7 +170,7 @@ public class ExploreTracksCategoriesFragmentTest {
         }
 
         @Provides
-        ExploreTracksCategoriesAdapter provideExplorePagerAdapter() {
+        ExploreGenresAdapter provideExplorePagerAdapter() {
             return adapter;
         }
     }
