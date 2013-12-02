@@ -173,11 +173,11 @@ public class PlaybackOperations {
     }
 
     private ArrayList<Long> getPlayableIdsFromModels(List<? extends ScModel> data) {
-        final Iterable<Playable> playables = (Iterable<Playable>) Iterables.filter(data, PLAYABLE_HOLDER_PREDICATE);
-        Iterable<Long> trackIds = Iterables.transform(playables, new Function<Playable, Long>() {
+        final Iterable<? extends ScModel> playables = Iterables.filter(data, PLAYABLE_HOLDER_PREDICATE);
+        Iterable<Long> trackIds = Iterables.transform(playables, new Function<ScModel, Long>() {
             @Override
-            public Long apply(Playable input) {
-                return input.getId();
+            public Long apply(ScModel input) {
+                return ((PlayableHolder) input).getPlayable().getId();
             }
         });
         return Lists.newArrayList(trackIds);
