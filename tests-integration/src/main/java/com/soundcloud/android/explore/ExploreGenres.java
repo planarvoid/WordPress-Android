@@ -48,6 +48,6 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
         assertEquals(15, categoryScreen.getItemsOnList());
 
         categoryScreen.scrollToBottomOfTracksListAndLoadMoreItems();
-        assertEquals("There should be additional electronic music tracks on the list", 25, categoryScreen.getItemsOnList());
+        assertTrue(15 < categoryScreen.getItemsOnList());
     }
 }
