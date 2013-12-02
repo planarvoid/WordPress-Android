@@ -11,9 +11,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.Locale;
 
 public class ExplorePagerAdapter extends FragmentPagerAdapter {
-    protected static final int TAB_CATEGORIES = 0;
-    protected static final int TAB_POPULAR_MUSIC = 1;
-    protected static final int TAB_POPULAR_AUDIO = 2;
+    protected static final int TAB_GENRES = 0;
+    protected static final int TAB_TRENDING_MUSIC = 1;
+    protected static final int TAB_TRENDING_AUDIO = 2;
 
     private final Resources mResources;
 
@@ -30,12 +30,12 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch (position) {
-            case TAB_CATEGORIES:
+            case TAB_GENRES:
                 return new ExploreTracksCategoriesFragment();
-            case TAB_POPULAR_MUSIC:
-                return ExploreTracksFragment.create(ExploreTracksCategory.POPULAR_MUSIC_CATEGORY, "explore:trending_music");
-            case TAB_POPULAR_AUDIO:
-                return ExploreTracksFragment.create(ExploreTracksCategory.POPULAR_AUDIO_CATEGORY, "explore:trending_audio");
+            case TAB_TRENDING_MUSIC:
+                return ExploreTracksFragment.create(ExploreTracksCategory.POPULAR_MUSIC_CATEGORY);
+            case TAB_TRENDING_AUDIO:
+                return ExploreTracksFragment.create(ExploreTracksCategory.POPULAR_AUDIO_CATEGORY);
         }
         throw new RuntimeException("Unexpected position for getItem " + position);
     }
@@ -48,11 +48,11 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         switch (position) {
-            case TAB_CATEGORIES:
+            case TAB_GENRES:
                 return mResources.getString(R.string.explore_genres).toUpperCase(Locale.getDefault());
-            case TAB_POPULAR_MUSIC:
+            case TAB_TRENDING_MUSIC:
                 return mResources.getString(R.string.explore_category_trending_music).toUpperCase(Locale.getDefault());
-            case TAB_POPULAR_AUDIO:
+            case TAB_TRENDING_AUDIO:
                 return mResources.getString(R.string.explore_category_trending_audio).toUpperCase(Locale.getDefault());
         }
         throw new RuntimeException("Unexpected position for getPageTitle " + position);

@@ -6,7 +6,6 @@ import static com.soundcloud.android.explore.ExploreTracksCategoriesAdapter.MUSI
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FriendFinderFragment;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
@@ -14,7 +13,6 @@ import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
-import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
@@ -66,12 +64,6 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
         mCategoriesObservable = buildObservable(mObservableFactory.create(this));
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Event.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get());
-    }
-
     private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable(Observable<ExploreTracksCategories> observable){
         return observable.mapMany(CATEGORIES_TO_SECTIONS).replay();
     }
@@ -88,14 +80,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
         final ExploreTracksCategory category = mCategoriesAdapter.getItem(adjustedPosition);
 
         intent.putExtra(ExploreTracksCategory.EXTRA, category);
-        intent.putExtra(ExploreTracksFragment.SCREEN_TRACKING_TAG_EXTRA, getScreenTrackingTag(category, adjustedPosition));
         startActivity(intent);
-    }
-
-    private String getScreenTrackingTag(ExploreTracksCategory category, int position) {
-        final int sectionId = mCategoriesAdapter.getSection(position).getSectionId();
-        Screen screen = sectionId == AUDIO_SECTION ? Screen.EXPLORE_AUDIO_GENRE : Screen.EXPLORE_MUSIC_GENRE;
-        return screen.get(category.getTitle());
     }
 
     @Override

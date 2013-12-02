@@ -1,6 +1,8 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.rx.Event;
 import com.viewpagerindicator.TabPageIndicator;
 
 import android.content.res.Resources;
@@ -50,8 +52,9 @@ public class ExploreFragment extends Fragment {
 
         TabPageIndicator mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
+        mPager.setOnPageChangeListener(new ExplorePagerScreenListener());
+        mPager.setCurrentItem(ExplorePagerAdapter.TAB_GENRES);
 
-        mPager.setCurrentItem(ExplorePagerAdapter.TAB_CATEGORIES);
     }
 
     @Override
@@ -62,4 +65,28 @@ public class ExploreFragment extends Fragment {
         super.onDestroyView();
     }
 
+    protected static class ExplorePagerScreenListener implements ViewPager.OnPageChangeListener {
+        @Override
+        public void onPageScrolled(int i, float v, int i2) {}
+
+        @Override
+        public void onPageSelected(int pageSelected) {
+            switch (pageSelected) {
+                case ExplorePagerAdapter.TAB_GENRES:
+                    Event.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get());
+                    break;
+                case ExplorePagerAdapter.TAB_TRENDING_MUSIC:
+                    Event.SCREEN_ENTERED.publish(Screen.EXPLORE_TRENDING_MUSIC.get());
+                    break;
+                case ExplorePagerAdapter.TAB_TRENDING_AUDIO:
+                    Event.SCREEN_ENTERED.publish(Screen.EXPLORE_TRENDING_AUDIO.get());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int i) {}
+    }
 }

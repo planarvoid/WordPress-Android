@@ -13,7 +13,6 @@ import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
@@ -37,8 +36,6 @@ import javax.inject.Inject;
 public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
 
-    static final String SCREEN_TRACKING_TAG_EXTRA = "screen.tag";
-
     private static final int GRID_VIEW_ID = R.id.suggested_tracks_grid;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
@@ -56,11 +53,10 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private Subscription mSubscription = Subscriptions.empty();
     private DependencyInjector mDependencyInjector;
 
-    public static ExploreTracksFragment create(ExploreTracksCategory category, String screenTrackingTag) {
+    public static ExploreTracksFragment create(ExploreTracksCategory category) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
         Bundle args = new Bundle();
         args.putParcelable(ExploreTracksCategory.EXTRA, category);
-        args.putString(SCREEN_TRACKING_TAG_EXTRA, screenTrackingTag);
         exploreTracksFragment.setArguments(args);
         return exploreTracksFragment;
     }
@@ -82,12 +78,6 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
         mSuggestedTracksObservable = buildSuggestedTracksObservable();
         loadTrackSuggestions(mSuggestedTracksObservable, mObserver);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Event.SCREEN_ENTERED.publish(getArguments().getString(SCREEN_TRACKING_TAG_EXTRA));
     }
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> buildSuggestedTracksObservable() {

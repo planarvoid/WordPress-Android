@@ -2,11 +2,9 @@ package com.soundcloud.android.explore;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
@@ -17,7 +15,6 @@ import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreTracksCategories;
 import com.soundcloud.android.model.ExploreTracksCategory;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.Event;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
 import dagger.ObjectGraph;
@@ -33,7 +30,6 @@ import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.util.functions.Func1;
 
-import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -117,49 +113,6 @@ public class ExploreTracksCategoriesFragmentTest {
         // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
         // If that wasn't the case, we'd simply replay a failed result.
         verify(factory, times(2)).create(fragment);
-    }
-
-    @Test
-    public void shouldPublishEnterScreenEventInOnResume() {
-        Subscription subscription = Event.SCREEN_ENTERED.subscribe(screenTrackingObserver);
-
-        fragment.onResume();
-        verify(screenTrackingObserver).onNext(eq("explore:genres"));
-
-        verifyNoMoreInteractions(screenTrackingObserver);
-        subscription.unsubscribe();
-    }
-
-    @Test
-    public void shouldGenerateAndPassCorrectScreenTrackingTagWhenSelectingMusicCategory() {
-        ExploreTracksCategories categories = createSectionsFrom(
-                new ExploreTracksCategory("electronic"), new ExploreTracksCategory("comedy"));
-        addCategoriesToFragment(categories);
-
-        createFragmentView();
-
-        fragment.onItemClick(listView, null, 0, -1);
-
-        Intent firedIntent = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
-        expect(firedIntent).not.toBeNull();
-        expect(firedIntent.getStringExtra(ExploreTracksFragment.SCREEN_TRACKING_TAG_EXTRA)).toEqual(
-                "explore:genres:music:electronic");
-    }
-
-    @Test
-    public void shouldGenerateAndPassCorrectScreenTrackingTagWhenSelectingAudioCategory() {
-        ExploreTracksCategories categories = createSectionsFrom(
-                new ExploreTracksCategory("electronic"), new ExploreTracksCategory("Religion & Spirituality"));
-        addCategoriesToFragment(categories);
-
-        createFragmentView();
-
-        fragment.onItemClick(listView, null, 1, -1);
-
-        Intent firedIntent = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
-        expect(firedIntent).not.toBeNull();
-        expect(firedIntent.getStringExtra(ExploreTracksFragment.SCREEN_TRACKING_TAG_EXTRA)).toEqual(
-                "explore:genres:audio:religion_&_spirituality");
     }
 
     private void addCategoriesToFragment(ExploreTracksCategories categories) {
