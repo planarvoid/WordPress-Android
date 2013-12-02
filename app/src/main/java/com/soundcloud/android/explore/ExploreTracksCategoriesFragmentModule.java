@@ -12,8 +12,4 @@ public class ExploreTracksCategoriesFragmentModule {
         return new AndroidObservableFactory(exploreTracksOperations.getCategories());
     }
 
-    @Provides
-    public ExploreGenresAdapter provideCategoriesAdapter() {
-        return new ExploreGenresAdapter();
-    }
 }

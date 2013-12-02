@@ -1,5 +1,6 @@
 package com.soundcloud.android.collections;
 
+import com.google.common.annotations.VisibleForTesting;
 import rx.Observer;
 
 import android.os.Parcelable;
@@ -86,7 +87,8 @@ public abstract class SectionedAdapter<ModelType extends Parcelable> extends Ite
         t.printStackTrace();
     }
 
-    private final class RowDescriptor {
+    @VisibleForTesting
+    protected final class RowDescriptor {
 
         private Section<ModelType> section;
         private boolean isSectionHeader;
