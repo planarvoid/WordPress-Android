@@ -8,12 +8,12 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.Event;
 import com.viewpagerindicator.TabPageIndicator;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
-import dagger.ObjectGraph;
 import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +30,7 @@ import javax.inject.Inject;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreFragmentTest {
+
 
     @Module(injects = ExploreFragmentTest.class)
     public class TestModule {
@@ -53,7 +54,7 @@ public class ExploreFragmentTest {
 
     @Before
     public void setUp() throws Exception {
-        ObjectGraph.create(new TestModule()).inject(this);
+        MockInjector.create(new TestModule()).inject(this);
 
         when(mockLayout.findViewById(R.id.pager)).thenReturn(mockViewPager);
         when(mockLayout.findViewById(R.id.indicator)).thenReturn(mockIndicator);
@@ -76,8 +77,9 @@ public class ExploreFragmentTest {
 
     @Test
     public void shouldAddListenerToViewPagerForTrackingScreenEvents(){
+        when(mockLayout.findViewById(R.id.indicator)).thenReturn(mockIndicator);
         mExploreFragment.onViewCreated(mockLayout, null);
-        verify(mockViewPager).setOnPageChangeListener(isA(ExplorePagerScreenListener.class));
+        verify(mockIndicator).setOnPageChangeListener(isA(ExplorePagerScreenListener.class));
     }
 
     @Test
@@ -87,7 +89,6 @@ public class ExploreFragmentTest {
         explorePagerScreenListener.onPageSelected(0);
         verify(observer).onNext("explore:genres");
         verifyNoMoreInteractions(observer);
-
     }
 
     @Test
@@ -97,7 +98,6 @@ public class ExploreFragmentTest {
         explorePagerScreenListener.onPageSelected(1);
         verify(observer).onNext("explore:trending_music");
         verifyNoMoreInteractions(observer);
-
     }
 
     @Test
@@ -107,7 +107,6 @@ public class ExploreFragmentTest {
         explorePagerScreenListener.onPageSelected(2);
         verify(observer).onNext("explore:trending_audio");
         verifyNoMoreInteractions(observer);
-
     }
 
     @Test(expected = IllegalArgumentException.class)
