@@ -107,11 +107,15 @@ public class NavigationFragment extends Fragment {
         if (intent.getData() != null) {
             if (intent.getData().getLastPathSegment().equals("stream")) {
                 selectItem(NavItem.STREAM.ordinal());
-                return true;
             } else if (intent.getData().getLastPathSegment().equals("explore")) {
                 selectItem(NavItem.EXPLORE.ordinal());
-                return true;
+            } else {
+                // facebook deeplink, as they need to be routed through the launcher activity
+                startActivity(new Intent(getActivity(), ResolveActivity.class).setAction(Intent.ACTION_VIEW)
+                        .setData(intent.getData()));
+                getActivity().finish();
             }
+            return true;
         }
         return false;
     }
