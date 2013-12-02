@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
+import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.AssociationManager;
@@ -231,7 +232,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         super.onCreate();
 
         new DaggerDependencyInjector().fromAppGraphWithModules(
-                new PlaybackModule()
+                new PlaybackModule(), new ApiModule()
         ).inject(this);
 
         mAssociationManager = new AssociationManager(this);
