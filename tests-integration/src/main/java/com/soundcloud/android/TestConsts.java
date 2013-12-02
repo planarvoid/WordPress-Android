@@ -19,6 +19,9 @@ public final class TestConsts {
     public static final Uri FORSS_PLAYLIST_M_URI = Uri.parse("http://m.soundcloud.com/forss/playlists/ecclesia-inspiration");
     public static final Uri FORSS_PLAYLIST_SC_URI = Uri.parse("soundcloud:playlists:2050462");
 
+    public static final Uri FACEBOOK_SOUND_URI = Uri.parse("https://soundcloud.com/soundcloud/5-years?utm_source=soundcloud&utm_campaign=share&utm_medium=facebook");
+    public static final Uri FACEBOOK_USER_URI = Uri.parse("https://soundcloud.com/steveangello?utm_source=soundcloud&utm_campaign=share&utm_medium=facebook");
+
     public static final Uri STEVE_ANGELLO_URI = Uri.parse("http://soundcloud.com/steveangello");
     public static final Uri STEVE_ANGELLO_SC_URI = Uri.parse("soundcloud:users:118312");
 
