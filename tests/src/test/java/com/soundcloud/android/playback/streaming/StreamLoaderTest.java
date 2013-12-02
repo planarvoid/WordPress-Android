@@ -138,20 +138,6 @@ public class StreamLoaderTest {
     }
 
     @Test
-    public void shouldNotRequeueItemIfServerReturns404() throws Exception {
-        setupChunkArray();
-        storage.storeMetadata(item);
-
-        pendingHeadRequests(testFile);
-        pendingDataRequest("bytes=1024-2047", 404, ByteBuffer.allocate(0));
-
-        final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
-        StreamFuture cb = loader.getDataForUrl(item.getUrl(), requestedRange);
-        expect(cb.isDone()).toBeFalse();
-        expect(cb.item.isAvailable()).toBeFalse();
-    }
-
-    @Test
     public void requestingTwoDifferentMissingChunks() throws Exception {
         setupChunkArray();
         pendingHeadRequests(testFile);

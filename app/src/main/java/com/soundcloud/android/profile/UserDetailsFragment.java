@@ -95,13 +95,7 @@ public class UserDetailsFragment extends Fragment {
                 } else {
                     mEmptyViewFactory.withMessageText(getString(R.string.info_empty_other_message));
                 }
-                if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-                    // won't fit in most landscape views
-                    mEmptyViewFactory.withImage(-1);
-                    mEmptyViewFactory.withActionText(null);
-                }
             }
-
             emptyView = mEmptyViewFactory.build(getActivity());
             emptyView.setId(android.R.id.empty);
             emptyView.setStatus(mEmptyViewStatus);

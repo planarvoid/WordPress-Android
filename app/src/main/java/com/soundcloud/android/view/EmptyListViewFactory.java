@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.net.Uri;
 
 /**
@@ -75,7 +74,7 @@ public class EmptyListViewFactory {
             // user browser specific
             case ME_SOUNDS:
                 mMessageText = context.getString(R.string.list_empty_user_sounds_message);
-                if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                if (shouldShowFullEmptyState(context)) {
                     mActionText = context.getString(R.string.list_empty_user_sounds_action);
                     mImage = R.drawable.empty_rec;
                     mPrimaryAction = new Intent(Actions.RECORD);
@@ -96,7 +95,7 @@ public class EmptyListViewFactory {
 
             case ME_LIKES:
                 mMessageText = context.getString(R.string.list_empty_user_likes_message);
-                if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                if (shouldShowFullEmptyState(context)) {
                     mActionText = context.getString(R.string.list_empty_user_likes_action);
                     mImage = R.drawable.empty_like;
                     mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
@@ -110,14 +109,14 @@ public class EmptyListViewFactory {
             case ME_FOLLOWERS:
                 if (showRecordingTeaser(context)) {
                     mMessageText = context.getString(R.string.list_empty_user_followers_nosounds_message);
-                    if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    if (shouldShowFullEmptyState(context)) {
                         mActionText = context.getString(R.string.list_empty_user_followers_nosounds_action);
                         mImage = R.drawable.empty_share;
                         mPrimaryAction = new Intent(Actions.RECORD);
                     }
                 } else {
                     mMessageText = context.getString(R.string.list_empty_user_followers_message);
-                    if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    if (shouldShowFullEmptyState(context)) {
                         mActionText = context.getString(R.string.list_empty_user_followers_action);
                         mImage = R.drawable.empty_rec;
                         mPrimaryAction = new Intent(Actions.YOUR_SOUNDS);
@@ -131,7 +130,7 @@ public class EmptyListViewFactory {
 
             case ME_FOLLOWINGS:
                 mMessageText = context.getString(R.string.list_empty_user_following_message);
-                if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                if (shouldShowFullEmptyState(context)) {
                     mActionText = context.getString(R.string.list_empty_user_following_action);
                     mImage = R.drawable.empty_follow_3row;
                     mPrimaryAction = new Intent(Actions.WHO_TO_FOLLOW);
@@ -144,6 +143,10 @@ public class EmptyListViewFactory {
         }
 
         return this;
+    }
+
+    private boolean shouldShowFullEmptyState(Context context) {
+         return context.getResources().getBoolean(R.bool.full_empty_states);
     }
 
     public EmptyListViewFactory withMessageText(@Nullable String messageText) {
