@@ -24,13 +24,13 @@ public class DrawerTest extends ActivityTestCase<LauncherActivity> {
     }
 
     public void testOpeningOverflowDoesNotCloseDrawer() throws Exception {
-        menuScreen.clickHomeButton();
+        menuScreen.open();
         solo.openSystemMenu();
         assertEquals("DrawerTest should be open when opening system menu", true, menuScreen.isOpened());
     }
 
     public void testDrawerClosesWhenOverflowMenuItemPicked() throws Exception {
-        menuScreen.clickHomeButton();
+        menuScreen.open();
         solo.openSystemMenu();
         menuScreen.clickSystemSettings();
         assertEquals("DrawerTest should be closed after picking system menu item", false, menuScreen.isOpened());
@@ -38,25 +38,25 @@ public class DrawerTest extends ActivityTestCase<LauncherActivity> {
 
     public void testDrawerProfileButtonOpensProfile() {
         Account account = AccountAssistant.getAccount(getInstrumentation().getTargetContext());
-        menuScreen.clickHomeButton();
+        menuScreen.open();
         ProfileScreen profileScreen = menuScreen.clickProfile();
         assertEquals("Should go to user profile", "android-testing", profileScreen.userName());
     }
 
     public void testDrawerOpenExplore() {
-        menuScreen.clickHomeButton();
+        menuScreen.open();
         ExploreScreen exploreScreen = menuScreen.clickExplore();
         assertEquals("Should go to Explore screen", true, exploreScreen.isVisible());
     }
 
     public void testDrawerOpensLikes() {
-        menuScreen.clickHomeButton();
+        menuScreen.open();
         LikesScreen likesScreen = menuScreen.clickLikes();
         assertEquals("Should go to Likes screen", true, likesScreen.isVisible());
     }
 
     public void testDrawerShowsPlaylists() {
-        menuScreen.clickHomeButton();
+        menuScreen.open();
         PlaylistScreen playlistScreen = menuScreen.clickPlaylist();
         assertEquals("Should go to Likes screen", true, playlistScreen.isVisible());
     }

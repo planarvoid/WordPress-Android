@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 public abstract class ActivityTestCase<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
     protected ApplicationProperties applicationProperties;
     protected MenuScreen menuScreen;
+    protected Waiter waiter;
 
     protected Han solo;
 
@@ -30,6 +31,8 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
     protected void setUp() throws Exception {
         solo = new Han(getInstrumentation());
         menuScreen = new MenuScreen(solo);
+        waiter = new Waiter(solo);
+
         applicationProperties = new ApplicationProperties(getActivity().getResources());
 
         getActivity();

@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.streaming;
 
 import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
+import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Stream;
 
@@ -104,23 +105,24 @@ public class StreamItem implements Parcelable {
         return mRedirectedUrl;
     }
 
-    public void invalidateRedirectUrl() {
-        mRedirectedUrl = null;
-    }
-
     public boolean isRedirectValid() {
         return mContentLength > 0
                 && mRedirectedUrl != null;
                 /* && !isRedirectExpired();  */ // unreliable, don't use
     }
 
-    public void markUnavailable(int status) {
-        mUnavailable = true;
-        setHttpError(status);
+    public boolean markUnavailable(int statusCode) {
+        mHttpErrorStatus = statusCode;
+        mUnavailable = PublicApiWrapper.isStatusCodeClientError(statusCode);
+        return mUnavailable;
     }
 
-    public void setHttpError(int status) {
-        mHttpErrorStatus = status;
+    public boolean invalidateRedirectUrl(int statusCode) {
+        mHttpErrorStatus = statusCode;
+        if (PublicApiWrapper.isStatusCodeClientError(statusCode)){
+            mRedirectedUrl = null;
+        }
+        return mRedirectedUrl == null;
     }
 
     public int getHttpError() {

@@ -279,6 +279,7 @@ public class ProfileActivity extends ScActivity implements
         }
     }
 
+    @Override
     public void onFollowChanged() {
         mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
         setFollowersMessage();

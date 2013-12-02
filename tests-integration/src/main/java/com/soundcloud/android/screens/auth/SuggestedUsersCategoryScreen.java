@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens.auth;
 
+import android.R.id;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListAdapter;
@@ -8,17 +9,20 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.SuggestedUser;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
+import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.view.GridViewCompat;
 
 import java.util.Set;
 
-public class SuggestedUsersCategoryScreen {
+public class SuggestedUsersCategoryScreen extends Screen {
+    private static final Class ACTIVITY = SuggestedUsersCategoryActivity.class;
 
-    private Han solo;
+    public SuggestedUsersCategoryScreen(Han solo) {
+        super(solo);
 
-    public SuggestedUsersCategoryScreen(Han driver) {
-        solo = driver;
+        waiter.waitForActivity(ACTIVITY);
+        waiter.waitForElement(id.content);
     }
 
     public String followUser(int index) {
@@ -83,5 +87,10 @@ public class SuggestedUsersCategoryScreen {
 
     private GridView suggestedUsersGrid(){
         return solo.getCurrentGridView();
+    }
+
+    @Override
+    protected Class getActivity() {
+        return ACTIVITY;
     }
 }

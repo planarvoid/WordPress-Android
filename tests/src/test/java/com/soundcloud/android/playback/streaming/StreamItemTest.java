@@ -4,6 +4,7 @@ package com.soundcloud.android.playback.streaming;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -81,10 +82,33 @@ public class StreamItemTest {
     }
 
     @Test
-    public void shouldMarkUnavailable() throws Exception {
+    public void shouldSetStatusAndMarkUnavailableOn4XXErrorCodes() throws Exception {
         StreamItem md = new StreamItem("https://api.soundcloud.com/tracks/1/stream", 100, "etag");
-        md.markUnavailable(404);
+        expect(md.markUnavailable(HttpStatus.SC_BAD_REQUEST)).toBeTrue();
         expect(md.isAvailable()).toBeFalse();
-        expect(md.getHttpError()).toEqual(404);
+        expect(md.getHttpError()).toEqual(HttpStatus.SC_BAD_REQUEST);
+    }
+
+    @Test
+    public void shouldSetStatusAndNotMarkUnavailableOn5XXCodes() throws Exception {
+        StreamItem md = new StreamItem("https://api.soundcloud.com/tracks/1/stream", 100, "etag");
+        expect(md.markUnavailable(HttpStatus.SC_INTERNAL_SERVER_ERROR)).toBeFalse();
+        expect(md.isAvailable()).toBeTrue();
+        expect(md.getHttpError()).toEqual(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+    }
+
+    @Test
+    public void shouldSetStatusAndInvalidateStreamUrlOn4XXCodes() throws Exception {
+        StreamItem md = new StreamItem("https://api.soundcloud.com/tracks/1/stream", 100, "etag");
+        expect(md.markUnavailable(HttpStatus.SC_BAD_REQUEST)).toBeTrue();
+        expect(md.isRedirectValid()).toBeFalse();
+        expect(md.getHttpError()).toEqual(HttpStatus.SC_BAD_REQUEST);
+    }
+
+    public void shouldSetStatusAndNotInvalidateStreamUrlOn5XXCodes() throws Exception {
+        StreamItem md = new StreamItem("https://api.soundcloud.com/tracks/1/stream", 100, "etag");
+        expect(md.markUnavailable(HttpStatus.SC_INTERNAL_SERVER_ERROR)).toBeFalse();
+        expect(md.isRedirectValid()).toBeTrue();
+        expect(md.getHttpError()).toEqual(HttpStatus.SC_INTERNAL_SERVER_ERROR);
     }
 }

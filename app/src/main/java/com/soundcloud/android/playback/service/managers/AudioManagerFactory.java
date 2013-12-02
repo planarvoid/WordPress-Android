@@ -18,7 +18,7 @@ public class AudioManagerFactory {
         IRemoteAudioManager manager = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             try {
-                Class klass = Class.forName("com.soundcloud.android.audio.managers.ICSRemoteAudioManager");
+                Class klass = Class.forName("com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager");
                 Constructor ctor = klass.getConstructor(Context.class);
                 manager = (IRemoteAudioManager) ctor.newInstance(context);
             } catch (ClassNotFoundException ignored) {

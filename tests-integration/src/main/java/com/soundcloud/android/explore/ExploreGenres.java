@@ -1,7 +1,8 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.explore.ExploreGenreScreen;
+import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTestCase;
@@ -9,8 +10,9 @@ import com.soundcloud.android.tests.ActivityTestCase;
 import static com.soundcloud.android.tests.TestUser.testUser;
 
 public class ExploreGenres extends ActivityTestCase<MainActivity> {
+    private MainScreen mainScreen;
     private ExploreScreen exploreScreen;
-    private ExploreGenreScreen exploreGenreScreen;
+    private ExploreGenreCategoryScreen categoryScreen;
 
     public ExploreGenres() {
         super(MainActivity.class);
@@ -20,30 +22,32 @@ public class ExploreGenres extends ActivityTestCase<MainActivity> {
     public void setUp() throws Exception {
         AccountAssistant.loginAs(getInstrumentation(), testUser.getUsername(), testUser.getPassword());
         super.setUp();
-        exploreScreen = new ExploreScreen(solo);
-        exploreGenreScreen = new ExploreGenreScreen(solo);
+        mainScreen = new MainScreen(solo);
+        exploreScreen = mainScreen.openExploreFromMenu();
+
     }
 
     public void testElectronicMusicCategoryHasContent(){
-        menuScreen.openExplore();
-        exploreScreen.clickGenreItem("Electronic");
-//        exploreScreen.clickElectronicGenre();
-        assertEquals(15, exploreGenreScreen.getItemsOnList());
+        categoryScreen = exploreScreen.clickGenreItem("Electronic");
+        waiter.waitForListContentAndRetryIfLoadingFailed();
+        assertEquals(15, categoryScreen.getItemsOnList());
     }
 
     public void testElectronicMusicCategoryPullToRefresh(){
-        menuScreen.openExplore();
-        exploreScreen.clickElectronicGenre();
-        assertEquals(15, exploreGenreScreen.getItemsOnList());
-        exploreGenreScreen.pullToRefresh();
-        assertEquals(15, exploreGenreScreen.getItemsOnList());
+        categoryScreen = exploreScreen.clickGenreItem("Electronic");
+        waiter.waitForListContentAndRetryIfLoadingFailed();
+        assertEquals(15, categoryScreen.getItemsOnList());
+
+        exploreScreen.pullToRefresh();
+        assertEquals(15, categoryScreen.getItemsOnList());
     }
 
     public void testElectronicMusicCategoryLoadsNextPageOfTracks(){
-        menuScreen.openExplore();
-        exploreScreen.clickElectronicGenre();
-        assertEquals(15, exploreGenreScreen.getItemsOnList());
-        exploreGenreScreen.scrollToBottomOfTracksListAndLoadMoreItems();
-        assertEquals("There should be additional electronic music tracks on the list", 25, exploreGenreScreen.getItemsOnList());
+        categoryScreen = exploreScreen.clickGenreItem("Electronic");
+        waiter.waitForListContentAndRetryIfLoadingFailed();
+        assertEquals(15, categoryScreen.getItemsOnList());
+
+        categoryScreen.scrollToBottomOfTracksListAndLoadMoreItems();
+        assertTrue(15 < categoryScreen.getItemsOnList());
     }
 }
