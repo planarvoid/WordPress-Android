@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.google.common.base.Objects;
 import com.soundcloud.android.model.behavior.Persisted;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
@@ -67,5 +68,25 @@ public class PlayQueueItem extends ScModel implements Parcelable, Persisted {
     @Override
     public Uri getBulkInsertUri() {
         return Content.PLAY_QUEUE.uri;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        PlayQueueItem that = (PlayQueueItem) o;
+        if (mTrackId != that.mTrackId) return false;
+        return Objects.equal(mSource, that.mSource) && Objects.equal(mSourceVersion, that.mSourceVersion);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) (mTrackId ^ (mTrackId >>> 32));
+        result = 31 * result + (mSource != null ? mSource.hashCode() : 0);
+        result = 31 * result + (mSourceVersion != null ? mSourceVersion.hashCode() : 0);
+        return result;
     }
 }
