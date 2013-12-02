@@ -2,14 +2,14 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.storage.PlayQueueStorage;
+import com.soundcloud.android.playback.service.PlayQueueOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.storage.PlayQueueStorage;
 import dagger.Module;
 import dagger.Provides;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import javax.inject.Singleton;
 
@@ -24,9 +24,15 @@ public class PlaybackModule {
 
     @Provides
     @Singleton
-    PlayQueueManager providePlayQueueManager(Context context, PlayQueueStorage playQueueStorage, PlaybackOperations playbackOperations,
-                                             SharedPreferences sharedPreferences, ScModelManager modelManager) {
-        return new PlayQueueManager(context, playQueueStorage, playbackOperations, sharedPreferences, modelManager);
+    PlayQueueOperations providePlayQueueOperations(Context context, PlayQueueStorage playQueueStorage) {
+        return new PlayQueueOperations(context, playQueueStorage);
+    }
+
+    @Provides
+    @Singleton
+    PlayQueueManager providePlayQueueManager(Context context, PlaybackOperations playbackOperations,
+                                             PlayQueueOperations playQueueOperations, ScModelManager modelManager) {
+        return new PlayQueueManager(context, playbackOperations, playQueueOperations, modelManager);
     }
 
     @Provides

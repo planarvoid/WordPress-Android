@@ -25,17 +25,16 @@ class PlayQueue {
     private boolean mCurrentTrackIsUserTriggered;
 
     public static PlayQueue empty(){
-        return new PlayQueue(Collections.<Long>emptyList(), -1, PlaySessionSource.EMPTY);
+        return new PlayQueue(Collections.<PlayQueueItem>emptyList(), -1, PlaySessionSource.EMPTY);
     }
 
-    public PlayQueue(List<Long> trackIds, int startPosition, PlaySessionSource playSessionSource) {
-        setPlayQueueFromIds(trackIds, playSessionSource);
-        mPosition = startPosition;
-        mPlaySessionSource = playSessionSource;
+    public static PlayQueue fromIdList(List<Long> trackIds, int startPosition, PlaySessionSource playSessionSource) {
+        return new PlayQueue(getPlayQueueItemsFromIds(trackIds, playSessionSource), startPosition, playSessionSource);
     }
 
-    public PlayQueue(List<PlayQueueItem> playQueueItems, PlaySessionSource playSessionSource) {
+    public PlayQueue(List<PlayQueueItem> playQueueItems, int startPosition, PlaySessionSource playSessionSource) {
         mPlayQueueItems = playQueueItems;
+        mPosition = startPosition;
         mPlaySessionSource = playSessionSource;
     }
 
@@ -116,13 +115,8 @@ class PlayQueue {
         return mPlaySessionSource.getSetId();
     }
 
-    @VisibleForTesting
-    Uri getPlayQueueStateUri(long seekPos, long currentTrackId) {
-        return new LastPlayQueueStateUri().toUri(currentTrackId, mPosition, seekPos, mPlaySessionSource);
-    }
-
-    private void setPlayQueueFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource){
-        mPlayQueueItems = Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
+    private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource){
+        return Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
             @Override
             public PlayQueueItem apply(Long input) {
                 return new PlayQueueItem(input, playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion());

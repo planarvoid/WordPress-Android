@@ -24,7 +24,7 @@ public class PlayQueueTest {
 
     @Test
     public void shouldCreatePlayQueueWithItemsAndSource() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2), PLAY_SESSION_SOURCE);
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2), 0, PLAY_SESSION_SOURCE);
 
         expect(playQueue.getItems()).toContainExactly(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2);
         expect(playQueue.getOriginPage()).toBe(ORIGIN_PAGE);
@@ -33,9 +33,8 @@ public class PlayQueueTest {
 
     @Test
     public void shouldReturnEventLoggerParams() {
-        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2), PLAY_SESSION_SOURCE);
+        PlayQueue playQueue = new PlayQueue(Lists.newArrayList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2), 0, PLAY_SESSION_SOURCE);
 
-        expect(playQueue.setPosition(0)).toBeTrue();
         expect(playQueue.getCurrentTrackId()).toEqual(1L);
         expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&context=explore%3Amusic%3Atechno&source=source1&source_version=version1&set_id=54321&set_position=0");
 
@@ -144,7 +143,7 @@ public class PlayQueueTest {
     }
 
     private PlayQueue createPlayQueue(List<Long> idList, int startPosition, PlaySessionSource source) {
-        return new PlayQueue(idList, startPosition, source);
+        return PlayQueue.fromIdList(idList, startPosition, source);
     }
 
     private PlayQueue createPlayQueue(List<Long> idList, int startPosition) {

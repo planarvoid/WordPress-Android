@@ -123,7 +123,7 @@ public class PlaybackReceiverTest {
         intent.putExtra(PlaybackService.PlayExtras.startPosition, 2);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
-        verify(playQueueManager).setNewPlayQueue(eq(new PlayQueue(idList, 2, playSessionSource)));
+        verify(playQueueManager).setNewPlayQueue(eq(PlayQueue.fromIdList(idList, 2, playSessionSource)));
     }
 
     @Test
