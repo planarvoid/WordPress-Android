@@ -7,6 +7,7 @@ import android.net.Uri;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Locale;
 
 public class EventLoggerParamsBuilder {
 
@@ -72,7 +73,7 @@ public class EventLoggerParamsBuilder {
 
     private String formatOriginUrl(String originUrl) {
         try {
-            return URLEncoder.encode(originUrl.toLowerCase().replace(" ", "_"), "utf-8");
+            return URLEncoder.encode(originUrl.toLowerCase(Locale.ENGLISH).replace(" ", "_"), "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

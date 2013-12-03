@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Locale;
+
 public class PlaySessionSource implements Parcelable{
 
     public static PlaySessionSource EMPTY = new PlaySessionSource();
@@ -15,7 +17,7 @@ public class PlaySessionSource implements Parcelable{
         RECOMMENDER, EXPLORE;
 
         public String value() {
-            return this.toString().toLowerCase();
+            return this.toString().toLowerCase(Locale.ENGLISH);
         }
     }
 

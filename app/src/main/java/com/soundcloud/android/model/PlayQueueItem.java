@@ -10,9 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Parcelable;
 
-public class PlayQueueItem extends ScModel implements Parcelable, Persisted {
+public class PlayQueueItem extends ScModel implements Persisted {
 
     private long mTrackId;
     private String mSource;
@@ -24,6 +23,7 @@ public class PlayQueueItem extends ScModel implements Parcelable, Persisted {
         this.mSourceVersion = sourceVersion;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public PlayQueueItem(Cursor cursor) {
         mTrackId = cursor.getLong(cursor.getColumnIndex(DBHelper.PlayQueue.TRACK_ID));
         mSource = cursor.getString(cursor.getColumnIndex(DBHelper.PlayQueue.SOURCE));
