@@ -209,6 +209,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         if (mPlaylistsFragment == null) {
             mPlaylistsFragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
         }
+        Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_PLAYLISTS.get());
         attachFragment(mPlaylistsFragment, "playlists_fragment", R.string.side_menu_playlists);
     }
 
@@ -216,6 +217,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         if (mLikesFragment == null) {
             mLikesFragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
         }
+        Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_LIKES.get());
         attachFragment(mLikesFragment, "likes_fragment", R.string.side_menu_likes);
     }
 
@@ -233,7 +235,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             mStreamFragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
         }
 
-        Event.SCREEN_ENTERED.publish(Screen.STREAM.get());
+        Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_STREAM.get());
         attachFragment(mStreamFragment, "stream_fragment", R.string.side_menu_stream);
     }
 

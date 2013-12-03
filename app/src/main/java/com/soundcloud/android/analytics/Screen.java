@@ -5,7 +5,9 @@ import java.util.Locale;
 public enum Screen {
 
     // core screens
-    STREAM("stream:main"),
+    SIDE_MENU_STREAM("stream:main"),
+    SIDE_MENU_LIKES("collection:likes"),
+    SIDE_MENU_PLAYLISTS("collection:playlists"),
 
     // explore screens
     EXPLORE_GENRES("explore:genres"),
