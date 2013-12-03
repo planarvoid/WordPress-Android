@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import android.content.Context;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -44,7 +45,7 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldClearSectionsArrayOnClear(){
-        final Map listPositionsToSections = mock(Map.class);
+        final SparseArray listPositionsToSections = mock(SparseArray.class);
         adapter = new SectionedAdapter(listPositionsToSections) {
             @Override
             protected View createItemView(int position, ViewGroup parent) {

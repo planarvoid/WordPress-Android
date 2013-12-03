@@ -4,10 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import rx.Observer;
 
 import android.os.Parcelable;
+import android.util.SparseArray;
 import android.view.View;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class SectionedAdapter<ModelType extends Parcelable> extends ItemAdapter<ModelType> implements Observer<Section<ModelType>> {
 
@@ -15,13 +13,13 @@ public abstract class SectionedAdapter<ModelType extends Parcelable> extends Ite
     static final int ITEM_VIEW_TYPE_DEFAULT = 0;
     static final int ITEM_VIEW_TYPE_HEADER = 1;
 
-    private final Map<Integer, RowDescriptor> mListPositionsToSections;
+    private final SparseArray<RowDescriptor> mListPositionsToSections;
 
     public SectionedAdapter() {
-        this(new HashMap<Integer, RowDescriptor>());
+        this(new SparseArray<RowDescriptor>());
     }
 
-    protected SectionedAdapter(Map<Integer, RowDescriptor> sectionHeaderPositions) {
+    protected SectionedAdapter(SparseArray<RowDescriptor> sectionHeaderPositions) {
         super(INITIAL_LIST_CAPACITY);
         mListPositionsToSections = sectionHeaderPositions;
     }
