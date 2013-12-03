@@ -8,6 +8,7 @@ import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
+import android.view.LayoutInflater;
 
 @Module(library = true)
 public class ApplicationModule {
@@ -47,6 +48,11 @@ public class ApplicationModule {
     @Provides
     public ContentResolver provideContentResolver(){
         return mApplication.getContentResolver();
+    }
+
+    @Provides
+    public LayoutInflater provideLayoutInflater(){
+        return LayoutInflater.from(mApplication);
     }
 
 }

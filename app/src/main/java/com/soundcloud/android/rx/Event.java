@@ -18,6 +18,7 @@ import rx.subjects.PublishSubject;
 public enum Event {
 
     CURRENT_USER_UPDATED(User.class),
+    SCREEN_ENTERED(String.class),
 
     // I'd like to keep this to make unit testing simpler and not bound to our app specific events.
     TEST_EVENT(String.class);

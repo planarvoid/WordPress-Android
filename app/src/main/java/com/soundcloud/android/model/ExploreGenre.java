@@ -10,11 +10,11 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-public class ExploreTracksCategory implements Parcelable {
+public class ExploreGenre implements Parcelable {
 
-    public static final String EXTRA = "category";
-    public static final ExploreTracksCategory POPULAR_MUSIC_CATEGORY = new ExploreTracksCategory("Trending Music");
-    public static final ExploreTracksCategory POPULAR_AUDIO_CATEGORY = new ExploreTracksCategory("Trending Audio");
+    public static final String EXPLORE_GENRE_EXTRA = "category";
+    public static final ExploreGenre POPULAR_MUSIC_CATEGORY = new ExploreGenre("Trending Music");
+    public static final ExploreGenre POPULAR_AUDIO_CATEGORY = new ExploreGenre("Trending Audio");
     private static final int POPULAR_MUSIC_DESCRIPTION = 1;
     private static final int POPULAR_AUDIO_DESCRIPTION = 2;
 
@@ -23,17 +23,17 @@ public class ExploreTracksCategory implements Parcelable {
 
     private Map<String, Link> mLinks = Collections.emptyMap();
 
-    public ExploreTracksCategory() { /* For Deserialization */ }
+    public ExploreGenre() { /* For Deserialization */ }
 
-    public ExploreTracksCategory(String title) {
+    public ExploreGenre(String title) {
         this.mTitle = title;
     }
 
-    public ExploreTracksCategory(String title, String suggestedTracksUrl) {
+    public ExploreGenre(String title, String suggestedTracksUrl) {
         this.mTitle = title;
     }
 
-    public ExploreTracksCategory(Parcel in) {
+    public ExploreGenre(Parcel in) {
         Bundle b = in.readBundle(Link.class.getClassLoader());
         mTitle = b.getString("title");
         mLinks = (Map<String, Link>) b.getSerializable("links");
@@ -84,8 +84,8 @@ public class ExploreTracksCategory implements Parcelable {
         dest.writeBundle(b);
     }
 
-    public static final Parcelable.Creator<ExploreTracksCategory> CREATOR = new Parcelable.Creator<ExploreTracksCategory>() {
-        public ExploreTracksCategory createFromParcel(Parcel in) {
+    public static final Parcelable.Creator<ExploreGenre> CREATOR = new Parcelable.Creator<ExploreGenre>() {
+        public ExploreGenre createFromParcel(Parcel in) {
             int description=in.readInt();
             switch(description)
             {
@@ -96,12 +96,12 @@ public class ExploreTracksCategory implements Parcelable {
                     return POPULAR_AUDIO_CATEGORY;
 
                 default:
-                    return new ExploreTracksCategory(in);
+                    return new ExploreGenre(in);
             }
         }
 
-        public ExploreTracksCategory[] newArray(int size) {
-            return new ExploreTracksCategory[size];
+        public ExploreGenre[] newArray(int size) {
+            return new ExploreGenre[size];
         }
     };
 }

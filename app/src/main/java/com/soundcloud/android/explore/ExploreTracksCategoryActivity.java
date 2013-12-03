@@ -5,7 +5,7 @@ import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.ExploreTracksCategory;
+import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.storage.StorageModule;
 import dagger.ObjectGraph;
 
@@ -31,7 +31,7 @@ public class ExploreTracksCategoryActivity extends ScActivity implements ObjectG
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final ExploreTracksCategory category = getIntent().getParcelableExtra(ExploreTracksCategory.EXTRA);
+        final ExploreGenre category = getIntent().getParcelableExtra(ExploreGenre.EXPLORE_GENRE_EXTRA);
         setTitle(category.getTitle());
 
         if (savedInstanceState == null) {

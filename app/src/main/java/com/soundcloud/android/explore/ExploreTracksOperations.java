@@ -11,8 +11,8 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudAPIRequest;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
 import com.soundcloud.android.model.ClientUri;
-import com.soundcloud.android.model.ExploreTracksCategories;
-import com.soundcloud.android.model.ExploreTracksCategory;
+import com.soundcloud.android.model.ExploreGenre;
+import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.model.Link;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.SuggestedTracksCollection;
@@ -38,17 +38,17 @@ public class ExploreTracksOperations extends ScheduledOperations {
         mRxHttpClient = rxHttpClient;
     }
 
-    public Observable<ExploreTracksCategories> getCategories() {
-        APIRequest<ExploreTracksCategories> request = SoundCloudAPIRequest.RequestBuilder.<ExploreTracksCategories>get(APIEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
+    public Observable<ExploreGenresSections> getCategories() {
+        APIRequest<ExploreGenresSections> request = SoundCloudAPIRequest.RequestBuilder.<ExploreGenresSections>get(APIEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
                 .forPrivateAPI(1)
-                .forResource(TypeToken.of(ExploreTracksCategories.class)).build();
+                .forResource(TypeToken.of(ExploreGenresSections.class)).build();
         return mRxHttpClient.fetchModels(request);
     }
 
-    public Observable<Page<SuggestedTracksCollection>> getSuggestedTracks(ExploreTracksCategory category) {
-        if (category == ExploreTracksCategory.POPULAR_MUSIC_CATEGORY) {
+    public Observable<Page<SuggestedTracksCollection>> getSuggestedTracks(ExploreGenre category) {
+        if (category == ExploreGenre.POPULAR_MUSIC_CATEGORY) {
             return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path());
-        } else if (category == ExploreTracksCategory.POPULAR_AUDIO_CATEGORY) {
+        } else if (category == ExploreGenre.POPULAR_AUDIO_CATEGORY) {
             return getSuggestedTracks(APIEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path());
         } else {
             return getSuggestedTracks(category.getSuggestedTracksPath());

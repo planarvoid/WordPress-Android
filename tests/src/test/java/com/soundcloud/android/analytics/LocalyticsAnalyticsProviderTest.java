@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.localytics.android.LocalyticsSession;
@@ -27,12 +28,6 @@ public class LocalyticsAnalyticsProviderTest {
     }
 
     @Test
-    public void shouldUploadDataWhenOpeningSession(){
-        localyticsProvider.openSession();
-        verify(localyticsSession).upload();
-    }
-
-    @Test
     public void shouldUploadDataWhenClosingSession(){
         localyticsProvider.closeSession();
         verify(localyticsSession).upload();
@@ -44,4 +39,9 @@ public class LocalyticsAnalyticsProviderTest {
         verify(localyticsSession).close();
     }
 
+    @Test
+    public void shouldTrackScreenWithGivenName() {
+        localyticsProvider.trackScreen("main:explore");
+        verify(localyticsSession).tagScreen(eq("main:explore"));
+    }
 }

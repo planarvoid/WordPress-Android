@@ -8,6 +8,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observer;
 
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -21,6 +22,8 @@ public class ExploreTracksFragmentTest {
     private ExploreTracksAdapter adapter;
     @Mock
     private FragmentActivity activity;
+    @Mock
+    private Observer<String> screenTrackingObserver;
 
     @Before
     public void setUp() throws Exception {
@@ -33,4 +36,5 @@ public class ExploreTracksFragmentTest {
     public void shouldLoadFirstPageOfTrackSuggestionsWhenStarted() {
         fragment.onViewCreated(View.inflate(Robolectric.application, R.layout.suggested_tracks_fragment, null), null);
     }
+
 }

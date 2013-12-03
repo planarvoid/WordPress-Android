@@ -1,20 +1,25 @@
-package com.soundcloud.android.model;
+package com.soundcloud.android.collections;
 
-import java.util.Collections;
 import java.util.List;
 
 public class Section<T> {
 
-    private int mTitleId;
-    private List<T> mItems = Collections.emptyList();
+    private final int mSectionId;
+    private final int mTitleId;
+    private final List<T> mItems;
 
-    public Section(int titleId, List<T> items) {
+    public Section(int sectionId, int titleId, List<T> items) {
+        this.mSectionId = sectionId;
         this.mTitleId = titleId;
         this.mItems = items;
     }
 
     public int getTitleId() {
         return mTitleId;
+    }
+
+    public int getSectionId() {
+        return mSectionId;
     }
 
     public List<T> getItems() {
@@ -29,7 +34,7 @@ public class Section<T> {
 
         Section section = (Section) o;
 
-        if (mTitleId != section.mTitleId) return false;
+        if (mSectionId != section.mSectionId) return false;
         if (!mItems.equals(section.mItems)) return false;
 
         return true;
@@ -37,7 +42,7 @@ public class Section<T> {
 
     @Override
     public int hashCode() {
-        int result = mTitleId;
+        int result = mSectionId;
         result = 31 * result + mItems.hashCode();
         return result;
     }
