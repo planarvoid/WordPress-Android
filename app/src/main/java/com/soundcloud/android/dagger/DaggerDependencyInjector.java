@@ -23,7 +23,10 @@ public class DaggerDependencyInjector implements DependencyInjector{
     }
 
     private ObjectGraphProvider getObjectGraphProvider(Fragment target) {
-        final Activity hostActivity = target.getActivity();
+        final Fragment parentFragment = target.getParentFragment();
+        // we found that getActivity on a child fragment can actually return the previous activity it was attached to
+        // so always get the host activity from the parent fragment
+        final Activity hostActivity = parentFragment != null ? parentFragment.getActivity() : target.getActivity();
         if (hostActivity == null) {
             throw new IllegalStateException("Fragment requested to be injected, host activity is not a object graph provider : " + target.getClass().getSimpleName());
         }
