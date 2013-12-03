@@ -23,6 +23,7 @@ import rx.android.AndroidObservables;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -107,7 +108,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mAdapter.getItem(position));
         mPlaybackOperations.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag(),
-                "explore:" + getExploreCategory().getTitle()); // todo, no hardcoding tags once we implement full eventlogger
+                Uri.parse("explore:" + getExploreCategory().getTitle())); // todo, no hardcoding tags once we implement full eventlogger
     }
 
     @Override

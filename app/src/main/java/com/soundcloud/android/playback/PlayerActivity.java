@@ -13,25 +13,18 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.playback.views.AddCommentDialog;
 import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
 import com.soundcloud.android.playback.views.PlayerTrackDetailsLayout;
 import com.soundcloud.android.playback.views.PlayerTrackPager;
-import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.playback.views.TransportBarView;
-import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
-import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
@@ -76,7 +69,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
 
     @NotNull
-    private PlayQueue mPlayQueue = PlayQueue.EMPTY;
+    private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
     private boolean mIsFirstLoad;
     private LinearLayout mPlayerInfoLayout;
     private PlayerTrackDetailsLayout mTrackDetailsView;
@@ -264,7 +257,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        final PlayQueue playQueue = getPlayQueueFromIntent(intent);
+        final PlayQueueView playQueue = getPlayQueueFromIntent(intent);
         if (playQueue != null && !playQueue.isEmpty()){
             mPlayQueue = playQueue;
             refreshTrackPager();
@@ -294,28 +287,28 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         super.onDestroy();
     }
 
-    private PlayQueue getPlayQueueFromIntent(Intent intent) {
+    private PlayQueueView getPlayQueueFromIntent(Intent intent) {
 
         final String action = intent.getAction();
-        PlayQueue playQueue = PlayQueue.EMPTY;
+        PlayQueueView playQueue = PlayQueueView.EMPTY;
 
         if (Intent.ACTION_VIEW.equals(action)) {
             // Play from a View Intent, this probably came from quicksearch
             if (intent.getData() != null) {
-                playQueue = new PlayQueue(UriUtils.getLastSegmentAsLong(intent.getData()));
-                startService(new Intent(PlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueue.EXTRA, playQueue));
+                playQueue = new PlayQueueView(UriUtils.getLastSegmentAsLong(intent.getData()));
+                startService(new Intent(PlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueueView.EXTRA, playQueue));
             }
 
         } else if (intent.hasExtra(Track.EXTRA_ID)) {
-            playQueue = new PlayQueue(intent.getLongExtra(Track.EXTRA_ID, -1l));
+            playQueue = new PlayQueueView(intent.getLongExtra(Track.EXTRA_ID, -1l));
 
         } else if (intent.getParcelableExtra(Track.EXTRA) != null) {
             final Track track = intent.getParcelableExtra(Track.EXTRA);
             SoundCloudApplication.MODEL_MANAGER.cache(track);
-            playQueue = new PlayQueue(Lists.newArrayList(track.getId()), 0);
+            playQueue = new PlayQueueView(Lists.newArrayList(track.getId()), 0);
 
             if (Actions.PLAY.equals(action)){
-                startService(new Intent(PlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueue.EXTRA, playQueue));
+                startService(new Intent(PlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueueView.EXTRA, playQueue));
             }
         }
         return playQueue;
@@ -417,7 +410,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
 
             final PlaybackService playbackService = mPlaybackService;
-            if (playbackService != null && mPlayQueue != PlayQueue.EMPTY) {
+            if (playbackService != null && mPlayQueue != PlayQueueView.EMPTY) {
 
                 if (!PlaybackService.getPlaybackState().isSupposedToBePlaying()
                         && getCurrentDisplayedTrackPosition() != mPlayQueue.getPosition()) {
@@ -557,8 +550,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
      * The decision is based on whether the intent playqueue exists and whether the service has loaded that playqueue
      * already. If not, we show the temporary playqueue and wait for  {@link com.soundcloud.android.playback.service.PlaybackService.Broadcasts#PLAYQUEUE_CHANGED}
      */
-    private PlayQueue getInitialPlayQueue(boolean isFirstLoad) {
-        final PlayQueue intentPlayQueue = isFirstLoad ? getPlayQueueFromIntent(getIntent()) : PlayQueue.EMPTY;
+    private PlayQueueView getInitialPlayQueue(boolean isFirstLoad) {
+        final PlayQueueView intentPlayQueue = isFirstLoad ? getPlayQueueFromIntent(getIntent()) : PlayQueueView.EMPTY;
 
         final boolean waitingForServiceToLoadQueue = !intentPlayQueue.isEmpty()
                 && intentPlayQueue.getCurrentTrackId() != PlaybackService.getCurrentTrackId();
@@ -579,7 +572,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             String action = intent.getAction();
             if (action.equals(Broadcasts.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-                mPlayQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
+                mPlayQueue = intent.getParcelableExtra(PlayQueueView.EXTRA);
                 if (mPlayQueue.isEmpty()){
                     // Service has no playlist. Probably came from the widget. Kick them out to home
                     onSupportNavigateUp();
@@ -590,9 +583,9 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 mPlayQueue.setPosition(queuePos);
                 onMetaChanged();
             } else if (action.equals(Broadcasts.RELATED_LOAD_STATE_CHANGED)) {
-                if (mPlayQueue != PlayQueue.EMPTY){
+                if (mPlayQueue != PlayQueueView.EMPTY){
 
-                    mPlayQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
+                    mPlayQueue = intent.getParcelableExtra(PlayQueueView.EXTRA);
                     mTrackPagerAdapter.setPlayQueue(mPlayQueue);
                     mTrackPagerAdapter.reloadEmptyView();
                     mTrackPagerAdapter.notifyDataSetChanged();

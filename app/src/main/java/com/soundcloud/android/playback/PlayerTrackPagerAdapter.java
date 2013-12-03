@@ -8,7 +8,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBiMap;
 import com.soundcloud.android.collections.BasePagerAdapter;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.service.PlayQueue;
+import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.views.PlayerQueueView;
 import com.soundcloud.android.playback.views.PlayerTrackView;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +28,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
     private final BiMap<PlayerQueueView, Integer> mQueueViewsByPosition = HashBiMap.create(3);
     private final PlaybackOperations mPlaybackOperations;
 
-    private PlayQueue mPlayQueue = PlayQueue.EMPTY;
+    private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
 
     public PlayerTrackPagerAdapter() {
         this(new PlaybackOperations());
@@ -52,7 +52,7 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         });
     }
 
-    public void setPlayQueue(PlayQueue playQueue) {
+    public void setPlayQueue(PlayQueueView playQueue) {
         mPlayQueue = playQueue;
     }
 

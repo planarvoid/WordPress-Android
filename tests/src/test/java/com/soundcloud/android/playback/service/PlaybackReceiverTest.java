@@ -6,18 +6,19 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.primitives.Longs;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tasks.FetchModelTask;
+import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,9 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.net.Uri;
+
+import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class PlaybackReceiverTest {
@@ -41,7 +45,7 @@ public class PlaybackReceiverTest {
     @Mock
     private AssociationManager associationManager;
     @Mock
-    private PlayQueue playQueue;
+    private PlayQueueView playQueue;
     @Mock
     private AudioManager audioManager;
     @Mock
@@ -108,22 +112,26 @@ public class PlaybackReceiverTest {
     }
 
     @Test
-    public void sendingNewPlayQueueShouldForwardItToPlayQueueManager() {
-        PlayQueue playQueue = new PlayQueue(1L);
+    public void shouldCreateAndSetPlayQueueOnPlayQueueManager() {
+        final long[] idListArray = new long[]{1L, 2L, 3L};
+        final List<Long> idList = Longs.asList(idListArray);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Uri.parse("origin:page"), 123L, "verion1");
+
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
-        intent.putExtra(PlayQueue.EXTRA, playQueue);
+        intent.putExtra(PlaybackService.PlayExtras.trackIdList, idListArray);
+        intent.putExtra(PlaybackService.PlayExtras.playSessionSource, playSessionSource);
+        intent.putExtra(PlaybackService.PlayExtras.startPosition, 2);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
-
-        verify(playQueueManager).setNewPlayQueue(playQueue);
-        verifyNoMoreInteractions(playQueueManager);
+        verify(playQueueManager).setNewPlayQueue(eq(PlayQueue.fromIdList(idList, 2, playSessionSource)));
     }
 
     @Test
     public void sendingNewPlayQueueShouldOpenCurrentTrackInPlaybackService() {
-        PlayQueue playQueue = new PlayQueue(1L);
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
-        intent.putExtra(PlayQueue.EXTRA, playQueue);
+        intent.putExtra(PlaybackService.PlayExtras.trackIdList, new long[]{1L, 2L, 3L});
+        intent.putExtra(PlaybackService.PlayExtras.playSessionSource, new PlaySessionSource(Uri.parse("origin:page"), 123L, "verion1"));
+        intent.putExtra(PlaybackService.PlayExtras.startPosition, 2);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 
@@ -132,10 +140,10 @@ public class PlaybackReceiverTest {
 
     @Test
     public void sendingNewPlayQueueShouldOptionallyFetchRelatedTracks() {
-        PlayQueue playQueue = new PlayQueue(1L);
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
-        intent.putExtra(PlayQueue.EXTRA, playQueue);
-        intent.putExtra(PlaybackService.PlayExtras.fetchRelated, true);
+        intent.putExtra(PlaybackService.PlayExtras.trackIdList, new long[]{1L});
+        intent.putExtra(PlaybackService.PlayExtras.playSessionSource, new PlaySessionSource(Uri.parse("explore:page"), 123L, "verion1"));
+        intent.putExtra(PlaybackService.PlayExtras.startPosition, 0);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
 

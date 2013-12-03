@@ -3,24 +3,28 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
+import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.AssociationManager;
-import com.soundcloud.android.explore.ExploreTracksOperations;
+import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaybackModule;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.managers.AudioManagerFactory;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.playback.streaming.StreamItem;
 import com.soundcloud.android.playback.streaming.StreamProxy;
+import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
+import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Media;
@@ -32,9 +36,7 @@ import com.soundcloud.android.tracking.eventlogger.PlayEventTrackingApi;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.utils.images.ImageUtils;
-import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import org.jetbrains.annotations.Nullable;
 import rx.android.concurrency.AndroidSchedulers;
 
@@ -53,12 +55,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.Parcel;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
@@ -77,8 +78,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     // static convenience accessors
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && getPlaybackState().isSupposedToBePlaying(); }
-    public static PlayQueue getPlayQueue() { return instance == null ? PlayQueue.EMPTY : instance.clonePlayQueue(); }
-    public static @Nullable Uri getPlayQueueUri() { return instance == null ? null : instance.getPlayQueueInternal().getSourceUri(); }
+    public static PlayQueueView getPlayQueue() { return instance == null ? PlayQueueView.EMPTY : instance.getPlayQueueView(); }
+    public static @Nullable Uri getPlayQueueUri() { return instance == null ? null : instance.getPlayQueueInternal().getOriginPage(); }
     public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
@@ -125,6 +126,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String RESET_ALL                = "com.soundcloud.android.resetAll";
     }
 
+    @Inject
+    public PlayQueueManager mPlayQueueManager;
+    @Inject
+    public PlaybackOperations mPlaybackOperations;
 
     // private stuff
     private static final int TRACK_ENDED      = 1;
@@ -149,8 +154,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
     /* package */ AccountOperations mAccountOperations;
-    private PlayQueueManager mPlayQueueManager;
-    private PlaybackOperations mPlaybackOperations;
 
     // TODO: this doesn't really belong here. It's only used to PUT likes and reposts, and isn't playback specific.
     /* package */ AssociationManager mAssociationManager;
@@ -203,9 +206,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public interface PlayExtras{
         String track = Track.EXTRA;
         String trackId = Track.EXTRA_ID;
-        String unmute = "unmute"; // used by alarm clock
-        String fetchRelated = "fetch_related";
         String trackingInfo = "tracking_info";
+        String trackIdList = "track_id_list";
+        String startPosition = "startPosition";
+        String playSessionSource = "play_seesion_source";
     }
 
     public interface BroadcastExtras{
@@ -223,20 +227,20 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
 
-
     @Override
     public void onCreate() {
         super.onCreate();
+
+        new DaggerDependencyInjector().fromAppGraphWithModules(
+                new PlaybackModule(), new ApiModule()
+        ).inject(this);
+
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         mOldCloudApi = new PublicApi(this);
         mAnalyticsEngine = new AnalyticsEngine(getApplicationContext());
         mAccountOperations = new AccountOperations(this);
-        mPlaybackOperations = new PlaybackOperations();
-
-        mPlayQueueManager = new PlayQueueManager(this, new PlayQueueStorage(), new ExploreTracksOperations(),
-                PreferenceManager.getDefaultSharedPreferences(this), SoundCloudApplication.MODEL_MANAGER);
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mAudioManager, mPlayQueueManager);
 
         mCompletionListener = new TrackCompletionListener(this);
@@ -988,12 +992,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return mPlayQueueManager.getCurrentPlayQueue();
     }
 
-    private PlayQueue clonePlayQueue(){
-        PlayQueue original = mPlayQueueManager.getCurrentPlayQueue();
-        Parcel parcel = Parcel.obtain();
-        original.writeToParcel(parcel, 0);
-        parcel.setDataPosition(0);
-        return PlayQueue.CREATOR.createFromParcel(parcel);
+    private PlayQueueView getPlayQueueView(){
+        return mPlayQueueManager.getPlayQueueView();
     }
 
 

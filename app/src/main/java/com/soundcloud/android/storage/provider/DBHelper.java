@@ -1233,7 +1233,6 @@ public class DBHelper extends SQLiteOpenHelper {
     private static boolean upgradeTo24(SQLiteDatabase db, int oldVersion) {
         try {
             Table.PLAY_QUEUE.recreate(db);
-            PlayQueueManager.clearPlayQueueUri(PreferenceManager.getDefaultSharedPreferences(SoundCloudApplication.instance));
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade24 " +

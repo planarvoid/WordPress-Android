@@ -4,11 +4,13 @@ import static com.soundcloud.android.playback.service.PlaybackService.Actions;
 import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 import static com.soundcloud.android.playback.service.PlaybackService.PlayExtras;
 
+import com.google.common.primitives.Longs;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +20,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
+
+import java.util.List;
 
 class PlaybackReceiver extends BroadcastReceiver {
 
@@ -80,6 +84,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                 setRepostStatus(intent.getData(), false);
             } else if (Actions.PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
+
             } else if (Actions.RETRY_RELATED_TRACKS.equals(action)) {
                 mPlayQueueManager.retryRelatedTracksFetch();
             } else if (Broadcasts.PLAYQUEUE_CHANGED.equals(action)) {
@@ -117,15 +122,21 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     private void handlePlayAction(Intent intent) {
-        if (intent.hasExtra(PlayQueue.EXTRA)) {
-            PlayQueue playQueue = intent.getParcelableExtra(PlayQueue.EXTRA);
+
+        if (intent.hasExtra(PlayExtras.trackIdList)) {
+
+            final List<Long> trackIds = Longs.asList(intent.getLongArrayExtra(PlayExtras.trackIdList));
+            final int startPosition = intent.getIntExtra(PlayExtras.startPosition, 0);
+            final PlaySessionSource playSessionSource = intent.getParcelableExtra(PlayExtras.playSessionSource);
+            PlayQueue playQueue = PlayQueue.fromIdList(trackIds, startPosition, playSessionSource);
 
             mPlayQueueManager.setNewPlayQueue(playQueue);
             mPlaybackService.openCurrent();
 
-            if (intent.getBooleanExtra(PlayExtras.fetchRelated, false) && !playQueue.isEmpty()){
+            if (playSessionSource.originatedInExplore() && !playQueue.isEmpty()){
                 mPlayQueueManager.fetchRelatedTracks(playQueue.getCurrentTrackId());
             }
+
         } else {
             Log.w(PlaybackService.TAG, "Received play intent without a play queue");
         }
