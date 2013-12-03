@@ -50,7 +50,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         saveCurrentPosition(0L);
     }
 
-    public synchronized void saveCurrentPosition(long currentTrackProgress) {
+    public void saveCurrentPosition(long currentTrackProgress) {
         if (!mPlayQueue.isEmpty()) {
             mPlayQueueOperations.saveQueue(mPlayQueue, currentTrackProgress);
         }
@@ -59,7 +59,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     /**
      * @return last stored seek pos of the current track in queue, or -1 if there is no reload
      */
-    public synchronized PlaybackProgressInfo loadPlayQueue() {
+    public PlaybackProgressInfo loadPlayQueue() {
 
         Observable<PlayQueue> playQueueObservable = mPlayQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null){
@@ -93,7 +93,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         loadRelatedTracks();
     }
 
-    public synchronized void clearAll(){
+    public void clearAll(){
         mPlayQueueOperations.clear();
         mPlayQueue = PlayQueue.empty();
     }
