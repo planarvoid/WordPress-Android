@@ -4,6 +4,7 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.playback.PlaybackOperations.AppendState;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Longs;
 
@@ -31,7 +32,7 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
     }
 
     public PlayQueueView(List<Long> trackIds, int playPosition, AppendState appendState) {
-        mTrackIds = trackIds;
+        mTrackIds = ImmutableList.copyOf(trackIds);
         mPosition = playPosition < 0 || playPosition >= trackIds.size() ? 0 : playPosition;
         mAppendState = appendState;
     }
