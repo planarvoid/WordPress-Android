@@ -10,7 +10,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activities.ActivitiesAdapter;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.associations.CommentAdapter;
@@ -27,7 +26,6 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.playlists.PlaylistChangedReceiver;
 import com.soundcloud.android.profile.MyTracksAdapter;
-import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.search.SearchAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -153,8 +151,6 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         mKeepGoing = true;
         setupListAdapter();
         accountOperations = new AccountOperations(getActivity());
-
-        Event.SCREEN_ENTERED.publish(Screen.STREAM.get());
     }
 
     @Override

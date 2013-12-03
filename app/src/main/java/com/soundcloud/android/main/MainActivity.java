@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
@@ -232,6 +233,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             mStreamFragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
         }
 
+        Event.SCREEN_ENTERED.publish(Screen.STREAM.get());
         attachFragment(mStreamFragment, "stream_fragment", R.string.side_menu_stream);
     }
 
