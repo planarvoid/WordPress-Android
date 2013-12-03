@@ -11,7 +11,7 @@ import java.util.Locale;
 
 public class PlaySessionSource implements Parcelable{
 
-    public static PlaySessionSource EMPTY = new PlaySessionSource();
+    public static final PlaySessionSource EMPTY = new PlaySessionSource();
 
     public enum DiscoverySource {
         RECOMMENDER, EXPLORE;
