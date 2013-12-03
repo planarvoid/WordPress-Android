@@ -9,12 +9,12 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ExploreTracksCategoryRow extends LinearLayout implements SectionedListRow {
+public class ExploreGenreCategoryRow extends LinearLayout implements SectionedListRow {
 
     private TextView categoryTitle, sectionHeader;
 
     @SuppressWarnings("unused")
-    public ExploreTracksCategoryRow(Context context, AttributeSet attrs) {
+    public ExploreGenreCategoryRow(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

@@ -9,7 +9,7 @@ import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.model.ExploreTracksCategory;
+import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -54,10 +54,10 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private Subscription mSubscription = Subscriptions.empty();
     private DependencyInjector mDependencyInjector;
 
-    public static ExploreTracksFragment fromCategory(ExploreTracksCategory category) {
+    public static ExploreTracksFragment create(ExploreGenre category) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
         Bundle args = new Bundle();
-        args.putParcelable(ExploreTracksCategory.EXTRA, category);
+        args.putParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
         exploreTracksFragment.setArguments(args);
         return exploreTracksFragment;
     }
@@ -82,13 +82,13 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     }
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> buildSuggestedTracksObservable() {
-        final ExploreTracksCategory category = getExploreCategory();
+        final ExploreGenre category = getExploreCategory();
         final ExploreTracksOperations operations = new ExploreTracksOperations();
         return AndroidObservables.fromFragment(this, operations.getSuggestedTracks(category)).replay();
     }
 
-    private ExploreTracksCategory getExploreCategory() {
-        return getArguments().getParcelable(ExploreTracksCategory.EXTRA);
+    private ExploreGenre getExploreCategory() {
+        return getArguments().getParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA);
     }
 
     private void loadTrackSuggestions(ConnectableObservable<Page<SuggestedTracksCollection>> observable,

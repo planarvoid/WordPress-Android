@@ -1,16 +1,20 @@
 package com.soundcloud.android.explore;
 
+import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
+import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FriendFinderFragment;
+import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
-import com.soundcloud.android.model.ExploreTracksCategories;
-import com.soundcloud.android.model.ExploreTracksCategory;
-import com.soundcloud.android.model.ExploreTracksCategorySection;
-import com.soundcloud.android.model.Section;
+import com.soundcloud.android.model.ExploreGenre;
+import com.soundcloud.android.model.ExploreGenresSections;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
@@ -31,7 +35,7 @@ import android.widget.ListView;
 
 import javax.inject.Inject;
 
-public class ExploreTracksCategoriesFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
+public class ExploreGenresFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
 
     private EmptyListView mEmptyListView;
     private int mEmptyViewStatus;
@@ -40,18 +44,19 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     AndroidObservableFactory mObservableFactory;
 
     @Inject
-    ExploreTracksCategoriesAdapter mCategoriesAdapter;
+    ExploreGenresAdapter mGenresAdapter;
 
     private Subscription mSubscription = Subscriptions.empty();
-    private ConnectableObservable<Section<ExploreTracksCategory>> mCategoriesObservable;
+    private ConnectableObservable<Section<ExploreGenre>> mGenresObservable;
 
     private DependencyInjector mDependencyInjector;
 
-    public ExploreTracksCategoriesFragment() {
+    public ExploreGenresFragment() {
         this(new DaggerDependencyInjector());
     }
 
-    public ExploreTracksCategoriesFragment(DependencyInjector dependencyInjector) {
+    @VisibleForTesting
+    protected ExploreGenresFragment(DependencyInjector dependencyInjector) {
         mDependencyInjector = dependencyInjector;
     }
 
@@ -59,24 +64,28 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDependencyInjector.inject(this);
-        mCategoriesObservable = buildObservable(mObservableFactory.create(this));
+        mGenresObservable = buildObservable(mObservableFactory.create(this));
     }
 
-    private ConnectableObservable<Section<ExploreTracksCategory>> buildObservable(Observable<ExploreTracksCategories> observable){
-        return observable.mapMany(CATEGORIES_TO_SECTIONS).replay();
+    private ConnectableObservable<Section<ExploreGenre>> buildObservable(Observable<ExploreGenresSections> observable) {
+        return observable.mapMany(GENRES_TO_SECTIONS).replay();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.suggested_tracks_categories_fragment, container, false);
+        return inflater.inflate(R.layout.explore_genres_fragment, container, false);
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final Intent intent = new Intent(getActivity(), ExploreTracksCategoryActivity.class);
-        final int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
-        intent.putExtra(ExploreTracksCategory.EXTRA, getListAdapter().getItem(adjustedPosition));
+        Intent intent = new Intent(getActivity(), ExploreTracksCategoryActivity.class);
+        int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
+        ExploreGenre category = mGenresAdapter.getItem(adjustedPosition);
+
+        intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
         startActivity(intent);
+
+        Event.SCREEN_ENTERED.publish(view.getTag());
     }
 
     @Override
@@ -89,14 +98,14 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
             @Override
             public void onEmptyViewRetry() {
                 setEmptyViewStatus(FriendFinderFragment.Status.WAITING);
-                mCategoriesObservable = buildObservable(mObservableFactory.create(ExploreTracksCategoriesFragment.this));
+                mGenresObservable = buildObservable(mObservableFactory.create(ExploreGenresFragment.this));
                 mSubscription = loadCategories();
             }
         });
 
         ListView listview = getListView();
         listview.setOnItemClickListener(this);
-        listview.setAdapter(mCategoriesAdapter);
+        listview.setAdapter(mGenresAdapter);
         listview.setEmptyView(mEmptyListView);
         listview.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), false, true));
 
@@ -104,11 +113,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     }
 
     private ListView getListView() {
-        return (ListView) getView().findViewById(R.id.suggested_tracks_categories_list);
-    }
-
-    private ExploreTracksCategoriesAdapter getListAdapter() {
-        return (ExploreTracksCategoriesAdapter) getListView().getAdapter();
+        return (ListView) getView().findViewById(R.id.explore_genres_list);
     }
 
     @Override
@@ -119,7 +124,7 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
 
     @Override
     public void onDestroyView() {
-        ((ListView) getView().findViewById(R.id.suggested_tracks_categories_list)).setAdapter(null);
+        ((ListView) getView().findViewById(R.id.explore_genres_list)).setAdapter(null);
         super.onDestroyView();
     }
 
@@ -132,20 +137,18 @@ public class ExploreTracksCategoriesFragment extends Fragment implements Adapter
     }
 
     private Subscription loadCategories() {
-        mCategoriesObservable.subscribe(mCategoriesAdapter);
-        mCategoriesObservable.subscribe(new ListFragmentObserver<Section<ExploreTracksCategory>>(this));
-        return mCategoriesObservable.connect();
+        mGenresObservable.subscribe(mGenresAdapter);
+        mGenresObservable.subscribe(new ListFragmentObserver<Section<ExploreGenre>>(this));
+        return mGenresObservable.connect();
     }
 
-    private static final Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>> CATEGORIES_TO_SECTIONS =
-            new Func1<ExploreTracksCategories, Observable<Section<ExploreTracksCategory>>>() {
+    private static final Func1<ExploreGenresSections, Observable<Section<ExploreGenre>>> GENRES_TO_SECTIONS =
+            new Func1<ExploreGenresSections, Observable<Section<ExploreGenre>>>() {
                 @Override
-                public Observable<Section<ExploreTracksCategory>> call(ExploreTracksCategories categories) {
+                public Observable<Section<ExploreGenre>> call(ExploreGenresSections categories) {
                     return Observable.from(
-                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.MUSIC.getTitleId(), categories.getMusic()),
-                            new Section<ExploreTracksCategory>(ExploreTracksCategorySection.AUDIO.getTitleId(), categories.getAudio())
-                    );
+                            new Section<ExploreGenre>(MUSIC_SECTION, R.string.explore_genre_header_music, categories.getMusic()),
+                            new Section<ExploreGenre>(AUDIO_SECTION, R.string.explore_genre_header_audio, categories.getAudio()));
                 }
             };
-
 }

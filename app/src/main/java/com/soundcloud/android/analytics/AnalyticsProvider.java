@@ -18,4 +18,16 @@ interface AnalyticsProvider {
      */
     void closeSession();
 
+    /**
+     * Signals to the analytics provider that pending event/session data should be transmitted
+     * to the remote service.
+     */
+    void flush();
+
+    /**
+     * Signals to the analytics provider that a screen (Activity or Fragment) was being opened.
+     *
+     * @param screenTag the tag under which to track the screen
+     */
+    void trackScreen(String screenTag);
 }

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
 
 @Module(library = true)
 public class ApplicationModule {
@@ -54,6 +55,11 @@ public class ApplicationModule {
     @Provides
     public SharedPreferences provideDefaultSharedPreferences(){
         return PreferenceManager.getDefaultSharedPreferences(mApplication);
+    }
+
+    @Provides
+    public LayoutInflater provideLayoutInflater(){
+        return LayoutInflater.from(mApplication);
     }
 
 }

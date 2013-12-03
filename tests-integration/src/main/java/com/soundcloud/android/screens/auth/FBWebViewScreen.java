@@ -2,8 +2,8 @@ package com.soundcloud.android.screens.auth;
 
 import android.webkit.WebView;
 import com.jayway.android.robotium.solo.By;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.auth.FacebookWebFlowActivity;
+import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
 
@@ -37,14 +37,15 @@ public class FBWebViewScreen {
         solo.typeTextInWebElement(passwordField(), text);
     }
 
-    public void submit() {
+    public MainScreen submit() {
         solo.waitForWebElement(loginField());
         solo.clickOnWebElement(loginField());
         if (solo.searchText("Do you want the browser to remember this password?", true)) {
             solo.clickOnText("Never");
         }
         waiter.waitForLogInDialog();
-        waiter.waitForActivity(MainActivity.class);
+        return new MainScreen(solo);
+
     }
 
     private By emailField() {

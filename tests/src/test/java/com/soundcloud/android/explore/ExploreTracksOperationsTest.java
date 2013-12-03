@@ -9,9 +9,9 @@ import com.soundcloud.android.api.APIEndpoints;
 import com.soundcloud.android.api.http.APIRequest;
 import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.api.http.SoundCloudRxHttpClient;
+import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import dagger.Module;
-import dagger.ObjectGraph;
 import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class ExploreTracksOperationsTest {
 
     @Before
     public void setUp() {
-        ObjectGraph.create(new TestModule()).inject(this);
+        MockInjector.create(new TestModule()).inject(this);
     }
 
     @Test

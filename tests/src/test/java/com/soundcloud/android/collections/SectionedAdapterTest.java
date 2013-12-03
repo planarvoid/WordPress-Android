@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Section;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.xtremelabs.robolectric.Robolectric;
@@ -21,9 +20,10 @@ import org.mockito.Mock;
 import android.content.Context;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SectionedAdapterTest {
@@ -44,7 +44,7 @@ public class SectionedAdapterTest {
 
     @Test
     public void shouldClearSectionsArrayOnClear(){
-        final SparseArray listPositionsToSections = mock(SparseArray.class);
+        final Map listPositionsToSections = mock(Map.class);
         adapter = new SectionedAdapter(listPositionsToSections) {
             @Override
             protected View createItemView(int position, ViewGroup parent) {
@@ -61,27 +61,42 @@ public class SectionedAdapterTest {
     }
 
     @Test
-    public void getViewTypeCountShouldReturnViewTypesCount(){
-        expect(adapter.getViewTypeCount()).toBe(SectionedAdapter.ViewTypes.values().length);
+    public void getViewTypeCountShouldReturn2ToDistinguishBetweenHeadersAndNormalItems() {
+        expect(adapter.getViewTypeCount()).toBe(2);
     }
 
     @Test
     public void shouldSetSectionViewTypes() {
-        adapter.onNext(new Section(R.string.explore_category_header_audio,
+        adapter.onNext(new Section(0, R.string.explore_genre_header_audio,
                 Lists.newArrayList(mock(Parcelable.class), mock(Parcelable.class))));
-        adapter.onNext(new Section(R.string.explore_category_header_music,
+        adapter.onNext(new Section(1, R.string.explore_genre_header_music,
                 Lists.newArrayList(mock(Parcelable.class))));
 
-        expect(adapter.getItemViewType(0)).toEqual(SectionedAdapter.ViewTypes.SECTION.ordinal());
-        expect(adapter.getItemViewType(1)).toEqual(SectionedAdapter.ViewTypes.DEFAULT.ordinal());
-        expect(adapter.getItemViewType(2)).toEqual(SectionedAdapter.ViewTypes.SECTION.ordinal());
+        expect(adapter.getItemViewType(0)).toEqual(SectionedAdapter.ITEM_VIEW_TYPE_HEADER);
+        expect(adapter.getItemViewType(1)).toEqual(SectionedAdapter.ITEM_VIEW_TYPE_DEFAULT);
+        expect(adapter.getItemViewType(2)).toEqual(SectionedAdapter.ITEM_VIEW_TYPE_HEADER);
+    }
+
+    @Test
+    public void shouldReturnSectionAssociatedToGivenPosition() {
+        Section section1 = new Section(0, R.string.explore_genre_header_audio,
+                Lists.newArrayList(mock(Parcelable.class), mock(Parcelable.class)));
+        Section section2 = new Section(1, R.string.explore_genre_header_music,
+                Lists.newArrayList(mock(Parcelable.class)));
+
+        adapter.onNext(section1);
+        adapter.onNext(section2);
+
+        expect(adapter.getSection(0)).toBe(section1);
+        expect(adapter.getSection(1)).toBe(section1);
+        expect(adapter.getSection(2)).toBe(section2);
     }
 
     @Test
     public void shouldSetSectionHeaderOnViews() {
-        adapter.onNext(new Section(R.string.explore_category_header_audio,
+        adapter.onNext(new Section(0, R.string.explore_genre_header_audio,
                 Lists.newArrayList(mock(Parcelable.class), mock(Parcelable.class))));
-        adapter.onNext(new Section(R.string.explore_category_header_music,
+        adapter.onNext(new Section(1, R.string.explore_genre_header_music,
                 Lists.newArrayList(mock(Parcelable.class))));
 
         SectionedTestListRow sectionedRow = mock(SectionedTestListRow.class);

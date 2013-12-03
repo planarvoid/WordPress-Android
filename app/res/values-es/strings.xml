@@ -247,8 +247,8 @@
     <string name="side_menu_explore">Explorar</string>
 
     <string name="explore_genres">Géneros</string>
-    <string name="explore_category_header_music">Música</string>
-    <string name="explore_category_header_audio">Audio</string>
+    <string name="explore_genre_header_music">Música</string>
+    <string name="explore_genre_header_audio">Audio</string>
 
     <string name="explore_category_trending_music">Música de moda</string>
     <string name="explore_category_trending_audio">Audio de moda</string>

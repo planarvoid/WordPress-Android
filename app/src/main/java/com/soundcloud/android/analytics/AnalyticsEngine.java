@@ -1,19 +1,23 @@
 package com.soundcloud.android.analytics;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.rx.Event;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.Log;
+import rx.Subscription;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * The engine which drives sending analytics. Important that all analytics providers to this engine
@@ -34,6 +38,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private final AnalyticsProperties mAnalyticsProperties;
     private boolean mAnalyticsPreferenceEnabled;
     private CloudPlayerStateWrapper mCloudPlaybackStateWrapper;
+    private Subscription mEnterScreenEventSub;
 
     public AnalyticsEngine(Context context) {
         this(new AnalyticsProperties(context.getResources()), new CloudPlayerStateWrapper(),
@@ -89,6 +94,18 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         Log.d(TAG, "Didn't close analytics session for player");
     }
 
+    /**
+     * Tracks a single screen (Activity or Fragment) under the given tag
+     */
+    public void trackScreen(String screenTag) {
+        if (analyticsIsEnabled() && sActivitySessionOpen.get()) {
+            Log.d(TAG, "Track screen " + screenTag);
+            for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+                analyticsProvider.trackScreen(screenTag);
+            }
+        }
+    }
+
     @VisibleForTesting
     protected boolean activitySessionIsClosed() {
         return !sActivitySessionOpen.get();
@@ -99,7 +116,10 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
                 analyticsProvider.openSession();
             }
-            Log.d(TAG, "Opening analytics session");
+            if (mEnterScreenEventSub == null) {
+                Log.d(TAG, "Subscribing to SCREEN_ENTERED events");
+                mEnterScreenEventSub = Event.SCREEN_ENTERED.subscribe(new ScreenTrackingObserver());
+            }
         } else {
             Log.d(TAG, "Didn't open analytics session");
         }
@@ -116,7 +136,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     private void closeSession() {
-        Log.d(TAG, "Closing Analytics Session");
+        if (mEnterScreenEventSub != null) {
+            Log.d(TAG, "Unsubscribing from SCREEN_ENTERED events");
+            mEnterScreenEventSub.unsubscribe();
+            mEnterScreenEventSub = null;
+        }
         for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
             analyticsProvider.closeSession();
         }
@@ -148,6 +172,16 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         public boolean isPlayerPlaying() {
             PlaybackState playbackPlaybackState = PlaybackService.getPlaybackState();
             return playbackPlaybackState.isSupposedToBePlaying();
+        }
+    }
+
+    private final class ScreenTrackingObserver extends DefaultObserver<String> {
+        @Override
+        public void onNext(String screenTag) {
+            //TODO Be defensive, check screenTag value
+            //If dev/beta build and empty crash the app, otherwise log silent error
+            Log.d(TAG, "ScreenTrackingObserver onNext: " + screenTag);
+            trackScreen(screenTag);
         }
     }
 }
