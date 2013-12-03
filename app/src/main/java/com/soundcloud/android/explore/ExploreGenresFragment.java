@@ -1,8 +1,14 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
-import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
-
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
@@ -24,17 +30,12 @@ import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
-
 import javax.inject.Inject;
 
+import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
+import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
+
+@SuppressLint("ValidFragment")
 public class ExploreGenresFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
 
     private EmptyListView mEmptyListView;
