@@ -2,8 +2,11 @@ package com.soundcloud.android.tracking.eventlogger;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.utils.IOUtils;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,6 +19,7 @@ import android.util.Pair;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class EventLoggerHandler extends Handler {
 
@@ -43,12 +47,13 @@ public class EventLoggerHandler extends Handler {
     private void handleTrackingEvent(Message msg) {
         switch (msg.what) {
             case PlayEventTracker.INSERT_TOKEN:
-                final PlayEventTrackingParams params = (PlayEventTrackingParams) msg.obj;
+                final PlaybackEventData params = (PlaybackEventData) msg.obj;
 
                 mTrackingDbHelper.execute(new PlayEventTrackingDbHelper.ExecuteBlock() {
                     @Override
                     public void call(SQLiteDatabase database) {
-                        long id = database.insertOrThrow(PlayEventTrackingDbHelper.EVENTS_TABLE, null, params.toContentValues());
+                        long id = database.insertOrThrow(PlayEventTrackingDbHelper.EVENTS_TABLE, null,
+                                createValuesFromPlaybackEvent(params));
                         if (id < 0) {
                             Log.w(PlayEventTracker.TAG, "error inserting tracking event");
                         }
@@ -128,6 +133,25 @@ public class EventLoggerHandler extends Handler {
         }
 
         return urls.size() < PlayEventTracker.BATCH_SIZE;
+    }
+
+    private ContentValues createValuesFromPlaybackEvent(PlaybackEventData params) {
+        ContentValues values = new ContentValues();
+        values.put(PlayEventTrackingDbHelper.TrackingEvents.TIMESTAMP, params.getTimeStamp());
+        values.put(PlayEventTrackingDbHelper.TrackingEvents.ACTION, params.getAction().toApiName());
+        values.put(PlayEventTrackingDbHelper.TrackingEvents.SOUND_URN, ClientUri.forTrack(params.getTrack().getId()).toString());
+        values.put(PlayEventTrackingDbHelper.TrackingEvents.SOUND_DURATION, params.getTrack().duration);
+        values.put(PlayEventTrackingDbHelper.TrackingEvents.USER_URN, buildUserUrn(params.getUserId()));
+        values.put(PlayEventTrackingDbHelper.TrackingEvents.SOURCE_INFO, params.getEventLoggerParams());
+        return values;
+    }
+
+    private static String buildUserUrn(final long userId) {
+        if (userId < 0) {
+            return "anonymous:" + UUID.randomUUID();
+        } else {
+            return ClientUri.forUser(userId).toString();
+        }
     }
 
     @VisibleForTesting

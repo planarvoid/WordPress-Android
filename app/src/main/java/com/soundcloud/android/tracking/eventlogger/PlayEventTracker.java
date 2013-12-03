@@ -43,10 +43,8 @@ public class PlayEventTracker {
                 mHandler = mEventLoggerHandlerFactory.create(thread.getLooper());
             }
 
-            PlayEventTrackingParams params = new PlayEventTrackingParams(playbackEventData);
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + params.toString());
-
-            Message insert = mHandler.obtainMessage(INSERT_TOKEN, params);
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + playbackEventData.toString());
+            Message insert = mHandler.obtainMessage(INSERT_TOKEN, playbackEventData);
             mHandler.removeMessages(FINISH_TOKEN);
             mHandler.sendMessage(insert);
         }

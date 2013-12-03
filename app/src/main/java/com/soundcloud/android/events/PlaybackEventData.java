@@ -10,12 +10,14 @@ public class PlaybackEventData {
     private Action mAction;
     private long mUserId;
     private String mEventLoggerParams;
+    private long mTimeStamp;
 
     public PlaybackEventData(Track track, Action action, long userId, String eventLoggerParams) {
-        this.mTrack = track;
-        this.mAction = action;
-        this.mUserId = userId;
-        this.mEventLoggerParams = eventLoggerParams;
+        mTrack = track;
+        mAction = action;
+        mUserId = userId;
+        mEventLoggerParams = eventLoggerParams;
+        mTimeStamp = System.currentTimeMillis();
     }
 
     public Track getTrack() {
@@ -40,6 +42,11 @@ public class PlaybackEventData {
                 .add("Track_ID", mTrack.getId())
                 .add("Action", mAction)
                 .add("UserID", mUserId)
-                .add("EventLoggerParams", mEventLoggerParams).toString();
+                .add("EventLoggerParams", mEventLoggerParams)
+                .add("TimeStamp", mTimeStamp).toString();
+    }
+
+    public long getTimeStamp() {
+        return mTimeStamp;
     }
 }
