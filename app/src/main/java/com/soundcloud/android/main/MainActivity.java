@@ -44,7 +44,12 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         ObjectGraphProvider {
 
     public static final String EXTRA_ONBOARDING_USERS_RESULT = "onboarding_users_result";
+
     private static final String EXTRA_ACTIONBAR_TITLE = "actionbar_title";
+    private static final String PLAYLISTS_FRAGMENT_TAG = "playlists_fragment";
+    private static final String LIKES_FRAGMENT_TAG = "likes_fragment";
+    private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
+    private static final String STREAM_FRAGMENT_TAG = "stream_fragment";
 
     private NavigationFragment mNavigationFragment;
     private CharSequence mLastTitle;
@@ -63,10 +68,6 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
 
     private final DependencyInjector mDependencyInjector;
     private ObjectGraph mObjectGraph;
-    private ScListFragment mLikesFragment;
-    private ScListFragment mStreamFragment;
-    private ExploreFragment mExploreFragment;
-    private ScListFragment mPlaylistsFragment;
 
     @SuppressWarnings("unused")
     public MainActivity() {
@@ -206,24 +207,29 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     }
 
     private void displayPlaylists() {
-        if (mPlaylistsFragment == null) {
-            mPlaylistsFragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(PLAYLISTS_FRAGMENT_TAG);
+        if (fragment == null) {
+            fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
         }
         Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_PLAYLISTS.get());
-        attachFragment(mPlaylistsFragment, "playlists_fragment", R.string.side_menu_playlists);
+        attachFragment(fragment, PLAYLISTS_FRAGMENT_TAG, R.string.side_menu_playlists);
     }
 
     private void displayLikes() {
-        if (mLikesFragment == null) {
-            mLikesFragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(LIKES_FRAGMENT_TAG);
+        if (fragment == null) {
+            fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
         }
         Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_LIKES.get());
-        attachFragment(mLikesFragment, "likes_fragment", R.string.side_menu_likes);
+        attachFragment(fragment, LIKES_FRAGMENT_TAG, R.string.side_menu_likes);
     }
 
     private void displayExplore() {
-        mExploreFragment = mExploreFragmentProvider.get();
-        attachFragment(mExploreFragment, "explore_fragment", R.string.side_menu_explore);
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(EXPLORE_FRAGMENT_TAG);
+        if (fragment == null) {
+            fragment = mExploreFragmentProvider.get();
+        }
+        attachFragment(fragment, EXPLORE_FRAGMENT_TAG, R.string.side_menu_explore);
     }
 
     private void displayStream() {
@@ -231,12 +237,13 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
                 Content.ME_SOUND_STREAM.uri :
                 Content.ME_SOUND_STREAM.uri.buildUpon()
                         .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
-        if (mStreamFragment == null) {
-            mStreamFragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(STREAM_FRAGMENT_TAG);
+        if (fragment == null) {
+            fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
         }
 
         Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_STREAM.get());
-        attachFragment(mStreamFragment, "stream_fragment", R.string.side_menu_stream);
+        attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);
     }
 
     private void attachFragment(Fragment fragment, String tag, int titleResId) {

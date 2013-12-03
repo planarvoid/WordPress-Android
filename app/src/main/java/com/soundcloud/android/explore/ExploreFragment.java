@@ -35,6 +35,11 @@ public class ExploreFragment extends Fragment {
     public void onCreate(Bundle state) {
         super.onCreate(state);
         mExplorePagerAdapter = mExplorePagerAdapterFactory.create(this.getChildFragmentManager());
+
+        // Workaround for the bug in ViewPager, which does not
+        // fire the onPageSelected() for the first
+        // item: https://code.google.com/p/android/issues/detail?id=27526
+        Event.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get());
     }
 
     @Override
@@ -53,11 +58,6 @@ public class ExploreFragment extends Fragment {
         TabPageIndicator mIndicator = (TabPageIndicator) view.findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
         mIndicator.setOnPageChangeListener(new ExplorePagerScreenListener());
-        mPager.setCurrentItem(ExplorePagerAdapter.TAB_GENRES);
-
-        Event.SCREEN_ENTERED.publish(Screen.EXPLORE_GENRES.get()); // Workaround for the bug in ViewPager, which does not
-                                                                   // fire the onPageSelected() for the first
-                                                                   // item: https://code.google.com/p/android/issues/detail?id=27526
     }
 
     @Override
