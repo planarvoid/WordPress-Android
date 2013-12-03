@@ -11,6 +11,8 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.utils.Log;
 
+import java.sql.Timestamp;
+
 
 public class Waiter {
     private static final String TAG = Waiter.class.getSimpleName();
@@ -49,8 +51,8 @@ public class Waiter {
             public boolean isSatisfied() {
                 final View view = solo.getView(id.empty_view_progress);
                 final boolean result = (view == null || !view.isShown());
-
-                Log.i(TAG, String.format("Spinner view found: %b", result));
+                java.util.Date date= new java.util.Date();
+                Log.i(TAG, String.format("[ %s ] Spinner view found: %b", new Timestamp(date.getTime()), !result ));
                 return result;
             }
         }, this.NETWORK_TIMEOUT);
