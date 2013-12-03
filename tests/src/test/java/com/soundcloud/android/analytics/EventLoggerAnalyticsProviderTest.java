@@ -21,7 +21,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(playEventTracker);
+        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider();
     }
 
     @Test

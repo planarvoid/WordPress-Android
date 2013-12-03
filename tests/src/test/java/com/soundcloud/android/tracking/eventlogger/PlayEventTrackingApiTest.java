@@ -19,13 +19,13 @@ public class PlayEventTrackingApiTest {
         PlayEventTrackingApi api = new PlayEventTrackingApi("1");
 
         MatrixCursor trackingData = new MatrixCursor(new String[]{
-                PlayEventTracker.TrackingEvents._ID,
-                PlayEventTracker.TrackingEvents.ACTION,
-                PlayEventTracker.TrackingEvents.TIMESTAMP,
-                PlayEventTracker.TrackingEvents.SOUND_URN,
-                PlayEventTracker.TrackingEvents.USER_URN,
-                PlayEventTracker.TrackingEvents.SOUND_DURATION,
-                PlayEventTracker.TrackingEvents.SOURCE_INFO
+                PlayEventTrackingDbHelper.TrackingEvents._ID,
+                PlayEventTrackingDbHelper.TrackingEvents.ACTION,
+                PlayEventTrackingDbHelper.TrackingEvents.TIMESTAMP,
+                PlayEventTrackingDbHelper.TrackingEvents.SOUND_URN,
+                PlayEventTrackingDbHelper.TrackingEvents.USER_URN,
+                PlayEventTrackingDbHelper.TrackingEvents.SOUND_DURATION,
+                PlayEventTrackingDbHelper.TrackingEvents.SOURCE_INFO
         });
 
         trackingData.addRow(new Object[]{

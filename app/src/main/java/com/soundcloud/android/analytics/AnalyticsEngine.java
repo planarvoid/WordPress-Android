@@ -47,7 +47,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         this(new AnalyticsProperties(context.getResources()), new CloudPlayerStateWrapper(),
                 PreferenceManager.getDefaultSharedPreferences(context),
                 new LocalyticsAnalyticsProvider(context.getApplicationContext()),
-                new EventLoggerAnalyticsProvider(context));
+                new EventLoggerAnalyticsProvider());
     }
 
     @VisibleForTesting

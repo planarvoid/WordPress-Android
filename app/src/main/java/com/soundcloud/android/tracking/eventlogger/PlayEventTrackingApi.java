@@ -1,20 +1,23 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.ACTION;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOUND_DURATION;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOUND_URN;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOURCE_INFO;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.TIMESTAMP;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.USER_URN;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.ACTION;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.SOUND_DURATION;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.SOUND_URN;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.SOURCE_INFO;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.TIMESTAMP;
+import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.USER_URN;
 
 import com.integralblue.httpresponsecache.compat.Charsets;
+import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.util.Log;
 import android.util.Pair;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -31,6 +34,11 @@ public class PlayEventTrackingApi {
     private static final int CONNECT_TIMEOUT = 10 * 1000;
 
     private final String mAppId;
+
+    @Inject
+    public PlayEventTrackingApi(Resources resources) {
+        this(resources.getString(R.string.app_id));
+    }
 
     public PlayEventTrackingApi(String appId) {
         mAppId = appId;
