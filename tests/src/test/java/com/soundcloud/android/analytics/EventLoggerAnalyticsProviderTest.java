@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracking.eventlogger.PlayEventTracker;
+import com.soundcloud.android.tracking.eventlogger.EventLogger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +17,7 @@ public class EventLoggerAnalyticsProviderTest {
     EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
 
     @Mock
-    PlayEventTracker playEventTracker;
+    EventLogger eventLogger;
 
     @Before
     public void setUp() throws Exception {
@@ -28,6 +28,6 @@ public class EventLoggerAnalyticsProviderTest {
     public void shouldTrackPlaybackEventInPlayEventTracker(){
         final PlaybackEventData mock = Mockito.mock(PlaybackEventData.class);
         eventLoggerAnalyticsProvider.trackPlaybackEvent(mock);
-        verify(playEventTracker).trackEvent(mock);
+        verify(eventLogger).trackEvent(mock);
     }
 }

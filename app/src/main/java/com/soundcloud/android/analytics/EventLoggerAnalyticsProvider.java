@@ -2,15 +2,15 @@ package com.soundcloud.android.analytics;
 
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.tracking.eventlogger.EventLogger;
 import com.soundcloud.android.tracking.eventlogger.EventLoggerModule;
-import com.soundcloud.android.tracking.eventlogger.PlayEventTracker;
 
 import javax.inject.Inject;
 
 public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Inject
-    PlayEventTracker mPlayEventTracker;
+    EventLogger mEventLogger;
 
     public EventLoggerAnalyticsProvider() {
         new DaggerDependencyInjector().fromAppGraphWithModules(new EventLoggerModule()).inject(this);
@@ -34,6 +34,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void trackPlaybackEvent(PlaybackEventData eventData) {
-        mPlayEventTracker.trackEvent(eventData);
+        mEventLogger.trackEvent(eventData);
     }
 }

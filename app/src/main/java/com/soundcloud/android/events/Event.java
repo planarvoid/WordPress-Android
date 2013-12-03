@@ -22,7 +22,7 @@ public enum Event {
     PLAYBACK(PlaybackEventData.class),
 
     /**
-     * Signals the playback service is destoryed. Used to flush events and stop handler in {@link com.soundcloud.android.tracking.eventlogger.PlayEventTracker}
+     * Signals the playback service is destoryed. Used to flush events and stop handler in {@link com.soundcloud.android.tracking.eventlogger.EventLogger}
      */
     PLAYBACK_SERVICE_DESTROYED(Integer.class),
 

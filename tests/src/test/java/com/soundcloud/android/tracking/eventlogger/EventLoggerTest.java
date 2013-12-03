@@ -9,17 +9,17 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 
 @RunWith(DefaultTestRunner.class)
-@DatabaseConfig.UsingDatabaseMap(PlayEventTrackerTest.PlayEventFileDatabaseMap.class)
-public class PlayEventTrackerTest {
-    PlayEventTracker tracker;
-    PlayEventTrackingApi api;
+@DatabaseConfig.UsingDatabaseMap(EventLoggerTest.PlayEventFileDatabaseMap.class)
+public class EventLoggerTest {
+    EventLogger tracker;
+    EventLoggerApi api;
 
     final String trackingParams1 = "tracking=params";
     final String trackingParams2 = "tracking=params2";
 
     @Before
     public void before() {
-        api = mock(PlayEventTrackingApi.class);
+        api = mock(EventLoggerApi.class);
 //        tracker = new PlayEventTracker(DefaultTestRunner.application, api);
 //        tracker.getTrackingDbHelper().execute(new PlayEventTrackingDbHelper.ExecuteBlock() {
 //            @Override

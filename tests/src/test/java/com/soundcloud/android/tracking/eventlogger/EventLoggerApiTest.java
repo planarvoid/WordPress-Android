@@ -12,20 +12,20 @@ import android.database.MatrixCursor;
 import java.io.UnsupportedEncodingException;
 
 @RunWith(DefaultTestRunner.class)
-public class PlayEventTrackingApiTest {
+public class EventLoggerApiTest {
 
     @Test
     public void shouldCreateCorrectTrackingUrls() throws UnsupportedEncodingException {
-        PlayEventTrackingApi api = new PlayEventTrackingApi("1");
+        EventLoggerApi api = new EventLoggerApi("1");
 
         MatrixCursor trackingData = new MatrixCursor(new String[]{
-                PlayEventTrackingDbHelper.TrackingEvents._ID,
-                PlayEventTrackingDbHelper.TrackingEvents.ACTION,
-                PlayEventTrackingDbHelper.TrackingEvents.TIMESTAMP,
-                PlayEventTrackingDbHelper.TrackingEvents.SOUND_URN,
-                PlayEventTrackingDbHelper.TrackingEvents.USER_URN,
-                PlayEventTrackingDbHelper.TrackingEvents.SOUND_DURATION,
-                PlayEventTrackingDbHelper.TrackingEvents.SOURCE_INFO
+                EventLoggerDbHelper.TrackingEvents._ID,
+                EventLoggerDbHelper.TrackingEvents.ACTION,
+                EventLoggerDbHelper.TrackingEvents.TIMESTAMP,
+                EventLoggerDbHelper.TrackingEvents.SOUND_URN,
+                EventLoggerDbHelper.TrackingEvents.USER_URN,
+                EventLoggerDbHelper.TrackingEvents.SOUND_DURATION,
+                EventLoggerDbHelper.TrackingEvents.SOURCE_INFO
         });
 
         trackingData.addRow(new Object[]{

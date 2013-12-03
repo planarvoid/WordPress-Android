@@ -1,11 +1,11 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.ACTION;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.SOUND_DURATION;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.SOUND_URN;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.SOURCE_INFO;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.TIMESTAMP;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTrackingDbHelper.TrackingEvents.USER_URN;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.ACTION;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.SOUND_DURATION;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.SOUND_URN;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.SOURCE_INFO;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.TIMESTAMP;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.USER_URN;
 
 import com.integralblue.httpresponsecache.compat.Charsets;
 import com.soundcloud.android.R;
@@ -26,9 +26,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayEventTrackingApi {
+public class EventLoggerApi {
 
-    private static final String TAG = PlayEventTrackingApi.class.getSimpleName();
+    private static final String TAG = EventLoggerApi.class.getSimpleName();
     private static final String ENDPOINT = "http://eventlogger.soundcloud.com/audio";
     private static final int READ_TIMEOUT = 5 * 1000;
     private static final int CONNECT_TIMEOUT = 10 * 1000;
@@ -36,11 +36,11 @@ public class PlayEventTrackingApi {
     private final String mAppId;
 
     @Inject
-    public PlayEventTrackingApi(Resources resources) {
+    public EventLoggerApi(Resources resources) {
         this(resources.getString(R.string.app_id));
     }
 
-    public PlayEventTrackingApi(String appId) {
+    public EventLoggerApi(String appId) {
         mAppId = appId;
     }
 

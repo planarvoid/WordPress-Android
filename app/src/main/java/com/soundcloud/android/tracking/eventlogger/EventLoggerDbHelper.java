@@ -9,7 +9,7 @@ import android.util.Log;
 import javax.inject.Inject;
 import java.sql.SQLException;
 
-public class PlayEventTrackingDbHelper extends SQLiteOpenHelper {
+public class EventLoggerDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "SoundCloud-tracking.sqlite";
     private static final int DATABASE_VERSION = 2;
     static final String EVENTS_TABLE = "events";
@@ -34,7 +34,7 @@ public class PlayEventTrackingDbHelper extends SQLiteOpenHelper {
             ")";
 
     @Inject
-    public PlayEventTrackingDbHelper(Context context) {
+    public EventLoggerDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -59,7 +59,7 @@ public class PlayEventTrackingDbHelper extends SQLiteOpenHelper {
         try {
             block.call(writableDatabase);
         } catch (SQLException ex){
-            Log.i(PlayEventTracker.TAG, "Sql exception ", ex);
+            Log.i(EventLogger.TAG, "Sql exception ", ex);
         } finally {
             close();
         }

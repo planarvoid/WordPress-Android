@@ -13,8 +13,8 @@ import android.util.Log;
 
 import javax.inject.Inject;
 
-public class PlayEventTracker {
-    static final String TAG = PlayEventTracker.class.getSimpleName();
+public class EventLogger {
+    static final String TAG = EventLogger.class.getSimpleName();
 
     static final int INSERT_TOKEN = 0;
     static final int FLUSH_TOKEN = 1;
@@ -30,7 +30,7 @@ public class PlayEventTracker {
     private EventLoggerHandler mHandler;
 
     @Inject
-    public PlayEventTracker(EventLoggerHandlerFactory eventLoggerHandlerFactory) {
+    public EventLogger(EventLoggerHandlerFactory eventLoggerHandlerFactory) {
         mEventLoggerHandlerFactory = eventLoggerHandlerFactory;
         Event.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
     }

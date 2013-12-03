@@ -24,14 +24,14 @@ import java.util.UUID;
 public class EventLoggerHandler extends Handler {
 
     private Context mContext;
-    private PlayEventTrackingDbHelper mTrackingDbHelper;
-    private PlayEventTrackingApi mTrackingApi;
+    private EventLoggerDbHelper mTrackingDbHelper;
+    private EventLoggerApi mTrackingApi;
 
     public EventLoggerHandler(Looper looper, Context context,
-                              PlayEventTrackingDbHelper playEventTrackingDbHelper, PlayEventTrackingApi trackingApi) {
+                              EventLoggerDbHelper eventLoggerDbHelper, EventLoggerApi trackingApi) {
         super(looper);
         mContext = context;
-        mTrackingDbHelper = playEventTrackingDbHelper;
+        mTrackingDbHelper = eventLoggerDbHelper;
         mTrackingApi = trackingApi;
     }
 
@@ -46,61 +46,61 @@ public class EventLoggerHandler extends Handler {
 
     private void handleTrackingEvent(Message msg) {
         switch (msg.what) {
-            case PlayEventTracker.INSERT_TOKEN:
+            case EventLogger.INSERT_TOKEN:
                 final PlaybackEventData params = (PlaybackEventData) msg.obj;
 
-                mTrackingDbHelper.execute(new PlayEventTrackingDbHelper.ExecuteBlock() {
+                mTrackingDbHelper.execute(new EventLoggerDbHelper.ExecuteBlock() {
                     @Override
                     public void call(SQLiteDatabase database) {
-                        long id = database.insertOrThrow(PlayEventTrackingDbHelper.EVENTS_TABLE, null,
+                        long id = database.insertOrThrow(EventLoggerDbHelper.EVENTS_TABLE, null,
                                 createValuesFromPlaybackEvent(params));
                         if (id < 0) {
-                            Log.w(PlayEventTracker.TAG, "error inserting tracking event");
+                            Log.w(EventLogger.TAG, "error inserting tracking event");
                         }
                     }
                 });
 
-                removeMessages(PlayEventTracker.FLUSH_TOKEN);
-                sendMessageDelayed(obtainMessage(PlayEventTracker.FLUSH_TOKEN), PlayEventTracker.FLUSH_DELAY);
+                removeMessages(EventLogger.FLUSH_TOKEN);
+                sendMessageDelayed(obtainMessage(EventLogger.FLUSH_TOKEN), EventLogger.FLUSH_DELAY);
                 break;
 
-            case PlayEventTracker.FLUSH_TOKEN:
+            case EventLogger.FLUSH_TOKEN:
                 flushPlaybackTrackingEvents();
                 break;
 
-            case PlayEventTracker.FINISH_TOKEN:
-                removeMessages(PlayEventTracker.FLUSH_TOKEN);
+            case EventLogger.FINISH_TOKEN:
+                removeMessages(EventLogger.FLUSH_TOKEN);
                 flushPlaybackTrackingEvents();
 
-                if (Log.isLoggable(PlayEventTracker.TAG, Log.DEBUG)) Log.d(PlayEventTracker.TAG, "Shutting down.");
+                if (Log.isLoggable(EventLogger.TAG, Log.DEBUG)) Log.d(EventLogger.TAG, "Shutting down.");
                 getLooper().quit();
                 break;
         }
     }
 
     /* package */ boolean flushPlaybackTrackingEvents() {
-        if (Log.isLoggable(PlayEventTracker.TAG, Log.DEBUG)) Log.d(PlayEventTracker.TAG, "flushPlaybackTrackingEvents");
+        if (Log.isLoggable(EventLogger.TAG, Log.DEBUG)) Log.d(EventLogger.TAG, "flushPlaybackTrackingEvents");
 
         if (!IOUtils.isConnected(mContext)) {
-            if (Log.isLoggable(PlayEventTracker.TAG, Log.DEBUG)) Log.d(PlayEventTracker.TAG, "not connected, skipping flush");
+            if (Log.isLoggable(EventLogger.TAG, Log.DEBUG)) Log.d(EventLogger.TAG, "not connected, skipping flush");
             return true;
         }
 
         final List<Pair<Long, String>> urls = new ArrayList<Pair<Long, String>>();
-        mTrackingDbHelper.execute(new PlayEventTrackingDbHelper.ExecuteBlock() {
+        mTrackingDbHelper.execute(new EventLoggerDbHelper.ExecuteBlock() {
             @Override
             public void call(SQLiteDatabase database) {
-                Cursor cursor = database.query(PlayEventTrackingDbHelper.EVENTS_TABLE, null, null, null, null, null,
-                        PlayEventTrackingDbHelper.TrackingEvents.TIMESTAMP + " DESC",
-                        String.valueOf(PlayEventTracker.BATCH_SIZE));
+                Cursor cursor = database.query(EventLoggerDbHelper.EVENTS_TABLE, null, null, null, null, null,
+                        EventLoggerDbHelper.TrackingEvents.TIMESTAMP + " DESC",
+                        String.valueOf(EventLogger.BATCH_SIZE));
 
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
-                        final long eventId = cursor.getLong(cursor.getColumnIndex(PlayEventTrackingDbHelper.TrackingEvents._ID));
+                        final long eventId = cursor.getLong(cursor.getColumnIndex(EventLoggerDbHelper.TrackingEvents._ID));
                         try {
                             urls.add(Pair.create(eventId, mTrackingApi.buildUrl(cursor)));
                         } catch (UnsupportedEncodingException e) {
-                            Log.w(PlayEventTracker.TAG, "Failed to encode play event ", e);
+                            Log.w(EventLogger.TAG, "Failed to encode play event ", e);
                         }
                     }
                     cursor.close();
@@ -112,19 +112,19 @@ public class EventLoggerHandler extends Handler {
             final String[] submitted = mTrackingApi.pushToRemote(urls);
             if (submitted.length > 0) {
 
-                mTrackingDbHelper.execute(new PlayEventTrackingDbHelper.ExecuteBlock() {
+                mTrackingDbHelper.execute(new EventLoggerDbHelper.ExecuteBlock() {
                     @Override
                     public void call(SQLiteDatabase database) {
                         StringBuilder query = new StringBuilder(submitted.length * 22 - 1);
-                        query.append(PlayEventTrackingDbHelper.TrackingEvents._ID).append(" IN (?");
+                        query.append(EventLoggerDbHelper.TrackingEvents._ID).append(" IN (?");
                         for (int i = 1; i < submitted.length; i++) query.append(",?");
                         query.append(")");
 
-                        final int deleted = database.delete(PlayEventTrackingDbHelper.EVENTS_TABLE, query.toString(), submitted);
+                        final int deleted = database.delete(EventLoggerDbHelper.EVENTS_TABLE, query.toString(), submitted);
                         if (deleted != submitted.length) {
-                            Log.w(PlayEventTracker.TAG, "error deleting events (deleted=" + deleted + ")");
+                            Log.w(EventLogger.TAG, "error deleting events (deleted=" + deleted + ")");
                         } else {
-                            if (Log.isLoggable(PlayEventTracker.TAG, Log.DEBUG)) Log.d(PlayEventTracker.TAG, "submitted " + deleted + " events");
+                            if (Log.isLoggable(EventLogger.TAG, Log.DEBUG)) Log.d(EventLogger.TAG, "submitted " + deleted + " events");
                         }
                     }
                 });
@@ -132,17 +132,17 @@ public class EventLoggerHandler extends Handler {
             }
         }
 
-        return urls.size() < PlayEventTracker.BATCH_SIZE;
+        return urls.size() < EventLogger.BATCH_SIZE;
     }
 
     private ContentValues createValuesFromPlaybackEvent(PlaybackEventData params) {
         ContentValues values = new ContentValues();
-        values.put(PlayEventTrackingDbHelper.TrackingEvents.TIMESTAMP, params.getTimeStamp());
-        values.put(PlayEventTrackingDbHelper.TrackingEvents.ACTION, params.getAction().toApiName());
-        values.put(PlayEventTrackingDbHelper.TrackingEvents.SOUND_URN, ClientUri.forTrack(params.getTrack().getId()).toString());
-        values.put(PlayEventTrackingDbHelper.TrackingEvents.SOUND_DURATION, params.getTrack().duration);
-        values.put(PlayEventTrackingDbHelper.TrackingEvents.USER_URN, buildUserUrn(params.getUserId()));
-        values.put(PlayEventTrackingDbHelper.TrackingEvents.SOURCE_INFO, params.getEventLoggerParams());
+        values.put(EventLoggerDbHelper.TrackingEvents.TIMESTAMP, params.getTimeStamp());
+        values.put(EventLoggerDbHelper.TrackingEvents.ACTION, params.getAction().toApiName());
+        values.put(EventLoggerDbHelper.TrackingEvents.SOUND_URN, ClientUri.forTrack(params.getTrack().getId()).toString());
+        values.put(EventLoggerDbHelper.TrackingEvents.SOUND_DURATION, params.getTrack().duration);
+        values.put(EventLoggerDbHelper.TrackingEvents.USER_URN, buildUserUrn(params.getUserId()));
+        values.put(EventLoggerDbHelper.TrackingEvents.SOURCE_INFO, params.getEventLoggerParams());
         return values;
     }
 
@@ -156,11 +156,11 @@ public class EventLoggerHandler extends Handler {
 
     @VisibleForTesting
     Cursor eventsCursor() {
-        return mTrackingDbHelper.getWritableDatabase().query(PlayEventTrackingDbHelper.EVENTS_TABLE, null, null, null, null, null, null);
+        return mTrackingDbHelper.getWritableDatabase().query(EventLoggerDbHelper.EVENTS_TABLE, null, null, null, null, null, null);
     }
 
     @VisibleForTesting
-    PlayEventTrackingDbHelper getTrackingDbHelper() {
+    EventLoggerDbHelper getTrackingDbHelper() {
         return mTrackingDbHelper;
     }
 }
