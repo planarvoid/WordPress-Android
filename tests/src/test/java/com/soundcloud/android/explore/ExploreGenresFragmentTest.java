@@ -16,7 +16,7 @@ import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.Event;
+import com.soundcloud.android.events.Event;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
 import dagger.Provides;

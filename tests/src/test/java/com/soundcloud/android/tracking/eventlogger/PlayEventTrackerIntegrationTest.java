@@ -57,7 +57,8 @@ public class PlayEventTrackerIntegrationTest {
 
         //service.getPlayQueueManager().loadUri(Content.ME_LIKES.uri, 0, currentTrack, new PlaySourceInfo.Builder(123L).originUrl("asdf").build());
 
-        tracker = service.getPlayEventTracker();
+        // fix me
+        //tracker = service.getPlayEventTracker();
     }
 
     @After

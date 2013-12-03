@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics;
 
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.events.PlaybackEventData;
 
 import android.content.Context;
 
@@ -34,6 +35,11 @@ class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     @Override
     public void trackScreen(String screenTag) {
         mLocalyticsSession.tagScreen(screenTag);
+    }
+
+    @Override
+    public void trackPlaybackEvent(PlaybackEventData eventData) {
+        // no-op
     }
 
 }

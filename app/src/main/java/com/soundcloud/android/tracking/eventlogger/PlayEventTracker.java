@@ -2,11 +2,14 @@ package com.soundcloud.android.tracking.eventlogger;
 
 import static android.os.Process.THREAD_PRIORITY_LOWEST;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.ClientUri;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.IOUtils;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -55,16 +58,19 @@ public class PlayEventTracker {
 
     private final PlayEventTrackingApi mTrackingApi;
 
+    public PlayEventTracker(Context context) {
+        this(context, new PlayEventTrackingApi(context.getString(R.string.app_id)));
+    }
+
     public PlayEventTracker(Context context, PlayEventTrackingApi api) {
         mContext = context;
         mTrackingApi = api;
         trackingDbHelper = new TrackingDbHelper(mContext);
+
+        Event.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
     }
 
-    public void trackEvent(final @Nullable Track track, final Action action, final long userId,
-                           String sourceParams) {
-
-        if (track == null) return;
+    public void trackEvent(PlaybackEventData playbackEventData) {
 
         synchronized (lock) {
             if (handler == null) {
@@ -72,7 +78,7 @@ public class PlayEventTracker {
                 thread.start();
                 handler = new TrackerHandler(thread.getLooper());
             }
-            TrackingParams params = new TrackingParams(track, action, userId, sourceParams);
+            TrackingParams params = new TrackingParams(playbackEventData);
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + params.toString());
 
             Message insert = handler.obtainMessage(INSERT_TOKEN, params);
@@ -82,11 +88,13 @@ public class PlayEventTracker {
         }
     }
 
-    /* package */ Cursor eventsCursor() {
+    @VisibleForTesting
+    Cursor eventsCursor() {
         return trackingDbHelper.getWritableDatabase().query(TrackingDbHelper.EVENTS_TABLE, null, null, null, null, null, null);
     }
 
-    public void stop() {
+    @VisibleForTesting
+    void stop() {
         synchronized (lock) {
             if (handler != null) {
                 handler.obtainMessage(FINISH_TOKEN).sendToTarget();
@@ -165,28 +173,22 @@ public class PlayEventTracker {
     }
 
     static class TrackingParams {
-        final Track track;
-        final Action action;
-        final long timestamp;
-        final long userId;
-        final String sourceParams;
+        final PlaybackEventData mPlaybackEventData;
+        final long mTimeStamp;
 
-        TrackingParams(Track track, Action action, long userId, String sourceParams) {
-            this.track = track;
-            this.action = action;
-            this.userId = userId;
-            this.timestamp = System.currentTimeMillis();
-            this.sourceParams = sourceParams;
+        TrackingParams(PlaybackEventData playbackEventData) {
+            mPlaybackEventData = playbackEventData;
+            mTimeStamp = System.currentTimeMillis();
         }
 
         public ContentValues toContentValues() {
             ContentValues values = new ContentValues();
-            values.put(TrackingEvents.TIMESTAMP, timestamp);
-            values.put(TrackingEvents.ACTION, action.toApiName());
-            values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(track.getId()).toString());
-            values.put(TrackingEvents.SOUND_DURATION, track.duration);
-            values.put(TrackingEvents.USER_URN, buildUserUrn(userId));
-            values.put(TrackingEvents.SOURCE_INFO, sourceParams);
+            values.put(TrackingEvents.TIMESTAMP, mTimeStamp);
+            values.put(TrackingEvents.ACTION, mPlaybackEventData.getAction().toApiName());
+            values.put(TrackingEvents.SOUND_URN, ClientUri.forTrack(mPlaybackEventData.getTrack().getId()).toString());
+            values.put(TrackingEvents.SOUND_DURATION, mPlaybackEventData.getTrack().duration);
+            values.put(TrackingEvents.USER_URN, buildUserUrn(mPlaybackEventData.getUserId()));
+            values.put(TrackingEvents.SOURCE_INFO, mPlaybackEventData.getEventLoggerParams());
             return values;
 
         }
@@ -202,11 +204,8 @@ public class PlayEventTracker {
         @Override
         public String toString() {
             return "TrackingParams{" +
-                    "track_id=" + track.getId() +
-                    ", action=" + action.name() +
-                    ", timestamp=" + timestamp +
-                    ", userId=" + userId +
-                    ", sourceParams='" + sourceParams + '\'' +
+                    "playback_event_data=" + mPlaybackEventData +
+                    ", timestamp=" + mTimeStamp +
                     '}';
         }
     }
@@ -315,6 +314,13 @@ public class PlayEventTracker {
                     getLooper().quit();
                     break;
             }
+        }
+    }
+
+    private class PlaybackServiceDestroyedObserver extends DefaultObserver<Integer> {
+        @Override
+        public void onNext(Integer args) {
+            stop();
         }
     }
 }

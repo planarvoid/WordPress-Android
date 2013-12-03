@@ -4,10 +4,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.preferences.SettingsActivity;
-import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.Log;
 import rx.Subscription;
@@ -45,7 +46,8 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     public AnalyticsEngine(Context context) {
         this(new AnalyticsProperties(context.getResources()), new CloudPlayerStateWrapper(),
                 PreferenceManager.getDefaultSharedPreferences(context),
-                new LocalyticsAnalyticsProvider(context.getApplicationContext()));
+                new LocalyticsAnalyticsProvider(context.getApplicationContext()),
+                new EventLoggerAnalyticsProvider(context));
     }
 
     @VisibleForTesting
@@ -57,6 +59,8 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         mAnalyticsPreferenceEnabled = sharedPreferences.getBoolean(SettingsActivity.ANALYTICS_ENABLED, true);
         mCloudPlaybackStateWrapper = cloudPlaybackStateWrapper;
+
+        Event.PLAYBACK.subscribe(new PlaybackEventObserver());
     }
 
     /**
@@ -105,6 +109,21 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
                 analyticsProvider.trackScreen(screenTag);
             }
+        }
+    }
+
+    /**
+     * Tracks a playback event from :
+     * {@link com.soundcloud.android.playback.service.PlaybackService#trackPlayEvent()}
+     * {@link com.soundcloud.android.playback.service.PlaybackService#trackStopEvent()} ()}
+     *
+     * This currently will get tracked regardless of Sessions or Analytics settings. Need to make sure this
+     * should be the case for all providers, not just {@link EventLoggerAnalyticsProvider}
+     */
+    public void trackPlaybackEvent(PlaybackEventData playbackEventData) {
+        Log.d(TAG, "Track playback event " + playbackEventData);
+        for (AnalyticsProvider analyticsProvider : mAnalyticsProviders) {
+            analyticsProvider.trackPlaybackEvent(playbackEventData);
         }
     }
 
@@ -184,6 +203,14 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
             //If dev/beta build and empty crash the app, otherwise log silent error
             Log.d(TAG, "ScreenTrackingObserver onNext: " + screenTag);
             trackScreen(screenTag);
+        }
+    }
+
+    private final class PlaybackEventObserver extends DefaultObserver<PlaybackEventData> {
+        @Override
+        public void onNext(PlaybackEventData args) {
+            Log.d(TAG, "PlaybackEventObserver onNext: " + args);
+            trackPlaybackEvent(args);
         }
     }
 }

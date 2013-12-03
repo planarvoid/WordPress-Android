@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -47,9 +48,8 @@ public class PlayEventTrackerTest {
         track.duration = 123;
         track.setId(10);
 
-
-        tracker.trackEvent(track, Action.PLAY, 1l, trackingParams1);
-        tracker.trackEvent(track, Action.STOP, 2l, trackingParams2);
+        tracker.trackEvent(new PlaybackEventData(track, Action.PLAY, 1l, trackingParams1));
+        tracker.trackEvent(new PlaybackEventData(track, Action.STOP, 2l, trackingParams2));
 
         Cursor cursor = tracker.eventsCursor();
 
@@ -74,8 +74,8 @@ public class PlayEventTrackerTest {
     public void shouldFlushEventsToApi() throws Exception {
         when(api.pushToRemote(anyList())).thenReturn(new String[]{"1"});
 
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, trackingParams1);
-        tracker.trackEvent(new Track(), Action.STOP, 2l, trackingParams2);
+        tracker.trackEvent(new PlaybackEventData(new Track(), Action.PLAY, 1l, trackingParams1));
+        tracker.trackEvent(new PlaybackEventData(new Track(), Action.STOP, 2l, trackingParams2));
 
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
 
@@ -88,7 +88,7 @@ public class PlayEventTrackerTest {
 
     @Test
     public void shouldNotFlushIfNoActiveNetwork() throws Exception {
-        tracker.trackEvent(new Track(), Action.PLAY, 1l, trackingParams1);
+        tracker.trackEvent(new PlaybackEventData(new Track(), Action.PLAY, 1l, trackingParams1));
 
         TestHelper.simulateOffline();
         expect(tracker.flushPlaybackTrackingEvents()).toBeTrue();
