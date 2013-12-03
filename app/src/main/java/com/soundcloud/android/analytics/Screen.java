@@ -4,6 +4,10 @@ import java.util.Locale;
 
 public enum Screen {
 
+    // core screens
+    STREAM("stream:main"),
+
+    // explore screens
     EXPLORE_GENRES("explore:genres"),
     EXPLORE_TRENDING_MUSIC("explore:trending_music"),
     EXPLORE_TRENDING_AUDIO("explore:trending_audio"),
