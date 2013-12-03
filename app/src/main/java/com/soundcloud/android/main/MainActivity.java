@@ -168,44 +168,20 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     public void onNavigationItemSelected(int position, boolean setTitle) {
         if (position == mLastSelection) return;
         switch (NavigationFragment.NavItem.values()[position]) {
-            case PROFILE:{
-                // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
-                // don't forget to search for the TODOs related to this in NavigationFragment.
-                // --Your friend.
-                getSupportActionBar().setDisplayShowTitleEnabled(false); // prevents title text change flashing
-                startActivity(new Intent(this, MeActivity.class));
+            case PROFILE:
+                displayProfile();
+                return;
+            case STREAM:
+                displayStream();
                 break;
-            }
-            case STREAM:{
-                final Uri contentUri = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true) ?
-                        Content.ME_SOUND_STREAM.uri :
-                        Content.ME_SOUND_STREAM.uri.buildUpon()
-                                .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
-                if (mStreamFragment == null) {
-                    mStreamFragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
-                }
-                attachFragment(mStreamFragment, "stream_fragment", R.string.side_menu_stream);
+            case EXPLORE:
+                displayExplore();
                 break;
-            }
-            case EXPLORE:{
-                mExploreFragment = mExploreFragmentProvider.get();
-                attachFragment(mExploreFragment, "explore_fragment", R.string.side_menu_explore);
+            case LIKES:
+                displayLikes();
                 break;
-            }
-            case LIKES:{
-                if (mLikesFragment == null) {
-                    mLikesFragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
-                }
-                attachFragment(mLikesFragment, "likes_fragment", R.string.side_menu_likes);
-                break;
-            }
-            case PLAYLISTS:{
-                if (mPlaylistsFragment == null) {
-                    mPlaylistsFragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
-                }
-                attachFragment(mPlaylistsFragment, "playlists_fragment", R.string.side_menu_playlists);
-                break;
-            }
+            case PLAYLISTS:
+                displayPlaylists();
         }
 
         if (setTitle){
@@ -218,6 +194,45 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
             mLastSelection = position;
         }
+    }
+
+    private void displayProfile() {
+        // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
+        // don't forget to search for the TODOs related to this in NavigationFragment.
+        // --Your friend.
+        getSupportActionBar().setDisplayShowTitleEnabled(false); // prevents title text change flashing
+        startActivity(new Intent(this, MeActivity.class));
+    }
+
+    private void displayPlaylists() {
+        if (mPlaylistsFragment == null) {
+            mPlaylistsFragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
+        }
+        attachFragment(mPlaylistsFragment, "playlists_fragment", R.string.side_menu_playlists);
+    }
+
+    private void displayLikes() {
+        if (mLikesFragment == null) {
+            mLikesFragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
+        }
+        attachFragment(mLikesFragment, "likes_fragment", R.string.side_menu_likes);
+    }
+
+    private void displayExplore() {
+        mExploreFragment = mExploreFragmentProvider.get();
+        attachFragment(mExploreFragment, "explore_fragment", R.string.side_menu_explore);
+    }
+
+    private void displayStream() {
+        final Uri contentUri = getIntent().getBooleanExtra(EXTRA_ONBOARDING_USERS_RESULT, true) ?
+                Content.ME_SOUND_STREAM.uri :
+                Content.ME_SOUND_STREAM.uri.buildUpon()
+                        .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
+        if (mStreamFragment == null) {
+            mStreamFragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
+        }
+
+        attachFragment(mStreamFragment, "stream_fragment", R.string.side_menu_stream);
     }
 
     private void attachFragment(Fragment fragment, String tag, int titleResId) {
