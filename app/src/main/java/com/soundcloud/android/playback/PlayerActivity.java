@@ -72,7 +72,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @NotNull
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
-    private boolean mIsFirstLoad;
     private LinearLayout mPlayerInfoLayout;
     private PlayerTrackDetailsLayout mTrackDetailsView;
     private PlayableInfoAndEngagementsController mPlayableInfoAndEngagementsController;
@@ -112,8 +111,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-        mIsFirstLoad = bundle == null;
     }
 
     @Override
@@ -355,7 +352,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         f.addAction(Comment.ACTION_CREATE_COMMENT);
         registerReceiver(mStatusListener, new IntentFilter(f));
 
-        mPlayQueue = getInitialPlayQueue(mIsFirstLoad);
+        mPlayQueue = getInitialPlayQueue(!isConfigurationChange());
 
         if (!mPlayQueue.isEmpty()) {
             // everything is fine, configure from service
@@ -365,7 +362,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                    start it, it will reload queue and broadcast changes */
             startService(new Intent(this, PlaybackService.class));
         }
-        mIsFirstLoad = false;
     }
 
     @Override
