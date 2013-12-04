@@ -33,14 +33,14 @@ public class EventLoggerHandlerTest {
     @Mock
     EventLoggerApi api;
     @Mock
-    EventLoggerDbHelper dbHelper;
+    EventLoggerStorage storage;
 
     final String trackingParams1 = "tracking=params";
     final String trackingParams2 = "tracking=params2";
 
     @Before
     public void before() {
-        eventLoggerHandler = new EventLoggerHandler(Robolectric.application.getMainLooper(), context, dbHelper, api);
+        eventLoggerHandler = new EventLoggerHandler(Robolectric.application.getMainLooper(), context, storage, api);
         when(context.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE));
     }
 
@@ -54,20 +54,20 @@ public class EventLoggerHandlerTest {
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.INSERT_TOKEN, playbackEventData1));
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.INSERT_TOKEN, playbackEventData2));
 
-        verify(dbHelper).insertEvent(playbackEventData1);
-        verify(dbHelper).insertEvent(playbackEventData2);
+        verify(storage).insertEvent(playbackEventData1);
+        verify(storage).insertEvent(playbackEventData2);
     }
 
     @Test
     public void shouldNotFlushTrackingEventsWithNoConnection() throws Exception {
         TestHelper.simulateOffline();
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FLUSH_TOKEN));
-        verifyZeroInteractions(dbHelper);
+        verifyZeroInteractions(storage);
     }
 
     @Test
     public void shouldNotFlushTrackingEventsWithNoLocalEvents() throws Exception {
-        when(dbHelper.getUnpushedEvents(api)).thenReturn(Collections.<Pair<Long, String>>emptyList());
+        when(storage.getUnpushedEvents(api)).thenReturn(Collections.<Pair<Long, String>>emptyList());
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FLUSH_TOKEN));
         verifyZeroInteractions(api);
     }
@@ -86,7 +86,7 @@ public class EventLoggerHandlerTest {
         when(api.pushToRemote(pairs)).thenReturn(new String[]{});
 
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FLUSH_TOKEN));
-        verify(dbHelper, never()).deleteEventsById(any(String[].class));
+        verify(storage, never()).deleteEventsById(any(String[].class));
     }
 
     @Test
@@ -96,20 +96,20 @@ public class EventLoggerHandlerTest {
         when(api.pushToRemote(pairs)).thenReturn(strings);
 
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FLUSH_TOKEN));
-        verify(dbHelper).deleteEventsById(strings);
+        verify(storage).deleteEventsById(strings);
     }
 
     @Test
     public void shouldFlushOnFinishToken() {
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FINISH_TOKEN));
-        verify(dbHelper).getUnpushedEvents(api);
+        verify(storage).getUnpushedEvents(api);
     }
 
     private ArrayList<Pair<Long, String>> setupUnpushedEvents() {
         final Pair<Long, String> pair1 = new Pair<Long, String>(1L, "url1");
         final Pair<Long, String> pair2 = new Pair<Long, String>(2L, "url2");
         final ArrayList<Pair<Long,String>> pairs = Lists.newArrayList(pair1, pair2);
-        when(dbHelper.getUnpushedEvents(api)).thenReturn(pairs);
+        when(storage.getUnpushedEvents(api)).thenReturn(pairs);
         return pairs;
     }
 }

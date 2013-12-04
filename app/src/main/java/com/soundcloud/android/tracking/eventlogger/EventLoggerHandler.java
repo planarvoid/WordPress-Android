@@ -16,15 +16,14 @@ import java.util.List;
 public class EventLoggerHandler extends Handler {
 
     private Context mContext;
-    private EventLoggerDbHelper mTrackingDbHelper;
-    private EventLoggerApi mTrackingApi;
+    private EventLoggerStorage mStorage;
+    private EventLoggerApi mApi;
 
-    public EventLoggerHandler(Looper looper, Context context,
-                              EventLoggerDbHelper eventLoggerDbHelper, EventLoggerApi trackingApi) {
+    public EventLoggerHandler(Looper looper, Context context, EventLoggerStorage storage, EventLoggerApi eventLoggerApi) {
         super(looper);
         mContext = context;
-        mTrackingDbHelper = eventLoggerDbHelper;
-        mTrackingApi = trackingApi;
+        mStorage = storage;
+        mApi = eventLoggerApi;
     }
 
     @Override
@@ -40,7 +39,7 @@ public class EventLoggerHandler extends Handler {
         switch (msg.what) {
             case EventLogger.INSERT_TOKEN:
                 final PlaybackEventData params = (PlaybackEventData) msg.obj;
-                long id = mTrackingDbHelper.insertEvent(params);
+                long id = mStorage.insertEvent(params);
                 if (id < 0) {
                     Log.w(EventLogger.TAG, "error inserting tracking event");
                 }
@@ -70,12 +69,12 @@ public class EventLoggerHandler extends Handler {
             return true;
         }
 
-        List<Pair<Long, String>> events = mTrackingDbHelper.getUnpushedEvents(mTrackingApi);
+        List<Pair<Long, String>> events = mStorage.getUnpushedEvents(mApi);
 
         if (!events.isEmpty()) {
-            final String[] submitted = mTrackingApi.pushToRemote(events);
+            final String[] submitted = mApi.pushToRemote(events);
             if (submitted.length > 0) {
-                int deleted = mTrackingDbHelper.deleteEventsById(submitted);
+                int deleted = mStorage.deleteEventsById(submitted);
                 if (deleted != submitted.length) {
                     Log.w(EventLogger.TAG, "error deleting events (deleted=" + deleted + ")");
                 } else {

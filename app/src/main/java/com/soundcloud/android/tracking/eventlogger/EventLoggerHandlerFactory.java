@@ -8,13 +8,13 @@ import javax.inject.Inject;
 public class EventLoggerHandlerFactory {
 
     private Context mContext;
-    private EventLoggerDbHelper mTrackingDbHelper;
+    private EventLoggerStorage mTrackingDbHelper;
     private EventLoggerApi mTrackingApi;
 
     @Inject
-    public EventLoggerHandlerFactory (Context context, EventLoggerDbHelper eventLoggerDbHelper, EventLoggerApi trackingApi) {
+    public EventLoggerHandlerFactory (Context context, EventLoggerStorage eventLoggerStorage, EventLoggerApi trackingApi) {
         mContext = context;
-        mTrackingDbHelper = eventLoggerDbHelper;
+        mTrackingDbHelper = eventLoggerStorage;
         mTrackingApi = trackingApi;
     }
 
