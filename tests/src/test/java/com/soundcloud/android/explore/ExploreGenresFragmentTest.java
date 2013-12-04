@@ -115,11 +115,12 @@ public class ExploreGenresFragmentTest {
     @Test
     public void shouldPublishScreenEnterEventWhenOpeningSpecificGenre(){
         dependencyInjector.inject(fragment);
-        Event.SCREEN_ENTERED.subscribe(screenTrackingObserver);
+        Subscription subscription = Event.SCREEN_ENTERED.subscribe(screenTrackingObserver);
         when(listView.getTag()).thenReturn("screentag");
         fragment.onItemClick(listView, listView, 0,0);
         verify(screenTrackingObserver).onNext("screentag");
         verifyNoMoreInteractions(screenTrackingObserver);
+        subscription.unsubscribe();
     }
 
     private void addCategoriesToFragment(ExploreGenresSections categories) {
