@@ -25,6 +25,12 @@ public enum Screen {
     USER_FOLLOWINGS("users:followings"),
     USER_FOLLOWERS("users:followers"),
 
+    // player screens
+    PLAYER_MAIN("sounds:main"),
+    PLAYER_INFO("sounds:info"),
+    PLAYER_LIKES("sounds:likes"),
+    PLAYER_REPOSTS("sounds:reposts"),
+    PLAYER_COMMENTS("sounds:comments"),
     // explore screens
     EXPLORE_GENRES("explore:genres"),
     EXPLORE_TRENDING_MUSIC("explore:trending_music"),

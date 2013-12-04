@@ -9,6 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -17,6 +18,7 @@ import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playback.views.PlayerTrackView;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.playback.service.PlaybackState;
@@ -112,6 +114,12 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         mIsFirstLoad = bundle == null;
+
+        // we track whatever sound gets played first here, and then every subsequent sound through the view pager,
+        // to accommodate for lazy loading of sounds
+        if (mIsFirstLoad) {
+            Event.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
+        }
     }
 
     @Override

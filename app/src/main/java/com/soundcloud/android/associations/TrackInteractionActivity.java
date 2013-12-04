@@ -1,8 +1,10 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.playback.PlaybackOperations;
 
@@ -22,12 +24,15 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
         switch (mInteraction) {
             case TRACK_LIKE:
                 setTitle(R.string.list_header_track_likers);
+                publishScreenEnteredEvent(bundle, Screen.PLAYER_LIKES);
                 break;
             case TRACK_REPOST:
                 setTitle(R.string.list_header_track_reposters);
+                publishScreenEnteredEvent(bundle, Screen.PLAYER_REPOSTS);
                 break;
             case COMMENT:
                 setTitle(R.string.list_header_track_comments);
+                publishScreenEnteredEvent(bundle, Screen.PLAYER_COMMENTS);
                 break;
         }
 
@@ -41,6 +46,13 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
                 }
             }
         });
+    }
+
+    private void publishScreenEnteredEvent(Bundle savedInstanceState, Screen screen) {
+        boolean wasConfigurationChange = savedInstanceState != null;
+        if (!wasConfigurationChange) {
+            Event.SCREEN_ENTERED.publish(screen.get());
+        }
     }
 
     @Override
