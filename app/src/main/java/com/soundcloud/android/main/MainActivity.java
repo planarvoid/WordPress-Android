@@ -145,6 +145,24 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             mAccountOperations.addSoundCloudAccountManually(this);
             finish();
         }
+
+        if (isReallyResuming()) {
+            publishContentChangeEvent();
+        }
+    }
+
+    private void publishContentChangeEvent() {
+        final int position = mNavigationFragment.getCurrentSelectedPosition();
+        switch (NavigationFragment.NavItem.values()[position]) {
+            case STREAM:
+                Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_STREAM.get());
+                break;
+            case LIKES:
+                Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_LIKES.get());
+                break;
+            case PLAYLISTS:
+                Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_PLAYLISTS.get());
+        }
     }
 
     @Override
@@ -196,6 +214,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
             mLastSelection = position;
         }
+
+        publishContentChangeEvent();
     }
 
     private void displayProfile() {
@@ -211,7 +231,6 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         if (fragment == null) {
             fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
         }
-        Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_PLAYLISTS.get());
         attachFragment(fragment, PLAYLISTS_FRAGMENT_TAG, R.string.side_menu_playlists);
     }
 
@@ -220,7 +239,6 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         if (fragment == null) {
             fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
         }
-        Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_LIKES.get());
         attachFragment(fragment, LIKES_FRAGMENT_TAG, R.string.side_menu_likes);
     }
 
@@ -242,7 +260,6 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
         }
 
-        Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_STREAM.get());
         attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);
     }
 
