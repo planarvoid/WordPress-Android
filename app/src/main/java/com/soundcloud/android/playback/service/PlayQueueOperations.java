@@ -46,8 +46,8 @@ public class PlayQueueOperations {
         mRxHttpClient = rxHttpClient;
     }
 
-    public int getLastStoredSeekPosition() {
-        return mSharedPreferences.getInt(Keys.SEEK_POSITION.name(), 0);
+    public long getLastStoredSeekPosition() {
+        return mSharedPreferences.getLong(Keys.SEEK_POSITION.name(), 0);
     }
 
     public int getLastStoredPlayPosition() {
