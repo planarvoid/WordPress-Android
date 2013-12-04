@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.http.HttpURLConnectionFactory;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
@@ -20,7 +20,7 @@ import android.util.Pair;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class EventLoggerApiTest {
 
     EventLoggerApi eventLoggerApi;

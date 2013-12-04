@@ -2,10 +2,11 @@ package com.soundcloud.android.tracking.eventlogger;
 
 import static android.os.Process.THREAD_PRIORITY_LOWEST;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.Event;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.rx.observers.DefaultObserver;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.os.HandlerThread;
 import android.os.Message;
@@ -26,13 +27,13 @@ public class EventLogger {
 
     private final EventLoggerHandlerFactory mEventLoggerHandlerFactory;
     private final Object lock = new Object();
+    private Subscription mShutdownSubscrioption = Subscriptions.empty();
 
     private EventLoggerHandler mHandler;
 
     @Inject
     public EventLogger(EventLoggerHandlerFactory eventLoggerHandlerFactory) {
         mEventLoggerHandlerFactory = eventLoggerHandlerFactory;
-        Event.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
     }
 
     public void trackEvent(PlaybackEventData playbackEventData) {
@@ -41,6 +42,8 @@ public class EventLogger {
                 HandlerThread thread = new HandlerThread("PlayEvent-tracking", THREAD_PRIORITY_LOWEST);
                 thread.start();
                 mHandler = mEventLoggerHandlerFactory.create(thread.getLooper());
+
+                mShutdownSubscrioption = Event.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
             }
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + playbackEventData.toString());
@@ -50,19 +53,19 @@ public class EventLogger {
         }
     }
 
-    @VisibleForTesting
     void stop() {
-        synchronized (lock) {
-            if (mHandler != null) {
-                mHandler.obtainMessage(FINISH_TOKEN).sendToTarget();
-            }
+        if (mHandler != null) {
+            mHandler.obtainMessage(FINISH_TOKEN).sendToTarget();
         }
+        mShutdownSubscrioption.unsubscribe();
     }
 
     private class PlaybackServiceDestroyedObserver extends DefaultObserver<Integer> {
         @Override
         public void onNext(Integer args) {
-            stop();
+            synchronized (lock) {
+                stop();
+            }
         }
     }
 }
