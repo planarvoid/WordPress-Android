@@ -51,6 +51,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
     private Boolean mIsConnected;
     private boolean mIsForeground;
+    private boolean mIsFirstRun;
 
     protected AccountOperations mAccountOperations;
     protected PublicCloudAPI mPublicCloudAPI;
@@ -77,7 +78,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
             mActionBarController = createActionBarController();
         }
 
-
+        mIsFirstRun = true;
     }
 
     // Override this in activities with custom content views
@@ -153,6 +154,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         super.onPause();
         safeUnregisterReceiver(mUnauthoriedRequestReceiver);
         mIsForeground = false;
+        mIsFirstRun = false;
         if (mActionBarController != null) {
             mActionBarController.onPause();
         }
@@ -171,6 +173,14 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
     public SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
+    }
+
+    /**
+     * @return true if the Activity didn't receive a create event before onResume, e.g. when returning from another
+     * activity further up the task stack.
+     */
+    protected boolean isReallyResuming() {
+        return !mIsFirstRun;
     }
 
     public boolean isForeground() {
