@@ -15,7 +15,6 @@ import android.util.Pair;
 import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.UUID;
 
 public class EventLoggerStorage {
 
@@ -69,11 +68,7 @@ public class EventLoggerStorage {
 
     @VisibleForTesting
     static String buildUserUrn(final long userId) {
-        if (userId < 0) {
-            return "anonymous:" + UUID.randomUUID();
-        } else {
-            return ClientUri.forUser(userId).toString();
-        }
+        return ClientUri.forUser(Math.max(0, userId)).toString();
     }
 
     private ContentValues createValuesFromPlaybackEvent(PlaybackEventData params) {
