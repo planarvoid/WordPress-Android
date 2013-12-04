@@ -7,8 +7,10 @@ import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.Tr
 import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.TIMESTAMP;
 import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.USER_URN;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.integralblue.httpresponsecache.compat.Charsets;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.http.HttpURLConnectionFactory;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
@@ -22,7 +24,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,20 +32,24 @@ public class EventLoggerApi {
 
     private static final String TAG = EventLoggerApi.class.getSimpleName();
     private static final String ENDPOINT = "http://eventlogger.soundcloud.com/audio";
-    private static final int READ_TIMEOUT = 5 * 1000;
-    private static final int CONNECT_TIMEOUT = 10 * 1000;
+    @VisibleForTesting
+    static final int READ_TIMEOUT = 5 * 1000;
+    @VisibleForTesting
+    static final int CONNECT_TIMEOUT = 10 * 1000;
 
     private final String mAppId;
     private final String mUniqueDeviceId;
+    private final HttpURLConnectionFactory mHttpURLConnectionFactory;
 
     @Inject
-    public EventLoggerApi(Context context) {
-        this(context.getResources().getString(R.string.app_id), AndroidUtils.getUniqueDeviceID(context));
+    public EventLoggerApi(Context context, HttpURLConnectionFactory httpURLConnectionFactory) {
+        this(context.getResources().getString(R.string.app_id), AndroidUtils.getUniqueDeviceID(context), httpURLConnectionFactory);
     }
 
-    public EventLoggerApi(String appId, String uniqueDeviceId) {
+    public EventLoggerApi(String appId, String uniqueDeviceId, HttpURLConnectionFactory httpURLConnectionFactory) {
         mAppId = appId;
         mUniqueDeviceId = uniqueDeviceId;
+        mHttpURLConnectionFactory = httpURLConnectionFactory;
     }
 
     /**
@@ -63,8 +68,7 @@ public class EventLoggerApi {
             try {
                 final String url = urlPair.second;
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "logging "+url);
-                connection = (HttpURLConnection) new URL(url).openConnection();
-
+                connection = mHttpURLConnectionFactory.create(url);
                 connection.setRequestMethod("HEAD");
                 connection.setConnectTimeout(CONNECT_TIMEOUT);
                 connection.setReadTimeout(READ_TIMEOUT);
