@@ -1,7 +1,10 @@
 $ 75
   % v 2.7.3
-  _ 2013-11-22
+  _ 2013-12-02
   ! Tablet UI
+    * Fixed FB deep links
+    * Fixed lock screen widget
+    * KitKat player improvements
     * Updated tablet interface
     * Small UI adjustments for Creation screens
     * Bug fixes and performance enhancements

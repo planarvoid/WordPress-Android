@@ -121,7 +121,7 @@ public class PlayQueueManagerTest {
         Observable<PlayQueue> queueObservable = Mockito.mock(Observable.class);
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(queueObservable);
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
-        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400);
+        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
 
         PlaybackProgressInfo resumeInfo = playQueueManager.loadPlayQueue();
         expect(resumeInfo.getTrackId()).toEqual(456L);
@@ -132,7 +132,7 @@ public class PlayQueueManagerTest {
     public void shouldReloadPlayQueueFromLocalStorage(){
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
-        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400);
+        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         playQueueManager.loadPlayQueue();
 
         final PlayQueue currentPlayQueue = playQueueManager.getCurrentPlayQueue();

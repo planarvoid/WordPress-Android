@@ -83,10 +83,10 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         int adjustedPosition = position - ((ListView) parent).getHeaderViewsCount();
         ExploreGenre category = mGenresAdapter.getItem(adjustedPosition);
 
+        Event.SCREEN_ENTERED.publish(view.getTag());
+
         intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
         startActivity(intent);
-
-        Event.SCREEN_ENTERED.publish(view.getTag());
     }
 
     @Override

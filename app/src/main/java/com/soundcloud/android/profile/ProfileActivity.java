@@ -6,22 +6,24 @@ import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScListFragment;
+import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.DefaultObserver;
+import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchUserTask;
@@ -62,7 +64,7 @@ import android.widget.ToggleButton;
 
 public class ProfileActivity extends ScActivity implements
         FollowingOperations.FollowStatusChangedListener,
-        EventAware, ActionBar.OnNavigationListener, FetchModelTask.Listener<User> {
+        EventAware, ActionBar.OnNavigationListener, FetchModelTask.Listener<User>, ViewPager.OnPageChangeListener {
 
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER = "user";
@@ -135,17 +137,19 @@ public class ProfileActivity extends ScActivity implements
         mAdapter = new UserFragmentAdapter(getSupportFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(mAdapter);
-        mPager.setCurrentItem(Tab.tracks.ordinal());
-
-        //TODO, is this really necessary?
         mPager.setBackgroundColor(Color.WHITE);
-
         mPager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         mPager.setPageMargin(getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
         mIndicator = (TitlePageIndicator) findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
+        mIndicator.setOnPageChangeListener(this);
 
+        // make sure to call this only after we fully set up the view pager and the indicator, so as to receive
+        // the callback to the page changed listener
+        if (bundle == null) {
+            mPager.setCurrentItem(Tab.tracks.ordinal());
+        }
 
         Intent intent = getIntent();
         Configuration c = (Configuration) getLastCustomNonConfigurationInstance();
@@ -234,6 +238,20 @@ public class ProfileActivity extends ScActivity implements
      protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
         // TODO : reload avatar
+    }
+
+    @Override
+    public void onPageScrolled(int i, float v, int i2) {
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        Tab currentTab = Tab.values()[position];
+        Event.SCREEN_ENTERED.publish(isLoggedInUser() ? currentTab.youScreen.get() : currentTab.userScreen.get());
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int i) {
     }
 
     private void loadYou() {
@@ -450,25 +468,25 @@ public class ProfileActivity extends ScActivity implements
 
 
     public enum Tab {
-        details(Actions.YOUR_INFO, Page.Users_info, Page.You_info, Content.USER, Content.ME, R.string.tab_title_user_info),
-        tracks(Actions.YOUR_SOUNDS,Page.Users_sounds, Page.You_sounds, Content.USER_SOUNDS, Content.ME_SOUNDS, R.string.tab_title_user_sounds),
-        sets(Actions.YOUR_SETS,Page.Users_sets, Page.You_sets, Content.USER_PLAYLISTS, Content.ME_PLAYLISTS, R.string.tab_title_user_playlists),
-        likes(Actions.YOUR_LIKES,Page.Users_likes, Page.You_likes, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes),
-        followings(Actions.YOUR_FOLLOWINGS,Page.Users_following, Page.You_following, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings),
-        followers(Actions.YOUR_FOLLOWERS, Page.Users_followers, Page.You_followers, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers);
+        details(Actions.YOUR_INFO, Screen.USER_INFO, Screen.YOUR_INFO, Content.USER, Content.ME, R.string.tab_title_user_info),
+        tracks(Actions.YOUR_SOUNDS, Screen.USER_POSTS, Screen.YOUR_POSTS, Content.USER_SOUNDS, Content.ME_SOUNDS, R.string.tab_title_user_sounds),
+        sets(Actions.YOUR_SETS, Screen.USER_PLAYLISTS, Screen.YOUR_PLAYLISTS, Content.USER_PLAYLISTS, Content.ME_PLAYLISTS, R.string.tab_title_user_playlists),
+        likes(Actions.YOUR_LIKES, Screen.USER_LIKES, Screen.YOUR_LIKES, Content.USER_LIKES, Content.ME_LIKES, R.string.tab_title_user_likes),
+        followings(Actions.YOUR_FOLLOWINGS, Screen.USER_FOLLOWINGS, Screen.YOUR_FOLLOWINGS, Content.USER_FOLLOWINGS, Content.ME_FOLLOWINGS, R.string.tab_title_user_followings),
+        followers(Actions.YOUR_FOLLOWERS, Screen.USER_FOLLOWERS, Screen.YOUR_FOLLOWERS, Content.USER_FOLLOWERS, Content.ME_FOLLOWERS, R.string.tab_title_user_followers);
 
         public static final String EXTRA = "userBrowserTag";
 
-        public final Page userPage, youPage;
+        public final Screen userScreen, youScreen;
         public final Content userContent, youContent;
         public final int userTitle;
         public final String tag;
         public final String action;
 
-        Tab(String action, Page userPage, Page youPage, Content userContent, Content youContent, int userTitle) {
+        Tab(String action, Screen userScreen, Screen youScreen, Content userContent, Content youContent, int userTitle) {
             this.action = action;
-            this.userPage = userPage;
-            this.youPage = youPage;
+            this.userScreen = userScreen;
+            this.youScreen = youScreen;
             this.userContent = userContent;
             this.youContent = youContent;
             this.userTitle = userTitle;

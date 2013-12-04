@@ -519,7 +519,7 @@
 
                                 <ruleset>rulesets/java/design.xml</ruleset>
                                 <ruleset>rulesets/java/empty.xml</ruleset>
-                                <ruleset>rulesets/java/coupling.xml</ruleset>
+                                <!--<ruleset>rulesets/java/coupling.xml</ruleset>-->
 
 
                                 <ruleset>rulesets/java/naming.xml</ruleset>
