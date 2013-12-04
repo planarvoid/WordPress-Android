@@ -9,10 +9,11 @@ import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.Tr
 
 import com.integralblue.httpresponsecache.compat.Charsets;
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 
-import android.content.res.Resources;
+import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 import android.util.Pair;
@@ -34,14 +35,16 @@ public class EventLoggerApi {
     private static final int CONNECT_TIMEOUT = 10 * 1000;
 
     private final String mAppId;
+    private final String mUniqueDeviceId;
 
     @Inject
-    public EventLoggerApi(Resources resources) {
-        this(resources.getString(R.string.app_id));
+    public EventLoggerApi(Context context) {
+        this(context.getResources().getString(R.string.app_id), AndroidUtils.getUniqueDeviceID(context));
     }
 
-    public EventLoggerApi(String appId) {
+    public EventLoggerApi(String appId, String uniqueDeviceId) {
         mAppId = appId;
+        mUniqueDeviceId = uniqueDeviceId;
     }
 
     /**
@@ -99,6 +102,7 @@ public class EventLoggerApi {
         sb.append("&sound=").append(URLEncoder.encode(soundUrn, Charsets.UTF_8.name()));
         long soundDuration = trackingData.getLong(trackingData.getColumnIndex(SOUND_DURATION));
         sb.append("&duration=").append(soundDuration);
+        sb.append("&anonymous_id=").append(mUniqueDeviceId);
         String sourceInfo = trackingData.getString(trackingData.getColumnIndex(SOURCE_INFO));
         if (ScTextUtils.isNotBlank(sourceInfo)){
             sb.append("&").append(sourceInfo);
