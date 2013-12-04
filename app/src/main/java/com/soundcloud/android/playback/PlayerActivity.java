@@ -114,10 +114,15 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         mIsFirstLoad = bundle == null;
+    }
 
-        // we track whatever sound gets played first here, and then every subsequent sound through the view pager,
-        // to accommodate for lazy loading of sounds
-        if (mIsFirstLoad) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (!isConfigurationChange() || isReallyResuming()) {
+            // we track whatever sound gets played first here, and then every subsequent sound through the view pager,
+            // to accommodate for lazy loading of sounds
             Event.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
         }
     }

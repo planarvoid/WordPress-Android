@@ -51,6 +51,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
 
     private Boolean mIsConnected;
     private boolean mIsForeground;
+    private boolean mOnCreateCalled;
     private boolean mIsFirstRun;
 
     protected AccountOperations mAccountOperations;
@@ -78,7 +79,8 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
             mActionBarController = createActionBarController();
         }
 
-        mIsFirstRun = true;
+        mOnCreateCalled = true;
+        mIsFirstRun = savedInstanceState == null;
     }
 
     // Override this in activities with custom content views
@@ -154,6 +156,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         super.onPause();
         safeUnregisterReceiver(mUnauthoriedRequestReceiver);
         mIsForeground = false;
+        mOnCreateCalled = false;
         mIsFirstRun = false;
         if (mActionBarController != null) {
             mActionBarController.onPause();
@@ -180,7 +183,11 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
      * activity further up the task stack.
      */
     protected boolean isReallyResuming() {
-        return !mIsFirstRun;
+        return !mOnCreateCalled;
+    }
+
+    protected boolean isConfigurationChange() {
+        return !mIsFirstRun && mOnCreateCalled;
     }
 
     public boolean isForeground() {
