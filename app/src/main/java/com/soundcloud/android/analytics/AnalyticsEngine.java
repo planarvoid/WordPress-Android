@@ -32,7 +32,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     @VisibleForTesting
     protected static AtomicBoolean sActivitySessionOpen = new AtomicBoolean();
-
+    private static AnalyticsEngine sInstance;
 
     private final Collection<AnalyticsProvider> mAnalyticsProviders;
     private final AnalyticsProperties mAnalyticsProperties;
@@ -40,7 +40,15 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     private CloudPlayerStateWrapper mCloudPlaybackStateWrapper;
     private Subscription mEnterScreenEventSub;
 
-    public AnalyticsEngine(Context context) {
+    public static AnalyticsEngine getInstance(Context context) {
+        if (sInstance == null) {
+            Log.d(TAG, "Creating analytics engine");
+            sInstance = new AnalyticsEngine(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+    private AnalyticsEngine(Context context) {
         this(new AnalyticsProperties(context.getResources()), new CloudPlayerStateWrapper(),
                 PreferenceManager.getDefaultSharedPreferences(context),
                 new LocalyticsAnalyticsProvider(context.getApplicationContext()));

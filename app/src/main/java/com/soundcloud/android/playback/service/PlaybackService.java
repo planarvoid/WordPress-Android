@@ -239,7 +239,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         mOldCloudApi = new PublicApi(this);
-        mAnalyticsEngine = new AnalyticsEngine(getApplicationContext());
+        mAnalyticsEngine = AnalyticsEngine.getInstance(this);
         mAccountOperations = new AccountOperations(this);
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mAudioManager, mPlayQueueManager);
 
