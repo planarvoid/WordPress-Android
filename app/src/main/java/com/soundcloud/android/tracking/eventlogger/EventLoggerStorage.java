@@ -23,7 +23,11 @@ public class EventLoggerStorage {
 
     @Inject
     public EventLoggerStorage(Context context) {
-        mDbHelper = new EventLoggerDbHelper(context);
+        this(new EventLoggerDbHelper(context));
+    }
+
+    public EventLoggerStorage(EventLoggerDbHelper eventLoggerDbHelper) {
+        mDbHelper = eventLoggerDbHelper;
     }
 
     public long insertEvent(PlaybackEventData playbackEventData){
@@ -32,12 +36,12 @@ public class EventLoggerStorage {
     }
 
     public List<Pair<Long, String>> getUnpushedEvents(EventLoggerApi api) {
-        List<Pair<Long, String>> urls = Lists.newArrayListWithCapacity(EventLogger.BATCH_SIZE);
-        final SQLiteDatabase database = mDbHelper.getWritableDatabase();
-        Cursor cursor = database.query(EventLoggerDbHelper.EVENTS_TABLE, null, null, null, null, null,
+
+        Cursor cursor = mDbHelper.getReadableDatabase().query(EventLoggerDbHelper.EVENTS_TABLE, null, null, null, null, null,
                 EventLoggerDbHelper.TrackingEvents.TIMESTAMP + " DESC",
                 String.valueOf(EventLogger.BATCH_SIZE));
 
+        List<Pair<Long, String>> urls = Lists.newArrayListWithCapacity(EventLogger.BATCH_SIZE);
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 final long eventId = cursor.getLong(cursor.getColumnIndex(EventLoggerDbHelper.TrackingEvents._ID));
@@ -59,8 +63,7 @@ public class EventLoggerStorage {
         for (int i = 1; i < submitted.length; i++) query.append(",?");
         query.append(")");
 
-        final int deleted = database.delete(EventLoggerDbHelper.EVENTS_TABLE, query.toString(), submitted);
-        return deleted;
+        return database.delete(EventLoggerDbHelper.EVENTS_TABLE, query.toString(), submitted);
     }
 
 
