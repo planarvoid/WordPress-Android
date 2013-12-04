@@ -162,6 +162,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
                 break;
             case PLAYLISTS:
                 Event.SCREEN_ENTERED.publish(Screen.SIDE_MENU_PLAYLISTS.get());
+            default:
+                break; // the remaining content fragments are tracked individually
         }
     }
 
