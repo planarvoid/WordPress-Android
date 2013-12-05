@@ -18,7 +18,7 @@ import java.util.List;
 
 public class EventLoggerStorage {
 
-    private EventLoggerDbHelper mDbHelper;
+    private final EventLoggerDbHelper mDbHelper;
 
     @Inject
     public EventLoggerStorage(Context context) {
@@ -38,9 +38,9 @@ public class EventLoggerStorage {
 
         Cursor cursor = mDbHelper.getReadableDatabase().query(EventLoggerDbHelper.EVENTS_TABLE, null, null, null, null, null,
                 EventLoggerDbHelper.TrackingEvents.TIMESTAMP + " DESC",
-                String.valueOf(EventLogger.BATCH_SIZE));
+                String.valueOf(EventLoggerHandler.BATCH_SIZE));
 
-        List<Pair<Long, String>> urls = Lists.newArrayListWithCapacity(EventLogger.BATCH_SIZE);
+        List<Pair<Long, String>> urls = Lists.newArrayListWithCapacity(EventLoggerHandler.BATCH_SIZE);
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 final long eventId = cursor.getLong(cursor.getColumnIndex(EventLoggerDbHelper.TrackingEvents._ID));

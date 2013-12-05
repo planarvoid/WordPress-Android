@@ -51,8 +51,8 @@ public class EventLoggerHandlerTest {
         final PlaybackEventData playbackEventData1 = new PlaybackEventData(track, Action.PLAY, 1l, trackingParams1);
         final PlaybackEventData playbackEventData2 = new PlaybackEventData(track, Action.STOP, 2l, trackingParams2);
 
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.INSERT_TOKEN, playbackEventData1));
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.INSERT_TOKEN, playbackEventData2));
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData1));
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData2));
 
         verify(storage).insertEvent(playbackEventData1);
         verify(storage).insertEvent(playbackEventData2);
@@ -61,14 +61,14 @@ public class EventLoggerHandlerTest {
     @Test
     public void shouldNotFlushTrackingEventsWithNoConnection() throws Exception {
         TestHelper.simulateOffline();
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FLUSH_TOKEN));
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN));
         verifyZeroInteractions(storage);
     }
 
     @Test
     public void shouldNotFlushTrackingEventsWithNoLocalEvents() throws Exception {
         when(storage.getUnpushedEvents(api)).thenReturn(Collections.<Pair<Long, String>>emptyList());
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FLUSH_TOKEN));
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN));
         verifyZeroInteractions(api);
     }
 
@@ -76,7 +76,7 @@ public class EventLoggerHandlerTest {
     public void shouldPushLocalEventsToApi(){
         final ArrayList<Pair<Long, String>> pairs = setupUnpushedEvents();
 
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FLUSH_TOKEN));
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN));
         verify(api).pushToRemote(pairs);
     }
 
@@ -85,7 +85,7 @@ public class EventLoggerHandlerTest {
         final ArrayList<Pair<Long, String>> pairs = setupUnpushedEvents();
         when(api.pushToRemote(pairs)).thenReturn(new String[]{});
 
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FLUSH_TOKEN));
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN));
         verify(storage, never()).deleteEventsById(any(String[].class));
     }
 
@@ -95,13 +95,13 @@ public class EventLoggerHandlerTest {
         final String[] strings = {"1L", "2L"};
         when(api.pushToRemote(pairs)).thenReturn(strings);
 
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FLUSH_TOKEN));
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.FLUSH_TOKEN));
         verify(storage).deleteEventsById(strings);
     }
 
     @Test
     public void shouldFlushOnFinishToken() {
-        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLogger.FINISH_TOKEN));
+        eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.FINISH_TOKEN));
         verify(storage).getUnpushedEvents(api);
     }
 

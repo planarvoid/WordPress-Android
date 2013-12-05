@@ -15,9 +15,17 @@ import java.util.List;
 
 public class EventLoggerHandler extends Handler {
 
-    private Context mContext;
-    private EventLoggerStorage mStorage;
-    private EventLoggerApi mApi;
+    // service stop delay is 60s, this is bigger to avoid simultaneous flushes
+    private static final int FLUSH_DELAY   = 90 * 1000;
+    static final int BATCH_SIZE    = 10;
+
+    static final int INSERT_TOKEN = 0;
+    static final int FLUSH_TOKEN = 1;
+    static final int FINISH_TOKEN = 0xDEADBEEF;
+
+    private final Context mContext;
+    private final EventLoggerStorage mStorage;
+    private final EventLoggerApi mApi;
 
     public EventLoggerHandler(Looper looper, Context context, EventLoggerStorage storage, EventLoggerApi eventLoggerApi) {
         super(looper);
@@ -37,22 +45,22 @@ public class EventLoggerHandler extends Handler {
 
     private void handleTrackingEvent(Message msg) {
         switch (msg.what) {
-            case EventLogger.INSERT_TOKEN:
+            case INSERT_TOKEN:
                 final PlaybackEventData params = (PlaybackEventData) msg.obj;
                 long id = mStorage.insertEvent(params);
                 if (id < 0) {
                     Log.w(EventLogger.TAG, "error inserting tracking event");
                 }
-                removeMessages(EventLogger.FLUSH_TOKEN);
-                sendMessageDelayed(obtainMessage(EventLogger.FLUSH_TOKEN), EventLogger.FLUSH_DELAY);
+                removeMessages(FLUSH_TOKEN);
+                sendMessageDelayed(obtainMessage(FLUSH_TOKEN), FLUSH_DELAY);
                 break;
 
-            case EventLogger.FLUSH_TOKEN:
+            case FLUSH_TOKEN:
                 flushPlaybackTrackingEvents();
                 break;
 
-            case EventLogger.FINISH_TOKEN:
-                removeMessages(EventLogger.FLUSH_TOKEN);
+            case FINISH_TOKEN:
+                removeMessages(FLUSH_TOKEN);
                 flushPlaybackTrackingEvents();
 
                 if (Log.isLoggable(EventLogger.TAG, Log.DEBUG)) Log.d(EventLogger.TAG, "Shutting down.");
@@ -61,12 +69,12 @@ public class EventLoggerHandler extends Handler {
         }
     }
 
-    private boolean flushPlaybackTrackingEvents() {
+    private void flushPlaybackTrackingEvents() {
         if (Log.isLoggable(EventLogger.TAG, Log.DEBUG)) Log.d(EventLogger.TAG, "flushPlaybackTrackingEvents");
 
         if (!IOUtils.isConnected(mContext)) {
             if (Log.isLoggable(EventLogger.TAG, Log.DEBUG)) Log.d(EventLogger.TAG, "not connected, skipping flush");
-            return true;
+            return;
         }
 
         List<Pair<Long, String>> events = mStorage.getUnpushedEvents(mApi);
@@ -83,6 +91,6 @@ public class EventLoggerHandler extends Handler {
             }
         }
 
-        return events.size() < EventLogger.BATCH_SIZE;
+        return events.size() < BATCH_SIZE;
     }
 }

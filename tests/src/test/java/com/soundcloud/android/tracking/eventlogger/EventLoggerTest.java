@@ -35,7 +35,7 @@ public class EventLoggerTest {
     public void setUp() throws Exception {
         eventLogger = new EventLogger(eventLoggerHandlerFactory);
         when(eventLoggerHandlerFactory.create(any(Looper.class))).thenReturn(handler);
-        when(handler.obtainMessage(EventLogger.FINISH_TOKEN)).thenReturn(finishMessage);
+        when(handler.obtainMessage(EventLoggerHandler.FINISH_TOKEN)).thenReturn(finishMessage);
     }
 
     @After
@@ -51,22 +51,22 @@ public class EventLoggerTest {
 
     @Test
     public void shouldSendTrackingEventToHandler() throws Exception {
-        when(handler.obtainMessage(EventLogger.INSERT_TOKEN,playbackEventData)).thenReturn(message);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN,playbackEventData)).thenReturn(message);
         eventLogger.trackEvent(playbackEventData);
         verify(handler).sendMessage(message);
     }
 
     @Test
     public void shouldRemoveFinishTokenOnTrackEvent() throws Exception {
-        when(handler.obtainMessage(EventLogger.INSERT_TOKEN,playbackEventData)).thenReturn(message);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN,playbackEventData)).thenReturn(message);
         eventLogger.trackEvent(playbackEventData);
-        verify(handler).removeMessages(EventLogger.FINISH_TOKEN);
+        verify(handler).removeMessages(EventLoggerHandler.FINISH_TOKEN);
     }
 
     @Test
     public void playbackServiceShutdownEventShouldSendFinishToken() throws Exception {
         // send event to start handler
-        when(handler.obtainMessage(EventLogger.INSERT_TOKEN,playbackEventData)).thenReturn(message);
+        when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN,playbackEventData)).thenReturn(message);
         eventLogger.trackEvent(playbackEventData);
 
         Event.PLAYBACK_SERVICE_DESTROYED.publish(0);

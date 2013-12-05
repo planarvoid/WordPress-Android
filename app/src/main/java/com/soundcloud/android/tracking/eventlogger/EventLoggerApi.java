@@ -32,9 +32,8 @@ public class EventLoggerApi {
 
     private static final String TAG = EventLoggerApi.class.getSimpleName();
     private static final String ENDPOINT = "http://eventlogger.soundcloud.com/audio";
-    @VisibleForTesting
+
     static final int READ_TIMEOUT = 5 * 1000;
-    @VisibleForTesting
     static final int CONNECT_TIMEOUT = 10 * 1000;
 
     private final String mAppId;

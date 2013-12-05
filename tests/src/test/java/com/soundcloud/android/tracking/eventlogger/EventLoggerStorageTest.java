@@ -70,7 +70,7 @@ public class EventLoggerStorageTest {
     public void shouldQueryDatabaseForUnPushedEvents(){
         eventLoggerStorage.getUnpushedEvents(eventLoggerApi);
         verify(sqLiteDatabase).query(EventLoggerDbHelper.EVENTS_TABLE, null, null, null, null, null,
-                EventLoggerDbHelper.TrackingEvents.TIMESTAMP + " DESC", String.valueOf(EventLogger.BATCH_SIZE));
+                EventLoggerDbHelper.TrackingEvents.TIMESTAMP + " DESC", String.valueOf(EventLoggerHandler.BATCH_SIZE));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class EventLoggerStorageTest {
 
         when(eventLoggerApi.buildUrl(cursor)).thenReturn("url");
         when(sqLiteDatabase.query(EventLoggerDbHelper.EVENTS_TABLE, null, null, null, null, null,
-                EventLoggerDbHelper.TrackingEvents.TIMESTAMP + " DESC", String.valueOf(EventLogger.BATCH_SIZE))).thenReturn(cursor);
+                EventLoggerDbHelper.TrackingEvents.TIMESTAMP + " DESC", String.valueOf(EventLoggerHandler.BATCH_SIZE))).thenReturn(cursor);
 
         List<Pair<Long,String>> ret = eventLoggerStorage.getUnpushedEvents(eventLoggerApi);
         expect(ret.size()).toBe(1);
