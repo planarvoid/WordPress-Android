@@ -193,6 +193,14 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             mRecorder.shouldUseNotifications(false);
         }
         if (!isConfigurationChange() || isReallyResuming()) {
+            trackScreen();
+        }
+    }
+
+    private void trackScreen() {
+        if (mCurrentState.isEdit()) {
+            Event.SCREEN_ENTERED.publish(Screen.RECORD_EDIT.get());
+        } else {
             Event.SCREEN_ENTERED.publish(Screen.RECORD_MAIN.get());
         }
     }
@@ -381,6 +389,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             @Override
             public void onClick(View v) {
                 updateUi(isPlayState() ? CreateState.EDIT_PLAYBACK : CreateState.EDIT);
+                Event.SCREEN_ENTERED.publish(Screen.RECORD_EDIT.get());
             }
         });
         return button;

@@ -34,6 +34,7 @@ public enum Screen {
 
     // creators
     RECORD_MAIN("record:main"),
+    RECORD_EDIT("record:edit"),
     RECORD_UPLOAD("record:share"),
 
     // misc
