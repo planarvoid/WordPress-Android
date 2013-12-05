@@ -89,8 +89,8 @@ public class PlaybackOperations {
     /**
      * Created by anything played from the {@link com.soundcloud.android.explore.ExploreFragment} section.
      */
-    public void playExploreTrack(Context context, Track track, String exploreTag, Uri originPage) {
-        playTrack(context, track, new PlaySessionSource(originPage, exploreTag));
+    public void playExploreTrack(Context context, Track track, String exploreTag, String screenTag) {
+        playTrack(context, track, new PlaySessionSource(Uri.parse(screenTag), exploreTag));
     }
 
 

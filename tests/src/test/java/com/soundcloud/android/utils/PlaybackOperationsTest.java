@@ -68,7 +68,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTrackShouldOpenPlayerActivityWithInitialTrackId() {
-        playbackOperations.playTrack(Robolectric.application, track);
+        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
