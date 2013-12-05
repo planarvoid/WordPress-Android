@@ -39,7 +39,6 @@ import rx.concurrency.Schedulers;
 import rx.util.functions.Func1;
 
 import android.content.Intent;
-import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,8 +49,6 @@ public class PlaybackOperationsTest {
 
     private PlaybackOperations playbackOperations;
     private Track track;
-
-    private Uri ORIGIN_PAGE_URI = Uri.parse("page:uri");
 
     private Screen ORIGIN_SCREEN = Screen.EXPLORE_TRENDING_MUSIC;
 
@@ -83,10 +80,10 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTrackShouldStartPlaybackServiceWithPlayQueueFromInitialTrack() {
-        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_PAGE_URI);
+        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_PAGE_URI), track.getId());
+        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.toUri()), track.getId());
     }
 
     @Test

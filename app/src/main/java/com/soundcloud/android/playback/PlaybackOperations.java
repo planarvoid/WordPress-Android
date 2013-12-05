@@ -82,13 +82,8 @@ public class PlaybackOperations {
     /**
      * Single play, the tracklist will be of length 1
      */
-    @Deprecated
-    public void playTrack(Context context, Track track) {
-        playTrack(context, track, TEMP_ORIGIN);
-    }
-
-    public void playTrack(Context context, Track track, Uri pageOrigin) {
-        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(pageOrigin));
+    public void playTrack(Context context, Track track, Screen screen) {
+        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(screen.toUri()));
     }
 
     /**

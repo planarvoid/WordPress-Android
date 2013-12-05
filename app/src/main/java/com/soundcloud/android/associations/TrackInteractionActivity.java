@@ -16,6 +16,7 @@ import android.view.View;
 public class TrackInteractionActivity extends PlayableInteractionActivity {
 
     private PlaybackOperations mPlaybackOperations;
+    private Screen screen;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -23,18 +24,22 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
 
         switch (mInteraction) {
             case TRACK_LIKE:
+                screen = Screen.PLAYER_LIKES;
                 setTitle(R.string.list_header_track_likers);
-                publishScreenEnteredEvent(Screen.PLAYER_LIKES);
                 break;
             case TRACK_REPOST:
+                screen = Screen.PLAYER_REPOSTS;
                 setTitle(R.string.list_header_track_reposters);
-                publishScreenEnteredEvent(Screen.PLAYER_REPOSTS);
                 break;
             case COMMENT:
+                screen = Screen.PLAYER_COMMENTS;
                 setTitle(R.string.list_header_track_comments);
-                publishScreenEnteredEvent(Screen.PLAYER_COMMENTS);
                 break;
+            default:
+                throw new IllegalArgumentException("Unexpected track interation: " + mInteraction);
         }
+
+        publishScreenEnteredEvent(screen);
 
         mPlaybackOperations = new PlaybackOperations();
         mPlayableInfoBar.setOnClickListener(new View.OnClickListener() {
@@ -42,7 +47,7 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
             public void onClick(View v) {
                 // if it comes from a mention, might not have a user
                 if (mPlayable.user != null) {
-                    mPlaybackOperations.playTrack(TrackInteractionActivity.this, (Track) mPlayable);
+                    mPlaybackOperations.playTrack(TrackInteractionActivity.this, (Track) mPlayable, screen);
                 }
             }
         });
