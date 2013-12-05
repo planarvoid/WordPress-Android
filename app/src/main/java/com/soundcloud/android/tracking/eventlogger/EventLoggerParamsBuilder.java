@@ -11,17 +11,6 @@ import java.net.URLEncoder;
 import java.util.Locale;
 public class EventLoggerParamsBuilder {
 
-    private interface Keys {
-        String ORIGIN_URL = "context";
-        String TRIGGER = "trigger";
-        String SOURCE = "source";
-        String SOURCE_VERSION = "source_version";
-        String SET_ID = "set_id";
-        String SET_POSITION = "set_position";
-    }
-
-    private static final String TRIGGER_AUTO = "auto";
-    private static final String TRIGGER_MANUAL = "manual";
     private Uri mOrigin;
     private long mSetId = Playable.NOT_SET;
     private int mSetPosition;
@@ -31,7 +20,7 @@ public class EventLoggerParamsBuilder {
     private String mTrigger;
 
     public EventLoggerParamsBuilder(boolean manualPlay) {
-        mTrigger = manualPlay ? TRIGGER_MANUAL : TRIGGER_AUTO;
+        mTrigger = manualPlay ? EventLoggerParams.Trigger.MANUAL : EventLoggerParams.Trigger.AUTO;
     }
 
     public EventLoggerParamsBuilder origin(Uri origin) {
@@ -58,24 +47,24 @@ public class EventLoggerParamsBuilder {
     public String build() {
         final Uri.Builder builder = new Uri.Builder();
 
-        builder.appendQueryParameter(Keys.TRIGGER, mTrigger);
+        builder.appendQueryParameter(EventLoggerParams.Keys.TRIGGER, mTrigger);
 
         final String originUrl = mOrigin.toString();
         if (ScTextUtils.isNotBlank(originUrl)) {
-            builder.appendQueryParameter(Keys.ORIGIN_URL, formatOriginUrl(originUrl));
+            builder.appendQueryParameter(EventLoggerParams.Keys.ORIGIN_URL, formatOriginUrl(originUrl));
         }
 
         if (ScTextUtils.isNotBlank(mSource)) {
-            builder.appendQueryParameter(Keys.SOURCE, mSource);
+            builder.appendQueryParameter(EventLoggerParams.Keys.SOURCE, mSource);
         }
 
         if (ScTextUtils.isNotBlank(mSourceVersion)) {
-            builder.appendQueryParameter(Keys.SOURCE_VERSION, mSourceVersion);
+            builder.appendQueryParameter(EventLoggerParams.Keys.SOURCE_VERSION, mSourceVersion);
         }
 
         if (mSetId != Playable.NOT_SET) {
-            builder.appendQueryParameter(Keys.SET_ID, String.valueOf(mSetId));
-            builder.appendQueryParameter(Keys.SET_POSITION, String.valueOf(mSetPosition));
+            builder.appendQueryParameter(EventLoggerParams.Keys.SET_ID, String.valueOf(mSetId));
+            builder.appendQueryParameter(EventLoggerParams.Keys.SET_POSITION, String.valueOf(mSetPosition));
         }
         return builder.build().getQuery().toString();
     }

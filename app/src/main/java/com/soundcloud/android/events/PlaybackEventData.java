@@ -1,22 +1,31 @@
 package com.soundcloud.android.events;
 
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerParams.Action;
+
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.tracking.eventlogger.Action;
 
 public class PlaybackEventData {
 
     private Track mTrack;
-    private Action mAction;
+    private String mAction;
     private long mUserId;
-    private String mEventLoggerParams;
+    private String mTrackSourceParams;
     private long mTimeStamp;
 
-    public PlaybackEventData(Track track, Action action, long userId, String eventLoggerParams) {
+    public static PlaybackEventData forPlay(Track track, long userId, String trackSourceParams) {
+        return new PlaybackEventData(track, Action.PLAY, userId, trackSourceParams);
+    }
+
+    public static PlaybackEventData forStop(Track track, long userId, String trackSourceParams) {
+        return new PlaybackEventData(track, Action.STOP, userId, trackSourceParams);
+    }
+
+    private PlaybackEventData(Track track, String action, long userId, String trackSourceParams) {
         mTrack = track;
         mAction = action;
         mUserId = userId;
-        mEventLoggerParams = eventLoggerParams;
+        mTrackSourceParams = trackSourceParams;
         mTimeStamp = System.currentTimeMillis();
     }
 
@@ -24,7 +33,7 @@ public class PlaybackEventData {
         return mTrack;
     }
 
-    public Action getAction() {
+    public String getAction() {
         return mAction;
     }
 
@@ -33,7 +42,7 @@ public class PlaybackEventData {
     }
 
     public String getEventLoggerParams() {
-        return mEventLoggerParams;
+        return mTrackSourceParams;
     }
 
     @Override
@@ -42,7 +51,7 @@ public class PlaybackEventData {
                 .add("Track_ID", mTrack.getId())
                 .add("Action", mAction)
                 .add("UserID", mUserId)
-                .add("EventLoggerParams", mEventLoggerParams)
+                .add("EventLoggerParams", mTrackSourceParams)
                 .add("TimeStamp", mTimeStamp).toString();
     }
 

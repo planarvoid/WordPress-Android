@@ -31,7 +31,6 @@ import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
-import com.soundcloud.android.tracking.eventlogger.Action;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -548,14 +547,14 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private void trackPlayEvent() {
         final long userId = SoundCloudApplication.getUserId();
-        final PlaybackEventData eventData = new PlaybackEventData(mCurrentTrack, Action.PLAY, userId, mCurrentEventLoggerParams);
+        final PlaybackEventData eventData = PlaybackEventData.forPlay(mCurrentTrack, userId, mCurrentEventLoggerParams);
 
         Event.PLAYBACK.publish(eventData);
     }
 
     private void trackStopEvent() {
         final long userId = SoundCloudApplication.getUserId();
-        final PlaybackEventData eventData = new PlaybackEventData(mCurrentTrack, Action.STOP, userId, mCurrentEventLoggerParams);
+        final PlaybackEventData eventData = PlaybackEventData.forStop(mCurrentTrack, userId, mCurrentEventLoggerParams);
 
         Event.PLAYBACK.publish(eventData);
 

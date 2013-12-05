@@ -17,7 +17,6 @@ import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracking.eventlogger.Action;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -379,7 +378,7 @@ public class AnalyticsEngineTest {
     public void shouldTrackPlaybackEvent() throws Exception {
         initialiseAnalyticsEngine();
 
-        PlaybackEventData playbackEventData = new PlaybackEventData(mock(Track.class), Action.PLAY, 0, "");
+        PlaybackEventData playbackEventData = PlaybackEventData.forPlay(mock(Track.class), 0, "");
         Event.PLAYBACK.publish(playbackEventData);
 
         verify(analyticsProviderOne, times(1)).trackPlaybackEvent(playbackEventData);

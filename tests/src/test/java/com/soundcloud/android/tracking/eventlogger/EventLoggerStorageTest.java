@@ -51,7 +51,7 @@ public class EventLoggerStorageTest {
     @Test
     public void shouldInsertPlaybackEvent() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final PlaybackEventData playbackEventData = new PlaybackEventData(track, Action.PLAY, 1l, trackingParams1);
+        final PlaybackEventData playbackEventData = PlaybackEventData.forPlay(track, 1l, trackingParams1);
 
         eventLoggerStorage.insertEvent(playbackEventData);
 
@@ -59,7 +59,7 @@ public class EventLoggerStorageTest {
         verify(sqLiteDatabase).insertOrThrow(eq(EventLoggerDbHelper.EVENTS_TABLE), isNull(String.class), valuesArgumentCaptor.capture());
 
         ContentValues values = valuesArgumentCaptor.getValue();
-        expect(values.get(EventLoggerDbHelper.TrackingEvents.ACTION)).toEqual(Action.PLAY.toApiName());
+        expect(values.get(EventLoggerDbHelper.TrackingEvents.ACTION)).toEqual(EventLoggerParams.Action.PLAY);
         expect(values.get(EventLoggerDbHelper.TrackingEvents.SOUND_URN)).toEqual(ClientUri.forTrack(track.getId()).toString());
         expect(values.get(EventLoggerDbHelper.TrackingEvents.TIMESTAMP)).toEqual(playbackEventData.getTimeStamp());
         expect(values.get(EventLoggerDbHelper.TrackingEvents.SOUND_DURATION)).toEqual(track.duration);
