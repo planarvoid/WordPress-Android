@@ -69,7 +69,7 @@ public class EventLoggerTest {
         when(handler.obtainMessage(EventLoggerHandler.INSERT_TOKEN,playbackEventData)).thenReturn(message);
         eventLogger.trackEvent(playbackEventData);
 
-        Event.PLAYBACK_SERVICE_DESTROYED.publish(0);
+        Event.PLAYBACK_SERVICE_DESTROYED.publish();
         verify(finishMessage).sendToTarget();
     }
 }
