@@ -32,6 +32,9 @@ public enum Screen {
     PLAYER_REPOSTS("sounds:reposts"),
     PLAYER_COMMENTS("sounds:comments"),
 
+    // playlists
+    PLAYLIST_DETAILS("playlists:main"),
+
     // explore screens
     EXPLORE_GENRES("explore:genres"),
     EXPLORE_TRENDING_MUSIC("explore:trending_music"),

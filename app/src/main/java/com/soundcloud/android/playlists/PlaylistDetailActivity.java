@@ -3,12 +3,14 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
@@ -72,6 +74,14 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PlaybackService.Broadcasts.PLAYSTATE_CHANGED);
         registerReceiver(mPlaybackStatusListener, intentFilter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isConfigurationChange() || isReallyResuming()) {
+            Event.SCREEN_ENTERED.publish(Screen.PLAYLIST_DETAILS.get());
+        }
     }
 
     @Override
