@@ -36,7 +36,7 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         applicationProperties = new ApplicationProperties(getActivity().getResources());
 
         getActivity();
-
+        AccountAssistant.logOut(getInstrumentation());
         super.setUp(); // do not move, this has to run after the above
 
         getInstrumentation().getContext()

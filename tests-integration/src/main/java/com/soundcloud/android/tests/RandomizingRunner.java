@@ -8,8 +8,6 @@ public class RandomizingRunner extends InstrumentationTestRunner {
 
     @Override
     public void onStart() {
-
-
         super.onStart();
     }
 

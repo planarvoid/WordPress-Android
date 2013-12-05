@@ -160,7 +160,6 @@ public class LoginFlowTest extends LoginTestCase {
         loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
         menuScreen.logout();
 
-        solo.assertActivity(OnboardActivity.class);
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
 
     }
