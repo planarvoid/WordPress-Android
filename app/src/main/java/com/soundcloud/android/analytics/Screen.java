@@ -32,8 +32,10 @@ public enum Screen {
     PLAYER_REPOSTS("sounds:reposts"),
     PLAYER_COMMENTS("sounds:comments"),
 
-    // playlists
+    // misc
     PLAYLIST_DETAILS("playlists:main"),
+    WHO_TO_FOLLOW("who_to_follow:main"),
+    ACTIVITIES("activity:main"),
 
     // explore screens
     EXPLORE_GENRES("explore:genres"),
@@ -46,10 +48,7 @@ public enum Screen {
     SETTINGS_MAIN("settings:main"),
     SETTINGS_CHANGE_LOG("settings:change_log"),
     SETTINGS_NOTIFICATIONS("settings:notification_settings"),
-    SETTINGS_ACCOUNT("settings:account_sync_settings"),
-
-    // activities
-    ACTIVITIES("activity:main");
+    SETTINGS_ACCOUNT("settings:account_sync_settings");
 
     private Screen(String trackingTag) {
         mTag = trackingTag;
