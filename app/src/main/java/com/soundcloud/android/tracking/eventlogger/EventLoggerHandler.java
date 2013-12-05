@@ -90,7 +90,5 @@ public class EventLoggerHandler extends Handler {
                 }
             }
         }
-
-        return events.size() < BATCH_SIZE;
     }
 }
