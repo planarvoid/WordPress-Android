@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.model.ScModelManager;
 import dagger.Module;
 import dagger.Provides;
@@ -32,11 +33,6 @@ public class ApplicationModule {
     }
 
     @Provides
-    public ScModelManager provideModelManager() {
-        return SoundCloudApplication.MODEL_MANAGER;
-    }
-
-    @Provides
     public Resources provideResources(){
         return mApplication.getResources();
     }
@@ -45,7 +41,6 @@ public class ApplicationModule {
     public AccountManager provideAccountManager(){
         return AccountManager.get(mApplication);
     }
-
 
     @Provides
     public ContentResolver provideContentResolver(){
@@ -60,6 +55,16 @@ public class ApplicationModule {
     @Provides
     public LayoutInflater provideLayoutInflater(){
         return LayoutInflater.from(mApplication);
+    }
+
+    @Provides
+    public ScModelManager provideModelManager() {
+        return SoundCloudApplication.MODEL_MANAGER;
+    }
+
+    @Provides
+    public AnalyticsEngine provideAnalyticsEngine(Context context) {
+        return AnalyticsEngine.getInstance(context);
     }
 
 }

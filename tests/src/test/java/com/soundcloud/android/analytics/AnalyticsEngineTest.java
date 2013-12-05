@@ -12,9 +12,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.Event;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -370,6 +372,17 @@ public class AnalyticsEngineTest {
 
         verify(analyticsProviderOne, times(1)).trackScreen(eq("screen"));
         verify(analyticsProviderTwo, times(1)).trackScreen(eq("screen"));
+    }
+
+    @Test
+    public void shouldTrackPlaybackEvent() throws Exception {
+        initialiseAnalyticsEngine();
+
+        PlaybackEventData playbackEventData = PlaybackEventData.forPlay(mock(Track.class), 0, "");
+        Event.PLAYBACK.publish(playbackEventData);
+
+        verify(analyticsProviderOne, times(1)).trackPlaybackEvent(playbackEventData);
+        verify(analyticsProviderTwo, times(1)).trackPlaybackEvent(playbackEventData);
     }
 
     private void setAnalyticsPropertyDisabledPreferenceEnabled() {

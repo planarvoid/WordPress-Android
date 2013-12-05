@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.playback.PlayerTrackPagerAdapter;
-import com.soundcloud.android.rx.Event;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;

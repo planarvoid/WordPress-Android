@@ -116,8 +116,9 @@ public class ClientUri {
         return Uri.parse("soundcloud:sounds:"+id);
     }
 
+    // use 0 for an anonymous or not-set user by default
     public static Uri forUser(long id) {
-        return Uri.parse("soundcloud:users:"+id);
+        return Uri.parse("soundcloud:users:" + Math.max(0, id));
     }
 
     @Override

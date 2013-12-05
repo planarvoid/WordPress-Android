@@ -1,4 +1,4 @@
-package com.soundcloud.android.rx;
+package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.User;
 import rx.Observer;
@@ -19,9 +19,16 @@ public enum Event {
 
     CURRENT_USER_UPDATED(User.class),
     SCREEN_ENTERED(String.class),
+    PLAYBACK(PlaybackEventData.class),
+
+    /**
+     * Signals the playback service is destoryed. Used to flush events and stop handler in {@link com.soundcloud.android.tracking.eventlogger.EventLogger}
+     */
+    PLAYBACK_SERVICE_DESTROYED(Void.class),
 
     // I'd like to keep this to make unit testing simpler and not bound to our app specific events.
-    TEST_EVENT(String.class);
+    TEST_EVENT(String.class),
+    TEST_VOID_EVENT(Void.class);
 
     private final Class<?> eventDataType;
     private final PublishSubject eventQueue = PublishSubject.create();
@@ -56,6 +63,14 @@ public enum Event {
                     "; expected " + eventDataType.getCanonicalName());
         }
         eventQueue.onNext(eventData);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void publish() {
+        if (eventDataType != Void.class) {
+            throw new IllegalArgumentException("Event Data required; expected " + eventDataType.getCanonicalName());
+        }
+        eventQueue.onNext(null);
     }
 
 }

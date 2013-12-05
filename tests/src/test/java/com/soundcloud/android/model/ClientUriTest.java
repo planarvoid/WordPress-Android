@@ -72,6 +72,11 @@ public class ClientUriTest {
     }
 
     @Test
+    public void shouldBuildCorrectUriForAnonymousUsers() {
+        expect(ClientUri.forUser(-1).toString()).toEqual("soundcloud:users:0");
+    }
+
+    @Test
     public void shouldBuildCorrectURNForSounds() {
         expect(ClientUri.fromTrack(1)).toEqual(new ClientUri("soundcloud:sounds:1"));
     }
