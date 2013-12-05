@@ -27,7 +27,8 @@ public enum Event {
     PLAYBACK_SERVICE_DESTROYED(Void.class),
 
     // I'd like to keep this to make unit testing simpler and not bound to our app specific events.
-    TEST_EVENT(String.class);
+    TEST_EVENT(String.class),
+    TEST_VOID_EVENT(Void.class);
 
     private final Class<?> eventDataType;
     private final PublishSubject eventQueue = PublishSubject.create();
