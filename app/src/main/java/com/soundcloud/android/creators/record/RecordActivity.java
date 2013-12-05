@@ -1,15 +1,16 @@
 package com.soundcloud.android.creators.record;
 
-
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -190,6 +191,9 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
 
         if (Consts.SdkSwitches.canDetermineActivityBackground) {
             mRecorder.shouldUseNotifications(false);
+        }
+        if (!isConfigurationChange() || isReallyResuming()) {
+            Event.SCREEN_ENTERED.publish(Screen.RECORD_MAIN.get());
         }
     }
 

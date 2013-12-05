@@ -32,6 +32,10 @@ public enum Screen {
     PLAYER_REPOSTS("sounds:reposts"),
     PLAYER_COMMENTS("sounds:comments"),
 
+    // creators
+    RECORD_MAIN("record:main"),
+    RECORD_UPLOAD("record:share"),
+
     // misc
     PLAYLIST_DETAILS("playlists:main"),
     WHO_TO_FOLLOW("who_to_follow:main"),
