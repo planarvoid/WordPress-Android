@@ -33,12 +33,35 @@ public enum Screen {
     PLAYER_LIKES("sounds:likes"),
     PLAYER_REPOSTS("sounds:reposts"),
     PLAYER_COMMENTS("sounds:comments"),
+
+    // search
+    SEARCH_EVERYTHING("search:everything"),
+    SEARCH_TRACKS("search:tracks"),
+    SEARCH_PLAYLISTS("search:playlists"),
+    SEARCH_USERS("search:people"),
+
+    // creators
+    RECORD_MAIN("record:main"),
+    RECORD_EDIT("record:edit"),
+    RECORD_UPLOAD("record:share"),
+
+    // misc
+    PLAYLIST_DETAILS("playlists:main"),
+    WHO_TO_FOLLOW("who_to_follow:main"),
+    ACTIVITIES("activity:main"),
+
     // explore screens
     EXPLORE_GENRES("explore:genres"),
     EXPLORE_TRENDING_MUSIC("explore:trending_music"),
     EXPLORE_TRENDING_AUDIO("explore:trending_audio"),
     EXPLORE_AUDIO_GENRE("explore:genres:audio"),
-    EXPLORE_MUSIC_GENRE("explore:genres:music");
+    EXPLORE_MUSIC_GENRE("explore:genres:music"),
+
+    // settings
+    SETTINGS_MAIN("settings:main"),
+    SETTINGS_CHANGE_LOG("settings:change_log"),
+    SETTINGS_NOTIFICATIONS("settings:notification_settings"),
+    SETTINGS_ACCOUNT("settings:account_sync_settings");
 
     private Screen(String trackingTag) {
         mTag = trackingTag;
