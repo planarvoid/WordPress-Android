@@ -5,7 +5,8 @@ import static com.soundcloud.android.tracking.eventlogger.EventLoggerParams.Acti
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Track;
 
-public final class PlaybackEventData {
+@SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
+public class PlaybackEventData {
 
     private Track mTrack;
     private String mAction;
