@@ -19,7 +19,7 @@ public class EventLogger {
 
     private final EventLoggerHandlerFactory mEventLoggerHandlerFactory;
     private final Object lock = new Object();
-    private Subscription mShutdownSubscrioption = Subscriptions.empty();
+    private Subscription mShutdownSubscription = Subscriptions.empty();
     private EventLoggerHandler mHandler;
 
     @Inject
@@ -34,7 +34,7 @@ public class EventLogger {
                 thread.start();
                 mHandler = mEventLoggerHandlerFactory.create(thread.getLooper());
 
-                mShutdownSubscrioption = Event.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
+                mShutdownSubscription = Event.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
             }
 
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + playbackEventData.toString());
@@ -48,7 +48,7 @@ public class EventLogger {
         if (mHandler != null) {
             mHandler.obtainMessage(EventLoggerHandler.FINISH_TOKEN).sendToTarget();
         }
-        mShutdownSubscrioption.unsubscribe();
+        mShutdownSubscription.unsubscribe();
     }
 
     private class PlaybackServiceDestroyedObserver extends DefaultObserver<Integer> {
