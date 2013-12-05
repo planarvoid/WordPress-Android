@@ -39,6 +39,8 @@ public enum Screen {
     EXPLORE_AUDIO_GENRE("explore:genres:audio"),
     EXPLORE_MUSIC_GENRE("explore:genres:music"),
 
+    // settings
+    SETTINGS_CHANGE_LOG("settings:change_log"),
     // activities
     ACTIVITIES("activity:main");
 

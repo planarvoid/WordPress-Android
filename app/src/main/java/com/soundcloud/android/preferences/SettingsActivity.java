@@ -21,9 +21,11 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.tracking.Click;
@@ -102,6 +104,7 @@ public class SettingsActivity extends PreferenceActivity {
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         getApp().track(Page.Settings_change_log);
+                        Event.SCREEN_ENTERED.publish(Screen.SETTINGS_CHANGE_LOG.get());
                         cl.getDialog(true).show();
                         return true;
                     }
