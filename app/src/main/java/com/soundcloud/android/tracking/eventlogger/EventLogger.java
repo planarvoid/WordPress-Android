@@ -48,9 +48,9 @@ public class EventLogger {
         mShutdownSubscription.unsubscribe();
     }
 
-    private class PlaybackServiceDestroyedObserver extends DefaultObserver<Integer> {
+    private class PlaybackServiceDestroyedObserver extends DefaultObserver<Void> {
         @Override
-        public void onNext(Integer args) {
+        public void onNext(Void args) {
             stop();
         }
     }

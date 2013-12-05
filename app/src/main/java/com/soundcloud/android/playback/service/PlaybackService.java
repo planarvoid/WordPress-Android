@@ -270,7 +270,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mPlayerHandler.removeCallbacksAndMessages(null);
 
-        Event.PLAYBACK_SERVICE_DESTROYED.publish(0);
+        Event.PLAYBACK_SERVICE_DESTROYED.publish();
 
         mFocus.abandonMusicFocus(false);
         unregisterReceiver(mIntentReceiver);

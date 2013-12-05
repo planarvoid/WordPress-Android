@@ -24,7 +24,7 @@ public enum Event {
     /**
      * Signals the playback service is destoryed. Used to flush events and stop handler in {@link com.soundcloud.android.tracking.eventlogger.EventLogger}
      */
-    PLAYBACK_SERVICE_DESTROYED(Integer.class),
+    PLAYBACK_SERVICE_DESTROYED(Void.class),
 
     // I'd like to keep this to make unit testing simpler and not bound to our app specific events.
     TEST_EVENT(String.class);
@@ -62,6 +62,14 @@ public enum Event {
                     "; expected " + eventDataType.getCanonicalName());
         }
         eventQueue.onNext(eventData);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void publish() {
+        if (eventDataType != Void.class) {
+            throw new IllegalArgumentException("Event Data required; expected " + eventDataType.getCanonicalName());
+        }
+        eventQueue.onNext(null);
     }
 
 }
