@@ -5,7 +5,7 @@ import static com.soundcloud.android.tracking.eventlogger.EventLoggerParams.Acti
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Track;
 
-public class PlaybackEventData {
+public final class PlaybackEventData {
 
     private Track mTrack;
     private String mAction;
