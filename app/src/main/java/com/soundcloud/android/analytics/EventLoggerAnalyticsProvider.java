@@ -1,6 +1,8 @@
 package com.soundcloud.android.analytics;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.tracking.eventlogger.EventLogger;
 import com.soundcloud.android.tracking.eventlogger.EventLoggerModule;
@@ -13,7 +15,12 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     EventLogger mEventLogger;
 
     public EventLoggerAnalyticsProvider() {
-        new DaggerDependencyInjector().fromAppGraphWithModules(new EventLoggerModule()).inject(this);
+        this(new DaggerDependencyInjector());
+    }
+
+    @VisibleForTesting
+    protected EventLoggerAnalyticsProvider(DependencyInjector dependencyInjector) {
+        dependencyInjector.fromAppGraphWithModules(new EventLoggerModule()).inject(this);
     }
 
     @Override
