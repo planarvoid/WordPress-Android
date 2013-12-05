@@ -1,18 +1,16 @@
 package com.soundcloud.android.screens;
 
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.R.id;
 import com.soundcloud.android.R.string;
 import com.soundcloud.android.main.NavigationDrawerFragment;
 import com.soundcloud.android.main.NavigationFragment;
-import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.Waiter;
-
-import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class MenuScreen {
     protected Han solo;
@@ -27,13 +25,12 @@ public class MenuScreen {
         this.waiter = new Waiter(solo);
     }
 
-    public void logout() {
+    public HomeScreen logout() {
         solo.clickOnActionBarItem(R.id.action_settings);
         solo.clickOnText(R.string.pref_revoke_access);
         solo.assertText(R.string.menu_clear_user_title);
         solo.clickOnOK();
-        solo.waitForActivity(OnboardActivity.class);
-        solo.waitForViewId(R.id.tour_bottom_bar, 5000);
+        return new HomeScreen(solo);
     }
 
     //TODO: Move this to systemSettingsScreen

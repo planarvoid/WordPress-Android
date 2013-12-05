@@ -158,7 +158,6 @@ public class LoginFlowTest extends LoginTestCase {
     public void testLoginAndLogout()  {
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
-        waiter.waitForListContentAndRetryIfLoadingFailed();
         menuScreen.logout();
 
         solo.assertActivity(OnboardActivity.class);
