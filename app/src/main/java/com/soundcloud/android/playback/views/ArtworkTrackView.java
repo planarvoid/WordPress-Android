@@ -6,8 +6,10 @@ import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
@@ -179,6 +181,9 @@ public class ArtworkTrackView extends PlayerTrackView {
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.fade_in));
             trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.showNext();
+
+            Event.SCREEN_ENTERED.publish(Screen.PLAYER_INFO.get());
+
         } else if (!showDetails && trackFlipper.getDisplayedChild() == 1){
             trackFlipper.setInAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.hold));
             trackFlipper.setOutAnimation(AnimationUtils.loadAnimation(getContext(),R.anim.fade_out));

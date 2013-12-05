@@ -68,7 +68,7 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public AnalyticsEngine provideAnalyticsEngine(Context context) {
-        return new AnalyticsEngine(context);
+        return AnalyticsEngine.getInstance(context);
     }
 
 }

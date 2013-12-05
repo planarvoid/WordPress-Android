@@ -50,10 +50,11 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private static final String LIKES_FRAGMENT_TAG = "likes_fragment";
     private static final String EXPLORE_FRAGMENT_TAG = "explore_fragment";
     private static final String STREAM_FRAGMENT_TAG = "stream_fragment";
+    private static final int NO_SELECTION = -1;
 
     private NavigationFragment mNavigationFragment;
     private CharSequence mLastTitle;
-    private int mLastSelection = -1;
+    private int mLastSelection = NO_SELECTION;
 
     @Inject
     CompositeSubscription mSubscription;
@@ -146,7 +147,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             finish();
         }
 
-        if (isReallyResuming()) {
+        if (!isConfigurationChange() || isReallyResuming()) {
             publishContentChangeEvent();
         }
     }
@@ -213,11 +214,14 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
              */
             getSupportActionBar().setTitle(mLastTitle);
         }
+        if (mLastSelection != NO_SELECTION) {
+            // only publish content change events here that were user initiated, not those coming from rotation changes
+            // and stuff.
+            publishContentChangeEvent();
+        }
         if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
             mLastSelection = position;
         }
-
-        publishContentChangeEvent();
     }
 
     private void displayProfile() {

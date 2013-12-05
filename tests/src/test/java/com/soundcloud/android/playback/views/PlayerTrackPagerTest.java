@@ -1,18 +1,22 @@
 package com.soundcloud.android.playback.views;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.PlayerTrackPagerAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.Event;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import rx.Observer;
+import rx.Subscription;
 
 import android.support.v4.view.PagerAdapter;
 
@@ -22,6 +26,8 @@ public class PlayerTrackPagerTest {
     PlayerTrackPager playerTrackPager;
     @Mock
     PlayerTrackPager.OnPageChangeListener pageListener;
+    @Mock
+    Observer<String> observer;
 
     @Before
     public void setup(){
@@ -59,4 +65,13 @@ public class PlayerTrackPagerTest {
         verifyZeroInteractions(pageListener);
     }
 
+    @Test
+    public void shouldPublishScreenEnteredEventWhenFlippingThroughTracks() {
+        Subscription subscription = Event.SCREEN_ENTERED.subscribe(observer);
+
+        playerTrackPager.setCurrentItem(1);
+        verify(observer).onNext(eq("sounds:main"));
+
+        subscription.unsubscribe();
+    }
 }

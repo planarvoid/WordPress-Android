@@ -9,6 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -17,6 +18,7 @@ import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playback.views.PlayerTrackView;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.playback.service.PlaybackState;
@@ -70,7 +72,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @NotNull
     private PlayQueueView mPlayQueue = PlayQueueView.EMPTY;
-    private boolean mIsFirstLoad;
     private LinearLayout mPlayerInfoLayout;
     private PlayerTrackDetailsLayout mTrackDetailsView;
     private PlayableInfoAndEngagementsController mPlayableInfoAndEngagementsController;
@@ -110,8 +111,17 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
 
-        mIsFirstLoad = bundle == null;
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (!isConfigurationChange() || isReallyResuming()) {
+            // we track whatever sound gets played first here, and then every subsequent sound through the view pager,
+            // to accommodate for lazy loading of sounds
+            Event.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
+        }
     }
 
     @Override
@@ -342,7 +352,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         f.addAction(Comment.ACTION_CREATE_COMMENT);
         registerReceiver(mStatusListener, new IntentFilter(f));
 
-        mPlayQueue = getInitialPlayQueue(mIsFirstLoad);
+        mPlayQueue = getInitialPlayQueue(!isConfigurationChange());
 
         if (!mPlayQueue.isEmpty()) {
             // everything is fine, configure from service
@@ -352,7 +362,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                    start it, it will reload queue and broadcast changes */
             startService(new Intent(this, PlaybackService.class));
         }
-        mIsFirstLoad = false;
     }
 
     @Override
