@@ -373,6 +373,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         stop();
         mCurrentTrack = null;
         mAppWidgetProvider.notifyChange(this, new Intent(Broadcasts.RESET_ALL));
+        mFocus.abandonMusicFocus(false); // kills lockscreen
     }
 
     public void saveProgressAndStop() {
