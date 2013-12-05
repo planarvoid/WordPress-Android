@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics;
 
+import android.net.Uri;
+
 import java.util.Locale;
 
 public enum Screen {
@@ -48,6 +50,10 @@ public enum Screen {
 
     public String get(String postfix) {
         return new StringBuilder(mTag).append(":").append(postfix.toLowerCase(Locale.US).replaceAll(" ", "_")).toString();
+    }
+
+    public Uri toUri() {
+        return Uri.parse(mTag);
     }
 
     private String mTag;

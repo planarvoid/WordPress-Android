@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.collections;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -48,6 +49,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     public ScBaseAdapter(Uri uri) {
         mContent = Content.match(uri);
         mContentUri = uri;
+
+
+
     }
 
     public int getItemCount() {
@@ -278,7 +282,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         }
     }
 
-    public abstract int handleListItemClick(Context context, int position, long id);
+    public abstract int handleListItemClick(Context context, int position, long id, Screen screen);
 
     public interface ItemClickResults {
         int IGNORE = 0;

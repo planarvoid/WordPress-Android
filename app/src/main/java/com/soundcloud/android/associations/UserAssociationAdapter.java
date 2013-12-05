@@ -1,5 +1,6 @@
 package com.soundcloud.android.associations;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.UserAssociation;
@@ -22,7 +23,7 @@ public class UserAssociationAdapter extends ScBaseAdapter<UserAssociation> imple
     }
 
     @Override
-    public int handleListItemClick(Context context, int position, long id) {
+    public int handleListItemClick(Context context, int position, long id, Screen screen) {
         context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, getItem(position).getUser()));
         return ItemClickResults.LEAVING;
     }

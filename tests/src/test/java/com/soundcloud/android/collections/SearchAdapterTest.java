@@ -1,5 +1,6 @@
 package com.soundcloud.android.collections;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.collections.views.IconLayout;
@@ -21,7 +22,7 @@ public class SearchAdapterTest {
             }
 
             @Override
-            public int handleListItemClick(Context context, int position, long id) {
+            public int handleListItemClick(Context context, int position, long id, Screen screen) {
                 return ItemClickResults.IGNORE;
             }
         };

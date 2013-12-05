@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
@@ -118,12 +119,7 @@ public class PlaybackOperations {
         playFromUri(context, uri, startPosition, initialTrack, playSessionSource);
     }
 
-    @Deprecated
-    public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri) {
-        playFromAdapter(context, data, position, uri, TEMP_ORIGIN);
-    }
-
-    public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri, Uri originPage) {
+    public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri, Screen screen) {
         if (position >= data.size() || !(data.get(position) instanceof PlayableHolder)) {
             throw new AssertionError("Invalid item " + position + ", must be a playable");
         }
@@ -131,7 +127,7 @@ public class PlaybackOperations {
         Playable playable = ((PlayableHolder) data.get(position)).getPlayable();
         if (playable instanceof Track) {
 
-            final PlaySessionSource playSessionSource = new PlaySessionSource(originPage);
+            final PlaySessionSource playSessionSource = new PlaySessionSource(screen.toUri());
             final int adjustedPosition = Collections2.filter(data.subList(0, position), PLAYABLE_HOLDER_PREDICATE).size();
 
             if (uri != null){

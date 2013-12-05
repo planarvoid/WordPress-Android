@@ -10,6 +10,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activities.ActivitiesAdapter;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.associations.CommentAdapter;
@@ -94,6 +95,9 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     protected String mNextHref;
 
     protected int mStatusCode;
+
+    // TODO, finish all screens when the enum is populated
+    private Screen mScreen = Screen.USER_INFO;
 
     private @Nullable BroadcastReceiver mPlaylistChangedReceiver;
 
@@ -311,11 +315,14 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         if (getListAdapter() == null && mContent != null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
+                    mScreen = Screen.SIDE_MENU_STREAM;
                 case ME_ACTIVITIES:
                     mAdapter = new ActivitiesAdapter(mContentUri);
                     break;
                 case USER_FOLLOWINGS:
+                    mScreen = Screen.USER_FOLLOWINGS;
                 case USER_FOLLOWERS:
+                    mScreen = Screen.USER_FOLLOWERS;
                 case TRACK_LIKERS:
                 case TRACK_REPOSTERS:
                 case PLAYLIST_LIKERS:
@@ -332,11 +339,15 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                     mAdapter = new FriendAdapter(mContentUri);
                     break;
                 case ME_SOUNDS:
+                    mScreen = Screen.YOUR_POSTS;
                     mAdapter = new MyTracksAdapter(getScActivity());
                     break;
                 case ME_LIKES:
+                    mScreen = Screen.YOUR_LIKES;
                 case USER_LIKES:
+                    mScreen = Screen.USER_LIKES;
                 case USER_SOUNDS:
+                    mScreen = Screen.USER_POSTS;
                     mAdapter = new SoundAssociationAdapter(mContentUri);
                     break;
                 case SEARCH:
@@ -346,7 +357,9 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                     mAdapter = new CommentAdapter(mContentUri);
                     break;
                 case ME_PLAYLISTS:
+                    mScreen = Screen.YOUR_PLAYLISTS;
                 case USER_PLAYLISTS:
+                    mScreen = Screen.USER_PLAYLISTS;
                 default:
                     mAdapter = new DefaultPlayableAdapter(mContentUri);
             }
@@ -373,7 +386,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         final ScBaseAdapter adapter = getListAdapter();
         if (adapter == null) return;
 
-        switch (adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id)){
+        switch (adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, mScreen)){
             case ScBaseAdapter.ItemClickResults.LEAVING:
                 mIgnorePlaybackStatus = true;
                 break;

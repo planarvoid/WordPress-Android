@@ -3,6 +3,7 @@ package com.soundcloud.android.activities;
 import static com.soundcloud.android.associations.PlayableInteractionActivity.EXTRA_INTERACTION_TYPE;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.associations.PlaylistInteractionActivity;
@@ -127,7 +128,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     }
 
     @Override
-    public int handleListItemClick(Context context, int position, long id) {
+    public int handleListItemClick(Context context, int position, long id, Screen screen) {
 
         Activity.Type type = Activity.Type.values()[getItemViewType(position)];
         switch (type) {
@@ -135,7 +136,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             case TRACK_SHARING:
             case PLAYLIST:
             case PLAYLIST_SHARING:
-                mPlaybackOperations.playFromAdapter(context, mData, position, mContentUri);
+                mPlaybackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
                 return ItemClickResults.LEAVING;
 
             case COMMENT:
@@ -147,7 +148,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
                             .putExtra(Track.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    mPlaybackOperations.playFromAdapter(context, mData, position, mContentUri);
+                    mPlaybackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
                 }
                 return ItemClickResults.LEAVING;
             case PLAYLIST_LIKE:
@@ -158,7 +159,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
                             .putExtra(Playlist.EXTRA, getItem(position).getPlayable())
                             .putExtra(EXTRA_INTERACTION_TYPE, type));
                 } else {
-                    mPlaybackOperations.playFromAdapter(context, mData, position, mContentUri);
+                    mPlaybackOperations.playFromAdapter(context, mData, position, mContentUri, Screen.SIDE_MENU_STREAM);
                 }
                 return ItemClickResults.LEAVING;
 
