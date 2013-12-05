@@ -26,7 +26,7 @@ import java.util.Collections;
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerHandlerTest {
 
-    EventLoggerHandler eventLoggerHandler;
+    private EventLoggerHandler eventLoggerHandler;
 
     @Mock
     Context context;

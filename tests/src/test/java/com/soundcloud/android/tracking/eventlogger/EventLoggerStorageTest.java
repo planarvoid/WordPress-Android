@@ -30,7 +30,8 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerStorageTest {
 
-    EventLoggerStorage eventLoggerStorage;
+    private EventLoggerStorage eventLoggerStorage;
+    
     @Mock
     EventLoggerDbHelper eventLoggerDbHelper;
     @Mock

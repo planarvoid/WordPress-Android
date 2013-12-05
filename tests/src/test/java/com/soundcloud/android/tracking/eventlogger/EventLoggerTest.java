@@ -18,7 +18,7 @@ import android.os.Message;
 
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerTest {
-    EventLogger eventLogger;
+    private EventLogger eventLogger;
 
     @Mock
     EventLoggerHandlerFactory eventLoggerHandlerFactory;

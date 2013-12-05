@@ -23,7 +23,8 @@ import java.net.HttpURLConnection;
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerApiTest {
 
-    EventLoggerApi eventLoggerApi;
+    private EventLoggerApi eventLoggerApi;
+
     @Mock
     HttpURLConnection connection;
     @Mock
