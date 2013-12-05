@@ -20,13 +20,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observer;
+import rx.Subscription;
 
 import android.content.res.Resources;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
 import javax.inject.Inject;
-
 
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreFragmentTest {
@@ -63,12 +63,6 @@ public class ExploreFragmentTest {
     }
 
     @Test
-    public void shouldDefaultToTabCategories() {
-        mExploreFragment.onViewCreated(mockLayout, null);
-        verify(mockViewPager).setCurrentItem(ExplorePagerAdapter.TAB_GENRES);
-    }
-
-    @Test
     public void shouldNullOutPagerAdapterWhenDestroyingViewsToPreventContextLeaks() {
         mExploreFragment.onViewCreated(mockLayout, null);
         mExploreFragment.onDestroyView();
@@ -80,6 +74,15 @@ public class ExploreFragmentTest {
         when(mockLayout.findViewById(R.id.indicator)).thenReturn(mockIndicator);
         mExploreFragment.onViewCreated(mockLayout, null);
         verify(mockIndicator).setOnPageChangeListener(isA(ExplorePagerScreenListener.class));
+    }
+
+    @Test
+    public void shouldTrackGenresScreenWhenCreated() {
+        Subscription subscription = Event.SCREEN_ENTERED.subscribe(observer);
+        mExploreFragment.onCreate(null);
+        verify(observer).onNext("explore:genres");
+        verifyNoMoreInteractions(observer);
+        subscription.unsubscribe();
     }
 
     @Test
@@ -116,13 +119,5 @@ public class ExploreFragmentTest {
     public void shouldThrowExceptionIfUnknownScreenIsViewed() {
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener();
         explorePagerScreenListener.onPageSelected(3);
-    }
-
-    @Test
-    public void shouldTrackExploreGenresScreenOnCreate() {
-        Event.SCREEN_ENTERED.subscribe(observer);
-        mExploreFragment.onViewCreated(mockLayout, null);
-        verify(observer).onNext("explore:genres");
-        verifyNoMoreInteractions(observer);
     }
 }
