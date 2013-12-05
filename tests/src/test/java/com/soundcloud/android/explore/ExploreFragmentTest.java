@@ -84,29 +84,32 @@ public class ExploreFragmentTest {
 
     @Test
     public void shouldTrackGenresScreenOnPageSelected() {
-        Event.SCREEN_ENTERED.subscribe(observer);
+        Subscription subscription = Event.SCREEN_ENTERED.subscribe(observer);
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener();
         explorePagerScreenListener.onPageSelected(0);
         verify(observer).onNext("explore:genres");
         verifyNoMoreInteractions(observer);
+        subscription.unsubscribe();
     }
 
     @Test
     public void shouldTrackTrendingMusicScreenOnPageSelected() {
-        Event.SCREEN_ENTERED.subscribe(observer);
+        Subscription subscription = Event.SCREEN_ENTERED.subscribe(observer);
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener();
         explorePagerScreenListener.onPageSelected(1);
         verify(observer).onNext("explore:trending_music");
         verifyNoMoreInteractions(observer);
+        subscription.unsubscribe();
     }
 
     @Test
     public void shouldTrackTrendingAudioScreenOnPageSelected() {
-        Event.SCREEN_ENTERED.subscribe(observer);
+        Subscription subscription = Event.SCREEN_ENTERED.subscribe(observer);
         ExplorePagerScreenListener explorePagerScreenListener = new ExplorePagerScreenListener();
         explorePagerScreenListener.onPageSelected(2);
         verify(observer).onNext("explore:trending_audio");
         verifyNoMoreInteractions(observer);
+        subscription.unsubscribe();
     }
 
     @Test(expected = IllegalArgumentException.class)
