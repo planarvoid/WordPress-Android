@@ -14,7 +14,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import com.soundcloud.android.Consts;
@@ -43,7 +42,7 @@ import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 @Tracking(page = Page.Settings_main)
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends ScSettingsActivity {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
@@ -263,6 +262,11 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    @Override
+    protected String getTrackingName() {
+        return Screen.SETTINGS_MAIN.get();
     }
 
     private void setClearCacheTitle(final String pref, final int key, final File dir) {
