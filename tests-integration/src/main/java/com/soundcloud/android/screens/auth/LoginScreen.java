@@ -1,21 +1,23 @@
 package com.soundcloud.android.screens.auth;
 
-import android.R.id;
-import android.widget.EditText;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.Waiter;
 
-public class LoginScreen extends Screen {
-    private static final Class ACTIVITY = OnboardActivity.class;
+import android.widget.EditText;
 
-    public LoginScreen(Han solo) {
-        super(solo);
-        waiter.waitForActivity(ACTIVITY);
-        waiter.waitForElement(id.content);
+public class LoginScreen {
+
+    private Han solo;
+    private Waiter waiter;
+
+    public LoginScreen(Han driver) {
+        solo    = driver;
+        waiter  = new Waiter(solo);
     }
 
     public EditText email() {
@@ -51,9 +53,9 @@ public class LoginScreen extends Screen {
         solo.clickOnButton(R.string.authentication_log_in_with_google);
     }
 
-    public RecoverPasswordScreen clickForgotPassword() {
+    public void clickForgotPassword () {
         solo.clickOnView(R.id.txt_i_forgot_my_password);
-        return new RecoverPasswordScreen(solo);
+        solo.waitForActivity(RecoverActivity.class);
     }
 
     public void selectUserFromDialog(String username) {
@@ -66,12 +68,12 @@ public class LoginScreen extends Screen {
         solo.waitForActivity(OnboardActivity.class);
         solo.waitForViewId(R.id.tour_bottom_bar, 5000);
     }
-
     public void clickOnContinueButton() {
         solo.clickOnButton(R.string.btn_continue);
         waiter.waitForTextToDisappear("Logging you in");
         solo.waitForText("Stream", 0, 15000, false);
     }
+
     public MainScreen loginAs(String username, String password) {
         solo.clearEditText(email());
         typeUsername(username);
@@ -91,11 +93,6 @@ public class LoginScreen extends Screen {
             solo.waitForActivity(MainActivity.class);
             solo.waitForView(solo.getView(R.id.title));
         }
-    }
-
-    @Override
-    protected Class getActivity() {
-        return ACTIVITY;
     }
 
 }
