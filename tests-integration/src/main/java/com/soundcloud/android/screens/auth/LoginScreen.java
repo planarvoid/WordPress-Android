@@ -3,7 +3,6 @@ package com.soundcloud.android.screens.auth;
 import android.R.id;
 import android.widget.EditText;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.Screen;
@@ -80,7 +79,7 @@ public class LoginScreen extends Screen {
         return new MainScreen(solo);
     }
 
-    public void loginAs(String username, String password, boolean validCredentials) {
+    public Screen loginAs(String username, String password, boolean validCredentials) {
         solo.clearEditText(email());
 
         typeUsername(username);
@@ -88,9 +87,9 @@ public class LoginScreen extends Screen {
 
         solo.clickOnDone();
         if (validCredentials) {
-            solo.waitForActivity(MainActivity.class);
-            solo.waitForView(solo.getView(R.id.title));
+            return new MainScreen(solo);
         }
+        return this;
     }
 
     @Override
