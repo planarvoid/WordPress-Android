@@ -32,15 +32,12 @@ class EventLoggerDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    /**
-     * Play duration tracking
-     */
     private static final String DATABASE_CREATE_PLAY_TRACKING = "CREATE TABLE IF NOT EXISTS " + EVENTS_TABLE + "(" +
             TrackingEvents._ID + " INTEGER PRIMARY KEY," +
             TrackingEvents.TIMESTAMP + " INTEGER NOT NULL," +
             TrackingEvents.ACTION + " TEXT NOT NULL," +
             TrackingEvents.SOUND_URN + " TEXT NOT NULL," +
-            TrackingEvents.USER_URN + " TEXT NOT NULL," + // soundcloud:users:123 for logged in, anonymous:<UUID> for logged out
+            TrackingEvents.USER_URN + " TEXT NOT NULL," + // soundcloud:users:123 for logged in, soundcloud:users:0 for logged out
             TrackingEvents.SOUND_DURATION + " INTEGER NOT NULL," + // this it the total sound length in millis
             TrackingEvents.SOURCE_INFO + " TEXT NOT NULL," +
             "UNIQUE (" + TrackingEvents.TIMESTAMP + ", " + TrackingEvents.ACTION + ") ON CONFLICT IGNORE" +
