@@ -2,9 +2,9 @@ package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.playback.PlaybackOperations;
 
