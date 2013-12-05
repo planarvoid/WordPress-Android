@@ -62,7 +62,7 @@ public class EventLoggerStorageTest {
         expect(values.get(EventLoggerDbHelper.TrackingEvents.SOUND_URN)).toEqual(ClientUri.forTrack(track.getId()).toString());
         expect(values.get(EventLoggerDbHelper.TrackingEvents.TIMESTAMP)).toEqual(playbackEventData.getTimeStamp());
         expect(values.get(EventLoggerDbHelper.TrackingEvents.SOUND_DURATION)).toEqual(track.duration);
-        expect(values.get(EventLoggerDbHelper.TrackingEvents.USER_URN)).toEqual(EventLoggerStorage.buildUserUrn(playbackEventData.getUserId()));
+        expect(values.get(EventLoggerDbHelper.TrackingEvents.USER_URN)).toEqual(ClientUri.forUser(playbackEventData.getUserId()).toString());
         expect(values.get(EventLoggerDbHelper.TrackingEvents.SOURCE_INFO)).toEqual(playbackEventData.getEventLoggerParams());
     }
 

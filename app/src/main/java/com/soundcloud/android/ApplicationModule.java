@@ -13,8 +13,6 @@ import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 
-import javax.inject.Singleton;
-
 @Module(library = true)
 public class ApplicationModule {
 
@@ -60,13 +58,11 @@ public class ApplicationModule {
     }
 
     @Provides
-    @Singleton
     public ScModelManager provideModelManager() {
         return SoundCloudApplication.MODEL_MANAGER;
     }
 
     @Provides
-    @Singleton
     public AnalyticsEngine provideAnalyticsEngine(Context context) {
         return AnalyticsEngine.getInstance(context);
     }

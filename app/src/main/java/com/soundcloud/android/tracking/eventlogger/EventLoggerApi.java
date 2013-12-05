@@ -41,11 +41,12 @@ public class EventLoggerApi {
     private final HttpURLConnectionFactory mHttpURLConnectionFactory;
 
     @Inject
-    public EventLoggerApi(Context context, HttpURLConnectionFactory httpURLConnectionFactory) {
+    EventLoggerApi(Context context, HttpURLConnectionFactory httpURLConnectionFactory) {
         this(context.getResources().getString(R.string.app_id), AndroidUtils.getUniqueDeviceID(context), httpURLConnectionFactory);
     }
 
-    public EventLoggerApi(String appId, String uniqueDeviceId, HttpURLConnectionFactory httpURLConnectionFactory) {
+    @VisibleForTesting
+    EventLoggerApi(String appId, String uniqueDeviceId, HttpURLConnectionFactory httpURLConnectionFactory) {
         mAppId = appId;
         mUniqueDeviceId = uniqueDeviceId;
         mHttpURLConnectionFactory = httpURLConnectionFactory;

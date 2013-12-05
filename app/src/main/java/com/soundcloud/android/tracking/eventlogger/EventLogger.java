@@ -18,7 +18,6 @@ public class EventLogger {
     static final String TAG = EventLogger.class.getSimpleName();
 
     private final EventLoggerHandlerFactory mEventLoggerHandlerFactory;
-    private final Object lock = new Object();
     private Subscription mShutdownSubscription = Subscriptions.empty();
     private EventLoggerHandler mHandler;
 
@@ -28,20 +27,18 @@ public class EventLogger {
     }
 
     public void trackEvent(PlaybackEventData playbackEventData) {
-        synchronized (lock) {
-            if (mHandler == null) {
-                HandlerThread thread = new HandlerThread("PlayEvent-tracking", THREAD_PRIORITY_LOWEST);
-                thread.start();
-                mHandler = mEventLoggerHandlerFactory.create(thread.getLooper());
+        if (mHandler == null) {
+            HandlerThread thread = new HandlerThread("PlayEvent-tracking", THREAD_PRIORITY_LOWEST);
+            thread.start();
+            mHandler = mEventLoggerHandlerFactory.create(thread.getLooper());
 
-                mShutdownSubscription = Event.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
-            }
-
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + playbackEventData.toString());
-            Message insert = mHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData);
-            mHandler.removeMessages(EventLoggerHandler.FINISH_TOKEN);
-            mHandler.sendMessage(insert);
+            mShutdownSubscription = Event.PLAYBACK_SERVICE_DESTROYED.subscribe(new PlaybackServiceDestroyedObserver());
         }
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "new tracking event: " + playbackEventData.toString());
+        Message insert = mHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData);
+        mHandler.removeMessages(EventLoggerHandler.FINISH_TOKEN);
+        mHandler.sendMessage(insert);
     }
 
     void stop() {
@@ -54,9 +51,7 @@ public class EventLogger {
     private class PlaybackServiceDestroyedObserver extends DefaultObserver<Integer> {
         @Override
         public void onNext(Integer args) {
-            synchronized (lock) {
-                stop();
-            }
+            stop();
         }
     }
 }

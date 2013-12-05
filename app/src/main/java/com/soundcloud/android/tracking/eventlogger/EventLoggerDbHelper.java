@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
+import javax.inject.Inject;
+
 class EventLoggerDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "SoundCloud-tracking.sqlite";
@@ -12,7 +14,8 @@ class EventLoggerDbHelper extends SQLiteOpenHelper {
 
     static final String EVENTS_TABLE = "events";
 
-    public EventLoggerDbHelper(Context context) {
+    @Inject
+    EventLoggerDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

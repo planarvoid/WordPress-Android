@@ -1,12 +1,10 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.ClientUri;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -21,11 +19,7 @@ public class EventLoggerStorage {
     private final EventLoggerDbHelper mDbHelper;
 
     @Inject
-    public EventLoggerStorage(Context context) {
-        this(new EventLoggerDbHelper(context));
-    }
-
-    public EventLoggerStorage(EventLoggerDbHelper eventLoggerDbHelper) {
+    EventLoggerStorage(EventLoggerDbHelper eventLoggerDbHelper) {
         mDbHelper = eventLoggerDbHelper;
     }
 
@@ -66,18 +60,13 @@ public class EventLoggerStorage {
     }
 
 
-    @VisibleForTesting
-    static String buildUserUrn(final long userId) {
-        return ClientUri.forUser(Math.max(0, userId)).toString();
-    }
-
     private ContentValues createValuesFromPlaybackEvent(PlaybackEventData params) {
         ContentValues values = new ContentValues();
         values.put(EventLoggerDbHelper.TrackingEvents.TIMESTAMP, params.getTimeStamp());
         values.put(EventLoggerDbHelper.TrackingEvents.ACTION, params.getAction().toApiName());
         values.put(EventLoggerDbHelper.TrackingEvents.SOUND_URN, ClientUri.forTrack(params.getTrack().getId()).toString());
         values.put(EventLoggerDbHelper.TrackingEvents.SOUND_DURATION, params.getTrack().duration);
-        values.put(EventLoggerDbHelper.TrackingEvents.USER_URN, buildUserUrn(params.getUserId()));
+        values.put(EventLoggerDbHelper.TrackingEvents.USER_URN, ClientUri.forUser(Math.max(0, params.getUserId())).toString());
         values.put(EventLoggerDbHelper.TrackingEvents.SOURCE_INFO, params.getEventLoggerParams());
         return values;
     }

@@ -17,7 +17,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -28,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p/>
  * The analytics engine should be used in aspects located in the aspect folder under src/main/java
  */
-@Singleton
 public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = AnalyticsEngine.class.getSimpleName();
