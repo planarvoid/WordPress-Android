@@ -32,6 +32,12 @@ public enum Screen {
     PLAYER_REPOSTS("sounds:reposts"),
     PLAYER_COMMENTS("sounds:comments"),
 
+    // search
+    SEARCH_EVERYTHING("search:everything"),
+    SEARCH_TRACKS("search:tracks"),
+    SEARCH_PLAYLISTS("search:playlists"),
+    SEARCH_USERS("search:people"),
+
     // creators
     RECORD_MAIN("record:main"),
     RECORD_EDIT("record:edit"),

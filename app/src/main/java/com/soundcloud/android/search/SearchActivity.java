@@ -1,8 +1,10 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Search;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -61,6 +63,7 @@ public class SearchActivity extends ScActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (mLastSelectedPosition != position) {
                     perform(getSearchFromInputText());
+                    publishContentChangeEvent();
                 }
                 mLastSelectedPosition = position;
             }
@@ -146,6 +149,29 @@ public class SearchActivity extends ScActivity {
         if (mPendingSearch != null) {
             perform(mPendingSearch);
             mPendingSearch = null;
+        }
+
+        if (!isConfigurationChange() || isReallyResuming()) {
+            publishContentChangeEvent();
+        }
+    }
+
+    private void publishContentChangeEvent() {
+        final int position = mSpinner.getSelectedItemPosition();
+        switch (position) {
+            case SPINNER_POS_ALL:
+                Event.SCREEN_ENTERED.publish(Screen.SEARCH_EVERYTHING.get());
+                break;
+            case SPINNER_POS_SOUNDS:
+                Event.SCREEN_ENTERED.publish(Screen.SEARCH_TRACKS.get());
+                break;
+            case SPINNER_POS_PLAYLISTS:
+                Event.SCREEN_ENTERED.publish(Screen.SEARCH_PLAYLISTS.get());
+                break;
+            case SPINNER_POS_USERS:
+                Event.SCREEN_ENTERED.publish(Screen.SEARCH_USERS.get());
+            default:
+                throw new IllegalStateException("Unexpected search filter");
         }
     }
 
