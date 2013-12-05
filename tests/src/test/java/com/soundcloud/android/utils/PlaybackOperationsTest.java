@@ -92,7 +92,7 @@ public class PlaybackOperationsTest {
     @Test
     public void playFromUriShouldOpenPlayerActivityWithInitialTrackId() {
         playbackOperations = new PlaybackOperations(modelManager, new TrackStorage());
-        playbackOperations.playFromPlaylist(Robolectric.application, Content.ME_LIKES.uri, 0, track);
+        playbackOperations.playFromPlaylist(Robolectric.application, Content.ME_LIKES.uri, 0, track, Screen.YOUR_LIKES);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
@@ -108,10 +108,10 @@ public class PlaybackOperationsTest {
         Playlist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
         playbackOperations = new PlaybackOperations(modelManager, new TrackStorage().<TrackStorage>subscribeOn(Schedulers.immediate()));
-        playbackOperations.playFromPlaylist(Robolectric.application, playlist.toUri(), 1, tracks.get(1), ORIGIN_PAGE_URI);
+        playbackOperations.playFromPlaylist(Robolectric.application, playlist.toUri(), 1, tracks.get(1), ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_PAGE_URI, playlist.getId()),
+        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.toUri(), playlist.getId()),
                 tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
     }
 
