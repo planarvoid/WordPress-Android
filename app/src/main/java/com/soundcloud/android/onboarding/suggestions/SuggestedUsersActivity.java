@@ -1,6 +1,8 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.rx.Event;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +20,14 @@ public class SuggestedUsersActivity extends SuggestedUsersBaseActivity {
                     .beginTransaction()
                     .add(getContentHolderViewId(), suggestedUsersCategoriesFragment)
                     .commit();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isConfigurationChange() || isReallyResuming()) {
+            Event.SCREEN_ENTERED.publish(Screen.ONBOARDING_MAIN.get());
         }
     }
 

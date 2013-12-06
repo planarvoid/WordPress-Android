@@ -9,6 +9,9 @@ public enum Screen {
     SIDE_MENU_LIKES("collection:likes"),
     SIDE_MENU_PLAYLISTS("collection:playlists"),
 
+    // onboarding
+    ONBOARDING_MAIN("onboarding:main"),
+
     // your own profile
     YOUR_POSTS("you:posts"),
     YOUR_INFO("you:info"),
