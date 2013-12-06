@@ -2,10 +2,12 @@ package com.soundcloud.android.actionbar;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.preferences.SettingsActivity;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
@@ -196,6 +198,10 @@ public class ActionBarController {
     private void toggleSearchMode() {
         mInSearchMode = !mInSearchMode;
         mOwner.getActivity().supportInvalidateOptionsMenu();
+
+        if (mInSearchMode) {
+            Event.SCREEN_ENTERED.publish(Screen.SEARCH_SUGGESTIONS.get());
+        }
     }
 
     private void styleSearchView(SearchView searchView) {
