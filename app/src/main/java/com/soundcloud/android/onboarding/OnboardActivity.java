@@ -10,6 +10,7 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.model.User;
@@ -30,6 +31,7 @@ import com.soundcloud.android.onboarding.auth.UserDetailsLayout;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -185,12 +187,14 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
                 app.track(Click.Login);
 
                 setState(StartState.LOGIN);
+                Event.SCREEN_ENTERED.publish(Screen.AUTH_LOG_IN.get());
             }
         });
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 app.track(Click.Signup_Signup);
+                Event.SCREEN_ENTERED.publish(Screen.AUTH_SIGN_UP.get());
 
                 if (!mApplicationProperties.isDevBuildRunningOnDalvik() && SignupLog.shouldThrottleSignup()) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
@@ -206,6 +210,9 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         }
 
         setState(StartState.TOUR);
+        if (bundle == null) {
+            Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
+        }
 
         TourLayout.load(this, mTourPages.toArray(new TourLayout[mTourPages.size()]));
 
@@ -330,6 +337,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onCancelLogin() {
+        Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
         setState(StartState.TOUR);
     }
 
@@ -340,6 +348,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onCancelSignUp() {
+        Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
         setState(StartState.TOUR);
     }
 
@@ -385,6 +394,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             case LOGIN:
             case SIGN_UP:
             case ACCEPT_TERMS:
+                Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
                 setState(StartState.TOUR);
                 break;
 
@@ -583,6 +593,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onCancel() {
+        Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
         setState(StartState.TOUR);
     }
 
@@ -592,6 +603,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             SignupLog.writeNewSignupAsync();
             mUser = user;
             setState(StartState.SIGN_UP_DETAILS);
+            Event.SCREEN_ENTERED.publish(Screen.AUTH_USER_DETAILS.get());
         } else {
             super.onAuthTaskComplete(user, via, wasApiSignupTask);
         }
@@ -617,6 +629,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private void proposeTermsOfUse(SignupVia signupVia, Bundle params){
         getAcceptTerms().setSignupParams(signupVia, params);
         setState(StartState.ACCEPT_TERMS);
+        Event.SCREEN_ENTERED.publish(Screen.AUTH_TERMS.get());
     }
 
     private SoundCloudApplication getApp() {

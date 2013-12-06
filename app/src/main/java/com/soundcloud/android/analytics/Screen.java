@@ -4,6 +4,13 @@ import java.util.Locale;
 
 public enum Screen {
 
+    // auth
+    TOUR("tour:main"),
+    AUTH_LOG_IN("auth:log_in_prompt"),
+    AUTH_SIGN_UP("auth:sign_up_prompt"),
+    AUTH_TERMS("auth:accept_terms"),
+    AUTH_USER_DETAILS("auth:user_details"),
+
     // core screens
     SIDE_MENU_STREAM("stream:main"),
     SIDE_MENU_LIKES("collection:likes"),
