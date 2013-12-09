@@ -27,6 +27,7 @@ public class SearchFragment extends ScListFragment {
     public void setCurrentSearch(Search currentSearch) {
         if (mCurrentSearch != currentSearch) {
             mCurrentSearch = currentSearch;
+            setScreen(currentSearch.getScreen());
             reset();
         }
     }

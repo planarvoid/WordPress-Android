@@ -311,6 +311,10 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         }
     }
 
+    protected void setScreen(Screen screen){
+        mScreen = screen;
+    }
+
     private void setupListAdapter() {
         if (getListAdapter() == null && mContent != null) {
             switch (mContent) {
