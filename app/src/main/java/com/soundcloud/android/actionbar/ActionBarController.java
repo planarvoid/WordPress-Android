@@ -2,6 +2,7 @@ package com.soundcloud.android.actionbar;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
@@ -172,7 +173,7 @@ public class ActionBarController {
                 mSearchView.setIconified(true);
 
                 final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
-                mActivity.startActivity(new Intent(Intent.ACTION_VIEW).setData(itemUri));
+                mActivity.startActivity(new Intent(Intent.ACTION_VIEW).putExtra(Screen.EXTRA, Screen.SEARCH_SUGGESTIONS.get()).setData(itemUri));
                 return true;
             }
         });

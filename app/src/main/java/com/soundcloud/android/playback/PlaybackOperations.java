@@ -182,7 +182,7 @@ public class PlaybackOperations {
         return (PlaybackService.getCurrentTrackId() != track.getId());
     }
 
-    private Intent getPlayIntent(final List<Long> trackList, int startPosition,
+    public Intent getPlayIntent(final List<Long> trackList, int startPosition,
                                          PlaySessionSource playSessionSource) {
 
         final Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);

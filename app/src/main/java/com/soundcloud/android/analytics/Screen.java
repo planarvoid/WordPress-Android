@@ -39,6 +39,8 @@ public enum Screen {
     SEARCH_TRACKS("search:tracks"),
     SEARCH_PLAYLISTS("search:playlists"),
     SEARCH_USERS("search:people"),
+    SEARCH_SUGGESTIONS("search:suggestions"),
+
 
     // creators
     RECORD_MAIN("record:main"),
@@ -61,7 +63,12 @@ public enum Screen {
     SETTINGS_MAIN("settings:main"),
     SETTINGS_CHANGE_LOG("settings:change_log"),
     SETTINGS_NOTIFICATIONS("settings:notification_settings"),
-    SETTINGS_ACCOUNT("settings:account_sync_settings");
+    SETTINGS_ACCOUNT("settings:account_sync_settings"),
+
+    // context provided when we intercept a track
+    DEEPLINK("deeplink");
+
+    public static final String EXTRA = "Screen";
 
     private Screen(String trackingTag) {
         mTag = trackingTag;

@@ -1,5 +1,6 @@
 package com.soundcloud.android.main;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -80,10 +81,11 @@ public class ResolveActivity extends Activity implements FetchModelTask.Listener
 
         mResolveTask = null;
         Intent intent = resource.getViewIntent();
+        intent.putExtra(Screen.EXTRA, Screen.DEEPLINK.get());
         if (intent != null){
             startActivity(intent);
         } else {
-            Log.e(SoundCloudApplication.TAG,"Cannof find view intent for resource " + resource);
+            Log.e(SoundCloudApplication.TAG,"Cannot find view intent for resource " + resource);
         }
 
         finish();
