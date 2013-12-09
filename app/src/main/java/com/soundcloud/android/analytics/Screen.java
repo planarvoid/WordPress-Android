@@ -18,6 +18,8 @@ public enum Screen {
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),
+    ONBOARDING_GENRE("onboarding:genre"),
+    ONBOARDING_FACEBOOK("onboarding:facebook"),
 
     // your own profile
     YOUR_POSTS("you:posts"),
