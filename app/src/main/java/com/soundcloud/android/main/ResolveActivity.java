@@ -81,8 +81,8 @@ public class ResolveActivity extends Activity implements FetchModelTask.Listener
 
         mResolveTask = null;
         Intent intent = resource.getViewIntent();
-        intent.putExtra(Screen.EXTRA, Screen.DEEPLINK.get());
         if (intent != null){
+            intent.putExtra(Screen.EXTRA, Screen.DEEPLINK.get());
             startActivity(intent);
         } else {
             Log.e(SoundCloudApplication.TAG,"Cannot find view intent for resource " + resource);
