@@ -47,6 +47,7 @@ public enum Screen {
     SEARCH_TRACKS("search:tracks"),
     SEARCH_PLAYLISTS("search:playlists"),
     SEARCH_USERS("search:people"),
+    SEARCH_SUGGESTIONS("search:suggestions"),
 
     // creators
     RECORD_MAIN("record:main"),
