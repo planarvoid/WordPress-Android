@@ -170,8 +170,9 @@ public class SearchActivity extends ScActivity {
                 break;
             case SPINNER_POS_USERS:
                 Event.SCREEN_ENTERED.publish(Screen.SEARCH_USERS.get());
+                break;
             default:
-                throw new IllegalStateException("Unexpected search filter");
+                throw new IllegalStateException("Unexpected search filter with position " + position);
         }
     }
 
@@ -246,6 +247,22 @@ public class SearchActivity extends ScActivity {
         mCurrentSearch = (Search) previous[0];
         if (mCurrentSearch != null) {
             mTxtQuery.setText(mCurrentSearch.query);
+            switch (mCurrentSearch.search_type) {
+                case Search.ALL:
+                    mLastSelectedPosition = SPINNER_POS_ALL;
+                    break;
+                case Search.SOUNDS:
+                    mLastSelectedPosition = SPINNER_POS_SOUNDS;
+                    break;
+                case Search.PLAYLISTS:
+                    mLastSelectedPosition = SPINNER_POS_PLAYLISTS;
+                    break;
+                case Search.USERS:
+                    mLastSelectedPosition = SPINNER_POS_USERS;
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected search type");
+            }
         }
         mSearchFragment = (SearchFragment) getSupportFragmentManager().findFragmentById(R.id.results_holder);
     }
