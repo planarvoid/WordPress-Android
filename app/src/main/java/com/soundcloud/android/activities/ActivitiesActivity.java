@@ -1,5 +1,6 @@
 package com.soundcloud.android.activities;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.storage.provider.Content;
@@ -14,7 +15,7 @@ public class ActivitiesActivity extends ScActivity {
 
         if (state == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(getContentHolderViewId(), ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
+                    .add(getContentHolderViewId(), ScListFragment.newInstance(Content.ME_ACTIVITIES, Screen.ACTIVITIES)).commit();
         }
     }
 }

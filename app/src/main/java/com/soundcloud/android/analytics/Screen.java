@@ -28,11 +28,15 @@ public enum Screen {
     USER_FOLLOWERS("users:followers"),
 
     // player screens
-    PLAYER_MAIN("sounds:main"),
-    PLAYER_INFO("sounds:info"),
-    PLAYER_LIKES("sounds:likes"),
-    PLAYER_REPOSTS("sounds:reposts"),
-    PLAYER_COMMENTS("sounds:comments"),
+    PLAYER_MAIN("tracks:main"),
+    PLAYER_INFO("tracks:info"),
+
+    PLAYER_LIKES("tracks:likes"),
+    PLAYER_REPOSTS("tracks:reposts"),
+    PLAYER_COMMENTS("tracks:comments"),
+
+    PLAYLIST_LIKES("playlists:likes"),
+    PLAYLIST_REPOSTS("playlists:reposts"),
 
     // search
     SEARCH_EVERYTHING("search:everything"),
@@ -40,7 +44,6 @@ public enum Screen {
     SEARCH_PLAYLISTS("search:playlists"),
     SEARCH_USERS("search:people"),
     SEARCH_SUGGESTIONS("search:suggestions"),
-
 
     // creators
     RECORD_MAIN("record:main"),
@@ -51,6 +54,7 @@ public enum Screen {
     PLAYLIST_DETAILS("playlists:main"),
     WHO_TO_FOLLOW("who_to_follow:main"),
     ACTIVITIES("activity:main"),
+    SEARCH_BY_TAG("tags:main"),
 
     // explore screens
     EXPLORE_GENRES("explore:genres"),

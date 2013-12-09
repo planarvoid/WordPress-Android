@@ -1,6 +1,7 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.storage.provider.Content;
@@ -15,7 +16,7 @@ public class WhoToFollowActivity extends ScActivity {
         if (state == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(getContentHolderViewId(), ScListFragment.newInstance(Content.SUGGESTED_USERS))
+                    .add(getContentHolderViewId(), ScListFragment.newInstance(Content.SUGGESTED_USERS, Screen.WHO_TO_FOLLOW))
                     .commit();
         }
     }

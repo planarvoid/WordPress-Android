@@ -16,7 +16,7 @@ import android.view.View;
 public class TrackInteractionActivity extends PlayableInteractionActivity {
 
     private PlaybackOperations mPlaybackOperations;
-    private Screen screen;
+    private Screen mScreen;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -24,22 +24,22 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
 
         switch (mInteraction) {
             case TRACK_LIKE:
-                screen = Screen.PLAYER_LIKES;
+                mScreen = Screen.PLAYER_LIKES;
                 setTitle(R.string.list_header_track_likers);
                 break;
             case TRACK_REPOST:
-                screen = Screen.PLAYER_REPOSTS;
+                mScreen = Screen.PLAYER_REPOSTS;
                 setTitle(R.string.list_header_track_reposters);
                 break;
             case COMMENT:
-                screen = Screen.PLAYER_COMMENTS;
+                mScreen = Screen.PLAYER_COMMENTS;
                 setTitle(R.string.list_header_track_comments);
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected track interation: " + mInteraction);
         }
 
-        publishScreenEnteredEvent(screen);
+        publishScreenEnteredEvent(mScreen);
 
         mPlaybackOperations = new PlaybackOperations();
         mPlayableInfoBar.setOnClickListener(new View.OnClickListener() {
@@ -47,10 +47,15 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
             public void onClick(View v) {
                 // if it comes from a mention, might not have a user
                 if (mPlayable.user != null) {
-                    mPlaybackOperations.playTrack(TrackInteractionActivity.this, (Track) mPlayable, screen);
+                    mPlaybackOperations.playTrack(TrackInteractionActivity.this, (Track) mPlayable, mScreen);
                 }
             }
         });
+    }
+
+    @Override
+    protected Screen getCurrentScreen() {
+        return mScreen;
     }
 
     private void publishScreenEnteredEvent(Screen screen) {

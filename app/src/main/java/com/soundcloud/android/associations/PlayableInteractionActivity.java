@@ -1,6 +1,7 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.model.Playable;
@@ -38,9 +39,11 @@ public abstract class PlayableInteractionActivity extends ScActivity {
 
         if (bundle == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.listHolder, ScListFragment.newInstance(getContentUri())).commit();
+                    .add(R.id.listHolder, ScListFragment.newInstance(getContentUri(), getCurrentScreen())).commit();
         }
     }
+
+    protected abstract Screen getCurrentScreen();
 
     //xxx hack
     @Override

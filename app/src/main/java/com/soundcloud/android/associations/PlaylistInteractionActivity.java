@@ -1,6 +1,7 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.activities.Activity;
@@ -13,14 +14,19 @@ import android.os.Bundle;
 import android.view.View;
 
 public class PlaylistInteractionActivity extends PlayableInteractionActivity {
+
+    private Screen mScreen;
+
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         // TODO: do we need different titles for playlists?
         if (mInteraction == Activity.Type.PLAYLIST_LIKE) {
             setTitle(R.string.list_header_track_likers);
+            mScreen = Screen.PLAYLIST_LIKES;
         } else {
             setTitle(R.string.list_header_track_reposters);
+            mScreen = Screen.PLAYLIST_REPOSTS;
         }
 
         mPlayableInfoBar.setOnClickListener(new View.OnClickListener() {
@@ -30,6 +36,11 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
             }
         });
 
+    }
+
+    @Override
+    protected Screen getCurrentScreen() {
+        return mScreen;
     }
 
     @Override

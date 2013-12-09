@@ -75,6 +75,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     public static final String TAG = ScListFragment.class.getSimpleName();
     private static final String EXTRA_CONTENT_URI = "contentUri";
     private static final String EXTRA_TITLE_ID = "title";
+    private static final String EXTRA_SCREEN = "screen";
 
     private @Nullable ScListView mListView;
     private ScBaseAdapter<?> mAdapter;
@@ -97,7 +98,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     protected int mStatusCode;
 
     // TODO, finish all screens when the enum is populated
-    private Screen mScreen = Screen.USER_INFO;
+    private Screen mScreden = Screen.USER_INFO;
 
     private @Nullable BroadcastReceiver mPlaylistChangedReceiver;
 
@@ -107,22 +108,24 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private AccountOperations accountOperations;
     protected PublicApi publicApi;
 
-    public static ScListFragment newInstance(Content content) {
-        return newInstance(content.uri);
+    public static ScListFragment newInstance(Content content, Screen screen) {
+        return newInstance(content.uri, screen);
     }
 
-    public static ScListFragment newInstance(Uri contentUri) {
+    public static ScListFragment newInstance(Uri contentUri, Screen screen){
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_CONTENT_URI, contentUri);
+        args.putSerializable(EXTRA_SCREEN, screen);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static ScListFragment newInstance(Uri contentUri, int titleId) {
+    public static ScListFragment newInstance(Uri contentUri, int titleId, Screen screen) {
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_CONTENT_URI, contentUri);
+        args.putSerializable(EXTRA_SCREEN, screen);
         args.putInt(EXTRA_TITLE_ID, titleId);
         fragment.setArguments(args);
         return fragment;
@@ -167,7 +170,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         mListView = configureList(new ScListView(getActivity()));
         mListView.setOnRefreshListener(this);
 
-        mListView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(),false, true, this)));
+        mListView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(), false, true, this)));
 
         if (mEmptyListView == null) {
             mEmptyListView = createEmptyView();
@@ -311,28 +314,19 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         }
     }
 
-    protected void setScreen(Screen screen){
-        mScreen = screen;
+    protected Screen getScreen(){
+        return (Screen) getArguments().getSerializable(EXTRA_SCREEN);
     }
 
     private void setupListAdapter() {
         if (getListAdapter() == null && mContent != null) {
             switch (mContent) {
                 case ME_SOUND_STREAM:
-                    mScreen = Screen.SIDE_MENU_STREAM;
-                    mAdapter = new ActivitiesAdapter(mContentUri);
-                    break;
                 case ME_ACTIVITIES:
                     mAdapter = new ActivitiesAdapter(mContentUri);
                     break;
                 case USER_FOLLOWINGS:
-                    mScreen = Screen.USER_FOLLOWINGS;
-                    mAdapter = new UserAdapter(mContentUri);
-                    break;
                 case USER_FOLLOWERS:
-                    mScreen = Screen.USER_FOLLOWERS;
-                    mAdapter = new UserAdapter(mContentUri);
-                    break;
                 case TRACK_LIKERS:
                 case TRACK_REPOSTERS:
                 case PLAYLIST_LIKERS:
@@ -348,19 +342,11 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                     mAdapter = new FriendAdapter(mContentUri);
                     break;
                 case ME_SOUNDS:
-                    mScreen = Screen.YOUR_POSTS;
                     mAdapter = new MyTracksAdapter(getScActivity());
                     break;
                 case ME_LIKES:
-                    mScreen = Screen.YOUR_LIKES;
-                    mAdapter = new SoundAssociationAdapter(mContentUri);
-                    break;
                 case USER_LIKES:
-                    mScreen = Screen.USER_LIKES;
-                    mAdapter = new SoundAssociationAdapter(mContentUri);
-                    break;
                 case USER_SOUNDS:
-                    mScreen = Screen.USER_POSTS;
                     mAdapter = new SoundAssociationAdapter(mContentUri);
                     break;
                 case SEARCH:
@@ -370,13 +356,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                     mAdapter = new CommentAdapter(mContentUri);
                     break;
                 case ME_PLAYLISTS:
-                    mScreen = Screen.YOUR_PLAYLISTS;
-                    mAdapter = new DefaultPlayableAdapter(mContentUri);
-                    break;
                 case USER_PLAYLISTS:
-                    mScreen = Screen.USER_PLAYLISTS;
-                    mAdapter = new DefaultPlayableAdapter(mContentUri);
-                    break;
                 default:
                     mAdapter = new DefaultPlayableAdapter(mContentUri);
             }
@@ -403,9 +383,11 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         final ScBaseAdapter adapter = getListAdapter();
         if (adapter == null) return;
 
-        if (adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, mScreen) ==
-                ScBaseAdapter.ItemClickResults.LEAVING) {
-            mIgnorePlaybackStatus = true;
+        switch (adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, getScreen())){
+            case ScBaseAdapter.ItemClickResults.LEAVING:
+                mIgnorePlaybackStatus = true;
+                break;
+            default:
         }
     }
 
@@ -833,4 +815,5 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private static void log(String msg){
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, msg);
     }
+
 }
