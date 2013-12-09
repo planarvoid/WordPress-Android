@@ -260,6 +260,11 @@ public class SettingsActivity extends ScSettingsActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
     protected String getTrackingName() {
         return Screen.SETTINGS_MAIN.get();
     }
