@@ -211,7 +211,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
         setState(StartState.TOUR);
         if (bundle == null) {
-            Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
+            trackTourScreen();
         }
 
         TourLayout.load(this, mTourPages.toArray(new TourLayout[mTourPages.size()]));
@@ -279,6 +279,10 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         setState(state, false);
     }
 
+    private void trackTourScreen() {
+        Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
+    }
+
     private LoginLayout getLogin() {
         if (mLogin == null) {
             ViewStub stub = (ViewStub) findViewById(R.id.login_stub);
@@ -337,8 +341,8 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onCancelLogin() {
-        Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
         setState(StartState.TOUR);
+        trackTourScreen();
     }
 
     @Override
@@ -348,8 +352,8 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onCancelSignUp() {
-        Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
         setState(StartState.TOUR);
+        trackTourScreen();
     }
 
     @Override
@@ -394,8 +398,8 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             case LOGIN:
             case SIGN_UP:
             case ACCEPT_TERMS:
-                Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
                 setState(StartState.TOUR);
+                trackTourScreen();
                 break;
 
             case SIGN_UP_DETAILS:
@@ -593,8 +597,8 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onCancel() {
-        Event.SCREEN_ENTERED.publish(Screen.TOUR.get());
         setState(StartState.TOUR);
+        trackTourScreen();
     }
 
     @Override
