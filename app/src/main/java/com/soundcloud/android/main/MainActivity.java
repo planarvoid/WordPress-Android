@@ -252,8 +252,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(EXPLORE_FRAGMENT_TAG);
         if (fragment == null) {
             fragment = mExploreFragmentProvider.get();
+            attachFragment(fragment, EXPLORE_FRAGMENT_TAG, R.string.side_menu_explore);
         }
-        attachFragment(fragment, EXPLORE_FRAGMENT_TAG, R.string.side_menu_explore);
     }
 
     private void displayStream() {
