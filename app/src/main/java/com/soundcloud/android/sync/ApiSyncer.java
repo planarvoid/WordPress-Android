@@ -5,7 +5,6 @@ import static com.soundcloud.android.api.PublicCloudAPI.NotFoundException;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.TempEndpoints;
-import com.soundcloud.android.model.UnknownResource;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.ConnectionDAO;
@@ -237,14 +236,23 @@ public class ApiSyncer extends SyncStrategy {
                 log("Pushing new playlist to api: " + content);
 
                 Request r = Request.to(TempEndpoints.PLAYLISTS).withContent(content, "application/json");
-                Playlist added = mApi.create(r);
+                Playlist playlist;
+                final ScResource result = mApi.create(r);
+                if (result instanceof Playlist){
+                    playlist = (Playlist) result;
+                } else {
+                    // Debugging. Return objects sometimes are not playlists. Need to log this to get more info about the cause of this
+                    SoundCloudApplication.handleSilentException("Error adding new playlist " + p, new PlaylistUpdateException(content));
+                    continue; // this will get retried next sync
+                }
+
 
                 // update local state
-                p.localToGlobal(mContext, added);
+                p.localToGlobal(mContext, playlist);
                 SoundCloudApplication.MODEL_MANAGER.removeFromCache(toDelete);
 
-                mPlaylistStorage.store(added);
-                mSoundAssociationStorage.addCreation(added);
+                mPlaylistStorage.store(playlist);
+                mSoundAssociationStorage.addCreation(playlist);
 
                 mSyncStateManager.updateLastSyncSuccessTime(p.toUri(), System.currentTimeMillis());
 
