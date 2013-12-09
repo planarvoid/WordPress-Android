@@ -316,13 +316,19 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
             switch (mContent) {
                 case ME_SOUND_STREAM:
                     mScreen = Screen.SIDE_MENU_STREAM;
+                    mAdapter = new ActivitiesAdapter(mContentUri);
+                    break;
                 case ME_ACTIVITIES:
                     mAdapter = new ActivitiesAdapter(mContentUri);
                     break;
                 case USER_FOLLOWINGS:
                     mScreen = Screen.USER_FOLLOWINGS;
+                    mAdapter = new UserAdapter(mContentUri);
+                    break;
                 case USER_FOLLOWERS:
                     mScreen = Screen.USER_FOLLOWERS;
+                    mAdapter = new UserAdapter(mContentUri);
+                    break;
                 case TRACK_LIKERS:
                 case TRACK_REPOSTERS:
                 case PLAYLIST_LIKERS:
@@ -333,8 +339,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                 case ME_FOLLOWERS:
                 case ME_FOLLOWINGS:
                     mAdapter = new UserAssociationAdapter(mContentUri);
-                break;
-
+                    break;
                 case ME_FRIENDS:
                     mAdapter = new FriendAdapter(mContentUri);
                     break;
@@ -344,8 +349,12 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                     break;
                 case ME_LIKES:
                     mScreen = Screen.YOUR_LIKES;
+                    mAdapter = new SoundAssociationAdapter(mContentUri);
+                    break;
                 case USER_LIKES:
                     mScreen = Screen.USER_LIKES;
+                    mAdapter = new SoundAssociationAdapter(mContentUri);
+                    break;
                 case USER_SOUNDS:
                     mScreen = Screen.USER_POSTS;
                     mAdapter = new SoundAssociationAdapter(mContentUri);
@@ -358,8 +367,12 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                     break;
                 case ME_PLAYLISTS:
                     mScreen = Screen.YOUR_PLAYLISTS;
+                    mAdapter = new DefaultPlayableAdapter(mContentUri);
+                    break;
                 case USER_PLAYLISTS:
                     mScreen = Screen.USER_PLAYLISTS;
+                    mAdapter = new DefaultPlayableAdapter(mContentUri);
+                    break;
                 default:
                     mAdapter = new DefaultPlayableAdapter(mContentUri);
             }
