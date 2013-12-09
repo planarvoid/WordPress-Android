@@ -3,8 +3,8 @@
     <string name="rec_title_generating_waveform">Please Wait...</string>
     <string name="rec_title_idle_rec">Record</string>
     <string name="rec_title_recording">Recording</string>
-    <string name="rec_title_idle_play">Pause</string>
-    <string name="rec_title_playing">Pause</string>
+    <string name="rec_title_idle_play">Paused</string>
+    <string name="rec_title_playing">Playing</string>
     <string name="rec_title_editing">Edit</string>
 
     <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
