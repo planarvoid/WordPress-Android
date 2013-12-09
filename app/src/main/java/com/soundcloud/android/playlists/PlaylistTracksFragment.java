@@ -59,9 +59,10 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     private SyncStateManager mSyncStateManager;
     private PlaybackOperations mPlaybackOperations;
 
-    public static PlaylistTracksFragment create(Uri playlistUri) {
+    public static PlaylistTracksFragment create(Uri playlistUri, Screen originScreen) {
         Bundle args = new Bundle();
         args.putParcelable(Playlist.EXTRA_URI, playlistUri);
+        args.putSerializable(Screen.EXTRA, originScreen);
 
         PlaylistTracksFragment fragment = new PlaylistTracksFragment();
         fragment.setArguments(args);
@@ -142,7 +143,8 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int startPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
         final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        mPlaybackOperations.playFromPlaylist(getActivity(), mPlaylist.toUri(), startPosition, track, Screen.PLAYLIST_DETAILS);
+        mPlaybackOperations.playFromPlaylist(getActivity(), mPlaylist.toUri(), startPosition, track,
+                (Screen) getArguments().getSerializable(Screen.EXTRA));
     }
 
     @Override

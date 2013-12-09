@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.Refreshable;
@@ -206,7 +207,7 @@ public class Playlist extends Playable {
 
     @Override
     public Intent getViewIntent() {
-        return PlaylistDetailActivity.getIntent(this);
+        return PlaylistDetailActivity.getIntent(this, Screen.DEEPLINK);
     }
 
     public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {

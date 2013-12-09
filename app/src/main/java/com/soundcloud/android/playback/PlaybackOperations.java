@@ -127,7 +127,7 @@ public class PlaybackOperations {
             }
 
         } else if (playable instanceof Playlist) {
-            PlaylistDetailActivity.start(context, (Playlist) playable, mModelManager);
+            PlaylistDetailActivity.start(context, (Playlist) playable, mModelManager, screen);
         } else {
             throw new AssertionError("Unexpected playable type");
         }
