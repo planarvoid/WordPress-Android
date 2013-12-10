@@ -383,11 +383,9 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         final ScBaseAdapter adapter = getListAdapter();
         if (adapter == null) return;
 
-        switch (adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, getScreen())){
-            case ScBaseAdapter.ItemClickResults.LEAVING:
-                mIgnorePlaybackStatus = true;
-                break;
-            default:
+        if (adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, getScreen()) ==
+                ScBaseAdapter.ItemClickResults.LEAVING) {
+            mIgnorePlaybackStatus = true;
         }
     }
 
