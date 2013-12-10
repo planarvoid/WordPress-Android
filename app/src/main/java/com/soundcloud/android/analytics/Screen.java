@@ -38,11 +38,11 @@ public enum Screen {
     USER_FOLLOWERS("users:followers"),
 
     // player screens
-    PLAYER_MAIN("sounds:main"),
-    PLAYER_INFO("sounds:info"),
-    PLAYER_LIKES("sounds:likes"),
-    PLAYER_REPOSTS("sounds:reposts"),
-    PLAYER_COMMENTS("sounds:comments"),
+    PLAYER_MAIN("tracks:main"),
+    PLAYER_INFO("tracks:info"),
+    PLAYER_LIKES("tracks:likes"),
+    PLAYER_REPOSTS("tracks:reposts"),
+    PLAYER_COMMENTS("tracks:comments"),
 
     // search
     SEARCH_EVERYTHING("search:everything"),
