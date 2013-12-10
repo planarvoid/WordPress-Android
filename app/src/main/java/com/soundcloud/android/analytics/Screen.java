@@ -56,8 +56,12 @@ public enum Screen {
     RECORD_EDIT("record:edit"),
     RECORD_UPLOAD("record:share"),
 
-    // misc
+    // playlists
     PLAYLIST_DETAILS("playlists:main"),
+    PLAYLIST_LIKES("playlists:likes"),
+    PLAYLIST_REPOSTS("playlists:reposts"),
+
+    // misc
     WHO_TO_FOLLOW("who_to_follow:main"),
     ACTIVITIES("activity:main"),
     SEARCH_BY_TAG("tags:main"),
