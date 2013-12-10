@@ -3,6 +3,7 @@ package com.soundcloud.android.preferences;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 
@@ -25,11 +26,9 @@ public class AccountSettingsActivity extends ScSettingsActivity {
     protected void onResume() {
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(getClass());
-    }
-
-    @Override
-    protected String getTrackingName() {
-        return Screen.SETTINGS_ACCOUNT.get();
+        if (!isConfigurationChange() || isReallyResuming()) {
+            Event.SCREEN_ENTERED.publish(Screen.SETTINGS_ACCOUNT.get());
+        }
     }
 
     @Override

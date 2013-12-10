@@ -257,16 +257,14 @@ public class SettingsActivity extends ScSettingsActivity {
         getApp().track(SettingsActivity.class);
         updateClearCacheTitles();
         super.onResume();
+        if (!isConfigurationChange() || isReallyResuming()) {
+            Event.SCREEN_ENTERED.publish(Screen.SETTINGS_MAIN.get());
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-    }
-
-    @Override
-    protected String getTrackingName() {
-        return Screen.SETTINGS_MAIN.get();
     }
 
     private void setClearCacheTitle(final String pref, final int key, final File dir) {
