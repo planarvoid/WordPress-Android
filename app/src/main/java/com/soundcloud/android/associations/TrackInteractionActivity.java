@@ -24,15 +24,12 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
         switch (mInteraction) {
             case TRACK_LIKE:
                 setTitle(R.string.list_header_track_likers);
-                publishScreenEnteredEvent(Screen.PLAYER_LIKES);
                 break;
             case TRACK_REPOST:
                 setTitle(R.string.list_header_track_reposters);
-                publishScreenEnteredEvent(Screen.PLAYER_REPOSTS);
                 break;
             case COMMENT:
                 setTitle(R.string.list_header_track_comments);
-                publishScreenEnteredEvent(Screen.PLAYER_COMMENTS);
                 break;
         }
 
@@ -48,9 +45,25 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
         });
     }
 
-    private void publishScreenEnteredEvent(Screen screen) {
-        if (!isConfigurationChange()) {
-            Event.SCREEN_ENTERED.publish(screen.get());
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isConfigurationChange() || isReallyResuming()) {
+            publishScreenEnteredEvent();
+        }
+    }
+
+    private void publishScreenEnteredEvent() {
+        switch (mInteraction) {
+            case TRACK_LIKE:
+                Event.SCREEN_ENTERED.publish(Screen.PLAYER_LIKES.get());
+                break;
+            case TRACK_REPOST:
+                Event.SCREEN_ENTERED.publish(Screen.PLAYER_REPOSTS.get());
+                break;
+            case COMMENT:
+                Event.SCREEN_ENTERED.publish(Screen.PLAYER_COMMENTS.get());
+                break;
         }
     }
 
