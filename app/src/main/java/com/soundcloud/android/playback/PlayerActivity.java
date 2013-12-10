@@ -177,6 +177,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 && (mChangeTrackFast || PlaybackService.getPlaybackState().isSupposedToBePlaying()) // responding to transport click or already playing
                 ) {
             sendTrackChangeOnDelay();
+            Event.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
         }
         mChangeTrackFast = false;
         mTransportBar.setIsCommenting(mTrackPager.getCurrentItem() == mTrackPagerAdapter.getCommentingPosition());
