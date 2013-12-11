@@ -236,4 +236,24 @@ public class PlaybackOperationsTest {
 
         verify(modelManager).cache(eq(track));
     }
+
+    @Test
+    public void sendPlayServiceIntentFromTrackCachesTrackAndSendsConfiguredPlaybackIntent() throws Exception {
+        Track track = TestHelper.getModelFactory().createModel(Track.class);
+        playbackOperations.sendPlayServiceIntentFromTrack(Robolectric.application, track, ORIGIN_SCREEN);
+
+        verify(modelManager).cache(track);
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.toUri()), track.getId());
+
+    }
+
+    @Test
+    public void sendPlayServiceIntentFromTrackIdSendsConfiguredPlaybackIntent() throws Exception {
+        playbackOperations.sendPlayServiceIntentFromTrackId(Robolectric.application, 123L, ORIGIN_SCREEN);
+
+        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.toUri()), 123L);
+
+    }
 }

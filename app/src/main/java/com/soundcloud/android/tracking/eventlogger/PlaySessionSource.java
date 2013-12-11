@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracking.eventlogger;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -35,21 +36,25 @@ public class PlaySessionSource implements Parcelable{
         this(Uri.EMPTY);
     }
 
-    public PlaySessionSource(Uri originPage) {
-        this(originPage, ScModel.NOT_SET);
+    public PlaySessionSource(Screen screen) {
+        this(screen.toUri());
     }
 
-    public PlaySessionSource(Uri originPage, long setId) {
-        mOriginPage = originPage;
+    public PlaySessionSource(Uri originScreen) {
+        this(originScreen, ScModel.NOT_SET);
+    }
+
+    public PlaySessionSource(Uri originScreen, long setId) {
+        mOriginPage = originScreen;
         mSetId = setId;
     }
 
-    public PlaySessionSource(Uri originPage, String exploreVersion) {
-        this(originPage, ScModel.NOT_SET, exploreVersion);
+    public PlaySessionSource(Uri originScreen, String exploreVersion) {
+        this(originScreen, ScModel.NOT_SET, exploreVersion);
     }
 
-    public PlaySessionSource(Uri originPage, long setId, String exploreVersion) {
-        mOriginPage = originPage;
+    public PlaySessionSource(Uri originScreen, long setId, String exploreVersion) {
+        mOriginPage = originScreen;
         mSetId = setId;
         mExploreVersion = exploreVersion;
     }
