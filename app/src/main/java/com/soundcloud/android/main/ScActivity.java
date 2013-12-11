@@ -46,13 +46,15 @@ import java.lang.ref.WeakReference;
  */
 public abstract class ScActivity extends ActionBarActivity implements Tracker, ActionBarController.ActionBarOwner {
     protected static final int CONNECTIVITY_MSG = 0;
+    private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
+
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
 
     private Boolean mIsConnected;
     private boolean mIsForeground;
     private boolean mOnCreateCalled;
-    private boolean mIsFirstRun;
+    private boolean mIsConfigurationChange;
 
     protected AccountOperations mAccountOperations;
     protected PublicCloudAPI mPublicCloudAPI;
@@ -80,12 +82,21 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         }
 
         mOnCreateCalled = true;
-        mIsFirstRun = savedInstanceState == null;
+
+        if (savedInstanceState != null) {
+            mIsConfigurationChange = savedInstanceState.getBoolean(BUNDLE_CONFIGURATION_CHANGE, false);
+        }
     }
 
     // Override this in activities with custom content views
     protected void setContentView() {
         setContentView(R.layout.container_layout);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(BUNDLE_CONFIGURATION_CHANGE, getChangingConfigurations() != 0);
     }
 
     // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
@@ -157,7 +168,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         safeUnregisterReceiver(mUnauthoriedRequestReceiver);
         mIsForeground = false;
         mOnCreateCalled = false;
-        mIsFirstRun = false;
         if (mActionBarController != null) {
             mActionBarController.onPause();
         }
@@ -187,7 +197,7 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     }
 
     protected boolean isConfigurationChange() {
-        return !mIsFirstRun && mOnCreateCalled;
+        return mIsConfigurationChange;
     }
 
     public boolean isForeground() {

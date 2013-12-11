@@ -5,21 +5,24 @@ import android.preference.PreferenceActivity;
 
 public abstract class ScSettingsActivity extends PreferenceActivity {
 
+    private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
+
     private boolean mOnCreateCalled;
-    private boolean mIsFirstRun;
+    private boolean mIsConfigurationChange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mOnCreateCalled = true;
-        mIsFirstRun = savedInstanceState == null;
+        if (savedInstanceState != null) {
+            mIsConfigurationChange = savedInstanceState.getBoolean(BUNDLE_CONFIGURATION_CHANGE, false);
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mOnCreateCalled = false;
-        mIsFirstRun = false;
     }
 
     @Override
@@ -27,12 +30,18 @@ public abstract class ScSettingsActivity extends PreferenceActivity {
         super.onResume();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(BUNDLE_CONFIGURATION_CHANGE, getChangingConfigurations() != 0);
+    }
+
     protected boolean isReallyResuming() {
         return !mOnCreateCalled;
     }
 
     protected boolean isConfigurationChange() {
-        return !mIsFirstRun && mOnCreateCalled;
+        return mIsConfigurationChange;
     }
 
 }
