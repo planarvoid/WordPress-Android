@@ -72,7 +72,7 @@ public enum Screen {
     // context provided when we intercept a track
     DEEPLINK("deeplink");
 
-    public static final String EXTRA = "Screen";
+    public static final String ORDINAL_EXTRA = "ScreenOrdinal";
 
     private Screen(String trackingTag) {
         mTag = trackingTag;

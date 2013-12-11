@@ -28,7 +28,6 @@ import com.soundcloud.android.playback.views.PlayerTrackDetailsLayout;
 import com.soundcloud.android.playback.views.PlayerTrackPager;
 import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.tracking.Media;
-import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -311,9 +310,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             if (intent.getData() != null) {
                 final long id = UriUtils.getLastSegmentAsLong(intent.getData());
                 playQueue = new PlayQueueView(id);
-
-                PlaySessionSource playSessionSource = getPlaySessionSourceFromIntent(intent);
-                startService(mPlaybackOperations.getPlayIntent(Lists.newArrayList(id), 0, playSessionSource));
+                mPlaybackOperations.startPlayback(this, id, getOriginScreenFromIntent(intent));
             }
 
         } else if (intent.hasExtra(Track.EXTRA_ID)) {
@@ -321,22 +318,20 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
         } else if (intent.getParcelableExtra(Track.EXTRA) != null) {
             final Track track = intent.getParcelableExtra(Track.EXTRA);
-            SoundCloudApplication.MODEL_MANAGER.cache(track);
             playQueue = new PlayQueueView(Lists.newArrayList(track.getId()), 0);
 
             if (Actions.PLAY.equals(action)){
-                PlaySessionSource playSessionSource = getPlaySessionSourceFromIntent(intent);
-                startService(mPlaybackOperations.getPlayIntent(Lists.newArrayList(track.getId()), 0, playSessionSource));
+                mPlaybackOperations.startPlayback(this, track, getOriginScreenFromIntent(intent));
             }
         }
         return playQueue;
     }
 
-    private PlaySessionSource getPlaySessionSourceFromIntent(Intent intent) {
-        if (intent.hasExtra(Screen.EXTRA)){
-            return new PlaySessionSource(Uri.parse(intent.getStringExtra(Screen.EXTRA)));
+    private Screen getOriginScreenFromIntent(Intent intent) {
+        if (intent.hasExtra(Screen.ORDINAL_EXTRA)){
+            return Screen.values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)];
         } else {
-            return new PlaySessionSource(Screen.DEEPLINK.toUri());
+            return Screen.DEEPLINK;
         }
     }
 
