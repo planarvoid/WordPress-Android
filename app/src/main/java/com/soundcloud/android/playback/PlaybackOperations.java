@@ -134,12 +134,12 @@ public class PlaybackOperations {
     }
 
 
-    public void sendPlayServiceIntentFromTrack(final Context context, Track track, Screen screen) {
+    public void startPlayback(final Context context, Track track, Screen screen) {
         mModelManager.cache(track);
-        sendPlayServiceIntentFromTrackId(context, track.getId(), screen);
+        startPlayback(context, track.getId(), screen);
     }
 
-    public void sendPlayServiceIntentFromTrackId(final Context context, long id, Screen screen) {
+    public void startPlayback(final Context context, long id, Screen screen) {
         context.startService(getPlayIntent(Lists.newArrayList(id), 0, new PlaySessionSource(screen)));
     }
 

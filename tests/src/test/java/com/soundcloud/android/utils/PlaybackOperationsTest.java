@@ -238,9 +238,9 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void sendPlayServiceIntentFromTrackCachesTrackAndSendsConfiguredPlaybackIntent() throws Exception {
+    public void startPlaybackWithTrackCachesTrackAndSendsConfiguredPlaybackIntent() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        playbackOperations.sendPlayServiceIntentFromTrack(Robolectric.application, track, ORIGIN_SCREEN);
+        playbackOperations.startPlayback(Robolectric.application, track, ORIGIN_SCREEN);
 
         verify(modelManager).cache(track);
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
@@ -249,8 +249,8 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void sendPlayServiceIntentFromTrackIdSendsConfiguredPlaybackIntent() throws Exception {
-        playbackOperations.sendPlayServiceIntentFromTrackId(Robolectric.application, 123L, ORIGIN_SCREEN);
+    public void startPlaybackSendsConfiguredPlaybackIntent() throws Exception {
+        playbackOperations.startPlayback(Robolectric.application, 123L, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.toUri()), 123L);
