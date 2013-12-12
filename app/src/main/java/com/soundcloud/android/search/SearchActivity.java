@@ -2,9 +2,9 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Search;
-import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -251,7 +251,7 @@ public class SearchActivity extends ScActivity {
                 case Search.ALL:
                     mLastSelectedPosition = SPINNER_POS_ALL;
                     break;
-                case Search.SOUNDS:
+                case Search.TRACKS:
                     mLastSelectedPosition = SPINNER_POS_SOUNDS;
                     break;
                 case Search.PLAYLISTS:

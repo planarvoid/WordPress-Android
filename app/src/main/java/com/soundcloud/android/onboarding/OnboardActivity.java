@@ -13,6 +13,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.onboarding.auth.AbstractLoginActivity;
 import com.soundcloud.android.onboarding.auth.AcceptTermsLayout;
@@ -31,7 +32,6 @@ import com.soundcloud.android.onboarding.auth.UserDetailsLayout;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -368,7 +368,7 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
             mUser.permalink = username;
         }
 
-        AddUserInfoTaskFragment.create(mUser,avatarFile).show(getSupportFragmentManager(),"add_user_task");
+        AddUserInfoTaskFragment.create(mUser,avatarFile).show(getSupportFragmentManager(), "add_user_task");
     }
 
     @Override

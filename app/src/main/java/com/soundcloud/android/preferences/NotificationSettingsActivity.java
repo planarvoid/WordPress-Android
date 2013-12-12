@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.rx.Event;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.tracking.Page;

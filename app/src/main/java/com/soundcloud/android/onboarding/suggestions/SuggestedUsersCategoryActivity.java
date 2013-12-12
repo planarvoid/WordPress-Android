@@ -3,10 +3,10 @@ package com.soundcloud.android.onboarding.suggestions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.rx.Event;
 
 import android.os.Bundle;
 import android.view.Menu;

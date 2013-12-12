@@ -2,7 +2,7 @@ package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.rx.Event;
+import com.soundcloud.android.events.Event;
 
 import android.content.Intent;
 import android.os.Bundle;
