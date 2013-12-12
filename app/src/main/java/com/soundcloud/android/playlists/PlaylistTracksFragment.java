@@ -5,6 +5,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
@@ -141,7 +142,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int startPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
         final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
-        mPlaybackOperations.playFromPlaylist(getActivity(), mPlaylist.toUri(), startPosition, track);
+        mPlaybackOperations.playFromPlaylist(getActivity(), mPlaylist.toUri(), startPosition, track, Screen.PLAYLIST_DETAILS);
     }
 
     @Override

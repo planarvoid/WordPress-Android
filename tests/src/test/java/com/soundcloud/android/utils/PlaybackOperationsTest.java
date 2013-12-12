@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
@@ -38,7 +39,6 @@ import rx.concurrency.Schedulers;
 import rx.util.functions.Func1;
 
 import android.content.Intent;
-import android.net.Uri;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class PlaybackOperationsTest {
     private PlaybackOperations playbackOperations;
     private Track track;
 
-    private Uri ORIGIN_PAGE_URI = Uri.parse("page:uri");
+    private Screen ORIGIN_SCREEN = Screen.EXPLORE_TRENDING_MUSIC;
 
     @Mock
     private ScModelManager modelManager;
@@ -68,7 +68,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTrackShouldOpenPlayerActivityWithInitialTrackId() {
-        playbackOperations.playTrack(Robolectric.application, track);
+        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
@@ -80,16 +80,16 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playTrackShouldStartPlaybackServiceWithPlayQueueFromInitialTrack() {
-        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_PAGE_URI);
+        playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_PAGE_URI), track.getId());
+        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.toUri()), track.getId());
     }
 
     @Test
     public void playFromUriShouldOpenPlayerActivityWithInitialTrackId() {
         playbackOperations = new PlaybackOperations(modelManager, new TrackStorage());
-        playbackOperations.playFromPlaylist(Robolectric.application, Content.ME_LIKES.uri, 0, track);
+        playbackOperations.playFromPlaylist(Robolectric.application, Content.ME_LIKES.uri, 0, track, Screen.YOUR_LIKES);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
@@ -105,10 +105,10 @@ public class PlaybackOperationsTest {
         Playlist playlist = TestHelper.createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
         playbackOperations = new PlaybackOperations(modelManager, new TrackStorage().<TrackStorage>subscribeOn(Schedulers.immediate()));
-        playbackOperations.playFromPlaylist(Robolectric.application, playlist.toUri(), 1, tracks.get(1), ORIGIN_PAGE_URI);
+        playbackOperations.playFromPlaylist(Robolectric.application, playlist.toUri(), 1, tracks.get(1), ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_PAGE_URI, playlist.getId()),
+        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.toUri(), playlist.getId()),
                 tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
     }
 
@@ -116,10 +116,10 @@ public class PlaybackOperationsTest {
     public void playFromAdapterShouldRemoveDuplicates() throws Exception {
         ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L), new Track(3L), new Track(2L), new Track(1L));
 
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 4, null, ORIGIN_PAGE_URI);
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 4, null, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_PAGE_URI), 2L, 3L, 1L);
+        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_SCREEN.toUri()), 2L, 3L, 1L);
 
     }
 
@@ -135,7 +135,7 @@ public class PlaybackOperationsTest {
     @Test
     public void playFromAdapterShouldOpenPlayerActivityWithInitialTrackFromPosition() throws Exception {
         ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null); // clicked 2nd track
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, Screen.SIDE_MENU_STREAM); // clicked 2nd track
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
@@ -149,20 +149,20 @@ public class PlaybackOperationsTest {
     public void playFromAdapterShouldStartPlaybackServiceWithListOfTracks() throws Exception {
         ArrayList<Track> playables = Lists.newArrayList(new Track(1L), new Track(2L));
 
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_PAGE_URI);
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_PAGE_URI), 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.toUri()), 1L, 2L);
     }
 
     @Test
     public void playFromAdapterShouldIgnoreItemsThatAreNotTracks() throws Exception {
         List<Playable> playables = Lists.newArrayList(new Track(1L), new Playlist(), new Track(2L));
 
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, null, ORIGIN_PAGE_URI);
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, null, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_PAGE_URI), 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.toUri()), 1L, 2L);
     }
 
     @Test
@@ -171,10 +171,10 @@ public class PlaybackOperationsTest {
         final ArrayList<Long> value = Lists.newArrayList(5L, 1L, 2L);
 
         when(trackStorage.getTrackIdsForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.<List<Long>>just(value));
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri, ORIGIN_PAGE_URI);
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_PAGE_URI), 5L, 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_SCREEN.toUri()), 5L, 1L, 2L);
     }
 
 
@@ -183,7 +183,7 @@ public class PlaybackOperationsTest {
         final Playlist playlist = new Playlist(1L);
         List<Playable> playables = Lists.newArrayList(new Track(1L), playlist, new Track(2L));
 
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null);
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
@@ -196,7 +196,7 @@ public class PlaybackOperationsTest {
     @Test(expected = AssertionError.class)
     public void playFromAdapterShouldThrowAssertionErrorWhenPositionGreaterThanSize() throws Exception {
         List<Playable> playables = Lists.<Playable>newArrayList(track);
-        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, Content.ME_LIKES.uri);
+        playbackOperations.playFromAdapter(Robolectric.application, playables, 1, Content.ME_LIKES.uri, ORIGIN_SCREEN);
     }
 
     @Test

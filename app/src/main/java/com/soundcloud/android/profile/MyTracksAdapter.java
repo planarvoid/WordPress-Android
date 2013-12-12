@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.creators.record.RecordActivity;
@@ -160,7 +161,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     }
 
     @Override
-    public int handleListItemClick(Context context, int position, long id) {
+    public int handleListItemClick(Context context, int position, long id, Screen screen) {
         if (getItemViewType(position) == TYPE_PENDING_RECORDING){
             final Recording r = (Recording) getItem(position);
             if (r.upload_status == Recording.Status.UPLOADING) {
@@ -169,7 +170,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
                 context.startActivity(new Intent(context,(r.external_upload ? UploadActivity.class : RecordActivity.class)).setData(r.toUri()));
             }
         } else {
-            mPlaybackOperations.playFromAdapter(context, mData, position - mRecordingData.size(), mContentUri);
+            mPlaybackOperations.playFromAdapter(context, mData, position - mRecordingData.size(), mContentUri, screen);
         }
         return ItemClickResults.LEAVING;
     }

@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics;
 
+import com.soundcloud.android.events.PlaybackEventData;
+
 /**
  * Implementations of this interface will be sending information to a specific analytics provider
  */
@@ -30,4 +32,11 @@ interface AnalyticsProvider {
      * @param screenTag the tag under which to track the screen
      */
     void trackScreen(String screenTag);
+
+    /**
+     * Signals to the analytics provider that a playback event has occurred
+     *
+     * @param eventData what the playback event consisted of
+     */
+    void trackPlaybackEvent(PlaybackEventData eventData);
 }

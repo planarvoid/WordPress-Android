@@ -1,5 +1,6 @@
 package com.soundcloud.android.search;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.ScResource;
@@ -62,15 +63,14 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
     }
 
     @Override
-    public int handleListItemClick(Context context, int position, long id) {
+    public int handleListItemClick(Context context, int position, long id, Screen screen) {
         int type = getItemViewType(position);
-        switch (type) {
-            case TYPE_TRACK:
-                mPlaybackOperations.playFromAdapter(context, mData, position, null);
-                return ItemClickResults.LEAVING;
-            case TYPE_USER:
-                context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, getItem(position)));
-                return ItemClickResults.LEAVING;
+        if (type == TYPE_TRACK) {
+            mPlaybackOperations.playFromAdapter(context, mData, position, null, screen);
+            return ItemClickResults.LEAVING;
+        } else if (type == TYPE_USER) {
+            context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, getItem(position)));
+            return ItemClickResults.LEAVING;
         }
         return ItemClickResults.IGNORE;
     }

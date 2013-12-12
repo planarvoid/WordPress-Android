@@ -13,6 +13,8 @@ import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackModule;
@@ -26,13 +28,9 @@ import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tasks.FetchModelTask;
-import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
-import com.soundcloud.android.tracking.eventlogger.Action;
-import com.soundcloud.android.tracking.eventlogger.PlayEventTracker;
-import com.soundcloud.android.tracking.eventlogger.PlayEventTrackingApi;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -127,9 +125,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     @Inject
-    public PlayQueueManager mPlayQueueManager;
+    PlayQueueManager mPlayQueueManager;
     @Inject
-    public PlaybackOperations mPlaybackOperations;
+    PlaybackOperations mPlaybackOperations;
+    @Inject
+    AnalyticsEngine mAnalyticsEngine;
 
     // private stuff
     private static final int TRACK_ENDED      = 1;
@@ -192,16 +192,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private Notification status;
     private PlaybackReceiver mIntentReceiver;
 
-    // for play duration tracking
-    private PlayEventTracker mPlayEventTracker;
-
-    private AnalyticsEngine mAnalyticsEngine;
     private String mCurrentEventLoggerParams;
     private TrackCompletionListener mCompletionListener;
-
-    public PlayEventTracker getPlayEventTracker() {
-        return mPlayEventTracker;
-    }
 
     public interface PlayExtras{
         String track = Track.EXTRA;
@@ -237,9 +229,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         mAssociationManager = new AssociationManager(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        mPlayEventTracker = new PlayEventTracker(this, new PlayEventTrackingApi(getString(R.string.app_id)));
         mOldCloudApi = new PublicApi(this);
-        mAnalyticsEngine = AnalyticsEngine.getInstance(this);
         mAccountOperations = new AccountOperations(this);
         mIntentReceiver = new PlaybackReceiver(this, mAssociationManager, mAudioManager, mPlayQueueManager);
 
@@ -278,7 +268,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mPlayerHandler.removeCallbacksAndMessages(null);
-        mPlayEventTracker.stop();
+
+        Event.PLAYBACK_SERVICE_DESTROYED.publish();
 
         mFocus.abandonMusicFocus(false);
         unregisterReceiver(mIntentReceiver);
@@ -377,6 +368,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         stop();
         mCurrentTrack = null;
         mAppWidgetProvider.notifyChange(this, new Intent(Broadcasts.RESET_ALL));
+        mFocus.abandonMusicFocus(false); // kills lockscreen
     }
 
     public void saveProgressAndStop() {
@@ -554,14 +546,19 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
     }
 
-    private void trackPlayEvent(Track newTrack) {
+    private void trackPlayEvent() {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(newTrack, Action.PLAY, userId, mCurrentEventLoggerParams);
+        final PlaybackEventData eventData = PlaybackEventData.forPlay(mCurrentTrack, userId, mCurrentEventLoggerParams);
+
+        Event.PLAYBACK.publish(eventData);
     }
 
     private void trackStopEvent() {
         final long userId = SoundCloudApplication.getUserId();
-        mPlayEventTracker.trackEvent(mCurrentTrack, Action.STOP, userId, mCurrentEventLoggerParams);
+        final PlaybackEventData eventData = PlaybackEventData.forStop(mCurrentTrack, userId, mCurrentEventLoggerParams);
+
+        Event.PLAYBACK.publish(eventData);
+
     }
 
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
@@ -704,7 +701,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 notifyChange(Broadcasts.PLAYSTATE_CHANGED);
                 if (!Consts.SdkSwitches.useRichNotifications) setPlayingNotification(mCurrentTrack);
 
-                trackPlayEvent(mCurrentTrack);
+                trackPlayEvent();
                 mAnalyticsEngine.openSessionForPlayer();
 
             } else if (mPlaybackState != PlaybackState.PLAYING) {
@@ -1218,7 +1215,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     } else {
                         // still playing back, set proper state after buffering state
                         mPlaybackState = PlaybackState.PLAYING;
-                        trackPlayEvent(mCurrentTrack);
+                        trackPlayEvent();
                     }
                     notifyChange(Broadcasts.BUFFERING_COMPLETE);
                     break;
@@ -1350,7 +1347,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
     };
 
-    public void track(Event event, Object... args) {
+    public void track(com.soundcloud.android.tracking.Event event, Object... args) {
         getTracker().track(event, args);
     }
 

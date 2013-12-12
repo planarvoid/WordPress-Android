@@ -1,5 +1,6 @@
 package com.soundcloud.android.associations;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Friend;
@@ -22,7 +23,7 @@ public class FriendAdapter extends ScBaseAdapter<Friend> implements FollowingOpe
     }
 
     @Override
-    public int handleListItemClick(Context context, int position, long id) {
+    public int handleListItemClick(Context context, int position, long id, Screen screen) {
         context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, getItem(position).user));
         return ItemClickResults.LEAVING;
     }

@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
@@ -81,20 +82,15 @@ public class PlaybackOperations {
     /**
      * Single play, the tracklist will be of length 1
      */
-    @Deprecated
-    public void playTrack(Context context, Track track) {
-        playTrack(context, track, TEMP_ORIGIN);
-    }
-
-    public void playTrack(Context context, Track track, Uri pageOrigin) {
-        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(pageOrigin));
+    public void playTrack(Context context, Track track, Screen screen) {
+        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(screen.toUri()));
     }
 
     /**
      * Created by anything played from the {@link com.soundcloud.android.explore.ExploreFragment} section.
      */
-    public void playExploreTrack(Context context, Track track, String exploreTag, Uri originPage) {
-        playTrack(context, track, new PlaySessionSource(originPage, exploreTag));
+    public void playExploreTrack(Context context, Track track, String exploreTag, String screenTag) {
+        playTrack(context, track, new PlaySessionSource(Uri.parse(screenTag), exploreTag));
     }
 
 
@@ -108,22 +104,12 @@ public class PlaybackOperations {
      * From a uri with an initial track to show while loading the full playlist from the DB.
      * Used in {@link com.soundcloud.android.playlists.PlaylistTracksFragment}
      */
-    @Deprecated
-    public void playFromPlaylist(Context context, Uri uri, int startPosition, Track initialTrack) {
-        playFromPlaylist(context, uri, startPosition, initialTrack, TEMP_ORIGIN);
-    }
-
-    public void playFromPlaylist(Context context, Uri uri, int startPosition, Track initialTrack, Uri originPage) {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(originPage, UriUtils.getLastSegmentAsLong(uri));
+    public void playFromPlaylist(Context context, Uri uri, int startPosition, Track initialTrack, Screen screen) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen.toUri(), UriUtils.getLastSegmentAsLong(uri));
         playFromUri(context, uri, startPosition, initialTrack, playSessionSource);
     }
 
-    @Deprecated
-    public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri) {
-        playFromAdapter(context, data, position, uri, TEMP_ORIGIN);
-    }
-
-    public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri, Uri originPage) {
+    public void playFromAdapter(Context context, List<? extends ScModel> data, int position, Uri uri, Screen screen) {
         if (position >= data.size() || !(data.get(position) instanceof PlayableHolder)) {
             throw new AssertionError("Invalid item " + position + ", must be a playable");
         }
@@ -131,7 +117,7 @@ public class PlaybackOperations {
         Playable playable = ((PlayableHolder) data.get(position)).getPlayable();
         if (playable instanceof Track) {
 
-            final PlaySessionSource playSessionSource = new PlaySessionSource(originPage);
+            final PlaySessionSource playSessionSource = new PlaySessionSource(screen.toUri());
             final int adjustedPosition = Collections2.filter(data.subList(0, position), PLAYABLE_HOLDER_PREDICATE).size();
 
             if (uri != null){
@@ -196,7 +182,7 @@ public class PlaybackOperations {
         return (PlaybackService.getCurrentTrackId() != track.getId());
     }
 
-    private Intent getPlayIntent(final List<Long> trackList, int startPosition,
+    public Intent getPlayIntent(final List<Long> trackList, int startPosition,
                                          PlaySessionSource playSessionSource) {
 
         final Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);

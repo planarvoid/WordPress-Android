@@ -15,12 +15,12 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.record.SoundRecorder;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
-import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -526,14 +526,17 @@ public class ProfileActivity extends ScActivity implements
             } else {
                 Content content;
                 Uri contentUri;
+                Screen screen;
                 if (isLoggedInUser()) {
                     content = currentTab.youContent;
                     contentUri = content.uri;
+                    screen = currentTab.youScreen;
                 } else {
                     content = currentTab.userContent;
                     contentUri = content.forId(mUser.getId());
+                    screen = currentTab.userScreen;
                 }
-                ScListFragment listFragment = ScListFragment.newInstance(contentUri);
+                ScListFragment listFragment = ScListFragment.newInstance(contentUri, screen);
                 listFragment.setEmptyViewFactory(new EmptyListViewFactory().forContent(ProfileActivity.this, contentUri, mUser));
                 return listFragment;
             }

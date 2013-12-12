@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics;
 
+import android.net.Uri;
+
 import java.util.Locale;
 
 public enum Screen {
@@ -40,6 +42,7 @@ public enum Screen {
     // player screens
     PLAYER_MAIN("tracks:main"),
     PLAYER_INFO("tracks:info"),
+
     PLAYER_LIKES("tracks:likes"),
     PLAYER_REPOSTS("tracks:reposts"),
     PLAYER_COMMENTS("tracks:comments"),
@@ -77,7 +80,12 @@ public enum Screen {
     SETTINGS_MAIN("settings:main"),
     SETTINGS_CHANGE_LOG("settings:change_log"),
     SETTINGS_NOTIFICATIONS("settings:notification_settings"),
-    SETTINGS_ACCOUNT("settings:account_sync_settings");
+    SETTINGS_ACCOUNT("settings:account_sync_settings"),
+
+    // context provided when we intercept a track
+    DEEPLINK("deeplink");
+
+    public static final String EXTRA = "Screen";
 
     private Screen(String trackingTag) {
         mTag = trackingTag;
@@ -89,6 +97,10 @@ public enum Screen {
 
     public String get(String postfix) {
         return new StringBuilder(mTag).append(":").append(postfix.toLowerCase(Locale.US).replaceAll(" ", "_")).toString();
+    }
+
+    public Uri toUri() {
+        return Uri.parse(mTag);
     }
 
     private String mTag;

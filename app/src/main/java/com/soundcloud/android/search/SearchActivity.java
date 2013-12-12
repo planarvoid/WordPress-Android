@@ -182,7 +182,7 @@ public class SearchActivity extends ScActivity {
             case SPINNER_POS_ALL:
                 return Search.forAll(query);
             case SPINNER_POS_SOUNDS:
-                return Search.forSounds(query);
+                return Search.forTracks(query);
             case SPINNER_POS_USERS:
                 return Search.forUsers(query);
             case SPINNER_POS_PLAYLISTS:
@@ -198,7 +198,7 @@ public class SearchActivity extends ScActivity {
         mTxtQuery.setText(search.query);
 
         switch (search.search_type) {
-            case Search.SOUNDS:
+            case Search.TRACKS:
                 mSpinner.setSelection(SPINNER_POS_SOUNDS);
                 track(Page.Search_results__sounds__keyword, search.query);
                 break;

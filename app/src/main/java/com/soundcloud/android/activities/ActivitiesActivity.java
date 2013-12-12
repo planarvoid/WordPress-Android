@@ -16,7 +16,7 @@ public class ActivitiesActivity extends ScActivity {
 
         if (state == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(getContentHolderViewId(), ScListFragment.newInstance(Content.ME_ACTIVITIES)).commit();
+                    .add(getContentHolderViewId(), ScListFragment.newInstance(Content.ME_ACTIVITIES, Screen.ACTIVITIES)).commit();
         }
     }
 

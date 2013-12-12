@@ -24,14 +24,14 @@ import java.util.Date;
  */
 public class UserAssociation extends Association implements UserHolder {
 
-    public static Function<UserAssociation, String> TO_TOKEN_FUNCTION = new Function<UserAssociation, String>(){
+    public static final Function<UserAssociation, String> TO_TOKEN_FUNCTION = new Function<UserAssociation, String>(){
         @Override
         public String apply(UserAssociation input) {
             return input.getToken();
         }
     };
 
-    public static Predicate<UserAssociation> HAS_TOKEN_PREDICATE = new Predicate<UserAssociation>(){
+    public static final Predicate<UserAssociation> HAS_TOKEN_PREDICATE = new Predicate<UserAssociation>(){
         @Override
         public boolean apply(UserAssociation input) {
             return input.hasToken();

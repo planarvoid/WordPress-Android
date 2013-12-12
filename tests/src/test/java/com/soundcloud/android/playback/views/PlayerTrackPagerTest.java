@@ -5,6 +5,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+
 import com.soundcloud.android.playback.PlayerTrackPagerAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -15,14 +18,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observer;
 
-import android.support.v4.view.PagerAdapter;
-
 @RunWith(SoundCloudTestRunner.class)
 public class PlayerTrackPagerTest {
 
     PlayerTrackPager playerTrackPager;
     @Mock
-    PlayerTrackPager.OnPageChangeListener pageListener;
+    ViewPager.OnPageChangeListener pageListener;
     @Mock
     Observer<String> observer;
 
@@ -61,4 +62,5 @@ public class PlayerTrackPagerTest {
         expect(playerTrackPager.next()).toBeFalse();
         verifyZeroInteractions(pageListener);
     }
+
 }

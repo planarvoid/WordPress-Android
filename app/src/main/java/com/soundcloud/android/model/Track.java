@@ -531,10 +531,6 @@ public class Track extends Playable implements PlayableHolder {
 
     @Override
     public Intent getViewIntent() {
-        return getPlayIntent();
-    }
-
-    public Intent getPlayIntent() {
         return new Intent(Actions.PLAY).putExtra(EXTRA, this);
     }
 

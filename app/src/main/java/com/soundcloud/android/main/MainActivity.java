@@ -20,7 +20,7 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.EmailConfirmationActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.rx.Event;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.rx.RxModule;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.storage.StorageModule;
@@ -235,7 +235,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private void displayPlaylists() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(PLAYLISTS_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists);
+            fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists, Screen.SIDE_MENU_PLAYLISTS);
         }
         attachFragment(fragment, PLAYLISTS_FRAGMENT_TAG, R.string.side_menu_playlists);
     }
@@ -243,7 +243,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
     private void displayLikes() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(LIKES_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes);
+            fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes, Screen.SIDE_MENU_LIKES);
         }
         attachFragment(fragment, LIKES_FRAGMENT_TAG, R.string.side_menu_likes);
     }
@@ -263,7 +263,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
                         .appendQueryParameter(Consts.Keys.ONBOARDING, Consts.StringValues.ERROR).build();
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(STREAM_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream);
+            fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream, Screen.SIDE_MENU_STREAM);
         }
 
         attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);

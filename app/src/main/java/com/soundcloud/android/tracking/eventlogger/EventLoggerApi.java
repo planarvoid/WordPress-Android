@@ -1,39 +1,55 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.ACTION;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOUND_DURATION;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOUND_URN;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.SOURCE_INFO;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.TIMESTAMP;
-import static com.soundcloud.android.tracking.eventlogger.PlayEventTracker.TrackingEvents.USER_URN;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.ACTION;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.SOUND_DURATION;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.SOUND_URN;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.SOURCE_INFO;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.TIMESTAMP;
+import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.USER_URN;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.integralblue.httpresponsecache.compat.Charsets;
+import com.soundcloud.android.R;
+import com.soundcloud.android.api.http.HttpURLConnectionFactory;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 import android.util.Pair;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayEventTrackingApi {
+public class EventLoggerApi {
 
-    private static final String TAG = PlayEventTrackingApi.class.getSimpleName();
+    private static final String TAG = EventLoggerApi.class.getSimpleName();
     private static final String ENDPOINT = "http://eventlogger.soundcloud.com/audio";
-    private static final int READ_TIMEOUT = 5 * 1000;
-    private static final int CONNECT_TIMEOUT = 10 * 1000;
+
+    static final int READ_TIMEOUT = 5 * 1000;
+    static final int CONNECT_TIMEOUT = 10 * 1000;
 
     private final String mAppId;
+    private final String mUniqueDeviceId;
+    private final HttpURLConnectionFactory mHttpURLConnectionFactory;
 
-    public PlayEventTrackingApi(String appId) {
+    @Inject
+    EventLoggerApi(Context context, HttpURLConnectionFactory httpURLConnectionFactory) {
+        this(context.getResources().getString(R.string.app_id), AndroidUtils.getUniqueDeviceID(context), httpURLConnectionFactory);
+    }
+
+    @VisibleForTesting
+    EventLoggerApi(String appId, String uniqueDeviceId, HttpURLConnectionFactory httpURLConnectionFactory) {
         mAppId = appId;
+        mUniqueDeviceId = uniqueDeviceId;
+        mHttpURLConnectionFactory = httpURLConnectionFactory;
     }
 
     /**
@@ -52,8 +68,7 @@ public class PlayEventTrackingApi {
             try {
                 final String url = urlPair.second;
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "logging "+url);
-                connection = (HttpURLConnection) new URL(url).openConnection();
-
+                connection = mHttpURLConnectionFactory.create(url);
                 connection.setRequestMethod("HEAD");
                 connection.setConnectTimeout(CONNECT_TIMEOUT);
                 connection.setReadTimeout(READ_TIMEOUT);
@@ -91,6 +106,7 @@ public class PlayEventTrackingApi {
         sb.append("&sound=").append(URLEncoder.encode(soundUrn, Charsets.UTF_8.name()));
         long soundDuration = trackingData.getLong(trackingData.getColumnIndex(SOUND_DURATION));
         sb.append("&duration=").append(soundDuration);
+        sb.append("&anonymous_id=").append(mUniqueDeviceId);
         String sourceInfo = trackingData.getString(trackingData.getColumnIndex(SOURCE_INFO));
         if (ScTextUtils.isNotBlank(sourceInfo)){
             sb.append("&").append(sourceInfo);

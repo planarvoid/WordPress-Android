@@ -1,14 +1,8 @@
 package com.soundcloud.android.explore;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
+import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
@@ -18,9 +12,9 @@ import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
-import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.rx.observers.ListFragmentObserver;
 import com.soundcloud.android.view.EmptyListView;
@@ -30,10 +24,17 @@ import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 
-import javax.inject.Inject;
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
-import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
-import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
+import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
 public class ExploreGenresFragment extends Fragment implements AdapterView.OnItemClickListener, EmptyViewAware {
@@ -86,6 +87,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         Event.SCREEN_ENTERED.publish(view.getTag());
 
         intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
+        intent.putExtra(ExploreTracksCategoryActivity.SCREEN_TAG_EXTRA, view.getTag().toString());
         startActivity(intent);
     }
 

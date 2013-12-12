@@ -3,6 +3,7 @@ package com.soundcloud.android.rx;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,15 @@ public class EventTest {
     }
 
     @Test
+    public void shouldPublishVoidEventToRegisteredObserver() {
+        Event.TEST_VOID_EVENT.subscribe(observer);
+
+        Event.TEST_VOID_EVENT.publish();
+
+        verify(observer).onNext(null);
+    }
+
+    @Test
     public void shouldNotPublishEventIfObserverHasUnsubscribed() {
         Subscription subscription = Event.TEST_EVENT.subscribe(observer);
 
@@ -44,5 +54,17 @@ public class EventTest {
     public void shouldRaiseExceptionWhenTryingToPublishUnsupportedEventData() {
         Event.TEST_EVENT.subscribe(observer);
         Event.TEST_EVENT.publish(1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldRaiseExceptionWhenTryingToPublishVoidToEventWithDataType() {
+        Event.TEST_EVENT.subscribe(observer);
+        Event.TEST_EVENT.publish();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldRaiseExceptionWhenTryingToPublishWithDataToVoidEvent() {
+        Event.TEST_VOID_EVENT.subscribe(observer);
+        Event.TEST_VOID_EVENT.publish(1);
     }
 }

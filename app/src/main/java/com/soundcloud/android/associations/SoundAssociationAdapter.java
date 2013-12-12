@@ -1,5 +1,6 @@
 package com.soundcloud.android.associations;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.SoundAssociation;
 import com.soundcloud.android.storage.provider.Content;
@@ -25,9 +26,9 @@ public class SoundAssociationAdapter extends ScBaseAdapter<SoundAssociation> {
     }
 
     @Override
-    public int handleListItemClick(Context context, int position, long id) {
+    public int handleListItemClick(Context context, int position, long id, Screen screen) {
         Uri streamUri = Content.match(mContentUri).isMine() ? mContentUri : null;
-        mPlaybackOperations.playFromAdapter(context, mData, position, streamUri);
+        mPlaybackOperations.playFromAdapter(context, mData, position, streamUri, screen);
         return ItemClickResults.LEAVING;
     }
 

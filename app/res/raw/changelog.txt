@@ -1,3 +1,10 @@
+$ 76
+  % v 2.7.4
+  _ 2013-12-9
+  ! Maintenance
+    * Fixed recording crash when recording after editing
+    * Properly dropping audio focus on logout
+
 $ 75
   % v 2.7.3
   _ 2013-12-02

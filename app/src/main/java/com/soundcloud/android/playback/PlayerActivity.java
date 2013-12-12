@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -18,7 +19,6 @@ import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playback.views.PlayerTrackView;
-import com.soundcloud.android.rx.Event;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.playback.service.PlaybackState;
@@ -28,6 +28,7 @@ import com.soundcloud.android.playback.views.PlayerTrackDetailsLayout;
 import com.soundcloud.android.playback.views.PlayerTrackPager;
 import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.tracking.Media;
+import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -68,6 +69,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     PlaybackService mPlaybackService;
     private int mPendingPlayPosition = -1;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
+    private PlaybackOperations mPlaybackOperations;
 
 
     @NotNull
@@ -88,6 +90,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         setContentView(R.layout.player_activity);
 
         setTitle(R.string.title_now_playing);
+
+        mPlaybackOperations = new PlaybackOperations();
 
         mTrackPager = (PlayerTrackPager) findViewById(R.id.track_view);
         mTrackPager.setPageMarginDrawable(R.drawable.track_view_separator);
@@ -306,8 +310,11 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         if (Intent.ACTION_VIEW.equals(action)) {
             // Play from a View Intent, this probably came from quicksearch
             if (intent.getData() != null) {
-                playQueue = new PlayQueueView(UriUtils.getLastSegmentAsLong(intent.getData()));
-                startService(new Intent(PlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueueView.EXTRA, playQueue));
+                final long id = UriUtils.getLastSegmentAsLong(intent.getData());
+                playQueue = new PlayQueueView(id);
+
+                PlaySessionSource playSessionSource = getPlaySessionSourceFromIntent(intent);
+                startService(mPlaybackOperations.getPlayIntent(Lists.newArrayList(id), 0, playSessionSource));
             }
 
         } else if (intent.hasExtra(Track.EXTRA_ID)) {
@@ -319,10 +326,19 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             playQueue = new PlayQueueView(Lists.newArrayList(track.getId()), 0);
 
             if (Actions.PLAY.equals(action)){
-                startService(new Intent(PlaybackService.Actions.PLAY_ACTION).putExtra(PlayQueueView.EXTRA, playQueue));
+                PlaySessionSource playSessionSource = getPlaySessionSourceFromIntent(intent);
+                startService(mPlaybackOperations.getPlayIntent(Lists.newArrayList(track.getId()), 0, playSessionSource));
             }
         }
         return playQueue;
+    }
+
+    private PlaySessionSource getPlaySessionSourceFromIntent(Intent intent) {
+        if (intent.hasExtra(Screen.EXTRA)){
+            return new PlaySessionSource(Uri.parse(intent.getStringExtra(Screen.EXTRA)));
+        } else {
+            return new PlaySessionSource(Screen.DEEPLINK.toUri());
+        }
     }
 
     @Override

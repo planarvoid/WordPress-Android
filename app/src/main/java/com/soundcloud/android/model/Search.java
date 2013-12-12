@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.api.Request;
 
@@ -7,7 +8,7 @@ import android.text.TextUtils;
 
 public class Search {
     public static final int ALL = 0;
-    public static final int SOUNDS = 1;
+    public static final int TRACKS = 1;
     public static final int USERS  = 2;
     public static final int PLAYLISTS = 3;
 
@@ -25,8 +26,8 @@ public class Search {
             return new Search(query, ALL);
     }
 
-    public static Search forSounds(String query) {
-        return new Search(query, SOUNDS);
+    public static Search forTracks(String query) {
+        return new Search(query, TRACKS);
     }
 
     public static Search forPlaylists(String query) {
@@ -47,7 +48,7 @@ public class Search {
             case USERS:
                 path = TempEndpoints.USER_SEARCH;
                 break;
-            case SOUNDS:
+            case TRACKS:
                 path = TempEndpoints.TRACK_SEARCH;
                 break;
             case PLAYLISTS:
@@ -57,6 +58,19 @@ public class Search {
                 path = TempEndpoints.SEARCH;
         }
         return Request.to(path).with("q", query);
+    }
+
+    public Screen getScreen(){
+        switch (search_type){
+            case USERS:
+                return Screen.SEARCH_USERS;
+            case TRACKS:
+                return Screen.SEARCH_TRACKS;
+            case PLAYLISTS:
+                return Screen.SEARCH_PLAYLISTS;
+            default:
+                return Screen.SEARCH_EVERYTHING;
+        }
     }
 
     @SuppressWarnings("RedundantIfStatement")

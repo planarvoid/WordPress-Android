@@ -1,5 +1,6 @@
 package com.soundcloud.android.search;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.storage.provider.Content;
@@ -29,6 +30,11 @@ public class SearchFragment extends ScListFragment {
             mCurrentSearch = currentSearch;
             reset();
         }
+    }
+
+    @Override
+    protected Screen getScreen() {
+        return mCurrentSearch.getScreen();
     }
 
     @Override

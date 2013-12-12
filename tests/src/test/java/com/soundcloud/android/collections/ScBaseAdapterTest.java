@@ -2,6 +2,7 @@ package com.soundcloud.android.collections;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Shortcut;
@@ -37,7 +38,7 @@ public class ScBaseAdapterTest {
             }
 
             @Override
-            public int handleListItemClick(Context context, int position, long id) {
+            public int handleListItemClick(Context context, int position, long id, Screen screen) {
                 return ItemClickResults.IGNORE;
             }
         };
