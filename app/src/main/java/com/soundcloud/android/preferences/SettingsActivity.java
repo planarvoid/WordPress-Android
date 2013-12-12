@@ -294,8 +294,6 @@ public class SettingsActivity extends PreferenceActivity {
 
     @TargetApi(11)
     public static AlertDialog createLogoutDialog(Activity activity) {
-        final SoundCloudApplication app = (SoundCloudApplication) activity.getApplication();
-
         return new AlertDialog.Builder(activity).setTitle(R.string.menu_clear_user_title)
                 .setMessage(R.string.menu_clear_user_desc)
                 .setPositiveButton(android.R.string.ok,

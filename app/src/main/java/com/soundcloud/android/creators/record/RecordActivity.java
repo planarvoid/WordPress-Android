@@ -79,8 +79,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         DISCARD_RECORDING, UNSAVED_RECORDING, DELETE_RECORDING, REVERT_RECORDING;
     }
 
-
-
     public enum CreateState {
         GENERATING_WAVEFORM,
         IDLE_RECORD,
@@ -93,12 +91,14 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         public boolean isEdit() { return this == EDIT || this == EDIT_PLAYBACK; }
 
     }
+
     static interface MenuItems {
 
         int RESET = 1;
         int DELETE = 2;
         int SAVE = 3;
     }
+
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -293,7 +293,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             public void onClick(View v) {
                 final Recording rec = mRecorder.saveState();
                 if (rec != null) {
-                    final PlaybackStream ps = rec.getPlaybackStream();
                     if (mCurrentState.isEdit()) {
                         updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                     } else {

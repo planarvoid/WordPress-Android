@@ -112,7 +112,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         setContentView(R.layout.start);
         mOldCloudAPI = new PublicApi(this);
         overridePendingTransition(0, 0);
-        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         mTourBottomBar  = findViewById(R.id.tour_bottom_bar);
         mTourLogo       = findViewById(R.id.tour_logo);

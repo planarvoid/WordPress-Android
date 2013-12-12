@@ -62,7 +62,6 @@ public class SignUpLayout extends AuthLayout {
         super.onFinishInflate();
 
         final Context context = getContext();
-        final SoundCloudApplication app = SoundCloudApplication.fromContext(context);
 
         final AutoCompleteTextView emailField = (AutoCompleteTextView)  findViewById(R.id.auto_txt_email_address);
         final EditText passwordField = (EditText) findViewById(R.id.txt_choose_a_password);

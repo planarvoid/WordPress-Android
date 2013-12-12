@@ -108,7 +108,6 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         }), backStringId).addItem(new ButtonBar.MenuItem(POST, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PlaybackStream ps = mRecording.getPlaybackStream();
                 if (mRecording != null) {
                     saveRecording();
                     mRecording.upload(UploadActivity.this);

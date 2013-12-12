@@ -58,7 +58,6 @@ public class UserDetailsLayout extends RelativeLayout {
         super.onFinishInflate();
 
         final Context context = getContext();
-        final SoundCloudApplication app = SoundCloudApplication.fromContext(context);
 
         final EditText  username   = (EditText)  findViewById(R.id.txt_username);
         final TextView  avatarText = (TextView)  findViewById(R.id.txt_artwork_bg);
