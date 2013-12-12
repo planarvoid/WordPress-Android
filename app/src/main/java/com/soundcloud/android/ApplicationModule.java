@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.model.ScModelManager;
 import dagger.Module;
@@ -65,6 +66,11 @@ public class ApplicationModule {
     @Provides
     public AnalyticsEngine provideAnalyticsEngine(Context context) {
         return AnalyticsEngine.getInstance(context);
+    }
+
+    @Provides
+    public ImageLoader provideImageLoader() {
+        return ImageLoader.getInstance();
     }
 
 }
