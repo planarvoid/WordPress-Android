@@ -6,9 +6,6 @@ import static com.soundcloud.android.SoundCloudApplication.handleSilentException
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +29,6 @@ import android.widget.Toast;
 
 import java.io.File;
 
-@Tracking(page = Page.Entry_signup__details)
 public class UserDetailsLayout extends RelativeLayout {
     private static final String BUNDLE_USERNAME = "BUNDLE_USERNAME";
     private static final String BUNDLE_FILE     = "BUNDLE_FILE";
@@ -89,8 +85,6 @@ public class UserDetailsLayout extends RelativeLayout {
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                app.track(Click.Signup_Signup_details_skip);
-
                 if (getUserDetailsHandler() != null) {
                     getUserDetailsHandler().onSkipDetails();
                 }
@@ -100,8 +94,6 @@ public class UserDetailsLayout extends RelativeLayout {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                app.track(Click.Signup_Signup_details_next);
-
                 if (getUserDetailsHandler() != null) {
                     getUserDetailsHandler().onSubmitDetails(username.getText().toString(), mAvatarFile);
                 }

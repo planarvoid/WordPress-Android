@@ -5,12 +5,10 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import org.jetbrains.annotations.NotNull;
@@ -153,7 +151,6 @@ public class ArtworkTrackView extends PlayerTrackView {
         if (mTrack != null && showDetails && trackFlipper.getDisplayedChild() == 0) {
             mListener.onCloseCommentMode();
 
-            SoundCloudApplication.fromContext(getContext()).track(Page.Sounds_info__main, mTrack);
             mWaveformController.closeComment(false);
             if (mTrackDetailsView == null) {
                 mTrackDetailsView = new PlayerTrackDetailsLayout(getContext());

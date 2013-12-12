@@ -31,8 +31,6 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
@@ -182,16 +180,12 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
         findViewById(R.id.login_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                app.track(Click.Login);
-
                 setState(StartState.LOGIN);
             }
         });
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                app.track(Click.Signup_Signup);
-
                 if (!mApplicationProperties.isDevBuildRunningOnDalvik() && SignupLog.shouldThrottleSignup()) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
                     finish();
@@ -229,7 +223,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     @Override
     protected void onResume() {
         super.onResume();
-        getApp().track(Page.Entry_main);
     }
 
     @Override
@@ -527,29 +520,23 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
 
     @Override
     public void onFacebookAuth() {
-        getApp().track(Click.Login_with_facebook);
         proposeTermsOfUse(SignupVia.FACEBOOK_SSO, null);
     }
 
     @Override
     public void onShowTermsOfUse() {
-        getApp().track(Click.Signup_Signup_terms);
         startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE_URL));
     }
 
     @Override
     public void onShowPrivacyPolicy() {
-        getApp().track(Click.Signup_Signup_privacy);
         startActivity(new Intent(Intent.ACTION_VIEW, PRIVACY_POLICY_URL));
-
     }
 
     @Override
     public void onShowCookiePolicy() {
-        getApp().track(Click.Signup_Signup_cookies);
         startActivity(new Intent(Intent.ACTION_VIEW, COOKIE_POLICY_URL));
     }
-
 
     @Override
     public void onRecover(String email) {
@@ -605,7 +592,6 @@ public class OnboardActivity extends AbstractLoginActivity implements ISimpleDia
     private void onGoogleAccountSelected(String name) {
         // store the last account name in case we have to retry after startActivityForResult with G+ app
         mLastGoogleAccountSelected = name;
-        getApp().track(Click.Login_with_googleplus);
         proposeTermsOfUse(SignupVia.GOOGLE_PLUS, GooglePlusSignInTaskFragment.getParams(name, RequestCodes.SIGNUP_VIA_GOOGLE));
     }
 

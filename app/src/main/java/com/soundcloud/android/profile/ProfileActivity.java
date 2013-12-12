@@ -27,10 +27,6 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchUserTask;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.EventAware;
-import com.soundcloud.android.tracking.Level2;
-import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
@@ -64,7 +60,7 @@ import android.widget.ToggleButton;
 
 public class ProfileActivity extends ScActivity implements
         FollowingOperations.FollowStatusChangedListener,
-        EventAware, ActionBar.OnNavigationListener, FetchModelTask.Listener<User>, ViewPager.OnPageChangeListener {
+        ActionBar.OnNavigationListener, FetchModelTask.Listener<User>, ViewPager.OnPageChangeListener {
 
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER = "user";
@@ -170,7 +166,6 @@ public class ProfileActivity extends ScActivity implements
                     @Override
                     public void onClick(View v) {
                         toggleFollowing(mUser);
-                        getApp().track(mUser.user_following ? Click.Follow : Click.Unfollow, mUser, Level2.Users);
                     }
                 });
             }
@@ -214,7 +209,6 @@ public class ProfileActivity extends ScActivity implements
 
     @Override
     protected void onResume() {
-        trackScreen();
         super.onResume();
     }
 
@@ -301,16 +295,6 @@ public class ProfileActivity extends ScActivity implements
     public void onFollowChanged() {
         mToggleFollow.setChecked(mFollowingOperations.isFollowing(mUser));
         setFollowersMessage();
-    }
-
-    private void trackScreen() {
-        track(getEvent(), mUser);
-    }
-
-    public Page getEvent() {
-        //Tab current = Tab.valueOf(mUserlistBrowser.getCurrentTag());
-        //return isLoggedInUser() ? current.you : current.user;
-        return Page.Users_sounds;
     }
 
     protected boolean isLoggedInUser() {

@@ -23,12 +23,6 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
-import com.soundcloud.android.tracking.ATTracker;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Event;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracker;
-import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
@@ -49,7 +43,7 @@ import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 
-public class SoundCloudApplication extends Application implements ObjectGraphProvider, Tracker {
+public class SoundCloudApplication extends Application implements ObjectGraphProvider {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1000 * 1000; // available mem in bytes
 
@@ -58,8 +52,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     public static SoundCloudApplication instance;
     @Deprecated
     public static ScModelManager MODEL_MANAGER;
-
-    private ATTracker mTracker;
 
     private User mLoggedInUser;
     private AccountOperations accountOperations;
@@ -88,8 +80,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
             setupStrictMode();
         }
 
-        if(analyticsProperties.isAnalyticsEnabled()){
-            mTracker = new ATTracker(this);
+        if (analyticsProperties.isAnalyticsEnabled()){
             Constants.IS_LOGGABLE = appProperties.isDebugBuild();
         }
 
@@ -237,26 +228,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
     public static long getUserId() {
         return instance.getCurrentUserId();
-    }
-
-    /**
-     * To be replaced with Localytics tracking soon
-     */
-    @Deprecated
-    public void track(Event event, Object... args) {
-        if (mTracker != null) mTracker.track(event, args);
-    }
-
-    /**
-     * To be replaced with Localytics tracking soon
-     */
-    @Deprecated
-    public void track(Class<?> klazz, Object... args) {
-        Tracking tracking = klazz.getAnnotation(Tracking.class);
-        if (mTracker != null && tracking != null) {
-            if (tracking.page() != Page.UNKNOWN) track(tracking.page(), args);
-            if (tracking.click() != Click.UNKNOWN) track(tracking.click(), args);
-        }
     }
 
     public static void handleSilentException(@Nullable String message, Throwable e) {

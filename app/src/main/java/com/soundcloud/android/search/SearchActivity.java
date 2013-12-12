@@ -4,8 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.ClearText;
 
 import android.app.SearchManager;
@@ -25,7 +23,6 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-@Tracking(page = Page.Search_main)
 public class SearchActivity extends ScActivity {
 
     private static final int SPINNER_POS_ALL = 0;
@@ -141,7 +138,6 @@ public class SearchActivity extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        track(getClass());
 
         if (mPendingSearch != null) {
             perform(mPendingSearch);
@@ -173,22 +169,18 @@ public class SearchActivity extends ScActivity {
         switch (search.search_type) {
             case Search.TRACKS:
                 mSpinner.setSelection(SPINNER_POS_SOUNDS);
-                track(Page.Search_results__sounds__keyword, search.query);
                 break;
 
             case Search.USERS:
                 mSpinner.setSelection(SPINNER_POS_USERS);
-                track(Page.Search_results__people__keyword, search.query);
                 break;
 
             case Search.PLAYLISTS:
                 mSpinner.setSelection(SPINNER_POS_PLAYLISTS);
-                track(Page.Search_results__playlists__keyword, search.query);
                 break;
 
             default:
                 mSpinner.setSelection(SPINNER_POS_ALL);
-                track(Page.Search_results__all__keyword, search.query);
                 break;
         }
 

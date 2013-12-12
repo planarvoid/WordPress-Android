@@ -26,9 +26,6 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultObserver;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.IOUtils;
@@ -40,7 +37,6 @@ import java.io.File;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-@Tracking(page = Page.Settings_main)
 public class SettingsActivity extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
@@ -79,7 +75,6 @@ public class SettingsActivity extends PreferenceActivity {
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        getApp().track(Page.Settings_account_sync);
                         Intent intent = new Intent(SettingsActivity.this, AccountSettingsActivity.class);
                         startActivity(intent);
                         return true;
@@ -90,7 +85,6 @@ public class SettingsActivity extends PreferenceActivity {
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        getApp().track(Page.Settings_notifications);
                         Intent intent = new Intent(SettingsActivity.this, NotificationSettingsActivity.class);
                         startActivity(intent);
                         return true;
@@ -101,7 +95,6 @@ public class SettingsActivity extends PreferenceActivity {
         findPreference(CHANGE_LOG).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        getApp().track(Page.Settings_change_log);
                         cl.getDialog(true).show();
                         return true;
                     }
@@ -252,7 +245,6 @@ public class SettingsActivity extends PreferenceActivity {
 
     @Override
     protected void onResume() {
-        getApp().track(SettingsActivity.class);
         updateClearCacheTitles();
         super.onResume();
     }
@@ -303,18 +295,11 @@ public class SettingsActivity extends PreferenceActivity {
     @TargetApi(11)
     public static AlertDialog createLogoutDialog(Activity activity) {
         final SoundCloudApplication app = (SoundCloudApplication) activity.getApplication();
-        app.track(Click.Log_out_log_out);
 
         return new AlertDialog.Builder(activity).setTitle(R.string.menu_clear_user_title)
                 .setMessage(R.string.menu_clear_user_desc)
                 .setPositiveButton(android.R.string.ok,
                         new LogoutClickListener(activity))
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        app.track(Click.Log_out_box_cancel);
-                    }
-                })
                 .create();
     }
 
@@ -340,7 +325,6 @@ public class SettingsActivity extends PreferenceActivity {
         public void onClick(final DialogInterface dialog, int whichButton) {
             final ProgressDialog progressDialog = AndroidUtils.showProgress(mActivityContext, R.string.settings_logging_out);
 
-            mSoundCloudApplication.track(Click.Log_out_box_ok);
             mAccountOperations.removeSoundCloudAccount().subscribe(new DefaultObserver<Void>() {
                 @Override
                 public void onCompleted() {

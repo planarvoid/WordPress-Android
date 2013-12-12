@@ -28,9 +28,6 @@ import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.tasks.FetchModelTask;
-import com.soundcloud.android.tracking.Media;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -60,7 +57,7 @@ import android.view.View;
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
-public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
+public class PlaybackService extends Service implements IAudioManager.MusicFocusable {
     public static final String TAG = "CloudPlaybackService";
 
     private static @Nullable
@@ -139,9 +136,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private static final int DUCK             = 5;
     private static final int CLEAR_LAST_SEEK  = 6;
     private static final int STREAM_EXCEPTION = 7;
-    private static final int CHECK_TRACK_EVENT = 8;
-    private static final int NOTIFY_META_CHANGED = 9;
-    private static final int CHECK_BUFFERING   = 10;
+    private static final int NOTIFY_META_CHANGED = 8;
+    private static final int CHECK_BUFFERING   = 9;
 
     private static final int PLAYBACKSERVICE_STATUS_ID = 1;
 
@@ -166,14 +162,12 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private PlaybackProgressInfo mResumeInfo;      // info to resume a previous play session
     private long mSeekPos = -1;         // desired seek position
     private int mConnectRetries = 0;
-    private long mLastRefresh;          // time last refresh hit was sent
 
     private int mServiceStartId = -1;
     private boolean mServiceInUse;
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
     private static final int IDLE_DELAY = 60*1000;  // interval after which we stop the service when idle
-    private static final long CHECK_TRACK_EVENT_DELAY = Media.REFRESH_MIN; // check for track timestamp events at this frequency
 
     private boolean mWaitingForSeek;
 
@@ -198,7 +192,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public interface PlayExtras{
         String track = Track.EXTRA;
         String trackId = Track.EXTRA_ID;
-        String trackingInfo = "tracking_info";
         String trackIdList = "track_id_list";
         String startPosition = "startPosition";
         String playSessionSource = "play_seesion_source";
@@ -217,7 +210,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String isLike = "isLike";
         String isRepost = "isRepost";
     }
-
 
     @Override
     public void onCreate() {
@@ -409,7 +401,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     void onTrackEnded(){
         trackStopEvent();
-        track(Media.fromTrack(mCurrentTrack), Media.Action.Stop);
         mPlayerHandler.sendEmptyMessage(PlaybackService.TRACK_ENDED);
     }
 
@@ -488,24 +479,20 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
     }
 
-    /* package */ void openCurrent() {
-        openCurrent(Media.Action.Stop);
-    }
-
     // TODO : Handle tracks that are not in local storage (quicksearch)
-    /* package */ void openCurrent(final Media.Action action) {
+    /* package */ void openCurrent() {
         if (!getPlayQueueInternal().isEmpty()){
             final long currentTrackId = getPlayQueueInternal().getCurrentTrackId();
             mPlaybackOperations.loadTrack(currentTrackId).subscribe(new DefaultObserver<Track>() {
                 @Override
                 public void onNext(Track track) {
-                    openCurrent(track, action);
+                    openCurrent(track);
                 }
             });
         }
     }
 
-    /* package */ void openCurrent(Track track, Media.Action action) {
+    /* package */ void openCurrent(Track track) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "openCurrent(state="+ mPlaybackState +")");
         }
@@ -524,7 +511,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 if (isMediaPlayerPlaying()) {
                     trackStopEvent(); // track stop event for previous track, if any
                 }
-                track(Media.fromTrack(mCurrentTrack), action);
 
                 mCurrentTrack = track;
                 // we have to cache these so we can properly deliver stop events after playqueue changes
@@ -604,8 +590,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     private void startTrack(Track track) {
-        track(Page.Sounds_main, track);
-
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "startTrack("+track.title+")");
         }
@@ -623,7 +607,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     releaseMediaPlayer(true);
                     break;
                 case PLAYING:
-                    mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
                     try {
                         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.stop");
                         mMediaPlayer.stop();
@@ -687,8 +670,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         if (mPlaybackState.isSupposedToBePlaying()) return;
 
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state=" + mPlaybackState + ")");
-        track(Media.fromTrack(mCurrentTrack), Media.Action.Play);
-        mLastRefresh = System.currentTimeMillis();
 
         if (mCurrentTrack != null && mFocus.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
             if (mMediaPlayer != null && mPlaybackState.isStartable()) {
@@ -696,8 +677,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.start");
                 mMediaPlayer.start();
                 mPlaybackState = PlaybackState.PLAYING;
-                mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
                 notifyChange(Broadcasts.PLAYSTATE_CHANGED);
                 if (!Consts.SdkSwitches.useRichNotifications) setPlayingNotification(mCurrentTrack);
 
@@ -719,7 +698,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         if (!mPlaybackState.isSupposedToBePlaying()) return;
 
         trackStopEvent();
-        track(Media.fromTrack(mCurrentTrack), Media.Action.Pause);
 
         safePause();
         notifyChange(Broadcasts.PLAYSTATE_CHANGED);
@@ -774,7 +752,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         mPlaybackState = newPlaybackState;
         mPlayerHandler.removeMessages(FADE_OUT);
         mPlayerHandler.removeMessages(FADE_IN);
-        mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
         scheduleServiceShutdownCheck();
 
         if (Consts.SdkSwitches.useRichNotifications && mCurrentTrack != null && mPlaybackState != PlaybackState.STOPPED){
@@ -788,7 +765,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     /* package */ boolean prev() {
         if (getPlayQueueInternal().moveToPrevious()) {
-            openCurrent(Media.Action.Backward);
             return true;
         } else {
             return false;
@@ -805,7 +781,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private boolean next(boolean userTriggered) {
         if (getPlayQueueInternal().moveToNext(userTriggered)) {
-            openCurrent(Media.Action.Forward);
+            openCurrent();
             return true;
         } else {
             return false;
@@ -1162,24 +1138,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 case CLEAR_LAST_SEEK:
                     service.mSeekPos = -1;
                     break;
-                case CHECK_TRACK_EVENT:
-                    final Track currentTrack = getCurrentTrack();
-                    if (currentTrack != null) {
-                        if (playbackState.isSupposedToBePlaying()) {
-                            int refresh = Media.refresh(currentTrack.duration);
-                            if (refresh > 0) {
-                                long now = System.currentTimeMillis();
-                                if (now - service.mLastRefresh > refresh) {
-                                    service.track(Media.fromTrack(currentTrack), Media.Action.Refresh);
-                                    service.mLastRefresh = now;
-                                }
-                            }
-                        }
-                        sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
-                    } else {
-                        removeMessages(CHECK_TRACK_EVENT);
-                    }
-                    break;
                 default: // NO-OP
                     break;
             }
@@ -1346,18 +1304,5 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             return true;
         }
     };
-
-    public void track(com.soundcloud.android.tracking.Event event, Object... args) {
-        getTracker().track(event, args);
-    }
-
-    @Override
-    public void track(Class<?> klazz, Object... args) {
-        getTracker().track(klazz, args);
-    }
-
-    private Tracker getTracker() {
-        return (Tracker) getApplication();
-    }
 
 }

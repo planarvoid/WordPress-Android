@@ -15,9 +15,6 @@ import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
@@ -40,7 +37,6 @@ import android.widget.ViewFlipper;
 import java.util.Arrays;
 import java.util.List;
 
-@Tracking(page = Page.Record_details)
 public class UploadActivity extends ScActivity implements ISimpleDialogListener {
 
     private ViewFlipper mSharingFlipper;
@@ -102,8 +98,6 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(REC_ANOTHER, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                track(Click.Record_Share_Record_Another);
-
                 if (mRecording.external_upload){
                     mStorage.delete(mRecording);
                 } else {
@@ -115,10 +109,6 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
             @Override
             public void onClick(View v) {
                 PlaybackStream ps = mRecording.getPlaybackStream();
-                track(Click.Record_Share_Post,
-                        mRecording.tip_key == null ? "tip_unknown" : mRecording.tip_key,
-                        ps != null && ps.isTrimmed() ? "trimmed" : "not_trimmed",
-                        ps != null && ps.isFading()  ? "fading"  : "not_fading");
                 if (mRecording != null) {
                     saveRecording();
                     mRecording.upload(UploadActivity.this);
@@ -191,7 +181,6 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         if (!mRecording.isPrivateMessage()) {
             mConnectionList.getAdapter().loadIfNecessary(this);
         }
-        track(UploadActivity.class, getApp().getLoggedInUser());
     }
 
     @Override

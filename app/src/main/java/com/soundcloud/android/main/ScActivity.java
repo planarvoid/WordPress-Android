@@ -13,8 +13,6 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
-import com.soundcloud.android.tracking.Event;
-import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -44,7 +42,7 @@ import java.lang.ref.WeakReference;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends ActionBarActivity implements Tracker, ActionBarController.ActionBarOwner {
+public abstract class ScActivity extends ActionBarActivity implements ActionBarController.ActionBarOwner {
     protected static final int CONNECTIVITY_MSG = 0;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
@@ -325,15 +323,6 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
     }
 
     private final Handler connHandler = new ConnectivityHandler(this);
-
-    // tracking shizzle
-    public void track(Event event, Object... args) {
-        getApp().track(event, args);
-    }
-
-    public void track(Class<?> klazz, Object... args) {
-        getApp().track(klazz, args);
-    }
 
     @NotNull
     @Override

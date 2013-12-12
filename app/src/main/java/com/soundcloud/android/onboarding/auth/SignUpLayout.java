@@ -2,7 +2,6 @@ package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
@@ -127,8 +126,6 @@ public class SignUpLayout extends AuthLayout {
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                app.track(Click.Signup_Signup_done);
-
                 if (emailField.getText().length() == 0 || passwordField.getText().length() == 0) {
                     AndroidUtils.showToast(context, R.string.authentication_error_incomplete_fields);
                 } else if (!ScTextUtils.isEmail(emailField.getText())) {
