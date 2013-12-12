@@ -7,19 +7,18 @@ import com.soundcloud.android.utils.ScTextUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.net.Uri;
 import android.os.Parcel;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaySessionSourceTest {
     private static final long SET_ID = 123L;
-    private static final Uri ORIGIN_PAGE = Uri.parse("origin:page");
+    private static final String ORIGIN_PAGE = "origin:page";
     private static final String EXPLORE_TAG = "explore:123";
 
     @Test
     public void shouldCreateEmptyPlaySessionSource() throws Exception {
         PlaySessionSource playSessionSource = new PlaySessionSource();
-        expect(playSessionSource.getOriginPage()).toBe(Uri.EMPTY);
+        expect(playSessionSource.getOriginPage()).toBe(ScTextUtils.EMPTY_STRING);
         expect(playSessionSource.getSetId()).toEqual(-1L);
         expect(playSessionSource.getInitialSource()).toEqual(ScTextUtils.EMPTY_STRING);
         expect(playSessionSource.getInitialSourceVersion()).toEqual(ScTextUtils.EMPTY_STRING);
@@ -76,16 +75,16 @@ public class PlaySessionSourceTest {
 
     @Test
     public void shouldOriginateFromExploreWithExploreOrigin() {
-        expect(new PlaySessionSource(Uri.parse("explore:something")).originatedInExplore()).toBeTrue();
+        expect(new PlaySessionSource("explore:something").originatedInExplore()).toBeTrue();
     }
 
     @Test
     public void shouldNotOriginateFromExploreWithNonExploreOrigin() {
-        expect(new PlaySessionSource(Uri.parse("stream:something")).originatedInExplore()).toBeFalse();
+        expect(new PlaySessionSource("stream:something").originatedInExplore()).toBeFalse();
     }
 
     @Test
     public void shouldNotOriginateFromExploreWithEmptyOrigin() {
-        expect(new PlaySessionSource(Uri.EMPTY).originatedInExplore()).toBeFalse();
+        expect(new PlaySessionSource(ScTextUtils.EMPTY_STRING).originatedInExplore()).toBeFalse();
     }
 }

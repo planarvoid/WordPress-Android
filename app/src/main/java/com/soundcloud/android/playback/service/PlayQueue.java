@@ -9,8 +9,6 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 
-import android.net.Uri;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +42,7 @@ class PlayQueue {
         return mPlayQueueItems;
     }
 
-    public Uri getOriginPage() {
+    public String getOriginScreen() {
         return mPlaySessionSource.getOriginPage();
     }
 
@@ -77,7 +75,7 @@ class PlayQueue {
     public TrackSourceInfo getCurrentTrackSourceInfo() {
         if (isEmpty()) return null;
 
-        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(getOriginPage(), mCurrentTrackIsUserTriggered);
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(getOriginScreen(), mCurrentTrackIsUserTriggered);
         trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
         if (isPlayingPlaylist()) {
             trackSourceInfo.setOriginPlaylist(getPlaylistId(), getPosition());

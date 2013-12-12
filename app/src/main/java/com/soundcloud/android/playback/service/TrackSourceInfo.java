@@ -4,11 +4,9 @@ import com.google.common.base.Objects;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.utils.ScTextUtils;
 
-import android.net.Uri;
-
 public class TrackSourceInfo {
 
-    private Uri mOriginScreen;
+    private String mOriginScreen;
     private boolean mUserTriggered;
 
     private String mSource;
@@ -17,7 +15,7 @@ public class TrackSourceInfo {
     private long mPlaylistId = Playable.NOT_SET;
     private int mPlaylistPosition;
 
-    public TrackSourceInfo(Uri originScreen, boolean userTriggered) {
+    public TrackSourceInfo(String originScreen, boolean userTriggered) {
         mOriginScreen = originScreen;
         mUserTriggered = userTriggered;
     }
@@ -36,7 +34,7 @@ public class TrackSourceInfo {
         return mUserTriggered;
     }
 
-    public Uri getOriginScreen() {
+    public String getOriginScreen() {
         return mOriginScreen;
     }
 

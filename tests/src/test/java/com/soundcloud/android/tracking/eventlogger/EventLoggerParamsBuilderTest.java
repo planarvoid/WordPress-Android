@@ -10,8 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.net.Uri;
-
 @RunWith(SoundCloudTestRunner.class)
 public class EventLoggerParamsBuilderTest {
 
@@ -20,7 +18,7 @@ public class EventLoggerParamsBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        when(trackSourceInfo.getOriginScreen()).thenReturn(Uri.parse("origin"));
+        when(trackSourceInfo.getOriginScreen()).thenReturn("origin");
         when(trackSourceInfo.getIsUserTriggered()).thenReturn(true);
     }
 

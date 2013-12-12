@@ -7,17 +7,16 @@ import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.net.Uri;
 
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueTest {
 
-    private static final Uri ORIGIN_PAGE = Uri.parse("explore:music:techno");
+    private static final String ORIGIN_PAGE = "explore:music:techno";
     private static final PlayQueueItem PLAY_QUEUE_ITEM_1 = new PlayQueueItem(1L, "source1", "version1");
     private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = new PlayQueueItem(2L, "source2", "version2");
     private static final PlaySessionSource PLAY_SESSION_SOURCE = new PlaySessionSource(ORIGIN_PAGE, 54321L, "1.0");
@@ -27,7 +26,7 @@ public class PlayQueueTest {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2), 0, PLAY_SESSION_SOURCE);
 
         expect(playQueue.getItems()).toContainExactly(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2);
-        expect(playQueue.getOriginPage()).toBe(ORIGIN_PAGE);
+        expect(playQueue.getOriginScreen()).toBe(ORIGIN_PAGE);
         expect(playQueue.getPlaylistId()).toEqual(54321L);
     }
 
@@ -39,7 +38,7 @@ public class PlayQueueTest {
 
         final TrackSourceInfo trackSourceInfo = playQueue.getCurrentTrackSourceInfo();
         expect(trackSourceInfo.getIsUserTriggered()).toEqual(false);
-        expect(trackSourceInfo.getOriginScreen()).toEqual(Uri.parse("explore:music:techno"));
+        expect(trackSourceInfo.getOriginScreen()).toEqual(ORIGIN_PAGE);
         expect(trackSourceInfo.getSource()).toEqual("source1");
         expect(trackSourceInfo.getSourceVersion()).toEqual("version1");
         expect(trackSourceInfo.getPlaylistId()).toEqual(54321L);
@@ -50,7 +49,7 @@ public class PlayQueueTest {
 
         final TrackSourceInfo trackSourceInfo2 = playQueue.getCurrentTrackSourceInfo();
         expect(trackSourceInfo2.getIsUserTriggered()).toEqual(false);
-        expect(trackSourceInfo2.getOriginScreen()).toEqual(Uri.parse("explore:music:techno"));
+        expect(trackSourceInfo2.getOriginScreen()).toEqual(ORIGIN_PAGE);
         expect(trackSourceInfo2.getSource()).toEqual("source2");
         expect(trackSourceInfo2.getSourceVersion()).toEqual("version2");
         expect(trackSourceInfo2.getPlaylistId()).toEqual(54321L);
@@ -118,7 +117,7 @@ public class PlayQueueTest {
 
     @Test
     public void shouldReturnSetAsPartOfLoggerParams() {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1, new PlaySessionSource(Uri.EMPTY, 54321));
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1, new PlaySessionSource(ScTextUtils.EMPTY_STRING, 54321));
 
         final TrackSourceInfo trackSourceInfo = playQueue.getCurrentTrackSourceInfo();
         expect(trackSourceInfo.getIsUserTriggered()).toEqual(false);
@@ -128,7 +127,7 @@ public class PlayQueueTest {
 
     @Test
     public void shouldReturnExploreVersionAsPartOfLoggerParams() {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1, new PlaySessionSource(Uri.EMPTY, "exploreVersion1"));
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1, new PlaySessionSource(ScTextUtils.EMPTY_STRING, "exploreVersion1"));
 
         final TrackSourceInfo trackSourceInfo = playQueue.getCurrentTrackSourceInfo();
         expect(trackSourceInfo.getIsUserTriggered()).toEqual(false);

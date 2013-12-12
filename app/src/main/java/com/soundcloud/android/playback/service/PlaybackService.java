@@ -47,7 +47,6 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -76,7 +75,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && getPlaybackState().isSupposedToBePlaying(); }
     public static PlayQueueView getPlayQueue() { return instance == null ? PlayQueueView.EMPTY : instance.getPlayQueueView(); }
-    public static @Nullable Uri getPlayQueueUri() { return instance == null ? null : instance.getPlayQueueInternal().getOriginPage(); }
+    public static @Nullable String getPlayQueueOriginScreen() { return instance == null ? null : instance.getPlayQueueInternal().getOriginScreen(); }
     public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
