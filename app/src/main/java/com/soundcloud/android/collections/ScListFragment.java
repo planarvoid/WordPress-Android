@@ -98,7 +98,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     protected int mStatusCode;
 
     // TODO, finish all screens when the enum is populated
-    private Screen mScreden = Screen.USER_INFO;
+    private Screen mScreen;
 
     private @Nullable BroadcastReceiver mPlaylistChangedReceiver;
 

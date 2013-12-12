@@ -558,5 +558,6 @@ class Mvn
   def execute
     puts "Executing: #{@command}"
     system @command
+    raise "An error has occured while executing command #{@command}" unless $?.success?
   end
 end

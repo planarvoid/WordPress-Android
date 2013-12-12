@@ -8,13 +8,13 @@ import com.soundcloud.android.events.Event;
 import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.collections.views.PlayableBar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,19 +46,19 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         }
     };
 
-    public static void start(Context context, @NotNull Playlist playlist) {
-        start(context, playlist, SoundCloudApplication.MODEL_MANAGER);
+    public static void start(Context context, @NotNull Playlist playlist, Screen screen) {
+        start(context, playlist, SoundCloudApplication.MODEL_MANAGER, screen);
     }
 
-    public static void start(Context context, @NotNull Playlist playlist, ScModelManager modelManager) {
+    public static void start(Context context, @NotNull Playlist playlist, ScModelManager modelManager, Screen screen) {
         modelManager.cache(playlist);
-        context.startActivity(getIntent(playlist));
+        context.startActivity(getIntent(playlist, screen));
     }
 
-    public static Intent getIntent(@NotNull Playlist playlist) {
+    public static Intent getIntent(@NotNull Playlist playlist, Screen screen) {
         Intent intent = new Intent(Actions.PLAYLIST);
-        intent.setData(playlist.toUri());
-        return intent;
+        screen.addToIntent(intent);
+        return intent.setData(playlist.toUri());
     }
 
     @Override
@@ -134,7 +134,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         mActionButtons = new PlayableInfoAndEngagementsController(mPlaylistBar, null);
 
         if (savedInstanceState == null) {
-            mFragment = PlaylistTracksFragment.create(getIntent().getData());
+            mFragment = PlaylistTracksFragment.create(getIntent().getData(), Screen.fromIntent(getIntent()));
             getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment, TRACKS_FRAGMENT_TAG).commit();
         } else {
             mFragment = (PlaylistTracksFragment) getSupportFragmentManager().findFragmentByTag(TRACKS_FRAGMENT_TAG);

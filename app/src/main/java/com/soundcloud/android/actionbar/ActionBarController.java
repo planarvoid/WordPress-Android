@@ -174,7 +174,9 @@ public class ActionBarController {
                 mSearchView.setIconified(true);
 
                 final Uri itemUri = mSuggestionsAdapter.getItemIntentData(position);
-                mActivity.startActivity(new Intent(Intent.ACTION_VIEW).putExtra(Screen.ORDINAL_EXTRA, Screen.SEARCH_SUGGESTIONS.ordinal()).setData(itemUri));
+                final Intent intent = new Intent(Intent.ACTION_VIEW);
+                Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
+                mActivity.startActivity(intent.setData(itemUri));
                 return true;
             }
         });
