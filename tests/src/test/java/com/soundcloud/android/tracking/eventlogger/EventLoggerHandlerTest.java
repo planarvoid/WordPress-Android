@@ -49,7 +49,7 @@ public class EventLoggerHandlerTest {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
 
         final PlaybackEventData playbackEventData1 = PlaybackEventData.forPlay(track, 1l, trackingParams1);
-        final PlaybackEventData playbackEventData2 = PlaybackEventData.forStop(track, 2l, trackingParams2);
+        final PlaybackEventData playbackEventData2 = PlaybackEventData.forStop(track, 2l, trackingParams2, playbackEventData1);
 
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData1));
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData2));

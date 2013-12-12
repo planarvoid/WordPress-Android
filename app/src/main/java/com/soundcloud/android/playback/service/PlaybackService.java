@@ -5,7 +5,6 @@ import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.api.ApiModule;
@@ -14,7 +13,6 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.Event;
-import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackModule;
@@ -35,6 +33,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.android.concurrency.AndroidSchedulers;
 
@@ -192,8 +191,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private Notification status;
     private PlaybackReceiver mIntentReceiver;
 
-    private String mCurrentEventLoggerParams;
     private TrackCompletionListener mCompletionListener;
+
+    @NotNull
+    private PlaybackEventTracker mPlaybackEventTracker = PlaybackEventTracker.EMPTY; // Empty tracker sends no events
 
     public interface PlayExtras{
         String track = Track.EXTRA;
@@ -408,7 +409,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     void onTrackEnded(){
-        trackStopEvent();
+        mPlaybackEventTracker.trackStopEvent();
         track(Media.fromTrack(mCurrentTrack), Media.Action.Stop);
         mPlayerHandler.sendEmptyMessage(PlaybackService.TRACK_ENDED);
     }
@@ -522,13 +523,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 }
             } else { // new track
                 if (isMediaPlayerPlaying()) {
-                    trackStopEvent(); // track stop event for previous track, if any
+                    mPlaybackEventTracker.trackStopEvent();
                 }
                 track(Media.fromTrack(mCurrentTrack), action);
 
                 mCurrentTrack = track;
-                // we have to cache these so we can properly deliver stop events after playqueue changes
-                mCurrentEventLoggerParams = getPlayQueueInternal().getCurrentEventLoggerParams();
+                mPlaybackEventTracker = new PlaybackEventTracker(mCurrentTrack,
+                        getPlayQueueInternal().getCurrentEventLoggerParams());
 
                 notifyChange(Broadcasts.META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
@@ -544,21 +545,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         } else {
             Log.e(TAG, "openCurrent with no available track");
         }
-    }
-
-    private void trackPlayEvent() {
-        final long userId = SoundCloudApplication.getUserId();
-        final PlaybackEventData eventData = PlaybackEventData.forPlay(mCurrentTrack, userId, mCurrentEventLoggerParams);
-
-        Event.PLAYBACK.publish(eventData);
-    }
-
-    private void trackStopEvent() {
-        final long userId = SoundCloudApplication.getUserId();
-        final PlaybackEventData eventData = PlaybackEventData.forStop(mCurrentTrack, userId, mCurrentEventLoggerParams);
-
-        Event.PLAYBACK.publish(eventData);
-
     }
 
     private FetchModelTask.Listener<Track> mInfoListener = new FetchModelTask.Listener<Track>() {
@@ -701,7 +687,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 notifyChange(Broadcasts.PLAYSTATE_CHANGED);
                 if (!Consts.SdkSwitches.useRichNotifications) setPlayingNotification(mCurrentTrack);
 
-                trackPlayEvent();
+                mPlaybackEventTracker.trackPlayEvent();
                 mAnalyticsEngine.openSessionForPlayer();
 
             } else if (mPlaybackState != PlaybackState.PLAYING) {
@@ -718,7 +704,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
         if (!mPlaybackState.isSupposedToBePlaying()) return;
 
-        trackStopEvent();
+        mPlaybackEventTracker.trackStopEvent();
         track(Media.fromTrack(mCurrentTrack), Media.Action.Pause);
 
         safePause();
@@ -1199,7 +1185,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 case MediaPlayer.MEDIA_INFO_BUFFERING_START:
                     mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
                     mPlaybackState = PlaybackState.PAUSED_FOR_BUFFERING;
-                    trackStopEvent();
+                    mPlaybackEventTracker.trackStopEvent();
                     notifyChange(Broadcasts.BUFFERING);
                     break;
 
@@ -1215,7 +1201,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     } else {
                         // still playing back, set proper state after buffering state
                         mPlaybackState = PlaybackState.PLAYING;
-                        trackPlayEvent();
+                        mPlaybackEventTracker.trackPlayEvent();
                     }
                     notifyChange(Broadcasts.BUFFERING_COMPLETE);
                     break;
@@ -1317,7 +1303,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             Log.e(TAG, "onError("+what+ ", "+extra+", state="+ mPlaybackState +")");
             //noinspection ObjectEquality
             if (mp == mMediaPlayer && mPlaybackState != PlaybackState.STOPPED) {
-                trackStopEvent();
+                mPlaybackEventTracker.trackStopEvent();
                 // when the proxy times out it will just close the connection - different implementations
                 // return different error codes. try to reconnect at least twice before giving up.
                 if (mConnectRetries++ < 4) {
