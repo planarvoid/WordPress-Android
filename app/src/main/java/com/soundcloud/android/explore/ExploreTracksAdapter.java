@@ -1,15 +1,13 @@
 package com.soundcloud.android.explore;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.EndlessPagingAdapter;
+import com.soundcloud.android.collections.views.GridSpacer;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.utils.images.ImageSize;
-import com.soundcloud.android.collections.views.GridSpacer;
 
 import android.text.TextUtils;
 import android.view.View;
@@ -23,13 +21,14 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
     public static final int INITIAL_LIST_SIZE = 20;
 
-    private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.gridView();
+    private final ImageOperations mImageOperations;
     private GridSpacer mGridSpacer;
 
     @Inject
-    public ExploreTracksAdapter(GridSpacer gridSpacer) {
+    public ExploreTracksAdapter(GridSpacer gridSpacer, ImageOperations imageOperations) {
         super(INITIAL_LIST_SIZE, R.layout.grid_loading_item);
         mGridSpacer = gridSpacer;
+        mImageOperations = imageOperations;
     }
 
     @Override
@@ -69,7 +68,7 @@ public class ExploreTracksAdapter extends EndlessPagingAdapter<TrackSummary> {
 
         viewHolder.imageView.setBackgroundResource(R.drawable.placeholder_cells);
         final String artworkUri = track.getArtworkOrAvatar(ImageSize.getFullImageSize(itemView.getResources()));
-        ImageLoader.getInstance().displayImage(artworkUri, viewHolder.imageView, mDisplayImageOptions);
+        mImageOperations.displayInGridView(artworkUri, viewHolder.imageView);
 
         mGridSpacer.configureItemPadding(itemView, position, getCount());
     }
