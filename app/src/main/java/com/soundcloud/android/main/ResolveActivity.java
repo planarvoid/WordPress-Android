@@ -1,12 +1,12 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.model.ScResource;
+import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
@@ -82,7 +82,7 @@ public class ResolveActivity extends Activity implements FetchModelTask.Listener
         mResolveTask = null;
         Intent intent = resource.getViewIntent();
         if (intent != null){
-            intent.putExtra(Screen.ORDINAL_EXTRA, Screen.DEEPLINK.ordinal());
+            Screen.DEEPLINK.addToIntent(intent);
             startActivity(intent);
         } else {
             Log.e(SoundCloudApplication.TAG,"Cannot find view intent for resource " + resource);

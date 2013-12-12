@@ -56,9 +56,8 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
 
     public static Intent getIntent(@NotNull Playlist playlist, Screen screen) {
         Intent intent = new Intent(Actions.PLAYLIST);
-        intent.putExtra(Screen.EXTRA, screen);
-        intent.setData(playlist.toUri());
-        return intent;
+        screen.addToIntent(intent);
+        return intent.setData(playlist.toUri());
     }
 
     @Override
@@ -126,7 +125,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
         mActionButtons = new PlayableInfoAndEngagementsController(mPlaylistBar, null);
 
         if (savedInstanceState == null) {
-            mFragment = PlaylistTracksFragment.create(getIntent().getData(), (Screen) getIntent().getSerializableExtra(Screen.EXTRA));
+            mFragment = PlaylistTracksFragment.create(getIntent().getData(), Screen.fromIntent(getIntent()));
             getSupportFragmentManager().beginTransaction().add(R.id.playlist_tracks_fragment, mFragment, TRACKS_FRAGMENT_TAG).commit();
         } else {
             mFragment = (PlaylistTracksFragment) getSupportFragmentManager().findFragmentByTag(TRACKS_FRAGMENT_TAG);

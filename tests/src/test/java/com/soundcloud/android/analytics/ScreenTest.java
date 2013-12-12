@@ -2,11 +2,14 @@ package com.soundcloud.android.analytics;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-@RunWith(JUnit4.class)
+import android.content.Intent;
+import android.os.Bundle;
+
+@RunWith(SoundCloudTestRunner.class)
 public class ScreenTest {
 
     @Test
@@ -22,5 +25,19 @@ public class ScreenTest {
     @Test
     public void gettingTagWithAppendedPathShouldNormalizePath() {
         expect(Screen.EXPLORE_GENRES.get("Hello & World")).toEqual("explore:genres:hello_&_world");
+    }
+
+    @Test
+    public void setsAndGetsScreenFromIntent(){
+        final Intent intent = new Intent();
+        Screen.ACTIVITIES.addToIntent(intent);
+        expect(Screen.fromIntent(intent)).toEqual(Screen.ACTIVITIES);
+    }
+
+    @Test
+    public void setsAndGetsScreenFromBundle(){
+        final Bundle bundle = new Bundle();
+        Screen.ACTIVITIES.addToBundle(bundle);
+        expect(Screen.fromBundle(bundle)).toEqual(Screen.ACTIVITIES);
     }
 }

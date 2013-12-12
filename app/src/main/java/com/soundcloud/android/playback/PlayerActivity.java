@@ -310,7 +310,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             if (intent.getData() != null) {
                 final long id = UriUtils.getLastSegmentAsLong(intent.getData());
                 playQueue = new PlayQueueView(id);
-                mPlaybackOperations.startPlayback(this, id, getOriginScreenFromIntent(intent));
+                mPlaybackOperations.startPlayback(this, id, Screen.fromIntent(intent, Screen.DEEPLINK));
             }
 
         } else if (intent.hasExtra(Track.EXTRA_ID)) {
@@ -321,18 +321,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             playQueue = new PlayQueueView(Lists.newArrayList(track.getId()), 0);
 
             if (Actions.PLAY.equals(action)){
-                mPlaybackOperations.startPlayback(this, track, getOriginScreenFromIntent(intent));
+                mPlaybackOperations.startPlayback(this, track, Screen.fromIntent(intent, Screen.DEEPLINK));
             }
         }
         return playQueue;
-    }
-
-    private Screen getOriginScreenFromIntent(Intent intent) {
-        if (intent.hasExtra(Screen.ORDINAL_EXTRA)){
-            return Screen.values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)];
-        } else {
-            return Screen.DEEPLINK;
-        }
     }
 
     @Override
