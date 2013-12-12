@@ -8,7 +8,7 @@ import com.soundcloud.android.model.User;
 
 public class PlaybackEventTracker {
 
-    public static PlaybackEventTracker EMPTY = new PlaybackEventTracker(null, null, User.NOT_SET);
+    public static final PlaybackEventTracker EMPTY = new PlaybackEventTracker(null, null, User.NOT_SET);
 
     private final TrackSourceInfo mTrackSourceInfo;
     private final Track mTrack;
