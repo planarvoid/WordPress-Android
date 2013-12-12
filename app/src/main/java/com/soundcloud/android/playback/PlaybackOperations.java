@@ -83,7 +83,7 @@ public class PlaybackOperations {
      * Single play, the tracklist will be of length 1
      */
     public void playTrack(Context context, Track track, Screen screen) {
-        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(screen.toUri()));
+        playFromIdList(context, Lists.newArrayList(track.getId()), 0, track, new PlaySessionSource(screen));
     }
 
     /**
@@ -117,7 +117,7 @@ public class PlaybackOperations {
         Playable playable = ((PlayableHolder) data.get(position)).getPlayable();
         if (playable instanceof Track) {
 
-            final PlaySessionSource playSessionSource = new PlaySessionSource(screen.toUri());
+            final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
             final int adjustedPosition = Collections2.filter(data.subList(0, position), PLAYABLE_HOLDER_PREDICATE).size();
 
             if (uri != null){
@@ -131,6 +131,16 @@ public class PlaybackOperations {
         } else {
             throw new AssertionError("Unexpected playable type");
         }
+    }
+
+
+    public void startPlayback(final Context context, Track track, Screen screen) {
+        mModelManager.cache(track);
+        startPlayback(context, track.getId(), screen);
+    }
+
+    public void startPlayback(final Context context, long id, Screen screen) {
+        context.startService(getPlayIntent(Lists.newArrayList(id), 0, new PlaySessionSource(screen)));
     }
 
     private ArrayList<Long> getPlayableIdsFromModels(List<? extends ScModel> data) {

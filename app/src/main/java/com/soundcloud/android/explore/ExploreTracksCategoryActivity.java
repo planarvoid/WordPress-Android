@@ -14,8 +14,6 @@ import android.os.Bundle;
 
 public class ExploreTracksCategoryActivity extends ScActivity implements ObjectGraphProvider {
 
-    static final String SCREEN_TAG_EXTRA = "screen_tag";
-
     private ObjectGraph mObjectGraph;
 
     @SuppressWarnings("unused")
