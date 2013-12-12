@@ -7,6 +7,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.model.ExploreGenre;
@@ -36,6 +37,8 @@ import javax.inject.Inject;
 public class ExploreTracksFragment extends Fragment implements AdapterView.OnItemClickListener,
         EmptyViewAware, PullToRefreshBase.OnRefreshListener<GridView> {
 
+    static final String SCREEN_TAG_EXTRA = "screen_tag";
+
     private static final int GRID_VIEW_ID = R.id.suggested_tracks_grid;
     private int mEmptyViewStatus = EmptyListView.Status.WAITING;
 
@@ -53,10 +56,11 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     private Subscription mSubscription = Subscriptions.empty();
     private DependencyInjector mDependencyInjector;
 
-    public static ExploreTracksFragment create(ExploreGenre category) {
+    public static ExploreTracksFragment create(ExploreGenre category, Screen screenTag) {
         final ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
         Bundle args = new Bundle();
         args.putParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
+        args.putString(ExploreTracksFragment.SCREEN_TAG_EXTRA, screenTag.get());
         exploreTracksFragment.setArguments(args);
         return exploreTracksFragment;
     }
@@ -106,7 +110,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Track track = new Track(mAdapter.getItem(position));
-        final String screenTagExtra = getActivity().getIntent().getStringExtra(ExploreTracksCategoryActivity.SCREEN_TAG_EXTRA);
+        final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
         mPlaybackOperations.playExploreTrack(getActivity(), track, mObserver.getLastExploreTag(), screenTagExtra);
     }
 

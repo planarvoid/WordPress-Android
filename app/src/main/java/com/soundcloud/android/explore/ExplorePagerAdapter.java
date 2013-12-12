@@ -1,6 +1,7 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.ExploreGenre;
 
 import android.content.res.Resources;
@@ -33,9 +34,9 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
             case TAB_GENRES:
                 return new ExploreGenresFragment();
             case TAB_TRENDING_MUSIC:
-                return ExploreTracksFragment.create(ExploreGenre.POPULAR_MUSIC_CATEGORY);
+                return ExploreTracksFragment.create(ExploreGenre.POPULAR_MUSIC_CATEGORY, Screen.EXPLORE_TRENDING_MUSIC);
             case TAB_TRENDING_AUDIO:
-                return ExploreTracksFragment.create(ExploreGenre.POPULAR_AUDIO_CATEGORY);
+                return ExploreTracksFragment.create(ExploreGenre.POPULAR_AUDIO_CATEGORY, Screen.EXPLORE_TRENDING_AUDIO);
         }
         throw new RuntimeException("Unexpected position for getItem " + position);
     }

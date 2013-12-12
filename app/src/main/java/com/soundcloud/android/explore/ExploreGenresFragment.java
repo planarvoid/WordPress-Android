@@ -87,7 +87,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         Event.SCREEN_ENTERED.publish(view.getTag());
 
         intent.putExtra(ExploreGenre.EXPLORE_GENRE_EXTRA, category);
-        intent.putExtra(ExploreTracksCategoryActivity.SCREEN_TAG_EXTRA, view.getTag().toString());
+        intent.putExtra(ExploreTracksFragment.SCREEN_TAG_EXTRA, view.getTag().toString());
         startActivity(intent);
     }
 
