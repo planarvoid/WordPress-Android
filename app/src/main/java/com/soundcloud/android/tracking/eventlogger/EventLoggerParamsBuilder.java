@@ -1,70 +1,38 @@
 package com.soundcloud.android.tracking.eventlogger;
 
-import com.soundcloud.android.model.Playable;
-
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;
+
 import android.net.Uri;
 
+import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
-
 import java.net.URLEncoder;
 import java.util.Locale;
 public class EventLoggerParamsBuilder {
 
-    private Uri mOrigin;
-    private long mSetId = Playable.NOT_SET;
-    private int mSetPosition;
-    private String mSource;
-    private String mSourceVersion;
-
-    private String mTrigger;
-
-    public EventLoggerParamsBuilder(boolean manualPlay) {
-        mTrigger = manualPlay ? EventLoggerParams.Trigger.MANUAL : EventLoggerParams.Trigger.AUTO;
+    @Inject
+    public EventLoggerParamsBuilder() {
     }
 
-    public EventLoggerParamsBuilder origin(Uri origin) {
-        mOrigin = origin;
-        return this;
-    }
-
-    public EventLoggerParamsBuilder set(long setId, int position) {
-        mSetId = setId;
-        mSetPosition = position;
-        return this;
-    }
-
-    public EventLoggerParamsBuilder source(String source) {
-        mSource = source;
-        return this;
-    }
-
-    public EventLoggerParamsBuilder sourceVersion(String version) {
-        mSourceVersion = version;
-        return this;
-    }
-
-    public String build() {
+    public String build(TrackSourceInfo trackSourceInfo) {
         final Uri.Builder builder = new Uri.Builder();
 
-        builder.appendQueryParameter(EventLoggerParams.Keys.TRIGGER, mTrigger);
+        if (trackSourceInfo.getIsUserTriggered()){
+            builder.appendQueryParameter(EventLoggerParams.Keys.TRIGGER, EventLoggerParams.Trigger.MANUAL);
+        } else {
+            builder.appendQueryParameter(EventLoggerParams.Keys.TRIGGER, EventLoggerParams.Trigger.AUTO);
+        }
+        builder.appendQueryParameter(EventLoggerParams.Keys.ORIGIN_URL, formatOriginUrl(trackSourceInfo.getOriginScreen().toString()));
 
-        final String originUrl = mOrigin.toString();
-        if (ScTextUtils.isNotBlank(originUrl)) {
-            builder.appendQueryParameter(EventLoggerParams.Keys.ORIGIN_URL, formatOriginUrl(originUrl));
+        if (trackSourceInfo.hasSource()) {
+            builder.appendQueryParameter(EventLoggerParams.Keys.SOURCE, trackSourceInfo.getSource());
+            builder.appendQueryParameter(EventLoggerParams.Keys.SOURCE_VERSION, trackSourceInfo.getSourceVersion());
         }
 
-        if (ScTextUtils.isNotBlank(mSource)) {
-            builder.appendQueryParameter(EventLoggerParams.Keys.SOURCE, mSource);
-        }
-
-        if (ScTextUtils.isNotBlank(mSourceVersion)) {
-            builder.appendQueryParameter(EventLoggerParams.Keys.SOURCE_VERSION, mSourceVersion);
-        }
-
-        if (mSetId != Playable.NOT_SET) {
-            builder.appendQueryParameter(EventLoggerParams.Keys.SET_ID, String.valueOf(mSetId));
-            builder.appendQueryParameter(EventLoggerParams.Keys.SET_POSITION, String.valueOf(mSetPosition));
+        if (trackSourceInfo.isFromPlaylist()) {
+            builder.appendQueryParameter(EventLoggerParams.Keys.SET_ID, String.valueOf(trackSourceInfo.getPlaylistId()));
+            builder.appendQueryParameter(EventLoggerParams.Keys.SET_POSITION, String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
         return builder.build().getQuery().toString();
     }

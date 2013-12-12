@@ -1,0 +1,78 @@
+package com.soundcloud.android.playback.service;
+
+import com.google.common.base.Objects;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.utils.ScTextUtils;
+
+import android.net.Uri;
+
+public class TrackSourceInfo {
+
+    private Uri mOriginScreen;
+    private boolean mUserTriggered;
+
+    private String mSource;
+    private String mSourceVersion;
+
+    private long mPlaylistId = Playable.NOT_SET;
+    private int mPlaylistPosition;
+
+    public TrackSourceInfo(Uri originScreen, boolean userTriggered) {
+        mOriginScreen = originScreen;
+        mUserTriggered = userTriggered;
+    }
+
+    public void setSource(String source, String sourceVersion) {
+        mSource = source;
+        mSourceVersion = sourceVersion;
+    }
+
+    public void setOriginPlaylist(long playlistId, int position) {
+        mPlaylistId = playlistId;
+        mPlaylistPosition = position;
+    }
+
+    public boolean getIsUserTriggered() {
+        return mUserTriggered;
+    }
+
+    public Uri getOriginScreen() {
+        return mOriginScreen;
+    }
+
+    public String getSource() {
+        return mSource;
+    }
+
+    public String getSourceVersion() {
+        return mSourceVersion;
+    }
+
+    public long getPlaylistId() {
+        return mPlaylistId;
+    }
+
+    public int getPlaylistPosition() {
+        return mPlaylistPosition;
+    }
+
+    public boolean hasSource(){
+        return ScTextUtils.isNotBlank(mSource);
+    }
+
+    public boolean isFromPlaylist(){
+        return mPlaylistId > 0;
+    }
+
+    @Override
+    public String toString() {
+        final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(TrackSourceInfo.class)
+                .add("originScreen", mOriginScreen)
+                .add("userTriggered", mUserTriggered);
+
+        if (hasSource()) toStringHelper.add("source", mSource).add("sourceVersion", mSourceVersion);
+        if (isFromPlaylist()) toStringHelper.add("playlistId", mPlaylistId).add("playlistPos", mPlaylistPosition);
+
+        return toStringHelper.toString();
+    }
+}

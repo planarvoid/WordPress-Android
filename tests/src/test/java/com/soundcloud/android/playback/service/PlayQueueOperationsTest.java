@@ -125,7 +125,7 @@ public class PlayQueueOperationsTest {
         expect(playQueue.getItems()).toContainExactly(playQueueItem1, playQueueItem2);
         expect(playQueue.getPosition()).toEqual(1);
         expect(playQueue.getOriginPage()).toEqual(Uri.parse(ORIGIN_PAGE));
-        expect(playQueue.getSetId()).toEqual(SET_ID);
+        expect(playQueue.getPlaylistId()).toEqual(SET_ID);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class PlayQueueOperationsTest {
     public void saveShouldWritePlayQueueMetaDataToPreferences() throws Exception {
         when(playQueue.getCurrentTrackId()).thenReturn(123L);
         when(playQueue.getPosition()).thenReturn(4);
-        when(playQueue.getSetId()).thenReturn(456L);
+        when(playQueue.getPlaylistId()).thenReturn(456L);
 
         expect(playQueueOperations.saveQueue(playQueue, 200L)).not.toBeNull();
         verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.SEEK_POSITION.name(), 200L);

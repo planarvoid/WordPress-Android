@@ -83,7 +83,7 @@ public class PlayQueueOperations {
         editor.putLong(Keys.TRACK_ID.name(), playQueue.getCurrentTrackId());
         editor.putInt(Keys.PLAY_POSITION.name(), playQueue.getPosition());
         editor.putLong(Keys.SEEK_POSITION.name(), seekPosition);
-        editor.putLong(Keys.SET_ID.name(), playQueue.getSetId());
+        editor.putLong(Keys.SET_ID.name(), playQueue.getPlaylistId());
 
         final Uri origin = playQueue.getOriginPage();
         if (origin != null && origin != Uri.EMPTY) {

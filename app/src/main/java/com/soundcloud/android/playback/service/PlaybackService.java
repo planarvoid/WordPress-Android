@@ -529,7 +529,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
                 mCurrentTrack = track;
                 mPlaybackEventTracker = new PlaybackEventTracker(mCurrentTrack,
-                        getPlayQueueInternal().getCurrentEventLoggerParams());
+                        getPlayQueueInternal().getCurrentTrackSourceInfo());
 
                 notifyChange(Broadcasts.META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts

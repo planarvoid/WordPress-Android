@@ -20,7 +20,6 @@ import rx.Observer;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackEventTrackerTest {
 
-    private static final String PARAMS = "params";
     private static final long USER_ID = 123L;
     private static final long WAIT_TIME = 50L;
 
@@ -28,12 +27,14 @@ public class PlaybackEventTrackerTest {
     private Track track;
 
     @Mock
+    private TrackSourceInfo trackSourceInfo;
+    @Mock
     private Observer<PlaybackEventData> observer;
 
     @Before
     public void setUp() throws Exception {
         track = TestHelper.getModelFactory().createModel(Track.class);
-        playbackEventTracker = new PlaybackEventTracker(track, PARAMS, USER_ID);
+        playbackEventTracker = new PlaybackEventTracker(track, trackSourceInfo, USER_ID);
     }
 
     @Test
@@ -46,7 +47,7 @@ public class PlaybackEventTrackerTest {
 
         PlaybackEventData playbackEventData = captor.getValue();
         expect(playbackEventData.getTrack()).toBe(track);
-        expect(playbackEventData.getEventLoggerParams()).toBe(PARAMS);
+        expect(playbackEventData.getTrackSourceInfo()).toBe(trackSourceInfo);
         expect(playbackEventData.getAction()).toBe(EventLoggerParams.Action.PLAY);
         expect(playbackEventData.getUserId()).toBe(USER_ID);
         expect(playbackEventData.getTimeStamp()).toBeGreaterThan(0L);
@@ -71,7 +72,7 @@ public class PlaybackEventTrackerTest {
 
         PlaybackEventData playbackEventData = captor.getValue();
         expect(playbackEventData.getTrack()).toBe(track);
-        expect(playbackEventData.getEventLoggerParams()).toBe(PARAMS);
+        expect(playbackEventData.getTrackSourceInfo()).toBe(trackSourceInfo);
         expect(playbackEventData.getAction()).toBe(EventLoggerParams.Action.STOP);
         expect(playbackEventData.getUserId()).toBe(USER_ID);
         expect(playbackEventData.getTimeStamp()).toBeGreaterThan(0L);

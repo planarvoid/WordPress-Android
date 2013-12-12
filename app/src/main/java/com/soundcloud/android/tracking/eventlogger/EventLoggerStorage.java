@@ -17,10 +17,12 @@ import java.util.List;
 public class EventLoggerStorage {
 
     private final EventLoggerDbHelper mDbHelper;
+    private final EventLoggerParamsBuilder mEventLoggerParamsBuilder;
 
     @Inject
-    EventLoggerStorage(EventLoggerDbHelper eventLoggerDbHelper) {
+    EventLoggerStorage(EventLoggerDbHelper eventLoggerDbHelper, EventLoggerParamsBuilder eventLoggerParamsBuilder) {
         mDbHelper = eventLoggerDbHelper;
+        mEventLoggerParamsBuilder = eventLoggerParamsBuilder;
     }
 
     public long insertEvent(PlaybackEventData playbackEventData){
@@ -67,7 +69,7 @@ public class EventLoggerStorage {
         values.put(EventLoggerDbHelper.TrackingEvents.SOUND_URN, ClientUri.forTrack(params.getTrack().getId()).toString());
         values.put(EventLoggerDbHelper.TrackingEvents.SOUND_DURATION, params.getTrack().duration);
         values.put(EventLoggerDbHelper.TrackingEvents.USER_URN, ClientUri.forUser(Math.max(0, params.getUserId())).toString());
-        values.put(EventLoggerDbHelper.TrackingEvents.SOURCE_INFO, params.getEventLoggerParams());
+        values.put(EventLoggerDbHelper.TrackingEvents.SOURCE_INFO, mEventLoggerParamsBuilder.build(params.getTrackSourceInfo()));
         return values;
     }
 }

@@ -4,6 +4,7 @@ import static com.soundcloud.android.tracking.eventlogger.EventLoggerParams.Acti
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class PlaybackEventData {
@@ -11,25 +12,25 @@ public class PlaybackEventData {
     private Track mTrack;
     private String mAction;
     private long mUserId;
-    private String mTrackSourceParams;
+    private TrackSourceInfo mTrackSourceInfo;
     private long mTimeStamp;
     private long mListenTime;
 
-    public static PlaybackEventData forPlay(Track track, long userId, String trackSourceParams) {
-        return new PlaybackEventData(track, Action.PLAY, userId, trackSourceParams);
+    public static PlaybackEventData forPlay(Track track, long userId, TrackSourceInfo trackSourceInfo) {
+        return new PlaybackEventData(track, Action.PLAY, userId, trackSourceInfo);
     }
 
-    public static PlaybackEventData forStop(Track track, long userId, String trackSourceParams, PlaybackEventData lastPlayEvent) {
-        final PlaybackEventData playbackEventData = new PlaybackEventData(track, Action.STOP, userId, trackSourceParams);
+    public static PlaybackEventData forStop(Track track, long userId, TrackSourceInfo trackSourceInfo, PlaybackEventData lastPlayEvent) {
+        final PlaybackEventData playbackEventData = new PlaybackEventData(track, Action.STOP, userId, trackSourceInfo);
         playbackEventData.setListenTime(playbackEventData.mTimeStamp - lastPlayEvent.getTimeStamp());
         return playbackEventData;
     }
 
-    private PlaybackEventData(Track track, String action, long userId, String trackSourceParams) {
+    private PlaybackEventData(Track track, String action, long userId, TrackSourceInfo trackSourceInfo) {
         mTrack = track;
         mAction = action;
         mUserId = userId;
-        mTrackSourceParams = trackSourceParams;
+        mTrackSourceInfo = trackSourceInfo;
         mTimeStamp = System.currentTimeMillis();
     }
 
@@ -49,8 +50,8 @@ public class PlaybackEventData {
         return mUserId;
     }
 
-    public String getEventLoggerParams() {
-        return mTrackSourceParams;
+    public TrackSourceInfo getTrackSourceInfo() {
+        return mTrackSourceInfo;
     }
 
     @Override
@@ -59,7 +60,7 @@ public class PlaybackEventData {
                 .add("Track_ID", mTrack.getId())
                 .add("Action", mAction)
                 .add("UserID", mUserId)
-                .add("EventLoggerParams", mTrackSourceParams)
+                .add("TrackSourceInfo", mTrackSourceInfo)
                 .add("TimeStamp", mTimeStamp).toString();
     }
 

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -35,7 +36,11 @@ public class EventLoggerStorageTest {
     @Mock
     EventLoggerDbHelper eventLoggerDbHelper;
     @Mock
+    EventLoggerParamsBuilder eventLoggerParamsBuilder;
+    @Mock
     SQLiteDatabase sqLiteDatabase;
+    @Mock
+    TrackSourceInfo trackSourceInfo;
     @Mock
     EventLoggerApi eventLoggerApi;
 
@@ -43,15 +48,17 @@ public class EventLoggerStorageTest {
 
     @Before
     public void setUp() throws Exception {
-        eventLoggerStorage = new EventLoggerStorage(eventLoggerDbHelper);
+        eventLoggerStorage = new EventLoggerStorage(eventLoggerDbHelper, eventLoggerParamsBuilder);
         when(eventLoggerDbHelper.getWritableDatabase()).thenReturn(sqLiteDatabase);
         when(eventLoggerDbHelper.getReadableDatabase()).thenReturn(sqLiteDatabase);
+        when(eventLoggerParamsBuilder.build(trackSourceInfo)).thenReturn(trackingParams1);
+
     }
 
     @Test
     public void shouldInsertPlaybackEvent() throws CreateModelException {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
-        final PlaybackEventData playbackEventData = PlaybackEventData.forPlay(track, 1l, trackingParams1);
+        final PlaybackEventData playbackEventData = PlaybackEventData.forPlay(track, 1l, trackSourceInfo);
 
         eventLoggerStorage.insertEvent(playbackEventData);
 
@@ -64,7 +71,7 @@ public class EventLoggerStorageTest {
         expect(values.get(EventLoggerDbHelper.TrackingEvents.TIMESTAMP)).toEqual(playbackEventData.getTimeStamp());
         expect(values.get(EventLoggerDbHelper.TrackingEvents.SOUND_DURATION)).toEqual(track.duration);
         expect(values.get(EventLoggerDbHelper.TrackingEvents.USER_URN)).toEqual(ClientUri.forUser(playbackEventData.getUserId()).toString());
-        expect(values.get(EventLoggerDbHelper.TrackingEvents.SOURCE_INFO)).toEqual(playbackEventData.getEventLoggerParams());
+        expect(values.get(EventLoggerDbHelper.TrackingEvents.SOURCE_INFO)).toEqual(trackingParams1);
     }
 
     @Test
