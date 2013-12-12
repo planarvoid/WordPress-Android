@@ -21,7 +21,6 @@ import java.util.List;
 
 public class TestApplication extends SoundCloudApplication {
     public final Token token;
-    public final List<Event> trackedEvents = new ArrayList<Event>();
     public final List<Intent> broadcasts = new ArrayList<Intent>();
     private PublicApiWrapper mCloudApi;
     public TestApplication() {
@@ -41,11 +40,6 @@ public class TestApplication extends SoundCloudApplication {
     }
     public PublicCloudAPI getCloudAPI(){
         return mCloudApi;
-    }
-
-    @Override
-    public void track(Event page, Object... args) {
-        trackedEvents.add(page);
     }
 
     @Override
