@@ -38,6 +38,24 @@
                     </sign>
                 </configuration>
             </plugin>
+              <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>cobertura-maven-plugin</artifactId>
+                  <version>1.4</version>
+                  <configuration>
+                      <format>xml</format>
+                      <aggregate>true</aggregate>
+                      <instrumentation>
+                          <includes>
+                              <include>com/soundcloud/android/**/*.class</include>
+                          </includes>
+                          <excludes>
+                              <exclude>com.soundcloud.android.tests.*</exclude>
+                          </excludes>
+                      </instrumentation>
+                      <check/>
+                  </configuration>
+              </plugin>
           </plugins>
         </pluginManagement>
 
