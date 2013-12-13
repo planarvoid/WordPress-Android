@@ -7,10 +7,22 @@ import java.util.Locale;
 
 public enum Screen {
 
+    // auth
+    TOUR("tour:main"),
+    AUTH_LOG_IN("auth:log_in_prompt"),
+    AUTH_SIGN_UP("auth:sign_up_prompt"),
+    AUTH_TERMS("auth:accept_terms"),
+    AUTH_USER_DETAILS("auth:user_details"),
+
     // core screens
     SIDE_MENU_STREAM("stream:main"),
     SIDE_MENU_LIKES("collection:likes"),
     SIDE_MENU_PLAYLISTS("collection:playlists"),
+
+    // onboarding
+    ONBOARDING_MAIN("onboarding:main"),
+    ONBOARDING_GENRE("onboarding:genre"),
+    ONBOARDING_FACEBOOK("onboarding:facebook"),
 
     // your own profile
     YOUR_POSTS("you:posts"),
@@ -36,9 +48,6 @@ public enum Screen {
     PLAYER_REPOSTS("tracks:reposts"),
     PLAYER_COMMENTS("tracks:comments"),
 
-    PLAYLIST_LIKES("playlists:likes"),
-    PLAYLIST_REPOSTS("playlists:reposts"),
-
     // search
     SEARCH_EVERYTHING("search:everything"),
     SEARCH_TRACKS("search:tracks"),
@@ -51,8 +60,12 @@ public enum Screen {
     RECORD_EDIT("record:edit"),
     RECORD_UPLOAD("record:share"),
 
-    // misc
+    // playlists
     PLAYLIST_DETAILS("playlists:main"),
+    PLAYLIST_LIKES("playlists:likes"),
+    PLAYLIST_REPOSTS("playlists:reposts"),
+
+    // misc
     WHO_TO_FOLLOW("who_to_follow:main"),
     ACTIVITIES("activity:main"),
     SEARCH_BY_TAG("tags:main"),

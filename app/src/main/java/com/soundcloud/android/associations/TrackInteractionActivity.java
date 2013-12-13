@@ -39,8 +39,6 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
                 throw new IllegalArgumentException("Unexpected track interation: " + mInteraction);
         }
 
-        publishScreenEnteredEvent(mScreen);
-
         mPlaybackOperations = new PlaybackOperations();
         mPlayableInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,14 +52,15 @@ public class TrackInteractionActivity extends PlayableInteractionActivity {
     }
 
     @Override
-    protected Screen getCurrentScreen() {
-        return mScreen;
+    protected void onResume() {
+        super.onResume();
+        if (shouldTrackScreen()) {
+            Event.SCREEN_ENTERED.publish(mScreen.get());
+        }
     }
 
-    private void publishScreenEnteredEvent(Screen screen) {
-        if (!isConfigurationChange()) {
-            Event.SCREEN_ENTERED.publish(screen.get());
-        }
+    protected Screen getCurrentScreen() {
+        return mScreen;
     }
 
     @Override

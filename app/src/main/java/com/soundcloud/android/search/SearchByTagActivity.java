@@ -2,8 +2,9 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.collections.ScListFragment;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.storage.provider.Content;
 
 import android.content.Intent;
@@ -36,7 +37,16 @@ public class SearchByTagActivity extends ScActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (shouldTrackScreen()) {
+            Event.SCREEN_ENTERED.publish(Screen.SEARCH_BY_TAG.get());
+        }
+    }
+
     private void addFragment(Uri contentUri) {
-        getSupportFragmentManager().beginTransaction().add(getContentHolderViewId(), ScListFragment.newInstance(contentUri, Screen.SEARCH_BY_TAG)).commit();
+        getSupportFragmentManager().beginTransaction().add(getContentHolderViewId(),
+                ScListFragment.newInstance(contentUri, Screen.SEARCH_BY_TAG)).commit();
     }
 }

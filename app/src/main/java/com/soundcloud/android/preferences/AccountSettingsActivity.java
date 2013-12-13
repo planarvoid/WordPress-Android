@@ -2,10 +2,13 @@ package com.soundcloud.android.preferences;
 
 import com.soundcloud.android.R;
 
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.Event;
 
-public class AccountSettingsActivity extends PreferenceActivity {
+import android.os.Bundle;
+
+public class AccountSettingsActivity extends ScSettingsActivity {
+
      @Override
      public void onCreate(Bundle savedInstanceState) {
          super.onCreate(savedInstanceState);
@@ -20,6 +23,9 @@ public class AccountSettingsActivity extends PreferenceActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (shouldTrackScreen()) {
+            Event.SCREEN_ENTERED.publish(Screen.SETTINGS_ACCOUNT.get());
+        }
     }
 
     @Override

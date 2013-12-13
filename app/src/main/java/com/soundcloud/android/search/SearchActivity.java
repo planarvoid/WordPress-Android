@@ -1,6 +1,8 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.storage.provider.Content;
@@ -58,6 +60,7 @@ public class SearchActivity extends ScActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (mLastSelectedPosition != position) {
                     perform(getSearchFromInputText());
+                    publishContentChangeEvent();
                 }
                 mLastSelectedPosition = position;
             }
@@ -143,6 +146,30 @@ public class SearchActivity extends ScActivity {
             perform(mPendingSearch);
             mPendingSearch = null;
         }
+
+        if (shouldTrackScreen()) {
+            publishContentChangeEvent();
+        }
+    }
+
+    private void publishContentChangeEvent() {
+        final int position = mSpinner.getSelectedItemPosition();
+        switch (position) {
+            case SPINNER_POS_ALL:
+                Event.SCREEN_ENTERED.publish(Screen.SEARCH_EVERYTHING.get());
+                break;
+            case SPINNER_POS_SOUNDS:
+                Event.SCREEN_ENTERED.publish(Screen.SEARCH_TRACKS.get());
+                break;
+            case SPINNER_POS_PLAYLISTS:
+                Event.SCREEN_ENTERED.publish(Screen.SEARCH_PLAYLISTS.get());
+                break;
+            case SPINNER_POS_USERS:
+                Event.SCREEN_ENTERED.publish(Screen.SEARCH_USERS.get());
+                break;
+            default:
+                throw new IllegalStateException("Unexpected search filter with position " + position);
+        }
     }
 
     private Search getSearchFromInputText() {
@@ -212,6 +239,22 @@ public class SearchActivity extends ScActivity {
         mCurrentSearch = (Search) previous[0];
         if (mCurrentSearch != null) {
             mTxtQuery.setText(mCurrentSearch.query);
+            switch (mCurrentSearch.search_type) {
+                case Search.ALL:
+                    mLastSelectedPosition = SPINNER_POS_ALL;
+                    break;
+                case Search.TRACKS:
+                    mLastSelectedPosition = SPINNER_POS_SOUNDS;
+                    break;
+                case Search.PLAYLISTS:
+                    mLastSelectedPosition = SPINNER_POS_PLAYLISTS;
+                    break;
+                case Search.USERS:
+                    mLastSelectedPosition = SPINNER_POS_USERS;
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected search type");
+            }
         }
         mSearchFragment = (SearchFragment) getSupportFragmentManager().findFragmentById(R.id.results_holder);
     }

@@ -1,16 +1,16 @@
 package com.soundcloud.android.creators.upload;
 
-
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.creators.record.PlaybackStream;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.storage.provider.Content;
@@ -179,6 +179,9 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         super.onResume();
         if (!mRecording.isPrivateMessage()) {
             mConnectionList.getAdapter().loadIfNecessary(this);
+        }
+        if (shouldTrackScreen()) {
+            Event.SCREEN_ENTERED.publish(Screen.RECORD_UPLOAD.get());
         }
     }
 

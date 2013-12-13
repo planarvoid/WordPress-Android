@@ -114,8 +114,27 @@ public class CategoryTest {
         expect(mCategory.getEmptyMessage(Robolectric.application.getResources())).toBeNull();
     }
 
+    @Test
+    public void shouldBeFacebookCategoryForFriends() {
+        mCategory.setKey("facebook_friends");
+        expect(mCategory.isFacebookCategory()).toBeTrue();
+    }
+
+    @Test
+    public void shouldBeFacebookCategoryForLikes() {
+        mCategory.setKey("facebook_likes");
+        expect(mCategory.isFacebookCategory()).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotBeFacebookCategoryForOtherCategories() {
+        mCategory.setKey("smooth_jazz");
+        expect(mCategory.isFacebookCategory()).toBeFalse();
+    }
+
     private void checkEmptyMessage(int expectedMessageResId) {
         final String emptyMessage = mCategory.getEmptyMessage(Robolectric.application.getResources());
         expect(emptyMessage).toEqual(Robolectric.application.getResources().getString(expectedMessageResId));
     }
+
 }
