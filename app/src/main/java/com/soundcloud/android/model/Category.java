@@ -17,6 +17,9 @@ public class Category extends ScModel {
 
     public static final String EXTRA = "category";
 
+    private static final String FACEBOOK_FRIENDS = "facebook_friends";
+    private static final String FACEBOOK_LIKES = "facebook_likes";
+
     public static final Predicate<Category> HAS_USERS_PREDICATE = new Predicate<Category>(){
         @Override
         public boolean apply(Category input) {
@@ -114,6 +117,11 @@ public class Category extends ScModel {
         return mDisplayType == DisplayType.EMPTY || mDisplayType == DisplayType.PROGRESS;
     }
 
+    public boolean isFacebookCategory() {
+        // Note! These keys are defined by the server (but they shouldn't change)
+        return mKey.equals(FACEBOOK_FRIENDS) || mKey.equals(FACEBOOK_LIKES);
+    }
+
     public String getEmptyMessage(Resources resources) {
         if (isErrorOrEmpty()){
             return resources.getString(isError() ? R.string.suggested_users_section_error : R.string.suggested_users_section_empty);
@@ -157,6 +165,5 @@ public class Category extends ScModel {
 
     public static final Category error(){
         return new Category(DisplayType.ERROR);
-
     }
 }
