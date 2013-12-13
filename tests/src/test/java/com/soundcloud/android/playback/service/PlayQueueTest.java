@@ -7,17 +7,16 @@ import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.net.Uri;
 
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueTest {
 
-    private static final Uri ORIGIN_PAGE = Uri.parse("explore:music:techno");
+    private static final String ORIGIN_PAGE = "explore:music:techno";
     private static final PlayQueueItem PLAY_QUEUE_ITEM_1 = new PlayQueueItem(1L, "source1", "version1");
     private static final PlayQueueItem PLAY_QUEUE_ITEM_2 = new PlayQueueItem(2L, "source2", "version2");
     private static final PlaySessionSource PLAY_SESSION_SOURCE = new PlaySessionSource(ORIGIN_PAGE, 54321L, "1.0");
@@ -27,20 +26,34 @@ public class PlayQueueTest {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2), 0, PLAY_SESSION_SOURCE);
 
         expect(playQueue.getItems()).toContainExactly(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2);
-        expect(playQueue.getOriginPage()).toBe(ORIGIN_PAGE);
-        expect(playQueue.getSetId()).toEqual(54321L);
+        expect(playQueue.getOriginScreen()).toBe(ORIGIN_PAGE);
+        expect(playQueue.getPlaylistId()).toEqual(54321L);
     }
 
     @Test
-    public void shouldReturnEventLoggerParams() {
+    public void shouldReturnTrackSourceInfoFromPlaylist() {
         PlayQueue playQueue = new PlayQueue(Lists.newArrayList(PLAY_QUEUE_ITEM_1, PLAY_QUEUE_ITEM_2), 0, PLAY_SESSION_SOURCE);
 
         expect(playQueue.getCurrentTrackId()).toEqual(1L);
-        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&context=explore%3Amusic%3Atechno&source=source1&source_version=version1&set_id=54321&set_position=0");
+
+        final TrackSourceInfo trackSourceInfo = playQueue.getCurrentTrackSourceInfo();
+        expect(trackSourceInfo.getIsUserTriggered()).toEqual(false);
+        expect(trackSourceInfo.getOriginScreen()).toEqual(ORIGIN_PAGE);
+        expect(trackSourceInfo.getSource()).toEqual("source1");
+        expect(trackSourceInfo.getSourceVersion()).toEqual("version1");
+        expect(trackSourceInfo.getPlaylistId()).toEqual(54321L);
+        expect(trackSourceInfo.getPlaylistPosition()).toEqual(0);
 
         expect(playQueue.setPosition(1)).toBeTrue();
         expect(playQueue.getCurrentTrackId()).toEqual(2L);
-        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&context=explore%3Amusic%3Atechno&source=source2&source_version=version2&set_id=54321&set_position=1");
+
+        final TrackSourceInfo trackSourceInfo2 = playQueue.getCurrentTrackSourceInfo();
+        expect(trackSourceInfo2.getIsUserTriggered()).toEqual(false);
+        expect(trackSourceInfo2.getOriginScreen()).toEqual(ORIGIN_PAGE);
+        expect(trackSourceInfo2.getSource()).toEqual("source2");
+        expect(trackSourceInfo2.getSourceVersion()).toEqual("version2");
+        expect(trackSourceInfo2.getPlaylistId()).toEqual(54321L);
+        expect(trackSourceInfo2.getPlaylistPosition()).toEqual(1);
     }
 
     @Test
@@ -52,7 +65,10 @@ public class PlayQueueTest {
         expect(playQueue.getItems().size()).toEqual(4);
         expect(playQueue.setPosition(3)).toBeTrue();
         expect(playQueue.getCurrentTrackId()).toEqual(123L);
-        expect(playQueue.getCurrentEventLoggerParams().toString()).toEqual("trigger=auto&context=explore%3Amusic%3Atechno&source=source3&source_version=version3&set_id=54321&set_position=3");
+
+        final TrackSourceInfo trackSourceInfo = playQueue.getCurrentTrackSourceInfo();
+        expect(trackSourceInfo.getSource()).toEqual("source3");
+        expect(trackSourceInfo.getSourceVersion()).toEqual("version3");
     }
 
     @Test
@@ -80,7 +96,9 @@ public class PlayQueueTest {
     public void moveToNextShouldResultInAutoTrigger() {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 0);
         expect(playQueue.moveToNext(false)).toBeTrue();
-        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto");
+
+        final TrackSourceInfo trackSourceInfo = playQueue.getCurrentTrackSourceInfo();
+        expect(trackSourceInfo.getIsUserTriggered()).toEqual(false);
     }
 
     @Test
@@ -99,24 +117,32 @@ public class PlayQueueTest {
 
     @Test
     public void shouldReturnSetAsPartOfLoggerParams() {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1, new PlaySessionSource(Uri.EMPTY, 54321));
-        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&set_id=54321&set_position=1");
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1, new PlaySessionSource(ScTextUtils.EMPTY_STRING, 54321));
+
+        final TrackSourceInfo trackSourceInfo = playQueue.getCurrentTrackSourceInfo();
+        expect(trackSourceInfo.getIsUserTriggered()).toEqual(false);
+        expect(trackSourceInfo.getPlaylistId()).toEqual(54321L);
+        expect(trackSourceInfo.getPlaylistPosition()).toEqual(1);
     }
 
     @Test
     public void shouldReturnExploreVersionAsPartOfLoggerParams() {
-        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1, new PlaySessionSource(Uri.EMPTY, "exploreVersion1"));
-        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=auto&source=explore&source_version=exploreVersion1");
+        PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1, new PlaySessionSource(ScTextUtils.EMPTY_STRING, "exploreVersion1"));
+
+        final TrackSourceInfo trackSourceInfo = playQueue.getCurrentTrackSourceInfo();
+        expect(trackSourceInfo.getIsUserTriggered()).toEqual(false);
+        expect(trackSourceInfo.getSource()).toEqual("explore");
+        expect(trackSourceInfo.getSourceVersion()).toEqual("exploreVersion1");
     }
 
     @Test
     public void shouldReturnEmptyEventLoggerParamsWhenQueueIsEmpty() throws Exception {
-        expect(PlayQueue.empty().getCurrentEventLoggerParams()).toEqual("");
+        expect(PlayQueue.empty().getCurrentTrackSourceInfo()).toBeNull();
 
     }
 
     private void checkManualTrigger(PlayQueue playQueue) {
-        expect(playQueue.getCurrentEventLoggerParams()).toEqual("trigger=manual");
+        expect(playQueue.getCurrentTrackSourceInfo().getIsUserTriggered()).toEqual(true);
     }
 
     @Test

@@ -7,11 +7,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.tracking.eventlogger.EventLoggerParamsBuilder;
 import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
-import com.soundcloud.android.utils.ScTextUtils;
-
-import android.net.Uri;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -46,7 +42,7 @@ class PlayQueue {
         return mPlayQueueItems;
     }
 
-    public Uri getOriginPage() {
+    public String getOriginScreen() {
         return mPlaySessionSource.getOriginPage();
     }
 
@@ -76,17 +72,15 @@ class PlayQueue {
         return false;
     }
 
-    public String getCurrentEventLoggerParams() {
-        if (isEmpty()) return ScTextUtils.EMPTY_STRING;
+    public TrackSourceInfo getCurrentTrackSourceInfo() {
+        if (isEmpty()) return null;
 
-        EventLoggerParamsBuilder builder = new EventLoggerParamsBuilder(mCurrentTrackIsUserTriggered);
-        builder.origin(getOriginPage());
-        builder.source(getCurrentTrackSource());
-        builder.sourceVersion(getCurrentTrackSourceVersion());
-        if (isPlayingSet()) {
-            builder.set(getSetId(), getPosition());
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(getOriginScreen(), mCurrentTrackIsUserTriggered);
+        trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
+        if (isPlayingPlaylist()) {
+            trackSourceInfo.setOriginPlaylist(getPlaylistId(), getPosition());
         }
-        return builder.build();
+        return trackSourceInfo;
     }
 
     public long getCurrentTrackId() {
@@ -111,7 +105,7 @@ class PlayQueue {
     }
 
     @VisibleForTesting
-    long getSetId() {
+    long getPlaylistId() {
         return mPlaySessionSource.getSetId();
     }
 
@@ -124,8 +118,8 @@ class PlayQueue {
         }));
     }
 
-    private boolean isPlayingSet() {
-        return getSetId() > Playable.NOT_SET;
+    private boolean isPlayingPlaylist() {
+        return getPlaylistId() > Playable.NOT_SET;
     }
 
     private String getCurrentTrackSource() {

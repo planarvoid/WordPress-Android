@@ -17,16 +17,15 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
-import com.soundcloud.android.playback.views.PlayerTrackView;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.playback.service.PlaybackState;
 import com.soundcloud.android.playback.views.AddCommentDialog;
 import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
 import com.soundcloud.android.playback.views.PlayerTrackDetailsLayout;
 import com.soundcloud.android.playback.views.PlayerTrackPager;
+import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.playback.views.TransportBarView;
+import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +36,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -123,41 +121,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             // we track whatever sound gets played first here, and then every subsequent sound through the view pager,
             // to accommodate for lazy loading of sounds
             Event.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
-        }
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        Uri uri = PlaybackService.getPlayQueueUri();
-        Intent upIntent = null;
-        // had a case where URI was null; guess this can happen if the playback service was never started? ugh.
-        if (uri != null) {
-            switch (Content.match(uri)){
-                case PLAYLIST:
-                    upIntent = new Intent(Actions.PLAYLIST).setData(uri);
-                    break;
-
-                case ME_SOUND_STREAM:
-                    upIntent = new Intent(Actions.STREAM);
-                    break;
-
-                case ME_SOUNDS:
-                    upIntent = new Intent(Actions.YOUR_SOUNDS);
-                    break;
-
-                case ME_LIKES:
-                    upIntent = new Intent(Actions.YOUR_LIKES);
-                    break;
-            }
-        }
-
-        if (upIntent != null){
-            upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(upIntent);
-            finish();
-            return true;
-        } else {
-            return super.onSupportNavigateUp();
         }
     }
 
@@ -309,7 +272,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             if (intent.getData() != null) {
                 final long id = UriUtils.getLastSegmentAsLong(intent.getData());
                 playQueue = new PlayQueueView(id);
-                mPlaybackOperations.startPlayback(this, id, getOriginScreenFromIntent(intent));
+                mPlaybackOperations.startPlayback(this, id, Screen.fromIntent(intent, Screen.DEEPLINK));
             }
 
         } else if (intent.hasExtra(Track.EXTRA_ID)) {
@@ -320,18 +283,10 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             playQueue = new PlayQueueView(Lists.newArrayList(track.getId()), 0);
 
             if (Actions.PLAY.equals(action)){
-                mPlaybackOperations.startPlayback(this, track, getOriginScreenFromIntent(intent));
+                mPlaybackOperations.startPlayback(this, track, Screen.fromIntent(intent, Screen.DEEPLINK));
             }
         }
         return playQueue;
-    }
-
-    private Screen getOriginScreenFromIntent(Intent intent) {
-        if (intent.hasExtra(Screen.ORDINAL_EXTRA)){
-            return Screen.values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)];
-        } else {
-            return Screen.DEEPLINK;
-        }
     }
 
     @Override

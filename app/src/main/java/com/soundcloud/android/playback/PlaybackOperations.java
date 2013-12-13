@@ -90,7 +90,7 @@ public class PlaybackOperations {
      * Created by anything played from the {@link com.soundcloud.android.explore.ExploreFragment} section.
      */
     public void playExploreTrack(Context context, Track track, String exploreTag, String screenTag) {
-        playTrack(context, track, new PlaySessionSource(Uri.parse(screenTag), exploreTag));
+        playTrack(context, track, new PlaySessionSource(screenTag, exploreTag));
     }
 
 
@@ -105,7 +105,7 @@ public class PlaybackOperations {
      * Used in {@link com.soundcloud.android.playlists.PlaylistTracksFragment}
      */
     public void playFromPlaylist(Context context, Uri uri, int startPosition, Track initialTrack, Screen screen) {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(screen.toUri(), UriUtils.getLastSegmentAsLong(uri));
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen.get(), UriUtils.getLastSegmentAsLong(uri));
         playFromUri(context, uri, startPosition, initialTrack, playSessionSource);
     }
 
@@ -127,7 +127,7 @@ public class PlaybackOperations {
             }
 
         } else if (playable instanceof Playlist) {
-            PlaylistDetailActivity.start(context, (Playlist) playable, mModelManager);
+            PlaylistDetailActivity.start(context, (Playlist) playable, mModelManager, screen);
         } else {
             throw new AssertionError("Unexpected playable type");
         }

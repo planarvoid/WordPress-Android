@@ -4,7 +4,6 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.utils.ScTextUtils;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -22,44 +21,44 @@ public class PlaySessionSource implements Parcelable{
         }
     }
 
-    private final Uri mOriginPage;
+    private final String mOriginPage;
     private final long mSetId;
     private String mExploreVersion;
 
     public PlaySessionSource(Parcel in) {
         mSetId = in.readLong();
-        mOriginPage = in.readParcelable(PlaySessionSource.class.getClassLoader());
+        mOriginPage = in.readString();
         mExploreVersion = in.readString();
     }
 
     public PlaySessionSource() {
-        this(Uri.EMPTY);
+        this(ScTextUtils.EMPTY_STRING);
     }
 
     public PlaySessionSource(Screen screen) {
-        this(screen.toUri());
+        this(screen.get());
     }
 
-    public PlaySessionSource(Uri originScreen) {
+    public PlaySessionSource(String originScreen) {
         this(originScreen, ScModel.NOT_SET);
     }
 
-    public PlaySessionSource(Uri originScreen, long setId) {
+    public PlaySessionSource(String originScreen, long setId) {
         mOriginPage = originScreen;
         mSetId = setId;
     }
 
-    public PlaySessionSource(Uri originScreen, String exploreVersion) {
+    public PlaySessionSource(String originScreen, String exploreVersion) {
         this(originScreen, ScModel.NOT_SET, exploreVersion);
     }
 
-    public PlaySessionSource(Uri originScreen, long setId, String exploreVersion) {
+    public PlaySessionSource(String originScreen, long setId, String exploreVersion) {
         mOriginPage = originScreen;
         mSetId = setId;
         mExploreVersion = exploreVersion;
     }
 
-    public Uri getOriginPage() {
+    public String getOriginPage() {
         return mOriginPage;
     }
 
@@ -69,7 +68,7 @@ public class PlaySessionSource implements Parcelable{
 
     // TODO, finalize this once we implement page tracking
     public boolean originatedInExplore(){
-        return "explore".equals(mOriginPage.getScheme());
+        return mOriginPage.startsWith("explore");
     }
 
     public String getInitialSource() {
@@ -88,7 +87,7 @@ public class PlaySessionSource implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(mSetId);
-        dest.writeParcelable(mOriginPage, 0);
+        dest.writeString(mOriginPage);
         dest.writeString(mExploreVersion);
     }
 

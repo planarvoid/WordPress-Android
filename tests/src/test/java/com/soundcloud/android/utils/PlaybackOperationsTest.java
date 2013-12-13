@@ -83,7 +83,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playTrack(Robolectric.application, track, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.toUri()), track.getId());
+        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.get()), track.getId());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playFromPlaylist(Robolectric.application, playlist.toUri(), 1, tracks.get(1), ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.toUri(), playlist.getId()),
+        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.get(), playlist.getId()),
                 tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
     }
 
@@ -119,7 +119,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playFromAdapter(Robolectric.application, playables, 4, null, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_SCREEN.toUri()), 2L, 3L, 1L);
+        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_SCREEN.get()), 2L, 3L, 1L);
 
     }
 
@@ -152,7 +152,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playFromAdapter(Robolectric.application, playables, 1, null, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.toUri()), 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
     }
 
     @Test
@@ -162,7 +162,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playFromAdapter(Robolectric.application, playables, 2, null, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.toUri()), 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 1,  new PlaySessionSource(ORIGIN_SCREEN.get()), 1L, 2L);
     }
 
     @Test
@@ -174,7 +174,7 @@ public class PlaybackOperationsTest {
         playbackOperations.playFromAdapter(Robolectric.application, playables, 2, Content.ME_LIKES.uri, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_SCREEN.toUri()), 5L, 1L, 2L);
+        checkStartIntent(application.getNextStartedService(), 2,  new PlaySessionSource(ORIGIN_SCREEN.get()), 5L, 1L, 2L);
     }
 
 
@@ -244,7 +244,7 @@ public class PlaybackOperationsTest {
 
         verify(modelManager).cache(track);
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.toUri()), track.getId());
+        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.get()), track.getId());
 
     }
 
@@ -253,7 +253,7 @@ public class PlaybackOperationsTest {
         playbackOperations.startPlayback(Robolectric.application, 123L, ORIGIN_SCREEN);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.toUri()), 123L);
+        checkStartIntent(application.getNextStartedService(), 0, new PlaySessionSource(ORIGIN_SCREEN.get()), 123L);
 
     }
 }

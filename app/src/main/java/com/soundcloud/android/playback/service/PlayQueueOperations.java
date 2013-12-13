@@ -59,7 +59,7 @@ public class PlayQueueOperations {
     }
 
     public PlaySessionSource getLastStoredPlaySessionSource() {
-        return new PlaySessionSource(extractUri(mSharedPreferences, Keys.ORIGIN_URL.name()),
+        return new PlaySessionSource(mSharedPreferences.getString(Keys.ORIGIN_URL.name(), ScTextUtils.EMPTY_STRING),
                 mSharedPreferences.getLong(Keys.SET_ID.name(), ScModel.NOT_SET));
     }
 
@@ -83,12 +83,8 @@ public class PlayQueueOperations {
         editor.putLong(Keys.TRACK_ID.name(), playQueue.getCurrentTrackId());
         editor.putInt(Keys.PLAY_POSITION.name(), playQueue.getPosition());
         editor.putLong(Keys.SEEK_POSITION.name(), seekPosition);
-        editor.putLong(Keys.SET_ID.name(), playQueue.getSetId());
-
-        final Uri origin = playQueue.getOriginPage();
-        if (origin != null && origin != Uri.EMPTY) {
-            editor.putString(Keys.ORIGIN_URL.name(), String.valueOf(origin));
-        }
+        editor.putLong(Keys.SET_ID.name(), playQueue.getPlaylistId());
+        editor.putString(Keys.ORIGIN_URL.name(), playQueue.getOriginScreen());
         SharedPreferencesUtils.apply(editor);
 
         return RxObserverHelper.fireAndForget(mPlayQueueStorage.storeCollectionAsync(playQueue.getItems()));

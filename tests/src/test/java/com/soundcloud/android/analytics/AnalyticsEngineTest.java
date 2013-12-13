@@ -15,12 +15,14 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.Event;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import android.content.SharedPreferences;
 
@@ -378,7 +380,7 @@ public class AnalyticsEngineTest {
     public void shouldTrackPlaybackEvent() throws Exception {
         initialiseAnalyticsEngine();
 
-        PlaybackEventData playbackEventData = PlaybackEventData.forPlay(mock(Track.class), 0, "");
+        PlaybackEventData playbackEventData = PlaybackEventData.forPlay(mock(Track.class), 0, Mockito.mock(TrackSourceInfo.class));
         Event.PLAYBACK.publish(playbackEventData);
 
         verify(analyticsProviderOne, times(1)).trackPlaybackEvent(playbackEventData);

@@ -31,7 +31,6 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.net.Uri;
 
 import java.util.List;
 
@@ -115,7 +114,7 @@ public class PlaybackReceiverTest {
     public void shouldCreateAndSetPlayQueueOnPlayQueueManager() {
         final long[] idListArray = new long[]{1L, 2L, 3L};
         final List<Long> idList = Longs.asList(idListArray);
-        final PlaySessionSource playSessionSource = new PlaySessionSource(Uri.parse("origin:page"), 123L, "verion1");
+        final PlaySessionSource playSessionSource = new PlaySessionSource("origin:page", 123L, "verion1");
 
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlaybackService.PlayExtras.trackIdList, idListArray);
@@ -130,7 +129,7 @@ public class PlaybackReceiverTest {
     public void sendingNewPlayQueueShouldOpenCurrentTrackInPlaybackService() {
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlaybackService.PlayExtras.trackIdList, new long[]{1L, 2L, 3L});
-        intent.putExtra(PlaybackService.PlayExtras.playSessionSource, new PlaySessionSource(Uri.parse("origin:page"), 123L, "verion1"));
+        intent.putExtra(PlaybackService.PlayExtras.playSessionSource, new PlaySessionSource("origin:page", 123L, "verion1"));
         intent.putExtra(PlaybackService.PlayExtras.startPosition, 2);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -142,7 +141,7 @@ public class PlaybackReceiverTest {
     public void sendingNewPlayQueueShouldOptionallyFetchRelatedTracks() {
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlaybackService.PlayExtras.trackIdList, new long[]{1L});
-        intent.putExtra(PlaybackService.PlayExtras.playSessionSource, new PlaySessionSource(Uri.parse("explore:page"), 123L, "verion1"));
+        intent.putExtra(PlaybackService.PlayExtras.playSessionSource, new PlaySessionSource("explore:page", 123L, "verion1"));
         intent.putExtra(PlaybackService.PlayExtras.startPosition, 0);
 
         playbackReceiver.onReceive(Robolectric.application, intent);

@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics;
 
-import android.net.Uri;
+import android.content.Intent;
+import android.os.Bundle;
 
 import java.util.Locale;
 
@@ -72,7 +73,7 @@ public enum Screen {
     // context provided when we intercept a track
     DEEPLINK("deeplink");
 
-    public static final String ORDINAL_EXTRA = "ScreenOrdinal";
+    private static final String ORDINAL_EXTRA = "ScreenOrdinal";
 
     private Screen(String trackingTag) {
         mTag = trackingTag;
@@ -86,9 +87,27 @@ public enum Screen {
         return new StringBuilder(mTag).append(":").append(postfix.toLowerCase(Locale.US).replaceAll(" ", "_")).toString();
     }
 
-    public Uri toUri() {
-        return Uri.parse(mTag);
+    public void addToBundle(Bundle bundle){
+        bundle.putInt(Screen.ORDINAL_EXTRA, ordinal());
+    }
+
+    public void addToIntent(Intent intent){
+        intent.putExtra(Screen.ORDINAL_EXTRA, ordinal());
     }
 
     private String mTag;
+
+    public static Screen fromIntent(Intent intent){
+        return values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)];
+    }
+
+    public static Screen fromIntent(Intent intent, Screen defaultScreen){
+        return intent.hasExtra(Screen.ORDINAL_EXTRA) ? values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)] : defaultScreen;
+    }
+
+    public static Screen fromBundle(Bundle bundle){
+        return values()[bundle.getInt(Screen.ORDINAL_EXTRA, -1)];
+    }
+
+
 }

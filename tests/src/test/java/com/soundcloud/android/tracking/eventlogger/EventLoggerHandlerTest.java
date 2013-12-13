@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -34,9 +35,8 @@ public class EventLoggerHandlerTest {
     EventLoggerApi api;
     @Mock
     EventLoggerStorage storage;
-
-    final String trackingParams1 = "tracking=params";
-    final String trackingParams2 = "tracking=params2";
+    @Mock
+    TrackSourceInfo trackSourceInfo;
 
     @Before
     public void before() {
@@ -48,8 +48,8 @@ public class EventLoggerHandlerTest {
     public void shouldInsertTrackingEventsIntoDatabase() throws Exception {
         Track track = TestHelper.getModelFactory().createModel(Track.class);
 
-        final PlaybackEventData playbackEventData1 = PlaybackEventData.forPlay(track, 1l, trackingParams1);
-        final PlaybackEventData playbackEventData2 = PlaybackEventData.forStop(track, 2l, trackingParams2);
+        final PlaybackEventData playbackEventData1 = PlaybackEventData.forPlay(track, 1l, trackSourceInfo);
+        final PlaybackEventData playbackEventData2 = PlaybackEventData.forStop(track, 2l, trackSourceInfo, playbackEventData1);
 
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData1));
         eventLoggerHandler.sendMessage(eventLoggerHandler.obtainMessage(EventLoggerHandler.INSERT_TOKEN, playbackEventData2));
