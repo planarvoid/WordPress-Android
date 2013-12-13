@@ -26,7 +26,7 @@ public class AccountSettingsActivity extends ScSettingsActivity {
     protected void onResume() {
         super.onResume();
         ((SoundCloudApplication)getApplication()).track(getClass());
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             Event.SCREEN_ENTERED.publish(Screen.SETTINGS_ACCOUNT.get());
         }
     }

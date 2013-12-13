@@ -41,7 +41,7 @@ public class PlaylistInteractionActivity extends PlayableInteractionActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             Event.SCREEN_ENTERED.publish(mScreen.get());
         }
     }

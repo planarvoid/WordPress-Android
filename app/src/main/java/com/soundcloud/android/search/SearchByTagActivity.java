@@ -40,7 +40,7 @@ public class SearchByTagActivity extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             Event.SCREEN_ENTERED.publish(Screen.SEARCH_BY_TAG.get());
         }
     }

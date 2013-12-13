@@ -257,7 +257,7 @@ public class SettingsActivity extends ScSettingsActivity {
         getApp().track(SettingsActivity.class);
         updateClearCacheTitles();
         super.onResume();
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             Event.SCREEN_ENTERED.publish(Screen.SETTINGS_MAIN.get());
         }
     }

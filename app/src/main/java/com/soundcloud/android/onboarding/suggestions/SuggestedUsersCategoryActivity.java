@@ -44,7 +44,7 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             // Facebook suggestions are tracked separately based on category keys
             // If these keys change on the server we'll stop getting these events
             if (mCategory.getKey().equals(FACEBOOK_FRIENDS) || mCategory.getKey().equals(FACEBOOK_LIKES)) {

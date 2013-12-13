@@ -192,7 +192,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         if (Consts.SdkSwitches.canDetermineActivityBackground) {
             mRecorder.shouldUseNotifications(false);
         }
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             trackScreen();
         }
     }

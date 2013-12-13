@@ -151,7 +151,7 @@ public class SearchActivity extends ScActivity {
             mPendingSearch = null;
         }
 
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             publishContentChangeEvent();
         }
     }

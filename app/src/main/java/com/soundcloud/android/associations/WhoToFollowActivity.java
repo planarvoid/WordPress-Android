@@ -25,7 +25,7 @@ public class WhoToFollowActivity extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             Event.SCREEN_ENTERED.publish(Screen.WHO_TO_FOLLOW.get());
         }
     }

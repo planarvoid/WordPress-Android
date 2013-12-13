@@ -200,6 +200,10 @@ public abstract class ScActivity extends ActionBarActivity implements Tracker, A
         return mIsConfigurationChange;
     }
 
+    protected boolean shouldTrackScreen() {
+        return !isConfigurationChange() || isReallyResuming();
+    }
+
     public boolean isForeground() {
         return mIsForeground;
     }

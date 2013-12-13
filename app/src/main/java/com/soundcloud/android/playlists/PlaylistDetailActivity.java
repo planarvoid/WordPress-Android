@@ -79,7 +79,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             Event.SCREEN_ENTERED.publish(Screen.PLAYLIST_DETAILS.get());
         }
     }

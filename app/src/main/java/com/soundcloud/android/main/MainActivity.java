@@ -147,7 +147,7 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
             finish();
         }
 
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             publishContentChangeEvent();
         }
     }

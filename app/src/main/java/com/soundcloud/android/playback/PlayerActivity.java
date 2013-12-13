@@ -120,7 +120,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     protected void onResume() {
         super.onResume();
 
-        if (!isConfigurationChange() || isReallyResuming()) {
+        if (shouldTrackScreen()) {
             // we track whatever sound gets played first here, and then every subsequent sound through the view pager,
             // to accommodate for lazy loading of sounds
             Event.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
