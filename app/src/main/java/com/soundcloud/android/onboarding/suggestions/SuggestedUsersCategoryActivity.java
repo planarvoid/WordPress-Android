@@ -2,6 +2,8 @@ package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -11,6 +13,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class SuggestedUsersCategoryActivity extends ScActivity {
+
+    private static final String FACEBOOK_FRIENDS = "facebook_friends";
+    private static final String FACEBOOK_LIKES = "facebook_likes";
 
     private Category mCategory;
     private SuggestedUsersCategoryFragment mCategoryFragment;
@@ -32,6 +37,20 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
                         .commit();
             } else {
                 mCategoryFragment = (SuggestedUsersCategoryFragment) getSupportFragmentManager().findFragmentById(R.id.holder);
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (shouldTrackScreen()) {
+            // Facebook suggestions are tracked separately based on category keys
+            // If these keys change on the server we'll stop getting these events
+            if (mCategory.getKey().equals(FACEBOOK_FRIENDS) || mCategory.getKey().equals(FACEBOOK_LIKES)) {
+                Event.SCREEN_ENTERED.publish(Screen.ONBOARDING_FACEBOOK.get());
+            } else {
+                Event.SCREEN_ENTERED.publish(Screen.ONBOARDING_GENRE.get());
             }
         }
     }

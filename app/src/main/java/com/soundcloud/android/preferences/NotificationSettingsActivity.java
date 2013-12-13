@@ -3,6 +3,8 @@ package com.soundcloud.android.preferences;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.tracking.Page;
@@ -13,14 +15,13 @@ import android.content.ContentResolver;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Tracking(page = Page.Settings_notifications)
-public class NotificationSettingsActivity extends PreferenceActivity {
+public class NotificationSettingsActivity extends ScSettingsActivity {
     final List<CheckBoxPreference> syncPreferences = new ArrayList<CheckBoxPreference>();
     private AccountOperations mAccountOperations;
 
@@ -67,6 +68,9 @@ public class NotificationSettingsActivity extends PreferenceActivity {
     protected void onResume() {
         super.onResume();
         ((SoundCloudApplication) getApplication()).track(getClass());
+        if (shouldTrackScreen()) {
+            Event.SCREEN_ENTERED.publish(Screen.SETTINGS_NOTIFICATIONS.get());
+        }
     }
 
     private boolean checkSyncNecessary() {

@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.views;
 
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.Event;
 import com.soundcloud.android.playback.PlayerTrackPagerAdapter;
 
 import android.content.Context;
@@ -104,9 +102,7 @@ public class PlayerTrackPager extends ViewPager {
         }
 
         @Override
-        public void onPageSelected(int position) {
-            Event.SCREEN_ENTERED.publish(Screen.PLAYER_MAIN.get());
-        }
+        public void onPageSelected(int position) {}
 
         @Override
         public void onPageScrollStateChanged(int state) {

@@ -11,7 +11,7 @@ aspect AnalyticsAspect {
     pointcut activityOnResume(Activity activity): execution(* Activity.onResume(..)) && target(activity);
     pointcut activityOnPause(Activity activity): execution(* Activity.onPause(..)) && target(activity);
 
-    after(Activity activity): (activityOnCreate(activity) || activityOnResume(activity)) {
+    before(Activity activity): (activityOnCreate(activity) || activityOnResume(activity)) {
         Log.d(TAG, "Opening session for " + activity.getClass().getSimpleName());
         AnalyticsEngine.getInstance(activity).openSessionForActivity();
     }

@@ -5,10 +5,12 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.creators.record.PlaybackStream;
 import com.soundcloud.android.storage.RecordingStorage;
@@ -192,6 +194,9 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
             mConnectionList.getAdapter().loadIfNecessary(this);
         }
         track(UploadActivity.class, getApp().getLoggedInUser());
+        if (shouldTrackScreen()) {
+            Event.SCREEN_ENTERED.publish(Screen.RECORD_UPLOAD.get());
+        }
     }
 
     @Override

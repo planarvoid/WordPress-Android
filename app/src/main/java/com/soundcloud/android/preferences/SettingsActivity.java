@@ -14,14 +14,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.events.Event;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -41,7 +42,7 @@ import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 @Tracking(page = Page.Settings_main)
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends ScSettingsActivity {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
@@ -102,6 +103,7 @@ public class SettingsActivity extends PreferenceActivity {
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         getApp().track(Page.Settings_change_log);
+                        Event.SCREEN_ENTERED.publish(Screen.SETTINGS_CHANGE_LOG.get());
                         cl.getDialog(true).show();
                         return true;
                     }
@@ -255,6 +257,9 @@ public class SettingsActivity extends PreferenceActivity {
         getApp().track(SettingsActivity.class);
         updateClearCacheTitles();
         super.onResume();
+        if (shouldTrackScreen()) {
+            Event.SCREEN_ENTERED.publish(Screen.SETTINGS_MAIN.get());
+        }
     }
 
     @Override
