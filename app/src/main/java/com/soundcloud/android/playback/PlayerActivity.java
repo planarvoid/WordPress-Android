@@ -26,7 +26,6 @@ import com.soundcloud.android.playback.views.PlayerTrackView;
 import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -413,11 +412,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 final int playPosition = mPlayQueue.getPosition();
                 if (mPlaybackService.getProgress() < 2000 && playPosition > 0) {
 
-                    final Track currentTrack = PlaybackService.getCurrentTrack();
-                    if (currentTrack != null) {
-                        track(Media.fromTrack(currentTrack), Media.Action.Backward);
-                    }
-
                     if (getCurrentDisplayedTrackPosition() == playPosition) {
                         mChangeTrackFast = true;
                         mTrackPager.prev();
@@ -443,11 +437,6 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             if (mTrackPager.isScrolling()) return;
 
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-
-            final Track currentTrack = PlaybackService.getCurrentTrack();
-            if (currentTrack != null) {
-                track(Media.fromTrack(currentTrack), Media.Action.Forward);
-            }
 
             if (mPlaybackService != null) {
                 final int playPosition = mPlayQueue.getPosition();

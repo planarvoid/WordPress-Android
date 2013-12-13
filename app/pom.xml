@@ -248,12 +248,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.at</groupId>
-            <artifactId>ATInternet</artifactId>
-            <version>1.1.003</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
             <version>4.1.1.4</version>

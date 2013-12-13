@@ -3,14 +3,12 @@ package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.preferences.DevSettings;
 import com.soundcloud.android.creators.record.filter.FadeFilter;
 import com.soundcloud.android.playback.service.managers.AudioManagerFactory;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -794,14 +792,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     public static boolean hasFPUSupport() {
         return !"armeabi".equals(Build.CPU_ABI);
-    }
-
-    public void track(Event event, Object... args) {
-        SoundCloudApplication.fromContext(mContext).track(event, args);
-    }
-
-    public void track(Class<?> klazz, Object... args) {
-        SoundCloudApplication.fromContext(mContext).track(klazz, args);
     }
 
     @Override

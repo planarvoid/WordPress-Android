@@ -7,7 +7,6 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.associations.AddCommentTask;
-import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
@@ -39,7 +38,6 @@ public class AddCommentDialog extends BaseDialogFragment {
     @Override
     protected Builder build(Builder initialBuilder) {
         final Comment comment = getArguments().getParcelable(EXTRA_COMMENT);
-        SoundCloudApplication.fromContext(getActivity()).track(Page.Sounds_add_comment, comment.getPlayable());
 
         final View dialogView = View.inflate(getActivity(), R.layout.add_new_comment_dialog_view, null);
 

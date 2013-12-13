@@ -4,15 +4,13 @@ package com.soundcloud.android.onboarding.auth;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.PublicApi;
-import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.api.AsyncApiTask;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.api.PublicApi;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 
@@ -25,7 +23,6 @@ import android.widget.TextView;
 
 import java.io.IOException;
 
-@Tracking(page = Page.Entry_confirm_your_email)
 public class EmailConfirmationActivity extends ScActivity {
 
     private AccountOperations mAccountOperations;
@@ -64,7 +61,6 @@ public class EmailConfirmationActivity extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getApp().track(EmailConfirmationActivity.class);
     }
 
     private void updateLastReminded() {

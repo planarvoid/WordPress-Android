@@ -12,9 +12,6 @@ import com.soundcloud.android.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.RecordingStorage;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -51,7 +48,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-@Tracking(page = Page.Record_main)
 public class RecordActivity extends ScActivity implements CreateWaveDisplay.Listener, ISimpleDialogListener {
 
     public static final int REQUEST_UPLOAD_SOUND  = 1;
@@ -84,8 +80,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         DISCARD_RECORDING, UNSAVED_RECORDING, DELETE_RECORDING, REVERT_RECORDING;
     }
 
-
-
     public enum CreateState {
         GENERATING_WAVEFORM,
         IDLE_RECORD,
@@ -98,12 +92,14 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         public boolean isEdit() { return this == EDIT || this == EDIT_PLAYBACK; }
 
     }
+
     static interface MenuItems {
 
         int RESET = 1;
         int DELETE = 2;
         int SAVE = 3;
     }
+
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -251,14 +247,12 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     @Override
     public void onAdjustTrimLeft(float newPos, long moveTime) {
         mRecorder.onNewStartPosition(newPos, moveTime);
-        track(Click.Record_Edit_Interact);
         configurePlaybackInfo();
     }
 
     @Override
     public void onAdjustTrimRight(float newPos, long moveTime) {
         mRecorder.onNewEndPosition(newPos, moveTime);
-        track(Click.Record_Edit_Interact);
         configurePlaybackInfo();
     }
 
@@ -294,10 +288,8 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             @Override
             public void onClick(View v) {
                 if (!mCurrentState.isEdit()) {
-                    track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
                     showDiscardRecordingDialog();
                 } else {
-                    track(Click.Record_Edit_Revert_To_Original);
                     showRevertRecordingDialog();
                 }
             }
@@ -305,7 +297,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.DELETE, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
                 showDeleteRecordingDialog();
             }
         }), R.string.delete);
@@ -314,15 +305,9 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             public void onClick(View v) {
                 final Recording rec = mRecorder.saveState();
                 if (rec != null) {
-                    final PlaybackStream ps = rec.getPlaybackStream();
                     if (mCurrentState.isEdit()) {
-                        track(Click.Record_Edit_Apply, ps != null && ps.isTrimmed() ? "trimmed" : "not_trimmed");
                         updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                     } else {
-                        track(Click.Record_Pause_Publish,
-                                mTxtRecordMessage.getCurrentSuggestionKey(),
-                                ps != null && ps.isTrimmed() ? "trimmed" : "not_trimmed");
-
                         startActivityForResult(new Intent(RecordActivity.this, UploadActivity.class)
                                 .setData(rec.toUri()), REQUEST_UPLOAD_SOUND);
                     }
@@ -343,18 +328,15 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             public void onClick(View v) {
                 switch (mCurrentState) {
                     case IDLE_RECORD:
-                        track(Click.Record_Main_Record_Start, mTxtRecordMessage.getCurrentSuggestionKey());
                         startRecording();
                         break;
 
                     case IDLE_PLAYBACK:
                     case PLAYBACK:
-                        track(Click.Record_Pause_Record_More);
                         startRecording();
                         break;
 
                     case RECORD:
-                        track(Click.Record_Main_Record_Pause, mTxtRecordMessage.getCurrentSuggestionKey());
                         mRecorder.stopRecording();
                         // XXX use prefs
                         if (mAccountOperations.getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)) {
@@ -373,9 +355,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         if (button != null){
             button.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    if (!mRecorder.isPlaying()) {
-                        track(Click.Record_Pause_Play);
-                    }
                     mRecorder.togglePlayback();
                 }
             });
@@ -903,16 +882,11 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     public void onPositiveButtonClicked(int requestCode) {
         switch (Dialogs.values()[requestCode]){
             case DISCARD_RECORDING :
-                reset(true);
-                break;
-
             case DELETE_RECORDING :
-                track(Click.Record_Pause_Delete, mTxtRecordMessage.getCurrentSuggestionKey());
                 reset(true);
                 break;
 
             case REVERT_RECORDING :
-                track(Click.Record_Edit_Revert_To_Original);
                 mRecorder.revertFile();
                 updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                 break;

@@ -6,7 +6,6 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.creators.record.WavHeader;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.tracking.Event;
 import com.soundcloud.api.Token;
 
 import android.content.Intent;
@@ -22,7 +21,6 @@ import java.util.List;
 
 public class TestApplication extends SoundCloudApplication {
     public final Token token;
-    public final List<Event> trackedEvents = new ArrayList<Event>();
     public final List<Intent> broadcasts = new ArrayList<Intent>();
     private PublicApiWrapper mCloudApi;
     public TestApplication() {
@@ -42,11 +40,6 @@ public class TestApplication extends SoundCloudApplication {
     }
     public PublicCloudAPI getCloudAPI(){
         return mCloudApi;
-    }
-
-    @Override
-    public void track(Event page, Object... args) {
-        trackedEvents.add(page);
     }
 
     @Override

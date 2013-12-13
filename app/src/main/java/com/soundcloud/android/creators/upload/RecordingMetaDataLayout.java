@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 
@@ -229,7 +228,4 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         clearArtwork();
     }
 
-    private Tracker getTracker() {
-        return (Tracker) getContext().getApplicationContext();
-    }
 }
