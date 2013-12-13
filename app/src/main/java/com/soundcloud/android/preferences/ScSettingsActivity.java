@@ -44,4 +44,8 @@ public abstract class ScSettingsActivity extends PreferenceActivity {
         return mIsConfigurationChange;
     }
 
+    protected boolean shouldTrackScreen() {
+        return !isConfigurationChange() || isReallyResuming();
+    }
+
 }
