@@ -236,16 +236,16 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(PLAYLISTS_FRAGMENT_TAG);
         if (fragment == null) {
             fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists, Screen.SIDE_MENU_PLAYLISTS);
+            attachFragment(fragment, PLAYLISTS_FRAGMENT_TAG, R.string.side_menu_playlists);
         }
-        attachFragment(fragment, PLAYLISTS_FRAGMENT_TAG, R.string.side_menu_playlists);
     }
 
     private void displayLikes() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(LIKES_FRAGMENT_TAG);
         if (fragment == null) {
             fragment = ScListFragment.newInstance(Content.ME_LIKES.uri, R.string.side_menu_likes, Screen.SIDE_MENU_LIKES);
+            attachFragment(fragment, LIKES_FRAGMENT_TAG, R.string.side_menu_likes);
         }
-        attachFragment(fragment, LIKES_FRAGMENT_TAG, R.string.side_menu_likes);
     }
 
     private void displayExplore() {
@@ -264,9 +264,8 @@ public class MainActivity extends ScActivity implements NavigationFragment.Navig
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(STREAM_FRAGMENT_TAG);
         if (fragment == null) {
             fragment = ScListFragment.newInstance(contentUri, R.string.side_menu_stream, Screen.SIDE_MENU_STREAM);
+            attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);
         }
-
-        attachFragment(fragment, STREAM_FRAGMENT_TAG, R.string.side_menu_stream);
     }
 
     private void attachFragment(Fragment fragment, String tag, int titleResId) {
