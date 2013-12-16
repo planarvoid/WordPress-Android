@@ -103,8 +103,13 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTIONS:
             case COLLECTION_PAGES:
             case USER_ASSOCIATIONS:
+                qb.setTables(content.table.name);
+                break;
             case PLAY_QUEUE:
                 qb.setTables(content.table.name);
+                if (_sortOrder == null){
+                    _sortOrder = DBHelper.PlayQueue._ID + " ASC";
+                }
                 break;
 
             case ME_SOUNDS :
