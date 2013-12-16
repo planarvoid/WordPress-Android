@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
           android:id="@+id/list_section_header"
-          style="?android:attr/listSeparatorTextViewStyle"
-          android:paddingLeft="20dp"
-          android:paddingRight="20dp"
-          android:layout_height="50dp"
-          android:visibility="gone"
-          android:textColor="@color/scOrange"
-          android:gravity="bottom"
-          android:background="@drawable/divider_list_orange"/>
+          style="@style/ExploreListTitle"
+          android:visibility="gone" />
 
     
