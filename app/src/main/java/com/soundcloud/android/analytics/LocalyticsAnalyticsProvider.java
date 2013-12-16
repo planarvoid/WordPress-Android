@@ -39,7 +39,7 @@ class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void trackPlaybackEvent(PlaybackEventData eventData) {
-        // no-op
+        mLocalyticsSession.tagEvent(LocalyticsEvents.LISTEN);
     }
 
 }
