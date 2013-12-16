@@ -255,7 +255,7 @@ public class NowPlayingProgressBar extends ProgressBar {
                 setCurrentTrack();
 
             } else if (action.equals(Broadcasts.PLAYSTATE_CHANGED)) {
-              if (intent.getBooleanExtra(PlaybackService.BroadcastExtras.isPlaying, false)){
+              if (intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_PLAYING, false)){
                   startRefreshing();
               } else {
                   stopRefreshing();

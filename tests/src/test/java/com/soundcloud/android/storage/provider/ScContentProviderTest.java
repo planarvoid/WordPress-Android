@@ -163,7 +163,7 @@ public class ScContentProviderTest {
 
         expect(Content.TRACK).toHaveCount(20);
         expect(Content.USERS).toHaveCount(11);
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(61350393l);
+        Track t = SoundCloudApplication.sModelManager.getTrack(61350393l);
 
         expect(t).not.toBeNull();
         expect(t.user.permalink).toEqual("westafricademocracyradio");

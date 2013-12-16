@@ -62,7 +62,7 @@ public class MyTracklistRow extends PlayableRow {
 
     @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor));
+        display(cursor.getPosition(), SoundCloudApplication.sModelManager.getCachedTrackFromCursor(cursor));
     }
     @Override
     public void display(int position, Parcelable p) {

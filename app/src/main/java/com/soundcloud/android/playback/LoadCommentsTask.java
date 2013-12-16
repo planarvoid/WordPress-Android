@@ -45,7 +45,7 @@ public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<Comment>> {
     @Override
     protected void onPostExecute(List<Comment> comments) {
         if (comments != null) {
-            Track cached =  SoundCloudApplication.MODEL_MANAGER.getTrack(mTrackId);
+            Track cached =  SoundCloudApplication.sModelManager.getTrack(mTrackId);
 
             if (cached != null) {
                 cached.comments = comments;

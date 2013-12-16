@@ -73,7 +73,7 @@ public abstract class FetchModelTask<Model extends ScResource> extends ParallelA
             Model model = mApi.read(request);
             model.setUpdated();
             persist(model);
-            SoundCloudApplication.MODEL_MANAGER.cache(model, ScResource.CacheUpdateMode.FULL);
+            SoundCloudApplication.sModelManager.cache(model, ScResource.CacheUpdateMode.FULL);
             return model;
         } catch (NotFoundException e) {
             return null;

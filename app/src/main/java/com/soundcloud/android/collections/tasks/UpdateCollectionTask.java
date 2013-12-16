@@ -60,7 +60,7 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
             of course this can change eventually */
             List<ScResource> resources = new ArrayList<ScResource>();
             for (ScResource r :  mApi.readList(HttpUtils.addQueryParams(request, params))){
-                resources.add(SoundCloudApplication.MODEL_MANAGER.cache(r, ScResource.CacheUpdateMode.FULL));
+                resources.add(SoundCloudApplication.sModelManager.cache(r, ScResource.CacheUpdateMode.FULL));
             }
 
             new BaseDAO<ScResource>(SoundCloudApplication.instance.getContentResolver()) {

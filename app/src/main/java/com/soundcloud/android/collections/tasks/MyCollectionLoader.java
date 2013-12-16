@@ -84,17 +84,17 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
         if (itemsCursor != null) {
             while (itemsCursor.moveToNext())
                 if (Track.class.equals(resourceType)) {
-                    items.add(SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(itemsCursor));
+                    items.add(SoundCloudApplication.sModelManager.getCachedTrackFromCursor(itemsCursor));
                 } else if (User.class.equals(resourceType)) {
-                    items.add(SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(itemsCursor));
+                    items.add(SoundCloudApplication.sModelManager.getCachedUserFromCursor(itemsCursor));
                 } else if (Friend.class.equals(resourceType)) {
-                    items.add(new Friend(SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(itemsCursor)));
+                    items.add(new Friend(SoundCloudApplication.sModelManager.getCachedUserFromCursor(itemsCursor)));
                 } else if (SoundAssociation.class.equals(resourceType)) {
                     items.add(new SoundAssociation(itemsCursor));
                 } else if (UserAssociation.class.equals(resourceType)) {
                     items.add(new UserAssociation(itemsCursor));
                 } else if (Playlist.class.equals(resourceType)) {
-                    items.add(SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(itemsCursor));
+                    items.add(SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(itemsCursor));
                 } else {
                     throw new IllegalArgumentException("NOT HANDLED YET " + resourceType);
                 }

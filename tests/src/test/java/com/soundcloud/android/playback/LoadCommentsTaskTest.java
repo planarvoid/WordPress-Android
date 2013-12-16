@@ -6,7 +6,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class LoadCommentsTaskTest {
     public void shouldSetTrackObjectOnCommentIfCached() throws Exception {
         Track t = new Track();
         t.setId(100);
-        SoundCloudApplication.MODEL_MANAGER.cache(t);
+        SoundCloudApplication.sModelManager.cache(t);
 
         TestHelper.addCannedResponse(getClass(), "/tracks/100/comments?limit=50", "comments.json");
         LoadCommentsTask task = new LoadCommentsTask(DefaultTestRunner.application.getCloudAPI());

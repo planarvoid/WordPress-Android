@@ -131,7 +131,7 @@ public abstract class Playable extends ScResource implements PlayableHolder, Rel
             user_repost = cursor.getInt(repostIdx) == 1;
         }
 
-        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromSoundViewCursor(cursor);
+        user = SoundCloudApplication.sModelManager.getCachedUserFromSoundViewCursor(cursor);
 
     }
 

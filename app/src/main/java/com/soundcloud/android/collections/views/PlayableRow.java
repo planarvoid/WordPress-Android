@@ -63,7 +63,7 @@ public class PlayableRow extends PlayableBar implements ListRow {
 
     @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor));
+        display(cursor.getPosition(), SoundCloudApplication.sModelManager.getCachedTrackFromCursor(cursor));
     }
 
     @Override

@@ -124,7 +124,7 @@ public class UploadServiceTest {
         expect(notification).toMatchIntent(new Intent(Actions.YOUR_SOUNDS));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
 
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(12345l);
+        Track t = SoundCloudApplication.sModelManager.getTrack(12345l);
         expect(t).not.toBeNull();
         expect(t.state).toBe(Track.State.FINISHED);
     }

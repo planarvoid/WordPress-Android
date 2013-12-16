@@ -49,7 +49,7 @@ public class UserAssociation extends Association implements UserHolder {
     }
     public UserAssociation(Cursor cursor) {
         super(cursor);
-        mUser = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
+        mUser = SoundCloudApplication.sModelManager.getCachedUserFromCursor(cursor, DBHelper.UserAssociationView._ID);
         mAddedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_ADDED_AT)));
         mRemovedAt = convertDirtyDate(cursor.getLong(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_REMOVED_AT)));
         mToken = cursor.getString(cursor.getColumnIndex(DBHelper.UserAssociationView.USER_ASSOCIATION_TOKEN));

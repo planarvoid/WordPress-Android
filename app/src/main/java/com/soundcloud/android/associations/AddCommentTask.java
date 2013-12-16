@@ -65,7 +65,7 @@ public class AddCommentTask extends AsyncTask<Comment, Comment, Comment> {
         final Comment comment          = comments[0];
         final @Nullable Comment added  = comments[1];
 
-        Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
+        Track t = SoundCloudApplication.sModelManager.getTrack(comment.track_id);
         // udpate the cached track comments list
         if (t != null) {
             if (t.comments != null) {

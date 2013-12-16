@@ -28,7 +28,7 @@ public class AssociationManager {
     private PublicCloudAPI mOldCloudAPI;
 
     public AssociationManager(Context context) {
-        this(context, SoundCloudApplication.MODEL_MANAGER);
+        this(context, SoundCloudApplication.sModelManager);
     }
 
     public AssociationManager(Context context, ScModelManager modelManager) {
@@ -78,10 +78,10 @@ public class AssociationManager {
 
     private void onAssociationChanged(Playable playable) {
         Intent intent = new Intent(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
-                .putExtra(PlaybackService.BroadcastExtras.id, playable.getId())
-                .putExtra(PlaybackService.BroadcastExtras.isRepost, playable.user_repost)
-                .putExtra(PlaybackService.BroadcastExtras.isLike, playable.user_like)
-                .putExtra(PlaybackService.BroadcastExtras.isSupposedToBePlaying, PlaybackService.getPlaybackState().isSupposedToBePlaying());
+                .putExtra(PlaybackService.BroadcastExtras.ID, playable.getId())
+                .putExtra(PlaybackService.BroadcastExtras.IS_REPOST, playable.user_repost)
+                .putExtra(PlaybackService.BroadcastExtras.IS_LIKE, playable.user_like)
+                .putExtra(PlaybackService.BroadcastExtras.IS_SUPPOSED_TO_BE_PLAYING, PlaybackService.getPlaybackState().isSupposedToBePlaying());
 
         mContext.sendBroadcast(intent);
         PlayerAppWidgetProvider.getInstance().notifyChange(mContext, intent);

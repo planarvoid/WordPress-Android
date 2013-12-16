@@ -59,7 +59,7 @@ public class FollowingOperations {
     public FollowingOperations() {
         this(new SoundCloudRxHttpClient(), new UserAssociationStorage(SoundCloudApplication.instance),
                 new SyncStateManager(SoundCloudApplication.instance),
-                FollowStatus.get(), SoundCloudApplication.MODEL_MANAGER);
+                FollowStatus.get(), SoundCloudApplication.sModelManager);
     }
 
     /**
@@ -72,7 +72,7 @@ public class FollowingOperations {
     public FollowingOperations(Scheduler scheduler) {
         this(new SoundCloudRxHttpClient(scheduler), new UserAssociationStorage(scheduler, SoundCloudApplication.instance.getContentResolver()),
                 new SyncStateManager(SoundCloudApplication.instance),
-                FollowStatus.get(), SoundCloudApplication.MODEL_MANAGER);
+                FollowStatus.get(), SoundCloudApplication.sModelManager);
     }
 
     // TODO, rollback memory state on error

@@ -47,7 +47,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     };
 
     public static void start(Context context, @NotNull Playlist playlist, Screen screen) {
-        start(context, playlist, SoundCloudApplication.MODEL_MANAGER, screen);
+        start(context, playlist, SoundCloudApplication.sModelManager, screen);
     }
 
     public static void start(Context context, @NotNull Playlist playlist, ScModelManager modelManager, Screen screen) {
@@ -91,7 +91,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     }
 
     private void handleIntent(@Nullable Bundle savedInstanceState, boolean setupViews) {
-        final Playlist playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(getIntent().getData());
+        final Playlist playlist = SoundCloudApplication.sModelManager.getPlaylist(getIntent().getData());
         if (playlist != null) {
             boolean playlistChanged = setPlaylist(playlist);
 

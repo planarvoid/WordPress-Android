@@ -78,7 +78,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                     action.equals(Broadcasts.BUFFERING_COMPLETE) ||
                     action.equals(Broadcasts.PLAYBACK_ERROR) ||
                     action.equals(Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED)
-                            && intent.getLongExtra(PlaybackService.BroadcastExtras.id, -1) == mCurrentTrackId) {
+                            && intent.getLongExtra(PlaybackService.BroadcastExtras.ID, -1) == mCurrentTrackId) {
 
                 performUpdate(context, new int[0], intent);
 
@@ -95,19 +95,19 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     /* package */  void performUpdate(Context context, int[] appWidgetIds, Intent intent) {
         // TODO, move to ScModelManager to get data
         final WidgetPlaybackRemoteViews views = new WidgetPlaybackRemoteViews(context.getPackageName());
-        views.setPlaybackStatus(intent.getBooleanExtra(PlaybackService.BroadcastExtras.isSupposedToBePlaying, false));
+        views.setPlaybackStatus(intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_SUPPOSED_TO_BE_PLAYING, false));
 
-        final long trackId = intent.getLongExtra(PlaybackService.BroadcastExtras.id, -1);
-        final long userId = intent.getLongExtra(PlaybackService.BroadcastExtras.user_id, -1);
+        final long trackId = intent.getLongExtra(PlaybackService.BroadcastExtras.ID, -1);
+        final long userId = intent.getLongExtra(PlaybackService.BroadcastExtras.USER_ID, -1);
         if (trackId != -1) {
-            final boolean isLike = intent.getBooleanExtra(PlaybackService.BroadcastExtras.isLike, false);
+            final boolean isLike = intent.getBooleanExtra(PlaybackService.BroadcastExtras.IS_LIKE, false);
             views.setImageViewResource(R.id.btn_like, isLike
                     ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_like_states);
 
             if (mCurrentTrackId != trackId) {
                 mCurrentTrackId = trackId;
-                views.setCurrentTrackTitle(intent.getStringExtra(PlaybackService.BroadcastExtras.title));
-                views.setCurrentUsername(intent.getStringExtra(PlaybackService.BroadcastExtras.username));
+                views.setCurrentTrackTitle(intent.getStringExtra(PlaybackService.BroadcastExtras.TITLE));
+                views.setCurrentUsername(intent.getStringExtra(PlaybackService.BroadcastExtras.USERNAME));
             }
 
             views.linkButtonsWidget(context, trackId, userId, isLike);

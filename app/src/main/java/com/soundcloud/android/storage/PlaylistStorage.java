@@ -71,7 +71,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
     public Observable<Playlist> createNewUserPlaylistAsync(User user, String title, boolean isPrivate, long... trackIds) {
         ArrayList<Track> tracks = new ArrayList<Track>(trackIds.length);
         for (long trackId : trackIds){
-            Track track = SoundCloudApplication.MODEL_MANAGER.getCachedTrack(trackId);
+            Track track = SoundCloudApplication.sModelManager.getCachedTrack(trackId);
             tracks.add(track == null ? new Track(trackId) : track);
         }
 
@@ -99,10 +99,10 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
      * Remove a playlist and all associations such as likes, reposts or sharings from the database.
      */
     public void removePlaylist(Uri playlistUri) {
-        Playlist p = SoundCloudApplication.MODEL_MANAGER.getPlaylist(playlistUri);
+        Playlist p = SoundCloudApplication.sModelManager.getPlaylist(playlistUri);
         if (p != null) {
             p.removed = true;
-            SoundCloudApplication.MODEL_MANAGER.removeFromCache(p.toUri());
+            SoundCloudApplication.sModelManager.removeFromCache(p.toUri());
         }
         long playlistId = UriUtils.getLastSegmentAsLong(playlistUri);
 
@@ -147,7 +147,7 @@ public class PlaylistStorage extends ScheduledOperations implements Storage<Play
         if (itemsCursor != null) {
             List<Playlist> playlists = new ArrayList<Playlist>(itemsCursor.getCount());
             while (itemsCursor.moveToNext()) {
-                playlists.add(SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(itemsCursor));
+                playlists.add(SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(itemsCursor));
             }
             itemsCursor.close();
 

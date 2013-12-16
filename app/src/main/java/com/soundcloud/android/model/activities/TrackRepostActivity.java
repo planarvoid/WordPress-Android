@@ -20,7 +20,7 @@ public class TrackRepostActivity extends TrackActivity implements PlayableHolder
 
     public TrackRepostActivity(Cursor cursor) {
         super(cursor);
-        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromActivityCursor(cursor);
+        user = SoundCloudApplication.sModelManager.getCachedUserFromActivityCursor(cursor);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class TrackRepostActivity extends TrackActivity implements PlayableHolder
     @Override
     public void cacheDependencies() {
         super.cacheDependencies();
-        this.user = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.MINI);
+        this.user = SoundCloudApplication.sModelManager.cache(user, ScResource.CacheUpdateMode.MINI);
     }
 
     @NotNull

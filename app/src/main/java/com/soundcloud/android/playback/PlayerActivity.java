@@ -343,7 +343,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     private void updatePlayerInfoPanelFromTrackPager() {
-        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(getCurrentDisplayedTrackId());
+        final Track track = SoundCloudApplication.sModelManager.getTrack(getCurrentDisplayedTrackId());
         if (track != null) {
             if (mTrackDetailsView != null) {
                 if (track.shouldLoadInfo()) {
@@ -533,7 +533,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final int queuePos = intent.getIntExtra(PlaybackService.BroadcastExtras.queuePosition, -1);
+            final int queuePos = intent.getIntExtra(PlaybackService.BroadcastExtras.QUEUE_POSITION, -1);
             String action = intent.getAction();
             if (action.equals(Broadcasts.PLAYQUEUE_CHANGED)) {
                 mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
@@ -578,14 +578,14 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                     final PlayerTrackView trackView = getTrackView(queuePos);
                     if (trackView != null) {
                         if (action.equals(Broadcasts.PLAYBACK_COMPLETE)){
-                            trackView.setPlaybackStatus(false, intent.getLongExtra(PlaybackService.BroadcastExtras.position, 0));
+                            trackView.setPlaybackStatus(false, intent.getLongExtra(PlaybackService.BroadcastExtras.POSITION, 0));
                         } else {
                             trackView.handleStatusIntent(intent);
                         }
                     }
                 } else {
                     if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)
-                            && intent.getLongExtra(PlaybackService.BroadcastExtras.id, -1) == getCurrentDisplayedTrackId()){
+                            && intent.getLongExtra(PlaybackService.BroadcastExtras.ID, -1) == getCurrentDisplayedTrackId()){
                         updatePlayerInfoPanelFromTrackPager();
                     }
                     // unhandled here, pass along to trackviews who may be interested

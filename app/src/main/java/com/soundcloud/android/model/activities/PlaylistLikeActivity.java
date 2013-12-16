@@ -17,7 +17,7 @@ public class PlaylistLikeActivity extends PlaylistActivity implements PlayableHo
 
     public PlaylistLikeActivity(Cursor cursor) {
         super(cursor);
-        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromActivityCursor(cursor);
+        user = SoundCloudApplication.sModelManager.getCachedUserFromActivityCursor(cursor);
     }
 
     @Override
@@ -33,6 +33,6 @@ public class PlaylistLikeActivity extends PlaylistActivity implements PlayableHo
     @Override
     public void cacheDependencies() {
         super.cacheDependencies();
-        this.user = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.MINI);
+        this.user = SoundCloudApplication.sModelManager.cache(user, ScResource.CacheUpdateMode.MINI);
     }
 }

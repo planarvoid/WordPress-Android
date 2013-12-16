@@ -91,7 +91,7 @@ public class AddCommentDialog extends BaseDialogFragment {
 
         if (!TextUtils.isEmpty(commentBody))  {
             comment.body = commentBody;
-            final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
+            final Track track = SoundCloudApplication.sModelManager.getTrack(comment.track_id);
             if (track != null) {
                 if (track.comments == null) track.comments = new ArrayList<Comment>();
                 // add dummy comment

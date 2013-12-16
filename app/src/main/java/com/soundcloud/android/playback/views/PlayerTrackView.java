@@ -4,7 +4,6 @@ package com.soundcloud.android.playback.views;
 import static com.soundcloud.android.playback.service.PlaybackService.BroadcastExtras;
 import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -17,7 +16,6 @@ import com.soundcloud.android.playback.LoadCommentsTask;
 import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackState;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
@@ -232,27 +230,27 @@ public class PlayerTrackView extends FrameLayout implements
 
         String action = intent.getAction();
         if (Broadcasts.PLAYSTATE_CHANGED.equals(action)) {
-            if (intent.getBooleanExtra(BroadcastExtras.isSupposedToBePlaying, false)) {
+            if (intent.getBooleanExtra(BroadcastExtras.IS_SUPPOSED_TO_BE_PLAYING, false)) {
                 hideUnplayable();
                 mTrack.last_playback_error = -1;
             } else {
-                mWaveformController.setPlaybackStatus(false, intent.getLongExtra(BroadcastExtras.position, 0));
+                mWaveformController.setPlaybackStatus(false, intent.getLongExtra(BroadcastExtras.POSITION, 0));
             }
 
         } else if (Playable.ACTION_PLAYABLE_ASSOCIATION_CHANGED.equals(action)) {
-            if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.id, -1)) {
-                mTrack.user_like = intent.getBooleanExtra(BroadcastExtras.isLike, false);
-                mTrack.user_repost = intent.getBooleanExtra(BroadcastExtras.isRepost, false);
+            if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.ID, -1)) {
+                mTrack.user_like = intent.getBooleanExtra(BroadcastExtras.IS_LIKE, false);
+                mTrack.user_repost = intent.getBooleanExtra(BroadcastExtras.IS_REPOST, false);
                 mInfoAndEngagements.setTrack(mTrack);
             }
 
         } else if (Playable.COMMENTS_UPDATED.equals(action)) {
-            if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.id, -1)) {
+            if (mTrack.getId() == intent.getLongExtra(BroadcastExtras.ID, -1)) {
                 onCommentsChanged();
             }
 
         } else if (Playable.ACTION_SOUND_INFO_UPDATED.equals(action)) {
-            Track t = SoundCloudApplication.MODEL_MANAGER.getTrack(intent.getLongExtra(BroadcastExtras.id, -1));
+            Track t = SoundCloudApplication.sModelManager.getTrack(intent.getLongExtra(BroadcastExtras.ID, -1));
             if (t != null) {
                 setTrackInternal(t, mOnScreen);
                 onTrackInfoChanged();
@@ -265,8 +263,8 @@ public class PlayerTrackView extends FrameLayout implements
             setBufferingState(true);
         } else if (Broadcasts.BUFFERING_COMPLETE.equals(action)) {
             setBufferingState(false);
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(BroadcastExtras.isPlaying, false),
-                    intent.getLongExtra(BroadcastExtras.position, 0));
+            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(BroadcastExtras.IS_PLAYING, false),
+                    intent.getLongExtra(BroadcastExtras.POSITION, 0));
 
         } else if (Broadcasts.PLAYBACK_ERROR.equals(action)) {
             mTrack.last_playback_error = PlayerActivity.PlayerError.PLAYBACK_ERROR;
@@ -280,7 +278,7 @@ public class PlayerTrackView extends FrameLayout implements
         } else if (Broadcasts.COMMENTS_LOADED.equals(action)) {
             mWaveformController.setComments(mTrack.comments, true);
         } else if (Broadcasts.SEEKING.equals(action)) {
-            mWaveformController.onSeek(intent.getLongExtra(BroadcastExtras.position, -1));
+            mWaveformController.onSeek(intent.getLongExtra(BroadcastExtras.POSITION, -1));
         } else if (Broadcasts.SEEK_COMPLETE.equals(action)) {
             mWaveformController.onSeekComplete();
         }
@@ -294,8 +292,8 @@ public class PlayerTrackView extends FrameLayout implements
 
     private void onUnplayable(Intent intent) {
         mWaveformController.setBufferingState(false);
-        mWaveformController.setPlaybackStatus(intent.getBooleanExtra(BroadcastExtras.isPlaying, false),
-                intent.getLongExtra(BroadcastExtras.position, 0));
+        mWaveformController.setPlaybackStatus(intent.getBooleanExtra(BroadcastExtras.IS_PLAYING, false),
+                intent.getLongExtra(BroadcastExtras.POSITION, 0));
 
         showUnplayable();
     }

@@ -39,7 +39,7 @@ public class UpdateCollectionTaskTest {
 
         UserAdapter adapter = new UserAdapter(Content.USERS.uri);
         User existingUser = new User(1);
-        SoundCloudApplication.MODEL_MANAGER.cache(existingUser);
+        SoundCloudApplication.sModelManager.cache(existingUser);
         adapter.addItems(Arrays.asList(existingUser));
         task.setAdapter(adapter);
 

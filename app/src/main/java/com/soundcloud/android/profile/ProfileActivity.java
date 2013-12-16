@@ -255,8 +255,8 @@ public class ProfileActivity extends ScActivity implements
     private void loadUserById(long userId) {
         if (userId != -1) {
             // check DB first as the cached user might be incomplete
-            final User u = SoundCloudApplication.MODEL_MANAGER.getUser(userId);
-            setUser(u != null ? u : SoundCloudApplication.MODEL_MANAGER.getCachedUser(userId));
+            final User u = SoundCloudApplication.sModelManager.getUser(userId);
+            setUser(u != null ? u : SoundCloudApplication.sModelManager.getCachedUser(userId));
         }
         if (mUser == null) {
             mUser = new User();
@@ -279,7 +279,7 @@ public class ProfileActivity extends ScActivity implements
 
         // show a user out of db if possible because he will be a complete user unlike
         // a parceled user that came from a track, list or comment
-        final User dbUser = SoundCloudApplication.MODEL_MANAGER.getUser(user.getId());
+        final User dbUser = SoundCloudApplication.sModelManager.getUser(user.getId());
         setUser(dbUser != null ? dbUser : user);
     }
 
@@ -322,7 +322,7 @@ public class ProfileActivity extends ScActivity implements
         setUser(user);
 
         // update user locally and ensure 1 instance
-        mUser = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.FULL);
+        mUser = SoundCloudApplication.sModelManager.cache(user, ScResource.CacheUpdateMode.FULL);
 
         // TODO: move to a *Operations class to decouple from storage layer
         fireAndForget(mUserStorage.storeAsync(mUser));

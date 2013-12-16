@@ -91,7 +91,7 @@ public class AddToPlaylistDialogFragment extends PlaylistDialogFragment
 
     //TODO: almost all of this logic should go into PlaylistOperations
     private void onAddTrackToSet(long playlistId, View view) {
-        final Playlist playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(playlistId);
+        final Playlist playlist = SoundCloudApplication.sModelManager.getPlaylist(playlistId);
 
         if (playlist == null) {
             Toast.makeText(getActivity(), getString(R.string.playlist_removed), Toast.LENGTH_SHORT).show();

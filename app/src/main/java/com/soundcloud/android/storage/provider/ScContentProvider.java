@@ -1062,8 +1062,8 @@ public class ScContentProvider extends ContentProvider {
         @Override
         public void onReceive(final Context context, Intent intent) {
             // only delete tracks from other users - needs proper state checking
-            final long trackId = intent.getLongExtra(PlaybackService.BroadcastExtras.id, 0);
-            final long userId = intent.getLongExtra(PlaybackService.BroadcastExtras.user_id, 0);
+            final long trackId = intent.getLongExtra(PlaybackService.BroadcastExtras.ID, 0);
+            final long userId = intent.getLongExtra(PlaybackService.BroadcastExtras.USER_ID, 0);
             if (trackId > 0 && userId != SoundCloudApplication.getUserIdFromContext(context)) {
                 removeTrack(context).execute(trackId);
             }

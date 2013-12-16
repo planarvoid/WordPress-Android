@@ -190,25 +190,25 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private PlaybackEventTracker mPlaybackEventTracker = PlaybackEventTracker.EMPTY; // Empty tracker sends no events
 
     public interface PlayExtras{
-        String track = Track.EXTRA;
-        String trackId = Track.EXTRA_ID;
-        String trackIdList = "track_id_list";
-        String startPosition = "startPosition";
-        String playSessionSource = "play_seesion_source";
+        String TRACK = Track.EXTRA;
+        String TRACK_ID = Track.EXTRA_ID;
+        String TRACK_ID_LIST = "track_id_list";
+        String START_POSITION = "start_position";
+        String PLAY_SESSION_SOURCE = "play_session_source";
     }
 
     public interface BroadcastExtras{
-        String id = "id";
-        String title = "title";
-        String user_id = "user_id";
-        String username = "username";
-        String isPlaying = "isPlaying";
-        String isSupposedToBePlaying = "isSupposedToBePlaying";
-        String isBuffering = "isBuffering";
-        String position = "position";
-        String queuePosition = "queuePosition";
-        String isLike = "isLike";
-        String isRepost = "isRepost";
+        String ID = "id";
+        String TITLE = "title";
+        String USER_ID = "user_id";
+        String USERNAME = "username";
+        String IS_PLAYING = "isPlaying";
+        String IS_SUPPOSED_TO_BE_PLAYING = "isSupposedToBePlaying";
+        String IS_BUFFERING = "isBuffering";
+        String POSITION = "position";
+        String QUEUE_POSITION = "queuePosition";
+        String IS_LIKE = "isLike";
+        String IS_REPOST = "isRepost";
     }
 
     @Override
@@ -417,17 +417,17 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             Log.d(TAG, "notifyChange(" + what + ")");
         }
         Intent i = new Intent(what)
-            .putExtra(BroadcastExtras.id, getTrackId())
-            .putExtra(BroadcastExtras.title, getTrackName())
-            .putExtra(BroadcastExtras.user_id, getUserId())
-            .putExtra(BroadcastExtras.username, getUserName())
-            .putExtra(BroadcastExtras.isPlaying, isPlaying())
-            .putExtra(BroadcastExtras.isSupposedToBePlaying, mPlaybackState.isSupposedToBePlaying())
-            .putExtra(BroadcastExtras.isBuffering, _isBuffering())
-            .putExtra(BroadcastExtras.position, getProgress())
-            .putExtra(BroadcastExtras.queuePosition, getPlayQueueInternal().getPosition())
-            .putExtra(BroadcastExtras.isLike, getIsLike())
-            .putExtra(BroadcastExtras.isRepost, getIsRepost());
+            .putExtra(BroadcastExtras.ID, getTrackId())
+            .putExtra(BroadcastExtras.TITLE, getTrackName())
+            .putExtra(BroadcastExtras.USER_ID, getUserId())
+            .putExtra(BroadcastExtras.USERNAME, getUserName())
+            .putExtra(BroadcastExtras.IS_PLAYING, isPlaying())
+            .putExtra(BroadcastExtras.IS_SUPPOSED_TO_BE_PLAYING, mPlaybackState.isSupposedToBePlaying())
+            .putExtra(BroadcastExtras.IS_BUFFERING, _isBuffering())
+            .putExtra(BroadcastExtras.POSITION, getProgress())
+            .putExtra(BroadcastExtras.QUEUE_POSITION, getPlayQueueInternal().getPosition())
+            .putExtra(BroadcastExtras.IS_LIKE, getIsLike())
+            .putExtra(BroadcastExtras.IS_REPOST, getIsRepost());
 
         sendBroadcast(i);
 
@@ -539,7 +539,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             // this used to write the track back to storage - this should happen as
             // part of the sync/task
             sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_UPDATED)
-                                        .putExtra(PlaybackService.BroadcastExtras.id, track.getId()));
+                                        .putExtra(PlaybackService.BroadcastExtras.ID, track.getId()));
 
             if (track.equals(mCurrentTrack) && (!isPlaying() && mPlaybackState.isSupposedToBePlaying())){
                 // we were waiting on this track
@@ -555,7 +555,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         public void onError(Object context) {
             long id = context instanceof Number ? ((Number)context).longValue() : -1;
             sendBroadcast(new Intent(Playable.ACTION_SOUND_INFO_ERROR)
-                                .putExtra(PlaybackService.BroadcastExtras.id, id));
+                                .putExtra(PlaybackService.BroadcastExtras.ID, id));
             onUnstreamableTrack(id);
         }
     };

@@ -59,7 +59,7 @@ public class ApplicationModule {
 
     @Provides
     public ScModelManager provideModelManager() {
-        return SoundCloudApplication.MODEL_MANAGER;
+        return SoundCloudApplication.sModelManager;
     }
 
     @Provides

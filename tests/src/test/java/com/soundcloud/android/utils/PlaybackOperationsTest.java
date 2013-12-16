@@ -126,9 +126,9 @@ public class PlaybackOperationsTest {
     private void checkStartIntent(Intent startintent, int startPosition, PlaySessionSource playSessionSource, Long... ids){
         expect(startintent).not.toBeNull();
         expect(startintent.getAction()).toBe(PlaybackService.Actions.PLAY_ACTION);
-        expect(startintent.getIntExtra(PlayExtras.startPosition, -1)).toBe(startPosition);
-        expect(startintent.getParcelableExtra(PlayExtras.playSessionSource)).toEqual(playSessionSource);
-        final List<Long> trackIdList = Longs.asList(startintent.getLongArrayExtra(PlayExtras.trackIdList));
+        expect(startintent.getIntExtra(PlayExtras.START_POSITION, -1)).toBe(startPosition);
+        expect(startintent.getParcelableExtra(PlayExtras.PLAY_SESSION_SOURCE)).toEqual(playSessionSource);
+        final List<Long> trackIdList = Longs.asList(startintent.getLongArrayExtra(PlayExtras.TRACK_ID_LIST));
         expect(trackIdList).toContainExactly(ids);
     }
 

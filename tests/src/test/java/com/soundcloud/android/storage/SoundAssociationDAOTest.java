@@ -289,7 +289,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     @Test
     public void shouldPersistStreamItems() throws Exception {
         DefaultTestRunner.application.setCurrentUserId(100L);
-        final ScModelManager manager = DefaultTestRunner.application.MODEL_MANAGER;
+        final ScModelManager manager = DefaultTestRunner.application.sModelManager;
 
         SoundAssociationHolder sounds  = TestHelper.getObjectMapper().readValue(
                 getClass().getResourceAsStream("sounds_with_sets.json"),
@@ -306,7 +306,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
                 Content.ME_SOUNDS.uri, 0, 50).size()).toEqual(41);
 
-        CollectionHolder<SoundAssociation> newItems = SoundCloudApplication.MODEL_MANAGER.loadLocalContent(
+        CollectionHolder<SoundAssociation> newItems = SoundCloudApplication.sModelManager.loadLocalContent(
                 DefaultTestRunner.application.getContentResolver(), SoundAssociation.class, Content.ME_SOUNDS.uri);
 
         expect(newItems.size()).toEqual(41);
@@ -319,7 +319,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     @Test
     public void shouldInsertNewSoundAssociation() throws Exception {
         DefaultTestRunner.application.setCurrentUserId(100L);
-        ScModelManager manager = DefaultTestRunner.application.MODEL_MANAGER;
+        ScModelManager manager = DefaultTestRunner.application.sModelManager;
 
         //initial population
         SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(

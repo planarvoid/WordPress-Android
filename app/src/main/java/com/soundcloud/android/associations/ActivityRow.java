@@ -94,7 +94,7 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
 
     @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor));
+        display(cursor.getPosition(), SoundCloudApplication.sModelManager.getCachedTrackFromCursor(cursor));
     }
 
     protected abstract  boolean fillParcelable(Parcelable p);

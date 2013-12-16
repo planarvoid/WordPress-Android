@@ -142,7 +142,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int startPosition = position - mListView.getRefreshableView().getHeaderViewsCount();
-        final Track track = SoundCloudApplication.MODEL_MANAGER.getTrack(id);
+        final Track track = SoundCloudApplication.sModelManager.getTrack(id);
         mPlaybackOperations.playFromPlaylist(getActivity(), mPlaylist.toUri(), startPosition, track,
                 Screen.fromBundle(getArguments()));
     }

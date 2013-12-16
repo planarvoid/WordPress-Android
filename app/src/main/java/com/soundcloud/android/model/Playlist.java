@@ -66,10 +66,10 @@ public class Playlist extends Playable {
         if (bundle.containsKey(EXTRA)) {
             playlist = bundle.getParcelable(EXTRA);
         } else if (bundle.containsKey(EXTRA_ID)) {
-            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(bundle.getLong(EXTRA_ID, 0));
+            playlist = SoundCloudApplication.sModelManager.getPlaylist(bundle.getLong(EXTRA_ID, 0));
         } else if (bundle.containsKey(EXTRA_URI)) {
             Uri uri = (Uri) bundle.getParcelable(EXTRA_URI);
-            playlist = SoundCloudApplication.MODEL_MANAGER.getPlaylist(uri);
+            playlist = SoundCloudApplication.sModelManager.getPlaylist(uri);
         } else {
             throw new IllegalArgumentException("Could not obtain playlist from bundle");
         }

@@ -23,7 +23,7 @@ public class PlaylistActivity extends Activity implements PlayableHolder {
 
     public PlaylistActivity(Cursor c) {
         super(c);
-        playlist = SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(c, DBHelper.ActivityView.SOUND_ID);
+        playlist = SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(c, DBHelper.ActivityView.SOUND_ID);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class PlaylistActivity extends Activity implements PlayableHolder {
 
     @Override
     public void cacheDependencies() {
-        this.playlist = SoundCloudApplication.MODEL_MANAGER.cache(playlist);
+        this.playlist = SoundCloudApplication.sModelManager.cache(playlist);
     }
 
     @Override

@@ -23,7 +23,7 @@ public class TrackActivity extends Activity implements PlayableHolder {
 
     public TrackActivity(Cursor c) {
         super(c);
-        track = SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(c, DBHelper.ActivityView.SOUND_ID);
+        track = SoundCloudApplication.sModelManager.getCachedTrackFromCursor(c, DBHelper.ActivityView.SOUND_ID);
     }
 
     public TrackActivity(Parcel in) {
@@ -48,7 +48,7 @@ public class TrackActivity extends Activity implements PlayableHolder {
 
     @Override
     public void cacheDependencies() {
-        this.track = SoundCloudApplication.MODEL_MANAGER.cache(track);
+        this.track = SoundCloudApplication.sModelManager.cache(track);
     }
 
     @Override

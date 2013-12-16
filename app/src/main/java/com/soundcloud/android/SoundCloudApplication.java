@@ -51,7 +51,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     @Deprecated
     public static SoundCloudApplication instance;
     @Deprecated
-    public static ScModelManager MODEL_MANAGER;
+    public static ScModelManager sModelManager;
 
     private User mLoggedInUser;
     private AccountOperations accountOperations;
@@ -62,7 +62,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     public void onCreate() {
         super.onCreate();
 
-        MODEL_MANAGER = new ScModelManager(this);
+        sModelManager = new ScModelManager(this);
         instance = this;
 
         mObjectGraph = ObjectGraph.create(new ApplicationModule(this));
@@ -149,7 +149,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         if (mLoggedInUser == null) {
             final long id = accountOperations.getAccountDataLong(AccountInfoKeys.USER_ID.getKey());
             if (id != -1) {
-                mLoggedInUser = MODEL_MANAGER.getUser(id);
+                mLoggedInUser = sModelManager.getUser(id);
             }
             // user not in db, fall back to local storage
             if (mLoggedInUser == null) {

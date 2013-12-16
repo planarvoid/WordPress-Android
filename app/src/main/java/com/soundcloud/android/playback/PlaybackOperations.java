@@ -54,7 +54,7 @@ public class PlaybackOperations {
     Uri TEMP_ORIGIN = Uri.EMPTY;
 
     public PlaybackOperations() {
-        this(SoundCloudApplication.MODEL_MANAGER, new TrackStorage());
+        this(SoundCloudApplication.sModelManager, new TrackStorage());
     }
 
     @Inject
@@ -196,9 +196,9 @@ public class PlaybackOperations {
                                          PlaySessionSource playSessionSource) {
 
         final Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
-        intent.putExtra(PlaybackService.PlayExtras.trackIdList, Longs.toArray(trackList));
-        intent.putExtra(PlaybackService.PlayExtras.startPosition, startPosition);
-        intent.putExtra(PlaybackService.PlayExtras.playSessionSource, playSessionSource);
+        intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, Longs.toArray(trackList));
+        intent.putExtra(PlaybackService.PlayExtras.START_POSITION, startPosition);
+        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
         return intent;
     }
 

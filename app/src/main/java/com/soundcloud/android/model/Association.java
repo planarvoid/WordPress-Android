@@ -51,7 +51,7 @@ public abstract class Association extends ScResource implements PlayableHolder, 
     public Association() {}
 
     public Association(Cursor cursor){
-        owner = SoundCloudApplication.MODEL_MANAGER.getUser(cursor.getLong(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_OWNER_ID)));
+        owner = SoundCloudApplication.sModelManager.getUser(cursor.getLong(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_OWNER_ID)));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_TIMESTAMP)));
         associationType = cursor.getInt(cursor.getColumnIndex(DBHelper.AssociationView.ASSOCIATION_TYPE));
     }

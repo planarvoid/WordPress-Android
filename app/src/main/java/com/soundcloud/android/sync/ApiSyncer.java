@@ -249,7 +249,7 @@ public class ApiSyncer extends SyncStrategy {
 
                 // update local state
                 p.localToGlobal(mContext, playlist);
-                SoundCloudApplication.MODEL_MANAGER.removeFromCache(toDelete);
+                SoundCloudApplication.sModelManager.removeFromCache(toDelete);
 
                 mPlaylistStorage.store(playlist);
                 mSoundAssociationStorage.addCreation(playlist);

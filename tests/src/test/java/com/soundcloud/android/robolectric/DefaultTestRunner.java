@@ -70,8 +70,8 @@ public class DefaultTestRunner extends RobolectricTestRunner {
 
     @Override
     protected void resetStaticState() {
-        if (SoundCloudApplication.MODEL_MANAGER != null) {
-            SoundCloudApplication.MODEL_MANAGER.clear();
+        if (SoundCloudApplication.sModelManager != null) {
+            SoundCloudApplication.sModelManager.clear();
         }
         ShadowVorbisEncoder.reset();
         ShadowNativeAmplitudeAnalyzer.reset();

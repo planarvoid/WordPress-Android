@@ -112,22 +112,22 @@ class PlaybackReceiver extends BroadcastReceiver {
     }
 
     public void setLikeStatus(@NotNull Uri playableUri, boolean like) {
-        Playable playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
+        Playable playable = (Playable) SoundCloudApplication.sModelManager.getModel(playableUri);
         mAssociationManager.setLike(playable, like);
     }
 
     public void setRepostStatus(@NotNull Uri playableUri, boolean repost) {
-        Playable playable = (Playable) SoundCloudApplication.MODEL_MANAGER.getModel(playableUri);
+        Playable playable = (Playable) SoundCloudApplication.sModelManager.getModel(playableUri);
         mAssociationManager.setRepost(playable, repost);
     }
 
     private void handlePlayAction(Intent intent) {
 
-        if (intent.hasExtra(PlayExtras.trackIdList)) {
+        if (intent.hasExtra(PlayExtras.TRACK_ID_LIST)) {
 
-            final List<Long> trackIds = Longs.asList(intent.getLongArrayExtra(PlayExtras.trackIdList));
-            final int startPosition = intent.getIntExtra(PlayExtras.startPosition, 0);
-            final PlaySessionSource playSessionSource = intent.getParcelableExtra(PlayExtras.playSessionSource);
+            final List<Long> trackIds = Longs.asList(intent.getLongArrayExtra(PlayExtras.TRACK_ID_LIST));
+            final int startPosition = intent.getIntExtra(PlayExtras.START_POSITION, 0);
+            final PlaySessionSource playSessionSource = intent.getParcelableExtra(PlayExtras.PLAY_SESSION_SOURCE);
             PlayQueue playQueue = PlayQueue.fromIdList(trackIds, startPosition, playSessionSource);
 
             mPlayQueueManager.setNewPlayQueue(playQueue);

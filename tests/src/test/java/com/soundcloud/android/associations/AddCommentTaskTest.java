@@ -45,7 +45,7 @@ public class AddCommentTaskTest {
     public void shouldSendBroadcastAfterPost() throws Exception {
         Comment c = new Comment();
         c.track_id = 100;
-        SoundCloudApplication.MODEL_MANAGER.cache(new Track(100l));
+        SoundCloudApplication.sModelManager.cache(new Track(100l));
 
         mockSuccessfulCommentCreation();
         expect(task.execute(c).get()).not.toBeNull();
@@ -66,7 +66,7 @@ public class AddCommentTaskTest {
     public void shouldNotPostCommentWhenException() throws Exception {
         Comment c = new Comment();
         c.track_id = 100;
-        SoundCloudApplication.MODEL_MANAGER.cache(new Track(100l));
+        SoundCloudApplication.sModelManager.cache(new Track(100l));
         TestHelper.addPendingIOException("/tracks/100/comments");
         expect(task.execute(c).get()).toBeNull();
         expect(DefaultTestRunner.application.broadcasts.get(0).getAction()).toEqual(Actions.CONNECTION_ERROR);
@@ -93,7 +93,7 @@ public class AddCommentTaskTest {
         Comment c = new Comment();
         c.track = new Track();
         c.track.setId(100);
-        SoundCloudApplication.MODEL_MANAGER.cache(c.track);
+        SoundCloudApplication.sModelManager.cache(c.track);
 
         mockSuccessfulCommentCreation();
         expect(task.execute(c).get()).not.toBeNull();

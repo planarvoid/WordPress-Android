@@ -46,7 +46,7 @@ public class UserDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mUserId = getArguments().getLong("userId");
         ViewGroup fragmentLayout = (ViewGroup) inflater.inflate(R.layout.user_browser_details_view, null);
-        User user = SoundCloudApplication.MODEL_MANAGER.getUser(mUserId);
+        User user = SoundCloudApplication.sModelManager.getUser(mUserId);
         if (user != null) {
             updateViews(fragmentLayout, user);
         }

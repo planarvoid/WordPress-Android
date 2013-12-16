@@ -130,11 +130,11 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, ScResource> {
                     try {
                         long _id = Long.parseLong(id);
                         if (ClientUri.TRACKS_TYPE.equalsIgnoreCase(type) || ClientUri.SOUNDS_TYPE.equalsIgnoreCase(type)) {
-                            return SoundCloudApplication.MODEL_MANAGER.getTrack(_id);
+                            return SoundCloudApplication.sModelManager.getTrack(_id);
                         } else if (ClientUri.PLAYLISTS_TYPE.equalsIgnoreCase(type)) {
-                            return SoundCloudApplication.MODEL_MANAGER.getPlaylist(_id);
+                            return SoundCloudApplication.sModelManager.getPlaylist(_id);
                         } else if (ClientUri.USERS_TYPE.equalsIgnoreCase(type)) {
-                            return SoundCloudApplication.MODEL_MANAGER.getUser(_id);
+                            return SoundCloudApplication.sModelManager.getUser(_id);
                         }
                     } catch (NumberFormatException ignored) {
                     }

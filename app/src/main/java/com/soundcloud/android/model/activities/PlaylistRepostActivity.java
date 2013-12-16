@@ -20,7 +20,7 @@ public class PlaylistRepostActivity extends PlaylistActivity implements Playable
 
     public PlaylistRepostActivity(Cursor c) {
         super(c);
-        user = SoundCloudApplication.MODEL_MANAGER.getCachedUserFromActivityCursor(c);
+        user = SoundCloudApplication.sModelManager.getCachedUserFromActivityCursor(c);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class PlaylistRepostActivity extends PlaylistActivity implements Playable
     @Override
     public void cacheDependencies() {
         super.cacheDependencies();
-        this.user = SoundCloudApplication.MODEL_MANAGER.cache(user, ScResource.CacheUpdateMode.MINI);
+        this.user = SoundCloudApplication.sModelManager.cache(user, ScResource.CacheUpdateMode.MINI);
     }
 
     @NotNull

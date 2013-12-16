@@ -25,8 +25,8 @@ public class CommentActivity extends Activity {
     public CommentActivity(Cursor cursor) {
         super(cursor);
         comment = new Comment(cursor, true);
-        comment.track = SoundCloudApplication.MODEL_MANAGER.getTrack(comment.track_id);
-        comment.user = SoundCloudApplication.MODEL_MANAGER.getUser(comment.user_id);
+        comment.track = SoundCloudApplication.sModelManager.getTrack(comment.track_id);
+        comment.user = SoundCloudApplication.sModelManager.getUser(comment.user_id);
     }
 
     @Override
@@ -46,8 +46,8 @@ public class CommentActivity extends Activity {
 
     @Override
     public void cacheDependencies() {
-        comment.user = SoundCloudApplication.MODEL_MANAGER.cache(comment.user, ScResource.CacheUpdateMode.MINI);
-        comment.track = SoundCloudApplication.MODEL_MANAGER.cache(comment.track, ScResource.CacheUpdateMode.MINI);
+        comment.user = SoundCloudApplication.sModelManager.cache(comment.user, ScResource.CacheUpdateMode.MINI);
+        comment.track = SoundCloudApplication.sModelManager.cache(comment.track, ScResource.CacheUpdateMode.MINI);
     }
 
     @Override

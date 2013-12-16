@@ -31,9 +31,9 @@ public class SoundAssociation extends Association implements PlayableHolder {
         super(cursor);
         // single instance considerations
         if (Playable.isTrackCursor(cursor)){
-            playable = SoundCloudApplication.MODEL_MANAGER.getCachedTrackFromCursor(cursor, DBHelper.SoundAssociationView._ID);
+            playable = SoundCloudApplication.sModelManager.getCachedTrackFromCursor(cursor, DBHelper.SoundAssociationView._ID);
         } else {
-            playable = SoundCloudApplication.MODEL_MANAGER.getCachedPlaylistFromCursor(cursor, DBHelper.SoundAssociationView._ID);
+            playable = SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(cursor, DBHelper.SoundAssociationView._ID);
         }
     }
 

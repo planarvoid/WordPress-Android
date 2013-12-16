@@ -259,7 +259,7 @@ public class ApiSyncerTest {
         expect(Content.ME_SOUNDS).toHaveCount(51);
         expect(Content.COLLECTIONS).toHaveCount(0);
         expect(new ApiSyncer(Robolectric.application, resolver).pushLocalPlaylists()).toBe(1);
-        expect(SoundCloudApplication.MODEL_MANAGER.getPlaylist(p.toUri())).toBeNull();
+        expect(SoundCloudApplication.sModelManager.getPlaylist(p.toUri())).toBeNull();
         expect(Content.ME_SOUNDS).toHaveCount(51);
         expect(Content.COLLECTIONS).toHaveCount(1);
 
