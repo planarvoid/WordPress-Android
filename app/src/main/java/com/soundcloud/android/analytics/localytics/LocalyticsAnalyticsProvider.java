@@ -7,6 +7,9 @@ import com.soundcloud.android.events.PlaybackEventData;
 
 import android.content.Context;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private LocalyticsSession mLocalyticsSession;
     public LocalyticsAnalyticsProvider(Context context){
@@ -41,7 +44,15 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void trackPlaybackEvent(PlaybackEventData eventData) {
-        mLocalyticsSession.tagEvent(LocalyticsEvents.LISTEN);
+        if (eventData.isStopEvent()) {
+            Map<String, String> eventAttributes = new HashMap<String, String>();
+            eventAttributes.put("context", eventData.getTrackSourceInfo().getOriginScreen());
+            eventAttributes.put("duration", String.valueOf(eventData.getListenTime()));
+            eventAttributes.put("track_id", String.valueOf(eventData.getTrack().getId()));
+            eventAttributes.put("track_length_ms", String.valueOf(eventData.getTrack().duration));
+            eventAttributes.put("tag", eventData.getTrack().getGenreOrTag());
+            mLocalyticsSession.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
+        }
     }
 
 }

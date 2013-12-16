@@ -43,6 +43,26 @@ public class TrackTest {
     }
 
     @Test
+    public void getGenreOrFirstTagShouldReturnNullIfGenreEmptyAndHumanTagsMissing(){
+        expect(new Track().getGenreOrTag()).toBeNull();
+    }
+
+    @Test
+    public void getGenreOrFirstTagShouldReturnGenreIfNotEmpty() throws Exception {
+        Track t = new Track();
+        t.genre = "some genre";
+        t.tag_list = "\"multiword tags\" \"in the api\" suck bigtime";
+        expect(t.getGenreOrTag()).toEqual("some genre");
+    }
+
+    @Test
+    public void getGenreOrFirstTagShouldReturnFirstTagIfGenreEmptyAndHumanTagsNotEmpty() throws Exception {
+        Track t = new Track();
+        t.tag_list = "\"multiword tags\" \"in the api\" suck bigtime";
+        expect(t.getGenreOrTag()).toEqual("multiword tags");
+    }
+
+    @Test
     public void shouldGenerateTrackInfo() throws Exception {
         Track t = new Track();
         t.description = "Cool track";

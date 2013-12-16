@@ -157,6 +157,20 @@ public class Track extends Playable implements PlayableHolder {
         return tags;
     }
 
+    @Nullable
+    public String getGenreOrTag() {
+        if (ScTextUtils.isNotBlank(genre)) {
+            return genre;
+        } else {
+            List<String> tags = humanTags();
+            if (!tags.isEmpty()) {
+                return tags.get(0);
+            } else {
+                return null;
+            }
+        }
+    }
+
     /**
      * GHETTO WAVEFORM FIX. Make the private API return something we can use and remove this
      */

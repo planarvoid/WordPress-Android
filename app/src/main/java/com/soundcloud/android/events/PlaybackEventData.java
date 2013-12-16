@@ -1,7 +1,5 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParams.Action;
-
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -10,32 +8,46 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class PlaybackEventData {
 
+    private static final int EVENT_KIND_PLAY = 0;
+    private static final int EVENT_KIND_STOP = 1;
+
     @NotNull
     private Track mTrack;
 
-    private String mAction;
+    private int mEventKind;
     private long mUserId;
     private TrackSourceInfo mTrackSourceInfo;
     private long mTimeStamp;
 
     private long mListenTime;
 
-    public static PlaybackEventData forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo) {
-        return new PlaybackEventData(track, Action.PLAY, userId, trackSourceInfo);
+    public static PlaybackEventData forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
+        return new PlaybackEventData(EVENT_KIND_PLAY, track, userId, trackSourceInfo, timestamp);
     }
 
-    public static PlaybackEventData forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, PlaybackEventData lastPlayEvent) {
-        final PlaybackEventData playbackEventData = new PlaybackEventData(track, Action.STOP, userId, trackSourceInfo);
+    public static PlaybackEventData forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo) {
+        return forPlay(track, userId, trackSourceInfo, System.currentTimeMillis());
+    }
+
+    public static PlaybackEventData forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo,
+                                            PlaybackEventData lastPlayEvent, long timestamp) {
+        final PlaybackEventData playbackEventData =
+                new PlaybackEventData(EVENT_KIND_STOP, track, userId, trackSourceInfo, timestamp);
         playbackEventData.setListenTime(playbackEventData.mTimeStamp - lastPlayEvent.getTimeStamp());
         return playbackEventData;
     }
 
-    private PlaybackEventData(@NotNull Track track, String action, long userId, TrackSourceInfo trackSourceInfo) {
+    public static PlaybackEventData forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo,
+                                            PlaybackEventData lastPlayEvent) {
+        return forStop(track, userId, trackSourceInfo, lastPlayEvent, System.currentTimeMillis());
+    }
+
+    private PlaybackEventData(int eventKind, @NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
         mTrack = track;
-        mAction = action;
+        mEventKind = eventKind;
         mUserId = userId;
         mTrackSourceInfo = trackSourceInfo;
-        mTimeStamp = System.currentTimeMillis();
+        mTimeStamp = timestamp;
     }
 
     public void setListenTime(long listenTime) {
@@ -46,8 +58,12 @@ public class PlaybackEventData {
         return mTrack;
     }
 
-    public String getAction() {
-        return mAction;
+    public boolean isPlayEvent() {
+        return mEventKind == EVENT_KIND_PLAY;
+    }
+
+    public boolean isStopEvent() {
+        return !isPlayEvent();
     }
 
     public long getUserId() {
@@ -62,7 +78,7 @@ public class PlaybackEventData {
     public String toString() {
         return Objects.toStringHelper(PlaybackEventData.class)
                 .add("Track_ID", mTrack.getId())
-                .add("Action", mAction)
+                .add("Event", mEventKind)
                 .add("UserID", mUserId)
                 .add("TrackSourceInfo", mTrackSourceInfo)
                 .add("TimeStamp", mTimeStamp).toString();

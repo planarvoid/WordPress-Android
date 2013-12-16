@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParams.Action;
+
 import com.google.common.collect.Lists;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.ClientUri;
@@ -65,7 +67,7 @@ public class EventLoggerStorage {
     private ContentValues createValuesFromPlaybackEvent(PlaybackEventData params) {
         ContentValues values = new ContentValues();
         values.put(EventLoggerDbHelper.TrackingEvents.TIMESTAMP, params.getTimeStamp());
-        values.put(EventLoggerDbHelper.TrackingEvents.ACTION, params.getAction());
+        values.put(EventLoggerDbHelper.TrackingEvents.ACTION, params.isPlayEvent() ? Action.PLAY : Action.STOP);
         values.put(EventLoggerDbHelper.TrackingEvents.SOUND_URN, ClientUri.forTrack(params.getTrack().getId()).toString());
         values.put(EventLoggerDbHelper.TrackingEvents.SOUND_DURATION, params.getTrack().duration);
         values.put(EventLoggerDbHelper.TrackingEvents.USER_URN, ClientUri.forUser(Math.max(0, params.getUserId())).toString());
