@@ -10,6 +10,7 @@ import com.soundcloud.android.api.TempEndpoints;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Recording;
@@ -131,8 +132,8 @@ public enum Content  {
     SEARCH("search", null, 1500, ScResource.class, -1, null),
     SEARCH_ITEM("search/*", null, 1501, ScResource.class, -1, null),
 
-    PLAY_QUEUE("play_queue", null, 2000, null, -1, Table.PLAY_QUEUE),
-    PLAY_QUEUE_ITEM("play_queue/#", null, 2001, null, -1, Table.PLAY_QUEUE),
+    PLAY_QUEUE("play_queue", null, 2000, PlayQueueItem.class, -1, Table.PLAY_QUEUE),
+    PLAY_QUEUE_ITEM("play_queue/#", null, 2001, PlayQueueItem.class, -1, Table.PLAY_QUEUE),
 
     SOUND_STREAM_CLEANUP("cleanup/soundstream", null, 9996, null, -1, null),
     ACTIVITIES_CLEANUP("cleanup/activities", null, 9997, null, -1, null),
