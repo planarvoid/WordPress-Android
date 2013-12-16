@@ -29,6 +29,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
 import dagger.ObjectGraph;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,7 +51,9 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     // Remove these fields when we've moved to a full DI solution
     @Deprecated
     public static SoundCloudApplication instance;
+
     @Deprecated
+    @SuppressFBWarnings({ "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "MS_CANNOT_BE_FINAL"})
     public static ScModelManager sModelManager;
 
     private User mLoggedInUser;
