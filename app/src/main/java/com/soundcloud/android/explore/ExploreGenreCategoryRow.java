@@ -27,7 +27,7 @@ public class ExploreGenreCategoryRow extends LinearLayout implements SectionedLi
 
     @Override
     public void showSectionHeaderWithText(String text) {
-        sectionHeader.setText(text);
+        sectionHeader.setText(text.toUpperCase());
         sectionHeader.setVisibility(View.VISIBLE);
     }
 
