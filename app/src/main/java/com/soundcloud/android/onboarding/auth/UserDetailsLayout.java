@@ -57,8 +57,6 @@ public class UserDetailsLayout extends RelativeLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        final Context context = getContext();
-
         final EditText  username   = (EditText)  findViewById(R.id.txt_username);
         final TextView  avatarText = (TextView)  findViewById(R.id.txt_artwork_bg);
         final ImageView avatarView = (ImageView) findViewById(R.id.artwork);
