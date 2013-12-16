@@ -63,7 +63,6 @@ public class PlaybackEventTrackerTest {
     @Test
     public void trackStopEventPublishesPlaybackEventWithPlaybackEventDataAfterInitialPlayEvent() throws Exception {
         playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
-        Thread.sleep(WAIT_TIME);
         Event.PLAYBACK.subscribe(observer);
         playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID);
 
@@ -76,7 +75,6 @@ public class PlaybackEventTrackerTest {
         expect(playbackEventData.getAction()).toBe(EventLoggerParams.Action.STOP);
         expect(playbackEventData.getUserId()).toBe(USER_ID);
         expect(playbackEventData.getTimeStamp()).toBeGreaterThan(0L);
-        expect(playbackEventData.getListenTime()).toBeGreaterThan(WAIT_TIME);
     }
 
     @Test
