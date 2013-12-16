@@ -5,11 +5,14 @@ import static com.soundcloud.android.tracking.eventlogger.EventLoggerParams.Acti
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class PlaybackEventData {
 
+    @NotNull
     private Track mTrack;
+
     private String mAction;
     private long mUserId;
     private TrackSourceInfo mTrackSourceInfo;
@@ -17,17 +20,17 @@ public class PlaybackEventData {
 
     private long mListenTime;
 
-    public static PlaybackEventData forPlay(Track track, long userId, TrackSourceInfo trackSourceInfo) {
+    public static PlaybackEventData forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo) {
         return new PlaybackEventData(track, Action.PLAY, userId, trackSourceInfo);
     }
 
-    public static PlaybackEventData forStop(Track track, long userId, TrackSourceInfo trackSourceInfo, PlaybackEventData lastPlayEvent) {
+    public static PlaybackEventData forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, PlaybackEventData lastPlayEvent) {
         final PlaybackEventData playbackEventData = new PlaybackEventData(track, Action.STOP, userId, trackSourceInfo);
         playbackEventData.setListenTime(playbackEventData.mTimeStamp - lastPlayEvent.getTimeStamp());
         return playbackEventData;
     }
 
-    private PlaybackEventData(Track track, String action, long userId, TrackSourceInfo trackSourceInfo) {
+    private PlaybackEventData(@NotNull Track track, String action, long userId, TrackSourceInfo trackSourceInfo) {
         mTrack = track;
         mAction = action;
         mUserId = userId;

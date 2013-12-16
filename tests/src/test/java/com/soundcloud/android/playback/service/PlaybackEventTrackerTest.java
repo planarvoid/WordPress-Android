@@ -34,13 +34,13 @@ public class PlaybackEventTrackerTest {
     @Before
     public void setUp() throws Exception {
         track = TestHelper.getModelFactory().createModel(Track.class);
-        playbackEventTracker = new PlaybackEventTracker(track, trackSourceInfo, USER_ID);
+        playbackEventTracker = new PlaybackEventTracker();
     }
 
     @Test
     public void trackPlayEventPublishesPlaybackEventWithPlaybackEventData() throws Exception {
         Event.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackPlayEvent();
+        playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
 
         ArgumentCaptor<PlaybackEventData> captor = ArgumentCaptor.forClass(PlaybackEventData.class);
         verify(observer).onNext(captor.capture());
@@ -56,16 +56,16 @@ public class PlaybackEventTrackerTest {
     @Test
     public void trackStopEventDoesNothingWhenCallingStopAfterNoPlayEvent() throws Exception {
         Event.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent();
+        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID);
         verifyZeroInteractions(observer);
     }
 
     @Test
     public void trackStopEventPublishesPlaybackEventWithPlaybackEventDataAfterInitialPlayEvent() throws Exception {
-        playbackEventTracker.trackPlayEvent();
+        playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
         Thread.sleep(WAIT_TIME);
         Event.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent();
+        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID);
 
         ArgumentCaptor<PlaybackEventData> captor = ArgumentCaptor.forClass(PlaybackEventData.class);
         verify(observer).onNext(captor.capture());
@@ -81,11 +81,40 @@ public class PlaybackEventTrackerTest {
 
     @Test
     public void trackStopEventDoesNothingWhenCallingStopAfterPlayEventConsumed() throws Exception {
-        playbackEventTracker.trackPlayEvent();
-        playbackEventTracker.trackStopEvent();
+        playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
+        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID);
         Event.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent();
+        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID);
         verifyZeroInteractions(observer);
     }
 
+    @Test
+    public void trackPlayEventShouldSkipNullTracks() {
+        Event.PLAYBACK.subscribe(observer);
+        playbackEventTracker.trackPlayEvent(null, trackSourceInfo, USER_ID);
+        verifyZeroInteractions(observer);
+    }
+
+    @Test
+    public void trackPlayEventShouldSkipNullSourceInfo() {
+        Event.PLAYBACK.subscribe(observer);
+        playbackEventTracker.trackPlayEvent(track, null, USER_ID);
+        verifyZeroInteractions(observer);
+    }
+
+    @Test
+    public void trackStopEventShouldSkipNullTracks() {
+        playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
+        Event.PLAYBACK.subscribe(observer);
+        playbackEventTracker.trackStopEvent(null, trackSourceInfo, USER_ID);
+        verifyZeroInteractions(observer);
+    }
+
+    @Test
+    public void trackStopEventShouldSkipNullSourceInfo() {
+        playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
+        Event.PLAYBACK.subscribe(observer);
+        playbackEventTracker.trackStopEvent(track, null, USER_ID);
+        verifyZeroInteractions(observer);
+    }
 }
