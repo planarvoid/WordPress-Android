@@ -86,7 +86,7 @@ public class ExploreGenresAdapterTest {
         exploreGenresAdapter.onNext(section);
         exploreGenresAdapter.bindItemView(0, itemView);
 
-        verify(itemView).setTag(startsWith("explore:genres:music"));
+        verify(itemView).setTag(startsWith("explore:music"));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ExploreGenresAdapterTest {
         exploreGenresAdapter.onNext(section);
         exploreGenresAdapter.bindItemView(0, itemView);
 
-        verify(itemView).setTag(startsWith("explore:genres:audio"));
+        verify(itemView).setTag(startsWith("explore:audio"));
     }
 
     @Test(expected = IllegalArgumentException.class)
