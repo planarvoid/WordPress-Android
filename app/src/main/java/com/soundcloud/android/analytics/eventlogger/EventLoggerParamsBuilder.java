@@ -1,4 +1,4 @@
-package com.soundcloud.android.tracking.eventlogger;
+package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.ScTextUtils;

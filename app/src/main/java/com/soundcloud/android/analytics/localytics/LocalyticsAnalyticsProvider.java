@@ -1,11 +1,13 @@
-package com.soundcloud.android.analytics;
+package com.soundcloud.android.analytics.localytics;
 
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.analytics.AnalyticsProperties;
+import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.PlaybackEventData;
 
 import android.content.Context;
 
-class LocalyticsAnalyticsProvider implements AnalyticsProvider {
+public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private LocalyticsSession mLocalyticsSession;
     public LocalyticsAnalyticsProvider(Context context){
         this(new LocalyticsSession(context.getApplicationContext(),

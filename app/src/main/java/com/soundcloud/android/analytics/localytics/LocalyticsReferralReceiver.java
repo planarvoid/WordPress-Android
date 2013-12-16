@@ -1,6 +1,7 @@
-package com.soundcloud.android.analytics;
+package com.soundcloud.android.analytics.localytics;
 
 import com.localytics.android.ReferralReceiver;
+import com.soundcloud.android.analytics.AnalyticsProperties;
 
 import android.content.Context;
 import android.content.Intent;

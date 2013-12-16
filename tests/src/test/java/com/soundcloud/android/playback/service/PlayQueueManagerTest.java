@@ -17,7 +17,6 @@ import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import dagger.Module;
 import dagger.ObjectGraph;

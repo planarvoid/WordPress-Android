@@ -1,4 +1,4 @@
-package com.soundcloud.android.analytics;
+package com.soundcloud.android.analytics.localytics;
 
 public interface LocalyticsEvents {
 

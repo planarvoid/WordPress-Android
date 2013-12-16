@@ -1,9 +1,11 @@
-package com.soundcloud.android.analytics;
+package com.soundcloud.android.analytics.localytics;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 import com.localytics.android.LocalyticsSession;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -13,11 +15,7 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
-
-import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LocalyticsAnalyticsProviderTest {

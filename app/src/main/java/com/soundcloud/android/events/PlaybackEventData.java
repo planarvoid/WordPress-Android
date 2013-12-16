@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import static com.soundcloud.android.tracking.eventlogger.EventLoggerParams.Action;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParams.Action;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Track;

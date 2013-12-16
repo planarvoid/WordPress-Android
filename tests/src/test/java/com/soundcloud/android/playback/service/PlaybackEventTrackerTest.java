@@ -9,7 +9,7 @@ import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.tracking.eventlogger.EventLoggerParams;
+import com.soundcloud.android.analytics.eventlogger.EventLoggerParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

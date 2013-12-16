@@ -4,8 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.PlaybackEventData;
-import com.soundcloud.android.tracking.eventlogger.EventLogger;
-import com.soundcloud.android.tracking.eventlogger.EventLoggerModule;
+import com.soundcloud.android.analytics.eventlogger.EventLogger;
+import com.soundcloud.android.analytics.eventlogger.EventLoggerModule;
 
 import javax.inject.Inject;
 

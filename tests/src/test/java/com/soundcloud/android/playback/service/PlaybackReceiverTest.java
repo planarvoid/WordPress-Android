@@ -18,7 +18,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.tasks.FetchModelTask;
-import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;

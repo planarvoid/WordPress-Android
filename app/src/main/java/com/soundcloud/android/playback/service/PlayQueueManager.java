@@ -7,7 +7,6 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;

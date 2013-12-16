@@ -12,7 +12,6 @@ import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.rx.observers.RxObserverHelper;
 import com.soundcloud.android.storage.PlayQueueStorage;
-import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;

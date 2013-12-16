@@ -1,4 +1,4 @@
-package com.soundcloud.android.tracking.eventlogger;
+package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;

@@ -1,11 +1,11 @@
-package com.soundcloud.android.tracking.eventlogger;
+package com.soundcloud.android.analytics.eventlogger;
 
-import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.ACTION;
-import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.SOUND_DURATION;
-import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.SOUND_URN;
-import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.SOURCE_INFO;
-import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.TIMESTAMP;
-import static com.soundcloud.android.tracking.eventlogger.EventLoggerDbHelper.TrackingEvents.USER_URN;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.ACTION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.SOUND_DURATION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.SOUND_URN;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.SOURCE_INFO;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.TIMESTAMP;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerDbHelper.TrackingEvents.USER_URN;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.integralblue.httpresponsecache.compat.Charsets;

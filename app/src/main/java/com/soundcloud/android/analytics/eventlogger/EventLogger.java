@@ -1,4 +1,4 @@
-package com.soundcloud.android.tracking.eventlogger;
+package com.soundcloud.android.analytics.eventlogger;
 
 import static android.os.Process.THREAD_PRIORITY_LOWEST;
 

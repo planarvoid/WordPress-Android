@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;

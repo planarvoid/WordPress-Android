@@ -1,4 +1,4 @@
-package com.soundcloud.android.tracking.eventlogger;
+package com.soundcloud.android.analytics.eventlogger;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;

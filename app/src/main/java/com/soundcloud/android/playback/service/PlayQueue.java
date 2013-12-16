@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 
 import java.util.Collection;
 import java.util.Collections;

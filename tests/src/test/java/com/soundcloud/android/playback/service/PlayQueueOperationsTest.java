@@ -22,7 +22,6 @@ import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.PlayQueueStorage;
-import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import dagger.Module;
 import dagger.ObjectGraph;
 import dagger.Provides;
