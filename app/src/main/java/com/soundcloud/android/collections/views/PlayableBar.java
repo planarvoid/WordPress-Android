@@ -25,6 +25,8 @@ import javax.annotation.CheckForNull;
  * information such as user, title, and a timestamp. Used on the playlist and track screens, and in further
  * specialized form as list items (@see {@link PlayableRow}.
  */
+
+@SuppressWarnings({"PMD.UnusedLocalVariable", "PMD.ConstructorCallsOverridableMethod"})
 public class PlayableBar extends IconLayout {
     protected PlayableHolder mPlayableHolder;
     protected TextView mTitle;

@@ -170,11 +170,11 @@ public class WavHeader {
      * @return number of bits per sample,
      * usually 16 for PCM, 8 for ULAW or 8 for ALAW.
      */
-    public short getBitsPerSample() {
+    public final short getBitsPerSample() {
         return mBitsPerSample;
     }
 
-    public int getBytesPerSample() {
+    public final int getBytesPerSample() {
         return getBitsPerSample() / 8;
     }
 
@@ -193,7 +193,7 @@ public class WavHeader {
      * Get the size of audio data after this header, in bytes.
      * @return size of audio data after this header, in bytes.
      */
-    public int getNumBytes() {
+    public final int getNumBytes() {
         return mNumBytes;
     }
 
@@ -210,7 +210,7 @@ public class WavHeader {
     /**
      * @return the duration, in ms
      */
-    public long getDuration() {
+    public final long getDuration() {
         return getAudioConfig().bytesToMs(mNumBytes);
     }
 

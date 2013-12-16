@@ -84,12 +84,12 @@ public class ScModel implements Parcelable, Identifiable {
     }
 
     @JsonProperty
-    public void setUrn(String urn) {
+    public final void setUrn(String urn) {
         setUrn(ClientUri.fromUri(urn));
     }
 
     @JsonIgnore
-    public void setUrn(ClientUri urn) {
+    public final void setUrn(ClientUri urn) {
         this.mURN = urn;
         if (mURN != null) {
             this.setId(mURN.numericId);

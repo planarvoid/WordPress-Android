@@ -249,7 +249,7 @@ public class User extends ScResource implements UserHolder {
         return username;
     }
 
-    public void setUsername(@Nullable String username) {
+    public final void setUsername(@Nullable String username) {
         this.username = username;
     }
 
@@ -318,7 +318,7 @@ public class User extends ScResource implements UserHolder {
         return city;
     }
 
-    public void setCity(@Nullable String city) {
+    public final void setCity(@Nullable String city) {
         this.city = city;
     }
 
@@ -327,7 +327,7 @@ public class User extends ScResource implements UserHolder {
         return country;
     }
 
-    public void setCountry(@Nullable String country) {
+    public final void setCountry(@Nullable String country) {
         this.country = country;
     }
 

@@ -14,6 +14,7 @@ public class PlaybackEventData {
     private long mUserId;
     private TrackSourceInfo mTrackSourceInfo;
     private long mTimeStamp;
+
     private long mListenTime;
 
     public static PlaybackEventData forPlay(Track track, long userId, TrackSourceInfo trackSourceInfo) {

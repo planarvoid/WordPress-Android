@@ -91,7 +91,7 @@ public class CreateWaveView extends View {
         invalidate();
     }
 
-    public void reset() {
+    public final void reset() {
         mCurrentProgress = -1f;
         mAnimationStartTime = -1l;
         mMode = CreateWaveDisplay.MODE_REC;

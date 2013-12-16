@@ -44,7 +44,7 @@ public class Category extends ScModel {
 
     public Category(Parcel parcel) {
         super(parcel);
-        setKey(parcel.readString());
+        mKey = parcel.readString();
         mUsers = parcel.readArrayList(SuggestedUser.class.getClassLoader());
         mDisplayType = DisplayType.values()[parcel.readInt()];
     }

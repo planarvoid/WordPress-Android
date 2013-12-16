@@ -39,7 +39,7 @@ public class PlaybackStream implements Parcelable {
         mOptimize = false;
     }
 
-    public void resetBounds() {
+    public final void resetBounds() {
         mStartPos = 0;
         mEndPos   = getTotalDuration();
         mTrimWindow[0] = 0.0f;

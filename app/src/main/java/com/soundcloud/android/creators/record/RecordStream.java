@@ -128,7 +128,7 @@ public class RecordStream  {
         this.writer = writer;
     }
 
-    public void setWriters(@Nullable File raw, @Nullable File encoded) {
+    public final void setWriters(@Nullable File raw, @Nullable File encoded) {
         AudioWriter w;
 
         if (raw == null && encoded == null)      w = new EmptyWriter(mConfig);

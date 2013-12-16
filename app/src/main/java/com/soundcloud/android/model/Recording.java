@@ -769,7 +769,7 @@ public class Recording extends ScResource implements Comparable<Recording> {
 
     private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
         try {
-            final AudioReader reader = AudioReader.guessMultiple(getFile(), getEncodedFile());
+            final AudioReader reader = AudioReader.guessMultiple(audio_path, getEncodedFile());
 
             PlaybackStream stream = new PlaybackStream(reader);
             if (c != null) {

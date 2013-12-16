@@ -52,9 +52,13 @@ public class LocalCollection implements Identifiable, Persisted {
     }
 
     public LocalCollection(Cursor c) {
-        setId(c.getInt(c.getColumnIndex(DBHelper.Collections._ID)));
+        id = (long) c.getInt(c.getColumnIndex(DBHelper.Collections._ID));
         uri = Uri.parse(c.getString(c.getColumnIndex(DBHelper.Collections.URI)));
-        setFromCursor(c);
+        last_sync_attempt = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC_ATTEMPT));
+        last_sync_success = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
+        sync_state = c.getInt(c.getColumnIndex(DBHelper.Collections.SYNC_STATE));
+        extra = c.getString(c.getColumnIndex(DBHelper.Collections.EXTRA));
+        size = c.getInt(c.getColumnIndex(DBHelper.Collections.SIZE));
     }
 
     public boolean hasSyncedBefore() {

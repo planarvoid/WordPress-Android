@@ -52,11 +52,11 @@ public class TrimPreview {
         return config.validBytePosition(Math.min(startPos, endPos));
     }
 
-    public long getByteRange(AudioConfig config) {
+    public final long getByteRange(AudioConfig config) {
         return config.msToByte((int) Math.abs(endPos - startPos));
     }
 
-    public boolean isReverse() {
+    public final boolean isReverse() {
         return startPos > endPos;
     }
 

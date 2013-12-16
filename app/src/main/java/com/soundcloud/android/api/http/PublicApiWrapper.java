@@ -134,7 +134,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     }
 
 
-    public static ObjectMapper buildObjectMapper() {
+    public final static ObjectMapper buildObjectMapper() {
         return new ObjectMapper().
                 configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false).
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).
