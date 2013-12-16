@@ -158,7 +158,6 @@
 
     <modules>
         <module>app</module>
-        <module>tests</module>
         <module>tests-integration</module>
     </modules>
 

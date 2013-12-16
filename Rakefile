@@ -250,7 +250,7 @@ end
 namespace :test do
     desc "Run unit tests"
     task :unit do
-      Mvn.install.projects('app','tests').
+      Mvn.install.projects('app').
         with_profiles('debug').
         skip_proguard.
       execute()
@@ -473,7 +473,7 @@ namespace :ci do
   end
 
   task :test_app do
-    Mvn.test.projects('tests').
+    Mvn.test.projects('app').
       with_profiles('debug').
       skip_proguard.
       use_local_repo.
