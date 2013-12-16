@@ -90,4 +90,14 @@ public class LocalyticsAnalyticsProviderTest {
         expect(stopEventAttributes.getValue().get("track_id")).toEqual(String.valueOf(track.getId()));
         expect(stopEventAttributes.getValue().get("tag")).toEqual(String.valueOf(track.getGenreOrTag()));
     }
+
+    @Test
+    public void playbackEventDataForStopEventShouldContainSetAttributesForTrackBelongingToPlaylist() {
+        trackSourceInfo.setOriginPlaylist(1L, 0);
+    }
+
+    @Test
+    public void playbackEventDataForStopEventShouldContainSetAttributesForTrackNotInPlaylist() {
+
+    }
 }

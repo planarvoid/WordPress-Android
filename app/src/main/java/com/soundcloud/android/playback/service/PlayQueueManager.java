@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
@@ -26,6 +27,8 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
     private final PlayQueueOperations mPlayQueueOperations;
 
     private PlayQueue mPlayQueue = PlayQueue.empty();
+    private PlaySessionSource mPlaySessionSource = PlaySessionSource.EMPTY;
+
     private Subscription mFetchRelatedSubscription = Subscriptions.empty();
     private Subscription mPlayQueueSubscription = Subscriptions.empty();
     private Observable<RelatedTracksCollection> mRelatedTracksObservable;
@@ -40,18 +43,21 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         mModelManager = modelManager;
     }
 
-    public void setNewPlayQueue(PlayQueue playQueue) {
+    public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         stopLoadingOperations();
 
         mPlayQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
         mPlayQueue.setCurrentTrackToUserTriggered();
+
+        mPlaySessionSource = playSessionSource;
+
         broadcastPlayQueueChanged();
         saveCurrentPosition(0L);
     }
 
     public void saveCurrentPosition(long currentTrackProgress) {
         if (!mPlayQueue.isEmpty()) {
-            mPlayQueueOperations.saveQueue(mPlayQueue, currentTrackProgress);
+            mPlayQueueOperations.saveQueue(mPlayQueue, mPlaySessionSource, currentTrackProgress);
         }
     }
 
@@ -65,7 +71,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
             mPlayQueueSubscription = playQueueObservable.subscribe(new Action1<PlayQueue>() {
                 @Override
                 public void call(PlayQueue playQueue) {
-                    setNewPlayQueue(playQueue);
+                    setNewPlayQueue(playQueue, mPlayQueueOperations.getLastStoredPlaySessionSource());
                 }
             });
             // return so player can have the resume information while load is in progress
@@ -75,8 +81,22 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
             broadcastPlayQueueChanged();
             return null;
         }
+    }
 
+    public TrackSourceInfo getCurrentTrackSourceInfo() {
+        return mPlayQueue.getCurrentTrackSourceInfo(mPlaySessionSource);
+    }
 
+    public long getPlaylistId(){
+        return mPlaySessionSource.getPlaylistId();
+    }
+
+    public String getOriginScreen() {
+        return mPlaySessionSource.getOriginScreen();
+    }
+
+    private boolean isPlayingPlaylist() {
+        return getPlaylistId() > Playable.NOT_SET;
     }
 
     public boolean shouldReloadQueue(){

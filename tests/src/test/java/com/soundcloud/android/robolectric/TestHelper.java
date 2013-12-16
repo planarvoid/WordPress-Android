@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.blueprints.CategoryBlueprint;
+import com.soundcloud.android.blueprints.PlaylistBlueprint;
 import com.soundcloud.android.blueprints.SuggestedUserBlueprint;
 import com.soundcloud.android.blueprints.TrackBlueprint;
 import com.soundcloud.android.blueprints.TrackStatsBlueprint;
@@ -94,6 +95,7 @@ public class TestHelper {
             modelFactory.registerBlueprint(SuggestedUserBlueprint.class);
             modelFactory.registerBlueprint(TrackSummaryBlueprint.class);
             modelFactory.registerBlueprint(TrackStatsBlueprint.class);
+            modelFactory.registerBlueprint(PlaylistBlueprint.class);
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
         }

@@ -129,7 +129,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             final PlaySessionSource playSessionSource = intent.getParcelableExtra(PlayExtras.PLAY_SESSION_SOURCE);
             PlayQueue playQueue = PlayQueue.fromIdList(trackIds, startPosition, playSessionSource);
 
-            mPlayQueueManager.setNewPlayQueue(playQueue);
+            mPlayQueueManager.setNewPlayQueue(playQueue, playSessionSource);
             mPlaybackService.openCurrent();
 
             if (playSessionSource.originatedInExplore() && !playQueue.isEmpty()){

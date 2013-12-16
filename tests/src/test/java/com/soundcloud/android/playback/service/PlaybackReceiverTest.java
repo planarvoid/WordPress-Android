@@ -52,6 +52,8 @@ public class PlaybackReceiverTest {
     private AccountOperations accountOperations;
     @Mock
     private PlayQueueManager playQueueManager;
+    @Mock
+    private PlaySessionSource playSessionSource;
 
     @Before
     public void setup() {
@@ -113,7 +115,6 @@ public class PlaybackReceiverTest {
     public void shouldCreateAndSetPlayQueueOnPlayQueueManager() {
         final long[] idListArray = new long[]{1L, 2L, 3L};
         final List<Long> idList = Longs.asList(idListArray);
-        final PlaySessionSource playSessionSource = new PlaySessionSource("origin:page", 123L, "verion1");
 
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, idListArray);
@@ -121,14 +122,14 @@ public class PlaybackReceiverTest {
         intent.putExtra(PlaybackService.PlayExtras.START_POSITION, 2);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
-        verify(playQueueManager).setNewPlayQueue(eq(PlayQueue.fromIdList(idList, 2, playSessionSource)));
+        verify(playQueueManager).setNewPlayQueue(eq(PlayQueue.fromIdList(idList, 2, playSessionSource)), eq(playSessionSource));
     }
 
     @Test
     public void sendingNewPlayQueueShouldOpenCurrentTrackInPlaybackService() {
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, new long[]{1L, 2L, 3L});
-        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, new PlaySessionSource("origin:page", 123L, "verion1"));
+        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
         intent.putExtra(PlaybackService.PlayExtras.START_POSITION, 2);
 
         playbackReceiver.onReceive(Robolectric.application, intent);
@@ -138,9 +139,10 @@ public class PlaybackReceiverTest {
 
     @Test
     public void sendingNewPlayQueueShouldOptionallyFetchRelatedTracks() {
+        when(playSessionSource.originatedInExplore()).thenReturn(true);
         Intent intent = new Intent(PlaybackService.Actions.PLAY_ACTION);
         intent.putExtra(PlaybackService.PlayExtras.TRACK_ID_LIST, new long[]{1L});
-        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, new PlaySessionSource("explore:page", 123L, "verion1"));
+        intent.putExtra(PlaybackService.PlayExtras.PLAY_SESSION_SOURCE, playSessionSource);
         intent.putExtra(PlaybackService.PlayExtras.START_POSITION, 0);
 
         playbackReceiver.onReceive(Robolectric.application, intent);

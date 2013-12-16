@@ -18,10 +18,13 @@ import com.soundcloud.android.api.http.RxHttpClient;
 import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.ModelCollection;
 import com.soundcloud.android.model.PlayQueueItem;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.model.UserSummary;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.storage.PlayQueueStorage;
+import com.tobedevoured.modelcitizen.CreateModelException;
 import dagger.Module;
 import dagger.ObjectGraph;
 import dagger.Provides;
@@ -69,8 +72,11 @@ public class PlayQueueOperationsTest {
     @Mock
     private Observer observer;
 
+    private PlaySessionSource playSessionSource;
+    private Playlist playlist;
+
     @Before
-    public void before() {
+    public void before() throws CreateModelException {
         when(context.getSharedPreferences(PlayQueueOperations.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)).thenReturn(sharedPreferences);
 
         ObjectGraph.create(new TestModule()).inject(this);
@@ -78,16 +84,20 @@ public class PlayQueueOperationsTest {
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueueStorage.storeCollectionAsync(any(Collection.class))).thenReturn(Observable.<Collection<PlayQueueItem>>empty());
-        when(sharedPreferences.getString(eq(PlayQueueOperations.Keys.ORIGIN_URL.name()), anyString())).thenReturn("origin:page");
-        when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.SET_ID.name()), anyLong())).thenReturn(123L);
+        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn("origin:page");
+        when(sharedPreferences.getLong(eq(PlaySessionSource.PREF_KEY_PLAYLIST_ID), anyLong())).thenReturn(123L);
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
+
+        playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
+        playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        playSessionSource.setPlaylist(playlist);
     }
 
     @Test
     public void shouldReturnLastPlaySessionSourceFromPreferences() throws Exception {
         PlaySessionSource playSessionSource = playQueueOperations.getLastStoredPlaySessionSource();
-        expect(playSessionSource.getOriginPage()).toEqual(ORIGIN_PAGE);
-        expect(playSessionSource.getSetId()).toEqual(SET_ID);
+        expect(playSessionSource.getOriginScreen()).toEqual(ORIGIN_PAGE);
+        expect(playSessionSource.getPlaylistId()).toEqual(SET_ID);
 
     }
 
@@ -122,8 +132,6 @@ public class PlayQueueOperationsTest {
         PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().toBlockingObservable().lastOrDefault(null);
         expect(playQueue.getItems()).toContainExactly(playQueueItem1, playQueueItem2);
         expect(playQueue.getPosition()).toEqual(1);
-        expect(playQueue.getOriginScreen()).toEqual(ORIGIN_PAGE);
-        expect(playQueue.getPlaylistId()).toEqual(SET_ID);
     }
 
     @Test
@@ -137,13 +145,13 @@ public class PlayQueueOperationsTest {
     public void saveShouldWritePlayQueueMetaDataToPreferences() throws Exception {
         when(playQueue.getCurrentTrackId()).thenReturn(123L);
         when(playQueue.getPosition()).thenReturn(4);
-        when(playQueue.getPlaylistId()).thenReturn(456L);
 
-        expect(playQueueOperations.saveQueue(playQueue, 200L)).not.toBeNull();
+        expect(playQueueOperations.saveQueue(playQueue, playSessionSource, 200L)).not.toBeNull();
         verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.SEEK_POSITION.name(), 200L);
         verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.TRACK_ID.name(), 123L);
-        verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.SET_ID.name(), 456L);
         verify(sharedPreferencesEditor).putInt(PlayQueueOperations.Keys.PLAY_POSITION.name(), 4);
+        verify(sharedPreferencesEditor).putString(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG, ORIGIN_PAGE);
+        verify(sharedPreferencesEditor).putLong(PlaySessionSource.PREF_KEY_PLAYLIST_ID, playlist.getId());
     }
 
     @Test
@@ -157,7 +165,7 @@ public class PlayQueueOperationsTest {
         final Subscription subscription = Mockito.mock(Subscription.class);
         when(mockObservable.subscribe(any(Observer.class))).thenReturn(subscription);
 
-        expect(playQueueOperations.saveQueue(playQueue, 200L)).toBe(subscription);
+        expect(playQueueOperations.saveQueue(playQueue, playSessionSource, 200L)).toBe(subscription);
     }
 
     @Test
@@ -165,9 +173,9 @@ public class PlayQueueOperationsTest {
         playQueueOperations.clear();
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.SEEK_POSITION.name());
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.TRACK_ID.name());
-        verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.SET_ID.name());
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.PLAY_POSITION.name());
-        verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.ORIGIN_URL.name());
+        verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_PLAYLIST_ID);
+        verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG);
     }
 
     @Test

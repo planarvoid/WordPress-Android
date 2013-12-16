@@ -9,7 +9,6 @@ import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.RelatedTracksCollection;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.rx.observers.RxObserverHelper;
 import com.soundcloud.android.storage.PlayQueueStorage;
 import com.soundcloud.android.utils.Log;
@@ -31,7 +30,7 @@ public class PlayQueueOperations {
 
     static final String SHARED_PREFERENCES_KEY = "playlistPos";
     enum Keys {
-        PLAY_POSITION, SEEK_POSITION, TRACK_ID, ORIGIN_URL, SET_ID
+        PLAY_POSITION, SEEK_POSITION, TRACK_ID
     }
 
     private final SharedPreferences mSharedPreferences;
@@ -58,32 +57,31 @@ public class PlayQueueOperations {
     }
 
     public PlaySessionSource getLastStoredPlaySessionSource() {
-        return new PlaySessionSource(mSharedPreferences.getString(Keys.ORIGIN_URL.name(), ScTextUtils.EMPTY_STRING),
-                mSharedPreferences.getLong(Keys.SET_ID.name(), ScModel.NOT_SET));
+        return new PlaySessionSource(mSharedPreferences);
     }
 
     public Observable<PlayQueue> getLastStoredPlayQueue() {
         if (getLastStoredPlayingTrackId() != Playable.NOT_SET) {
-            final PlaySessionSource playSessionSource = getLastStoredPlaySessionSource();
             return mPlayQueueStorage.getPlayQueueItemsAsync()
                     .observeOn(AndroidSchedulers.mainThread()).map(new Func1<List<PlayQueueItem>, PlayQueue>() {
                         @Override
                         public PlayQueue call(List<PlayQueueItem> playQueueItems) {
-                            return new PlayQueue(playQueueItems, getLastStoredPlayPosition(), playSessionSource);
+                            return new PlayQueue(playQueueItems, getLastStoredPlayPosition());
                         }
                     });
         }
         return null;
     }
 
-    public Subscription saveQueue(PlayQueue playQueue, long seekPosition) {
+    public Subscription saveQueue(PlayQueue playQueue, PlaySessionSource playSessionSource, long seekPosition) {
         SharedPreferences.Editor editor = mSharedPreferences.edit();
 
         editor.putLong(Keys.TRACK_ID.name(), playQueue.getCurrentTrackId());
         editor.putInt(Keys.PLAY_POSITION.name(), playQueue.getPosition());
         editor.putLong(Keys.SEEK_POSITION.name(), seekPosition);
-        editor.putLong(Keys.SET_ID.name(), playQueue.getPlaylistId());
-        editor.putString(Keys.ORIGIN_URL.name(), playQueue.getOriginScreen());
+
+        playSessionSource.saveToPreferences(editor);
+
         SharedPreferencesUtils.apply(editor);
 
         return RxObserverHelper.fireAndForget(mPlayQueueStorage.storeCollectionAsync(playQueue.getItems()));
@@ -94,8 +92,7 @@ public class PlayQueueOperations {
         editor.remove(Keys.TRACK_ID.name());
         editor.remove(Keys.PLAY_POSITION.name());
         editor.remove(Keys.SEEK_POSITION.name());
-        editor.remove(Keys.SET_ID.name());
-        editor.remove(Keys.ORIGIN_URL.name());
+        PlaySessionSource.clearPreferenceKeys(editor);
         SharedPreferencesUtils.apply(editor);
         mPlayQueueStorage.clearState();
     }
@@ -114,7 +111,6 @@ public class PlayQueueOperations {
         }
         return null;
     }
-
 
     private Uri extractUri(SharedPreferences sharedPreferences, String parameter) {
         return Uri.parse(sharedPreferences.getString(parameter, ScTextUtils.EMPTY_STRING));

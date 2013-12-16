@@ -1,9 +1,13 @@
 package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.NotNull;
 
+import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -13,6 +17,9 @@ public class PlaySessionSource implements Parcelable{
 
     public static final PlaySessionSource EMPTY = new PlaySessionSource();
 
+    static String PREF_KEY_ORIGIN_SCREEN_TAG = "origin_url"; //legacy
+    static String PREF_KEY_PLAYLIST_ID = "set_id"; //legacy
+
     public enum DiscoverySource {
         RECOMMENDER, EXPLORE;
 
@@ -21,17 +28,23 @@ public class PlaySessionSource implements Parcelable{
         }
     }
 
-    private final String mOriginPage;
-    private final long mSetId;
+    private final String mOriginScreen;
+    private long mPlaylistId = Playlist.NOT_SET;
+    private long mPlaylistOwnerId = User.NOT_SET;
     private String mExploreVersion;
 
     public PlaySessionSource(Parcel in) {
-        mSetId = in.readLong();
-        mOriginPage = in.readString();
+        mPlaylistId = in.readLong();
+        mOriginScreen = in.readString();
         mExploreVersion = in.readString();
     }
 
-    public PlaySessionSource() {
+    public PlaySessionSource(SharedPreferences mSharedPreferences) {
+        mOriginScreen = mSharedPreferences.getString(PREF_KEY_ORIGIN_SCREEN_TAG, ScTextUtils.EMPTY_STRING);
+        mPlaylistId = mSharedPreferences.getLong(PREF_KEY_PLAYLIST_ID, ScModel.NOT_SET);
+    }
+
+    private PlaySessionSource() {
         this(ScTextUtils.EMPTY_STRING);
     }
 
@@ -40,35 +53,29 @@ public class PlaySessionSource implements Parcelable{
     }
 
     public PlaySessionSource(String originScreen) {
-        this(originScreen, ScModel.NOT_SET);
+        mOriginScreen = originScreen;
     }
 
-    public PlaySessionSource(String originScreen, long setId) {
-        mOriginPage = originScreen;
-        mSetId = setId;
+    public String getOriginScreen() {
+        return mOriginScreen;
     }
 
-    public PlaySessionSource(String originScreen, String exploreVersion) {
-        this(originScreen, ScModel.NOT_SET, exploreVersion);
+    public long getPlaylistId() {
+        return mPlaylistId;
     }
 
-    public PlaySessionSource(String originScreen, long setId, String exploreVersion) {
-        mOriginPage = originScreen;
-        mSetId = setId;
-        mExploreVersion = exploreVersion;
+    public void setPlaylist(@NotNull Playlist playlist) {
+        mPlaylistId = playlist.getId();
+        mPlaylistOwnerId = playlist.getUserId();
     }
 
-    public String getOriginPage() {
-        return mOriginPage;
-    }
-
-    public long getSetId() {
-        return mSetId;
+    public void setExploreVersion(String exploreVersion) {
+        this.mExploreVersion = exploreVersion;
     }
 
     // TODO, finalize this once we implement page tracking
     public boolean originatedInExplore(){
-        return mOriginPage.startsWith("explore");
+        return mOriginScreen.startsWith("explore");
     }
 
     public String getInitialSource() {
@@ -86,9 +93,14 @@ public class PlaySessionSource implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(mSetId);
-        dest.writeString(mOriginPage);
+        dest.writeLong(mPlaylistId);
+        dest.writeString(mOriginScreen);
         dest.writeString(mExploreVersion);
+    }
+
+    public void saveToPreferences(SharedPreferences.Editor editor) {
+        editor.putString(PREF_KEY_ORIGIN_SCREEN_TAG, mOriginScreen);
+        editor.putLong(PREF_KEY_PLAYLIST_ID, mPlaylistId);
     }
 
     public static final Parcelable.Creator<PlaySessionSource> CREATOR = new Parcelable.Creator<PlaySessionSource>() {
@@ -101,6 +113,11 @@ public class PlaySessionSource implements Parcelable{
         }
     };
 
+    public static void clearPreferenceKeys(SharedPreferences.Editor editor){
+        editor.remove(PREF_KEY_ORIGIN_SCREEN_TAG);
+        editor.remove(PREF_KEY_PLAYLIST_ID);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -108,18 +125,18 @@ public class PlaySessionSource implements Parcelable{
 
         PlaySessionSource that = (PlaySessionSource) o;
 
-        if (mSetId != that.mSetId) return false;
+        if (mPlaylistId != that.mPlaylistId) return false;
         if (mExploreVersion != null ? !mExploreVersion.equals(that.mExploreVersion) : that.mExploreVersion != null)
             return false;
-        if (!mOriginPage.equals(that.mOriginPage)) return false;
+        if (!mOriginScreen.equals(that.mOriginScreen)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = mOriginPage.hashCode();
-        result = 31 * result + (int) (mSetId ^ (mSetId >>> 32));
+        int result = mOriginScreen.hashCode();
+        result = 31 * result + (int) (mPlaylistId ^ (mPlaylistId >>> 32));
         result = 31 * result + (mExploreVersion != null ? mExploreVersion.hashCode() : 0);
         return result;
     }

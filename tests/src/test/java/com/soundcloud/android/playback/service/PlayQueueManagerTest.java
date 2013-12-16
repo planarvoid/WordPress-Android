@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.RelatedTracksCollection;
 import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
@@ -40,6 +41,8 @@ import java.util.Collections;
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
 
+    private static final String ORIGIN_PAGE = "explore:music:techno";
+
     @Inject
     PlayQueueManager playQueueManager;
     @Mock
@@ -55,36 +58,44 @@ public class PlayQueueManagerTest {
     @Mock
     private PlayQueueOperations playQueueOperations;
 
+    private PlaySessionSource playSessionSource;
+    private Playlist playlist;
+
     @Before
-    public void before() {
+    public void before() throws CreateModelException {
 
         ObjectGraph.create(new TestModule()).inject(this);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueue.isEmpty()).thenReturn(true);
+
+        playlist = TestHelper.getModelFactory().createModel(Playlist.class);
+        playSessionSource  = new PlaySessionSource(ORIGIN_PAGE);
+        playSessionSource.setPlaylist(playlist);
+        playSessionSource.setExploreVersion("1.0");
     }
 
     @Test(expected = NullPointerException.class)
     public void shouldNotAcceptNullValueWhenSettingNewPlayqueue(){
-        playQueueManager.setNewPlayQueue(null);
+        playQueueManager.setNewPlayQueue(null, playSessionSource);
     }
 
     @Test
     public void shouldSetNewPlayQueueAsCurrentPlayQueue() throws Exception {
-        playQueueManager.setNewPlayQueue(playQueue);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.getCurrentPlayQueue()).toEqual(playQueue);
     }
 
     @Test
     public void shouldSetNewPlayQueueCurrentTrackToManuallyTriggered() throws Exception {
-        playQueueManager.setNewPlayQueue(playQueue);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         verify(playQueue).setCurrentTrackToUserTriggered();
     }
 
     @Test
     public void shouldBroadcastPlayQueueChangedWhenSettingNewPlayqueue() throws Exception {
-        playQueueManager.setNewPlayQueue(playQueue);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expectBroadcastPlayqueueChanged();
     }
 
@@ -93,15 +104,15 @@ public class PlayQueueManagerTest {
         when(playQueue.isEmpty()).thenReturn(false);
         when(playQueue.getCurrentTrackId()).thenReturn(3L);
 
-        playQueueManager.setNewPlayQueue(playQueue);
-        verify(playQueueOperations).saveQueue(playQueue, 0);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        verify(playQueueOperations).saveQueue(playQueue, playSessionSource, 0);
     }
 
     @Test
     public void shouldStoreTracksWhenSettingNewPlayQueue(){
         when(playQueue.isEmpty()).thenReturn(false);
-        playQueueManager.setNewPlayQueue(playQueue);
-        verify(playQueueOperations).saveQueue(playQueue, 0L);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        verify(playQueueOperations).saveQueue(playQueue,playSessionSource, 0L);
     }
 
     @Test
@@ -146,7 +157,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldReloadShouldBeFalseWithNonEmptyQueue(){
         when(playQueue.isEmpty()).thenReturn(false);
-        playQueueManager.setNewPlayQueue(playQueue);
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expect(playQueueManager.shouldReloadQueue()).toBeFalse();
     }
 
@@ -179,7 +190,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldCacheAndAddRelatedTracksToQueueWhenRelatedTracksReturn() throws CreateModelException {
         final TrackSummary trackSummary = TestHelper.getModelFactory().createModel(TrackSummary.class);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, PlaySessionSource.EMPTY));
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(123L), 0, playSessionSource), playSessionSource);
         playQueueManager.onNext(new RelatedTracksCollection(Lists.<TrackSummary>newArrayList(trackSummary), "123"));
 
         expect(playQueueManager.getPlayQueueView()).toContainExactly(123L, trackSummary.getId());
@@ -227,7 +238,7 @@ public class PlayQueueManagerTest {
     @Test
     public void clearAllShouldSetPlayQueueToEmpty() throws Exception {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
-        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L), 0, PlaySessionSource.EMPTY));
+        playQueueManager.setNewPlayQueue(PlayQueue.fromIdList(Lists.newArrayList(1L), 0, playSessionSource), playSessionSource);
         expect(playQueueManager.getCurrentPlayQueue()).not.toEqual(PlayQueue.empty());
         playQueueManager.clearAll();
         expect(playQueueManager.getCurrentPlayQueue()).toEqual(PlayQueue.empty());
