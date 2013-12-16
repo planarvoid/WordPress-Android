@@ -18,6 +18,8 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 
 import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
 public class BulkInsertMapTest {
@@ -51,4 +53,11 @@ public class BulkInsertMapTest {
         verifyNoMoreInteractions(resolver);
     }
 
+    @Test
+    public void shouldUseLinkedHashSetToPreserveOrder() throws Exception {
+        final BulkInsertMap map = new BulkInsertMap();
+        new Track().putFullContentValues(map);
+        final Set<BulkInsertMap.ResourceValues> actual = map.get(Content.TRACKS.uri);
+        expect(LinkedHashSet.class.isAssignableFrom(actual.getClass())).toBeTrue();
+    }
 }

@@ -5,7 +5,7 @@ import android.content.ContentValues;
 import android.net.Uri;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,7 +17,7 @@ public class BulkInsertMap extends HashMap<Uri, Set<BulkInsertMap.ResourceValues
 
     public void add(Uri uri, ContentValues values){
         if (!containsKey(uri)){
-            put(uri, new HashSet<ResourceValues>());
+            put(uri, new LinkedHashSet<ResourceValues>());
         }
         get(uri).add(new ResourceValues(values));
     }

@@ -25,6 +25,7 @@ public class PlayQueueItem extends ScModel implements Persisted {
 
     @SuppressWarnings("UnusedDeclaration")
     public PlayQueueItem(Cursor cursor) {
+        setId(cursor.getLong(cursor.getColumnIndex(DBHelper.PlayQueue._ID)));
         mTrackId = cursor.getLong(cursor.getColumnIndex(DBHelper.PlayQueue.TRACK_ID));
         mSource = cursor.getString(cursor.getColumnIndex(DBHelper.PlayQueue.SOURCE));
         mSourceVersion = cursor.getString(cursor.getColumnIndex(DBHelper.PlayQueue.SOURCE_VERSION));
