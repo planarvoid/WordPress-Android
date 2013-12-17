@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.service;
 
+import com.google.common.base.Objects;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModel;
@@ -34,9 +35,10 @@ public class PlaySessionSource implements Parcelable{
     private String mExploreVersion;
 
     public PlaySessionSource(Parcel in) {
-        mPlaylistId = in.readLong();
         mOriginScreen = in.readString();
         mExploreVersion = in.readString();
+        mPlaylistId = in.readLong();
+        mPlaylistOwnerId = in.readLong();
     }
 
     public PlaySessionSource(SharedPreferences mSharedPreferences) {
@@ -64,6 +66,10 @@ public class PlaySessionSource implements Parcelable{
         return mPlaylistId;
     }
 
+    public long getPlaylistOwnerId() {
+        return mPlaylistOwnerId;
+    }
+
     public void setPlaylist(@NotNull Playlist playlist) {
         mPlaylistId = playlist.getId();
         mPlaylistOwnerId = playlist.getUserId();
@@ -73,7 +79,6 @@ public class PlaySessionSource implements Parcelable{
         this.mExploreVersion = exploreVersion;
     }
 
-    // TODO, finalize this once we implement page tracking
     public boolean originatedInExplore(){
         return mOriginScreen.startsWith("explore");
     }
@@ -93,9 +98,10 @@ public class PlaySessionSource implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(mPlaylistId);
         dest.writeString(mOriginScreen);
         dest.writeString(mExploreVersion);
+        dest.writeLong(mPlaylistId);
+        dest.writeLong(mPlaylistOwnerId);
     }
 
     public void saveToPreferences(SharedPreferences.Editor editor) {
@@ -125,18 +131,17 @@ public class PlaySessionSource implements Parcelable{
 
         PlaySessionSource that = (PlaySessionSource) o;
 
-        if (mPlaylistId != that.mPlaylistId) return false;
-        if (mExploreVersion != null ? !mExploreVersion.equals(that.mExploreVersion) : that.mExploreVersion != null)
-            return false;
-        if (!mOriginScreen.equals(that.mOriginScreen)) return false;
-
-        return true;
+        return Objects.equal(mPlaylistId, that.mPlaylistId)
+                && Objects.equal(mPlaylistOwnerId, that.mPlaylistOwnerId)
+                && Objects.equal(mExploreVersion, that.mExploreVersion)
+                && Objects.equal(mOriginScreen, that.mOriginScreen);
     }
 
     @Override
     public int hashCode() {
         int result = mOriginScreen.hashCode();
         result = 31 * result + (int) (mPlaylistId ^ (mPlaylistId >>> 32));
+        result = 31 * result + (int) (mPlaylistOwnerId ^ (mPlaylistOwnerId >>> 32));
         result = 31 * result + (mExploreVersion != null ? mExploreVersion.hashCode() : 0);
         return result;
     }

@@ -29,6 +29,7 @@ public class PlaySessionSourceTest {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
         expect(playSessionSource.getOriginScreen()).toBe(ScTextUtils.EMPTY_STRING);
         expect(playSessionSource.getPlaylistId()).toEqual(-1L);
+        expect(playSessionSource.getPlaylistOwnerId()).toEqual(-1L);
         expect(playSessionSource.getInitialSource()).toEqual(ScTextUtils.EMPTY_STRING);
         expect(playSessionSource.getInitialSourceVersion()).toEqual(ScTextUtils.EMPTY_STRING);
     }
@@ -38,6 +39,7 @@ public class PlaySessionSourceTest {
         PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         expect(playSessionSource.getOriginScreen()).toBe(ORIGIN_PAGE);
         expect(playSessionSource.getPlaylistId()).toEqual(-1L);
+        expect(playSessionSource.getPlaylistOwnerId()).toEqual(-1L);
         expect(playSessionSource.getInitialSource()).toEqual(ScTextUtils.EMPTY_STRING);
         expect(playSessionSource.getInitialSourceVersion()).toEqual(ScTextUtils.EMPTY_STRING);
     }
@@ -50,6 +52,7 @@ public class PlaySessionSourceTest {
 
         expect(playSessionSource.getOriginScreen()).toBe(ORIGIN_PAGE);
         expect(playSessionSource.getPlaylistId()).toEqual(playlist.getId());
+        expect(playSessionSource.getPlaylistOwnerId()).toEqual(playlist.getUserId());
         expect(playSessionSource.getInitialSource()).toEqual(ScTextUtils.EMPTY_STRING);
         expect(playSessionSource.getInitialSourceVersion()).toEqual(ScTextUtils.EMPTY_STRING);
     }
@@ -60,6 +63,7 @@ public class PlaySessionSourceTest {
         playSessionSource.setExploreVersion(EXPLORE_TAG);
         expect(playSessionSource.getOriginScreen()).toBe(ORIGIN_PAGE);
         expect(playSessionSource.getPlaylistId()).toEqual(-1L);
+        expect(playSessionSource.getPlaylistOwnerId()).toEqual(-1L);
         expect(playSessionSource.getInitialSource()).toEqual(PlaySessionSource.DiscoverySource.EXPLORE.value());
         expect(playSessionSource.getInitialSourceVersion()).toEqual(EXPLORE_TAG);
     }
@@ -72,6 +76,7 @@ public class PlaySessionSourceTest {
 
         expect(playSessionSource.getOriginScreen()).toBe(ORIGIN_PAGE);
         expect(playSessionSource.getPlaylistId()).toEqual(playlist.getId());
+        expect(playSessionSource.getPlaylistOwnerId()).toEqual(playlist.getUserId());
         expect(playSessionSource.getInitialSource()).toEqual(PlaySessionSource.DiscoverySource.EXPLORE.value());
         expect(playSessionSource.getInitialSourceVersion()).toEqual(EXPLORE_TAG);
     }
@@ -88,6 +93,7 @@ public class PlaySessionSourceTest {
         PlaySessionSource copy = new PlaySessionSource(parcel);
         expect(copy.getOriginScreen()).toBe(ORIGIN_PAGE);
         expect(copy.getPlaylistId()).toEqual(playlist.getId());
+        expect(copy.getPlaylistOwnerId()).toEqual(playlist.getUserId());
         expect(copy.getInitialSource()).toEqual(PlaySessionSource.DiscoverySource.EXPLORE.value());
         expect(copy.getInitialSourceVersion()).toEqual(EXPLORE_TAG);
     }
