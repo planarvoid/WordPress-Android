@@ -35,7 +35,7 @@ public class PlaybackEventDataTest {
     @Test
     public void stopEventSetsStopReason() throws Exception {
         PlaybackEventData playEvent = PlaybackEventData.forPlay(track, USER_ID, trackSourceInfo);
-        final PlaybackEventData stopEvent = PlaybackEventData.forStop(track, USER_ID, trackSourceInfo, playEvent, PlaybackEventData.STOP_REASON_APP_CLOSE);
-        expect(stopEvent.getStopReason()).toEqual(PlaybackEventData.STOP_REASON_APP_CLOSE);
+        final PlaybackEventData stopEvent = PlaybackEventData.forStop(track, USER_ID, trackSourceInfo, playEvent, PlaybackEventData.STOP_REASON_BUFFERING);
+        expect(stopEvent.getStopReason()).toEqual(PlaybackEventData.STOP_REASON_BUFFERING);
     }
 }

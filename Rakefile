@@ -11,7 +11,7 @@ DEFAULT_LEVELS  = %w(
    SoundCloudApplication CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
    StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
    ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
-   VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
+   VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener LocalyticsProvider
    EventLogger PlayEventTrackerApi ReactiveScheduler ScObservables ReactiveListFragment ActivitiesFragment
    DetachableObserver SyncOperations ActivitiesStorage PlaylistStorage TrackStorage FollowingOperations
    LoadItemsObserver

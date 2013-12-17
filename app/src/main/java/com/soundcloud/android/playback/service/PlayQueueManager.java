@@ -8,6 +8,7 @@ import com.soundcloud.android.model.ScModelManager;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.playback.PlaybackOperations;
+import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
@@ -83,6 +84,7 @@ public class PlayQueueManager implements Observer<RelatedTracksCollection> {
         }
     }
 
+    @Nullable
     public TrackSourceInfo getCurrentTrackSourceInfo() {
         return mPlayQueue.getCurrentTrackSourceInfo(mPlaySessionSource);
     }

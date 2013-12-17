@@ -1,9 +1,11 @@
 package com.soundcloud.android.analytics.localytics;
 
+import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
@@ -12,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
+    public final String TAG = "LocalyticsProvider";
     private LocalyticsSession mLocalyticsSession;
 
     public LocalyticsAnalyticsProvider(Context context) {
@@ -68,11 +71,22 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
                 eventAttributes.put("set_id", String.valueOf(eventData.getTrackSourceInfo().getPlaylistId()));
                 eventAttributes.put("set_owner", eventData.isPlayingOwnPlaylist() ? "you" : "other");
             }
-
             eventAttributes.put("stop_reason", getStopReason(eventData));
+
+            if (android.util.Log.isLoggable(TAG, android.util.Log.DEBUG)) {
+                logAttributes(eventAttributes);
+            }
 
             mLocalyticsSession.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
+    }
+
+    private void logAttributes(Map<String, String> eventAttributes) {
+        final Objects.ToStringHelper toStringHelper = Objects.toStringHelper("EventAttributes");
+        for (String key : eventAttributes.keySet()){
+            toStringHelper.add(key, eventAttributes.get(key));
+        }
+        Log.i(TAG, toStringHelper.toString());
     }
 
     private String getPercentListenedBucket(PlaybackEventData eventData, int duration) {
@@ -118,8 +132,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
                 return "context_change";
             case PlaybackEventData.STOP_REASON_ERROR:
                 return "playback_error";
-            case PlaybackEventData.STOP_REASON_APP_CLOSE:
-                return "app_close";
             default:
                 throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
         }

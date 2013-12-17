@@ -69,6 +69,10 @@ public class TrackSourceInfo {
         return mPlaylistId > 0;
     }
 
+    public boolean sharesSameOrigin(TrackSourceInfo trackSourceInfo){
+        return trackSourceInfo != null && trackSourceInfo.getOriginScreen().equals(mOriginScreen);
+    }
+
     @Override
     public String toString() {
         final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(TrackSourceInfo.class)
@@ -76,7 +80,11 @@ public class TrackSourceInfo {
                 .add("userTriggered", mUserTriggered);
 
         if (hasSource()) toStringHelper.add("source", mSource).add("sourceVersion", mSourceVersion);
-        if (isFromPlaylist()) toStringHelper.add("playlistId", mPlaylistId).add("playlistPos", mPlaylistPosition);
+        if (isFromPlaylist()) {
+            toStringHelper.add("playlistId", mPlaylistId)
+                    .add("playlistPos", mPlaylistPosition)
+                    .add("playlistOwnerId", mPlaylistOwnerId);
+        }
 
         return toStringHelper.toString();
     }

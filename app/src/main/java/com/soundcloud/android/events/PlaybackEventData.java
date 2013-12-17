@@ -15,7 +15,6 @@ public class PlaybackEventData {
     public static final int STOP_REASON_END_OF_QUEUE = 4;
     public static final int STOP_REASON_NEW_QUEUE = 5;
     public static final int STOP_REASON_ERROR = 6;
-    public static final int STOP_REASON_APP_CLOSE = 7;
 
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
@@ -103,7 +102,8 @@ public class PlaybackEventData {
                 .add("Event", mEventKind)
                 .add("UserID", mUserId)
                 .add("TrackSourceInfo", mTrackSourceInfo)
-                .add("TimeStamp", mTimeStamp).toString();
+                .add("TimeStamp", mTimeStamp)
+                .add("StopReason", mStopReason).toString();
     }
 
     public long getTimeStamp() {

@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.playback.PlaybackOperations;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -68,6 +69,7 @@ class PlayQueue {
         return mPosition < mPlayQueueItems.size() - 1;
     }
 
+    @Nullable
     TrackSourceInfo getCurrentTrackSourceInfo(PlaySessionSource playSessionSource) {
         if (isEmpty()) return null;
 

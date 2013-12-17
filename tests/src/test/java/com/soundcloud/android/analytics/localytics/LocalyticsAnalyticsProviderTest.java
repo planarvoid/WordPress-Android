@@ -253,13 +253,6 @@ public class LocalyticsAnalyticsProviderTest {
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("playback_error");
     }
 
-    @Test
-    public void playbackEventDataForStopEventShouldAddStopReasonAppClose() {
-        localyticsProvider.trackPlaybackEvent(createStopEventWithWithReason(PlaybackEventData.STOP_REASON_APP_CLOSE));
-        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
-        expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("app_close");
-    }
-
     private PlaybackEventData createStopEventWithPercentListened(double percent) {
         return PlaybackEventData.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackEventData.STOP_REASON_PAUSE,
                 (long) (startEvent.getTimeStamp() + DURATION * percent));

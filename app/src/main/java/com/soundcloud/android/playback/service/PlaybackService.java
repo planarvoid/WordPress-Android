@@ -14,6 +14,7 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.Event;
+import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackModule;
@@ -400,7 +401,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     void onTrackEnded(){
-        mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), 0);
+
+        final int stopReason = getPlayQueueInternal().hasNextTrack() ? PlaybackEventData.STOP_REASON_TRACK_FINISHED
+                : PlaybackEventData.STOP_REASON_END_OF_QUEUE;
+
+        mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), stopReason);
         mPlayerHandler.sendEmptyMessage(PlaybackService.TRACK_ENDED);
     }
 
@@ -508,12 +513,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     startTrack(track);
                 }
             } else { // new track
+                final TrackSourceInfo newTrackSourceInfo = mPlayQueueManager.getCurrentTrackSourceInfo();
                 if (isMediaPlayerPlaying()) {
-                    mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), 0);
+                    final boolean changedContext = newTrackSourceInfo != null && !newTrackSourceInfo.sharesSameOrigin(mCurrentTrackSourceInfo);
+                    mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(),
+                            changedContext ? PlaybackEventData.STOP_REASON_NEW_QUEUE : PlaybackEventData.STOP_REASON_SKIP);
                 }
 
                 mCurrentTrack = track;
-                mCurrentTrackSourceInfo = mPlayQueueManager.getCurrentTrackSourceInfo();
+                mCurrentTrackSourceInfo = newTrackSourceInfo;
 
                 notifyChange(Broadcasts.META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
@@ -681,7 +689,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
         if (!mPlaybackState.isSupposedToBePlaying()) return;
 
-        mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), 0);
+        mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), PlaybackEventData.STOP_REASON_PAUSE);
 
         safePause();
         notifyChange(Broadcasts.PLAYSTATE_CHANGED);
@@ -1145,7 +1153,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 case MediaPlayer.MEDIA_INFO_BUFFERING_START:
                     mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
                     mPlaybackState = PlaybackState.PAUSED_FOR_BUFFERING;
-                    mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), 0);
+                    mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(),
+                            PlaybackEventData.STOP_REASON_BUFFERING);
                     notifyChange(Broadcasts.BUFFERING);
                     break;
 
@@ -1263,7 +1272,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             Log.e(TAG, "onError("+what+ ", "+extra+", state="+ mPlaybackState +")");
             //noinspection ObjectEquality
             if (mp == mMediaPlayer && mPlaybackState != PlaybackState.STOPPED) {
-                mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), 0);
+                mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(),
+                        PlaybackEventData.STOP_REASON_ERROR);
                 // when the proxy times out it will just close the connection - different implementations
                 // return different error codes. try to reconnect at least twice before giving up.
                 if (mConnectRetries++ < 4) {
