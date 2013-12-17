@@ -1,10 +1,8 @@
 package com.soundcloud.android.playlists;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.android.view.GridViewCompat;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUserItemLayout;
 import com.soundcloud.android.collections.views.GridSpacer;
@@ -19,12 +17,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class SuggestedUsersAdapter extends BaseAdapter {
 
+    @Inject
+    ImageOperations mImageOperations;
+
     private final List<SuggestedUser> mSuggestedUsers;
-    private DisplayImageOptions mDisplayImageOptions = ImageOptionsFactory.adapterView(R.drawable.placeholder_cells);
     private GridSpacer mGridSpacer;
 
     public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers) {
@@ -91,7 +92,8 @@ public class SuggestedUsersAdapter extends BaseAdapter {
             viewHolder.location.setText(location);
             viewHolder.location.setVisibility(View.VISIBLE);
         }
-        ImageLoader.getInstance().displayImage(suggestedUser.getAvatarUrl(), viewHolder.imageView, mDisplayImageOptions);
+        mImageOperations.displayInAdapterView(suggestedUser.getAvatarUrl(), viewHolder.imageView,
+                R.drawable.placeholder_cells);
     }
 
     private static class ItemViewHolder {

@@ -2,7 +2,7 @@ package com.soundcloud.android.collections.views;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.collections.ListRow;
 

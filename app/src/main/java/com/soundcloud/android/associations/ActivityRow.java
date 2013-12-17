@@ -7,7 +7,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.Activity;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.DrawableSpan;
 import com.soundcloud.android.collections.ListRow;

@@ -1,16 +1,12 @@
 package com.soundcloud.android.playback.views;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.LoadedFrom;
-import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.Event;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.ActivityManager;
@@ -29,9 +25,13 @@ import android.widget.ImageView;
 import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
+import javax.inject.Inject;
 import java.lang.ref.SoftReference;
 
 public class ArtworkTrackView extends PlayerTrackView {
+
+    @Inject
+    ImageOperations mImageOperations;
 
     private ImageView mArtwork;
     private FrameLayout mArtworkHolder;
@@ -206,10 +206,7 @@ public class ArtworkTrackView extends PlayerTrackView {
 
             showDefaultArtwork(); // during load
             if (!TextUtils.isEmpty(playerArtworkUri)){
-                ImageLoader.getInstance().displayImage(
-                        playerArtworkUri,
-                        mArtwork,
-                        createPlayerDisplayImageOptions(priority),
+                mImageOperations.displayInPlayerView(playerArtworkUri, mArtwork, mArtworkHolder, priority,
                         new ArtworkLoadListener(this, mTrack));
             }
         }
@@ -218,7 +215,7 @@ public class ArtworkTrackView extends PlayerTrackView {
     private void showDefaultArtwork() {
         mArtwork.setVisibility(View.GONE);
         mArtwork.setImageDrawable(null);
-        ImageLoader.getInstance().cancelDisplayTask(mArtwork);
+        mImageOperations.cancel(mArtwork);
 
         if (mArtworkBgDrawable == null || mArtworkBgDrawable.get() == null) {
             try {
@@ -234,37 +231,4 @@ public class ArtworkTrackView extends PlayerTrackView {
             mArtworkHolder.setBackgroundDrawable(bg);
         }
     }
-
-    private DisplayImageOptions createPlayerDisplayImageOptions(boolean priority){
-        return ImageOptionsFactory
-                .fullCacheBuilder()
-                .delayBeforeLoading(priority ? 0 : 200)
-                .displayer(mArtworkDisplayer)
-                .build();
-    }
-
-    private BitmapDisplayer mArtworkDisplayer = new BitmapDisplayer() {
-        @Override
-        public Bitmap display(Bitmap bitmap, ImageView imageView, LoadedFrom loadedFrom) {
-            imageView.setImageBitmap(bitmap);
-            if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-                if (loadedFrom == LoadedFrom.NETWORK) {
-                    AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
-                    mArtwork.getAnimation().setAnimationListener(new AnimUtils.SimpleAnimationListener() {
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            if (animation.equals(mArtwork.getAnimation())) {
-                                mArtworkHolder.setBackgroundDrawable(null);
-                            }
-                        }
-                    });
-                    mArtwork.setVisibility(View.VISIBLE);
-                } else {
-                    mArtwork.setVisibility(View.VISIBLE);
-                    mArtworkHolder.setBackgroundDrawable(null);
-                }
-            }
-            return bitmap;
-        }
-    };
 }

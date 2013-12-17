@@ -16,7 +16,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.storage.provider.DBHelper.Users;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

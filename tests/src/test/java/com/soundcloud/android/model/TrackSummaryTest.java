@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

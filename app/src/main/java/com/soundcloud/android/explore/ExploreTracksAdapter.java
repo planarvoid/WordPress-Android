@@ -7,7 +7,7 @@ import com.soundcloud.android.collections.views.GridSpacer;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 
 import android.text.TextUtils;
 import android.view.View;

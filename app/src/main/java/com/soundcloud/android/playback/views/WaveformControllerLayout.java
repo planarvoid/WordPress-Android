@@ -1,15 +1,16 @@
 package com.soundcloud.android.playback.views;
 
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.cache.WaveformCache;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.WaveformData;
+import com.soundcloud.android.playback.PlayerActivity;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.utils.InputObject;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.view.TouchLayout;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +33,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +41,9 @@ import java.util.List;
 
 public class WaveformControllerLayout extends TouchLayout implements CommentPanelLayout.CommentPanelListener {
     private static final String TAG = WaveformControllerLayout.class.getSimpleName();
+
+    @Inject
+    ImageOperations mImageOperations;
 
     protected static final long CLOSE_COMMENT_DELAY = 5000;
     private static final int OVERLAY_BG_COLOR = Color.WHITE;
@@ -406,8 +411,12 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
         showCurrentComment(false);
 
         final Comment nextComment = nextCommentAfterTimestamp(mCurrentShowingComment.timestamp);
-        if (nextComment != null) nextComment.prefetchAvatar(getContext());
+        if (nextComment != null) prefetchAvatar(nextComment);
         mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+    }
+
+    public void prefetchAvatar(Comment comment) {
+        mImageOperations.prefetch(ImageSize.formatUriForList(getContext(), comment.getUser().getNonDefaultAvatarUrl()));
     }
 
     public void setSecondaryProgress(int percent) {

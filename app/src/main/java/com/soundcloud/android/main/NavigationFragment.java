@@ -1,14 +1,13 @@
 package com.soundcloud.android.main;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 
 import android.app.Activity;
 import android.content.Context;
@@ -28,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import javax.inject.Inject;
 import java.util.EnumSet;
 
 public class NavigationFragment extends Fragment {
@@ -35,6 +35,9 @@ public class NavigationFragment extends Fragment {
     @VisibleForTesting
     static final String STATE_SELECTED_POSITION = "selected_navigation_position";
     private static final int NO_IMAGE = -1;
+
+    @Inject
+    ImageOperations mImageOperations;
 
     private NavigationCallbacks mCallbacks;
 
@@ -203,8 +206,7 @@ public class NavigationFragment extends Fragment {
                 R.plurals.number_of_followers, followersCount, followersCount));
 
         String imageUri = ImageSize.formatUriForFullDisplay(resources, user.getNonDefaultAvatarUrl());
-        ImageLoader.getInstance().displayImage(imageUri, mProfileViewHolder.imageView,
-                ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
+        mImageOperations.displayInAdapterView(imageUri, mProfileViewHolder.imageView, R.drawable.placeholder_cells);
     }
 
     protected void selectItem(int position) {

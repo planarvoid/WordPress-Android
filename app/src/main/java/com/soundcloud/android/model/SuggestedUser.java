@@ -1,7 +1,7 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 
 import android.os.Parcel;
 import android.os.Parcelable;

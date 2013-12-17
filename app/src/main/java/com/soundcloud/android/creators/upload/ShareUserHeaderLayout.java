@@ -1,12 +1,11 @@
 package com.soundcloud.android.creators.upload;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -15,7 +14,13 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 public class ShareUserHeaderLayout extends RelativeLayout {
+
+    @Inject
+    ImageOperations mImageOperations;
+
     public ShareUserHeaderLayout(final ScActivity activity, User user) {
         super(activity);
         View.inflate(getContext(), R.layout.share_user_header, this);
@@ -32,8 +37,7 @@ public class ShareUserHeaderLayout extends RelativeLayout {
 
         if (user.shouldLoadIcon()) {
             final ImageView icon = (ImageView) findViewById(R.id.icon);
-            ImageLoader.getInstance().displayImage(user.getNonDefaultAvatarUrl(), icon,
-                    ImageOptionsFactory.placeholder(R.drawable.avatar_badge));
+            mImageOperations.displayPlaceholder(user.getNonDefaultAvatarUrl(), icon, R.drawable.avatar_badge);
         }
     }
 

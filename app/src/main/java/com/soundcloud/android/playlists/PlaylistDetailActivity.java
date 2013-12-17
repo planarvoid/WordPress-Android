@@ -12,7 +12,7 @@ import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import org.jetbrains.annotations.NotNull;

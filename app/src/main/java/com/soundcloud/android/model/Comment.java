@@ -4,20 +4,16 @@ package com.soundcloud.android.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.api.http.json.Views;
 import com.soundcloud.android.model.behavior.RelatesToPlayable;
 import com.soundcloud.android.model.behavior.RelatesToUser;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
-import com.soundcloud.android.utils.images.ImageSize;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -129,11 +125,6 @@ public class Comment extends ScResource implements RelatesToUser, RelatesToPlaya
         if (duration != 0) {
             xPos = (int) ((timestamp * parentWidth)/duration);
         }
-    }
-
-    public void prefetchAvatar(Context c) {
-        ImageLoader.getInstance().loadImage(
-                ImageSize.formatUriForList(c, user.getNonDefaultAvatarUrl()), ImageOptionsFactory.prefetch(), null);
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.soundcloud.android.associations.ActivityRow;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.CommentActivity;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 
 import android.content.Context;
 import android.graphics.Typeface;
