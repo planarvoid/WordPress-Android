@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -14,6 +13,7 @@ import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.events.Event;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.PlaybackModule;
@@ -188,6 +188,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private PlaybackReceiver mIntentReceiver;
 
     private TrackCompletionListener mCompletionListener;
+
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     public interface PlayExtras{
         String TRACK = Track.EXTRA;
@@ -458,11 +460,13 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                ImageLoader.getInstance().loadImage(artworkUri, new ImageUtils.ViewlessLoadingListener(){
+                mImageOperations.load(artworkUri, new ImageUtils.ViewlessLoadingListener() {
+                    @Override
+                    public void onLoadingFailed(String s, View view, String failedReason) {}
+
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        super.onLoadingComplete(imageUri, view, loadedImage);
-                        if (track == mCurrentTrack){
+                        if (track == mCurrentTrack) {
                             // use a copy of the bitmap because it is going to get recycled afterwards
                             try {
                                 mFocus.onTrackChanged(track, loadedImage.copy(Bitmap.Config.ARGB_8888, false));
@@ -802,10 +806,12 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
                 playbackRemoteViews.clearIcon();
-                ImageLoader.getInstance().loadImage(artworkUri, new ImageUtils.ViewlessLoadingListener() {
+                mImageOperations.load(artworkUri, new ImageUtils.ViewlessLoadingListener() {
+                    @Override
+                    public void onLoadingFailed(String s, View view, String failedReason) {}
+
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        super.onLoadingComplete(imageUri, view, loadedImage);
                         if (mCurrentTrack == track) {
                             playbackRemoteViews.setIcon(loadedImage);
                             startForeground(PLAYBACKSERVICE_STATUS_ID, notification);

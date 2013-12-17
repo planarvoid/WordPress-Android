@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.soundcloud.android.utils.AnimUtils;
 
 import android.graphics.Bitmap;
@@ -30,6 +31,13 @@ class ImageOptionsFactory {
         return fullCacheBuilder()
                 .resetViewBeforeLoading(true)
                 .displayer(new BackgroundTransitionDisplayer())
+                .build();
+    }
+
+    public static DisplayImageOptions fullImageDialog() {
+        return new DisplayImageOptions.Builder()
+                .delayBeforeLoading(200)
+                .displayer(new FadeInBitmapDisplayer(200))
                 .build();
     }
 

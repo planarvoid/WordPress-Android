@@ -1,22 +1,21 @@
 package com.soundcloud.android.playlists;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.collections.ScListView;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.DetachableResultReceiver;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyListView;
-import com.soundcloud.android.collections.ScListView;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
@@ -58,6 +57,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private SyncStateManager mSyncStateManager;
     private PlaybackOperations mPlaybackOperations;
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     public static PlaylistTracksFragment create(Uri playlistUri, Screen originScreen) {
         Bundle args = new Bundle();
@@ -98,7 +98,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
         mListView = (ScListView) layout.findViewById(R.id.list);
         mListView.setOnRefreshListener(this);
         mListView.setOnItemClickListener(this);
-        mListView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(),false, true));
+        mListView.setOnScrollListener(mImageOperations.createScrollPauseListener(false, true));
 
         View mInfoHeader = View.inflate(getActivity(), R.layout.playlist_header, null);
         mInfoHeaderText = (TextView) mInfoHeader.findViewById(android.R.id.text1);

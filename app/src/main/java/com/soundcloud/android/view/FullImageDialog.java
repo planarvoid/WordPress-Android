@@ -1,12 +1,9 @@
 package com.soundcloud.android.view;
 
-import android.view.ViewGroup;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.image.ImageListener;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.AndroidUtils;
 
 import android.app.Activity;
@@ -15,6 +12,7 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -23,6 +21,8 @@ import java.lang.ref.WeakReference;
 public class FullImageDialog extends Dialog {
     private WeakReference<Activity> mActivityRef;
     private Handler mHandler = new Handler();
+
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     public FullImageDialog(Activity context, final String imageUri) {
         super(context, R.style.Theme_FullImageDialog);
@@ -35,30 +35,29 @@ public class FullImageDialog extends Dialog {
         mActivityRef = new WeakReference<Activity>(context);
         final ImageView image = (ImageView) this.findViewById(R.id.image);
         final ProgressBar progress = (ProgressBar) this.findViewById(R.id.progress);
-        ImageLoader.getInstance().displayImage(imageUri, image,
-                new DisplayImageOptions.Builder().delayBeforeLoading(200).displayer(new FadeInBitmapDisplayer(200)).build(),
-                new SimpleImageLoadingListener() {
-                    @Override
-                    public void onLoadingStarted(String imageUri, View view) {
-                        if (isShowing()) {
-                            progress.setVisibility(View.VISIBLE);
-                        }
-                    }
+        mImageOperations.displayInFullDialogView(imageUri, image, new ImageListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                if (isShowing()) {
+                    progress.setVisibility(View.VISIBLE);
+                }
+            }
 
-                    @Override
-                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                        if (isShowing()) {
-                            mHandler.post(mImageError);
-                        }
-                    }
+            @Override
+            public void onLoadingFailed(String s, View view, String failedReason) {
+                if (isShowing()) {
+                    mHandler.post(mImageError);
+                }
+            }
 
-                    @Override
-                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        if (isShowing()) {
-                            progress.setVisibility(View.GONE);
-                        }
-                    }
-                });
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                if (isShowing()) {
+                    progress.setVisibility(View.GONE);
+                }
+            }
+        });
+
     }
 
     private Runnable mImageError = new Runnable() {

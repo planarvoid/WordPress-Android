@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.views.ArtworkTrackView;
-import com.soundcloud.android.utils.ImageLoaderUtils;
 
 import android.graphics.Bitmap;
 import android.view.View;
@@ -38,6 +37,9 @@ public class ArtworkLoadListener extends SimpleImageLoadingListener implements I
             }
         }
     }
+
+    @Override
+    public void onLoadingFailed(String s, View view, String failedReason) {}
 
     @Override
     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {

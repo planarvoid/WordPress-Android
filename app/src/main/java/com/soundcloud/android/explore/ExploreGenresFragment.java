@@ -4,8 +4,6 @@ import static com.soundcloud.android.explore.ExploreGenresAdapter.AUDIO_SECTION;
 import static com.soundcloud.android.explore.ExploreGenresAdapter.MUSIC_SECTION;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.FriendFinderFragment;
 import com.soundcloud.android.collections.Section;
@@ -13,6 +11,7 @@ import com.soundcloud.android.dagger.AndroidObservableFactory;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.Event;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
@@ -47,6 +46,9 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
 
     @Inject
     ExploreGenresAdapter mGenresAdapter;
+
+    @Inject
+    ImageOperations mImageOperations;
 
     private Subscription mSubscription = Subscriptions.empty();
     private ConnectableObservable<Section<ExploreGenre>> mGenresObservable;
@@ -110,7 +112,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         listview.setOnItemClickListener(this);
         listview.setAdapter(mGenresAdapter);
         listview.setEmptyView(mEmptyListView);
-        listview.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), false, true));
+        listview.setOnScrollListener(mImageOperations.createScrollPauseListener(false, true));
 
         mSubscription = loadCategories();
     }

@@ -4,10 +4,9 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.analytics.Screen;
@@ -21,6 +20,7 @@ import com.soundcloud.android.associations.UserAssociationAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
@@ -31,7 +31,6 @@ import com.soundcloud.android.search.SearchAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
-import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -108,6 +107,8 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private AccountOperations accountOperations;
     protected PublicApi publicApi;
 
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+
     public static ScListFragment newInstance(Content content, Screen screen) {
         return newInstance(content.uri, screen);
     }
@@ -170,7 +171,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         mListView = configureList(new ScListView(getActivity()));
         mListView.setOnRefreshListener(this);
 
-        mListView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(), false, true, this)));
+        mListView.setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, this));
 
         if (mEmptyListView == null) {
             mEmptyListView = createEmptyView();

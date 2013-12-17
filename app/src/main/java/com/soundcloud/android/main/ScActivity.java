@@ -1,6 +1,5 @@
 package com.soundcloud.android.main;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -10,6 +9,7 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.NowPlayingActionBarController;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.preferences.SettingsActivity;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
@@ -53,6 +53,8 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     private boolean mIsForeground;
     private boolean mOnCreateCalled;
     private boolean mIsConfigurationChange;
+
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     protected AccountOperations mAccountOperations;
     protected PublicCloudAPI mPublicCloudAPI;
@@ -145,7 +147,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
         super.onResume();
 
         //Ensures that ImageLoader will be resumed if the preceding activity was killed during scrolling
-        ImageLoader.getInstance().resume();
+        mImageOperations.resume();
 
         registerReceiver(mUnauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
         if (!mAccountOperations.soundCloudAccountExists()) {

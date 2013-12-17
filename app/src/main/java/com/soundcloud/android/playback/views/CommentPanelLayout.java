@@ -1,10 +1,10 @@
 package com.soundcloud.android.playback.views;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 
@@ -44,6 +44,8 @@ public class CommentPanelLayout extends RelativeLayout {
     private final int mPlayheadArrowHeight;
 
     private CommentPanelListener mListener;
+
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     public interface CommentPanelListener {
         void onNextCommentInThread();
@@ -177,11 +179,11 @@ public class CommentPanelLayout extends RelativeLayout {
         }
 
         if (!mComment.shouldLoadIcon()) {
-            ImageLoader.getInstance().cancelDisplayTask(mIcon);
+            mImageOperations.cancel(mIcon);
             return;
         }
 
-        ImageLoader.getInstance().displayImage(mComment.user.avatar_url, mIcon);
+        mImageOperations.display(mComment.user.avatar_url, mIcon);
         mPlayheadOffset = mComment.xPos;
     }
 

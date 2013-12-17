@@ -3,11 +3,13 @@ package com.soundcloud.android.image;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
@@ -38,6 +40,14 @@ public class ImageOperations {
         FileCache.installFileCache(IOUtils.getCacheDir(appContext));
     }
 
+    public void load(String imageUrl, ImageListener imageListener) {
+        mImageLoader.loadImage(imageUrl, (ImageLoadingListener) imageListener);
+    }
+
+    public void display(String imageUrl, ImageView imageView) {
+        mImageLoader.displayImage(imageUrl, imageView);
+    }
+
     public void displayInGridView(String imageUrl, ImageView imageView) {
         mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.gridView());
     }
@@ -47,7 +57,11 @@ public class ImageOperations {
     }
 
     public void displayInPlayerView(String imageUrl, ImageView imageView, View parentView, boolean priority, ImageListener imageListener) {
-        mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.player(parentView, priority), (ImageLoadingListener) imageListener);
+        mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
+    }
+
+    public void displayInFullDialogView(String imageUrl, ImageView imageView, ImageListener imageListener) {
+        mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.fullImageDialog(), new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayPlaceholder(String imageUrl, ImageView imageView, int defaultResId) {
@@ -58,8 +72,20 @@ public class ImageOperations {
         mImageLoader.loadImage(imageurl, ImageOptionsFactory.prefetch(), null);
     }
 
+    public void resume() {
+        mImageLoader.resume();
+    }
+
     public void cancel(ImageView imageView) {
         mImageLoader.cancelDisplayTask(imageView);
+    }
+
+    public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling, AbsListView.OnScrollListener customListener) {
+        return new PauseOnScrollListener(mImageLoader, pauseOnScroll, pauseOnFling, customListener);
+    }
+
+    public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling) {
+        return new PauseOnScrollListener(mImageLoader, pauseOnScroll, pauseOnFling);
     }
 
 }

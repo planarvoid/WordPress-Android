@@ -1,4 +1,4 @@
-package com.soundcloud.android.utils.images;
+package com.soundcloud.android.image;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
-import com.soundcloud.android.image.ImageOptionsFactory;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;

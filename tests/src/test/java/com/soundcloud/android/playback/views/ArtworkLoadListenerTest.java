@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.image.ArtworkLoadListener;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.utils.ImageLoaderUtils;
+import com.soundcloud.android.image.ImageLoaderUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
