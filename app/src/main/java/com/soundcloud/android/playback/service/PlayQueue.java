@@ -42,10 +42,6 @@ class PlayQueue {
         mCurrentTrackIsUserTriggered = true;
     }
 
-    public boolean isCurrentTrackUserTriggered(){
-        return mCurrentTrackIsUserTriggered;
-    }
-
     public void addTrack(long id, String source, String sourceVersion) {
         mPlayQueueItems.add(new PlayQueueItem(id, source, sourceVersion));
     }
@@ -60,12 +56,16 @@ class PlayQueue {
     }
 
     public boolean moveToNext(boolean userTriggered) {
-        if (mPosition < mPlayQueueItems.size() - 1) {
+        if (hasNextTrack()) {
             mPosition++;
             mCurrentTrackIsUserTriggered = userTriggered;
             return true;
         }
         return false;
+    }
+
+    public boolean hasNextTrack(){
+        return mPosition < mPlayQueueItems.size() - 1;
     }
 
     TrackSourceInfo getCurrentTrackSourceInfo(PlaySessionSource playSessionSource) {

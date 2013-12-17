@@ -98,6 +98,16 @@ public class PlayQueueTest {
     }
 
     @Test
+    public void hasNextTrackIsTrueIfNotAtEnd() {
+        expect(createPlayQueue(Lists.newArrayList(1L, 2L), 0).hasNextTrack()).toBeTrue();
+    }
+
+    @Test
+    public void hasNextTrackIsFalseIfAtEnd() {
+        expect(createPlayQueue(Lists.newArrayList(1L, 2L), 1).hasNextTrack()).toBeFalse();
+    }
+
+    @Test
     public void shouldReturnSetAsPartOfLoggerParams() {
         PlayQueue playQueue = createPlayQueue(Lists.newArrayList(1L, 2L), 1, playSessionSource);
 
