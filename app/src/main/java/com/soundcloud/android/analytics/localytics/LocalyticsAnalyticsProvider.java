@@ -48,9 +48,20 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         if (eventData.isStopEvent()) {
             Map<String, String> eventAttributes = new HashMap<String, String>();
             eventAttributes.put("context", eventData.getTrackSourceInfo().getOriginScreen());
-            eventAttributes.put("duration", String.valueOf(eventData.getListenTime()));
+            eventAttributes.put("duration_ms", String.valueOf(eventData.getListenTime()));
             eventAttributes.put("track_id", String.valueOf(eventData.getTrack().getId()));
             eventAttributes.put("track_length_ms", String.valueOf(eventData.getTrack().duration));
+
+            double percentListened = ((double) eventData.getListenTime()) / eventData.getTrack().duration;
+            if (percentListened < .05){
+                eventAttributes.put("percent_listened", "<5%");
+            } else if (percentListened <= .25) {
+                eventAttributes.put("percent_listened", "5% to 25%");
+            } else if (percentListened <= .75) {
+                eventAttributes.put("percent_listened", "25% to 75%");
+            } else {
+                eventAttributes.put("percent_listened", ">75%");
+            }
 
             // be careful of null values allowed in attributes, will propogate a hard to trace exception
             final String genreOrTag = eventData.getTrack().getGenreOrTag();
