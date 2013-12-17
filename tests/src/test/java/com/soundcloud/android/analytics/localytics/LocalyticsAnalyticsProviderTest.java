@@ -164,8 +164,49 @@ public class LocalyticsAnalyticsProviderTest {
         expect(stopEventAttributes.getValue().get("percent_listened")).toEqual(">75%");
     }
 
+    @Test
+    public void playbackEventDataForStopEventShouldTrackLengthOfTrackIntoLessThan1MinuteBucket() {
+        track.duration = 59999;
+        localyticsProvider.trackPlaybackEvent(stopEvent);
+        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
+        expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("<1min");
+    }
+
+    @Test
+    public void playbackEventDataForStopEventShouldTrackLengthOfTrackInto1to10MinutesBucket() {
+        track.duration = 60000;
+        localyticsProvider.trackPlaybackEvent(stopEvent);
+        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
+        expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("1min to 10min");
+    }
+
+    @Test
+    public void playbackEventDataForStopEventShouldTrackLengthOfTrackInto10to30MinutesBucket() {
+        track.duration = 600001;
+        localyticsProvider.trackPlaybackEvent(stopEvent);
+        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
+        expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("10min to 30min");
+    }
+
+    @Test
+    public void playbackEventDataForStopEventShouldTrackLengthOfTrackInto30to60MinutesBucket() {
+        track.duration = 1800001;
+        localyticsProvider.trackPlaybackEvent(stopEvent);
+        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
+        expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual("30min to 1hr");
+    }
+
+    @Test
+    public void playbackEventDataForStopEventShouldTrackLengthOfTrackIntoMoreThan1HourBucket() {
+        track.duration = 3600001;
+        localyticsProvider.trackPlaybackEvent(stopEvent);
+        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
+        expect(stopEventAttributes.getValue().get("track_length_bucket")).toEqual(">1hr");
+    }
+
     private PlaybackEventData createStopEventWithPercentListened(double percent) {
-        return PlaybackEventData.forStop(track, 123L, trackSourceInfo, startEvent, (long) (startEvent.getTimeStamp() + DURATION * percent));
+        return PlaybackEventData.forStop(track, 123L, trackSourceInfo, startEvent,
+                (long) (startEvent.getTimeStamp() + DURATION * percent));
     }
 
 }
