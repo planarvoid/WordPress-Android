@@ -1,11 +1,10 @@
-package com.soundcloud.android.analytics;
+package com.soundcloud.android.analytics.eventlogger;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
 import com.soundcloud.android.events.PlaybackEventData;
-import com.soundcloud.android.analytics.eventlogger.EventLogger;
-import com.soundcloud.android.analytics.eventlogger.EventLoggerModule;
 
 import javax.inject.Inject;
 

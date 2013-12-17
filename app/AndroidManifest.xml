@@ -51,10 +51,13 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.YOUR_LIKES"/>
+                <action android:name="com.soundcloud.android.action.EXPLORE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.LIKES"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
 
             <intent-filter android:label="@string/side_menu_stream" android:priority="10">
                 <action android:name="android.intent.action.VIEW"/>
@@ -180,6 +183,10 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.YOUR_FOLLOWINGS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.YOUR_LIKES"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>

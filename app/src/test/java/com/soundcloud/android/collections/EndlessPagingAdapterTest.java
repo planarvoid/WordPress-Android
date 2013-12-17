@@ -1,7 +1,6 @@
 package com.soundcloud.android.collections;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,7 +17,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 import rx.android.OperationPaged;
 import rx.android.concurrency.AndroidSchedulers;
@@ -183,9 +181,7 @@ public class EndlessPagingAdapterTest {
         View errorView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
         errorView.performClick();
 
-        //TODO: this didn't pass when testing against the adapter instance, but looking at the references they
-        //were actually identical? WTF?
-        verify(failedSequence, times(2)).subscribe(any(Observer.class));
+        verify(failedSequence, times(2)).subscribe(adapter);
     }
 
     @Test
@@ -194,7 +190,7 @@ public class EndlessPagingAdapterTest {
         pagingObservable(sourceSequence(), nextPage).subscribe(adapter);
 
         adapter.onScroll(absListView, 0, 5, 5);
-        verify(nextPage).subscribe(any(Observer.class));
+        verify(nextPage).subscribe(adapter);
     }
 
     @Test
@@ -203,7 +199,7 @@ public class EndlessPagingAdapterTest {
         pagingObservable(sourceSequence(), nextPage).subscribe(adapter);
         adapter.loadNextPage();
         adapter.onScroll(absListView, 0, 5, 5); // should not trigger load again, already loading
-        verify(nextPage, times(1)).subscribe(any(Observer.class));
+        verify(nextPage, times(1)).subscribe(adapter);
     }
 
     @Test

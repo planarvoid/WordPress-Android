@@ -1,11 +1,10 @@
-package com.soundcloud.android.analytics;
+package com.soundcloud.android.analytics.eventlogger;
 
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.PlaybackEventData;
 import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.analytics.eventlogger.EventLogger;
 import dagger.Module;
 import dagger.ObjectGraph;
 import dagger.Provides;

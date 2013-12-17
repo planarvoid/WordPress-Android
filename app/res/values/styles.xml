@@ -1368,6 +1368,18 @@
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:orientation">vertical</item>
     </style>
+    <style name="ExploreListTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textColor">@color/scOrange</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:background">@drawable/divider_list_orange</item>
+    </style>
 
     <style name="CustomTabPageIndicator" parent="Widget.TabPageIndicator">
         <item name="android:fadingEdge">horizontal</item>

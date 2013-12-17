@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.events.Event;
 import com.soundcloud.android.events.PlaybackEventData;

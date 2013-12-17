@@ -205,13 +205,18 @@ public class PlaybackOperations {
     }
 
     private int correctStartPositionAndDeduplicateList(List<Long> idList, int startPosition, final Track initialTrack) {
-        int updatedPosition = idList.get(startPosition) == initialTrack.getId() ? startPosition :
-                Iterables.indexOf(idList, new Predicate<Long>() {
-                    @Override
-                    public boolean apply(Long input) {
-                        return input == initialTrack.getId();
-                    }
-                });
+        final int updatedPosition;
+        if (startPosition < idList.size() &&
+                idList.get(startPosition) == initialTrack.getId()) {
+            updatedPosition = startPosition;
+        } else {
+            updatedPosition = Iterables.indexOf(idList, new Predicate<Long>() {
+                @Override
+                public boolean apply(Long input) {
+                    return input == initialTrack.getId();
+                }
+            });
+        }
 
         return getDeduplicatedIdList(idList, updatedPosition);
     }

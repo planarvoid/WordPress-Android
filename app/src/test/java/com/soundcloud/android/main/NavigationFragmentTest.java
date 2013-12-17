@@ -90,7 +90,7 @@ public class NavigationFragmentTest {
 
     @Test
     public void initStateShouldCallbackWithLikesPositionFromAction() throws Exception {
-        when(intent.getAction()).thenReturn(Actions.YOUR_LIKES);
+        when(intent.getAction()).thenReturn(Actions.LIKES);
         fragment.initState(null);
         verifyPositionSelected(NavItem.LIKES);
     }
