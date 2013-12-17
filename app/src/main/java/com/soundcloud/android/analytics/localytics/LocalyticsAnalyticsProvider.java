@@ -4,6 +4,7 @@ import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.PlaybackEventData;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
 
@@ -50,7 +51,12 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             eventAttributes.put("duration", String.valueOf(eventData.getListenTime()));
             eventAttributes.put("track_id", String.valueOf(eventData.getTrack().getId()));
             eventAttributes.put("track_length_ms", String.valueOf(eventData.getTrack().duration));
-            eventAttributes.put("tag", eventData.getTrack().getGenreOrTag());
+
+            // be careful of null values allowed in attributes, will propogate a hard to trace exception
+            final String genreOrTag = eventData.getTrack().getGenreOrTag();
+            if (ScTextUtils.isNotBlank(genreOrTag)){
+                eventAttributes.put("tag", genreOrTag);
+            }
             mLocalyticsSession.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
     }

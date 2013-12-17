@@ -92,6 +92,16 @@ public class LocalyticsAnalyticsProviderTest {
     }
 
     @Test
+    public void playbackEventDataForStopEventShouldNotContainNullTag() throws CreateModelException {
+        track.genre = null;
+        track.tag_list = null;
+        stopEvent = PlaybackEventData.forStop(track, 123L, trackSourceInfo, startEvent);
+        localyticsProvider.trackPlaybackEvent(stopEvent);
+        verify(localyticsSession).tagEvent(eq("Listen"), stopEventAttributes.capture());
+        expect(stopEventAttributes.getValue().containsKey("tag")).toBeFalse();
+    }
+
+    @Test
     public void playbackEventDataForStopEventShouldContainSetAttributesForTrackBelongingToPlaylist() {
         trackSourceInfo.setOriginPlaylist(1L, 0);
     }
