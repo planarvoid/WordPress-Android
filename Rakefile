@@ -11,7 +11,7 @@ DEFAULT_LEVELS  = %w(
    SoundCloudApplication CloudPlaybackService AwesomePlayer NuHTTPDataSource HTTPStream NuCachedSource2 ImageLoader
    StreamProxy StreamLoader StreamStorage C2DMReceiver SyncAdapterService ScContentProvider DBHelper
    ApiSyncService ApiSyncer UploadService SoundCloudApplication VorbisEncoder VorbisEncoderNative
-   VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener LocalyticsProvider
+   VorbisDecoderNative SoundRecorder WavWriter AndroidCloudAPI FacebookSSO NetworkConnectivityListener
    EventLogger PlayEventTrackerApi ReactiveScheduler ScObservables ReactiveListFragment ActivitiesFragment
    DetachableObserver SyncOperations ActivitiesStorage PlaylistStorage TrackStorage FollowingOperations
    LoadItemsObserver
@@ -271,6 +271,7 @@ namespace :release do
   task :build do
     Mvn.install.
       projects('app').
+      skip_tests.
       with_profiles('sign','soundcloud','release').
     execute()
 
@@ -343,6 +344,7 @@ namespace :beta do
 
     Mvn.install.projects('app').
       with_profiles('beta', 'sign', 'soundcloud', 'update-android-manifest').
+      skip_tests.
       set_version_code(version_code + 1).
       set_version_name(version_name('beta')).
       execute()
@@ -465,6 +467,7 @@ end
 namespace :ci do
   task :build_app do
     Mvn.install.projects('app').
+      skip_tests.
       with_profiles('sign','static-analysis','debug').
       skip_proguard.
       with_lint.
