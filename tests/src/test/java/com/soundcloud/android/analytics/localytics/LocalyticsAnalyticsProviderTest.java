@@ -49,7 +49,7 @@ public class LocalyticsAnalyticsProviderTest {
         long stopTime = startTime + 1000L;
 
         startEvent = PlaybackEventData.forPlay(track, 123L, trackSourceInfo, startTime);
-        stopEvent = PlaybackEventData.forStop(track, 123L, trackSourceInfo, startEvent, stopTime);
+        stopEvent = PlaybackEventData.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackEventData.StopReason.PAUSE, stopTime);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class LocalyticsAnalyticsProviderTest {
     public void playbackEventDataForStopEventShouldNotContainNullTag() throws CreateModelException {
         track.genre = null;
         track.tag_list = null;
-        stopEvent = PlaybackEventData.forStop(track, 123L, trackSourceInfo, startEvent);
+        stopEvent = PlaybackEventData.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackEventData.StopReason.PAUSE);
         localyticsProvider.trackPlaybackEvent(stopEvent);
         verify(localyticsSession).tagEvent(eq("Listen"), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().containsKey("tag")).toBeFalse();
@@ -205,7 +205,7 @@ public class LocalyticsAnalyticsProviderTest {
     }
 
     private PlaybackEventData createStopEventWithPercentListened(double percent) {
-        return PlaybackEventData.forStop(track, 123L, trackSourceInfo, startEvent,
+        return PlaybackEventData.forStop(track, 123L, trackSourceInfo, startEvent, PlaybackEventData.StopReason.PAUSE,
                 (long) (startEvent.getTimeStamp() + DURATION * percent));
     }
 

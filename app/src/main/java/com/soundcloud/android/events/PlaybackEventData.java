@@ -11,6 +11,10 @@ public class PlaybackEventData {
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
 
+    public enum StopReason {
+        PAUSE, BUFFERING, SKIP, TRACK_FINISHED, END_OF_QUEUE, NEW_QUEUE, ERROR, APP_CLOSE
+    }
+
     @NotNull
     private Track mTrack;
 
@@ -18,7 +22,7 @@ public class PlaybackEventData {
     private long mUserId;
     private TrackSourceInfo mTrackSourceInfo;
     private long mTimeStamp;
-
+    private StopReason mStopReason;
     private long mListenTime;
 
     public static PlaybackEventData forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
@@ -30,16 +34,17 @@ public class PlaybackEventData {
     }
 
     public static PlaybackEventData forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo,
-                                            PlaybackEventData lastPlayEvent, long timestamp) {
+                                            PlaybackEventData lastPlayEvent, StopReason stopReason, long timestamp) {
         final PlaybackEventData playbackEventData =
                 new PlaybackEventData(EVENT_KIND_STOP, track, userId, trackSourceInfo, timestamp);
         playbackEventData.setListenTime(playbackEventData.mTimeStamp - lastPlayEvent.getTimeStamp());
+        playbackEventData.setStopReason(stopReason);
         return playbackEventData;
     }
 
     public static PlaybackEventData forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo,
-                                            PlaybackEventData lastPlayEvent) {
-        return forStop(track, userId, trackSourceInfo, lastPlayEvent, System.currentTimeMillis());
+                                           PlaybackEventData lastPlayEvent,  StopReason stopReason) {
+        return forStop(track, userId, trackSourceInfo, lastPlayEvent, stopReason, System.currentTimeMillis());
     }
 
     private PlaybackEventData(int eventKind, @NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
@@ -48,10 +53,6 @@ public class PlaybackEventData {
         mUserId = userId;
         mTrackSourceInfo = trackSourceInfo;
         mTimeStamp = timestamp;
-    }
-
-    public void setListenTime(long listenTime) {
-        mListenTime = listenTime;
     }
 
     public Track getTrack() {
@@ -76,6 +77,18 @@ public class PlaybackEventData {
 
     public boolean isPlayingOwnPlaylist(){
         return mTrackSourceInfo.getPlaylistOwnerId() == mUserId;
+    }
+
+    public StopReason getStopReason() {
+        return mStopReason;
+    }
+
+    private void setListenTime(long listenTime) {
+        mListenTime = listenTime;
+    }
+
+    private void setStopReason(StopReason stopReason) {
+        mStopReason = stopReason;
     }
 
     @Override

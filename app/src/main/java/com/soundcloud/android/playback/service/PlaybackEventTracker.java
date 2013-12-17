@@ -24,7 +24,7 @@ public class PlaybackEventTracker {
 
     public void trackStopEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId) {
         if (mLastPlayEventData != null && track != null && trackSourceInfo != null) {
-            final PlaybackEventData eventData = PlaybackEventData.forStop(track, userId, trackSourceInfo, mLastPlayEventData);
+            final PlaybackEventData eventData = PlaybackEventData.forStop(track, userId, trackSourceInfo, mLastPlayEventData, PlaybackEventData.StopReason.PAUSE);
             Event.PLAYBACK.publish(eventData);
             mLastPlayEventData = null;
         }
