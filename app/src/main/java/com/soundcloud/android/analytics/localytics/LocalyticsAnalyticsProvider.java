@@ -88,8 +88,32 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
                 eventAttributes.put("set_owner", eventData.isPlayingOwnPlaylist() ? "you" : "other");
             }
 
+            eventAttributes.put("stop_reason", getStopReason(eventData));
+
             mLocalyticsSession.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
     }
 
+    private String getStopReason(PlaybackEventData eventData) {
+        switch (eventData.getStopReason()) {
+            case PAUSE:
+                return "pause";
+            case BUFFERING:
+                return "buffering";
+            case SKIP:
+                return "skip";
+            case TRACK_FINISHED:
+                return "track_finished";
+            case END_OF_QUEUE:
+                return "end_of_content";
+            case NEW_QUEUE:
+                return "context_change";
+            case ERROR:
+                return "playback_error";
+            case APP_CLOSE:
+                return "app_close";
+            default:
+                throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
+        }
+    }
 }
