@@ -2,6 +2,7 @@ package com.soundcloud.android.creators.upload;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.User;
@@ -14,12 +15,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
 public class ShareUserHeaderLayout extends RelativeLayout {
 
-    @Inject
-    ImageOperations mImageOperations;
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     public ShareUserHeaderLayout(final ScActivity activity, User user) {
         super(activity);

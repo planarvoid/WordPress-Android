@@ -12,8 +12,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import javax.inject.Inject;
-
 /**
  * The base class for anything that needs to lazily load an icon.
  */
@@ -21,8 +19,7 @@ public abstract class IconLayout extends FrameLayout {
 
     protected ImageView mIcon;
 
-    @Inject
-    ImageOperations mImageOperations;
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     public IconLayout(Context context) {
         this(context,null);

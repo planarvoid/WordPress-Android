@@ -1,11 +1,12 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.collections.views.GridSpacer;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.SuggestedUser;
-import com.soundcloud.android.view.GridViewCompat;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUserItemLayout;
-import com.soundcloud.android.collections.views.GridSpacer;
+import com.soundcloud.android.view.GridViewCompat;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -17,13 +18,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import javax.inject.Inject;
 import java.util.List;
 
 public class SuggestedUsersAdapter extends BaseAdapter {
 
-    @Inject
-    ImageOperations mImageOperations;
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     private final List<SuggestedUser> mSuggestedUsers;
     private GridSpacer mGridSpacer;

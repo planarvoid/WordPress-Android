@@ -58,7 +58,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     private AccountOperations accountOperations;
 
     @Inject
-    ImageOperations imageOperations;
+    ImageOperations mImageOperations;
 
     private ObjectGraph mObjectGraph;
 
@@ -70,6 +70,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         instance = this;
 
         mObjectGraph = ObjectGraph.create(new ApplicationModule(this));
+        mObjectGraph.inject(this);
 
         new MigrationEngine(this).migrate();
 
@@ -93,7 +94,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         }
 
         IOUtils.checkState(this);
-        imageOperations.initialise(this);
+        mImageOperations.initialise(this);
 
         accountOperations = new AccountOperations(this);
         final Account account = accountOperations.getSoundCloudAccount();
@@ -219,6 +220,8 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     public static long getUserId() {
         return instance.getCurrentUserId();
     }
+
+    public static ImageOperations getImageOperations() { return instance.mImageOperations; }
 
     public static void handleSilentException(@Nullable String message, Throwable e) {
         if (ApplicationProperties.shouldReportCrashes()) {

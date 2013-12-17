@@ -11,7 +11,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 
@@ -76,7 +75,7 @@ class ImageOptionsFactory {
         }
 
         @Override
-        public Bitmap display(Bitmap bitmap, ImageView imageView, LoadedFrom loadedFrom) {
+        public Bitmap display(Bitmap bitmap, final ImageView imageView, LoadedFrom loadedFrom) {
             imageView.setImageBitmap(bitmap);
             if (imageView.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
                 if (loadedFrom == LoadedFrom.NETWORK) {

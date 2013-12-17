@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.analytics.AnalyticsEngine;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScModelManager;
 import dagger.Module;
 import dagger.Provides;
@@ -14,7 +15,9 @@ import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 
-@Module(library = true)
+import javax.inject.Singleton;
+
+@Module(library = true, injects = SoundCloudApplication.class)
 public class ApplicationModule {
 
     private final SoundCloudApplication mApplication;
@@ -73,4 +76,9 @@ public class ApplicationModule {
         return ImageLoader.getInstance();
     }
 
+    @Singleton
+    @Provides
+    public ImageOperations provideImageOperations(ImageLoader imageLoader) {
+        return new ImageOperations(imageLoader);
+    }
 }

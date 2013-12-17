@@ -3,16 +3,17 @@ package com.soundcloud.android.search.suggestions;
 import static android.os.Process.THREAD_PRIORITY_DEFAULT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.SearchSuggestions;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -47,7 +48,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -68,8 +68,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private static final int MAX_LOCAL  = 5;
     private static final int MAX_REMOTE = 5;
 
-    @Inject
-    ImageOperations mImageOperations;
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     public static final String LOCAL = "_local";
     public static final String HIGHLIGHTS = "_highlights";

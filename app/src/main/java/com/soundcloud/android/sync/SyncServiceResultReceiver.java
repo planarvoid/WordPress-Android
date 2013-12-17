@@ -5,9 +5,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.activities.Activities;
+import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 
-import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,8 +33,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
     private SoundCloudApplication app;
     private Bundle extras;
 
-    @Inject
-    ImageOperations imageOperations;
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     public SyncServiceResultReceiver(SoundCloudApplication app, SyncResult result, Bundle extras) {
         super(new Handler());

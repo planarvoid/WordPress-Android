@@ -5,9 +5,9 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.image.ImageSize;
 
 import android.app.Activity;
 import android.content.Context;
@@ -27,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
 import java.util.EnumSet;
 
 public class NavigationFragment extends Fragment {
@@ -36,8 +35,7 @@ public class NavigationFragment extends Fragment {
     static final String STATE_SELECTED_POSITION = "selected_navigation_position";
     private static final int NO_IMAGE = -1;
 
-    @Inject
-    ImageOperations mImageOperations;
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     private NavigationCallbacks mCallbacks;
 

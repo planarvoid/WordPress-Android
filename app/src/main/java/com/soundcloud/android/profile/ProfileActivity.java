@@ -57,8 +57,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import javax.inject.Inject;
-
 public class ProfileActivity extends ScActivity implements
         FollowingOperations.FollowStatusChangedListener,
         ActionBar.OnNavigationListener, FetchModelTask.Listener<User>, ViewPager.OnPageChangeListener {
@@ -68,8 +66,7 @@ public class ProfileActivity extends ScActivity implements
 
     /* package */ @Nullable User mUser;
 
-    @Inject
-    ImageOperations mImageOperations;
+    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
 
     private TextView mUsername, mFullName, mFollowerCount, mFollowerMessage, mTrackCount, mLocation;
     private ToggleButton mToggleFollow;
