@@ -128,19 +128,23 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
 
     @Override
     public boolean onSupportNavigateUp() {
-        String originScreen = PlaybackService.getPlayQueueOriginScreen();
-        long playlistId = PlaybackService.getPlayQueuePlaylistId();
-        if (playlistId != Playable.NOT_SET) {
-            startActivity(getUpDestinationFromPlaylist(playlistId, originScreen));
-        } else {
-            try {
-                startActivity(Screen.getUpDestinationFromScreenTag(originScreen));
-            } catch (NoUpDestinationException e) {
-                return super.onSupportNavigateUp();
+        if (mPlaybackService != null) {
+            String originScreen = mPlaybackService.getPlayQueueOriginScreen();
+            long playlistId = mPlaybackService.getPlayQueuePlaylistId();
+            if (playlistId != Playable.NOT_SET) {
+                startActivity(getUpDestinationFromPlaylist(playlistId, originScreen));
+            } else {
+                try {
+                    startActivity(Screen.getUpDestinationFromScreenTag(originScreen));
+                } catch (NoUpDestinationException e) {
+                    return super.onSupportNavigateUp();
+                }
             }
+            finish();
+            return true;
+        } else {
+            return super.onSupportNavigateUp();
         }
-        finish();
-        return true;
     }
 
     private Intent getUpDestinationFromPlaylist(long playlistId, String originScreen) {

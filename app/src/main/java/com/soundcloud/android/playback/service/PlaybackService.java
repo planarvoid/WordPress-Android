@@ -72,8 +72,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public static @Nullable Track getCurrentTrack()  { return instance == null ? null : instance.mCurrentTrack; }
     public static boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && getPlaybackState().isSupposedToBePlaying(); }
     public static PlayQueueView getPlayQueue() { return instance == null ? PlayQueueView.EMPTY : instance.getPlayQueueView(); }
-    public static @Nullable String getPlayQueueOriginScreen() { return instance == null ? null : instance.getPlayQueueInternal().getOriginScreen().toString(); }
-    public static long getPlayQueuePlaylistId() { return instance == null ? null : instance.getPlayQueueInternal().getPlaylistId(); }
     public static int getPlayPosition()   { return instance == null ? -1 : instance.getPlayQueueInternal().getPosition(); }
     public static long getCurrentProgress() { return instance == null ? -1 : instance.getProgress(); }
     public static int getLoadingPercent()   { return instance == null ? -1 : instance.loadPercent(); }
@@ -940,6 +938,14 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     /* package */
     public boolean isPlaying() {
         return isMediaPlayerPlaying() && mPlaybackState.isSupposedToBePlaying();
+    }
+
+    public long getPlayQueuePlaylistId() {
+        return getPlayQueueInternal().getPlaylistId();
+    }
+
+    public String getPlayQueueOriginScreen() {
+        return getPlayQueueInternal().getOriginScreen();
     }
 
     public void restartTrack() {
