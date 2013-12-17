@@ -38,6 +38,7 @@ public class ExploreTracksCategoryActivity extends ScActivity implements ObjectG
 
         if (savedInstanceState == null) {
             ExploreTracksFragment exploreTracksFragment = new ExploreTracksFragment();
+            exploreTracksFragment.setRetainInstance(true);
             exploreTracksFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager()
                     .beginTransaction()
