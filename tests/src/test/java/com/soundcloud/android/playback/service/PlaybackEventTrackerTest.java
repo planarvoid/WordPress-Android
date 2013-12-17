@@ -55,7 +55,7 @@ public class PlaybackEventTrackerTest {
     @Test
     public void trackStopEventDoesNothingWhenCallingStopAfterNoPlayEvent() throws Exception {
         Event.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID);
+        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID, 0);
         verifyZeroInteractions(observer);
     }
 
@@ -63,7 +63,7 @@ public class PlaybackEventTrackerTest {
     public void trackStopEventPublishesPlaybackEventWithPlaybackEventDataAfterInitialPlayEvent() throws Exception {
         playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
         Event.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID);
+        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID, PlaybackEventData.STOP_REASON_BUFFERING);
 
         ArgumentCaptor<PlaybackEventData> captor = ArgumentCaptor.forClass(PlaybackEventData.class);
         verify(observer).onNext(captor.capture());
@@ -74,14 +74,15 @@ public class PlaybackEventTrackerTest {
         expect(playbackEventData.isStopEvent()).toBeTrue();
         expect(playbackEventData.getUserId()).toBe(USER_ID);
         expect(playbackEventData.getTimeStamp()).toBeGreaterThan(0L);
+        expect(playbackEventData.getStopReason()).toEqual(PlaybackEventData.STOP_REASON_BUFFERING);
     }
 
     @Test
     public void trackStopEventDoesNothingWhenCallingStopAfterPlayEventConsumed() throws Exception {
         playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
-        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID);
+        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID, 0);
         Event.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID);
+        playbackEventTracker.trackStopEvent(track, trackSourceInfo, USER_ID, 0);
         verifyZeroInteractions(observer);
     }
 
@@ -103,7 +104,7 @@ public class PlaybackEventTrackerTest {
     public void trackStopEventShouldSkipNullTracks() {
         playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
         Event.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent(null, trackSourceInfo, USER_ID);
+        playbackEventTracker.trackStopEvent(null, trackSourceInfo, USER_ID, 0);
         verifyZeroInteractions(observer);
     }
 
@@ -111,7 +112,8 @@ public class PlaybackEventTrackerTest {
     public void trackStopEventShouldSkipNullSourceInfo() {
         playbackEventTracker.trackPlayEvent(track, trackSourceInfo, USER_ID);
         Event.PLAYBACK.subscribe(observer);
-        playbackEventTracker.trackStopEvent(track, null, USER_ID);
+        playbackEventTracker.trackStopEvent(track, null, USER_ID, 0);
         verifyZeroInteractions(observer);
     }
+
 }

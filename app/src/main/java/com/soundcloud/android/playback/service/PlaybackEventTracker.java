@@ -22,9 +22,9 @@ public class PlaybackEventTracker {
         }
     }
 
-    public void trackStopEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId) {
+    public void trackStopEvent(@Nullable Track track, @Nullable TrackSourceInfo trackSourceInfo, long userId, int stopReason) {
         if (mLastPlayEventData != null && track != null && trackSourceInfo != null) {
-            final PlaybackEventData eventData = PlaybackEventData.forStop(track, userId, trackSourceInfo, mLastPlayEventData, 0);
+            final PlaybackEventData eventData = PlaybackEventData.forStop(track, userId, trackSourceInfo, mLastPlayEventData, stopReason);
             Event.PLAYBACK.publish(eventData);
             mLastPlayEventData = null;
         }

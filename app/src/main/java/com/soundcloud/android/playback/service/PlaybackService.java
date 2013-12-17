@@ -400,7 +400,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     void onTrackEnded(){
-        mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId());
+        mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), 0);
         mPlayerHandler.sendEmptyMessage(PlaybackService.TRACK_ENDED);
     }
 
@@ -509,7 +509,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 }
             } else { // new track
                 if (isMediaPlayerPlaying()) {
-                    mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId());
+                    mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), 0);
                 }
 
                 mCurrentTrack = track;
@@ -681,7 +681,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
         if (!mPlaybackState.isSupposedToBePlaying()) return;
 
-        mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId());
+        mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), 0);
 
         safePause();
         notifyChange(Broadcasts.PLAYSTATE_CHANGED);
@@ -1145,7 +1145,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 case MediaPlayer.MEDIA_INFO_BUFFERING_START:
                     mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
                     mPlaybackState = PlaybackState.PAUSED_FOR_BUFFERING;
-                    mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId());
+                    mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), 0);
                     notifyChange(Broadcasts.BUFFERING);
                     break;
 
@@ -1263,7 +1263,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             Log.e(TAG, "onError("+what+ ", "+extra+", state="+ mPlaybackState +")");
             //noinspection ObjectEquality
             if (mp == mMediaPlayer && mPlaybackState != PlaybackState.STOPPED) {
-                mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId());
+                mPlaybackEventTracker.trackStopEvent(mCurrentTrack, mCurrentTrackSourceInfo, getCurrentUserId(), 0);
                 // when the proxy times out it will just close the connection - different implementations
                 // return different error codes. try to reconnect at least twice before giving up.
                 if (mConnectRetries++ < 4) {
