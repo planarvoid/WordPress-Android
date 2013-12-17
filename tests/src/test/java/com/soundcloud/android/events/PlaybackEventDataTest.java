@@ -1,7 +1,6 @@
 package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.events.PlaybackEventData.StopReason;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -29,14 +28,14 @@ public class PlaybackEventDataTest {
     @Test
     public void stopEventSetsTimeElapsedSinceLastPlayEvent() throws Exception {
         PlaybackEventData playEvent = PlaybackEventData.forPlay(track, USER_ID, trackSourceInfo);
-        final PlaybackEventData stopEvent = PlaybackEventData.forStop(track, USER_ID, trackSourceInfo, playEvent, StopReason.BUFFERING);
+        final PlaybackEventData stopEvent = PlaybackEventData.forStop(track, USER_ID, trackSourceInfo, playEvent, PlaybackEventData.STOP_REASON_BUFFERING);
         expect(stopEvent.getListenTime()).toEqual(stopEvent.getTimeStamp() - playEvent.getTimeStamp());
     }
 
     @Test
     public void stopEventSetsStopReason() throws Exception {
         PlaybackEventData playEvent = PlaybackEventData.forPlay(track, USER_ID, trackSourceInfo);
-        final PlaybackEventData stopEvent = PlaybackEventData.forStop(track, USER_ID, trackSourceInfo, playEvent, StopReason.APP_CLOSE);
-        expect(stopEvent.getStopReason()).toEqual(StopReason.APP_CLOSE);
+        final PlaybackEventData stopEvent = PlaybackEventData.forStop(track, USER_ID, trackSourceInfo, playEvent, PlaybackEventData.STOP_REASON_APP_CLOSE);
+        expect(stopEvent.getStopReason()).toEqual(PlaybackEventData.STOP_REASON_APP_CLOSE);
     }
 }

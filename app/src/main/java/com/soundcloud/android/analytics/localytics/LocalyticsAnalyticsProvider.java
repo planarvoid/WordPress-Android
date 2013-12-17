@@ -96,21 +96,21 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     private String getStopReason(PlaybackEventData eventData) {
         switch (eventData.getStopReason()) {
-            case PAUSE:
+            case PlaybackEventData.STOP_REASON_PAUSE:
                 return "pause";
-            case BUFFERING:
+            case PlaybackEventData.STOP_REASON_BUFFERING:
                 return "buffering";
-            case SKIP:
+            case PlaybackEventData.STOP_REASON_SKIP:
                 return "skip";
-            case TRACK_FINISHED:
+            case PlaybackEventData.STOP_REASON_TRACK_FINISHED:
                 return "track_finished";
-            case END_OF_QUEUE:
+            case PlaybackEventData.STOP_REASON_END_OF_QUEUE:
                 return "end_of_content";
-            case NEW_QUEUE:
+            case PlaybackEventData.STOP_REASON_NEW_QUEUE:
                 return "context_change";
-            case ERROR:
+            case PlaybackEventData.STOP_REASON_ERROR:
                 return "playback_error";
-            case APP_CLOSE:
+            case PlaybackEventData.STOP_REASON_APP_CLOSE:
                 return "app_close";
             default:
                 throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());

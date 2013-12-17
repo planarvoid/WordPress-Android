@@ -8,12 +8,17 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class PlaybackEventData {
 
+    public static final int STOP_REASON_PAUSE = 0;
+    public static final int STOP_REASON_BUFFERING = 1;
+    public static final int STOP_REASON_SKIP = 2;
+    public static final int STOP_REASON_TRACK_FINISHED = 3;
+    public static final int STOP_REASON_END_OF_QUEUE = 4;
+    public static final int STOP_REASON_NEW_QUEUE = 5;
+    public static final int STOP_REASON_ERROR = 6;
+    public static final int STOP_REASON_APP_CLOSE = 7;
+
     private static final int EVENT_KIND_PLAY = 0;
     private static final int EVENT_KIND_STOP = 1;
-
-    public enum StopReason {
-        PAUSE, BUFFERING, SKIP, TRACK_FINISHED, END_OF_QUEUE, NEW_QUEUE, ERROR, APP_CLOSE
-    }
 
     @NotNull
     private Track mTrack;
@@ -22,7 +27,7 @@ public class PlaybackEventData {
     private long mUserId;
     private TrackSourceInfo mTrackSourceInfo;
     private long mTimeStamp;
-    private StopReason mStopReason;
+    private int mStopReason;
     private long mListenTime;
 
     public static PlaybackEventData forPlay(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo, long timestamp) {
@@ -34,7 +39,7 @@ public class PlaybackEventData {
     }
 
     public static PlaybackEventData forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo,
-                                            PlaybackEventData lastPlayEvent, StopReason stopReason, long timestamp) {
+                                            PlaybackEventData lastPlayEvent, int stopReason, long timestamp) {
         final PlaybackEventData playbackEventData =
                 new PlaybackEventData(EVENT_KIND_STOP, track, userId, trackSourceInfo, timestamp);
         playbackEventData.setListenTime(playbackEventData.mTimeStamp - lastPlayEvent.getTimeStamp());
@@ -43,7 +48,7 @@ public class PlaybackEventData {
     }
 
     public static PlaybackEventData forStop(@NotNull Track track, long userId, TrackSourceInfo trackSourceInfo,
-                                           PlaybackEventData lastPlayEvent,  StopReason stopReason) {
+                                           PlaybackEventData lastPlayEvent,  int stopReason) {
         return forStop(track, userId, trackSourceInfo, lastPlayEvent, stopReason, System.currentTimeMillis());
     }
 
@@ -79,7 +84,7 @@ public class PlaybackEventData {
         return mTrackSourceInfo.getPlaylistOwnerId() == mUserId;
     }
 
-    public StopReason getStopReason() {
+    public int getStopReason() {
         return mStopReason;
     }
 
@@ -87,7 +92,7 @@ public class PlaybackEventData {
         mListenTime = listenTime;
     }
 
-    private void setStopReason(StopReason stopReason) {
+    private void setStopReason(int stopReason) {
         mStopReason = stopReason;
     }
 
