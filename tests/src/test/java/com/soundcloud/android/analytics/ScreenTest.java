@@ -1,7 +1,8 @@
 package com.soundcloud.android.analytics;
 
-import static com.soundcloud.android.Expect.expect;
+import static com.pivotallabs.greatexpectations.Expect.expect;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,4 +41,39 @@ public class ScreenTest {
         Screen.ACTIVITIES.addToBundle(bundle);
         expect(Screen.fromBundle(bundle)).toEqual(Screen.ACTIVITIES);
     }
+
+    @Test
+    public void shouldReturnExploreIntent() throws Exception {
+        Intent upIntent = Screen.getUpDestinationFromScreenTag("explore:music:electronic");
+        expect(upIntent.getAction()).toEqual(Actions.EXPLORE);
+    }
+
+    @Test
+    public void shouldReturnStreamIntent() throws Exception {
+        Intent upIntent = Screen.getUpDestinationFromScreenTag("stream:main");
+        expect(upIntent.getAction()).toEqual(Actions.STREAM);
+    }
+
+    @Test
+    public void shouldReturnYourSoundsIntent() throws Exception {
+        Intent upIntent = Screen.getUpDestinationFromScreenTag("you:posts");
+        expect(upIntent.getAction()).toEqual(Actions.YOUR_SOUNDS);
+    }
+
+    @Test
+    public void shouldReturnYourLikesIntent() throws Exception {
+        Intent upIntent = Screen.getUpDestinationFromScreenTag("you:likes");
+        expect(upIntent.getAction()).toEqual(Actions.YOUR_LIKES);
+    }
+
+    @Test
+    public void shouldReturnScreenFromScreenTag() {
+        expect(Screen.fromScreenTag("you:playlists")).toEqual(Screen.YOUR_PLAYLISTS);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowIfScreenTagDoesNotExist() {
+        Screen.fromScreenTag("you:something");
+    }
+
 }

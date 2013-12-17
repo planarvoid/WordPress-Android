@@ -98,8 +98,11 @@ public class NavigationFragment extends Fragment {
             if (Actions.STREAM.equals(action)) {
                 selectItem(NavItem.STREAM.ordinal());
                 return true;
-            } else if (Actions.YOUR_LIKES.equals(action)) {
+            } else if (Actions.LIKES.equals(action)) {
                 selectItem(NavItem.LIKES.ordinal());
+                return true;
+            } else if (Actions.EXPLORE.equals(action)) {
+                selectItem(NavItem.EXPLORE.ordinal());
                 return true;
             }
         }
