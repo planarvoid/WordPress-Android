@@ -24,6 +24,7 @@ import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LocalyticsAnalyticsProviderTest {
+    public static final String LISTEN = "Listen";
     private LocalyticsAnalyticsProvider localyticsProvider;
     @Mock
     private LocalyticsSession localyticsSession;
@@ -102,8 +103,21 @@ public class LocalyticsAnalyticsProviderTest {
     }
 
     @Test
-    public void playbackEventDataForStopEventShouldContainSetAttributesForTrackBelongingToPlaylist() {
-        trackSourceInfo.setOriginPlaylist(1L, 0);
+    public void playbackEventDataForStopEventShouldContainAttributesForTrackBelongingToLoggedInUsersPlaylist() {
+        trackSourceInfo.setOriginPlaylist(123L, 0, 123L);
+        localyticsProvider.trackPlaybackEvent(stopEvent);
+        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
+        expect(stopEventAttributes.getValue().get("set_id")).toEqual("123");
+        expect(stopEventAttributes.getValue().get("set_owner")).toEqual("you");
+    }
+
+    @Test
+    public void playbackEventDataForStopEventShouldContainAttributesForTrackBelongingToOtherUsersPlaylist() {
+        trackSourceInfo.setOriginPlaylist(123L, 0, 456L);
+        localyticsProvider.trackPlaybackEvent(stopEvent);
+        verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
+        expect(stopEventAttributes.getValue().get("set_id")).toEqual("123");
+        expect(stopEventAttributes.getValue().get("set_owner")).toEqual("other");
     }
 
     @Test

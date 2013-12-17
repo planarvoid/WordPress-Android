@@ -57,6 +57,12 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             if (ScTextUtils.isNotBlank(genreOrTag)){
                 eventAttributes.put("tag", genreOrTag);
             }
+
+            if (eventData.getTrackSourceInfo().isFromPlaylist()){
+                eventAttributes.put("set_id", String.valueOf(eventData.getTrackSourceInfo().getPlaylistId()));
+                eventAttributes.put("set_owner", eventData.isPlayingOwnPlaylist() ? "you" : "other");
+            }
+
             mLocalyticsSession.tagEvent(LocalyticsEvents.LISTEN, eventAttributes);
         }
     }

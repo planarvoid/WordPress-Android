@@ -74,7 +74,7 @@ class PlayQueue {
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), mCurrentTrackIsUserTriggered);
         trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
         if (playSessionSource.getPlaylistId() != Playlist.NOT_SET) {
-            trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistId(), getPosition());
+            trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistId(), getPosition(), playSessionSource.getPlaylistOwnerId());
         }
         return trackSourceInfo;
     }

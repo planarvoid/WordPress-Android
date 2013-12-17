@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 
 public class TrackSourceInfo {
@@ -13,6 +14,7 @@ public class TrackSourceInfo {
     private String mSourceVersion;
 
     private long mPlaylistId = Playable.NOT_SET;
+    private long mPlaylistOwnerId = User.NOT_SET;
     private int mPlaylistPosition;
 
     public TrackSourceInfo(String originScreen, boolean userTriggered) {
@@ -25,9 +27,10 @@ public class TrackSourceInfo {
         mSourceVersion = sourceVersion;
     }
 
-    public void setOriginPlaylist(long playlistId, int position) {
+    public void setOriginPlaylist(long playlistId, int position, long playlistOwnerId) {
         mPlaylistId = playlistId;
         mPlaylistPosition = position;
+        mPlaylistOwnerId = playlistOwnerId;
     }
 
     public boolean getIsUserTriggered() {
@@ -52,6 +55,10 @@ public class TrackSourceInfo {
 
     public int getPlaylistPosition() {
         return mPlaylistPosition;
+    }
+
+    public long getPlaylistOwnerId() {
+        return mPlaylistOwnerId;
     }
 
     public boolean hasSource(){

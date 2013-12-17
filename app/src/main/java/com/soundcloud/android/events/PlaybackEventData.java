@@ -74,6 +74,10 @@ public class PlaybackEventData {
         return mTrackSourceInfo;
     }
 
+    public boolean isPlayingOwnPlaylist(){
+        return mTrackSourceInfo.getPlaylistOwnerId() == mUserId;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(PlaybackEventData.class)
