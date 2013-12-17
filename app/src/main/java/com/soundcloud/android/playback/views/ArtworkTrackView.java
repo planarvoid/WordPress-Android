@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.Event;
+import com.soundcloud.android.image.ArtworkLoadListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -118,7 +119,7 @@ public class ArtworkTrackView extends PlayerTrackView {
         }
     }
 
-    void setTemporaryArtwork(Bitmap bitmap){
+    public void setTemporaryArtwork(Bitmap bitmap){
         mArtwork.setImageBitmap(bitmap);
         mArtwork.setVisibility(View.VISIBLE);
         removeArtworkBackground();
@@ -128,7 +129,7 @@ public class ArtworkTrackView extends PlayerTrackView {
         mArtworkHolder.setBackgroundDrawable(null);
     }
 
-    void onArtworkSet(boolean animate) {
+    public void onArtworkSet(boolean animate) {
         if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
             mArtwork.setVisibility(View.VISIBLE);
             if (animate) {

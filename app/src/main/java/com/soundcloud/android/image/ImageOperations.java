@@ -2,6 +2,7 @@ package com.soundcloud.android.image;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -46,7 +47,7 @@ public class ImageOperations {
     }
 
     public void displayInPlayerView(String imageUrl, ImageView imageView, View parentView, boolean priority, ImageListener imageListener) {
-        mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.player(parentView, priority));
+        mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.player(parentView, priority), (ImageLoadingListener) imageListener);
     }
 
     public void displayPlaceholder(String imageUrl, ImageView imageView, int defaultResId) {
