@@ -67,6 +67,7 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         mDependencyInjector.inject(this);
         mGenresObservable = buildObservable(mObservableFactory.create(this));
+        mSubscription = loadCategories();
     }
 
     private ConnectableObservable<Section<ExploreGenre>> buildObservable(Observable<ExploreGenresSections> observable) {
@@ -111,8 +112,6 @@ public class ExploreGenresFragment extends Fragment implements AdapterView.OnIte
         listview.setAdapter(mGenresAdapter);
         listview.setEmptyView(mEmptyListView);
         listview.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), false, true));
-
-        mSubscription = loadCategories();
     }
 
     private ListView getListView() {

@@ -75,6 +75,7 @@ public class ExploreGenresFragmentTest {
         ExploreGenresSections categories = createSectionsFrom(electronicCategory, comedyCategory);
         addCategoriesToFragment(categories);
 
+        createFragment();
         createFragmentView();
 
         verify(adapter).onNext(buildMusicSection(Lists.newArrayList(electronicCategory)));
@@ -92,7 +93,9 @@ public class ExploreGenresFragmentTest {
         when(observable.replay()).thenReturn(mockObservable);
         when(mockObservable.connect()).thenReturn(subscription);
 
+        createFragment();
         createFragmentView();
+
         fragment.onDestroy();
         verify(subscription).unsubscribe();
     }
@@ -101,6 +104,7 @@ public class ExploreGenresFragmentTest {
     public void shouldRecreateObservableWhenClickingRetryAfterFailureSoThatWeDontEmitCachedResults() {
         when(factory.create(any(Fragment.class))).thenReturn(Observable.<ExploreGenresSections>error(new Exception()));
 
+        createFragment();
         createFragmentView();
 
         Button retryButton = (Button) fragment.getView().findViewById(R.id.btn_retry);
@@ -110,6 +114,23 @@ public class ExploreGenresFragmentTest {
         // this verifies that clicking the retry button does not re-run the initial observable, but a new one.
         // If that wasn't the case, we'd simply replay a failed result.
         verify(factory, times(2)).create(fragment);
+    }
+
+    @Test
+    public void shouldNotReloadGenresWhenRecreatingViewsAndGenresAlreadyLoaded() {
+        ExploreGenre electronicCategory = new ExploreGenre("electronic");
+        ExploreGenre comedyCategory = new ExploreGenre("comedy");
+        ExploreGenresSections categories = createSectionsFrom(electronicCategory, comedyCategory);
+        addCategoriesToFragment(categories);
+
+        // initial life cycle calls
+        createFragment();
+        createFragmentView();
+
+        // recreate views, e.g. after getting re-attached to the view pager
+        createFragmentView();
+
+        verify(adapter, times(2)).onNext(any(Section.class));
     }
 
     @Test
@@ -145,10 +166,13 @@ public class ExploreGenresFragmentTest {
     }
 
     // HELPERS
-    private View createFragmentView() {
+
+    private void createFragment() {
         Robolectric.shadowOf(fragment).setAttached(true);
         fragment.onCreate(null);
+    }
 
+    private View createFragmentView() {
         View fragmentLayout = fragment.onCreateView(LayoutInflater.from(Robolectric.application), new FrameLayout(Robolectric.application), null);
         Robolectric.shadowOf(fragment).setView(fragmentLayout);
         fragment.onViewCreated(fragmentLayout, null);
