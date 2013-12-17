@@ -1,9 +1,13 @@
 $ 76
-  % v 2.7.4
-  _ 2013-12-9
+  % v 2.7.5-BETA
+  _ 2013-12-17
   ! Maintenance
-    * Fixed recording crash when recording after editing
-    * Properly dropping audio focus on logout
+    * Fixed some playback crashes
+    * Added a host of localytics tracking
+    * Fixed playing remote search result
+    * Added some proper up button functionality to player
+    - Fixed recording crash when recording after editing
+    - Properly dropping audio focus on logout
 
 $ 75
   % v 2.7.3
