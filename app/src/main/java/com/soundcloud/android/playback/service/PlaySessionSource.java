@@ -18,8 +18,8 @@ public class PlaySessionSource implements Parcelable{
 
     public static final PlaySessionSource EMPTY = new PlaySessionSource();
 
-    static String PREF_KEY_ORIGIN_SCREEN_TAG = "origin_url"; //legacy
-    static String PREF_KEY_PLAYLIST_ID = "set_id"; //legacy
+    static final String PREF_KEY_ORIGIN_SCREEN_TAG = "origin_url"; //legacy
+    static final String PREF_KEY_PLAYLIST_ID = "set_id"; //legacy
 
     public enum DiscoverySource {
         RECOMMENDER, EXPLORE;
