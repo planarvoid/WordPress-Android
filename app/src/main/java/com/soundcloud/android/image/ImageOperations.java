@@ -2,7 +2,6 @@ package com.soundcloud.android.image;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.IOUtils;
@@ -41,7 +40,7 @@ public class ImageOperations {
     }
 
     public void load(String imageUrl, ImageListener imageListener) {
-        mImageLoader.loadImage(imageUrl, (ImageLoadingListener) imageListener);
+        mImageLoader.loadImage(imageUrl, new ImageListenerUILAdapter (imageListener));
     }
 
     public void display(String imageUrl, ImageView imageView) {
