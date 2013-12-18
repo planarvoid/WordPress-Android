@@ -1,8 +1,5 @@
 package com.soundcloud.android.robolectric;
 
-
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
 import com.soundcloud.android.robolectric.shadows.ShadowV4Fragment;
@@ -25,7 +22,6 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
     public void prepareTest(Object test) {
         super.prepareTest(test);
         MockitoAnnotations.initMocks(test);
-        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(Robolectric.application));
     }
 
     @Override

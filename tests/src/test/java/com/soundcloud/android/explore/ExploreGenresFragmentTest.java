@@ -12,11 +12,12 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collections.Section;
 import com.soundcloud.android.dagger.AndroidObservableFactory;
+import com.soundcloud.android.events.Event;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.ExploreGenresSections;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.events.Event;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
 import dagger.Provides;
@@ -59,6 +60,8 @@ public class ExploreGenresFragmentTest {
     private Observable observable;
     @Mock
     private ListView listView;
+    @Mock
+    ImageOperations imageOperations;
     private MockInjector dependencyInjector;
 
     @Before
@@ -180,6 +183,11 @@ public class ExploreGenresFragmentTest {
         @Provides
         ExploreGenresAdapter provideExplorePagerAdapter() {
             return adapter;
+        }
+
+        @Provides
+        ImageOperations provideImageOperations() {
+            return imageOperations;
         }
     }
 

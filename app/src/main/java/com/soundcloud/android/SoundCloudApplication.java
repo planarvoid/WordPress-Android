@@ -6,6 +6,7 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.enableSy
 
 import com.crashlytics.android.Crashlytics;
 import com.localytics.android.Constants;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
@@ -41,8 +42,6 @@ import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 
-import javax.inject.Inject;
-
 public class SoundCloudApplication extends Application implements ObjectGraphProvider {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
 
@@ -57,8 +56,7 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     private User mLoggedInUser;
     private AccountOperations accountOperations;
 
-    @Inject
-    ImageOperations mImageOperations;
+    ImageOperations mImageOperations = new ImageOperations(ImageLoader.getInstance());
 
     private ObjectGraph mObjectGraph;
 
@@ -70,7 +68,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         instance = this;
 
         mObjectGraph = ObjectGraph.create(new ApplicationModule(this));
-        mObjectGraph.inject(this);
 
         new MigrationEngine(this).migrate();
 

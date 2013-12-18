@@ -1,7 +1,5 @@
 package com.soundcloud.android;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.api.http.PublicApiWrapper;
 import com.soundcloud.android.creators.record.WavHeader;
@@ -36,7 +34,6 @@ public class TestApplication extends SoundCloudApplication {
         super.onCreate();
         mCloudApi = PublicApiWrapper.getInstance(this);
         mCloudApi.setToken(token);
-
     }
     public PublicCloudAPI getCloudAPI(){
         return mCloudApi;
@@ -46,11 +43,6 @@ public class TestApplication extends SoundCloudApplication {
     public void sendBroadcast(Intent intent) {
         broadcasts.add(intent);
         super.sendBroadcast(intent);
-    }
-
-    @Override
-    protected void createImageLoader() {
-        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this)); // Do it on Application start
     }
 
     // object mother
