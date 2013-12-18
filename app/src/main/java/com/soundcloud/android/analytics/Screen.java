@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics;
 
+import com.soundcloud.android.Actions;
+
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -87,6 +89,7 @@ public enum Screen {
     DEEPLINK("deeplink");
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
+    private static final String EXPLORE_PREFIX = "explore";
 
     private Screen(String trackingTag) {
         mTag = trackingTag;
@@ -122,5 +125,40 @@ public enum Screen {
         return values()[bundle.getInt(Screen.ORDINAL_EXTRA, -1)];
     }
 
+    public static Screen fromScreenTag(String screenTag) {
+        for (Screen screen : Screen.values()) {
+            if (screenTag.equals(screen.get())) {
+                return screen;
+            }
+        }
+        throw new IllegalArgumentException("Unrecognized screenTag: " + screenTag);
+    }
+
+    public static Intent getUpDestinationFromScreenTag(String screenTag) throws NoUpDestinationException {
+        Intent upIntent;
+        if (screenTag.startsWith(EXPLORE_PREFIX)) {
+            upIntent = new Intent(Actions.EXPLORE);
+        } else if (screenTag.equals(SIDE_MENU_STREAM.get())) {
+            upIntent = new Intent(Actions.STREAM);
+        } else if (screenTag.equals(YOUR_POSTS.get())) {
+            upIntent = new Intent(Actions.YOUR_SOUNDS);
+        } else if (screenTag.equals(YOUR_LIKES.get())) {
+            upIntent = new Intent(Actions.YOUR_LIKES);
+        } else if (screenTag.equals(SIDE_MENU_LIKES.get())) {
+            upIntent = new Intent(Actions.LIKES);
+        } else {
+            throw new NoUpDestinationException(screenTag);
+        }
+        upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return upIntent;
+    }
+
+    public static class NoUpDestinationException extends Exception {
+        public final String screenTag;
+
+        public NoUpDestinationException(String screenTag) {
+            this.screenTag = screenTag;
+        }
+    }
 
 }

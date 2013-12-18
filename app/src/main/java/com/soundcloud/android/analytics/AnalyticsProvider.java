@@ -5,7 +5,7 @@ import com.soundcloud.android.events.PlaybackEventData;
 /**
  * Implementations of this interface will be sending information to a specific analytics provider
  */
-interface AnalyticsProvider {
+public interface AnalyticsProvider {
     /**
      * Signals to the analytics provider that user session is open/started
      * Calls to this method should be idempotent and should not signal to the analytics

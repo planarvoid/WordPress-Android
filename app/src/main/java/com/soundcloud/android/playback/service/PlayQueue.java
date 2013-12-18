@@ -1,13 +1,12 @@
 package com.soundcloud.android.playback.service;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.PlayQueueItem;
-import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,21 +16,19 @@ class PlayQueue {
 
     private List<PlayQueueItem> mPlayQueueItems;
     private int mPosition;
-    private PlaySessionSource mPlaySessionSource = PlaySessionSource.EMPTY;
     private boolean mCurrentTrackIsUserTriggered;
 
     public static PlayQueue empty(){
-        return new PlayQueue(Collections.<PlayQueueItem>emptyList(), -1, PlaySessionSource.EMPTY);
+        return new PlayQueue(Collections.<PlayQueueItem>emptyList(), -1);
     }
 
     public static PlayQueue fromIdList(List<Long> trackIds, int startPosition, PlaySessionSource playSessionSource) {
-        return new PlayQueue(getPlayQueueItemsFromIds(trackIds, playSessionSource), startPosition, playSessionSource);
+        return new PlayQueue(getPlayQueueItemsFromIds(trackIds, playSessionSource), startPosition);
     }
 
-    public PlayQueue(List<PlayQueueItem> playQueueItems, int startPosition, PlaySessionSource playSessionSource) {
+    public PlayQueue(List<PlayQueueItem> playQueueItems, int startPosition) {
         mPlayQueueItems = playQueueItems;
         mPosition = startPosition;
-        mPlaySessionSource = playSessionSource;
     }
 
     public PlayQueueView getViewWithAppendState(PlaybackOperations.AppendState appendState) {
@@ -40,10 +37,6 @@ class PlayQueue {
 
     public Collection<PlayQueueItem> getItems() {
         return mPlayQueueItems;
-    }
-
-    public String getOriginScreen() {
-        return mPlaySessionSource.getOriginPage();
     }
 
     public void setCurrentTrackToUserTriggered() {
@@ -64,7 +57,7 @@ class PlayQueue {
     }
 
     public boolean moveToNext(boolean userTriggered) {
-        if (mPosition < mPlayQueueItems.size() - 1) {
+        if (hasNextTrack()) {
             mPosition++;
             mCurrentTrackIsUserTriggered = userTriggered;
             return true;
@@ -72,13 +65,18 @@ class PlayQueue {
         return false;
     }
 
-    public TrackSourceInfo getCurrentTrackSourceInfo() {
+    public boolean hasNextTrack(){
+        return mPosition < mPlayQueueItems.size() - 1;
+    }
+
+    @Nullable
+    TrackSourceInfo getCurrentTrackSourceInfo(PlaySessionSource playSessionSource) {
         if (isEmpty()) return null;
 
-        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(getOriginScreen(), mCurrentTrackIsUserTriggered);
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), mCurrentTrackIsUserTriggered);
         trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
-        if (isPlayingPlaylist()) {
-            trackSourceInfo.setOriginPlaylist(getPlaylistId(), getPosition());
+        if (playSessionSource.getPlaylistId() != Playlist.NOT_SET) {
+            trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistId(), getPosition(), playSessionSource.getPlaylistOwnerId());
         }
         return trackSourceInfo;
     }
@@ -104,11 +102,6 @@ class PlayQueue {
         }
     }
 
-    @VisibleForTesting
-    long getPlaylistId() {
-        return mPlaySessionSource.getSetId();
-    }
-
     private static List<PlayQueueItem> getPlayQueueItemsFromIds(List<Long> trackIds, final PlaySessionSource playSessionSource){
         return Lists.newArrayList(Lists.transform(trackIds, new Function<Long, PlayQueueItem>() {
             @Override
@@ -118,14 +111,10 @@ class PlayQueue {
         }));
     }
 
-    private boolean isPlayingPlaylist() {
-        return getPlaylistId() > Playable.NOT_SET;
-    }
-
-    private String getCurrentTrackSource() {
+    String getCurrentTrackSource() {
         return mPlayQueueItems.get(mPosition).getSource();
     }
-    private String getCurrentTrackSourceVersion() {
+    String getCurrentTrackSourceVersion() {
         return mPlayQueueItems.get(mPosition).getSourceVersion();
     }
 
@@ -148,14 +137,12 @@ class PlayQueue {
 
         return Objects.equal(mCurrentTrackIsUserTriggered, playQueue.mCurrentTrackIsUserTriggered) &&
                 Objects.equal(mPosition, playQueue.mPosition) &&
-                Objects.equal(mPlayQueueItems, playQueue.mPlayQueueItems) &&
-                Objects.equal(mPlaySessionSource, playQueue.mPlaySessionSource);
+                Objects.equal(mPlayQueueItems, playQueue.mPlayQueueItems);
     }
 
     @Override
     public int hashCode() {
         int result = (mCurrentTrackIsUserTriggered ? 1 : 0);
-        result = 31 * result + mPlaySessionSource.hashCode();
         result = 31 * result + mPlayQueueItems.hashCode();
         result = 31 * result + mPosition;
         return result;

@@ -250,7 +250,7 @@ end
 namespace :test do
     desc "Run unit tests"
     task :unit do
-      Mvn.install.projects('app','tests').
+      Mvn.install.projects('app').
         with_profiles('debug').
         skip_proguard.
       execute()
@@ -271,6 +271,7 @@ namespace :release do
   task :build do
     Mvn.install.
       projects('app').
+      skip_tests.
       with_profiles('sign','soundcloud','release').
     execute()
 
@@ -343,6 +344,7 @@ namespace :beta do
 
     Mvn.install.projects('app').
       with_profiles('beta', 'sign', 'soundcloud', 'update-android-manifest').
+      skip_tests.
       set_version_code(version_code + 1).
       set_version_name(version_name('beta')).
       execute()
@@ -465,6 +467,7 @@ end
 namespace :ci do
   task :build_app do
     Mvn.install.projects('app').
+      skip_tests.
       with_profiles('sign','static-analysis','debug').
       skip_proguard.
       with_lint.
@@ -473,7 +476,7 @@ namespace :ci do
   end
 
   task :test_app do
-    Mvn.test.projects('tests').
+    Mvn.test.projects('app').
       with_profiles('debug').
       skip_proguard.
       use_local_repo.

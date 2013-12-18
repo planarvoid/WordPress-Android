@@ -10,7 +10,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.associations.AssociationManager;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.tracking.eventlogger.PlaySessionSource;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 
@@ -130,7 +129,7 @@ class PlaybackReceiver extends BroadcastReceiver {
             final PlaySessionSource playSessionSource = intent.getParcelableExtra(PlayExtras.PLAY_SESSION_SOURCE);
             PlayQueue playQueue = PlayQueue.fromIdList(trackIds, startPosition, playSessionSource);
 
-            mPlayQueueManager.setNewPlayQueue(playQueue);
+            mPlayQueueManager.setNewPlayQueue(playQueue, playSessionSource);
             mPlaybackService.openCurrent();
 
             if (playSessionSource.originatedInExplore() && !playQueue.isEmpty()){
