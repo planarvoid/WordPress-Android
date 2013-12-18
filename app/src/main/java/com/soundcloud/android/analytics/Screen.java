@@ -93,11 +93,11 @@ public enum Screen {
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
     private static final String EXPLORE_PREFIX = "explore";
 
-    private static final Map<String, Screen> screenTagMap = Maps.newHashMap();
+    private static final Map<String, Screen> SCREEN_TAG_MAP = Maps.newHashMap();
 
     static {
         for (Screen screen : Screen.values()) {
-            screenTagMap.put(screen.get(), screen);
+            SCREEN_TAG_MAP.put(screen.get(), screen);
         }
     }
 
@@ -149,8 +149,8 @@ public enum Screen {
     }
 
     public static Screen fromScreenTag(String screenTag) {
-        if (screenTagMap.containsKey(screenTag)) {
-            return screenTagMap.get(screenTag);
+        if (SCREEN_TAG_MAP.containsKey(screenTag)) {
+            return SCREEN_TAG_MAP.get(screenTag);
         }
         throw new IllegalArgumentException("Unrecognized screenTag: " + screenTag);
     }
