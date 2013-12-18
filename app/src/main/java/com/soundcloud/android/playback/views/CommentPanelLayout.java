@@ -45,7 +45,7 @@ public class CommentPanelLayout extends RelativeLayout {
 
     private CommentPanelListener mListener;
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     public interface CommentPanelListener {
         void onNextCommentInThread();

@@ -15,8 +15,6 @@ import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 
-import javax.inject.Singleton;
-
 @Module(library = true)
 public class ApplicationModule {
 
@@ -76,7 +74,6 @@ public class ApplicationModule {
         return ImageLoader.getInstance();
     }
 
-    @Singleton
     @Provides
     public ImageOperations provideImageOperations(ImageLoader imageLoader) {
         return new ImageOperations(imageLoader);

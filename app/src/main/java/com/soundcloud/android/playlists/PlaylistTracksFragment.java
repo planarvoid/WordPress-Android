@@ -57,7 +57,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
 
     private SyncStateManager mSyncStateManager;
     private PlaybackOperations mPlaybackOperations;
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     public static PlaylistTracksFragment create(Uri playlistUri, Screen originScreen) {
         Bundle args = new Bundle();

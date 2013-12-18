@@ -35,7 +35,7 @@ public class NavigationFragment extends Fragment {
     static final String STATE_SELECTED_POSITION = "selected_navigation_position";
     private static final int NO_IMAGE = -1;
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     private NavigationCallbacks mCallbacks;
 

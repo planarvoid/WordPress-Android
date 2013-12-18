@@ -33,7 +33,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
     private SoundCloudApplication app;
     private Bundle extras;
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     public SyncServiceResultReceiver(SoundCloudApplication app, SyncResult result, Bundle extras) {
         super(new Handler());

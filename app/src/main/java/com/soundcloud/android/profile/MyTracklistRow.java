@@ -26,7 +26,7 @@ public class MyTracklistRow extends PlayableRow {
 
     private Recording mRecording;
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     public MyTracklistRow(Context activity) {
         super(activity);

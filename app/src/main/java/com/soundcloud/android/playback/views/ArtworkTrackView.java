@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.Event;
 import com.soundcloud.android.image.ArtworkLoadListener;
@@ -31,8 +30,7 @@ import java.lang.ref.SoftReference;
 
 public class ArtworkTrackView extends PlayerTrackView {
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
-
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
     private ImageView mArtwork;
     private FrameLayout mArtworkHolder;
     private SoftReference<Drawable> mArtworkBgDrawable;

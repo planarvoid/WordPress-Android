@@ -66,7 +66,7 @@ public class ProfileActivity extends ScActivity implements
 
     /* package */ @Nullable User mUser;
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     private TextView mUsername, mFullName, mFollowerCount, mFollowerMessage, mTrackCount, mLocation;
     private ToggleButton mToggleFollow;

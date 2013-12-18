@@ -54,7 +54,7 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     private boolean mOnCreateCalled;
     private boolean mIsConfigurationChange;
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     protected AccountOperations mAccountOperations;
     protected PublicCloudAPI mPublicCloudAPI;

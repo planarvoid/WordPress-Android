@@ -4,10 +4,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.FoursquareVenue;
-import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
 import com.soundcloud.android.utils.Capitalizer;
 
 import android.app.AlertDialog;
@@ -60,7 +59,7 @@ public class LocationPickerActivity extends ListActivity {
 
     private static final int LOADING = 0;
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     private String mProvider;
     private Location mLocation;

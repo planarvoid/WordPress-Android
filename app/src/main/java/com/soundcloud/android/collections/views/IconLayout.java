@@ -19,7 +19,7 @@ public abstract class IconLayout extends FrameLayout {
 
     protected ImageView mIcon;
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     public IconLayout(Context context) {
         this(context,null);

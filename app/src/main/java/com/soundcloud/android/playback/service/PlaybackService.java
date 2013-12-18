@@ -189,7 +189,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     private TrackCompletionListener mCompletionListener;
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     public interface PlayExtras{
         String TRACK = Track.EXTRA;

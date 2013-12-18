@@ -6,7 +6,6 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.enableSy
 
 import com.crashlytics.android.Crashlytics;
 import com.localytics.android.Constants;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
@@ -56,8 +55,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     private User mLoggedInUser;
     private AccountOperations accountOperations;
 
-    ImageOperations mImageOperations = new ImageOperations(ImageLoader.getInstance());
-
     private ObjectGraph mObjectGraph;
 
     @Override
@@ -91,7 +88,9 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         }
 
         IOUtils.checkState(this);
-        mImageOperations.initialise(this);
+
+        ImageOperations imageOperations = ImageOperations.newInstance();
+        imageOperations.initialise(this);
 
         accountOperations = new AccountOperations(this);
         final Account account = accountOperations.getSoundCloudAccount();
@@ -217,8 +216,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
     public static long getUserId() {
         return instance.getCurrentUserId();
     }
-
-    public static ImageOperations getImageOperations() { return instance.mImageOperations; }
 
     public static void handleSilentException(@Nullable String message, Throwable e) {
         if (ApplicationProperties.shouldReportCrashes()) {

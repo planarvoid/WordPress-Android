@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.views.GridSpacer;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.SuggestedUser;
@@ -22,7 +21,7 @@ import java.util.List;
 
 public class SuggestedUsersAdapter extends BaseAdapter {
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     private final List<SuggestedUser> mSuggestedUsers;
     private GridSpacer mGridSpacer;

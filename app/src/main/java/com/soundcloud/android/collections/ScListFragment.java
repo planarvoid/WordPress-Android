@@ -6,7 +6,6 @@ import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.analytics.Screen;
@@ -107,7 +106,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private AccountOperations accountOperations;
     protected PublicApi publicApi;
 
-    private ImageOperations mImageOperations = SoundCloudApplication.getImageOperations();
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     public static ScListFragment newInstance(Content content, Screen screen) {
         return newInstance(content.uri, screen);

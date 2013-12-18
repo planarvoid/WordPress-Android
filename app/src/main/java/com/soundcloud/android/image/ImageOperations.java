@@ -19,6 +19,10 @@ public class ImageOperations {
 
     private ImageLoader mImageLoader;
 
+    public static ImageOperations newInstance() {
+        return new ImageOperations(ImageLoader.getInstance());
+    }
+
     @Inject
     public ImageOperations(ImageLoader imageLoader) {
         mImageLoader = imageLoader;
