@@ -86,5 +86,4 @@ public class ImageOperations {
     public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling) {
         return new PauseOnScrollListener(mImageLoader, pauseOnScroll, pauseOnFling);
     }
-
 }
