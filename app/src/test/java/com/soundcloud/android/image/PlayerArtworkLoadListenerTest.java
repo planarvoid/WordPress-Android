@@ -17,9 +17,9 @@ import android.graphics.Bitmap;
 import android.widget.ImageView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ArtworkLoadListenerTest {
+public class PlayerArtworkLoadListenerTest {
 
-    ArtworkLoadListener artworkLoadListener;
+    PlayerArtworkLoadListener artworkLoadListener;
     @Mock
     ArtworkTrackView playerArtworkTrackView;
     @Mock
@@ -31,7 +31,7 @@ public class ArtworkLoadListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        artworkLoadListener = new ArtworkLoadListener(playerArtworkTrackView, track, imageLoaderUtils);
+        artworkLoadListener = new PlayerArtworkLoadListener(playerArtworkTrackView, track, imageLoaderUtils);
     }
 
     @Test

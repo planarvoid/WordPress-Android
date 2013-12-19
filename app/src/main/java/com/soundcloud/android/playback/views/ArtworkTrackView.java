@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.views;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.Event;
-import com.soundcloud.android.image.ArtworkLoadListener;
+import com.soundcloud.android.image.PlayerArtworkLoadListener;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -205,7 +205,7 @@ public class ArtworkTrackView extends PlayerTrackView {
             showDefaultArtwork(); // during load
             if (!TextUtils.isEmpty(playerArtworkUri)){
                 mImageOperations.displayInPlayerView(playerArtworkUri, mArtwork, mArtworkHolder, priority,
-                        new ArtworkLoadListener(this, mTrack));
+                        new PlayerArtworkLoadListener(this, mTrack));
             }
         }
     }

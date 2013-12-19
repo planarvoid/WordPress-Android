@@ -11,17 +11,17 @@ import android.view.View;
 import java.lang.ref.WeakReference;
 
 @VisibleForTesting
-public class ArtworkLoadListener extends SimpleImageLoadingListener implements ImageListener {
+public class PlayerArtworkLoadListener extends SimpleImageLoadingListener implements ImageListener {
 
     private final ImageLoaderUtils mImageLoaderUtils;
     private WeakReference<ArtworkTrackView> mTrackViewRef;
     private Track mTrack;
 
-    public ArtworkLoadListener(ArtworkTrackView trackView, Track track) {
+    public PlayerArtworkLoadListener(ArtworkTrackView trackView, Track track) {
         this(trackView, track, new ImageLoaderUtils(trackView.getContext()));
     }
 
-    ArtworkLoadListener(ArtworkTrackView trackView, Track track, ImageLoaderUtils imageLoaderUtils) {
+    PlayerArtworkLoadListener(ArtworkTrackView trackView, Track track, ImageLoaderUtils imageLoaderUtils) {
         mTrackViewRef = new WeakReference<ArtworkTrackView>(trackView);
         mTrack = track;
         mImageLoaderUtils = imageLoaderUtils;
