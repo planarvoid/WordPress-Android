@@ -10,6 +10,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.PublicApi;
 import com.soundcloud.android.events.Event;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.model.Recording;
@@ -48,6 +49,8 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     private RecordingMetaDataLayout mRecordingMetadata;
     private boolean mUploading;
 
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
+
     private RecordingStorage mStorage;
     private PublicCloudAPI mOldCloudAPI;
 
@@ -71,7 +74,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another playable button"
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
-                        new ShareUserHeaderLayout(this, getApp().getLoggedInUser()));
+                        new ShareUserHeaderLayout(this, getApp().getLoggedInUser(), mImageOperations));
             }
 
             if (mRecording.exists()) {

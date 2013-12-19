@@ -16,9 +16,7 @@ import android.widget.TextView;
 
 public class ShareUserHeaderLayout extends RelativeLayout {
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
-
-    public ShareUserHeaderLayout(final ScActivity activity, User user) {
+    public ShareUserHeaderLayout(final ScActivity activity, User user, ImageOperations mImageOperations) {
         super(activity);
         View.inflate(getContext(), R.layout.share_user_header, this);
 
