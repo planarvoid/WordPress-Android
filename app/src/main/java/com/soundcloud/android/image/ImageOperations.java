@@ -29,7 +29,7 @@ public class ImageOperations {
     }
 
     public void initialise(Context context) {
-        Context appContext = context.getApplicationContext();
+        final Context appContext = context.getApplicationContext();
         final ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(appContext);
         builder.defaultDisplayImageOptions(ImageOptionsFactory.cache());
         final long availableMemory = Runtime.getRuntime().maxMemory();
