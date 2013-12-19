@@ -138,4 +138,26 @@ public class PlayQueueView implements Parcelable, Iterable<Long> {
                 .add("Play Position", mPosition)
                 .toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlayQueueView longs = (PlayQueueView) o;
+
+        if (mPosition != longs.mPosition) return false;
+        if (mAppendState != longs.mAppendState) return false;
+        if (mTrackIds != null ? !mTrackIds.equals(longs.mTrackIds) : longs.mTrackIds != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mTrackIds != null ? mTrackIds.hashCode() : 0;
+        result = 31 * result + (mAppendState != null ? mAppendState.hashCode() : 0);
+        result = 31 * result + mPosition;
+        return result;
+    }
 }

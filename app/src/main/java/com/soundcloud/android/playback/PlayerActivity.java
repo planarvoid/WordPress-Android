@@ -28,7 +28,6 @@ import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -591,7 +590,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                 if (mPlayQueue != PlayQueueView.EMPTY){
 
                     mPlayQueue = intent.getParcelableExtra(PlayQueueView.EXTRA);
-                    mTrackPagerAdapter.setPlayQueue(mPlayQueue);
+                    mTrackPagerAdapter.setPlayQueueIfChanged(mPlayQueue);
                     mTrackPagerAdapter.reloadEmptyView();
                     mTrackPagerAdapter.notifyDataSetChanged();
 
@@ -666,8 +665,9 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     }
 
     private void refreshTrackPager() {
-        mTrackPagerAdapter.setPlayQueue(mPlayQueue);
-        mTrackPager.refreshAdapter();
+        if (mTrackPagerAdapter.setPlayQueueIfChanged(mPlayQueue)){
+            mTrackPager.refreshAdapter();
+        };
         mTrackPager.setCurrentItem(mPlayQueue.getPosition());
 
         setCommentMode(false, false);

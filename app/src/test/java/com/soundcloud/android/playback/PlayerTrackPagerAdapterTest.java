@@ -58,14 +58,14 @@ public class PlayerTrackPagerAdapterTest {
     @Test
     public void shouldBeEmptyWhenQueueIsEmpty() {
         when(playQueue.size()).thenReturn(0);
-        adapter.setPlayQueue(playQueue);
+        adapter.setPlayQueueIfChanged(playQueue);
         expect(adapter.getCount()).toEqual(0);
     }
 
     @Test
     public void shouldCreateSingleItemQueue() throws Exception {
         final Track track = TestHelper.getModelFactory().createModel(Track.class);
-        adapter.setPlayQueue(new PlayQueueView(track.getId()));
+        adapter.setPlayQueueIfChanged(new PlayQueueView(track.getId()));
         expect(adapter.getCount()).toEqual(1);
         expect(adapter.getItem(0)).toBe(track.getId());
     }
@@ -177,7 +177,7 @@ public class PlayerTrackPagerAdapterTest {
 
     @Test
     public void shouldReplaceEmptyView() {
-        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.LOADING));
+        adapter.setPlayQueueIfChanged(new PlayQueueView(Lists.newArrayList(1L), 0, PlaybackOperations.AppendState.LOADING));
 
         final ViewGroup parent = mock(ViewGroup.class);
         final PlayerQueueView playerQueueView1 = mock(PlayerQueueView.class);
@@ -192,7 +192,7 @@ public class PlayerTrackPagerAdapterTest {
 
         verify(playerQueueView2).showEmptyViewWithState(PlaybackOperations.AppendState.LOADING);
 
-        adapter.setPlayQueue(new PlayQueueView(Lists.newArrayList(1L, 2L), 0, PlaybackOperations.AppendState.IDLE));
+        adapter.setPlayQueueIfChanged(new PlayQueueView(Lists.newArrayList(1L, 2L), 0, PlaybackOperations.AppendState.IDLE));
         adapter.reloadEmptyView();
         verify(playerQueueView2).showTrack(any(rx.Observable.class), anyInt(), anyBoolean());
 
@@ -203,7 +203,7 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueue.size()).thenReturn(1);
         when(playQueue.isLoading()).thenReturn(true);
 
-        adapter.setPlayQueue(playQueue);
+        adapter.setPlayQueueIfChanged(playQueue);
         expect(adapter.getCount()).toBe(2);
     }
 
@@ -212,7 +212,7 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueue.size()).thenReturn(1);
         when(playQueue.lastLoadFailed()).thenReturn(true);
 
-        adapter.setPlayQueue(playQueue);
+        adapter.setPlayQueueIfChanged(playQueue);
         expect(adapter.getCount()).toBe(2);
     }
 
@@ -221,13 +221,13 @@ public class PlayerTrackPagerAdapterTest {
         when(playQueue.size()).thenReturn(1);
         when(playQueue.isLoading()).thenReturn(true);
 
-        adapter.setPlayQueue(playQueue);
+        adapter.setPlayQueueIfChanged(playQueue);
         expect(adapter.getItemPosition(PlayerTrackPagerAdapter.EMPTY_VIEW_ID)).toBe(PagerAdapter.POSITION_UNCHANGED);
     }
 
     @Test
     public void shouldReturnNoItemPositionForEmptyItemWhenNotFetching() {
-        adapter.setPlayQueue(playQueue);
+        adapter.setPlayQueueIfChanged(playQueue);
         expect(adapter.getItemPosition(PlayerTrackPagerAdapter.EMPTY_VIEW_ID)).toBe(PagerAdapter.POSITION_NONE);
     }
 
@@ -236,7 +236,7 @@ public class PlayerTrackPagerAdapterTest {
     }
 
     private void addPlayerTrackViews(PlayQueueView playQueue, PlayerTrackView trackView1, PlayerTrackView trackView2) {
-        adapter.setPlayQueue(playQueue);
+        adapter.setPlayQueueIfChanged(playQueue);
 
         final ViewGroup parent = mock(ViewGroup.class);
         final PlayerQueueView playerQueueView1 = mock(PlayerQueueView.class);

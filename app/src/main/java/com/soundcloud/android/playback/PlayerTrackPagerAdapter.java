@@ -52,8 +52,10 @@ public class PlayerTrackPagerAdapter extends BasePagerAdapter<Long> {
         });
     }
 
-    public void setPlayQueue(PlayQueueView playQueue) {
-        mPlayQueue = playQueue;
+    public boolean setPlayQueueIfChanged(PlayQueueView playQueue) {
+        final boolean changed = !mPlayQueue.equals(playQueue);
+        if (changed) mPlayQueue = playQueue;
+        return changed;
     }
 
     public int getCommentingPosition() {
