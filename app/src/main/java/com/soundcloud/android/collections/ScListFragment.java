@@ -4,8 +4,6 @@ import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts
 import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -21,6 +19,7 @@ import com.soundcloud.android.associations.UserAssociationAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.LocalCollection;
@@ -31,7 +30,6 @@ import com.soundcloud.android.search.SearchAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStateManager;
-import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -108,6 +106,8 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
     private AccountOperations accountOperations;
     protected PublicApi publicApi;
 
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
+
     public static ScListFragment newInstance(Content content, Screen screen) {
         return newInstance(content.uri, screen);
     }
@@ -170,7 +170,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
         mListView = configureList(new ScListView(getActivity()));
         mListView.setOnRefreshListener(this);
 
-        mListView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(), false, true, this)));
+        mListView.setOnScrollListener(mImageOperations.createScrollPauseListener(false, true, this));
 
         if (mEmptyListView == null) {
             mEmptyListView = createEmptyView();
@@ -323,7 +323,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
             switch (mContent) {
                 case ME_SOUND_STREAM:
                 case ME_ACTIVITIES:
-                    mAdapter = new ActivitiesAdapter(mContentUri);
+                    mAdapter = new ActivitiesAdapter(mContentUri, mImageOperations);
                     break;
                 case USER_FOLLOWINGS:
                 case USER_FOLLOWERS:
@@ -332,33 +332,33 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                 case PLAYLIST_LIKERS:
                 case PLAYLIST_REPOSTERS:
                 case SUGGESTED_USERS:
-                    mAdapter = new UserAdapter(mContentUri);
+                    mAdapter = new UserAdapter(mContentUri, mImageOperations);
                     break;
                 case ME_FOLLOWERS:
                 case ME_FOLLOWINGS:
-                    mAdapter = new UserAssociationAdapter(mContentUri);
+                    mAdapter = new UserAssociationAdapter(mContentUri, mImageOperations);
                     break;
                 case ME_FRIENDS:
-                    mAdapter = new FriendAdapter(mContentUri);
+                    mAdapter = new FriendAdapter(mContentUri, mImageOperations);
                     break;
                 case ME_SOUNDS:
-                    mAdapter = new MyTracksAdapter(getScActivity());
+                    mAdapter = new MyTracksAdapter(getScActivity(), mImageOperations);
                     break;
                 case ME_LIKES:
                 case USER_LIKES:
                 case USER_SOUNDS:
-                    mAdapter = new SoundAssociationAdapter(mContentUri);
+                    mAdapter = new SoundAssociationAdapter(mContentUri, mImageOperations);
                     break;
                 case SEARCH:
-                    mAdapter = new SearchAdapter(Content.SEARCH.uri);
+                    mAdapter = new SearchAdapter(Content.SEARCH.uri, mImageOperations);
                     break;
                 case TRACK_COMMENTS:
-                    mAdapter = new CommentAdapter(mContentUri);
+                    mAdapter = new CommentAdapter(mContentUri, mImageOperations);
                     break;
                 case ME_PLAYLISTS:
                 case USER_PLAYLISTS:
                 default:
-                    mAdapter = new DefaultPlayableAdapter(mContentUri);
+                    mAdapter = new DefaultPlayableAdapter(mContentUri, mImageOperations);
             }
             setListAdapter(mAdapter);
             configureEmptyView();

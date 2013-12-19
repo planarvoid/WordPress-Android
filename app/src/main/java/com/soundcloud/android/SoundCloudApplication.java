@@ -6,13 +6,11 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.enableSy
 
 import com.crashlytics.android.Crashlytics;
 import com.localytics.android.Constants;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProperties;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.dagger.ObjectGraphProvider;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.migrations.MigrationEngine;
 import com.soundcloud.android.model.ContentStats;
 import com.soundcloud.android.model.ScModelManager;
@@ -26,7 +24,6 @@ import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
 import com.soundcloud.api.Token;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -46,7 +43,6 @@ import android.preference.PreferenceManager;
 
 public class SoundCloudApplication extends Application implements ObjectGraphProvider {
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
-    private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1000 * 1000; // available mem in bytes
 
     // Remove these fields when we've moved to a full DI solution
     @Deprecated
@@ -92,7 +88,9 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
         }
 
         IOUtils.checkState(this);
-        createImageLoader();
+
+        ImageOperations imageOperations = ImageOperations.newInstance();
+        imageOperations.initialise(this);
 
         accountOperations = new AccountOperations(this);
         final Account account = accountOperations.getSoundCloudAccount();
@@ -169,20 +167,6 @@ public class SoundCloudApplication extends Application implements ObjectGraphPro
 
     public void clearLoggedInUser() {
         mLoggedInUser = null;
-    }
-
-    protected void createImageLoader() {
-        final ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(this);
-        builder.defaultDisplayImageOptions(ImageOptionsFactory.cache());
-        final long availableMemory = Runtime.getRuntime().maxMemory();
-        // Here are some reference values for available mem: Wildfire: 16,777,216; Nexus S: 33,554,432; Nexus 4: 201,326,592
-        if (availableMemory < LOW_MEM_DEVICE_THRESHOLD) {
-            // cut down to half of what UIL would reserve by default (div 8) on low mem devices
-            builder.memoryCacheSize((int) (availableMemory / 16));
-        }
-        ImageLoader.getInstance().init(builder.build());
-
-        FileCache.installFileCache(IOUtils.getCacheDir(this));
     }
 
     //TODO Move this into AccountOperations once we refactor User info out of here

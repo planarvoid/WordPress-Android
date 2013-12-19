@@ -4,20 +4,21 @@ import static com.soundcloud.android.associations.PlayableInteractionActivity.EX
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.collections.ScBaseAdapter;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.associations.PlaylistInteractionActivity;
 import com.soundcloud.android.associations.TrackInteractionActivity;
-import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.collections.ScBaseAdapter;
+import com.soundcloud.android.collections.tasks.CollectionParams;
+import com.soundcloud.android.collections.views.IconLayout;
+import com.soundcloud.android.collections.views.PlayableRow;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.Activity;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.collections.views.IconLayout;
-import com.soundcloud.android.collections.views.PlayableRow;
+import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.provider.Content;
 
 import android.content.Context;
 import android.content.Intent;
@@ -30,12 +31,14 @@ import java.util.List;
 public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     private ActivitiesStorage mActivitiesStorage;
     private PlaybackOperations mPlaybackOperations;
+    private ImageOperations mImageOperations;
 
 
-    public ActivitiesAdapter(Uri uri) {
+    public ActivitiesAdapter(Uri uri, ImageOperations imageOperations) {
         super(uri);
         mActivitiesStorage = new ActivitiesStorage();
         mPlaybackOperations = new PlaybackOperations();
+        mImageOperations = imageOperations;
     }
 
     @Override
@@ -70,31 +73,31 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
         switch (type) {
             case TRACK:
             case TRACK_SHARING:
-                return new PlayableRow(context);
+                return new PlayableRow(context, mImageOperations);
 
             case TRACK_REPOST:
             case PLAYLIST_REPOST:
                 return (mContent == Content.ME_ACTIVITIES) ?
-                        new RepostActivityRow(context) : new PlayableRow(context);
+                        new RepostActivityRow(context, mImageOperations) : new PlayableRow(context, mImageOperations);
 
             case PLAYLIST:
             case PLAYLIST_SHARING:
                 // TODO, playlist view
-                return new PlayableRow(context);
+                return new PlayableRow(context, mImageOperations);
 
             case COMMENT:
-                return new CommentActivityRow(context);
+                return new CommentActivityRow(context, mImageOperations);
 
             case TRACK_LIKE:
-                return new LikeActivityRow(context);
+                return new LikeActivityRow(context, mImageOperations);
 
 
             case PLAYLIST_LIKE:
-                return new LikeActivityRow(context);
+                return new LikeActivityRow(context, mImageOperations);
 
 
             case AFFILIATION:
-                return new AffiliationActivityRow(context);
+                return new AffiliationActivityRow(context, mImageOperations);
 
 
             default:

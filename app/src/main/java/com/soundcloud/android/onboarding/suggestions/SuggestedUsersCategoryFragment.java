@@ -3,6 +3,7 @@ package com.soundcloud.android.onboarding.suggestions;
 import static rx.android.AndroidObservables.fromFragment;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playlists.SuggestedUsersAdapter;
 import com.soundcloud.android.model.Category;
 import com.soundcloud.android.model.UserAssociation;
@@ -30,6 +31,7 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
     private Category mCategory;
     private GridViewCompat mAdapterView;
     private FollowingOperations mFollowingOperations;
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
     private final CompositeSubscription mSubscription = new CompositeSubscription();
 
     public SuggestedUsersCategoryFragment() {
@@ -48,7 +50,7 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
         } else {
             mCategory = Category.empty();
         }
-        setAdapter(new SuggestedUsersAdapter(mCategory.getUsers()));
+        setAdapter(new SuggestedUsersAdapter(mCategory.getUsers(), mImageOperations));
 
     }
 

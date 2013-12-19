@@ -1,11 +1,9 @@
 
 package com.soundcloud.android.collections.views;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
+import com.soundcloud.android.image.ImageOperations;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -20,17 +18,21 @@ import android.widget.ImageView;
 public abstract class IconLayout extends FrameLayout {
 
     protected ImageView mIcon;
+    protected ImageOperations mImageOperations;
 
-    private DisplayImageOptions options = ImageOptionsFactory.adapterView(getDefaultArtworkResId());
-
-    public IconLayout(Context context) {
-        this(context,null);
+    public IconLayout(Context context, AttributeSet attributeSet) {
+        this(context, attributeSet, ImageOperations.newInstance());
     }
 
-    public IconLayout(Context context, @Nullable AttributeSet attributeSet) {
+    public IconLayout(Context context, ImageOperations imageOperations) {
+        this(context, null, imageOperations);
+    }
+
+    public IconLayout(Context context, @Nullable AttributeSet attributeSet, ImageOperations imageOperations) {
         super(context, attributeSet);
         addContent(attributeSet);
         mIcon = (ImageView) findViewById(R.id.icon);
+        mImageOperations = imageOperations;
     }
 
     public long getCurrentUserId() {
@@ -40,7 +42,7 @@ public abstract class IconLayout extends FrameLayout {
     protected abstract View addContent(AttributeSet attributeSet);
 
     protected void loadIcon() {
-        ImageLoader.getInstance().displayImage(getIconRemoteUri(), mIcon, options);
+        mImageOperations.displayInAdapterView(getIconRemoteUri(), mIcon, getDefaultArtworkResId());
     }
 
     abstract protected int getDefaultArtworkResId();

@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.ActivityRow;
+import com.soundcloud.android.image.ImageOperations;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -11,8 +12,8 @@ import android.os.Parcelable;
 
 public class LikeActivityRow extends ActivityRow {
 
-    public LikeActivityRow(Context activity) {
-        super(activity);
+    public LikeActivityRow(Context activity, ImageOperations imageOperations) {
+        super(activity, imageOperations);
     }
 
     @Override

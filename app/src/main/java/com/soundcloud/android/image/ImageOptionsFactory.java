@@ -1,18 +1,24 @@
-package com.soundcloud.android.utils.images;
+package com.soundcloud.android.image;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.soundcloud.android.utils.AnimUtils;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.view.View;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 
-public class ImageOptionsFactory {
+class ImageOptionsFactory {
 
+    private final static int DELAY_BEFORE_LOADING_HIGH_PRIORITY = 0;
+    private final static int DELAY_BEFORE_LOADING_LOW_PRIORITY = 200;
 
     public static DisplayImageOptions adapterView(int defaultIconResId){
         return fullCacheBuilder()
@@ -28,6 +34,13 @@ public class ImageOptionsFactory {
         return fullCacheBuilder()
                 .resetViewBeforeLoading(true)
                 .displayer(new BackgroundTransitionDisplayer())
+                .build();
+    }
+
+    public static DisplayImageOptions fullImageDialog() {
+        return new DisplayImageOptions.Builder()
+                .delayBeforeLoading(200)
+                .displayer(new FadeInBitmapDisplayer(200))
                 .build();
     }
 
@@ -51,10 +64,49 @@ public class ImageOptionsFactory {
                 .build();
     }
 
+    public static DisplayImageOptions player(View parentView, boolean priority) {
+        return fullCacheBuilder()
+                .delayBeforeLoading(priority ? DELAY_BEFORE_LOADING_HIGH_PRIORITY : DELAY_BEFORE_LOADING_LOW_PRIORITY)
+                .displayer(new PlayerBitmapDisplayer(parentView))
+                .build();
+    }
+
     public static DisplayImageOptions.Builder fullCacheBuilder() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisc(true);
+    }
+
+    @VisibleForTesting
+    static class PlayerBitmapDisplayer implements BitmapDisplayer {
+        private View mParentView;
+
+        PlayerBitmapDisplayer(View parentView) {
+            mParentView = parentView;
+        }
+
+        @Override
+        public Bitmap display(Bitmap bitmap, final ImageView imageView, LoadedFrom loadedFrom) {
+            imageView.setImageBitmap(bitmap);
+            if (imageView.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
+                if (loadedFrom == LoadedFrom.NETWORK) {
+                    AnimUtils.runFadeInAnimationOn(imageView.getContext(), imageView);
+                    imageView.getAnimation().setAnimationListener(new AnimUtils.SimpleAnimationListener() {
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            if (animation.equals(imageView.getAnimation())) {
+                                mParentView.setBackgroundDrawable(null);
+                            }
+                        }
+                    });
+                    imageView.setVisibility(View.VISIBLE);
+                } else {
+                    imageView.setVisibility(View.VISIBLE);
+                    mParentView.setBackgroundDrawable(null);
+                }
+            }
+            return bitmap;
+        }
     }
 
     /**
@@ -125,6 +177,4 @@ public class ImageOptionsFactory {
             imageView.setImageDrawable(tDrawable);
         }
     }
-
-
 }

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.injection.MockInjector;
 import com.soundcloud.android.model.TrackSummary;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -13,9 +14,11 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import dagger.Module;
+import dagger.Provides;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import android.view.View;
 import android.widget.FrameLayout;
@@ -23,17 +26,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreTracksAdapterTest {
 
-    @Module(complete = false, includes = { ExploreTracksFragmentModule.class }, injects = {ExploreTracksAdapterTest.class}, overrides = true)
-    public class TestModule {
-
-    }
-
     @Inject
     ExploreTracksAdapter mAdapter;
+    @Mock
+    ImageOperations imageOperations;
 
     @Before
     public void setUp() {
@@ -90,5 +91,14 @@ public class ExploreTracksAdapterTest {
         viewHolder.genre = new TextView(Robolectric.application);
         viewHolder.playcount = new TextView(Robolectric.application);
         return viewHolder;
+    }
+
+    @Module(complete = false, includes = { ExploreTracksFragmentModule.class }, injects = {ExploreTracksAdapterTest.class}, overrides = true)
+    public class TestModule {
+        @Singleton
+        @Provides
+        public ImageOperations provideImageOperations() {
+            return imageOperations;
+        }
     }
 }

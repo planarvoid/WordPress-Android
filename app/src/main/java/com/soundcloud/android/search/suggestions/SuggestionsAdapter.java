@@ -3,18 +3,16 @@ package com.soundcloud.android.search.suggestions;
 import static android.os.Process.THREAD_PRIORITY_DEFAULT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.PublicCloudAPI;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.SearchSuggestions;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.DBHelper;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
-import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -62,15 +60,14 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     private final DetachableResultReceiver mDetachableReceiver = new DetachableResultReceiver(new Handler());
 
-    private final DisplayImageOptions mUserDisplayBitmapOptions = ImageOptionsFactory.adapterView(R.drawable.no_user_cover);
-    private final DisplayImageOptions mSoundDisplayBitmapOptions = ImageOptionsFactory.adapterView(R.drawable.no_sound_cover);
-
     private final static int TYPE_SEARCH_ITEM = 0;
     private final static int TYPE_TRACK  = 1;
     private final static int TYPE_USER  = 2;
 
     private static final int MAX_LOCAL  = 5;
     private static final int MAX_REMOTE = 5;
+
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     public static final String LOCAL = "_local";
     public static final String HIGHLIGHTS = "_highlights";
@@ -331,9 +328,10 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             boolean isUser = rowType == TYPE_USER;
 
             final String iconUri = cursor.getString(cursor.getColumnIndex(DBHelper.Suggestions.ICON_URL));
-            if (ImageUtils.checkIconShouldLoad(iconUri)){
-                ImageLoader.getInstance().displayImage(ImageSize.formatUriForList(mContext, iconUri),
-                        tag.iv_icon, isUser ? mUserDisplayBitmapOptions : mSoundDisplayBitmapOptions);
+            if (ImageUtils.checkIconShouldLoad(iconUri)) {
+                String imageUrl = ImageSize.formatUriForList(mContext, iconUri);
+                mImageOperations.displayInAdapterView(imageUrl, tag.iv_icon,
+                        isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
             } else {
                 tag.iv_icon.setImageResource(isUser ? R.drawable.no_user_cover : R.drawable.no_sound_cover);
             }

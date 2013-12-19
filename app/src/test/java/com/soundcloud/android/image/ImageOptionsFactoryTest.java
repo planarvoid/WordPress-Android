@@ -1,4 +1,4 @@
-package com.soundcloud.android.utils.images;
+package com.soundcloud.android.image;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;

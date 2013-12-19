@@ -3,7 +3,7 @@ package com.soundcloud.android.model;
 import com.google.common.base.Charsets;
 import com.soundcloud.android.api.http.HttpProperties;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

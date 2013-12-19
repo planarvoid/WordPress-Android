@@ -139,7 +139,7 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
            mCommentLines.setCurrentComment(mCurrentShowingComment);
 
            if (mCommentPanel == null) {
-               mCommentPanel = new CommentPanelLayout(getContext(), true);
+               mCommentPanel = new CommentPanelLayout(getContext(), mImageOperations, true);
                mCommentPanel.setListener(this);
                mCommentPanel.interacted = userTriggered;
                mCurrentCommentPanel = mCommentPanel;
@@ -310,7 +310,7 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
             showCurrentComment(true);
 
             final Comment nextComment = nextCommentAfterTimestamp(mCurrentShowingComment.timestamp);
-            if (nextComment != null) nextComment.prefetchAvatar(getContext());
+            if (nextComment != null) prefetchAvatar(nextComment);
 
             if (nextComment == null || nextComment.timestamp - c.timestamp > MAX_AUTO_COMMENT_DISPLAY_TIME) {
                 mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);

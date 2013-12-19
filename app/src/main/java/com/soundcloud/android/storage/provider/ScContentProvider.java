@@ -11,7 +11,7 @@ import com.soundcloud.android.model.activities.Activity;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;

@@ -1,11 +1,11 @@
 package com.soundcloud.android.playback.views;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImageListener;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,12 +54,13 @@ public class PlayerAvatarBarView extends View {
 
     private Thread mAvatarRefreshThread;
 
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
+
     private @Nullable Bitmap mCanvasBmp;
     private Bitmap mNextCanvasBmp;
 
     private Bitmap mDefaultAvatar;
 
-    private ImageLoader mBitmapLoader;
     private ImageSize mAvatarGraphicsSize;
 
     private Set<ImageView> mAvatarLoadingViews;
@@ -68,8 +69,6 @@ public class PlayerAvatarBarView extends View {
 
     public PlayerAvatarBarView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-
-        mBitmapLoader = ImageLoader.getInstance();
 
         mAvatarGraphicsSize = context.getResources().getDisplayMetrics().density > 1 ?
                 ImageSize.BADGE :
@@ -104,7 +103,7 @@ public class PlayerAvatarBarView extends View {
 
     public void stopAvatarLoading(){
         for (ImageView imageView : mAvatarLoadingViews) {
-            mBitmapLoader.cancelDisplayTask(imageView);
+            mImageOperations.cancel(imageView);
         }
         mAvatarLoadingViews.clear();
     }
@@ -155,24 +154,27 @@ public class PlayerAvatarBarView extends View {
     private void loadAvatar(final Comment c){
         if (c == null || !c.shouldLoadIcon()) return;
 
-        mBitmapLoader.loadImage(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new SimpleImageLoadingListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-                mAvatarLoadingViews.add((ImageView) view);
-            }
+         mImageOperations.load(mAvatarGraphicsSize.formatUri(c.user.avatar_url), new ImageListener() {
+             @Override
+             public void onLoadingStarted(String imageUri, View view) {
+                 mAvatarLoadingViews.add((ImageView) view);
+             }
 
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                mAvatarLoadingViews.remove(view);
-                c.avatar = loadedImage;
-                if (c.topLevelComment) {
-                    if (!mUIHandler.hasMessages(REFRESH_AVATARS)) {
-                        Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
-                        PlayerAvatarBarView.this.mUIHandler.sendMessageDelayed(msg, 100);
-                    }
-                }
-            }
-        });
+             @Override
+             public void onLoadingFailed(String imageUri, View view, String failedReason) {}
+
+             @Override
+             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                 mAvatarLoadingViews.remove(view);
+                 c.avatar = loadedImage;
+                 if (c.topLevelComment) {
+                     if (!mUIHandler.hasMessages(REFRESH_AVATARS)) {
+                         Message msg = mUIHandler.obtainMessage(REFRESH_AVATARS);
+                         PlayerAvatarBarView.this.mUIHandler.sendMessageDelayed(msg, 100);
+                     }
+                 }
+             }
+         });
     }
 
     private void refreshDefaultAvatar() {

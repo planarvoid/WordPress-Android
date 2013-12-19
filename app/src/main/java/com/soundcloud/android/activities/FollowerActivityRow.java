@@ -2,6 +2,7 @@ package com.soundcloud.android.activities;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.ActivityRow;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.User;
 
 import android.content.Context;
@@ -15,8 +16,8 @@ import android.text.style.StyleSpan;
 public class FollowerActivityRow extends ActivityRow {
     public User user;
 
-    public FollowerActivityRow(Context context) {
-        super(context);
+    public FollowerActivityRow(Context context, ImageOperations imageOperations) {
+        super(context, imageOperations);
     }
 
     @Override

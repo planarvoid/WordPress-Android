@@ -4,7 +4,6 @@ import static android.text.TextUtils.isEmpty;
 import static com.soundcloud.android.rx.observers.RxObserverHelper.fireAndForget;
 import static com.soundcloud.android.utils.AndroidUtils.setTextShadowForGrayBg;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -16,6 +15,8 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.Event;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScResource;
@@ -29,8 +30,6 @@ import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
-import com.soundcloud.android.utils.images.ImageOptionsFactory;
-import com.soundcloud.android.utils.images.ImageSize;
 import com.soundcloud.android.view.EmptyListViewFactory;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.api.Endpoints;
@@ -66,6 +65,8 @@ public class ProfileActivity extends ScActivity implements
     public static final String EXTRA_USER = "user";
 
     /* package */ @Nullable User mUser;
+
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     private TextView mUsername, mFullName, mFollowerCount, mFollowerMessage, mTrackCount, mLocation;
     private ToggleButton mToggleFollow;
@@ -122,7 +123,7 @@ public class ProfileActivity extends ScActivity implements
                 if (mUser != null) {
                     final String avatarUrl = mUser.getNonDefaultAvatarUrl();
                     if (!TextUtils.isEmpty(avatarUrl)) {
-                        new FullImageDialog(ProfileActivity.this, ImageSize.T500.formatUri(avatarUrl)).show();
+                        new FullImageDialog(ProfileActivity.this, ImageSize.T500.formatUri(avatarUrl), mImageOperations).show();
                     }
                 }
 
@@ -390,8 +391,9 @@ public class ProfileActivity extends ScActivity implements
 
         if (mCurrentAvatarUrl == null || !mCurrentAvatarUrl.equals(user.getNonDefaultAvatarUrl())){
             mCurrentAvatarUrl = user.getNonDefaultAvatarUrl();
-            ImageLoader.getInstance().displayImage(ImageSize.formatUriForFullDisplay(getResources(), mCurrentAvatarUrl),
-                    mUserImage, ImageOptionsFactory.adapterView(R.drawable.placeholder_cells));
+
+            String imageUrl = ImageSize.formatUriForFullDisplay(getResources(), mCurrentAvatarUrl);
+            mImageOperations.displayInAdapterView(imageUrl, mUserImage, R.drawable.placeholder_cells);
         }
 
         supportInvalidateOptionsMenu();

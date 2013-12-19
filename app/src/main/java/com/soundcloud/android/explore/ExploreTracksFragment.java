@@ -4,12 +4,11 @@ import static rx.android.OperationPaged.Page;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.dagger.DaggerDependencyInjector;
 import com.soundcloud.android.dagger.DependencyInjector;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ExploreGenre;
 import com.soundcloud.android.model.SuggestedTracksCollection;
 import com.soundcloud.android.model.Track;
@@ -51,6 +50,9 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
 
     @Inject
     PlaybackOperations mPlaybackOperations;
+
+    @Inject
+    ImageOperations mImageOperations;
 
     private ConnectableObservable<Page<SuggestedTracksCollection>> mSuggestedTracksObservable;
     private Subscription mSubscription = Subscriptions.empty();
@@ -136,7 +138,7 @@ public class ExploreTracksFragment extends Fragment implements AdapterView.OnIte
         gridView.setEmptyView(mEmptyListView);
 
         // make sure this is called /after/ setAdapter, since the listener requires an EndlessPagingAdapter to be set
-        gridView.setOnScrollListener(new AbsListViewParallaxer(new PauseOnScrollListener(ImageLoader.getInstance(), false, true, mAdapter)));
+        gridView.setOnScrollListener(new AbsListViewParallaxer(mImageOperations.createScrollPauseListener(false, true, mAdapter)));
     }
 
     @Override

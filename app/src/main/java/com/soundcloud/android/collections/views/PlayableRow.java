@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Playable;
@@ -42,13 +43,17 @@ public class PlayableRow extends PlayableBar implements ListRow {
     private final ForegroundColorSpan fcs = new ForegroundColorSpan(getResources().getColor(R.color.scOrange));
 
     public PlayableRow(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-        mReposter = (TextView) findViewById(R.id.playable_reposter);
-        mTrackCount = (TextView) findViewById(R.id.playable_track_count);
+        this(context, attributeSet, ImageOperations.newInstance());
     }
 
-    public PlayableRow(Context context) {
-        this(context, null);
+    public PlayableRow(Context context, ImageOperations imageOperations) {
+        this(context, null, imageOperations);
+    }
+
+    public PlayableRow(Context context, AttributeSet attributeSet, ImageOperations imageOperations) {
+        super(context, attributeSet, imageOperations);
+        mReposter = (TextView) findViewById(R.id.playable_reposter);
+        mTrackCount = (TextView) findViewById(R.id.playable_track_count);
     }
 
     @Override

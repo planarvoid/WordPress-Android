@@ -1,6 +1,7 @@
-package com.soundcloud.android.utils.images;
+package com.soundcloud.android.image;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.content.Context;
 import android.content.res.Resources;

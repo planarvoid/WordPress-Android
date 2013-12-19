@@ -1,17 +1,19 @@
 package com.soundcloud.android.collections.views;
 
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.User;
 
 import android.content.Context;
 import android.util.AttributeSet;
 
 public class PlayerTopBar extends PlayableBar {
-    public PlayerTopBar(Context context) {
-        super(context);
-    }
 
     public PlayerTopBar(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
+        this(context, attributeSet, ImageOperations.newInstance());
+    }
+
+    public PlayerTopBar(Context context, AttributeSet attributeSet, ImageOperations imageOperations) {
+        super(context, attributeSet, imageOperations);
     }
 
     @Override

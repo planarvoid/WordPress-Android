@@ -5,13 +5,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.collections.ListRow;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserAssociation;
 import com.soundcloud.android.model.UserHolder;
-import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.rx.observers.DefaultObserver;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.collections.ListRow;
 import rx.android.concurrency.AndroidSchedulers;
 
 import android.content.Context;
@@ -36,8 +37,8 @@ public class UserlistRow extends IconLayout implements ListRow {
     private FollowingOperations mFollowingOperations;
 
 
-    public UserlistRow(Context context) {
-        super(context);
+    public UserlistRow(Context context, ImageOperations imageOperations) {
+        super(context, imageOperations);
         mFollowingOperations = new FollowingOperations();
         mAccountOperations = new AccountOperations(context);
         mUsername = (TextView) findViewById(R.id.username);

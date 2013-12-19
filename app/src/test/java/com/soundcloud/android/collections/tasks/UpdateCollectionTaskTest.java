@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.PublicCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.UserAdapter;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScResource;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.storage.provider.Content;
@@ -15,6 +16,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Request;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,6 +26,9 @@ import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class UpdateCollectionTaskTest {
+
+    @Mock
+    ImageOperations imageOperations;
 
     @Test
     public void shouldUpdateListAdapterWithNewItemsAfterStaleCheck() throws IOException {
@@ -37,7 +42,7 @@ public class UpdateCollectionTaskTest {
 
         UpdateCollectionTask task = new UpdateCollectionTask(api, "/tracks", new HashSet<Long>());
 
-        UserAdapter adapter = new UserAdapter(Content.USERS.uri);
+        UserAdapter adapter = new UserAdapter(Content.USERS.uri, imageOperations);
         User existingUser = new User(1);
         SoundCloudApplication.sModelManager.cache(existingUser);
         adapter.addItems(Arrays.asList(existingUser));

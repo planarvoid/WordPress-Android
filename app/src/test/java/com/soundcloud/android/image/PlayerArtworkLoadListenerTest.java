@@ -1,12 +1,12 @@
-package com.soundcloud.android.playback.views;
+package com.soundcloud.android.image;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.playback.views.ArtworkTrackView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.utils.ImageLoaderUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,9 +17,9 @@ import android.graphics.Bitmap;
 import android.widget.ImageView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ArtworkLoadListenerTest {
+public class PlayerArtworkLoadListenerTest {
 
-    ArtworkLoadListener artworkLoadListener;
+    PlayerArtworkLoadListener artworkLoadListener;
     @Mock
     ArtworkTrackView playerArtworkTrackView;
     @Mock
@@ -31,7 +31,7 @@ public class ArtworkLoadListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        artworkLoadListener = new ArtworkLoadListener(playerArtworkTrackView, track, imageLoaderUtils);
+        artworkLoadListener = new PlayerArtworkLoadListener(playerArtworkTrackView, track, imageLoaderUtils);
     }
 
     @Test

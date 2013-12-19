@@ -1,10 +1,10 @@
 package com.soundcloud.android.utils.images;
 
 
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.cropimage.CropImageActivity;
+import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
@@ -503,7 +503,7 @@ public final class ImageUtils {
      * view population will actually succeed. This is a workaround for
      * https://github.com/nostra13/Android-Universal-Image-Loader/issues/356
      */
-    public static class ViewlessLoadingListener extends SimpleImageLoadingListener{
+    public abstract static class ViewlessLoadingListener implements ImageListener {
         View hardViewRef;
         @Override
         public void onLoadingStarted(String imageUri, View view) {

@@ -3,11 +3,12 @@ package com.soundcloud.android.associations;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.views.IconLayout;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.Activity;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.DrawableSpan;
 import com.soundcloud.android.collections.ListRow;
@@ -37,8 +38,8 @@ public abstract class ActivityRow extends IconLayout implements ListRow {
     private Drawable mDrawable, mPressedDrawable;
     protected SpannableStringBuilder mSpanBuilder;
 
-    public ActivityRow(Context context) {
-        super(context);
+    public ActivityRow(Context context, ImageOperations imageOperations) {
+        super(context, imageOperations);
 
         mTitle = (TextView) findViewById(R.id.title);
         mUser = (TextView) findViewById(R.id.user);

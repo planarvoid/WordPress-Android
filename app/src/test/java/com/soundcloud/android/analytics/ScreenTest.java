@@ -80,5 +80,4 @@ public class ScreenTest {
     public void shouldThrowIfScreenDoesNotHaveAssociatedUpAction() throws Exception {
         Screen.getUpDestinationFromScreenTag("tour:main");
     }
-
 }

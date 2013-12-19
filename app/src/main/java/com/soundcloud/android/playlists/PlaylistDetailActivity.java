@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.Event;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.views.PlayableInfoAndEngagementsController;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.profile.ProfileActivity;
@@ -12,7 +13,7 @@ import com.soundcloud.android.collections.views.PlayableBar;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Playlist;
 import com.soundcloud.android.model.ScModelManager;
-import com.soundcloud.android.utils.images.ImageSize;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +34,8 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
     private Playlist mPlaylist;
     private PlayableBar mPlaylistBar;
     private PlayableInfoAndEngagementsController mActionButtons;
+
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     private PlaylistTracksFragment mFragment;
 
@@ -125,7 +128,7 @@ public class PlaylistDetailActivity extends ScActivity implements Playlist.OnCha
             public void onClick(View v) {
                 final String artwork = mPlaylist.getArtwork();
                 if (ImageUtils.checkIconShouldLoad(artwork)) {
-                    new FullImageDialog(PlaylistDetailActivity.this, ImageSize.CROP.formatUri(artwork)).show();
+                    new FullImageDialog(PlaylistDetailActivity.this, ImageSize.CROP.formatUri(artwork), mImageOperations).show();
                 }
 
             }

@@ -1,18 +1,15 @@
 package com.soundcloud.android.main;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.main.NavigationFragment.NavItem;
+import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -24,11 +21,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.main.NavigationFragment.NavItem;
-import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 @RunWith(SoundCloudTestRunner.class)
 public class NavigationFragmentTest {
@@ -49,6 +51,8 @@ public class NavigationFragmentTest {
     LayoutInflater layoutInflater;
     @Mock
     ListView listView;
+    @Mock
+    ImageOperations imageOperations;
 
     @Before
     public void setUp() throws Exception {

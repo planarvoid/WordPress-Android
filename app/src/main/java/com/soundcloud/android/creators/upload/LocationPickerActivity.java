@@ -2,11 +2,11 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.creators.upload.tasks.FoursquareVenueTask;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.utils.Capitalizer;
 
 import android.app.AlertDialog;
@@ -58,6 +58,8 @@ public class LocationPickerActivity extends ListActivity {
     private static final long MIN_TIME = 5 * 1000; // request updates every 5sec
 
     private static final int LOADING = 0;
+
+    private ImageOperations mImageOperations = ImageOperations.newInstance();
 
     private String mProvider;
     private Location mLocation;
@@ -246,7 +248,7 @@ public class LocationPickerActivity extends ListActivity {
             FoursquareVenue venue = getItem(position);
             URI categoryIconUri = venue.getHttpIcon(); // Android has problems with HTTPS
             if (categoryIconUri != null) {
-                ImageLoader.getInstance().displayImage(categoryIconUri.toString(), image);
+                mImageOperations.display(categoryIconUri.toString(), image);
             }
             name.setText(venue.name);
             return view;

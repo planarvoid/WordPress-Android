@@ -1,9 +1,9 @@
-package com.soundcloud.android.playback.views;
+package com.soundcloud.android.image;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.utils.ImageLoaderUtils;
+import com.soundcloud.android.playback.views.ArtworkTrackView;
 
 import android.graphics.Bitmap;
 import android.view.View;
@@ -11,17 +11,17 @@ import android.view.View;
 import java.lang.ref.WeakReference;
 
 @VisibleForTesting
-class ArtworkLoadListener extends SimpleImageLoadingListener {
+public class PlayerArtworkLoadListener extends SimpleImageLoadingListener implements ImageListener {
 
     private final ImageLoaderUtils mImageLoaderUtils;
     private WeakReference<ArtworkTrackView> mTrackViewRef;
     private Track mTrack;
 
-    ArtworkLoadListener(ArtworkTrackView trackView, Track track) {
+    public PlayerArtworkLoadListener(ArtworkTrackView trackView, Track track) {
         this(trackView, track, new ImageLoaderUtils(trackView.getContext()));
     }
 
-    ArtworkLoadListener(ArtworkTrackView trackView, Track track, ImageLoaderUtils imageLoaderUtils) {
+    PlayerArtworkLoadListener(ArtworkTrackView trackView, Track track, ImageLoaderUtils imageLoaderUtils) {
         mTrackViewRef = new WeakReference<ArtworkTrackView>(trackView);
         mTrack = track;
         mImageLoaderUtils = imageLoaderUtils;
@@ -37,6 +37,9 @@ class ArtworkLoadListener extends SimpleImageLoadingListener {
             }
         }
     }
+
+    @Override
+    public void onLoadingFailed(String s, View view, String failedReason) {}
 
     @Override
     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {

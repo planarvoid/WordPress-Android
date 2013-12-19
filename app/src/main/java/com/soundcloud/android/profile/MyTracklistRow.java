@@ -1,10 +1,10 @@
 
 package com.soundcloud.android.profile;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.collections.views.PlayableRow;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.images.ImageUtils;
 
@@ -24,14 +24,11 @@ public class MyTracklistRow extends PlayableRow {
     private Drawable mVeryPrivateBgDrawable;
     private final int mTargetIconDimension;
 
-    private ImageLoader mImageLoader;
-
     private Recording mRecording;
 
-    public MyTracklistRow(Context activity) {
-        super(activity);
+    public MyTracklistRow(Context activity, ImageOperations imageOperations) {
+        super(activity, imageOperations);
         mTargetIconDimension = (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE);
-        mImageLoader = ImageLoader.getInstance();
     }
 
     @Override
@@ -114,10 +111,10 @@ public class MyTracklistRow extends PlayableRow {
 
     protected void loadIcon(Recording recording) {
         if (recording.artwork_path == null) {
-            mImageLoader.cancelDisplayTask(mIcon);
+            mImageOperations.cancel(mIcon);
             mIcon.setImageDrawable(null);
         } else {
-            mImageLoader.displayImage("file://"+ recording.artwork_path.getAbsolutePath(),mIcon);
+            mImageOperations.display("file://" + recording.artwork_path.getAbsolutePath(), mIcon);
         }
     }
 
