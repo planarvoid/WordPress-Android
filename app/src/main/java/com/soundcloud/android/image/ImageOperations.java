@@ -24,7 +24,7 @@ public class ImageOperations {
     }
 
     @Inject
-    public ImageOperations(ImageLoader imageLoader) {
+    ImageOperations(ImageLoader imageLoader) {
         mImageLoader = imageLoader;
     }
 

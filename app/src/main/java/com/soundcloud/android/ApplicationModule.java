@@ -1,6 +1,5 @@
 package com.soundcloud.android;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.ScModelManager;
@@ -71,6 +70,6 @@ public class ApplicationModule {
 
     @Provides
     public ImageOperations provideImageOperations() {
-        return new ImageOperations(ImageLoader.getInstance());
+        return ImageOperations.newInstance();
     }
 }
