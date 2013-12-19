@@ -76,4 +76,8 @@ public class ScreenTest {
         Screen.fromScreenTag("you:something");
     }
 
+    @Test(expected = Screen.NoUpDestinationException.class)
+    public void shouldThrowIfScreenDoesNotHaveAssociatedUpAction() throws Exception {
+        Screen.getUpDestinationFromScreenTag("tour:main");
+    }
 }

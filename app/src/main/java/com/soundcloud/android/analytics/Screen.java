@@ -1,11 +1,13 @@
 package com.soundcloud.android.analytics;
 
+import com.google.common.collect.Maps;
 import com.soundcloud.android.Actions;
 
 import android.content.Intent;
 import android.os.Bundle;
 
 import java.util.Locale;
+import java.util.Map;
 
 public enum Screen {
 
@@ -17,8 +19,8 @@ public enum Screen {
     AUTH_USER_DETAILS("auth:user_details"),
 
     // core screens
-    SIDE_MENU_STREAM("stream:main"),
-    SIDE_MENU_LIKES("collection:likes"),
+    SIDE_MENU_STREAM("stream:main", Actions.STREAM),
+    SIDE_MENU_LIKES("collection:likes", Actions.LIKES),
     SIDE_MENU_PLAYLISTS("collection:playlists"),
 
     // onboarding
@@ -27,10 +29,10 @@ public enum Screen {
     ONBOARDING_FACEBOOK("onboarding:facebook"),
 
     // your own profile
-    YOUR_POSTS("you:posts"),
+    YOUR_POSTS("you:posts", Actions.YOUR_SOUNDS),
     YOUR_INFO("you:info"),
     YOUR_PLAYLISTS("you:playlists"),
-    YOUR_LIKES("you:likes"),
+    YOUR_LIKES("you:likes", Actions.YOUR_LIKES),
     YOUR_FOLLOWINGS("you:followings"),
     YOUR_FOLLOWERS("you:followers"),
 
@@ -91,8 +93,21 @@ public enum Screen {
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
     private static final String EXPLORE_PREFIX = "explore";
 
-    private Screen(String trackingTag) {
+    private static final Map<String, Screen> SCREEN_TAG_MAP = Maps.newHashMap();
+
+    static {
+        for (Screen screen : Screen.values()) {
+            SCREEN_TAG_MAP.put(screen.get(), screen);
+        }
+    }
+
+    private Screen(String trackingTag, String upAction) {
         mTag = trackingTag;
+        mUpAction = upAction;
+    }
+
+    private Screen(String trackingTag) {
+        this(trackingTag, null);
     }
 
     public String get() {
@@ -103,54 +118,49 @@ public enum Screen {
         return new StringBuilder(mTag).append(":").append(postfix.toLowerCase(Locale.US).replaceAll(" ", "_")).toString();
     }
 
-    public void addToBundle(Bundle bundle){
+    public void addToBundle(Bundle bundle) {
         bundle.putInt(Screen.ORDINAL_EXTRA, ordinal());
     }
 
-    public void addToIntent(Intent intent){
+    public void addToIntent(Intent intent) {
         intent.putExtra(Screen.ORDINAL_EXTRA, ordinal());
     }
 
-    private String mTag;
+    private String getUpAction() throws NoUpDestinationException {
+        if (mUpAction == null) {
+            throw new NoUpDestinationException(mTag);
+        }
+        return mUpAction;
+    }
 
-    public static Screen fromIntent(Intent intent){
+    private String mTag;
+    private String mUpAction;
+
+    public static Screen fromIntent(Intent intent) {
         return values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)];
     }
 
-    public static Screen fromIntent(Intent intent, Screen defaultScreen){
+    public static Screen fromIntent(Intent intent, Screen defaultScreen) {
         return intent.hasExtra(Screen.ORDINAL_EXTRA) ? values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)] : defaultScreen;
     }
 
-    public static Screen fromBundle(Bundle bundle){
+    public static Screen fromBundle(Bundle bundle) {
         return values()[bundle.getInt(Screen.ORDINAL_EXTRA, -1)];
     }
 
     public static Screen fromScreenTag(String screenTag) {
-        for (Screen screen : Screen.values()) {
-            if (screenTag.equals(screen.get())) {
-                return screen;
-            }
+        if (SCREEN_TAG_MAP.containsKey(screenTag)) {
+            return SCREEN_TAG_MAP.get(screenTag);
         }
         throw new IllegalArgumentException("Unrecognized screenTag: " + screenTag);
     }
 
     public static Intent getUpDestinationFromScreenTag(String screenTag) throws NoUpDestinationException {
-        Intent upIntent;
         if (screenTag.startsWith(EXPLORE_PREFIX)) {
-            upIntent = new Intent(Actions.EXPLORE);
-        } else if (screenTag.equals(SIDE_MENU_STREAM.get())) {
-            upIntent = new Intent(Actions.STREAM);
-        } else if (screenTag.equals(YOUR_POSTS.get())) {
-            upIntent = new Intent(Actions.YOUR_SOUNDS);
-        } else if (screenTag.equals(YOUR_LIKES.get())) {
-            upIntent = new Intent(Actions.YOUR_LIKES);
-        } else if (screenTag.equals(SIDE_MENU_LIKES.get())) {
-            upIntent = new Intent(Actions.LIKES);
+            return new Intent(Actions.EXPLORE).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         } else {
-            throw new NoUpDestinationException(screenTag);
+            return new Intent(fromScreenTag(screenTag).getUpAction()).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         }
-        upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return upIntent;
     }
 
     public static class NoUpDestinationException extends Exception {
