@@ -45,15 +45,17 @@ public class CommentPanelLayout extends RelativeLayout {
 
     private CommentPanelListener mListener;
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private ImageOperations mImageOperations;
 
     public interface CommentPanelListener {
         void onNextCommentInThread();
         void onCloseComment();
     }
 
-    public CommentPanelLayout(Context context, boolean isLandscape) {
+    public CommentPanelLayout(Context context, ImageOperations imageOperations, boolean isLandscape) {
         super(context);
+
+        mImageOperations = imageOperations;
 
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.comment_panel, this);

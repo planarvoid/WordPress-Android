@@ -139,7 +139,7 @@ public class WaveformControllerLayoutLand extends WaveformControllerLayout {
            mCommentLines.setCurrentComment(mCurrentShowingComment);
 
            if (mCommentPanel == null) {
-               mCommentPanel = new CommentPanelLayout(getContext(), true);
+               mCommentPanel = new CommentPanelLayout(getContext(), mImageOperations, true);
                mCommentPanel.setListener(this);
                mCommentPanel.interacted = userTriggered;
                mCurrentCommentPanel = mCommentPanel;

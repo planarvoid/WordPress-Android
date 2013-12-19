@@ -21,13 +21,14 @@ import java.util.List;
 
 public class SuggestedUsersAdapter extends BaseAdapter {
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private ImageOperations mImageOperations;
 
     private final List<SuggestedUser> mSuggestedUsers;
     private GridSpacer mGridSpacer;
 
-    public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers) {
+    public SuggestedUsersAdapter(List<SuggestedUser> suggestedUsers, ImageOperations imageOperations) {
         mSuggestedUsers = suggestedUsers;
+        mImageOperations = imageOperations;
         mGridSpacer = new GridSpacer();
     }
 

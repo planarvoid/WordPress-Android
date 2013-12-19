@@ -41,7 +41,7 @@ import java.util.List;
 public class WaveformControllerLayout extends TouchLayout implements CommentPanelLayout.CommentPanelListener {
     private static final String TAG = WaveformControllerLayout.class.getSimpleName();
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    protected ImageOperations mImageOperations = ImageOperations.newInstance();
 
     protected static final long CLOSE_COMMENT_DELAY = 5000;
     private static final int OVERLAY_BG_COLOR = Color.WHITE;
@@ -492,7 +492,7 @@ public class WaveformControllerLayout extends TouchLayout implements CommentPane
             mPlayerAvatarBar.setCurrentComment(mCurrentShowingComment);
             mCommentLines.setCurrentComment(mCurrentShowingComment);
 
-            CommentPanelLayout commentPanel = new CommentPanelLayout(getContext(), false);
+            CommentPanelLayout commentPanel = new CommentPanelLayout(getContext(), mImageOperations, false);
             commentPanel.setListener(this);
             commentPanel.showComment(mCurrentShowingComment);
             commentPanel.interacted = userTriggered;
