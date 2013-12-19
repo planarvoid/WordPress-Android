@@ -37,7 +37,7 @@
 
     <TextView android:id="@+id/playable_created_at"
               style="@style/TextAppearance.List.CreatedAt"
-              android:layout_width="53dp"
+              android:layout_width="60dp"
               android:layout_height="wrap_content"
               android:layout_alignTop="@id/icon"
               android:gravity="right"
