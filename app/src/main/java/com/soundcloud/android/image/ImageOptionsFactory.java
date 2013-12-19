@@ -79,7 +79,7 @@ class ImageOptionsFactory {
 
     @VisibleForTesting
     static class PlayerBitmapDisplayer implements BitmapDisplayer {
-        View mParentView;
+        private View mParentView;
 
         PlayerBitmapDisplayer(View parentView) {
             mParentView = parentView;
