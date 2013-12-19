@@ -2,6 +2,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.creators.record.RecordActivity;
@@ -35,14 +36,16 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
     private PlaybackOperations mPlaybackOperations;
+    private ImageOperations mImageOperations;
 
-    public MyTracksAdapter(ScActivity activity) {
+    public MyTracksAdapter(ScActivity activity, ImageOperations imageOperations) {
         super(Content.ME_SOUNDS.uri);
         ContentResolver contentResolver = activity.getApplicationContext().getContentResolver();
         refreshCursor(contentResolver);
 
         mPlaybackOperations = new PlaybackOperations();
         mChangeObserver = new ChangeObserver(activity);
+        mImageOperations = imageOperations;
         contentResolver.registerContentObserver(Content.RECORDINGS.uri, true, mChangeObserver);
     }
 
@@ -62,7 +65,7 @@ public class MyTracksAdapter extends ScBaseAdapter<ScResource> {
     @Override
     protected IconLayout createRow(Context context, int position) {
         return getItemViewType(position) == TYPE_PENDING_RECORDING ?
-                new MyTracklistRow(context) : new PlayableRow(context);
+                new MyTracklistRow(context, mImageOperations) : new PlayableRow(context, mImageOperations);
     }
 
     @Override

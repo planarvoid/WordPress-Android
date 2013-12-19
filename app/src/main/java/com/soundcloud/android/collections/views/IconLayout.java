@@ -18,17 +18,21 @@ import android.widget.ImageView;
 public abstract class IconLayout extends FrameLayout {
 
     protected ImageView mIcon;
+    protected ImageOperations mImageOperations;
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
-
-    public IconLayout(Context context) {
-        this(context,null);
+    public IconLayout(Context context, AttributeSet attributeSet) {
+        this(context, attributeSet, ImageOperations.newInstance());
     }
 
-    public IconLayout(Context context, @Nullable AttributeSet attributeSet) {
+    public IconLayout(Context context, ImageOperations imageOperations) {
+        this(context, null, imageOperations);
+    }
+
+    public IconLayout(Context context, @Nullable AttributeSet attributeSet, ImageOperations imageOperations) {
         super(context, attributeSet);
         addContent(attributeSet);
         mIcon = (ImageView) findViewById(R.id.icon);
+        mImageOperations = imageOperations;
     }
 
     public long getCurrentUserId() {

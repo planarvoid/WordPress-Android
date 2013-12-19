@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.ScResource;
@@ -20,10 +21,12 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
     private static final int TYPE_TRACK = 0;
     private static final int TYPE_USER = 1;
     private PlaybackOperations mPlaybackOperations;
+    private ImageOperations mImageOperations;
 
-    public SearchAdapter(Uri uri) {
+    public SearchAdapter(Uri uri, ImageOperations imageOperations) {
         super(uri);
         mPlaybackOperations = new PlaybackOperations();
+        mImageOperations = imageOperations;
     }
 
     @Override
@@ -54,9 +57,9 @@ public class SearchAdapter extends ScBaseAdapter<ScResource> {
         int type = getItemViewType(position);
         switch (type) {
             case TYPE_TRACK:
-                return new PlayableRow(context);
+                return new PlayableRow(context, mImageOperations);
             case TYPE_USER:
-                return new UserlistRow(context);
+                return new UserlistRow(context, mImageOperations);
             default:
                 throw new IllegalArgumentException("no view for playlists yet");
         }

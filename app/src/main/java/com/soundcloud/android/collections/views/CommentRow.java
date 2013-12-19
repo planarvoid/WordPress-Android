@@ -1,6 +1,7 @@
 package com.soundcloud.android.collections.views;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -19,8 +20,8 @@ public class CommentRow extends IconLayout implements ListRow {
     private final TextView mCreatedAt;
     private Comment mComment;
 
-    public CommentRow(Context context) {
-        super(context);
+    public CommentRow(Context context, ImageOperations imageOperations) {
+        super(context, imageOperations);
 
         mTitle = (TextView) findViewById(R.id.title);
         mUser = (TextView) findViewById(R.id.user);

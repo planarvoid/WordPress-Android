@@ -26,10 +26,8 @@ public class MyTracklistRow extends PlayableRow {
 
     private Recording mRecording;
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
-
-    public MyTracklistRow(Context activity) {
-        super(activity);
+    public MyTracklistRow(Context activity, ImageOperations imageOperations) {
+        super(activity, imageOperations);
         mTargetIconDimension = (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE);
     }
 

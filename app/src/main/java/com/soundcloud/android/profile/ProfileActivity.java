@@ -123,7 +123,7 @@ public class ProfileActivity extends ScActivity implements
                 if (mUser != null) {
                     final String avatarUrl = mUser.getNonDefaultAvatarUrl();
                     if (!TextUtils.isEmpty(avatarUrl)) {
-                        new FullImageDialog(ProfileActivity.this, ImageSize.T500.formatUri(avatarUrl)).show();
+                        new FullImageDialog(ProfileActivity.this, ImageSize.T500.formatUri(avatarUrl), mImageOperations).show();
                     }
                 }
 

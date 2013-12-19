@@ -4,10 +4,11 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.ActivityRow;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageSize;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.activities.CommentActivity;
-import com.soundcloud.android.image.ImageSize;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -22,8 +23,8 @@ import java.util.Date;
 public class CommentActivityRow extends ActivityRow {
     private Comment mComment;
 
-    public CommentActivityRow(Context context) {
-        super(context);
+    public CommentActivityRow(Context context, ImageOperations imageOperations) {
+        super(context, imageOperations);
     }
 
     @Override

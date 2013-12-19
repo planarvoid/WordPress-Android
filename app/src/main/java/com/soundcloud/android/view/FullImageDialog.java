@@ -21,10 +21,12 @@ public class FullImageDialog extends Dialog {
     private WeakReference<Activity> mActivityRef;
     private Handler mHandler = new Handler();
 
-    private ImageOperations mImageOperations = ImageOperations.newInstance();
+    private ImageOperations mImageOperations;
 
-    public FullImageDialog(Activity context, final String imageUri) {
+    public FullImageDialog(Activity context, final String imageUri, ImageOperations imageOperations) {
         super(context, R.style.Theme_FullImageDialog);
+
+        mImageOperations = imageOperations;
 
         setCancelable(true);
         setCanceledOnTouchOutside(true);

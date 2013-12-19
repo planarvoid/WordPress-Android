@@ -323,7 +323,7 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
             switch (mContent) {
                 case ME_SOUND_STREAM:
                 case ME_ACTIVITIES:
-                    mAdapter = new ActivitiesAdapter(mContentUri);
+                    mAdapter = new ActivitiesAdapter(mContentUri, mImageOperations);
                     break;
                 case USER_FOLLOWINGS:
                 case USER_FOLLOWERS:
@@ -332,33 +332,33 @@ public class ScListFragment extends ListFragment implements PullToRefreshBase.On
                 case PLAYLIST_LIKERS:
                 case PLAYLIST_REPOSTERS:
                 case SUGGESTED_USERS:
-                    mAdapter = new UserAdapter(mContentUri);
+                    mAdapter = new UserAdapter(mContentUri, mImageOperations);
                     break;
                 case ME_FOLLOWERS:
                 case ME_FOLLOWINGS:
-                    mAdapter = new UserAssociationAdapter(mContentUri);
+                    mAdapter = new UserAssociationAdapter(mContentUri, mImageOperations);
                     break;
                 case ME_FRIENDS:
-                    mAdapter = new FriendAdapter(mContentUri);
+                    mAdapter = new FriendAdapter(mContentUri, mImageOperations);
                     break;
                 case ME_SOUNDS:
-                    mAdapter = new MyTracksAdapter(getScActivity());
+                    mAdapter = new MyTracksAdapter(getScActivity(), mImageOperations);
                     break;
                 case ME_LIKES:
                 case USER_LIKES:
                 case USER_SOUNDS:
-                    mAdapter = new SoundAssociationAdapter(mContentUri);
+                    mAdapter = new SoundAssociationAdapter(mContentUri, mImageOperations);
                     break;
                 case SEARCH:
-                    mAdapter = new SearchAdapter(Content.SEARCH.uri);
+                    mAdapter = new SearchAdapter(Content.SEARCH.uri, mImageOperations);
                     break;
                 case TRACK_COMMENTS:
-                    mAdapter = new CommentAdapter(mContentUri);
+                    mAdapter = new CommentAdapter(mContentUri, mImageOperations);
                     break;
                 case ME_PLAYLISTS:
                 case USER_PLAYLISTS:
                 default:
-                    mAdapter = new DefaultPlayableAdapter(mContentUri);
+                    mAdapter = new DefaultPlayableAdapter(mContentUri, mImageOperations);
             }
             setListAdapter(mAdapter);
             configureEmptyView();

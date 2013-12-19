@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.associations.ActivityRow;
+import com.soundcloud.android.image.ImageOperations;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -15,8 +16,8 @@ import android.text.style.StyleSpan;
 
 public class AffiliationActivityRow extends ActivityRow {
 
-    public AffiliationActivityRow(Context context) {
-        super(context);
+    public AffiliationActivityRow(Context context, ImageOperations imageOperations) {
+        super(context, imageOperations);
     }
 
     @Override

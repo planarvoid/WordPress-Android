@@ -5,6 +5,7 @@ import static com.soundcloud.android.utils.ScTextUtils.getTimeElapsed;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.activities.TrackRepostActivity;
@@ -36,12 +37,16 @@ public class PlayableBar extends IconLayout {
     protected @CheckForNull StatsView mStatsView;
     protected @CheckForNull TextView mPrivateIndicator;
 
-    public PlayableBar(Context context) {
-        this(context, null);
+    public PlayableBar(Context context, AttributeSet attributeSet) {
+        this(context, attributeSet, ImageOperations.newInstance());
     }
 
-    public PlayableBar(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
+    public PlayableBar(Context context, ImageOperations imageOperations) {
+        this(context, null, imageOperations);
+    }
+
+    public PlayableBar(Context context, AttributeSet attributeSet, ImageOperations imageOperations) {
+        super(context, attributeSet, imageOperations);
         mTitle = (TextView) findViewById(R.id.playable_title);
         mUser = (TextView) findViewById(R.id.playable_user);
         mCreatedAt = (TextView) findViewById(R.id.playable_created_at);

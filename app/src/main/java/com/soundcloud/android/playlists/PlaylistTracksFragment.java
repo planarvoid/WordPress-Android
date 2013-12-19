@@ -82,7 +82,7 @@ public class PlaylistTracksFragment extends Fragment implements AdapterView.OnIt
             getActivity().finish();
         } else {
             mSyncStateManager = new SyncStateManager(getActivity());
-            mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext());
+            mAdapter = new PlaylistTracksAdapter(getActivity().getApplicationContext(), mImageOperations);
             getLoaderManager().initLoader(TRACK_LIST_LOADER, null, this);
             mDetachableReceiver.setReceiver(this);
         }
