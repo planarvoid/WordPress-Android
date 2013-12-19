@@ -71,6 +71,21 @@ public class PlayerTrackPagerAdapterTest {
     }
 
     @Test
+    public void shouldNotSetPlayQueueIfEqual() throws Exception {
+        final PlayQueueView playQueue1 = new PlayQueueView(1L);
+        expect(adapter.setPlayQueueIfChanged(playQueue1)).toBeTrue();
+        expect(adapter.setPlayQueueIfChanged(new PlayQueueView(1L))).toBeFalse();
+    }
+
+    @Test
+    public void shouldSetPlayQueueIfNotEqual() throws Exception {
+        final PlayQueueView playQueue1 = new PlayQueueView(1L);
+        expect(adapter.setPlayQueueIfChanged(playQueue1)).toBeTrue();
+        expect(adapter.setPlayQueueIfChanged(new PlayQueueView(2L))).toBeTrue();
+        expect(adapter.getItem(0)).toBe(2L);
+    }
+
+    @Test
     public void shouldCreateNewPlayerTrackViewFromPlayQueueItem() {
         final Observable<Track> trackObservable = Observable.just(new Track());
         when(playbackOperations.loadTrack(123L)).thenReturn(trackObservable);
