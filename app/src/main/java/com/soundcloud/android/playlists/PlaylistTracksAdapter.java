@@ -15,6 +15,7 @@ public class PlaylistTracksAdapter extends CursorAdapter {
 
     public PlaylistTracksAdapter(Context context, ImageOperations imageOperations) {
         this(context, null, false);
+        mImageOperations = imageOperations;
     }
 
     public PlaylistTracksAdapter(Context context, Cursor c, boolean autoRequery) {
