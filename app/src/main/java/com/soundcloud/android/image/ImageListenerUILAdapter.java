@@ -15,22 +15,22 @@ public class ImageListenerUILAdapter implements ImageLoadingListener {
     }
 
     @Override
-    public void onLoadingStarted(String s, View view) {
-        mImageListener.onLoadingStarted(s, view);
+    public void onLoadingStarted(String imageUri, View view) {
+        mImageListener.onLoadingStarted(imageUri, view);
     }
 
     @Override
-    public void onLoadingFailed(String s, View view, FailReason failReason) {
-        mImageListener.onLoadingFailed(s, view, failReason.getCause().getMessage());
+    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+        mImageListener.onLoadingFailed(imageUri, view, failReason.getCause().getMessage());
     }
 
     @Override
-    public void onLoadingComplete(String s, View view, Bitmap bitmap) {
-        mImageListener.onLoadingComplete(s, view, bitmap);
+    public void onLoadingComplete(String imageUri, View view, Bitmap bitmap) {
+        mImageListener.onLoadingComplete(imageUri, view, bitmap);
     }
 
     @Override
-    public void onLoadingCancelled(String s, View view) {
+    public void onLoadingCancelled(String imageUri, View view) {
         // No implementation
     }
 }

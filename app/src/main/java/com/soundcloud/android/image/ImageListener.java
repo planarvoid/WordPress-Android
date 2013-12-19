@@ -5,6 +5,6 @@ import android.view.View;
 
 public interface ImageListener {
     public void onLoadingStarted(String imageUri, View view);
-    public void onLoadingFailed(String s, View view, String failedReason);
+    public void onLoadingFailed(String imageUri, View view, String failedReason);
     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage);
 }
