@@ -12,6 +12,139 @@
     <packaging>apk</packaging>
     <name>SoundCloud for Android</name>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${basedir}/properties/app_properties_${build.type}.xml"
+                                      tofile="${basedir}/res/values/app_properties.xml"
+                                      overwrite="true"
+                                      failOnError="true"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <artifactId>android-maven-plugin</artifactId>
+
+                <configuration>
+                    <target>all</target>
+                    <clearNativeArtifacts>false</clearNativeArtifacts>
+                    <useHeaderArchives>false</useHeaderArchives>
+                    <ndkBuildAdditionalCommandline>NDK_TOOLCHAIN=""</ndkBuildAdditionalCommandline>
+                    <proguard>
+                        <skip>${build.proguard.skip}</skip>
+                    </proguard>
+                    <lint>
+                        <config>app/lint.xml</config>
+                    </lint>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>update-manifest</id>
+                        <goals>
+                            <goal>manifest-update</goal>
+                        </goals>
+                        <configuration>
+                            <manifest>
+                                <debuggable>${build.debuggable}</debuggable>
+                            </manifest>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>lint</id>
+                        <goals>
+                            <goal>lint</goal>
+                        </goals>
+                        <phase>install</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.4.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>lib</directory>
+                        </fileset>
+
+                        <fileset>
+                            <directory>libs</directory>
+                        </fileset>
+
+                        <fileset>
+                            <directory>obj</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${build.skipAspectWeaving}</skip>
+                    <showWeaveInfo>true</showWeaveInfo>
+                    <verbose>true</verbose>
+                    <argumentFileName>aspectj_output.log</argumentFileName>
+                    <source>${source.version}</source>
+                    <complianceLevel>${source.version}</complianceLevel>
+                    <target>${source.version}</target>
+                    <privateScope>true</privateScope>
+                    <includes>
+                        <!-- For Activities which need to be weaved -->
+                        <include>com/soundcloud/android/**/*Activity.java</include>
+                        <include>com/soundcloud/android/cropimage/**/*Activity.java</include>
+                        <include>aspect/*.aj</include>
+                    </includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.crashlytics</groupId>
+                <artifactId>crashlytics-maven</artifactId>
+                <version>1.0.3</version>
+                <executions>
+                    <execution>
+                        <id>GenerateResources</id>
+                        <goals>
+                            <goal>GenerateResources</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>CleanupResources</id>
+                        <goals>
+                            <goal>CleanupResources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
     <dependencies>
         <!-- Android dependencies, don't change the order! -->
         <dependency>
@@ -298,139 +431,6 @@
         </dependency>
 
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <copy file="${basedir}/properties/app_properties_${build.type}.xml"
-                                      tofile="${basedir}/res/values/app_properties.xml"
-                                      overwrite="true"
-                                      failOnError="true"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-                <artifactId>android-maven-plugin</artifactId>
-
-                <configuration>
-                    <target>all</target>
-                    <clearNativeArtifacts>false</clearNativeArtifacts>
-                    <useHeaderArchives>false</useHeaderArchives>
-                    <ndkBuildAdditionalCommandline>NDK_TOOLCHAIN=""</ndkBuildAdditionalCommandline>
-                    <proguard>
-                        <skip>${build.proguard.skip}</skip>
-                    </proguard>
-                    <lint>
-                        <config>app/lint.xml</config>
-                    </lint>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>update-manifest</id>
-                        <goals>
-                            <goal>manifest-update</goal>
-                        </goals>
-                        <configuration>
-                            <manifest>
-                                <debuggable>${build.debuggable}</debuggable>
-                            </manifest>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>lint</id>
-                        <goals>
-                            <goal>lint</goal>
-                        </goals>
-                        <phase>install</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.4.1</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>lib</directory>
-                        </fileset>
-
-                        <fileset>
-                            <directory>libs</directory>
-                        </fileset>
-
-                        <fileset>
-                            <directory>obj</directory>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skip>${build.skipAspectWeaving}</skip>
-                    <showWeaveInfo>true</showWeaveInfo>
-                    <verbose>true</verbose>
-                    <argumentFileName>aspectj_output.log</argumentFileName>
-                    <source>${source.version}</source>
-                    <complianceLevel>${source.version}</complianceLevel>
-                    <target>${source.version}</target>
-                    <privateScope>true</privateScope>
-                    <includes>
-                        <!-- For Activities which need to be weaved -->
-                        <include>com/soundcloud/android/**/*Activity.java</include>
-                        <include>com/soundcloud/android/cropimage/**/*Activity.java</include>
-                        <include>aspect/*.aj</include>
-                    </includes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.crashlytics</groupId>
-                <artifactId>crashlytics-maven</artifactId>
-                <version>1.0.3</version>
-                <executions>
-                    <execution>
-                        <id>GenerateResources</id>
-                        <goals>
-                            <goal>GenerateResources</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>CleanupResources</id>
-                        <goals>
-                            <goal>CleanupResources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-    </build>
 
     <profiles>
             <profile>
