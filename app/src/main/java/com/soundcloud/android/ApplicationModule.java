@@ -70,12 +70,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    public ImageLoader provideImageLoader() {
-        return ImageLoader.getInstance();
-    }
-
-    @Provides
-    public ImageOperations provideImageOperations(ImageLoader imageLoader) {
-        return new ImageOperations(imageLoader);
+    public ImageOperations provideImageOperations() {
+        return new ImageOperations(ImageLoader.getInstance());
     }
 }
