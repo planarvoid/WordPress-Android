@@ -17,6 +17,9 @@ import android.widget.ImageView;
 
 class ImageOptionsFactory {
 
+    private final static int DELAY_BEFORE_LOADING_HIGH_PRIORITY = 0;
+    private final static int DELAY_BEFORE_LOADING_LOW_PRIORITY = 200;
+
     public static DisplayImageOptions adapterView(int defaultIconResId){
         return fullCacheBuilder()
                 .resetViewBeforeLoading(true)
@@ -63,7 +66,7 @@ class ImageOptionsFactory {
 
     public static DisplayImageOptions player(View parentView, boolean priority) {
         return fullCacheBuilder()
-                .delayBeforeLoading(priority ? 0 : 200)
+                .delayBeforeLoading(priority ? DELAY_BEFORE_LOADING_HIGH_PRIORITY : DELAY_BEFORE_LOADING_LOW_PRIORITY)
                 .displayer(new PlayerBitmapDisplayer(parentView))
                 .build();
     }
@@ -174,8 +177,4 @@ class ImageOptionsFactory {
             imageView.setImageDrawable(tDrawable);
         }
     }
-
-
-
-
 }

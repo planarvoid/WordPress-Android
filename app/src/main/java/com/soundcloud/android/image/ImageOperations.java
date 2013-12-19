@@ -15,7 +15,7 @@ import javax.inject.Inject;
 
 public class ImageOperations {
 
-    private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1000 * 1000; // available mem in bytes
+    private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // available mem in bytes
 
     private ImageLoader mImageLoader;
 
