@@ -94,6 +94,8 @@ public abstract class ScActivity extends ActionBarActivity implements ActionBarC
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        // XXX : This is false in some situations where we seem to actually be changing configurations
+        // (hit the power off button on a genymotion emulator while in landscape). This is not conclusive yet. Investigating further
         outState.putBoolean(BUNDLE_CONFIGURATION_CHANGE, getChangingConfigurations() != 0);
     }
 

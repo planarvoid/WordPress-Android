@@ -28,6 +28,7 @@ import com.soundcloud.android.playback.views.TransportBarView;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -68,6 +69,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
     private int mPendingPlayPosition = -1;
     private PlayerTrackPagerAdapter mTrackPagerAdapter;
     private PlaybackOperations mPlaybackOperations;
+    private boolean mIsFirstLoad;
 
 
     @NotNull
@@ -110,6 +112,8 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
             mTrackDetailsView = (PlayerTrackDetailsLayout) mPlayerInfoLayout.findViewById(R.id.player_track_details);
             mPlayableInfoAndEngagementsController = new PlayableInfoAndEngagementsController(mPlayerInfoLayout, this);
         }
+
+        mIsFirstLoad = bundle == null;
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -348,7 +352,12 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
         f.addAction(Comment.ACTION_CREATE_COMMENT);
         registerReceiver(mStatusListener, new IntentFilter(f));
 
-        mPlayQueue = getInitialPlayQueue(!isConfigurationChange());
+        /**
+         * NOTE : Do not change this to use any form of {@link android.app.Activity#getChangingConfigurations()}
+         * as it is not reliable and this will break the queue behavior by setting the intent queue at the wrong time
+          */
+        // get the intent playQueue, but only if this is the first load
+        mPlayQueue = getInitialPlayQueue(mIsFirstLoad);
 
         if (!mPlayQueue.isEmpty()) {
             // everything is fine, configure from service
@@ -358,6 +367,7 @@ public class PlayerActivity extends ScActivity implements PlayerTrackPager.OnTra
                    start it, it will reload queue and broadcast changes */
             startService(new Intent(this, PlaybackService.class));
         }
+        mIsFirstLoad = false;
     }
 
     @Override
