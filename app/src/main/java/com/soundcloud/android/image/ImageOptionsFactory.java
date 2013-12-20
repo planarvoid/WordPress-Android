@@ -18,8 +18,9 @@ import android.widget.ImageView;
 
 class ImageOptionsFactory {
 
-    private final static int DELAY_BEFORE_LOADING_HIGH_PRIORITY = 0;
-    private final static int DELAY_BEFORE_LOADING_LOW_PRIORITY = 200;
+    @VisibleForTesting
+    final static int DELAY_BEFORE_LOADING_HIGH_PRIORITY = 0;
+    final static int DELAY_BEFORE_LOADING_LOW_PRIORITY = 200;
 
     public static DisplayImageOptions adapterView(int defaultIconResId){
         return fullCacheBuilder()
@@ -40,6 +41,7 @@ class ImageOptionsFactory {
 
     public static DisplayImageOptions fullImageDialog() {
         return new DisplayImageOptions.Builder()
+                .cacheOnDisc(true)
                 .delayBeforeLoading(200)
                 .displayer(new FadeInBitmapDisplayer(200))
                 .build();
