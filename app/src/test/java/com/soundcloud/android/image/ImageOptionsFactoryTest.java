@@ -2,26 +2,41 @@ package com.soundcloud.android.image;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ImageOptionsFactoryTest {
+
+    ImageViewAware imageAware;
+
     @Mock
     Bitmap bitmap;
     @Mock
     ImageView imageView;
+
+
+    @Before
+    public void setUp() throws Exception {
+        imageAware = new ImageViewAware(imageView);
+    }
 
     @Test
     public void shouldCreatePrefetchOptions() throws Exception {
@@ -39,22 +54,30 @@ public class ImageOptionsFactoryTest {
 
     @Test
     public void shouldCreatePlaceholderOptions() throws Exception {
+        Resources resources = mock(Resources.class);
+        Drawable drawable = mock(Drawable.class);
+        when(resources.getDrawable(123)).thenReturn(drawable);
+
         DisplayImageOptions displayImageOptions = ImageOptionsFactory.placeholder(123);
         expect(displayImageOptions.isCacheInMemory()).toBeTrue();
         expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
-        expect(displayImageOptions.getImageForEmptyUri()).toBe(123);
-        expect(displayImageOptions.getImageOnFail()).toBe(123);
-        expect(displayImageOptions.getStubImage()).toBe(123);
+        expect(displayImageOptions.getImageForEmptyUri(resources)).toBe(drawable);
+        expect(displayImageOptions.getImageOnFail(resources)).toBe(drawable);
+        expect(displayImageOptions.getImageOnLoading(resources)).toBe(drawable);
     }
 
     @Test
     public void shouldCreateAdapterViewOptions() throws Exception {
+        Resources resources = mock(Resources.class);
+        Drawable drawable = mock(Drawable.class);
+        when(resources.getDrawable(123)).thenReturn(drawable);
+
         DisplayImageOptions displayImageOptions = ImageOptionsFactory.adapterView(123);
         expect(displayImageOptions.isCacheInMemory()).toBeTrue();
         expect(displayImageOptions.isCacheOnDisc()).toBeTrue();
-        expect(displayImageOptions.getImageForEmptyUri()).toBe(123);
-        expect(displayImageOptions.getImageOnFail()).toBe(123);
-        expect(displayImageOptions.getStubImage()).toBe(123);
+        expect(displayImageOptions.getImageForEmptyUri(resources)).toBe(drawable);
+        expect(displayImageOptions.getImageOnFail(resources)).toBe(drawable);
+        expect(displayImageOptions.getImageOnLoading(resources)).toBe(drawable);
         expect(displayImageOptions.getDisplayer()).toBeInstanceOf(ImageOptionsFactory.PlaceholderTransitionDisplayer.class);
     }
 
@@ -68,32 +91,32 @@ public class ImageOptionsFactoryTest {
 
     @Test
     public void shouldNotTransitionIfLoadedViaMemory() throws Exception {
-        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageView, LoadedFrom.MEMORY_CACHE);
+        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.MEMORY_CACHE);
         verify(imageView).setImageBitmap(bitmap);
     }
 
     @Test
     public void shouldTransitionIfLoadedFromDisc() throws Exception {
-        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageView, LoadedFrom.DISC_CACHE);
+        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.DISC_CACHE);
         verify(imageView).setImageDrawable(any(TransitionDrawable.class));
     }
 
     @Test
     public void shouldTransitionIfLoadedFromNetwork() throws Exception {
-        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageView, LoadedFrom.NETWORK);
+        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
         verify(imageView).setImageDrawable(any(TransitionDrawable.class));
     }
 
     @Test
     public void shouldUseBackgroundDrawableWithBackgroundTransition() throws Exception {
-        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageView, LoadedFrom.NETWORK);
+        new ImageOptionsFactory.BackgroundTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
         verify(imageView).getBackground();
         verify(imageView, never()).getDrawable();
     }
 
     @Test
     public void shouldUDrawableWithPlaceholderTransition() throws Exception {
-        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageView, LoadedFrom.NETWORK);
+        new ImageOptionsFactory.PlaceholderTransitionDisplayer().display(bitmap, imageAware, LoadedFrom.NETWORK);
         verify(imageView).getDrawable();
         verify(imageView, never()).getBackground();
     }

@@ -8,7 +8,7 @@ import android.view.View;
 
 public class ImageListenerUILAdapter implements ImageLoadingListener {
 
-    ImageListener mImageListener;
+    private ImageListener mImageListener;
 
     public ImageListenerUILAdapter(ImageListener imageListener) {
         mImageListener = imageListener;
