@@ -5,6 +5,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.soundcloud.android.utils.AnimUtils;
 
 import android.graphics.Bitmap;
@@ -25,7 +26,7 @@ class ImageOptionsFactory {
                 .resetViewBeforeLoading(true)
                 .showImageOnFail(defaultIconResId)
                 .showImageForEmptyUri(defaultIconResId)
-                .showStubImage(defaultIconResId)
+                .showImageOnLoading(defaultIconResId)
                 .displayer(new PlaceholderTransitionDisplayer())
                 .build();
     }
@@ -48,7 +49,7 @@ class ImageOptionsFactory {
         return fullCacheBuilder()
                 .showImageForEmptyUri(defaultIconResId)
                 .showImageOnFail(defaultIconResId)
-                .showStubImage(defaultIconResId)
+                .showImageOnLoading(defaultIconResId)
                 .build();
     }
 
@@ -86,22 +87,23 @@ class ImageOptionsFactory {
         }
 
         @Override
-        public Bitmap display(Bitmap bitmap, final ImageView imageView, LoadedFrom loadedFrom) {
-            imageView.setImageBitmap(bitmap);
-            if (imageView.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
+        public Bitmap display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
+            final View wrappedView = imageAware.getWrappedView();
+            imageAware.setImageBitmap(bitmap);
+            if (wrappedView.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
                 if (loadedFrom == LoadedFrom.NETWORK) {
-                    AnimUtils.runFadeInAnimationOn(imageView.getContext(), imageView);
-                    imageView.getAnimation().setAnimationListener(new AnimUtils.SimpleAnimationListener() {
+                    AnimUtils.runFadeInAnimationOn(wrappedView.getContext(), wrappedView);
+                    wrappedView.getAnimation().setAnimationListener(new AnimUtils.SimpleAnimationListener() {
                         @Override
                         public void onAnimationEnd(Animation animation) {
-                            if (animation.equals(imageView.getAnimation())) {
+                            if (animation.equals(wrappedView.getAnimation())) {
                                 mParentView.setBackgroundDrawable(null);
                             }
                         }
                     });
-                    imageView.setVisibility(View.VISIBLE);
+                    wrappedView.setVisibility(View.VISIBLE);
                 } else {
-                    imageView.setVisibility(View.VISIBLE);
+                    wrappedView.setVisibility(View.VISIBLE);
                     mParentView.setBackgroundDrawable(null);
                 }
             }
@@ -140,12 +142,13 @@ class ImageOptionsFactory {
         abstract protected Drawable getTransitionFromDrawable(ImageView imageView);
 
         @Override
-        public Bitmap display(Bitmap bitmap, final ImageView imageView, LoadedFrom loadedFrom) {
+        public Bitmap display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
+            ImageView wrappedImageView = (ImageView) imageAware.getWrappedView();
             if (bitmap != null) {
                 if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
-                    performDrawableTransition(bitmap, imageView);
+                    performDrawableTransition(bitmap, wrappedImageView);
                 } else {
-                    imageView.setImageBitmap(bitmap);
+                    imageAware.setImageBitmap(bitmap);
                 }
             }
             return bitmap;

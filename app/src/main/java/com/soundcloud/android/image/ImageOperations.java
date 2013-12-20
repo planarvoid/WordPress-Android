@@ -3,6 +3,7 @@ package com.soundcloud.android.image;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -48,27 +49,27 @@ public class ImageOperations {
     }
 
     public void display(String imageUrl, ImageView imageView) {
-        mImageLoader.displayImage(imageUrl, imageView);
+        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView,false));
     }
 
     public void displayInGridView(String imageUrl, ImageView imageView) {
-        mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.gridView());
+        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false), ImageOptionsFactory.gridView());
     }
 
     public void displayInAdapterView(String imageUrl, ImageView imageView, int defaultResId) {
-        mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.adapterView(defaultResId));
+        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false), ImageOptionsFactory.adapterView(defaultResId));
     }
 
     public void displayInPlayerView(String imageUrl, ImageView imageView, View parentView, boolean priority, ImageListener imageListener) {
-        mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
+        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false), ImageOptionsFactory.player(parentView, priority), new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayInFullDialogView(String imageUrl, ImageView imageView, ImageListener imageListener) {
-        mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.fullImageDialog(), new ImageListenerUILAdapter(imageListener));
+        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false), ImageOptionsFactory.fullImageDialog(), new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayPlaceholder(String imageUrl, ImageView imageView, int defaultResId) {
-        mImageLoader.displayImage(imageUrl, imageView, ImageOptionsFactory.placeholder(defaultResId));
+        mImageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false), ImageOptionsFactory.placeholder(defaultResId));
     }
 
     public void prefetch(String imageurl) {
